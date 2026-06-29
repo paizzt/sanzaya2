@@ -1,16 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage, router, Link } from '@inertiajs/react';
-import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon } from 'lucide-react';
+import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database } from 'lucide-react';
 import { useState } from 'react';
 import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 
-export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, salesNames, outletNames, reportData, summary, summaryPesanan, summaryPiutang }) {
+export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, salesNames, outletNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
+    const [isSearchExpanded, setIsSearchExpanded] = useState(!!search);
 
     const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -100,7 +101,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                 <tr>
                     <th className="px-6 py-4" rowSpan="2">Outlet</th>
-                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="5">Sanzaya</th>
+                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Sanzaya</th>
                     <th className="px-6 py-3 text-center border-b border-gray-100 bg-purple-50/50" colSpan="4">Ruma</th>
                     <th className="px-6 py-4 text-right font-bold" rowSpan="2">Total Gabungan</th>
                 </tr>
@@ -108,7 +109,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     <th className="px-4 py-2 bg-blue-50/50">Tahun 1</th>
                     <th className="px-4 py-2 bg-blue-50/50">Tahun 2</th>
                     <th className="px-4 py-2 bg-blue-50/50">Tahun 3</th>
-                    <th className="px-4 py-2 bg-blue-50/50">Tahun 4</th>
                     <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total</th>
                     <th className="px-4 py-2 bg-purple-50/50">Ruma 1</th>
                     <th className="px-4 py-2 bg-purple-50/50">Ruma 2</th>
@@ -123,7 +123,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         <td className="px-4 py-3">{row.tahun_1}</td>
                         <td className="px-4 py-3">{row.tahun_2}</td>
                         <td className="px-4 py-3">{row.tahun_3}</td>
-                        <td className="px-4 py-3">{row.tahun_4}</td>
                         <td className="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/30">{row.total_sanzaya}</td>
                         <td className="px-4 py-3">{row.ruma_1}</td>
                         <td className="px-4 py-3">{row.ruma_2}</td>
@@ -132,7 +131,29 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         <td className="px-6 py-4 text-right font-bold text-gray-900 bg-gray-50">{row.total_gabungan}</td>
                     </tr>
                 ))}
-                {reportData.data.length === 0 && <tr><td colSpan="11" className="px-6 py-8 text-center text-gray-500">Data piutang kosong atau tidak ditemukan.</td></tr>}
+                {reportData.data.length === 0 && <tr><td colSpan="10" className="px-6 py-8 text-center text-gray-500">Data piutang kosong atau tidak ditemukan.</td></tr>}
+            </tbody>
+        </table>
+    );
+
+    const renderHutangTable = () => (
+        <table className="w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th className="px-6 py-4 w-16 text-center">No</th>
+                    <th className="px-6 py-4">Nama Penyedia</th>
+                    <th className="px-6 py-4 text-right">Nominal (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {reportData.data.map((row) => (
+                    <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
+                        <td className="px-6 py-4 text-center font-medium text-gray-900">{row.no}</td>
+                        <td className="px-6 py-4 font-semibold text-gray-900">{row.nama_penyedia}</td>
+                        <td className="px-6 py-4 text-right font-bold text-orange-600">{row.nominal}</td>
+                    </tr>
+                ))}
+                {reportData.data.length === 0 && <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-500">Data hutang kosong atau tidak ditemukan.</td></tr>}
             </tbody>
         </table>
     );
@@ -159,12 +180,12 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                 {/* Summary Cards */}
                 {tab === 'logistik' && summary && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Total Penjualan</p>
-                                    <h4 className="text-xl lg:text-2xl font-bold text-gray-900 mt-1">{summary.total_penjualan}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Total Penjualan</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.total_penjualan}>{summary.total_penjualan}</h4>
                                 </div>
                                 <div className="p-3 bg-green-50 rounded-2xl">
                                     <TrendingUp className="w-6 h-6 text-green-600" />
@@ -175,9 +196,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Total Pesanan</p>
-                                    <h4 className="text-2xl font-bold text-gray-900 mt-1">{summary.total_pesanan}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Total Pesanan</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.total_pesanan}>{summary.total_pesanan}</h4>
                                 </div>
                                 <div className="p-3 bg-blue-50 rounded-2xl">
                                     <Activity className="w-6 h-6 text-blue-600" />
@@ -188,9 +209,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Top Outlet</p>
-                                    <h4 className="text-lg font-bold text-gray-900 mt-1 line-clamp-2">{summary.top_outlet}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Top Outlet</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.top_outlet}>{summary.top_outlet}</h4>
                                 </div>
                                 <div className="p-3 bg-purple-50 rounded-2xl">
                                     <Store className="w-6 h-6 text-purple-600" />
@@ -201,9 +222,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Top Produk</p>
-                                    <h4 className="text-lg font-bold text-gray-900 mt-1 line-clamp-2">{summary.top_produk}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Top Produk</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.top_produk}>{summary.top_produk}</h4>
                                 </div>
                                 <div className="p-3 bg-orange-50 rounded-2xl">
                                     <Package className="w-6 h-6 text-orange-600" />
@@ -215,12 +236,12 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                 )}
 
                 {tab === 'pesanan' && summaryPesanan && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Total Faktur</p>
-                                    <h4 className="text-xl lg:text-2xl font-bold text-gray-900 mt-1">{summaryPesanan.total_faktur}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Total Faktur</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summaryPesanan.total_faktur}>{summaryPesanan.total_faktur}</h4>
                                 </div>
                                 <div className="p-3 bg-emerald-50 rounded-2xl">
                                     <TrendingUp className="w-6 h-6 text-emerald-600" />
@@ -231,9 +252,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Barang Terkirim</p>
-                                    <h4 className="text-2xl font-bold text-emerald-600 mt-1">{summaryPesanan.total_terkirim}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Barang Terkirim</p>
+                                    <h4 className="text-xl font-bold text-emerald-600 mt-1 truncate" title={summaryPesanan.total_terkirim}>{summaryPesanan.total_terkirim}</h4>
                                 </div>
                                 <div className="p-3 bg-emerald-50 rounded-2xl">
                                     <ShoppingCart className="w-6 h-6 text-emerald-600" />
@@ -244,9 +265,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Belum Terkirim</p>
-                                    <h4 className="text-2xl font-bold text-red-600 mt-1">{summaryPesanan.total_belum_terkirim}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Belum Terkirim</p>
+                                    <h4 className="text-xl font-bold text-red-600 mt-1 truncate" title={summaryPesanan.total_belum_terkirim}>{summaryPesanan.total_belum_terkirim}</h4>
                                 </div>
                                 <div className="p-3 bg-red-50 rounded-2xl">
                                     <Activity className="w-6 h-6 text-red-600" />
@@ -257,9 +278,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Total Surat</p>
-                                    <h4 className="text-2xl font-bold text-gray-900 mt-1">{summaryPesanan.total_pesanan}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Total Surat</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summaryPesanan.total_pesanan}>{summaryPesanan.total_pesanan}</h4>
                                 </div>
                                 <div className="p-3 bg-blue-50 rounded-2xl">
                                     <Store className="w-6 h-6 text-blue-600" />
@@ -271,12 +292,12 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                 )}
 
                 {tab === 'piutang' && summaryPiutang && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Total Piutang (Gabungan)</p>
-                                    <h4 className="text-xl lg:text-2xl font-bold text-gray-900 mt-1">{summaryPiutang.total_gabungan}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Total Piutang (Gabungan)</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summaryPiutang.total_gabungan}>{summaryPiutang.total_gabungan}</h4>
                                 </div>
                                 <div className="p-3 bg-gray-100 rounded-2xl">
                                     <CreditCard className="w-6 h-6 text-gray-600" />
@@ -287,9 +308,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Piutang Sanzaya</p>
-                                    <h4 className="text-xl lg:text-2xl font-bold text-blue-700 mt-1">{summaryPiutang.total_sanzaya}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Piutang Sanzaya</p>
+                                    <h4 className="text-xl font-bold text-blue-700 mt-1 truncate" title={summaryPiutang.total_sanzaya}>{summaryPiutang.total_sanzaya}</h4>
                                 </div>
                                 <div className="p-3 bg-blue-50 rounded-2xl">
                                     <TrendingUp className="w-6 h-6 text-blue-600" />
@@ -300,9 +321,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Piutang Ruma</p>
-                                    <h4 className="text-xl lg:text-2xl font-bold text-purple-700 mt-1">{summaryPiutang.total_ruma}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Piutang Ruma</p>
+                                    <h4 className="text-xl font-bold text-purple-700 mt-1 truncate" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
                                 </div>
                                 <div className="p-3 bg-purple-50 rounded-2xl">
                                     <TrendingUp className="w-6 h-6 text-purple-600" />
@@ -313,9 +334,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                         <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Data Piutang</p>
-                                    <h4 className="text-2xl font-bold text-gray-900 mt-1">{summaryPiutang.total_outlet}</h4>
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Data Piutang</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summaryPiutang.total_outlet}>{summaryPiutang.total_outlet}</h4>
                                 </div>
                                 <div className="p-3 bg-orange-50 rounded-2xl">
                                     <Store className="w-6 h-6 text-orange-600" />
@@ -326,8 +347,51 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     </div>
                 )}
 
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex flex-wrap gap-2 w-full md:w-auto pb-2 md:pb-0">
+                {tab === 'hutang' && summaryHutang && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Total Nominal</p>
+                                    <h4 className="text-xl font-bold text-orange-700 mt-1 truncate" title={summaryHutang.total_nominal}>{summaryHutang.total_nominal}</h4>
+                                </div>
+                                <div className="p-3 bg-orange-50 rounded-2xl">
+                                    <TrendingUp className="w-6 h-6 text-orange-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Total akumulasi nominal hutang</p>
+                        </div>
+                        
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Total Penyedia</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summaryHutang.total_penyedia}>{summaryHutang.total_penyedia}</h4>
+                                </div>
+                                <div className="p-3 bg-blue-50 rounded-2xl">
+                                    <UserIcon className="w-6 h-6 text-blue-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Jumlah penyedia berbeda</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="min-w-0 flex-1 pr-4">
+                                    <p className="text-sm font-semibold text-gray-500 truncate">Total Data</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summaryHutang.total_data}>{summaryHutang.total_data}</h4>
+                                </div>
+                                <div className="p-3 bg-green-50 rounded-2xl">
+                                    <Database className="w-6 h-6 text-green-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Jumlah baris data hutang tercatat</p>
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex gap-2 w-full lg:w-auto pb-2 lg:pb-0 overflow-x-auto hide-scrollbar">
                         <button onClick={() => handleTabChange('logistik')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='logistik'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'text-gray-500 hover:bg-gray-50'}`}>
                             <Package className="w-4 h-4"/> Logistik
                         </button>
@@ -337,9 +401,12 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         <button onClick={() => handleTabChange('piutang')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='piutang'?'bg-purple-600 text-white shadow-md shadow-purple-500/30':'text-gray-500 hover:bg-gray-50'}`}>
                             <CreditCard className="w-4 h-4"/> Data Piutang
                         </button>
+                        <button onClick={() => handleTabChange('hutang')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='hutang'?'bg-orange-600 text-white shadow-md shadow-orange-500/30':'text-gray-500 hover:bg-gray-50'}`}>
+                            <CreditCard className="w-4 h-4"/> Data Hutang
+                        </button>
                     </div>
                     
-                    <form onSubmit={handleSearch} className="w-full md:w-auto flex flex-col md:flex-row flex-wrap gap-2 md:gap-3">
+                    <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-nowrap">
                         <div className="w-full md:w-32 lg:w-40 z-20">
                             <CustomSelect
                                 value={selectedMonth}
@@ -392,15 +459,31 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                 />
                             </div>
                         )}
-                        <div className="relative w-full md:w-40 lg:w-56 z-0">
-                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                            <TextInput 
-                                type="text" 
-                                className="w-full pl-10 rounded-xl" 
-                                placeholder="Cari data..." 
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <div className={`relative transition-all duration-300 ease-in-out ${isSearchExpanded ? 'w-full md:w-40 lg:w-56' : 'w-10'} z-0`}>
+                            {isSearchExpanded ? (
+                                <>
+                                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                    <TextInput 
+                                        type="text" 
+                                        className="w-full pl-10 rounded-xl" 
+                                        placeholder="Cari data..." 
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onBlur={() => {
+                                            if (!searchTerm) setIsSearchExpanded(false);
+                                        }}
+                                        autoFocus
+                                    />
+                                </>
+                            ) : (
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsSearchExpanded(true)}
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 border border-gray-200 transition-colors"
+                                >
+                                    <Search className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                         <button type="submit" className="hidden"></button>
                     </form>
@@ -411,6 +494,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         {tab === 'logistik' && renderLogistikTable()}
                         {tab === 'pesanan' && renderPesananTable()}
                         {tab === 'piutang' && renderPiutangTable()}
+                        {tab === 'hutang' && renderHutangTable()}
                     </div>
                     
                     {/* Pagination */}

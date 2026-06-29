@@ -39,7 +39,7 @@ class UcRequestController extends Controller
         $uc = UcRequest::with('user')->findOrFail($id);
         
         $qrUrl = route('requests.uc.index'); // Can be a verification URL
-        $qrCode = base64_encode(QrCode::format('png')->size(100)->generate($qrUrl));
+        $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
         
         $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode'));
         return $pdf->download('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf');
@@ -106,8 +106,8 @@ class UcRequestController extends Controller
         }
 
         $uc->update([
-            'result_summary' => $request->result_summary,
-            'receipt_photos' => $photos,
+            'result_report' => $request->result_summary,
+            'result_receipts' => json_encode($photos),
             'status' => 'Selesai / Result Dikirim'
         ]);
 

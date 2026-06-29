@@ -3,7 +3,7 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp } from 'lucide-react';
+import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -99,6 +99,8 @@ export default function Authenticated({ user, header, children }) {
         { name: 'Sync Spreadsheet', href: route('spreadsheet.index'), icon: Database, active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(1) },
         { name: 'Notifikasi', href: route('notifications.index'), icon: Bell, active: url.startsWith('/settings/notifications'), show: true },
         { name: 'Pengguna', href: route('users.index'), icon: Users, active: url.startsWith('/users'), show: auth.active_features?.includes(6) },
+        { name: 'Data Armada', href: route('vehicles.index'), icon: Truck, active: url.startsWith('/vehicles'), show: true },
+        { name: 'Data Penyedia', href: route('providers.index'), icon: Store, active: url.startsWith('/providers'), show: true },
         { name: 'Pengaturan', href: route('profile.edit'), icon: Settings, active: url.startsWith('/profile'), show: true },
     ].filter(item => item.show);
 

@@ -66,6 +66,20 @@ class UserController extends Controller
             'feature_toggles' => 'nullable|array',
             'spreadsheet_sales_name' => 'nullable|string|max:255',
             'monthly_target' => 'nullable|numeric',
+            
+            // New Employee Details
+            'nik' => 'nullable|string|max:255|unique:users',
+            'start_date' => 'nullable|date',
+            'address' => 'nullable|string',
+            'employee_id' => 'nullable|string|max:255|unique:users',
+            'phone' => 'nullable|string|max:255',
+            'salary' => 'nullable|integer',
+            'operational_allowance' => 'nullable|integer',
+            'employment_status' => 'nullable|string|max:255',
+            'education' => 'nullable|string|max:255',
+            'emergency_contact' => 'nullable|string|max:255',
+            'bpjs_kesehatan' => 'nullable|string|max:255',
+            'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
         ]);
 
         $user = User::create([
@@ -77,6 +91,19 @@ class UserController extends Controller
             'company_id' => $request->company_id,
             'spreadsheet_sales_name' => $request->spreadsheet_sales_name,
             'monthly_target' => $request->monthly_target,
+            
+            'nik' => $request->nik,
+            'start_date' => $request->start_date,
+            'address' => $request->address,
+            'employee_id' => $request->employee_id,
+            'phone' => $request->phone,
+            'salary' => $request->salary,
+            'operational_allowance' => $request->operational_allowance,
+            'employment_status' => $request->employment_status,
+            'education' => $request->education,
+            'emergency_contact' => $request->emergency_contact,
+            'bpjs_kesehatan' => $request->bpjs_kesehatan,
+            'bpjs_ketenagakerjaan' => $request->bpjs_ketenagakerjaan,
         ]);
 
         $user->assignRole($request->role);
@@ -105,6 +132,20 @@ class UserController extends Controller
             'feature_toggles' => 'nullable|array',
             'spreadsheet_sales_name' => 'nullable|string|max:255',
             'monthly_target' => 'nullable|numeric',
+            
+            // New Employee Details
+            'nik' => 'nullable|string|max:255|unique:users,nik,' . $user->id,
+            'start_date' => 'nullable|date',
+            'address' => 'nullable|string',
+            'employee_id' => 'nullable|string|max:255|unique:users,employee_id,' . $user->id,
+            'phone' => 'nullable|string|max:255',
+            'salary' => 'nullable|integer',
+            'operational_allowance' => 'nullable|integer',
+            'employment_status' => 'nullable|string|max:255',
+            'education' => 'nullable|string|max:255',
+            'emergency_contact' => 'nullable|string|max:255',
+            'bpjs_kesehatan' => 'nullable|string|max:255',
+            'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
         ]);
 
         $user->name = $request->name;
@@ -114,6 +155,19 @@ class UserController extends Controller
         $user->company_id = $request->company_id;
         $user->spreadsheet_sales_name = $request->spreadsheet_sales_name;
         $user->monthly_target = $request->monthly_target;
+        
+        $user->nik = $request->nik;
+        $user->start_date = $request->start_date;
+        $user->address = $request->address;
+        $user->employee_id = $request->employee_id;
+        $user->phone = $request->phone;
+        $user->salary = $request->salary;
+        $user->operational_allowance = $request->operational_allowance;
+        $user->employment_status = $request->employment_status;
+        $user->education = $request->education;
+        $user->emergency_contact = $request->emergency_contact;
+        $user->bpjs_kesehatan = $request->bpjs_kesehatan;
+        $user->bpjs_ketenagakerjaan = $request->bpjs_ketenagakerjaan;
         
         if ($request->filled('password')) {
             $user->password = $request->password;

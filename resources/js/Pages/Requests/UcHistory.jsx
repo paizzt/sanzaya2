@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud } from 'lucide-react';
+import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -17,6 +17,7 @@ export default function UcHistory({ requests }) {
     });
 
     const [selectedUc, setSelectedUc] = useState(null);
+    const [previewUrls, setPreviewUrls] = useState([]);
     const { flash } = usePage().props;
 
     useEffect(() => {
@@ -30,6 +31,7 @@ export default function UcHistory({ requests }) {
             });
             resultReset();
             setSelectedUc(null);
+            setPreviewUrls([]);
         }
     }, [flash]);
 
@@ -39,7 +41,20 @@ export default function UcHistory({ requests }) {
     };
 
     const handleFileChange = (e) => {
-        setResultData('receipt_photos', Array.from(e.target.files));
+        const newFiles = Array.from(e.target.files);
+        const allFiles = [...resultData.receipt_photos, ...newFiles];
+        setResultData('receipt_photos', allFiles);
+        
+        const newUrls = newFiles.map(file => URL.createObjectURL(file));
+        setPreviewUrls([...previewUrls, ...newUrls]);
+    };
+
+    const removeFile = (indexToRemove) => {
+        const newFiles = resultData.receipt_photos.filter((_, index) => index !== indexToRemove);
+        setResultData('receipt_photos', newFiles);
+        
+        const newUrls = previewUrls.filter((_, index) => index !== indexToRemove);
+        setPreviewUrls(newUrls);
     };
 
     return (
@@ -128,8 +143,24 @@ export default function UcHistory({ requests }) {
                                                             />
                                                         </label>
                                                     </div>
+                                                    {previewUrls.length > 0 && (
+                                                        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                            {previewUrls.map((url, i) => (
+                                                                <div key={i} className="relative rounded-xl overflow-hidden border border-gray-200 aspect-square shadow-sm group">
+                                                                    <img src={url} alt={`Preview ${i}`} className="w-full h-full object-cover" />
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => removeFile(i)}
+                                                                        className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                                                    >
+                                                                        <X className="w-4 h-4" />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                     {resultData.receipt_photos.length > 0 && (
-                                                        <p className="text-sm font-bold text-emerald-600 mt-2 flex items-center gap-1">
+                                                        <p className="text-sm font-bold text-emerald-600 mt-3 flex items-center gap-1">
                                                             <FileImage className="w-4 h-4"/> {resultData.receipt_photos.length} file dipilih
                                                         </p>
                                                     )}
@@ -149,9 +180,9 @@ export default function UcHistory({ requests }) {
                                     {req.status === 'Selesai / Result Dikirim' && (
                                         <div className="mt-4 pt-4 border-t border-emerald-100/50 bg-white/50 p-4 rounded-xl">
                                             <p className="text-sm font-semibold text-gray-700 mb-1">Hasil UC:</p>
-                                            <p className="text-sm text-gray-600">{req.result_summary}</p>
+                                            <p className="text-sm text-gray-600">{req.result_report}</p>
                                             <div className="mt-3 flex gap-2 flex-wrap">
-                                                {req.receipt_photos && JSON.parse(req.receipt_photos).map((photo, i) => (
+                                                {req.result_receipts && JSON.parse(req.result_receipts).map((photo, i) => (
                                                     <a key={i} href={`/storage/${photo}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100">
                                                         <FileImage className="w-3 h-3" /> Lihat Nota {i+1}
                                                     </a>

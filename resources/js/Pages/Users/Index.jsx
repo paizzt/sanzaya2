@@ -15,6 +15,8 @@ export default function Index({ users, divisions, positions, areas, roles, compa
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
+    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+    const [previewUser, setPreviewUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
@@ -29,6 +31,20 @@ export default function Index({ users, divisions, positions, areas, roles, compa
         feature_toggles: [],
         spreadsheet_sales_name: '',
         monthly_target: '',
+        
+        // Employee Details
+        nik: '',
+        start_date: '',
+        address: '',
+        employee_id: '',
+        phone: '',
+        salary: '',
+        operational_allowance: '',
+        employment_status: '',
+        education: '',
+        emergency_contact: '',
+        bpjs_kesehatan: '',
+        bpjs_ketenagakerjaan: '',
     });
 
     useEffect(() => {
@@ -75,8 +91,27 @@ export default function Index({ users, divisions, positions, areas, roles, compa
             feature_toggles: enabledFeatureIds,
             spreadsheet_sales_name: user.spreadsheet_sales_name || '',
             monthly_target: user.monthly_target || '',
+            
+            // Employee Details
+            nik: user.nik || '',
+            start_date: user.start_date || '',
+            address: user.address || '',
+            employee_id: user.employee_id || '',
+            phone: user.phone || '',
+            salary: user.salary || '',
+            operational_allowance: user.operational_allowance || '',
+            employment_status: user.employment_status || '',
+            education: user.education || '',
+            emergency_contact: user.emergency_contact || '',
+            bpjs_kesehatan: user.bpjs_kesehatan || '',
+            bpjs_ketenagakerjaan: user.bpjs_ketenagakerjaan || '',
         });
         setIsModalOpen(true);
+    };
+
+    const openPreviewModal = (user) => {
+        setPreviewUser(user);
+        setIsPreviewModalOpen(true);
     };
 
     const handleDelete = (id) => {
@@ -166,7 +201,11 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                             </thead>
                             <tbody>
                                 {users.map((user) => (
-                                    <tr key={user.id} className="bg-white border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                                    <tr 
+                                        key={user.id} 
+                                        onClick={() => openPreviewModal(user)}
+                                        className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer"
+                                    >
                                         <td className="px-6 py-4 font-semibold text-gray-900">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
@@ -222,7 +261,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <div className="flex justify-center gap-2">
+                                            <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                 <button onClick={() => openEditModal(user)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
                                                 {usePage().props.auth.user.id !== user.id && (
                                                     <button onClick={() => handleDelete(user.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
@@ -254,14 +293,15 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                             </div>
 
                             <form onSubmit={submitForm} className="p-6">
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    
-                                    {/* KOLOM 1 & 2: Data Akun & Pekerjaan */}
-                                    <div className={`space-y-6 ${data.role && (data.role.toLowerCase() === 'marketing' || data.role.toLowerCase() === 'sales') ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+                                <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                         
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {/* Data Akun */}
-                                            <div className="space-y-4">
+                                        {/* KOLOM 1 & 2: Data Akun & Pekerjaan */}
+                                        <div className={`space-y-6 ${data.role && (data.role.toLowerCase() === 'marketing' || data.role.toLowerCase() === 'sales') ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+                                            
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {/* Data Akun */}
+                                                <div className="space-y-4">
                                                 <h4 className="font-semibold text-gray-700 border-b pb-2 mb-4 flex items-center gap-2"><User className="w-4 h-4"/> Data Akun</h4>
                                                 <div>
                                                     <InputLabel value="Nama Lengkap *" />
@@ -361,14 +401,98 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     </>
                                                 )}
                                                 {data.role === 'Superadmin' && (
-                                                    <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100 text-sm text-yellow-800">
-                                                        Superadmin memiliki akses penuh, pilihan Jabatan dan Divisi dinonaktifkan.
-                                                    </div>
-                                                )}
+                                                        <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100 text-sm text-yellow-800">
+                                                            Superadmin memiliki akses penuh, pilihan Jabatan dan Divisi dinonaktifkan.
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        {/* Saklar Fitur (Toggles) */}
+                                            {/* Data Pribadi & Karyawan */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                                                {/* Kiri: Identitas Pribadi */}
+                                                <div className="space-y-4">
+                                                    <h4 className="font-semibold text-gray-700 border-b pb-2 mb-4 flex items-center gap-2"><User className="w-4 h-4"/> Data Pribadi</h4>
+                                                    <div>
+                                                        <InputLabel value="NIK (KTP)" />
+                                                        <TextInput className="mt-1 block w-full" value={data.nik} onChange={e => setData('nik', e.target.value)} />
+                                                        <InputError message={errors.nik} className="mt-1" />
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="Alamat Domisili" />
+                                                        <TextInput className="mt-1 block w-full" value={data.address} onChange={e => setData('address', e.target.value)} />
+                                                        <InputError message={errors.address} className="mt-1" />
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="Pendidikan Terakhir" />
+                                                        <TextInput className="mt-1 block w-full" value={data.education} onChange={e => setData('education', e.target.value)} />
+                                                        <InputError message={errors.education} className="mt-1" />
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="No. HP / WhatsApp" />
+                                                        <TextInput className="mt-1 block w-full" value={data.phone} onChange={e => setData('phone', e.target.value)} />
+                                                        <InputError message={errors.phone} className="mt-1" />
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="Kontak Darurat (Nama & No HP)" />
+                                                        <TextInput className="mt-1 block w-full" placeholder="Cth: Istri - 0812345678" value={data.emergency_contact} onChange={e => setData('emergency_contact', e.target.value)} />
+                                                        <InputError message={errors.emergency_contact} className="mt-1" />
+                                                    </div>
+                                                </div>
+
+                                                {/* Kanan: Kepegawaian & Finansial */}
+                                                <div className="space-y-4">
+                                                    <h4 className="font-semibold text-gray-700 border-b pb-2 mb-4 flex items-center gap-2"><Briefcase className="w-4 h-4"/> Kepegawaian & Finansial</h4>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <InputLabel value="No. Karyawan" />
+                                                            <TextInput className="mt-1 block w-full" value={data.employee_id} onChange={e => setData('employee_id', e.target.value)} />
+                                                            <InputError message={errors.employee_id} className="mt-1" />
+                                                        </div>
+                                                        <div>
+                                                            <InputLabel value="Tanggal Masuk" />
+                                                            <TextInput type="date" className="mt-1 block w-full" value={data.start_date} onChange={e => setData('start_date', e.target.value)} />
+                                                            <InputError message={errors.start_date} className="mt-1" />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="Status Karyawan" />
+                                                        <select className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" value={data.employment_status} onChange={e => setData('employment_status', e.target.value)}>
+                                                            <option value="">-- Pilih Status --</option>
+                                                            <option value="PKWT">PKWT (Kontrak)</option>
+                                                            <option value="PKWTT">PKWTT (Tetap)</option>
+                                                            <option value="Probation">Probation</option>
+                                                        </select>
+                                                        <InputError message={errors.employment_status} className="mt-1" />
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <InputLabel value="Gaji Pokok (Rp)" />
+                                                            <TextInput type="number" className="mt-1 block w-full" value={data.salary} onChange={e => setData('salary', e.target.value)} />
+                                                            <InputError message={errors.salary} className="mt-1" />
+                                                        </div>
+                                                        <div>
+                                                            <InputLabel value="Operasional (Rp)" />
+                                                            <TextInput type="number" className="mt-1 block w-full" value={data.operational_allowance} onChange={e => setData('operational_allowance', e.target.value)} />
+                                                            <InputError message={errors.operational_allowance} className="mt-1" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <InputLabel value="BPJS Kesehatan" />
+                                                            <TextInput className="mt-1 block w-full" value={data.bpjs_kesehatan} onChange={e => setData('bpjs_kesehatan', e.target.value)} />
+                                                            <InputError message={errors.bpjs_kesehatan} className="mt-1" />
+                                                        </div>
+                                                        <div>
+                                                            <InputLabel value="BPJS Ketenagakerjaan" />
+                                                            <TextInput className="mt-1 block w-full" value={data.bpjs_ketenagakerjaan} onChange={e => setData('bpjs_ketenagakerjaan', e.target.value)} />
+                                                            <InputError message={errors.bpjs_ketenagakerjaan} className="mt-1" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Saklar Fitur (Toggles) */}
                                         <div className="space-y-4 pt-4 border-t border-gray-100">
                                             <h4 className="font-semibold text-gray-700 mb-2 flex items-center gap-2"><ToggleRight className="w-4 h-4"/> Saklar Fitur (Feature Toggles)</h4>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -428,6 +552,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                     )}
 
                                 </div>
+                                </div>
 
                                 <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
@@ -436,6 +561,137 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                     </PrimaryButton>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* MODAL PREVIEW */}
+                {isPreviewModalOpen && previewUser && (
+                    <div className="fixed inset-0 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10 px-4 bg-gray-900/50 backdrop-blur-sm custom-scrollbar">
+                        <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl transform transition-all my-auto">
+                            <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                    <User className="w-5 h-5 text-blue-600"/>
+                                    Detail Karyawan
+                                </h3>
+                                <button type="button" onClick={() => setIsPreviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                            </div>
+
+                            <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {/* Kiri: Info Utama & Pekerjaan */}
+                                    <div className="space-y-6">
+                                        <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-2xl">
+                                                    {previewUser.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-lg text-gray-900">{previewUser.name}</h4>
+                                                    <p className="text-sm text-gray-500">{previewUser.email}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">Perusahaan (PT)</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.company?.name || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">Role Sistem</p>
+                                                    <span className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200 mt-1">
+                                                        {previewUser.roles && previewUser.roles.length > 0 ? previewUser.roles[0].name : '-'}
+                                                    </span>
+                                                </div>
+                                                {previewUser.roles && previewUser.roles.length > 0 && previewUser.roles[0].name !== 'Superadmin' && (
+                                                    <>
+                                                        <div>
+                                                            <p className="text-xs text-gray-500 font-medium">Jabatan & Divisi</p>
+                                                            <p className="font-semibold text-gray-800">{previewUser.position?.name || '-'} - {previewUser.division?.name || '-'}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs text-gray-500 font-medium">Area Marketing</p>
+                                                            <div className="flex flex-wrap gap-1 mt-1">
+                                                                {previewUser.marketing_areas && previewUser.marketing_areas.length > 0 ? (
+                                                                    previewUser.marketing_areas.map(area => (
+                                                                        <span key={area.id} className="text-xs bg-white text-gray-700 px-2 py-1 rounded-md border border-gray-200">
+                                                                            {area.name}
+                                                                        </span>
+                                                                    ))
+                                                                ) : '-'}
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Kanan: Data Pribadi & Kepegawaian */}
+                                    <div className="space-y-6">
+                                        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                                            <h4 className="font-semibold text-gray-800 border-b pb-2 mb-4 flex items-center gap-2"><User className="w-4 h-4 text-gray-500"/> Data Pribadi</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">NIK (KTP)</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.nik || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">No. HP / WhatsApp</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.phone || '-'}</p>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <p className="text-xs text-gray-500 font-medium">Alamat Domisili</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.address || '-'}</p>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <p className="text-xs text-gray-500 font-medium">Pendidikan Terakhir</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.education || '-'}</p>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <p className="text-xs text-gray-500 font-medium">Kontak Darurat</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.emergency_contact || '-'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                                            <h4 className="font-semibold text-gray-800 border-b pb-2 mb-4 flex items-center gap-2"><Briefcase className="w-4 h-4 text-gray-500"/> Kepegawaian</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">No. Karyawan</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.employee_id || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">Tanggal Masuk</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.start_date || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">Status Karyawan</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.employment_status || '-'}</p>
+                                                </div>
+                                                <div></div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">Gaji Pokok</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.salary ? `Rp ${new Intl.NumberFormat('id-ID').format(previewUser.salary)}` : '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">Operasional</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.operational_allowance ? `Rp ${new Intl.NumberFormat('id-ID').format(previewUser.operational_allowance)}` : '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">BPJS Kesehatan</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.bpjs_kesehatan || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">BPJS Ketenagakerjaan</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.bpjs_ketenagakerjaan || '-'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}

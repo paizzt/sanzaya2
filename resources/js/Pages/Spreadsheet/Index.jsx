@@ -8,7 +8,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Index({ config_logistik, config_pesanan, config_piutang }) {
+export default function Index({ config_logistik, config_pesanan, config_piutang, config_hutang }) {
     const [activeTab, setActiveTab] = useState('logistik');
     const { flash } = usePage().props;
 
@@ -27,7 +27,13 @@ export default function Index({ config_logistik, config_pesanan, config_piutang 
     const piutangForm = useForm({
         type: 'piutang',
         spreadsheet_id: config_piutang?.spreadsheet_id || '',
-        sheets_config: config_piutang?.sheets_config || [{sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_tahun_4:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''}],
+        sheets_config: config_piutang?.sheets_config || [{sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''}],
+    });
+
+    const hutangForm = useForm({
+        type: 'hutang',
+        spreadsheet_id: config_hutang?.spreadsheet_id || '',
+        sheets_config: config_hutang?.sheets_config || [{sheet_name:'', col_no:'', col_nama_penyedia:'', col_nominal:''}],
     });
 
     const { post: postSync, processing: syncProcessing } = useForm({});
@@ -158,7 +164,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang 
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Piutang</h4>
-                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_tahun_4:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-purple-600 hover:text-purple-700 bg-purple-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
+                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-purple-600 hover:text-purple-700 bg-purple-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
                 </div>
                 {piutangForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
@@ -169,7 +175,6 @@ export default function Index({ config_logistik, config_pesanan, config_piutang 
                             <div><InputLabel value="Kol. Tahun 1" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tahun_1} onChange={(e) => handleSheetChange(piutangForm, index, 'col_tahun_1', e.target.value)} /></div>
                             <div><InputLabel value="Kol. Tahun 2" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tahun_2} onChange={(e) => handleSheetChange(piutangForm, index, 'col_tahun_2', e.target.value)} /></div>
                             <div><InputLabel value="Kol. Tahun 3 (Ops)" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tahun_3} onChange={(e) => handleSheetChange(piutangForm, index, 'col_tahun_3', e.target.value)} /></div>
-                            <div><InputLabel value="Kol. Tahun 4 (Ops)" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tahun_4} onChange={(e) => handleSheetChange(piutangForm, index, 'col_tahun_4', e.target.value)} /></div>
                             <div><InputLabel value="Kol. Total Sanzaya" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_total_sanzaya} onChange={(e) => handleSheetChange(piutangForm, index, 'col_total_sanzaya', e.target.value)} /></div>
                             <div><InputLabel value="Kol. Ruma 1 (Ops)" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_ruma_1} onChange={(e) => handleSheetChange(piutangForm, index, 'col_ruma_1', e.target.value)} /></div>
                             <div><InputLabel value="Kol. Ruma 2 (Ops)" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_ruma_2} onChange={(e) => handleSheetChange(piutangForm, index, 'col_ruma_2', e.target.value)} /></div>
@@ -184,7 +189,34 @@ export default function Index({ config_logistik, config_pesanan, config_piutang 
         </form>
     );
 
-    const activeConfig = activeTab === 'logistik' ? config_logistik : (activeTab === 'pesanan' ? config_pesanan : config_piutang);
+    const renderHutangForm = () => (
+        <form onSubmit={(e) => submit(e, hutangForm)} className="space-y-6">
+            <div>
+                <InputLabel value="Spreadsheet ID Data Hutang *" />
+                <TextInput className="mt-1 block w-full" value={hutangForm.data.spreadsheet_id} onChange={(e) => hutangForm.setData('spreadsheet_id', e.target.value)} />
+            </div>
+            <div className="pt-4 space-y-6">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <h4 className="font-bold text-gray-700">Pemetaan Kolom Hutang</h4>
+                    <button type="button" onClick={() => addSheet(hutangForm, {sheet_name:'', col_no:'', col_nama_penyedia:'', col_nominal:''})} className="text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
+                </div>
+                {hutangForm.data.sheets_config.map((sheet, index) => (
+                    <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
+                        {hutangForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(hutangForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
+                        <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(hutangForm, index, 'sheet_name', e.target.value)} /></div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div><InputLabel value="Kol. No" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_no} onChange={(e) => handleSheetChange(hutangForm, index, 'col_no', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Nama Penyedia" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_penyedia} onChange={(e) => handleSheetChange(hutangForm, index, 'col_nama_penyedia', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Nominal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nominal} onChange={(e) => handleSheetChange(hutangForm, index, 'col_nominal', e.target.value)} /></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} className="py-3 px-8 bg-orange-600 hover:bg-orange-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Hutang</PrimaryButton></div>
+        </form>
+    );
+
+    const activeConfig = activeTab === 'logistik' ? config_logistik : (activeTab === 'pesanan' ? config_pesanan : (activeTab === 'piutang' ? config_piutang : config_hutang));
 
     return (
         <AuthenticatedLayout
@@ -237,12 +269,16 @@ export default function Index({ config_logistik, config_pesanan, config_piutang 
                             <button onClick={() => setActiveTab('piutang')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab==='piutang'?'bg-purple-50 text-purple-700':'text-gray-500 hover:bg-gray-50'}`}>
                                 <CreditCard className="w-4 h-4"/> Data Piutang
                             </button>
+                            <button onClick={() => setActiveTab('hutang')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab==='hutang'?'bg-orange-50 text-orange-700':'text-gray-500 hover:bg-gray-50'}`}>
+                                <CreditCard className="w-4 h-4"/> Data Hutang
+                            </button>
                         </div>
 
                         <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                             {activeTab === 'logistik' && renderLogistikForm()}
                             {activeTab === 'pesanan' && renderPesananForm()}
                             {activeTab === 'piutang' && renderPiutangForm()}
+                            {activeTab === 'hutang' && renderHutangForm()}
                         </div>
                     </div>
 

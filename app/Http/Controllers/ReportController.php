@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\SyncLogistikData;
 use App\Models\SyncPesananData;
 use App\Models\SyncPiutangData;
+use App\Models\SyncHutangData;
 
 class ReportController extends Controller
 {
@@ -75,6 +76,12 @@ class ReportController extends Controller
             }
             if ($search) {
                 $query->where('nama_outlet', 'like', "%{$search}%");
+            }
+            $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+        } elseif ($tab === 'hutang') {
+            $query = SyncHutangData::query();
+            if ($search) {
+                $query->where('nama_penyedia', 'like', "%{$search}%");
             }
             $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
         }
@@ -164,15 +171,36 @@ class ReportController extends Controller
         $totalRuma = 0;
         $totalGabungan = 0;
         foreach ($piutangAll as $row) {
-            $totalSanzaya += (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sanzaya);
-            $totalRuma += (float) str_replace(['.', ','], ['', '.'], (string)$row->total_ruma);
-            $totalGabungan += (float) str_replace(['.', ','], ['', '.'], (string)$row->total_gabungan);
+            $totalSanzaya += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_sanzaya));
+            $totalRuma += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_ruma));
+            $totalGabungan += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_gabungan));
         }
         $summaryPiutang = [
             'total_sanzaya' => 'Rp ' . number_format($totalSanzaya, 0, ',', '.'),
             'total_ruma' => 'Rp ' . number_format($totalRuma, 0, ',', '.'),
             'total_gabungan' => 'Rp ' . number_format($totalGabungan, 0, ',', '.'),
             'total_outlet' => $piutangAll->count()
+        ];
+
+        // Summary Hutang
+        $summaryHutangQuery = SyncHutangData::query();
+        if ($search && $tab === 'hutang') {
+            $summaryHutangQuery->where('nama_penyedia', 'like', "%{$search}%");
+        }
+        $hutangAll = $summaryHutangQuery->get();
+
+        $totalNominalHutang = 0;
+        $penyediaList = [];
+        foreach ($hutangAll as $row) {
+            $totalNominalHutang += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->nominal));
+            if ($row->nama_penyedia) {
+                $penyediaList[] = $row->nama_penyedia;
+            }
+        }
+        $summaryHutang = [
+            'total_nominal' => 'Rp ' . number_format($totalNominalHutang, 0, ',', '.'),
+            'total_data' => $hutangAll->count(),
+            'total_penyedia' => count(array_unique($penyediaList))
         ];
 
         return Inertia::render('Reports/Index', [
@@ -185,7 +213,8 @@ class ReportController extends Controller
             'reportData' => $data,
             'summary' => $summary,
             'summaryPesanan' => $summaryPesanan,
-            'summaryPiutang' => $summaryPiutang
+            'summaryPiutang' => $summaryPiutang,
+            'summaryHutang' => $summaryHutang
         ]);
     }
 }
