@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom NProgress Top Bar Styles */
+#nprogress .bar {
+  background: #ff4d4f !important;
+  height: 4px !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #ff4d4f, 0 0 5px #ff4d4f !important;
+}
+
+/* Hide default NProgress spinner entirely */
+#nprogress .spinner {
+  display: none !important;
+}
+
+/* Heartbeat Medical SVG Loader */
+.loading-svg svg polyline {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.loading-svg svg polyline#back {
+  fill: none;
+  stroke: #ff4d5033;
+}
+
+.loading-svg svg polyline#front {
+  fill: none;
+  stroke: #ff4d4f;
+  stroke-dasharray: 48, 144;
+  stroke-dashoffset: 192;
+  animation: dash_682 1.4s linear infinite;
+}
+
+@keyframes dash_682 {
+  72.5% {
+    opacity: 0;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}

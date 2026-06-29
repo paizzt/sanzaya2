@@ -1,0 +1,443 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, usePage, router, Link } from '@inertiajs/react';
+import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon } from 'lucide-react';
+import { useState } from 'react';
+import TextInput from '@/Components/TextInput';
+import CustomSelect from '@/Components/CustomSelect';
+import { ErrorBoundary } from '@/Components/ErrorBoundary';
+
+export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, salesNames, outletNames, reportData, summary, summaryPesanan, summaryPiutang }) {
+    const [searchTerm, setSearchTerm] = useState(search || '');
+    const [selectedSales, setSelectedSales] = useState(salesFilter || '');
+    const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
+    const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
+
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        const filters = { tab: tab, search: searchTerm, month_filter: selectedMonth };
+        if (tab === 'pesanan' || tab === 'piutang') {
+            filters.outlet_filter = selectedOutlet;
+        } else {
+            filters.sales_filter = selectedSales;
+        }
+        router.get(route('reports.index'), filters, { preserveState: true });
+    };
+
+    const handleTabChange = (newTab) => {
+        router.get(route('reports.index'), { tab: newTab, search: '', sales_filter: '', outlet_filter: '', month_filter: '' }, { preserveState: true });
+        setSearchTerm('');
+        setSelectedSales('');
+        setSelectedOutlet('');
+        setSelectedMonth('');
+    };
+
+    // ... renderLogistikTable ...
+    const renderLogistikTable = () => (
+        <table className="w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th className="px-6 py-4">Tanggal</th>
+                    <th className="px-6 py-4">Nama Sales</th>
+                    <th className="px-6 py-4">Outlet</th>
+                    <th className="px-6 py-4">Produk</th>
+                    <th className="px-6 py-4 text-right">Total (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {reportData.data.map((row) => (
+                    <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
+                        <td className="px-6 py-4 font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
+                        <td className="px-6 py-4"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
+                        <td className="px-6 py-4">{row.nama_produk}</td>
+                        <td className="px-6 py-4 text-right font-bold text-blue-600">{row.total_sales}</td>
+                    </tr>
+                ))}
+                {reportData.data.length === 0 && <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Data laporan logistik kosong atau tidak ditemukan.</td></tr>}
+            </tbody>
+        </table>
+    );
+
+    const renderPesananTable = () => (
+        <table className="w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th className="px-6 py-4">Tanggal</th>
+                    <th className="px-6 py-4">Outlet</th>
+                    <th className="px-6 py-4">Produk</th>
+                    <th className="px-6 py-4 text-right">Jml</th>
+                    <th className="px-6 py-4">Satuan</th>
+                    <th className="px-6 py-4 text-right">T.Faktur</th>
+                    <th className="px-6 py-4">Status Pengiriman</th>
+                </tr>
+            </thead>
+            <tbody>
+                {reportData.data.map((row) => (
+                    <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
+                        <td className="px-6 py-4 font-semibold text-gray-900"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
+                        <td className="px-6 py-4">{row.nama_produk}</td>
+                        <td className="px-6 py-4 text-right">{row.jumlah}</td>
+                        <td className="px-6 py-4">{row.satuan}</td>
+                        <td className="px-6 py-4 text-right font-bold text-emerald-600">{row.total_faktur}</td>
+                        <td className="px-6 py-4">
+                            <div className="flex flex-col gap-1 text-xs">
+                                <span className="text-emerald-600">Terkirim: {row.terkirim} ({row.persen_terpenuhi})</span>
+                                <span className="text-red-500">Belum: {row.belum_terkirim} ({row.persen_belum_terpenuhi})</span>
+                            </div>
+                        </td>
+                    </tr>
+                ))}
+                {reportData.data.length === 0 && <tr><td colSpan="7" className="px-6 py-8 text-center text-gray-500">Data surat pesanan kosong atau tidak ditemukan.</td></tr>}
+            </tbody>
+        </table>
+    );
+
+    const renderPiutangTable = () => (
+        <table className="w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th className="px-6 py-4" rowSpan="2">Outlet</th>
+                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="5">Sanzaya</th>
+                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-purple-50/50" colSpan="4">Ruma</th>
+                    <th className="px-6 py-4 text-right font-bold" rowSpan="2">Total Gabungan</th>
+                </tr>
+                <tr>
+                    <th className="px-4 py-2 bg-blue-50/50">Tahun 1</th>
+                    <th className="px-4 py-2 bg-blue-50/50">Tahun 2</th>
+                    <th className="px-4 py-2 bg-blue-50/50">Tahun 3</th>
+                    <th className="px-4 py-2 bg-blue-50/50">Tahun 4</th>
+                    <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total</th>
+                    <th className="px-4 py-2 bg-purple-50/50">Ruma 1</th>
+                    <th className="px-4 py-2 bg-purple-50/50">Ruma 2</th>
+                    <th className="px-4 py-2 bg-purple-50/50">Ruma 3</th>
+                    <th className="px-4 py-2 text-right bg-purple-100/50 font-bold">Total Ruma</th>
+                </tr>
+            </thead>
+            <tbody>
+                {reportData.data.map((row) => (
+                    <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
+                        <td className="px-6 py-4 font-semibold text-gray-900"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
+                        <td className="px-4 py-3">{row.tahun_1}</td>
+                        <td className="px-4 py-3">{row.tahun_2}</td>
+                        <td className="px-4 py-3">{row.tahun_3}</td>
+                        <td className="px-4 py-3">{row.tahun_4}</td>
+                        <td className="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/30">{row.total_sanzaya}</td>
+                        <td className="px-4 py-3">{row.ruma_1}</td>
+                        <td className="px-4 py-3">{row.ruma_2}</td>
+                        <td className="px-4 py-3">{row.ruma_3}</td>
+                        <td className="px-4 py-3 text-right font-bold text-purple-700 bg-purple-50/30">{row.total_ruma}</td>
+                        <td className="px-6 py-4 text-right font-bold text-gray-900 bg-gray-50">{row.total_gabungan}</td>
+                    </tr>
+                ))}
+                {reportData.data.length === 0 && <tr><td colSpan="11" className="px-6 py-8 text-center text-gray-500">Data piutang kosong atau tidak ditemukan.</td></tr>}
+            </tbody>
+        </table>
+    );
+
+    return (
+        <ErrorBoundary>
+            <AuthenticatedLayout
+                user={usePage().props.auth.user}
+            header={<h2 className="font-bold text-2xl text-gray-800 leading-tight">Dashboard Laporan</h2>}
+        >
+            <Head title="Dashboard Laporan" />
+
+            <div className="py-6 space-y-6 max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-2">
+                    <div>
+                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <BarChart2 className="w-6 h-6 text-blue-600" />
+                            Data Laporan Tersinkronisasi
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-1">Menampilkan data yang telah ditarik dari Google Spreadsheet.</p>
+                    </div>
+                </div>
+
+                {/* Summary Cards */}
+                {tab === 'logistik' && summary && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Total Penjualan</p>
+                                    <h4 className="text-xl lg:text-2xl font-bold text-gray-900 mt-1">{summary.total_penjualan}</h4>
+                                </div>
+                                <div className="p-3 bg-green-50 rounded-2xl">
+                                    <TrendingUp className="w-6 h-6 text-green-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Total akumulasi dari kolom Total (Rp)</p>
+                        </div>
+                        
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Total Pesanan</p>
+                                    <h4 className="text-2xl font-bold text-gray-900 mt-1">{summary.total_pesanan}</h4>
+                                </div>
+                                <div className="p-3 bg-blue-50 rounded-2xl">
+                                    <Activity className="w-6 h-6 text-blue-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Jumlah baris transaksi tercatat</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Top Outlet</p>
+                                    <h4 className="text-lg font-bold text-gray-900 mt-1 line-clamp-2">{summary.top_outlet}</h4>
+                                </div>
+                                <div className="p-3 bg-purple-50 rounded-2xl">
+                                    <Store className="w-6 h-6 text-purple-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Top Produk</p>
+                                    <h4 className="text-lg font-bold text-gray-900 mt-1 line-clamp-2">{summary.top_produk}</h4>
+                                </div>
+                                <div className="p-3 bg-orange-50 rounded-2xl">
+                                    <Package className="w-6 h-6 text-orange-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Produk paling sering muncul di data</p>
+                        </div>
+                    </div>
+                )}
+
+                {tab === 'pesanan' && summaryPesanan && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Total Faktur</p>
+                                    <h4 className="text-xl lg:text-2xl font-bold text-gray-900 mt-1">{summaryPesanan.total_faktur}</h4>
+                                </div>
+                                <div className="p-3 bg-emerald-50 rounded-2xl">
+                                    <TrendingUp className="w-6 h-6 text-emerald-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Total akumulasi dari Total Faktur</p>
+                        </div>
+                        
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Barang Terkirim</p>
+                                    <h4 className="text-2xl font-bold text-emerald-600 mt-1">{summaryPesanan.total_terkirim}</h4>
+                                </div>
+                                <div className="p-3 bg-emerald-50 rounded-2xl">
+                                    <ShoppingCart className="w-6 h-6 text-emerald-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Persentase barang yang berhasil terkirim</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Belum Terkirim</p>
+                                    <h4 className="text-2xl font-bold text-red-600 mt-1">{summaryPesanan.total_belum_terkirim}</h4>
+                                </div>
+                                <div className="p-3 bg-red-50 rounded-2xl">
+                                    <Activity className="w-6 h-6 text-red-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Persentase barang yang belum terkirim</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Total Surat</p>
+                                    <h4 className="text-2xl font-bold text-gray-900 mt-1">{summaryPesanan.total_pesanan}</h4>
+                                </div>
+                                <div className="p-3 bg-blue-50 rounded-2xl">
+                                    <Store className="w-6 h-6 text-blue-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Jumlah baris surat pesanan tercatat</p>
+                        </div>
+                    </div>
+                )}
+
+                {tab === 'piutang' && summaryPiutang && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Total Piutang (Gabungan)</p>
+                                    <h4 className="text-xl lg:text-2xl font-bold text-gray-900 mt-1">{summaryPiutang.total_gabungan}</h4>
+                                </div>
+                                <div className="p-3 bg-gray-100 rounded-2xl">
+                                    <CreditCard className="w-6 h-6 text-gray-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Total keseluruhan piutang</p>
+                        </div>
+                        
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Piutang Sanzaya</p>
+                                    <h4 className="text-xl lg:text-2xl font-bold text-blue-700 mt-1">{summaryPiutang.total_sanzaya}</h4>
+                                </div>
+                                <div className="p-3 bg-blue-50 rounded-2xl">
+                                    <TrendingUp className="w-6 h-6 text-blue-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Total piutang bagian Sanzaya</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Piutang Ruma</p>
+                                    <h4 className="text-xl lg:text-2xl font-bold text-purple-700 mt-1">{summaryPiutang.total_ruma}</h4>
+                                </div>
+                                <div className="p-3 bg-purple-50 rounded-2xl">
+                                    <TrendingUp className="w-6 h-6 text-purple-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Total piutang bagian Ruma</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Data Piutang</p>
+                                    <h4 className="text-2xl font-bold text-gray-900 mt-1">{summaryPiutang.total_outlet}</h4>
+                                </div>
+                                <div className="p-3 bg-orange-50 rounded-2xl">
+                                    <Store className="w-6 h-6 text-orange-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400">Jumlah baris data piutang tercatat</p>
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex flex-wrap gap-2 w-full md:w-auto pb-2 md:pb-0">
+                        <button onClick={() => handleTabChange('logistik')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='logistik'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'text-gray-500 hover:bg-gray-50'}`}>
+                            <Package className="w-4 h-4"/> Logistik
+                        </button>
+                        <button onClick={() => handleTabChange('pesanan')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='pesanan'?'bg-emerald-600 text-white shadow-md shadow-emerald-500/30':'text-gray-500 hover:bg-gray-50'}`}>
+                            <ShoppingCart className="w-4 h-4"/> Surat Pesanan
+                        </button>
+                        <button onClick={() => handleTabChange('piutang')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='piutang'?'bg-purple-600 text-white shadow-md shadow-purple-500/30':'text-gray-500 hover:bg-gray-50'}`}>
+                            <CreditCard className="w-4 h-4"/> Data Piutang
+                        </button>
+                    </div>
+                    
+                    <form onSubmit={handleSearch} className="w-full md:w-auto flex flex-col md:flex-row flex-wrap gap-2 md:gap-3">
+                        <div className="w-full md:w-32 lg:w-40 z-20">
+                            <CustomSelect
+                                value={selectedMonth}
+                                onChange={(value) => {
+                                    setSelectedMonth(value);
+                                    const filters = { tab: tab, search: searchTerm, month_filter: value };
+                                    if (tab === 'pesanan' || tab === 'piutang') filters.outlet_filter = selectedOutlet;
+                                    else filters.sales_filter = selectedSales;
+                                    router.get(route('reports.index'), filters, { preserveState: true });
+                                }}
+                                options={[
+                                    { value: '', label: 'Semua Bulan' },
+                                    ...months.map(m => ({ value: m, label: m }))
+                                ]}
+                                placeholder="Pilih Bulan..."
+                                icon={Calendar}
+                            />
+                        </div>
+                        
+                        {tab === 'pesanan' || tab === 'piutang' ? (
+                            <div className="w-full md:w-36 lg:w-48 z-10">
+                                <CustomSelect
+                                    value={selectedOutlet}
+                                    onChange={(value) => {
+                                        setSelectedOutlet(value);
+                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, outlet_filter: value, month_filter: selectedMonth }, { preserveState: true });
+                                    }}
+                                    options={[
+                                        { value: '', label: 'Semua Outlet' },
+                                        ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
+                                    ]}
+                                    placeholder="Pilih Outlet..."
+                                    icon={StoreIcon}
+                                />
+                            </div>
+                        ) : (
+                            <div className="w-full md:w-36 lg:w-48 z-10">
+                                <CustomSelect
+                                    value={selectedSales}
+                                    onChange={(value) => {
+                                        setSelectedSales(value);
+                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, month_filter: selectedMonth }, { preserveState: true });
+                                    }}
+                                    options={[
+                                        { value: '', label: 'Semua Sales' },
+                                        ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
+                                    ]}
+                                    placeholder="Pilih Sales..."
+                                    icon={UserIcon}
+                                />
+                            </div>
+                        )}
+                        <div className="relative w-full md:w-40 lg:w-56 z-0">
+                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <TextInput 
+                                type="text" 
+                                className="w-full pl-10 rounded-xl" 
+                                placeholder="Cari data..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <button type="submit" className="hidden"></button>
+                    </form>
+                </div>
+
+                <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        {tab === 'logistik' && renderLogistikTable()}
+                        {tab === 'pesanan' && renderPesananTable()}
+                        {tab === 'piutang' && renderPiutangTable()}
+                    </div>
+                    
+                    {/* Pagination */}
+                    {reportData.links && reportData.links.length > 3 && (
+                        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                            <span className="text-sm text-gray-500">
+                                Menampilkan <span className="font-medium text-gray-900">{reportData.from || 0}</span> - <span className="font-medium text-gray-900">{reportData.to || 0}</span> dari <span className="font-medium text-gray-900">{reportData.total}</span> data
+                            </span>
+                            <div className="flex gap-1">
+                                {reportData.links.map((link, index) => (
+                                    link.url ? (
+                                        <Link 
+                                            key={index} 
+                                            href={link.url} 
+                                            className={`px-3 py-1 text-sm rounded-lg border ${link.active ? 'bg-blue-50 text-blue-600 border-blue-200 font-bold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    ) : (
+                                        <span key={index} className="px-3 py-1 text-sm rounded-lg border bg-gray-50 text-gray-400 border-gray-100" dangerouslySetInnerHTML={{ __html: link.label }}></span>
+                                    )
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                                    </div>
+                </div>
+            </AuthenticatedLayout>
+        </ErrorBoundary>
+    );
+}

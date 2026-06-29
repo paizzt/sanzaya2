@@ -1,0 +1,28 @@
+Data Akun Aplikasi Sanzaya2 (Testing / Development)
+===================================================
+Semua kata sandi default adalah: password123
+
+1. Superadmin
+   Email : superadmin@sanzaya.local
+   Pass  : password123
+   Akses : Full Access (Pengaturan Aplikasi, API, dsb)
+
+2. Admin
+   Email : admin@sanzaya.local
+   Pass  : password123
+   Akses : Manajemen Master Data (Outlet, User, dsb)
+
+3. Manager
+   Email : manager@sanzaya.local
+   Pass  : password123
+   Akses : Melihat Laporan Marketing, Menyetujui Pengajuan
+
+4. Direktur
+   Email : direktur@sanzaya.local
+   Pass  : password123
+   Akses : Melihat Laporan Penjualan & Menyetujui Pengajuan Final
+
+5. Sales / Marketing
+   Email : sales@sanzaya.local
+   Pass  : password123
+   Akses : Absensi, Laporan Harian, Pengajuan UC & BHP
