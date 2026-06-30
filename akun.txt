@@ -22,7 +22,6 @@ Semua kata sandi default adalah: password123
    Pass  : password123
    Akses : Melihat Laporan Penjualan & Menyetujui Pengajuan Final
 
-
 5. Sales / Marketing
    Email : sales@sanzaya.local
    Pass  : password123

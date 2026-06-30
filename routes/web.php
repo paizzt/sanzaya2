@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\OutletController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\BhpRecapController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -51,6 +52,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/requests/bhp', [BhpRequestController::class, 'index'])->name('requests.bhp.index');
     Route::post('/requests/bhp', [BhpRequestController::class, 'store'])->name('requests.bhp.store');
     Route::get('/requests/bhp/{id}/pdf', [BhpRequestController::class, 'generatePdf'])->name('requests.bhp.pdf');
+
+    // Rekap BHP
+    Route::get('/requests/bhp-recap', [BhpRecapController::class, 'index'])->name('requests.bhp.recap.index');
+    Route::put('/requests/bhp-recap/{id}/status', [BhpRecapController::class, 'updateStatus'])->name('requests.bhp.recap.status');
+    Route::get('/requests/bhp-recap/export', [BhpRecapController::class, 'exportPdf'])->name('requests.bhp.recap.export');
 
     // Spreadsheet Sync Config
     Route::get('/spreadsheet', [SpreadsheetSyncController::class, 'index'])->name('spreadsheet.index');

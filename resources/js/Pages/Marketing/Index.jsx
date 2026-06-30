@@ -8,6 +8,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
+import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 
 export default function Index({ outlets, reports, target, allTargets, realization, isAdminMarketing, sales_users }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -121,15 +122,15 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                         </div>
 
                         <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 text-white shadow-xl shadow-emerald-500/20">
-                            <p className="text-emerald-100 text-sm font-medium mb-1">Target Transaksi Mingguan</p>
+                            <p className="text-emerald-100 text-sm font-medium mb-1">Realisasi Kunjungan</p>
                             <div className="flex items-end gap-2 mb-4">
-                                <h2 className="text-3xl font-black">{formatRupiah(realization.transactions)}</h2>
+                                <h2 className="text-4xl font-black">{target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%</h2>
                             </div>
-                            <p className="text-sm text-emerald-100">Target: {formatRupiah(target?.target_transactions || 0)}</p>
+                            <p className="text-sm text-emerald-100">Dari target {target?.target_visits || 0} kunjungan mingguan</p>
                             <div className="w-full bg-emerald-900/30 rounded-full h-2 mt-2">
                                 <div 
-                                    className="bg-white h-2 rounded-full" 
-                                    style={{ width: `${Math.min(100, (realization.transactions / (target?.target_transactions || 1)) * 100)}%` }}
+                                    className="bg-white h-2 rounded-full transition-all duration-500" 
+                                    style={{ width: `${Math.min(100, target?.target_visits > 0 ? (realization.visits / target.target_visits) * 100 : 0)}%` }}
                                 ></div>
                             </div>
                         </div>
@@ -289,7 +290,9 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                     options={[
                                                         { value: 'Kunjungan Awal', label: 'Kunjungan Awal' },
                                                         { value: 'Follow Up', label: 'Follow Up' },
-                                                        { value: 'Negosiasi', label: 'Negosiasi' }
+                                                        { value: 'Negosiasi', label: 'Negosiasi' },
+                                                        { value: 'Administrasi', label: 'Administrasi' },
+                                                        { value: 'Penagihan', label: 'Penagihan' }
                                                     ]}
                                                 />
                                             </div>
@@ -388,32 +391,26 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         </div>
                                     )}
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-1 gap-6">
                                         <div>
-                                            <InputLabel value="Mulai Tanggal (Start Date)" />
+                                            <InputLabel value="Periode Target (Start & End Date)" />
                                             <div className="relative mt-1">
-                                                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                                <TextInput 
-                                                    type="date" 
-                                                    className="pl-10 block w-full" 
-                                                    value={targetData.start_date}
-                                                    onChange={(e) => setTargetData('start_date', e.target.value)}
+                                                <CustomDateRangePicker
+                                                    value={{ 
+                                                        startDate: targetData.start_date || null, 
+                                                        endDate: targetData.end_date || null 
+                                                    }}
+                                                    onChange={(newVal) => {
+                                                        setTargetData(data => ({
+                                                            ...data,
+                                                            start_date: newVal?.startDate || '',
+                                                            end_date: newVal?.endDate || ''
+                                                        }));
+                                                    }}
                                                 />
                                             </div>
                                             <InputError message={targetErrors.start_date} className="mt-2" />
-                                        </div>
-                                        <div>
-                                            <InputLabel value="Sampai Tanggal (End Date)" />
-                                            <div className="relative mt-1">
-                                                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                                <TextInput 
-                                                    type="date" 
-                                                    className="pl-10 block w-full" 
-                                                    value={targetData.end_date}
-                                                    onChange={(e) => setTargetData('end_date', e.target.value)}
-                                                />
-                                            </div>
-                                            <InputError message={targetErrors.end_date} className="mt-2" />
+                                            <InputError message={targetErrors.end_date} className="mt-1" />
                                         </div>
                                     </div>
 
