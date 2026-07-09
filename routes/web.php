@@ -21,6 +21,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Public Share Routes
+Route::get('/shared/kebutuhan-barang', [\App\Http\Controllers\ItemRequirementController::class, 'publicIndex'])->name('item-requirements.public');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
@@ -89,6 +92,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Laporan
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
+
+    // Item Requirements
+    Route::post('item-requirements/toggle-share', [\App\Http\Controllers\ItemRequirementController::class, 'toggleShare'])->name('item-requirements.toggleShare');
+    Route::get('item-requirements/export/pdf', [\App\Http\Controllers\ItemRequirementController::class, 'exportPdf'])->name('item-requirements.export.pdf');
+    Route::get('item-requirements/export/excel', [\App\Http\Controllers\ItemRequirementController::class, 'exportExcel'])->name('item-requirements.export.excel');
+    Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class);
 
     // Pemetaan Outlet
     Route::get('/outlet-mappings', [\App\Http\Controllers\OutletMappingController::class, 'index'])->name('outlet-mappings.index');
@@ -100,6 +110,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Data Penyedia
     Route::resource('providers', ProviderController::class);
+
+    // Modul Logistik & Keuangan
+    Route::resource('logistic-reports', \App\Http\Controllers\LogisticReportController::class);
+    Route::resource('purchase-orders', \App\Http\Controllers\PurchaseOrderController::class);
+    Route::resource('receivables', \App\Http\Controllers\ReceivableController::class);
+    Route::resource('payables', \App\Http\Controllers\PayableController::class);
 });
 
 Route::middleware('auth')->group(function () {

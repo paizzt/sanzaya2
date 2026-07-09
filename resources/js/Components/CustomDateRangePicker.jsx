@@ -45,7 +45,7 @@ export default function CustomDateRangePicker({ value, onChange }) {
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col md:flex-row overflow-hidden w-[320px] md:w-[480px]">
+                <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col md:flex-row overflow-hidden w-[280px] sm:w-[320px] md:w-[480px] left-0 sm:left-auto">
                     {/* Shortcuts Sidebar */}
                     <div className="w-full md:w-1/3 bg-gray-50 border-r border-gray-100 p-2 flex flex-col gap-1">
                         {shortcuts.map((shortcut, idx) => (

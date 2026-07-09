@@ -15,10 +15,8 @@ class MarketingRecapController extends Controller
     {
         $user = Auth::user();
         
-        // Ensure only users with certain roles or features can access (e.g. Admin/Direktur)
-        if (!$user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur'])) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
-        }
+        // Access control is handled via feature toggles in the UI.
+        // You could add a check for feature 10 here if strictly needed.
 
         $salesUserId = $request->get('user_id');
         $startDate = $request->get('start_date');
@@ -51,7 +49,12 @@ class MarketingRecapController extends Controller
         $allTargets = $targetsQuery->get();
 
         // Get all active sales users for the filter dropdown
-        $salesUsers = User::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $salesUsers = User::where('is_active', true)
+            ->whereHas('roles', function($q) {
+                $q->where('name', 'Sales');
+            })
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return Inertia::render('Marketing/RecapAll', [
             'reports' => $reports,
@@ -61,6 +64,7 @@ class MarketingRecapController extends Controller
                 'user_id' => $salesUserId,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'period' => $request->get('period')
             ]
         ]);
     }

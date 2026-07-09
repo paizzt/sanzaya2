@@ -26,6 +26,37 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         });
     };
 
+    const handlePeriodChange = (val) => {
+        let start = '';
+        let end = '';
+        const today = new Date();
+        const formatDate = (d) => d.toISOString().split('T')[0];
+        
+        if (val === '1_minggu') {
+            const d = new Date(today);
+            d.setDate(today.getDate() - 7);
+            start = formatDate(d);
+            end = formatDate(today);
+        } else if (val === '1_bulan') {
+            const d = new Date(today);
+            d.setMonth(today.getMonth() - 1);
+            start = formatDate(d);
+            end = formatDate(today);
+        } else if (val === '1_tahun') {
+            const d = new Date(today);
+            d.setFullYear(today.getFullYear() - 1);
+            start = formatDate(d);
+            end = formatDate(today);
+        }
+
+        const newFilters = { ...filters, start_date: start, end_date: end, period: val };
+        router.get(route('marketing.recap.index'), newFilters, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
     const handleExportPdf = () => {
         const url = new URL(route('marketing.recap.pdf'), window.location.origin);
         url.searchParams.append('type', activeTab);
@@ -57,21 +88,15 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                     </div>
                     <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                         <div className="w-full md:w-48">
-                            <TextInput 
-                                type="date" 
-                                className="block w-full text-sm" 
-                                value={filters.start_date || ''}
-                                onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                                title="Mulai Tanggal"
-                            />
-                        </div>
-                        <div className="w-full md:w-48">
-                            <TextInput 
-                                type="date" 
-                                className="block w-full text-sm" 
-                                value={filters.end_date || ''}
-                                onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                                title="Sampai Tanggal"
+                            <CustomSelect
+                                value={filters.period || ''}
+                                onChange={(val) => handlePeriodChange(val)}
+                                options={[
+                                    { value: '', label: 'Semua Waktu' },
+                                    { value: '1_minggu', label: '1 Minggu Terakhir' },
+                                    { value: '1_bulan', label: '1 Bulan Terakhir' },
+                                    { value: '1_tahun', label: '1 Tahun Terakhir' },
+                                ]}
                             />
                         </div>
                         <div className="w-full md:w-64">

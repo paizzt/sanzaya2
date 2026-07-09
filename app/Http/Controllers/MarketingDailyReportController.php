@@ -43,8 +43,36 @@ class MarketingDailyReportController extends Controller
             ->whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->sum('actual_value');
 
+        // Calculate Spreadsheet Sales for current month
+        $spreadsheetSalesTotal = 0;
+        $spreadsheetSalesName = $user->spreadsheet_sales_name;
+        $monthlyTarget = $user->monthly_target;
+        
+        if ($spreadsheetSalesName) {
+            $months = [
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+            $monthIndo = $months[Carbon::now()->month] . ' ' . Carbon::now()->year;
+            
+            $logistikData = \App\Models\SyncLogistikData::where('nama_sales', $spreadsheetSalesName)
+                ->where('tanggal', 'LIKE', '%' . $monthIndo . '%')
+                ->get();
+                
+            foreach ($logistikData as $row) {
+                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
+                $spreadsheetSalesTotal += $val;
+            }
+        }
+
         $isAdminMarketing = $user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur']);
-        $salesUsers = $isAdminMarketing ? \App\Models\User::where('is_active', true)->orderBy('name')->get(['id', 'name']) : [];
+        $salesUsers = $isAdminMarketing ? \App\Models\User::where('is_active', true)
+            ->whereHas('roles', function($q) {
+                $q->where('name', 'Sales');
+            })
+            ->orderBy('name')
+            ->get(['id', 'name']) : [];
 
         return Inertia::render('Marketing/Index', [
             'outlets' => $outlets,
@@ -54,6 +82,11 @@ class MarketingDailyReportController extends Controller
             'realization' => [
                 'visits' => $realizedVisits,
                 'transactions' => $realizedTransactions
+            ],
+            'spreadsheet' => [
+                'sales_name' => $spreadsheetSalesName,
+                'total_monthly' => $spreadsheetSalesTotal,
+                'monthly_target' => $monthlyTarget
             ],
             'isAdminMarketing' => $isAdminMarketing,
             'sales_users' => $salesUsers

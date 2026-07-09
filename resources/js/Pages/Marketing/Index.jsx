@@ -10,7 +10,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 
-export default function Index({ outlets, reports, target, allTargets, realization, isAdminMarketing, sales_users }) {
+export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         activity_type: 'Kunjungan Lapangan (Ke Outlet/RS/Klinik)',
         visit_date: new Date().toISOString().split('T')[0],
@@ -106,31 +106,65 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     <h3 className="font-bold text-xl text-gray-800 mb-4 flex items-center gap-2">
                         <Target className="text-blue-600" /> Target Mingguan vs Realisasi
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Card 1: Target Kunjungan Mingguan (Merged) */}
+                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-blue-500/20">
                             <p className="text-blue-100 text-sm font-medium mb-1">Target Kunjungan Mingguan</p>
                             <div className="flex items-end gap-2 mb-4">
-                                <h2 className="text-4xl font-black">{realization.visits}</h2>
+                                <h2 className="text-3xl sm:text-4xl font-black">{realization.visits}</h2>
                                 <span className="text-blue-200 mb-1">/ {target?.target_visits || 0} Outlet</span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center text-xs text-blue-100 mb-1">
+                                <span>Realisasi Kunjungan</span>
+                                <span className="font-bold">
+                                    {target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%
+                                </span>
                             </div>
                             <div className="w-full bg-blue-900/50 rounded-full h-2">
                                 <div 
-                                    className="bg-white h-2 rounded-full" 
-                                    style={{ width: `${Math.min(100, (realization.visits / (target?.target_visits || 1)) * 100)}%` }}
+                                    className="bg-white h-2 rounded-full transition-all duration-500" 
+                                    style={{ width: `${Math.min(100, target?.target_visits > 0 ? (realization.visits / target.target_visits) * 100 : 0)}%` }}
                                 ></div>
                             </div>
                         </div>
 
-                        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 text-white shadow-xl shadow-emerald-500/20">
-                            <p className="text-emerald-100 text-sm font-medium mb-1">Realisasi Kunjungan</p>
-                            <div className="flex items-end gap-2 mb-4">
-                                <h2 className="text-4xl font-black">{target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%</h2>
+
+                        {/* Card ke-3: Total Penjualan Perbulan */}
+                        <div className="bg-gradient-to-br from-purple-600 to-fuchsia-700 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-purple-500/20">
+                            <div className="flex justify-between items-start mb-1">
+                                <p className="text-purple-100 text-sm font-medium">Total Penjualan Perbulan</p>
+                                {spreadsheet?.monthly_target > 0 && (
+                                    <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-lg">
+                                        Target: Rp {new Intl.NumberFormat('id-ID').format(spreadsheet.monthly_target)}
+                                    </span>
+                                )}
                             </div>
-                            <p className="text-sm text-emerald-100">Dari target {target?.target_visits || 0} kunjungan mingguan</p>
-                            <div className="w-full bg-emerald-900/30 rounded-full h-2 mt-2">
+                            <div className="flex items-end gap-2 mb-4 mt-2">
+                                <h2 className="text-3xl sm:text-4xl font-black truncate">
+                                    Rp {new Intl.NumberFormat('id-ID').format(spreadsheet?.total_monthly || 0)}
+                                </h2>
+                            </div>
+                            <p className="text-xs text-purple-100 mb-2">
+                                {spreadsheet?.sales_name ? `Data Spreadsheet: ${spreadsheet.sales_name}` : 'Belum Terhubung dengan Spreadsheet'}
+                            </p>
+                            
+                            <div className="flex justify-between items-center text-xs text-purple-100 mb-1">
+                                <span>Progres Pencapaian</span>
+                                <span className="font-bold">
+                                    {spreadsheet?.monthly_target > 0 
+                                        ? Math.min(100, Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100)) 
+                                        : 0}%
+                                </span>
+                            </div>
+                            <div className="w-full bg-purple-900/30 rounded-full h-2">
                                 <div 
-                                    className="bg-white h-2 rounded-full transition-all duration-500" 
-                                    style={{ width: `${Math.min(100, target?.target_visits > 0 ? (realization.visits / target.target_visits) * 100 : 0)}%` }}
+                                    className="bg-white h-2 rounded-full transition-all duration-1000" 
+                                    style={{ 
+                                        width: `${spreadsheet?.monthly_target > 0 
+                                            ? Math.min(100, ((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
+                                            : 0}%` 
+                                    }}
                                 ></div>
                             </div>
                         </div>
@@ -158,8 +192,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                     {/* Form Laporan Harian */}
                     {activeTab === 'laporan' && (
-                    <div className="lg:col-span-2">
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                    <div className="lg:col-span-2 min-w-0">
+                        <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                             <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
                                 <TrendingUp className="text-blue-600 w-5 h-5" />
                                 Form Laporan Harian
@@ -177,7 +211,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                             disabled
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <InputLabel value="Tanggal" />
                                             <TextInput 
@@ -365,8 +399,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                     {/* Form Target Mingguan */}
                     {activeTab === 'target' && (
-                        <div className="lg:col-span-2">
-                            <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <div className="lg:col-span-2 min-w-0">
+                            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                                 <h3 className="font-bold text-lg text-gray-800 mb-2 flex items-center gap-2">
                                     <Target className="text-blue-600 w-5 h-5" />
                                     Target Mingguan Sales
@@ -462,8 +496,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                     {/* Rekap Laporan Harian */}
                     {activeTab === 'rekap_laporan' && (
-                        <div className="lg:col-span-2">
-                            <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <div className="lg:col-span-2 min-w-0">
+                            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                                 <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
                                     <ClipboardList className="text-indigo-600 w-5 h-5" />
                                     Rekap Laporan Harian
@@ -520,8 +554,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                     {/* Rekap Target Mingguan */}
                     {activeTab === 'rekap_target' && (
-                        <div className="lg:col-span-2">
-                            <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <div className="lg:col-span-2 min-w-0">
+                            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                                 <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
                                     <CalendarDays className="text-teal-600 w-5 h-5" />
                                     Rekap Target Mingguan
@@ -565,8 +599,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     )}
 
                     {/* Riwayat Kunjungan */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
+                    <div className="lg:col-span-1 min-w-0">
+                        <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
                             <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4 flex items-center gap-2">
                                 <Building className="text-gray-400 w-5 h-5" /> Riwayat Kunjungan
                             </h3>

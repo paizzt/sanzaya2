@@ -8,6 +8,8 @@ use App\Models\SyncLogistikData;
 use App\Models\SyncPesananData;
 use App\Models\SyncPiutangData;
 use App\Models\SyncHutangData;
+use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
@@ -216,5 +218,45 @@ class ReportController extends Controller
             'summaryPiutang' => $summaryPiutang,
             'summaryHutang' => $summaryHutang
         ]);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        ini_set('memory_limit', '2G');
+        set_time_limit(300);
+
+        $tab = $request->query('tab', 'logistik');
+        $period = $request->query('period', '1_bulan'); 
+
+        $days = 1;
+        if ($period === '1_minggu') {
+            $days = 7;
+        } elseif ($period === '1_bulan') {
+            $days = 30;
+        } elseif ($period === '1_tahun') {
+            $days = 365;
+        }
+
+        $dateStrings = [];
+        $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        for ($i = 0; $i < $days; $i++) {
+            $d = Carbon::today()->subDays($i);
+            $m = $months[$d->month - 1];
+            $dateStrings[] = $d->format('j') . ' ' . $m . ' ' . $d->format('Y');
+            $dateStrings[] = $d->format('d') . ' ' . $m . ' ' . $d->format('Y');
+        }
+        $dateStrings = array_unique($dateStrings);
+
+        $startDate = Carbon::today()->subDays($days - 1);
+
+        $title = "Laporan Rekapitulasi (" . ucwords(str_replace('_', ' ', $period)) . ")";
+
+        $logistik = SyncLogistikData::whereIn('tanggal', $dateStrings)->get();
+        $pesanan = SyncPesananData::whereIn('tanggal', $dateStrings)->get();
+        $piutang = SyncPiutangData::where('created_at', '>=', $startDate)->get();
+        $hutang = SyncHutangData::where('created_at', '>=', $startDate)->get();
+
+        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title'));
+        return $pdf->download("laporan_gabungan_{$period}.pdf");
     }
 }

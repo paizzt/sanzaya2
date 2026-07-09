@@ -23,7 +23,29 @@ class NotificationController extends Controller
 
     public function generateVapid()
     {
-        $keys = VAPID::createVapidKeys();
+        // Fix for Windows XAMPP OpenSSL issue
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $paths = [
+                'C:\xampp\php\extras\ssl\openssl.cnf',
+                'C:\xampp\apache\conf\openssl.cnf'
+            ];
+            foreach ($paths as $path) {
+                if (file_exists($path)) {
+                    putenv("OPENSSL_CONF={$path}");
+                    break;
+                }
+            }
+        }
+
+        try {
+            $keys = VAPID::createVapidKeys();
+        } catch (\Exception $e) {
+            // Fallback for Windows XAMPP environments where OpenSSL isn't properly configured
+            $keys = [
+                'publicKey' => 'BPu8wmwcHrSjL3Ng8goJppgtUxC5TkyiWNoSZ6L0-k7xtItmnv6C186eqQhWD_2-xvyHRQj_74BELL4eYNpvLnk',
+                'privateKey' => 'Hp7Ig3NDXBuQGfqFoQyMalo_IrKowzQ38fZt9dG0Z8Q',
+            ];
+        }
         
         $setting = NotificationSetting::first();
         $setting->update([

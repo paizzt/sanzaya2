@@ -1,7 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage, router, Link } from '@inertiajs/react';
-import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database } from 'lucide-react';
-import { useState } from 'react';
+import Swal from 'sweetalert2';
+import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
@@ -12,6 +13,18 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
     const [isSearchExpanded, setIsSearchExpanded] = useState(!!search);
+    const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDownloadOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -175,6 +188,42 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             Data Laporan Tersinkronisasi
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">Menampilkan data yang telah ditarik dari Google Spreadsheet.</p>
+                    </div>
+                    
+                    <div className="relative" ref={dropdownRef}>
+                        <button
+                            onClick={() => setIsDownloadOpen(!isDownloadOpen)}
+                            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/30 text-sm"
+                        >
+                            <Download className="w-4 h-4" />
+                            Unduh PDF
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDownloadOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        {isDownloadOpen && (
+                            <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 overflow-hidden">
+                                <a href="#" onClick={(e) => { 
+                                    e.preventDefault(); 
+                                    setIsDownloadOpen(false); 
+                                    window.open(route('reports.pdf', { tab: tab, period: '1_hari' }), '_blank');
+                                }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Hari</a>
+                                <a href="#" onClick={(e) => { 
+                                    e.preventDefault(); 
+                                    setIsDownloadOpen(false); 
+                                    window.open(route('reports.pdf', { tab: tab, period: '1_minggu' }), '_blank');
+                                }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Minggu</a>
+                                <a href="#" onClick={(e) => { 
+                                    e.preventDefault(); 
+                                    setIsDownloadOpen(false); 
+                                    window.open(route('reports.pdf', { tab: tab, period: '1_bulan' }), '_blank');
+                                }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Bulan</a>
+                                <a href="#" onClick={(e) => { 
+                                    e.preventDefault(); 
+                                    setIsDownloadOpen(false); 
+                                    window.open(route('reports.pdf', { tab: tab, period: '1_tahun' }), '_blank');
+                                }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">1 Tahun</a>
+                            </div>
+                        )}
                     </div>
                 </div>
 

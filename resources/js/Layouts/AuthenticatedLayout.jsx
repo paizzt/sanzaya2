@@ -3,7 +3,7 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck } from 'lucide-react';
+import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -84,25 +84,30 @@ export default function Authenticated({ user, header, children }) {
     };
 
     const navItems = [
-        { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, active: url === '/dashboard', show: true },
+        { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, active: url === '/dashboard', show: auth.active_features?.includes(15) },
         { name: 'Absensi', href: route('absensi.index'), icon: Camera, active: url === '/absensi', show: auth.active_features?.includes(2) },
         { name: 'Rekap Absensi', href: route('absensi.rekap'), icon: ClipboardList, active: url.startsWith('/absensi/rekap'), show: auth.active_features?.includes(2) },
         { name: 'Izin/Sakit', href: route('absensi.pengajuan'), icon: FileText, active: url.startsWith('/absensi/pengajuan'), show: auth.active_features?.includes(2) },
         { name: 'Marketing', href: route('marketing.index'), icon: Briefcase, active: url.startsWith('/marketing'), show: auth.active_features?.includes(3) },
-        { name: 'Data Outlet', href: route('outlets.index'), icon: Store, active: url.startsWith('/outlets'), show: auth.active_features?.includes(3) },
+        { name: 'Data Outlet', href: route('outlets.index'), icon: Store, active: url.startsWith('/outlets'), show: auth.active_features?.includes(9) },
         { name: 'Dashboard Laporan', href: route('reports.index'), icon: BarChart2, active: url.startsWith('/reports'), show: auth.active_features?.includes(7) },
+        { name: 'Kebutuhan Barang', href: route('item-requirements.index'), icon: Package, active: url.startsWith('/item-requirements'), show: true },
         { name: 'Form UC', href: route('requests.uc.index'), icon: PlaneTakeoff, active: url.startsWith('/requests/uc') && !url.startsWith('/requests/uc-approval') && !url.startsWith('/requests/uc-history'), show: auth.active_features?.includes(4) },
         { name: 'Riwayat & Result UC', href: route('requests.uc.history'), icon: FileCheck, active: url.startsWith('/requests/uc-history'), show: auth.active_features?.includes(4) },
         { name: 'Persetujuan UC', href: route('requests.uc.approval.index'), icon: CheckCircle, active: url.startsWith('/requests/uc-approval'), show: auth.active_features?.includes(8) },
         { name: 'Form BHP', href: route('requests.bhp.index'), icon: ShoppingCart, active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(5) },
         { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), icon: ClipboardList, active: url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(5) },
-        { name: 'Rekap Semua Marketing', href: route('marketing.recap.index'), icon: Users, active: url.startsWith('/marketing/recap-all'), show: auth.active_features?.includes(3) && (auth.user?.roles?.some(r => r && ['Superadmin', 'Admin', 'Manager', 'Direktur'].includes(r.name || r))) },
+        { name: 'Laporan Logistik', href: route('logistic-reports.index'), icon: ClipboardList, active: url.startsWith('/logistic-reports'), show: true },
+        { name: 'Surat Pesanan', href: route('purchase-orders.index'), icon: FileText, active: url.startsWith('/purchase-orders'), show: true },
+        { name: 'Data Piutang', href: route('receivables.index'), icon: Wallet, active: url.startsWith('/receivables'), show: true },
+        { name: 'Data Hutang', href: route('payables.index'), icon: CreditCard, active: url.startsWith('/payables'), show: true },
+        { name: 'Rekap Marketing', href: route('marketing.recap.index'), icon: Users, active: url.startsWith('/marketing/recap-all'), show: auth.active_features?.includes(10) },
         { name: 'Sync Spreadsheet', href: route('spreadsheet.index'), icon: Database, active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(1) },
-        { name: 'Notifikasi', href: route('notifications.index'), icon: Bell, active: url.startsWith('/settings/notifications'), show: true },
+        { name: 'Notifikasi', href: route('notifications.index'), icon: Bell, active: url.startsWith('/settings/notifications'), show: auth.active_features?.includes(13) },
         { name: 'Pengguna', href: route('users.index'), icon: Users, active: url.startsWith('/users'), show: auth.active_features?.includes(6) },
-        { name: 'Data Armada', href: route('vehicles.index'), icon: Truck, active: url.startsWith('/vehicles'), show: true },
-        { name: 'Data Penyedia', href: route('providers.index'), icon: Store, active: url.startsWith('/providers'), show: true },
-        { name: 'Pengaturan', href: route('profile.edit'), icon: Settings, active: url.startsWith('/profile'), show: true },
+        { name: 'Data Armada', href: route('vehicles.index'), icon: Truck, active: url.startsWith('/vehicles'), show: auth.active_features?.includes(11) },
+        { name: 'Data Penyedia', href: route('providers.index'), icon: Store, active: url.startsWith('/providers'), show: auth.active_features?.includes(12) },
+        { name: 'Pengaturan', href: route('profile.edit'), icon: Settings, active: url.startsWith('/profile'), show: auth.active_features?.includes(14) },
     ].filter(item => item.show);
 
     return (
@@ -141,7 +146,7 @@ export default function Authenticated({ user, header, children }) {
             </aside>
 
             {/* Main Content Area */}
-            <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
+            <div className={`flex-1 min-w-0 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
                 {/* Topbar */}
                 <header className="bg-white/80 backdrop-blur-md sticky top-0 z-10 border-b border-gray-100 shadow-sm transition-all duration-300">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -177,7 +182,7 @@ export default function Authenticated({ user, header, children }) {
                                         leaveFrom="opacity-100 scale-100"
                                         leaveTo="opacity-0 scale-95"
                                     >
-                                        <Menu.Items className="absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-2xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden">
+                                        <Menu.Items className="absolute right-0 z-50 mt-2 w-[280px] sm:w-80 origin-top-right rounded-2xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden">
                                             <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                                                 <h3 className="text-sm font-bold text-gray-800">Notifikasi ({unreadCount})</h3>
                                                 {unreadCount > 0 && (
@@ -271,7 +276,7 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 )}
 
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300">
+                <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 transition-all duration-300">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>
@@ -279,8 +284,13 @@ export default function Authenticated({ user, header, children }) {
             </div>
             
             {/* Bottom Navigation for Mobile */}
-            <div className="lg:hidden fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe z-10 flex justify-around p-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-                {navItems.slice(0, 4).map((item) => (
+            <div className="lg:hidden fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe z-50 flex justify-around p-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                {[
+                    { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, active: url === '/dashboard', show: auth.active_features?.includes(15) },
+                    { name: 'Absensi', href: route('absensi.index'), icon: Camera, active: url === '/absensi', show: auth.active_features?.includes(2) },
+                    { name: 'Marketing', href: route('marketing.index'), icon: Briefcase, active: url.startsWith('/marketing'), show: auth.active_features?.includes(3) },
+                    { name: 'Izin/Sakit', href: route('absensi.pengajuan'), icon: FileText, active: url.startsWith('/absensi/pengajuan'), show: auth.active_features?.includes(2) },
+                ].filter(item => item.show).map((item) => (
                     <Link key={item.name} href={item.href} className={`flex flex-col items-center p-2 rounded-xl ${item.active ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}>
                         <item.icon className={`w-6 h-6 mb-1 ${item.active ? 'animate-bounce' : ''}`} />
                         <span className="text-[10px] font-medium">{item.name}</span>

@@ -85,6 +85,7 @@ export default function Index({ attendance, today, currentTime }) {
                                         screenshotFormat="image/jpeg"
                                         className="w-full h-full object-cover"
                                         videoConstraints={{ facingMode: "user" }}
+                                        mirrored={true}
                                     />
                                 ) : (
                                     <img src={imgSrc} alt="Captured" className="w-full h-full object-cover" />
