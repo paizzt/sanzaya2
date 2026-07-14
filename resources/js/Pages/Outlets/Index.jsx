@@ -17,6 +17,8 @@ export default function Index({ outlets, areas }) {
     const [editingOutlet, setEditingOutlet] = useState(null);
     const [selectedIds, setSelectedIds] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('');
+    const [filterCity, setFilterCity] = useState('');
 
     const handleSelectAll = (e) => {
         if (e.target.checked) {
@@ -162,10 +164,22 @@ export default function Index({ outlets, areas }) {
         }
     };
 
-    const filteredOutlets = outlets.filter(outlet => 
-        outlet.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        (outlet.marketing_area?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const types = [...new Set(outlets.map(o => o.type).filter(Boolean))].sort();
+    const cities = [...new Set(outlets.map(o => (o.city || o.marketing_area?.name || '').toUpperCase()).filter(Boolean))].sort();
+
+    const filteredOutlets = outlets.filter(outlet => {
+        const outletCity = outlet.city || outlet.marketing_area?.name || '';
+        const matchSearch = outlet.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            outletCity.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchType = filterType ? outlet.type === filterType : true;
+        const matchCity = filterCity ? outletCity.toUpperCase() === filterCity : true;
+        return matchSearch && matchType && matchCity;
+    });
+
+    const totalOutlet = outlets.length;
+    const totalRS = outlets.filter(o => o.type === 'RS').length;
+    const totalDinkes = outlets.filter(o => o.type === 'DINKES').length;
+    const totalKlinik = outlets.filter(o => o.type === 'KLINIK').length;
 
     return (
         <AuthenticatedLayout
@@ -176,7 +190,47 @@ export default function Index({ outlets, areas }) {
 
             <div className="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                {/* Cards Statistik */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+                            <Store className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium">Total Outlet</p>
+                            <h4 className="text-2xl font-bold text-gray-900">{totalOutlet}</h4>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-red-50 text-red-600 rounded-2xl">
+                            <Building className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium">Rumah Sakit (RS)</p>
+                            <h4 className="text-2xl font-bold text-gray-900">{totalRS}</h4>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+                            <Store className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium">Dinas Kesehatan</p>
+                            <h4 className="text-2xl font-bold text-gray-900">{totalDinkes}</h4>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                            <Store className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium">Klinik</p>
+                            <h4 className="text-2xl font-bold text-gray-900">{totalKlinik}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                             <Store className="w-6 h-6 text-blue-600" />
@@ -184,18 +238,36 @@ export default function Index({ outlets, areas }) {
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">Kelola data Rumah Sakit, Dinkes, Klinik, dan outlet lainnya.</p>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                        <div className="relative w-full sm:w-64">
-                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                            <input
-                                type="text"
-                                placeholder="Cari nama atau kota..."
-                                className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                    <div className="flex flex-col xl:flex-row items-center gap-3 w-full xl:w-auto">
+                        <div className="flex flex-col sm:flex-row gap-2 w-full">
+                            <div className="relative flex-1 sm:w-64">
+                                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input
+                                    type="text"
+                                    placeholder="Cari nama atau kota..."
+                                    className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <select
+                                value={filterType}
+                                onChange={(e) => setFilterType(e.target.value)}
+                                className="w-full sm:w-40 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
+                            >
+                                <option value="">Semua Jenis</option>
+                                {types.map(t => <option key={t} value={t}>{t}</option>)}
+                            </select>
+                            <select
+                                value={filterCity}
+                                onChange={(e) => setFilterCity(e.target.value)}
+                                className="w-full sm:w-48 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
+                            >
+                                <option value="">Semua Kota</option>
+                                {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
                         </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                        <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
                             <button 
                                 onClick={() => router.get(route('outlet-mappings.index'))}
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/30 whitespace-nowrap text-sm sm:text-base"
@@ -252,7 +324,7 @@ export default function Index({ outlets, areas }) {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-1 text-gray-700">
                                                 <MapPin className="w-4 h-4 text-gray-400" />
-                                                {outlet.marketing_area?.name || '-'}
+                                                {outlet.city || outlet.marketing_area?.name || '-'}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -342,7 +414,7 @@ export default function Index({ outlets, areas }) {
                                                         onChange={value => setData('marketing_area_id', value)} 
                                                         options={[
                                                             { value: '', label: '-- Pilih Kota/Kabupaten --' },
-                                                            ...areas.map(area => ({ value: area.id, label: area.name }))
+                                                            ...areas.map(area => ({ value: area.id, label: area.name.toUpperCase() }))
                                                         ]}
                                                         icon={MapPin}
                                                     />

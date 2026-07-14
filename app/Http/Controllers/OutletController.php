@@ -9,14 +9,34 @@ use Inertia\Inertia;
 
 class OutletController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $outlets = Outlet::with(['marketingArea', 'mappings'])->orderBy('id', 'desc')->get();
+        $query = Outlet::with(['marketingArea', 'mappings'])->orderBy('id', 'desc');
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('city')) {
+            $query->where('city', $request->city);
+        }
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $outlets = $query->get();
         $areas = MarketingArea::orderBy('name')->get();
+        
+        $types = Outlet::whereNotNull('type')->where('type', '!=', '')->select('type')->distinct()->orderBy('type')->pluck('type');
+        $cities = Outlet::whereNotNull('city')->where('city', '!=', '')->select('city')->distinct()->orderBy('city')->pluck('city');
 
         return Inertia::render('Outlets/Index', [
             'outlets' => $outlets,
             'areas' => $areas,
+            'types' => $types,
+            'cities' => $cities,
+            'filters' => $request->only(['type', 'city', 'search']),
         ]);
     }
 
