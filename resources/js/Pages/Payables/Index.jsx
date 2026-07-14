@@ -8,9 +8,10 @@ import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
+import SearchableSelect from '@/Components/SearchableSelect';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items }) {
+export default function Index({ auth, items, providers }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
@@ -96,7 +97,7 @@ export default function Index({ auth, items }) {
         >
             <Head title="Data Hutang" />
 
-            <div className="py-12">
+            <div className="pb-12 pt-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
@@ -125,7 +126,9 @@ export default function Index({ auth, items }) {
                                         {items.length > 0 ? items.map((item) => (
                                             <tr key={item.id}>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.nama_penyedia}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap font-bold text-red-600">{item.nominal}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap font-bold text-red-600">
+                                                    Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((parseFloat(item.nominal) || 0) / 100)}
+                                                </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
                                                         <Edit className="w-4 h-4" />
@@ -160,13 +163,35 @@ export default function Index({ auth, items }) {
                     <div className="grid grid-cols-1 gap-4">
                         <div>
                             <InputLabel htmlFor="nama_penyedia" value="Nama Penyedia" />
-                            <TextInput id="nama_penyedia" type="text" className="mt-1 block w-full" value={data.nama_penyedia} onChange={e => setData('nama_penyedia', e.target.value)} />
+                            <div className="mt-1">
+                                <SearchableSelect
+                                    options={providers ? providers.map(p => ({ value: p.name, label: p.name })) : []}
+                                    value={data.nama_penyedia}
+                                    onChange={val => setData('nama_penyedia', val)}
+                                    placeholder="Pilih Penyedia"
+                                />
+                            </div>
                             <InputError message={errors.nama_penyedia} className="mt-2" />
                         </div>
 
                         <div>
                             <InputLabel htmlFor="nominal" value="Nominal" />
-                            <TextInput id="nominal" type="number" step="any" className="mt-1 block w-full" value={data.nominal} onChange={e => setData('nominal', e.target.value)} />
+                            <div className="relative mt-1">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-gray-500 sm:text-sm">Rp</span>
+                                </div>
+                                <TextInput 
+                                    id="nominal" 
+                                    type="text" 
+                                    className="block w-full pl-9 font-mono text-right" 
+                                    placeholder="0,00"
+                                    value={data.nominal ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(data.nominal) / 100) : ''} 
+                                    onChange={e => {
+                                        const rawValue = e.target.value.replace(/\D/g, '');
+                                        setData('nominal', rawValue);
+                                    }} 
+                                />
+                            </div>
                             <InputError message={errors.nominal} className="mt-2" />
                         </div>
                     </div>

@@ -73,7 +73,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         >
             <Head title="Rekap Semua Marketing" />
 
-            <div className="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="pb-6 pt-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                 
                 {/* Filter Section */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

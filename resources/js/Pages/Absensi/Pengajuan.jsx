@@ -8,6 +8,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
+import CustomDatePicker from '@/Components/CustomDatePicker';
 
 export default function Pengajuan({ requests }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -56,7 +57,7 @@ export default function Pengajuan({ requests }) {
         >
             <Head title="Pengajuan Izin/Sakit" />
 
-            <div className="py-6">
+            <div className="pb-6 pt-0">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
                     {/* Form Section */}
@@ -85,21 +86,17 @@ export default function Pengajuan({ requests }) {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <InputLabel value="Mulai Tanggal" />
-                                        <TextInput 
-                                            type="date" 
-                                            className="mt-1 block w-full" 
+                                        <CustomDatePicker 
                                             value={data.start_date}
-                                            onChange={(e) => setData('start_date', e.target.value)}
+                                            onChange={(val) => setData('start_date', val)}
                                         />
                                         <InputError message={errors.start_date} className="mt-2" />
                                     </div>
                                     <div>
                                         <InputLabel value="Sampai Tanggal" />
-                                        <TextInput 
-                                            type="date" 
-                                            className="mt-1 block w-full" 
+                                        <CustomDatePicker 
                                             value={data.end_date}
-                                            onChange={(e) => setData('end_date', e.target.value)}
+                                            onChange={(val) => setData('end_date', val)}
                                         />
                                         <InputError message={errors.end_date} className="mt-2" />
                                     </div>

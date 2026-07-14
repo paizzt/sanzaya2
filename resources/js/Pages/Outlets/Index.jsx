@@ -188,7 +188,7 @@ export default function Index({ outlets, areas }) {
         >
             <Head title="Data Outlet" />
 
-            <div className="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* Cards Statistik */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -230,63 +230,60 @@ export default function Index({ outlets, areas }) {
                     </div>
                 </div>
 
-                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
-                    <div>
+                <div className="flex flex-col 2xl:flex-row justify-between items-start 2xl:items-center gap-4 mb-6">
+                    <div className="shrink-0">
                         <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                             <Store className="w-6 h-6 text-blue-600" />
                             Daftar Outlet
                         </h3>
-                        <p className="text-sm text-gray-500 mt-1">Kelola data Rumah Sakit, Dinkes, Klinik, dan outlet lainnya.</p>
                     </div>
-                    <div className="flex flex-col xl:flex-row items-center gap-3 w-full xl:w-auto">
-                        <div className="flex flex-col sm:flex-row gap-2 w-full">
-                            <div className="relative flex-1 sm:w-64">
-                                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                <input
-                                    type="text"
-                                    placeholder="Cari nama atau kota..."
-                                    className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <select
-                                value={filterType}
-                                onChange={(e) => setFilterType(e.target.value)}
-                                className="w-full sm:w-40 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
-                            >
-                                <option value="">Semua Jenis</option>
-                                {types.map(t => <option key={t} value={t}>{t}</option>)}
-                            </select>
-                            <select
-                                value={filterCity}
-                                onChange={(e) => setFilterCity(e.target.value)}
-                                className="w-full sm:w-48 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
-                            >
-                                <option value="">Semua Kota</option>
-                                {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
+                    <div className="flex flex-col md:flex-row flex-wrap items-center gap-3 w-full 2xl:w-auto justify-end">
+                        <div className="relative w-full md:w-56 shrink-0">
+                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input
+                                type="text"
+                                placeholder="Cari nama atau kota..."
+                                className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+                        <select
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                            className="w-full md:w-36 shrink-0 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
+                        >
+                            <option value="">Semua Jenis</option>
+                            {types.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                        <select
+                            value={filterCity}
+                            onChange={(e) => setFilterCity(e.target.value)}
+                            className="w-full md:w-40 shrink-0 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
+                        >
+                            <option value="">Semua Kota</option>
+                            {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
                             <button 
                                 onClick={() => router.get(route('outlet-mappings.index'))}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/30 whitespace-nowrap text-sm sm:text-base"
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/30 whitespace-nowrap text-sm"
                             >
-                                <Store className="w-4 h-4 sm:w-5 sm:h-5" /> Pemetaan Outlet
+                                <Store className="w-4 h-4" /> Pemetaan
                             </button>
                             {selectedIds.length > 0 && (
                                 <button 
                                     onClick={handleBulkDelete}
-                                    className="bg-red-600 hover:bg-red-700 text-white px-4 sm:px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-red-500/30 whitespace-nowrap text-sm sm:text-base"
+                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-red-500/30 whitespace-nowrap text-sm"
                                 >
-                                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /> Hapus ({selectedIds.length})
+                                    <Trash2 className="w-4 h-4" /> Hapus ({selectedIds.length})
                                 </button>
                             )}
                             <button 
                                 onClick={openCreateModal}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30 whitespace-nowrap text-sm sm:text-base"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30 whitespace-nowrap text-sm"
                             >
-                                <Plus className="w-4 h-4 sm:w-5 sm:h-5" /> Tambah Outlet
+                                <Plus className="w-4 h-4" /> Tambah
                             </button>
                         </div>
                     </div>

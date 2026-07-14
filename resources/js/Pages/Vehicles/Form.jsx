@@ -4,6 +4,7 @@ import { ArrowLeft, Save, Truck, FileText, Calendar, Wrench } from 'lucide-react
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
+import CustomDatePicker from '@/Components/CustomDatePicker';
 import { useState, useRef } from 'react';
 import Swal from 'sweetalert2';
 
@@ -87,7 +88,7 @@ export default function Form({ vehicle }) {
         >
             <Head title={isEdit ? "Edit Armada" : "Tambah Armada"} />
 
-            <div className="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <div className="flex items-center gap-4 mb-6">
                     <Link href={route('vehicles.index')} className="p-2 bg-white rounded-xl shadow-sm text-gray-500 hover:text-gray-700 transition-colors">
@@ -227,65 +228,45 @@ export default function Form({ vehicle }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <InputLabel htmlFor="annual_tax_date" value="Tanggal Jatuh Tempo Pajak 1 Tahunan" />
-                                <TextInput
-                                    id="annual_tax_date"
-                                    type="date"
-                                    name="annual_tax_date"
+                                <CustomDatePicker
                                     value={data.annual_tax_date}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) => setData('annual_tax_date', e.target.value)}
+                                    onChange={(val) => setData('annual_tax_date', val)}
                                 />
                                 <InputError message={errors.annual_tax_date} className="mt-2" />
                             </div>
 
                             <div>
                                 <InputLabel htmlFor="five_year_tax_date" value="Tanggal Jatuh Tempo Pajak 5 Tahunan" />
-                                <TextInput
-                                    id="five_year_tax_date"
-                                    type="date"
-                                    name="five_year_tax_date"
+                                <CustomDatePicker
                                     value={data.five_year_tax_date}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) => setData('five_year_tax_date', e.target.value)}
+                                    onChange={(val) => setData('five_year_tax_date', val)}
                                 />
                                 <InputError message={errors.five_year_tax_date} className="mt-2" />
                             </div>
 
                             <div>
                                 <InputLabel htmlFor="stnk_expiry_date" value="Tanggal STNK Berakhir" />
-                                <TextInput
-                                    id="stnk_expiry_date"
-                                    type="date"
-                                    name="stnk_expiry_date"
+                                <CustomDatePicker
                                     value={data.stnk_expiry_date}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) => setData('stnk_expiry_date', e.target.value)}
+                                    onChange={(val) => setData('stnk_expiry_date', val)}
                                 />
                                 <InputError message={errors.stnk_expiry_date} className="mt-2" />
                             </div>
 
                             <div>
                                 <InputLabel htmlFor="plate_replacement_date" value="Tanggal Ganti Plat Nomor" />
-                                <TextInput
-                                    id="plate_replacement_date"
-                                    type="date"
-                                    name="plate_replacement_date"
+                                <CustomDatePicker
                                     value={data.plate_replacement_date}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) => setData('plate_replacement_date', e.target.value)}
+                                    onChange={(val) => setData('plate_replacement_date', val)}
                                 />
                                 <InputError message={errors.plate_replacement_date} className="mt-2" />
                             </div>
 
                             <div>
                                 <InputLabel htmlFor="kir_expiry_date" value="Tanggal KIR/Uji Berkala (Opsional)" />
-                                <TextInput
-                                    id="kir_expiry_date"
-                                    type="date"
-                                    name="kir_expiry_date"
+                                <CustomDatePicker
                                     value={data.kir_expiry_date}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) => setData('kir_expiry_date', e.target.value)}
+                                    onChange={(val) => setData('kir_expiry_date', val)}
                                 />
                                 <InputError message={errors.kir_expiry_date} className="mt-2" />
                             </div>
@@ -305,13 +286,9 @@ export default function Form({ vehicle }) {
                                 </div>
                                 <div>
                                     <InputLabel htmlFor="insurance_expiry_date" value="Masa Berlaku Asuransi" />
-                                    <TextInput
-                                        id="insurance_expiry_date"
-                                        type="date"
-                                        name="insurance_expiry_date"
+                                    <CustomDatePicker
                                         value={data.insurance_expiry_date}
-                                        className="mt-1 block w-full"
-                                        onChange={(e) => setData('insurance_expiry_date', e.target.value)}
+                                        onChange={(val) => setData('insurance_expiry_date', val)}
                                     />
                                     <InputError message={errors.insurance_expiry_date} className="mt-2" />
                                 </div>
@@ -329,26 +306,18 @@ export default function Form({ vehicle }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <InputLabel htmlFor="scheduled_service_date" value="Jadwal Service Berkala Berikutnya" />
-                                <TextInput
-                                    id="scheduled_service_date"
-                                    type="date"
-                                    name="scheduled_service_date"
+                                <CustomDatePicker
                                     value={data.scheduled_service_date}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) => setData('scheduled_service_date', e.target.value)}
+                                    onChange={(val) => setData('scheduled_service_date', val)}
                                 />
                                 <InputError message={errors.scheduled_service_date} className="mt-2" />
                             </div>
 
                             <div>
                                 <InputLabel htmlFor="oil_change_schedule" value="Jadwal Ganti Oli Berikutnya" />
-                                <TextInput
-                                    id="oil_change_schedule"
-                                    type="date"
-                                    name="oil_change_schedule"
+                                <CustomDatePicker
                                     value={data.oil_change_schedule}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) => setData('oil_change_schedule', e.target.value)}
+                                    onChange={(val) => setData('oil_change_schedule', val)}
                                 />
                                 <InputError message={errors.oil_change_schedule} className="mt-2" />
                             </div>
@@ -483,13 +452,13 @@ export default function Form({ vehicle }) {
                                 
                                 <div>
                                     <InputLabel htmlFor="battery_target_date" value="Aki (Target Tanggal Ganti)" />
-                                    <TextInput id="battery_target_date" type="date" value={data.battery_target_date} className="mt-1 block w-full" onChange={(e) => setData('battery_target_date', e.target.value)} />
+                                    <CustomDatePicker value={data.battery_target_date} onChange={(val) => setData('battery_target_date', val)} />
                                     <InputError message={errors.battery_target_date} className="mt-2" />
                                 </div>
 
                                 <div>
                                     <InputLabel htmlFor="tire_target_date" value="Ban (Target Tanggal Ganti)" />
-                                    <TextInput id="tire_target_date" type="date" value={data.tire_target_date} className="mt-1 block w-full" onChange={(e) => setData('tire_target_date', e.target.value)} />
+                                    <CustomDatePicker value={data.tire_target_date} onChange={(val) => setData('tire_target_date', val)} />
                                     <InputError message={errors.tire_target_date} className="mt-2" />
                                 </div>
                             </div>

@@ -67,7 +67,7 @@ export default function Index({ vehicles }) {
         >
             <Head title="Data Armada" />
 
-            <div className="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <div className="flex justify-between items-center mb-6">
                     <div>

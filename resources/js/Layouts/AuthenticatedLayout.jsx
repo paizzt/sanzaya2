@@ -3,9 +3,67 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard } from 'lucide-react';
+import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+
+const SidebarItem = ({ item, sidebarCollapsed, setSidebarCollapsed }) => {
+    const [isOpen, setIsOpen] = useState(item.active || (item.children && item.children.some(c => c.active)));
+
+    useEffect(() => {
+        if ((item.active || (item.children && item.children.some(c => c.active))) && !sidebarCollapsed) setIsOpen(true);
+    }, [item.active, item.children, sidebarCollapsed]);
+
+    if (!item.children) {
+        return (
+            <Link
+                href={item.href}
+                title={sidebarCollapsed ? item.name : ''}
+                className={`flex items-center ${sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-xl transition-all duration-200 ${item.active ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+            >
+                <item.icon className={`w-5 h-5 flex-shrink-0 ${item.active && sidebarCollapsed ? 'animate-bounce' : ''}`} />
+                {!sidebarCollapsed && <span className="whitespace-nowrap overflow-hidden text-sm">{item.name}</span>}
+            </Link>
+        );
+    }
+
+    const activeChild = item.children.some(c => c.active);
+
+    return (
+        <div className="flex flex-col">
+            <button
+                onClick={() => {
+                    if (sidebarCollapsed) setSidebarCollapsed(false);
+                    setIsOpen(!isOpen);
+                }}
+                title={sidebarCollapsed ? item.name : ''}
+                className={`flex justify-between items-center ${sidebarCollapsed ? 'justify-center px-0' : 'px-4'} py-3 rounded-xl transition-all duration-200 ${activeChild || item.active ? 'bg-blue-50/50 text-blue-600 font-semibold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+            >
+                <div className={`flex items-center ${sidebarCollapsed ? 'justify-center w-full' : 'gap-3'}`}>
+                    <item.icon className={`w-5 h-5 flex-shrink-0 ${(activeChild || item.active) && sidebarCollapsed ? 'text-blue-600 animate-pulse' : ''}`} />
+                    {!sidebarCollapsed && <span className="whitespace-nowrap overflow-hidden text-sm">{item.name}</span>}
+                </div>
+                {!sidebarCollapsed && (
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                )}
+            </button>
+            
+            <div className={`overflow-hidden transition-all duration-300 ${isOpen && !sidebarCollapsed ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
+                <div className="flex flex-col gap-1 pl-11 pr-2 py-1">
+                    {item.children.filter(c => c.show !== false).map(child => (
+                        <Link
+                            key={child.name}
+                            href={child.href}
+                            className={`px-3 py-2 text-sm rounded-lg transition-colors ${child.active ? 'bg-blue-100 text-blue-700 font-bold shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
+                        >
+                            {child.name}
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
@@ -85,51 +143,97 @@ export default function Authenticated({ user, header, children }) {
 
     const navItems = [
         { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, active: url === '/dashboard', show: auth.active_features?.includes(15) },
-        { name: 'Absensi', href: route('absensi.index'), icon: Camera, active: url === '/absensi', show: auth.active_features?.includes(2) },
-        { name: 'Rekap Absensi', href: route('absensi.rekap'), icon: ClipboardList, active: url.startsWith('/absensi/rekap'), show: auth.active_features?.includes(2) },
-        { name: 'Izin/Sakit', href: route('absensi.pengajuan'), icon: FileText, active: url.startsWith('/absensi/pengajuan'), show: auth.active_features?.includes(2) },
-        { name: 'Marketing', href: route('marketing.index'), icon: Briefcase, active: url.startsWith('/marketing'), show: auth.active_features?.includes(3) },
-        { name: 'Data Outlet', href: route('outlets.index'), icon: Store, active: url.startsWith('/outlets'), show: auth.active_features?.includes(9) },
-        { name: 'Dashboard Laporan', href: route('reports.index'), icon: BarChart2, active: url.startsWith('/reports'), show: auth.active_features?.includes(7) },
-        { name: 'Kebutuhan Barang', href: route('item-requirements.index'), icon: Package, active: url.startsWith('/item-requirements'), show: true },
-        { name: 'Form UC', href: route('requests.uc.index'), icon: PlaneTakeoff, active: url.startsWith('/requests/uc') && !url.startsWith('/requests/uc-approval') && !url.startsWith('/requests/uc-history'), show: auth.active_features?.includes(4) },
-        { name: 'Riwayat & Result UC', href: route('requests.uc.history'), icon: FileCheck, active: url.startsWith('/requests/uc-history'), show: auth.active_features?.includes(4) },
-        { name: 'Persetujuan UC', href: route('requests.uc.approval.index'), icon: CheckCircle, active: url.startsWith('/requests/uc-approval'), show: auth.active_features?.includes(8) },
-        { name: 'Form BHP', href: route('requests.bhp.index'), icon: ShoppingCart, active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(5) },
-        { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), icon: ClipboardList, active: url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(5) },
-        { name: 'Laporan Logistik', href: route('logistic-reports.index'), icon: ClipboardList, active: url.startsWith('/logistic-reports'), show: true },
-        { name: 'Surat Pesanan', href: route('purchase-orders.index'), icon: FileText, active: url.startsWith('/purchase-orders'), show: true },
-        { name: 'Data Piutang', href: route('receivables.index'), icon: Wallet, active: url.startsWith('/receivables'), show: true },
-        { name: 'Data Hutang', href: route('payables.index'), icon: CreditCard, active: url.startsWith('/payables'), show: true },
-        { name: 'Rekap Marketing', href: route('marketing.recap.index'), icon: Users, active: url.startsWith('/marketing/recap-all'), show: auth.active_features?.includes(10) },
-        { name: 'Sync Spreadsheet', href: route('spreadsheet.index'), icon: Database, active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(1) },
-        { name: 'Notifikasi', href: route('notifications.index'), icon: Bell, active: url.startsWith('/settings/notifications'), show: auth.active_features?.includes(13) },
-        { name: 'Pengguna', href: route('users.index'), icon: Users, active: url.startsWith('/users'), show: auth.active_features?.includes(6) },
-        { name: 'Data Armada', href: route('vehicles.index'), icon: Truck, active: url.startsWith('/vehicles'), show: auth.active_features?.includes(11) },
-        { name: 'Data Penyedia', href: route('providers.index'), icon: Store, active: url.startsWith('/providers'), show: auth.active_features?.includes(12) },
-        { name: 'Pengaturan', href: route('profile.edit'), icon: Settings, active: url.startsWith('/profile'), show: auth.active_features?.includes(14) },
-    ].filter(item => item.show);
+        { 
+            name: 'Absensi', icon: Camera, show: auth.active_features?.includes(2), 
+            active: url.startsWith('/absensi'),
+            children: [
+                { name: 'Ambil Absensi', href: route('absensi.index'), active: url === '/absensi' },
+                { name: 'Rekap Absensi', href: route('absensi.rekap'), active: url.startsWith('/absensi/rekap') },
+                { name: 'Izin/Sakit', href: route('absensi.pengajuan'), active: url.startsWith('/absensi/pengajuan') },
+            ]
+        },
+        { 
+            name: 'Marketing', icon: Briefcase, show: auth.active_features?.includes(3) || auth.active_features?.includes(10),
+            active: url.startsWith('/marketing'),
+            children: [
+                { name: 'Form Marketing', href: route('marketing.index'), active: url === '/marketing', show: auth.active_features?.includes(3) },
+                { name: 'Rekap Marketing', href: route('marketing.recap.index'), active: url.startsWith('/marketing/recap-all'), show: auth.active_features?.includes(10) },
+            ]
+        },
+        {
+            name: 'Up Country (UC)', icon: PlaneTakeoff, show: auth.active_features?.includes(4) || auth.active_features?.includes(8),
+            active: url.startsWith('/requests/uc'),
+            children: [
+                { name: 'Form UC', href: route('requests.uc.index'), active: url.startsWith('/requests/uc') && !url.startsWith('/requests/uc-approval') && !url.startsWith('/requests/uc-history'), show: auth.active_features?.includes(4) },
+                { name: 'Riwayat UC', href: route('requests.uc.history'), active: url.startsWith('/requests/uc-history'), show: auth.active_features?.includes(4) },
+                { name: 'Persetujuan UC', href: route('requests.uc.approval.index'), active: url.startsWith('/requests/uc-approval'), show: auth.active_features?.includes(8) },
+            ]
+        },
+        {
+            name: 'Form BHP', icon: ShoppingCart, show: auth.active_features?.includes(5),
+            active: url.startsWith('/requests/bhp'),
+            children: [
+                { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap') },
+                { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap') },
+            ]
+        },
+        {
+            name: 'Laporan & Data', icon: BarChart2, show: true,
+            active: url.startsWith('/reports') || url.startsWith('/logistic-reports') || url.startsWith('/purchase-orders') || url.startsWith('/receivables') || url.startsWith('/payables'),
+            children: [
+                { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_features?.includes(7) },
+                { name: 'Laporan Logistik', href: route('logistic-reports.index'), active: url.startsWith('/logistic-reports') },
+                { name: 'Surat Pesanan', href: route('purchase-orders.index'), active: url.startsWith('/purchase-orders') },
+                { name: 'Data Piutang', href: route('receivables.index'), active: url.startsWith('/receivables') },
+                { name: 'Data Hutang', href: route('payables.index'), active: url.startsWith('/payables') },
+            ]
+        },
+        {
+            name: 'Master Data', icon: Database, show: true,
+            active: url.startsWith('/outlets') || url.startsWith('/item-requirements') || url.startsWith('/vehicles') || url.startsWith('/providers') || url.startsWith('/users') || url.startsWith('/company'),
+            children: [
+                { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: true },
+                { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_features?.includes(9) },
+                { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements') },
+                { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_features?.includes(11) },
+                { name: 'Data Penyedia', href: route('providers.index'), active: url.startsWith('/providers'), show: auth.active_features?.includes(12) },
+                { name: 'Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_features?.includes(6) },
+            ]
+        },
+        {
+            name: 'Sistem', icon: Settings, show: true,
+            active: url.startsWith('/spreadsheet') || url.startsWith('/settings') || url.startsWith('/profile'),
+            children: [
+                { name: 'Sync Spreadsheet', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(1) },
+                { name: 'Notifikasi', href: route('notifications.index'), active: url.startsWith('/settings/notifications'), show: auth.active_features?.includes(13) },
+                { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_features?.includes(14) },
+            ]
+        }
+    ].filter(item => item.show !== false);
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
             {/* Sidebar Desktop */}
             <aside className={`hidden lg:flex flex-col bg-white border-r border-gray-100 shadow-[2px_0_8px_-4px_rgba(0,0,0,0.1)] fixed h-full z-20 transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
-                <div className="p-6 flex items-center justify-center h-24">
-                    <Link href={route('dashboard')}>
-                        <ApplicationLogo className={`h-auto flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'w-10' : 'w-28'}`} />
+                <div className="p-6 flex items-center justify-center h-28 border-b border-gray-50 mb-2">
+                    <Link href={route('dashboard')} className={`relative flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100/80 hover:shadow-[0_4px_15px_-3px_rgba(6,81,237,0.15)] hover:border-blue-100 transition-all duration-300 group overflow-hidden ${sidebarCollapsed ? 'w-12 h-12 p-2' : 'w-full h-16 p-2'}`}>
+                        {/* Decorative background glow */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        {auth.user?.company?.logo ? (
+                            <img 
+                                src={`/storage/${auth.user.company.logo}`} 
+                                alt={auth.user.company.name}
+                                className={`relative z-10 h-full w-full object-contain transition-all duration-300 ${sidebarCollapsed ? 'scale-90' : 'px-2'}`} 
+                            />
+                        ) : (
+                            <ApplicationLogo className={`relative z-10 transition-all duration-300 ${sidebarCollapsed ? 'w-8 h-8' : 'w-28 h-auto'}`} />
+                        )}
                     </Link>
                 </div>
-                <div className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+                <div className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto">
                     {navItems.map((item) => (
-                        <Link
-                            key={item.name}
-                            href={item.href}
-                            title={sidebarCollapsed ? item.name : ''}
-                            className={`flex items-center ${sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-xl transition-all duration-200 ${item.active ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-                        >
-                            <item.icon className={`w-5 h-5 flex-shrink-0 ${item.active && sidebarCollapsed ? 'animate-bounce' : ''}`} />
-                            {!sidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">{item.name}</span>}
-                        </Link>
+                        <SidebarItem key={item.name} item={item} sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={setSidebarCollapsed} />
                     ))}
                 </div>
                 
@@ -158,8 +262,16 @@ export default function Authenticated({ user, header, children }) {
                                 >
                                     {showingNavigationDropdown ? <X className="w-6 h-6" /> : <LucideMenu className="w-6 h-6" />}
                                 </button>
-                                <Link href={route("dashboard")} className="ml-3">
-                                    <ApplicationLogo className="w-20 h-auto" />
+                                <Link href={route("dashboard")} className="ml-3 relative flex items-center justify-center bg-white rounded-xl shadow-[0_2px_8px_-2px_rgba(6,81,237,0.1)] border border-gray-100 p-1.5 h-10 w-24">
+                                    {auth.user?.company?.logo ? (
+                                        <img 
+                                            src={`/storage/${auth.user.company.logo}`} 
+                                            alt={auth.user.company.name}
+                                            className="w-full h-full object-contain" 
+                                        />
+                                    ) : (
+                                        <ApplicationLogo className="w-full h-full object-contain" />
+                                    )}
                                 </Link>
                             </div>
 
@@ -244,25 +356,26 @@ export default function Authenticated({ user, header, children }) {
                     <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onClick={() => setShowingNavigationDropdown(false)}></div>
                     <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl flex flex-col">
                         <div className="p-6 flex items-center border-b border-gray-100 relative h-24">
-                            <div className="flex-1 flex justify-center">
-                                <Link href={route("dashboard")}>
-                                    <ApplicationLogo className="w-28 h-auto" />
+                            <div className="flex-1 flex justify-center w-full px-2">
+                                <Link href={route("dashboard")} className="relative flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-2 h-16 w-full max-w-[200px]">
+                                    {auth.user?.company?.logo ? (
+                                        <img 
+                                            src={`/storage/${auth.user.company.logo}`} 
+                                            alt={auth.user.company.name}
+                                            className="w-full h-full object-contain px-2" 
+                                        />
+                                    ) : (
+                                        <ApplicationLogo className="w-24 h-auto" />
+                                    )}
                                 </Link>
                             </div>
                             <button onClick={() => setShowingNavigationDropdown(false)} className="absolute right-6 p-2 rounded-xl text-gray-400 hover:text-gray-500 hover:bg-gray-100">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <div className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                        <div className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
                             {navItems.map((item) => (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${item.active ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-                                >
-                                    <item.icon className="w-5 h-5" />
-                                    {item.name}
-                                </Link>
+                                <SidebarItem key={item.name} item={item} sidebarCollapsed={false} setSidebarCollapsed={() => {}} />
                             ))}
                         </div>
                     </aside>
@@ -276,7 +389,7 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 )}
 
-                <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 transition-all duration-300">
+                <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 lg:pt-4 pb-4 sm:pb-6 lg:pb-8 transition-all duration-300">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>

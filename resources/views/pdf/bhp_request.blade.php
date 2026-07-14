@@ -27,7 +27,7 @@
 
     <div class="signature-box">
         <p>Disetujui Oleh,</p>
-        <img src="data:image/png;base64, {!! $qrCode !!}" width="80" />
+        <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="80" />
         <p><strong>Digital Signature</strong><br><small>{{ date('d M Y') }}</small></p>
     </div>
     <div class="clear"></div>

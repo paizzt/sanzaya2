@@ -13,6 +13,7 @@ use App\Http\Controllers\OutletController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\BhpRecapController;
+use App\Http\Controllers\CompanyController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -81,6 +82,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Kelola Pengguna
     Route::resource('users', UserController::class);
+
+    // Data Perusahaan
+    Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
+    Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
+    Route::post('/company/{id}', [CompanyController::class, 'update'])->name('company.update');
+    Route::delete('/company/{id}', [CompanyController::class, 'destroy'])->name('company.destroy');
     
     // Data Outlet
     Route::post('outlets/bulk-delete', [OutletController::class, 'bulkDestroy'])->name('outlets.bulkDestroy');

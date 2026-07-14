@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react';
 const StatCard = ({ title, value, icon: Icon, color, delay }) => {
     return (
         <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center gap-4 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-${color}-50 text-${color}-500 shadow-inner`}>
-                <Icon className="w-7 h-7" />
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${color}-50 text-${color}-500 shadow-inner`}>
+                <Icon className="w-6 h-6" />
             </div>
             
             <div>
@@ -33,13 +33,13 @@ export default function Dashboard({ auth, stats, isAdmin }) {
             user={auth.user}
             header={
                 <div className="flex items-center justify-between">
-                    <h2 className="font-bold text-2xl text-gray-800 leading-tight">Command Center</h2>
+                    <h2 className="font-bold text-2xl text-gray-800 leading-tight">Beranda</h2>
                 </div>
             }
         >
             <Head title="Dashboard" />
 
-            <div className="py-6 space-y-6">
+            <div className="pb-6 pt-0 space-y-6">
                 
                 {/* Main Metrics (Today/Pending) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -86,7 +86,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                     </div>
 
                     {/* Greeting Card */}
-                    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden flex flex-col justify-between">
+                    <div className="bg-blue-500 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden flex flex-col justify-between">
                         <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white/10 blur-2xl"></div>
                         <div>
                             <h3 className="font-bold text-lg mb-2 relative z-10">Selamat Datang,</h3>

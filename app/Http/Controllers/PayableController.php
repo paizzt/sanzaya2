@@ -11,8 +11,10 @@ class PayableController extends Controller
     public function index()
     {
         $items = Payable::orderBy('id', 'desc')->get();
+        $providers = \App\Models\Provider::orderBy('name')->get();
         return Inertia::render('Payables/Index', [
-            'items' => $items
+            'items' => $items,
+            'providers' => $providers
         ]);
     }
 

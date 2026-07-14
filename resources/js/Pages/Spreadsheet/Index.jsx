@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Database, RefreshCw, Save, Key, AlertTriangle, Plus, Trash2, Package, ShoppingCart, CreditCard, Copy } from 'lucide-react';
+import { Database, RefreshCw, Save, Key, AlertTriangle, Plus, Trash2, Package, ShoppingCart, CreditCard, Copy, ChevronDown } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -10,6 +10,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function Index({ config_logistik, config_pesanan, config_piutang, config_hutang }) {
     const [activeTab, setActiveTab] = useState('logistik');
+    const [isTabDropdownOpen, setIsTabDropdownOpen] = useState(false);
     const { flash } = usePage().props;
 
     const logistikForm = useForm({
@@ -225,7 +226,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
         >
             <Head title="Spreadsheet Sync" />
 
-            <div className="py-6 space-y-8">
+            <div className="pb-6 pt-0 space-y-8">
                 
                 {/* Stats / Status */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -259,19 +260,50 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     {/* Form Konfigurasi */}
                     <div className="lg:col-span-2 space-y-6">
                         
-                        <div className="flex gap-2 p-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
-                            <button onClick={() => setActiveTab('logistik')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab==='logistik'?'bg-blue-50 text-blue-700':'text-gray-500 hover:bg-gray-50'}`}>
-                                <Package className="w-4 h-4"/> Laporan Logistik
+                        <div className="relative mb-6">
+                            <button 
+                                onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
+                                className="w-full md:w-auto flex items-center justify-between gap-3 px-6 py-3 bg-white border border-gray-200 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:bg-gray-50 transition-all text-gray-700 font-bold text-sm"
+                            >
+                                <div className="flex items-center gap-2">
+                                    {activeTab === 'logistik' && <><Package className="w-4 h-4 text-blue-600"/> Laporan Logistik</>}
+                                    {activeTab === 'pesanan' && <><ShoppingCart className="w-4 h-4 text-emerald-600"/> Surat Pesanan</>}
+                                    {activeTab === 'piutang' && <><CreditCard className="w-4 h-4 text-purple-600"/> Data Piutang</>}
+                                    {activeTab === 'hutang' && <><CreditCard className="w-4 h-4 text-orange-600"/> Data Hutang</>}
+                                </div>
+                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
-                            <button onClick={() => setActiveTab('pesanan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab==='pesanan'?'bg-emerald-50 text-emerald-700':'text-gray-500 hover:bg-gray-50'}`}>
-                                <ShoppingCart className="w-4 h-4"/> Surat Pesanan
-                            </button>
-                            <button onClick={() => setActiveTab('piutang')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab==='piutang'?'bg-purple-50 text-purple-700':'text-gray-500 hover:bg-gray-50'}`}>
-                                <CreditCard className="w-4 h-4"/> Data Piutang
-                            </button>
-                            <button onClick={() => setActiveTab('hutang')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab==='hutang'?'bg-orange-50 text-orange-700':'text-gray-500 hover:bg-gray-50'}`}>
-                                <CreditCard className="w-4 h-4"/> Data Hutang
-                            </button>
+
+                            {isTabDropdownOpen && (
+                                <div className="absolute z-50 mt-2 w-full md:w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                                    <div className="p-2 space-y-1 text-sm">
+                                        <button 
+                                            onClick={() => { setActiveTab('logistik'); setIsTabDropdownOpen(false); }} 
+                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='logistik'?'bg-blue-50 text-blue-700':'text-gray-500 hover:bg-gray-50'}`}
+                                        >
+                                            <Package className="w-4 h-4"/> Laporan Logistik
+                                        </button>
+                                        <button 
+                                            onClick={() => { setActiveTab('pesanan'); setIsTabDropdownOpen(false); }} 
+                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='pesanan'?'bg-emerald-50 text-emerald-700':'text-gray-500 hover:bg-gray-50'}`}
+                                        >
+                                            <ShoppingCart className="w-4 h-4"/> Surat Pesanan
+                                        </button>
+                                        <button 
+                                            onClick={() => { setActiveTab('piutang'); setIsTabDropdownOpen(false); }} 
+                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='piutang'?'bg-purple-50 text-purple-700':'text-gray-500 hover:bg-gray-50'}`}
+                                        >
+                                            <CreditCard className="w-4 h-4"/> Data Piutang
+                                        </button>
+                                        <button 
+                                            onClick={() => { setActiveTab('hutang'); setIsTabDropdownOpen(false); }} 
+                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='hutang'?'bg-orange-50 text-orange-700':'text-gray-500 hover:bg-gray-50'}`}
+                                        >
+                                            <CreditCard className="w-4 h-4"/> Data Hutang
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
@@ -284,23 +316,23 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
 
                     {/* Petunjuk Penggunaan */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
+                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-fit">
                             <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4 flex items-center gap-2">
                                 <Key className="text-gray-400 w-5 h-5" /> Petunjuk Setup API
                             </h3>
                             <div className="space-y-4 text-sm text-gray-600">
-                                <div className="flex gap-2 items-start">
-                                    <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold flex-shrink-0 mt-0.5">1</span> 
-                                    <div className="flex flex-col gap-2 w-full">
-                                        <span>Bagikan file Spreadsheet sebagai "Pelihat" ke email Service Account berikut:</span>
-                                        <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg border border-gray-200">
-                                            <code className="text-xs text-gray-700 flex-1 truncate">sanzaya@sanzaya.iam.gserviceaccount.com</code>
+                                <div className="flex gap-3 items-start">
+                                    <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold flex-shrink-0 mt-0.5 text-xs">1</span> 
+                                    <div className="flex flex-col gap-2 flex-1 min-w-0">
+                                        <span className="leading-relaxed">Bagikan file Spreadsheet sebagai "Pelihat" ke email Service Account berikut:</span>
+                                        <div className="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200 w-full overflow-hidden">
+                                            <code className="text-[11px] text-gray-700 flex-1 truncate font-mono">sanzaya@sanzaya.iam.gserviceaccount.com</code>
                                             <button 
                                                 onClick={() => {
                                                     navigator.clipboard.writeText('sanzaya@sanzaya.iam.gserviceaccount.com');
                                                     Swal.fire({ title: 'Disalin!', text: 'Email berhasil disalin ke clipboard.', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
                                                 }}
-                                                className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition-colors"
+                                                className="p-1.5 bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-colors flex-shrink-0 shadow-sm"
                                                 title="Salin Email"
                                             >
                                                 <Copy className="w-4 h-4" />
@@ -308,7 +340,10 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                                         </div>
                                     </div>
                                 </div>
-                                <p className="flex gap-2 items-start"><span className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">2</span> Setiap Tipe laporan (Logistik, Pesanan, Piutang) ditarik dan disimpan ke dalam tabel databasenya masing-masing secara terpisah.</p>
+                                <div className="flex gap-3 items-start mt-4">
+                                    <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold flex-shrink-0 mt-0.5 text-xs">2</span>
+                                    <span className="flex-1 min-w-0 leading-relaxed">Setiap Tipe laporan (Logistik, Pesanan, Piutang) ditarik dan disimpan ke dalam tabel databasenya masing-masing secara terpisah.</span>
+                                </div>
                             </div>
                         </div>
                     </div>

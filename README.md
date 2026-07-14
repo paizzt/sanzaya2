@@ -1,59 +1,107 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏢 Sanzaya Information System (SIS)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Inertia.js](https://img.shields.io/badge/Inertia.js-9553E9?style=for-the-badge&logo=inertia&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-## About Laravel
+Sanzaya Information System adalah aplikasi sistem informasi manajemen internal atau *Enterprise Resource Planning* (ERP) berskala ringan yang dirancang untuk mendigitalkan seluruh proses operasional bisnis. Aplikasi ini mengelola absensi karyawan, pengajuan biaya dan barang, manajemen outlet, laporan kinerja (marketing & logistik), serta pemantauan keuangan (hutang-piutang).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🎯 Fitur & Penjelasan Proses Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Aplikasi ini dibagi menjadi beberapa modul besar yang saling terintegrasi. Berikut adalah rincian detail setiap proses yang ada di dalam sistem:
 
-## Learning Laravel
+### 1. 👥 Manajemen Karyawan & Autentikasi
+*   **Role-Based Access Control (RBAC):** Sistem ini dilengkapi dengan pembagian hak akses (Superadmin, Admin, Manager, Direktur, dan Staff/Sales).
+*   **Profil & Pengaturan:** Karyawan dapat mengelola data profil mereka, sementara Admin dapat mengelola penempatan, jabatan, serta status aktif karyawan.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 2. 📸 Modul Absensi (Kehadiran)
+Proses pencatatan kehadiran harian karyawan secara *real-time*.
+*   **Check-in & Check-out:** Karyawan melakukan absensi dengan melampirkan foto secara langsung melalui kamera perangkat genggam atau laptop. 
+*   **Pengajuan Izin & Sakit:** Jika karyawan berhalangan hadir, mereka dapat mengisi *Form Pengajuan Absen* dengan memilih tanggal dan melampirkan alasan.
+*   **Rekap Absensi:** Halaman laporan yang menampilkan rangkuman kehadiran, sakit, izin, dan alpa. Admin dapat memantau kehadiran seluruh karyawan, sedangkan staff biasa hanya dapat melihat riwayat mereka sendiri. Halaman ini juga dilengkapi fitur *preview* pop-up untuk **melihat bukti foto absensi**.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 3. 📝 Modul Pengajuan (Requests)
+Modul untuk mendigitalkan sistem perizinan pengeluaran atau permintaan barang.
+*   **Pengajuan Upcountry (UC):** 
+    Digunakan oleh sales atau staff yang akan melakukan perjalanan dinas/luar kota. Karyawan memilih entitas tujuan, jenis transportasi (Darat/Laut/Udara), dan nama pendamping. Sistem secara cerdas akan mengaktifkan form "Estimasi Biaya" (Bensin, Penginapan, Konsumsi) dan meminta nomor plat kendaraan jika transportasi darat dipilih. Proses ini melewati sistem *Approval* berjenjang (Disetujui/Ditolak).
+*   **Pengajuan BHP (Barang Habis Pakai):**
+    Proses permintaan alat tulis kantor (ATK) atau perlengkapan operasional. Karyawan memilih barang dan kuantitas, kemudian sistem akan meneruskannya ke bagian logistik untuk diproses.
 
-## Laravel Sponsors
+### 4. 📊 Modul Laporan (Reporting)
+*   **Laporan Logistik:** Form pelaporan pengiriman barang ke outlet. Terintegrasi dengan fitur pencarian cepat (*Searchable Select*) untuk mempercepat pemilihan nama Sales, Nama Outlet, dan rincian logistik lainnya, guna meminimalisir kesalahan ketik (*typo*).
+*   **Laporan Marketing (Daily & Weekly Target):** Pencatatan kinerja harian tim marketing dan penentuan target mingguan. Data ini membantu manajemen melacak produktivitas secara harian.
+*   **Sinkronisasi Spreadsheet:** Terdapat sistem *Spreadsheet Sync* untuk mengekspor atau menarik data pelaporan secara langsung ke/dari Google Sheets.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 5. 💰 Modul Keuangan (Hutang Piutang)
+Modul untuk memantau arus kas keluar dan piutang toko.
+*   **Piutang (Receivables):** Mencatat tagihan yang belum dibayar oleh outlet atau klien. Menampilkan sisa tagihan, riwayat cicilan, dan format mata uang Rupiah otomatis.
+*   **Hutang (Payables):** Mencatat tanggungan perusahaan kepada pihak ketiga/distributor.
 
-### Premium Partners
+### 6. 🏢 Manajemen Data Master
+Tempat penyimpanan *database* utama yang menjadi tulang punggung transaksi.
+*   **Manajemen Kendaraan:** Mendata plat nomor, jenis, dan kondisi kendaraan operasional.
+*   **Manajemen Provider & Outlet:** Mendata rekanan bisnis dan daftar toko/outlet tujuan distribusi, lengkap dengan pemetaan rute.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 💻 Teknologi yang Digunakan (Tech Stack)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Bagian | Teknologi |
+| :--- | :--- |
+| **Backend** | Laravel 12.x, PHP 8.2 |
+| **Frontend** | React.js, Inertia.js |
+| **Styling** | Tailwind CSS v3, Headless UI, Lucide Icons |
+| **Database** | SQLite (Development) / MySQL (Production) |
+| **Utilities** | SweetAlert2 (Notifikasi & Pop-up Foto), Day.js (Format Waktu) |
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🚀 Panduan Instalasi (Development)
 
-## Security Vulnerabilities
+Jika Anda ingin menjalankan aplikasi ini di lingkungan lokal (*localhost*), ikuti langkah-langkah berikut:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. **Persiapan Sistem**
+   Pastikan Anda telah menginstal `PHP >= 8.2`, `Composer`, dan `Node.js >= 18`.
 
-## License
+2. **Clone Repositori & Masuk ke Direktori**
+   \`\`\`bash
+   git clone <url-repo> sanzaya2
+   cd sanzaya2
+   \`\`\`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+3. **Instalasi Dependensi**
+   \`\`\`bash
+   composer install
+   npm install
+   \`\`\`
+
+4. **Konfigurasi Environment**
+   Salin file konfigurasi bawaan dan sesuaikan (seperti koneksi database):
+   \`\`\`bash
+   cp .env.example .env
+   php artisan key:generate
+   \`\`\`
+
+5. **Migrasi Database & Seeder**
+   \`\`\`bash
+   php artisan migrate --seed
+   \`\`\`
+   *(Catatan: Jangan lupa untuk menautkan storage agar foto absensi dapat dimuat dengan `php artisan storage:link`)*
+
+6. **Jalankan Aplikasi**
+   Buka dua jendela terminal.
+   Terminal 1 (Menjalankan server PHP):
+   \`\`\`bash
+   php artisan serve
+   \`\`\`
+   Terminal 2 (Menjalankan Vite bundler untuk React):
+   \`\`\`bash
+   npm run dev
+   \`\`\`
+   Aplikasi dapat diakses melalui `http://127.0.0.1:8000`.
+
+---
+*Dibuat & Dikelola untuk kebutuhan operasional Sanzaya Group.*

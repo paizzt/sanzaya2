@@ -61,7 +61,7 @@ export default function Notifications({ setting }) {
         >
             <Head title="Pengaturan Notifikasi" />
 
-            <div className="py-6 space-y-8">
+            <div className="pb-6 pt-0 space-y-8">
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* VAPID Status */}

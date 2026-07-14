@@ -7,9 +7,10 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
-import CustomSelect from '@/Components/CustomSelect';
+import SearchableSelect from '@/Components/SearchableSelect';
+import CustomDatePicker from '@/Components/CustomDatePicker';
 
-export default function UC({ requests, users }) {
+export default function UC({ requests, users, vehicles }) {
     const user = usePage().props.auth.user;
     
     // Calculate Days Diff
@@ -69,6 +70,20 @@ export default function UC({ requests, users }) {
         setData('companions', newCompanions.filter(c => c !== '')); // Remove empties
     };
 
+    const handleCurrencyChange = (field, e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value) {
+            setData(field, (parseInt(value, 10) / 100).toString());
+        } else {
+            setData(field, '');
+        }
+    };
+
+    const formatRupiah = (value) => {
+        if (!value) return '';
+        return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+    };
+
     return (
         <AuthenticatedLayout
             user={user}
@@ -76,7 +91,7 @@ export default function UC({ requests, users }) {
         >
             <Head title="Pengajuan UC" />
 
-            <div className="py-6 space-y-8">
+            <div className="pb-6 pt-0 space-y-8">
                 
                 {/* Form Pengajuan UC */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
@@ -91,17 +106,20 @@ export default function UC({ requests, users }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <InputLabel value="Pilih Entitas Perusahaan *" />
-                                <CustomSelect
-                                    value={data.entity}
-                                    onChange={(val) => setData('entity', val)}
-                                    options={[
-                                        { value: 'PT. Sanzaya Medika Pratama', label: 'PT. Sanzaya Medika Pratama (Sanzaya)' },
-                                        { value: 'PT. Harkes', label: 'PT. Harkes (Harkes)' },
-                                        { value: 'CV. Meraki', label: 'CV. Meraki (Meraki)' },
-                                        { value: 'PT. MSI', label: 'PT. MSI (MSI)' },
-                                        { value: 'PT. Ruma', label: 'PT. Ruma (Ruma)' }
-                                    ]}
-                                />
+                                <div className="mt-1">
+                                    <SearchableSelect
+                                        value={data.entity}
+                                        onChange={(val) => setData('entity', val)}
+                                        options={[
+                                            { value: 'PT. Sanzaya Medika Pratama', label: 'PT. Sanzaya Medika Pratama (Sanzaya)' },
+                                            { value: 'PT. Harkes', label: 'PT. Harkes (Harkes)' },
+                                            { value: 'CV. Meraki', label: 'CV. Meraki (Meraki)' },
+                                            { value: 'PT. MSI', label: 'PT. MSI (MSI)' },
+                                            { value: 'PT. Ruma', label: 'PT. Ruma (Ruma)' }
+                                        ]}
+                                        placeholder="Pilih Entitas..."
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <InputLabel value="Nama Pegawai" />
@@ -134,22 +152,22 @@ export default function UC({ requests, users }) {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <InputLabel value="Tgl Berangkat *" className="flex items-center gap-2"><Calendar className="w-4 h-4 text-gray-500"/> Berangkat</InputLabel>
-                                <TextInput 
-                                    type="date"
-                                    className="mt-1 block w-full" 
-                                    value={data.departure_date}
-                                    onChange={(e) => setData('departure_date', e.target.value)}
-                                />
+                                <div className="mt-1">
+                                    <CustomDatePicker 
+                                        value={data.departure_date}
+                                        onChange={(val) => setData('departure_date', val)}
+                                    />
+                                </div>
                                 <InputError message={errors.departure_date} className="mt-2" />
                             </div>
                             <div>
                                 <InputLabel value="Tgl Pulang *" className="flex items-center gap-2"><Calendar className="w-4 h-4 text-gray-500"/> Pulang</InputLabel>
-                                <TextInput 
-                                    type="date"
-                                    className="mt-1 block w-full" 
-                                    value={data.return_date}
-                                    onChange={(e) => setData('return_date', e.target.value)}
-                                />
+                                <div className="mt-1">
+                                    <CustomDatePicker 
+                                        value={data.return_date}
+                                        onChange={(val) => setData('return_date', val)}
+                                    />
+                                </div>
                                 <InputError message={errors.return_date} className="mt-2" />
                             </div>
                             <div>
@@ -163,29 +181,23 @@ export default function UC({ requests, users }) {
                         <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                             <InputLabel value="Nama Pendamping (Opsional)" className="flex items-center gap-2 mb-3"><Users className="w-4 h-4 text-gray-500"/> Pendamping</InputLabel>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <CustomSelect
+                                <SearchableSelect
                                     value={data.companions?.[0] || ''}
                                     onChange={(val) => handleCompanionChange(0, val)}
-                                    options={[
-                                        { value: '', label: '-- Pilih Pendamping 1 --' },
-                                        ...(users || []).map(u => ({ value: u.name, label: u.name }))
-                                    ]}
+                                    options={(users || []).map(u => ({ value: u.name, label: u.name }))}
+                                    placeholder="Pilih Pendamping 1"
                                 />
-                                <CustomSelect
+                                <SearchableSelect
                                     value={data.companions?.[1] || ''}
                                     onChange={(val) => handleCompanionChange(1, val)}
-                                    options={[
-                                        { value: '', label: '-- Pilih Pendamping 2 --' },
-                                        ...(users || []).map(u => ({ value: u.name, label: u.name }))
-                                    ]}
+                                    options={(users || []).map(u => ({ value: u.name, label: u.name }))}
+                                    placeholder="Pilih Pendamping 2"
                                 />
-                                <CustomSelect
+                                <SearchableSelect
                                     value={data.companions?.[2] || ''}
                                     onChange={(val) => handleCompanionChange(2, val)}
-                                    options={[
-                                        { value: '', label: '-- Pilih Pendamping 3 --' },
-                                        ...(users || []).map(u => ({ value: u.name, label: u.name }))
-                                    ]}
+                                    options={(users || []).map(u => ({ value: u.name, label: u.name }))}
+                                    placeholder="Pilih Pendamping 3"
                                 />
                             </div>
                         </div>
@@ -193,60 +205,67 @@ export default function UC({ requests, users }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <InputLabel value="Jenis Transportasi *" className="flex items-center gap-2"><Car className="w-4 h-4 text-gray-500"/> Transportasi</InputLabel>
-                                <CustomSelect
-                                    value={data.transportation_type}
-                                    onChange={(val) => setData('transportation_type', val)}
-                                    options={[
-                                        { value: 'Darat', label: 'Darat' },
-                                        { value: 'Laut', label: 'Laut' },
-                                        { value: 'Udara', label: 'Udara' }
-                                    ]}
-                                />
+                                <div className="mt-1">
+                                    <SearchableSelect
+                                        value={data.transportation_type}
+                                        onChange={(val) => setData('transportation_type', val)}
+                                        options={[
+                                            { value: 'Darat', label: 'Darat' },
+                                            { value: 'Laut', label: 'Laut' },
+                                            { value: 'Udara', label: 'Udara' }
+                                        ]}
+                                        placeholder="Pilih Transportasi"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <InputLabel value="No. Polisi Kendaraan (Jika Darat)" />
-                                <TextInput 
-                                    className="mt-1 block w-full" 
-                                    placeholder="Contoh: DD 1234 XY"
-                                    value={data.vehicle_number}
-                                    onChange={(e) => setData('vehicle_number', e.target.value)}
-                                    disabled={data.transportation_type !== 'Darat'}
-                                />
+                                <div className="mt-1">
+                                    <SearchableSelect 
+                                        value={data.vehicle_number}
+                                        onChange={(val) => setData('vehicle_number', val)}
+                                        options={(vehicles || []).map(v => ({ 
+                                            value: v.license_plate, 
+                                            label: `${v.license_plate} - ${v.brand_type || 'Kendaraan'}` 
+                                        }))}
+                                        placeholder="Pilih Kendaraan (Opsional)"
+                                    />
+                                </div>
                             </div>
                         </div>
 
                         <div className="p-5 mt-6 bg-gray-50 border border-gray-100 rounded-2xl">
-                            <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">Estimasi Biaya (Opsional)</h4>
+                            <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">Estimasi Biaya</h4>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <InputLabel value="Estimasi Biaya Bensin (Rp)" />
                                     <TextInput 
-                                        type="number"
-                                        className="mt-1 block w-full bg-white" 
-                                        placeholder="Kosongkan jika tidak ada"
-                                        value={data.estimated_gas_cost}
-                                        onChange={(e) => setData('estimated_gas_cost', e.target.value)}
+                                        type="text"
+                                        className={`mt-1 block w-full ${data.transportation_type !== 'Darat' ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`} 
+                                        placeholder="Rp 0,00"
+                                        value={data.estimated_gas_cost ? formatRupiah(data.estimated_gas_cost) : ''}
+                                        onChange={(e) => handleCurrencyChange('estimated_gas_cost', e)}
                                         disabled={data.transportation_type !== 'Darat'}
                                     />
                                 </div>
                                 <div>
                                     <InputLabel value="Estimasi Biaya Konsumsi (Rp)" />
                                     <TextInput 
-                                        type="number"
+                                        type="text"
                                         className="mt-1 block w-full bg-white" 
-                                        placeholder="Kosongkan jika tidak ada"
-                                        value={data.estimated_meals_cost}
-                                        onChange={(e) => setData('estimated_meals_cost', e.target.value)}
+                                        placeholder="Rp 0,00"
+                                        value={data.estimated_meals_cost ? formatRupiah(data.estimated_meals_cost) : ''}
+                                        onChange={(e) => handleCurrencyChange('estimated_meals_cost', e)}
                                     />
                                 </div>
                                 <div>
                                     <InputLabel value="Estimasi Biaya Penginapan (Rp)" />
                                     <TextInput 
-                                        type="number"
+                                        type="text"
                                         className="mt-1 block w-full bg-white" 
-                                        placeholder="Kosongkan jika tidak ada"
-                                        value={data.estimated_accommodation_cost}
-                                        onChange={(e) => setData('estimated_accommodation_cost', e.target.value)}
+                                        placeholder="Rp 0,00"
+                                        value={data.estimated_accommodation_cost ? formatRupiah(data.estimated_accommodation_cost) : ''}
+                                        onChange={(e) => handleCurrencyChange('estimated_accommodation_cost', e)}
                                     />
                                 </div>
                             </div>
@@ -254,8 +273,8 @@ export default function UC({ requests, users }) {
 
                         <div className="pt-4 flex justify-end">
                             <PrimaryButton disabled={processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2 text-sm transition-all duration-200">
-                                {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-4 h-4" />}
-                                {processing ? 'Memproses...' : 'Ajukan Form UC'}
+                                {processing && <Loader2 className="w-5 h-5 animate-spin" />}
+                                {processing ? 'Memproses...' : 'Ajukan'}
                             </PrimaryButton>
                         </div>
                     </form>

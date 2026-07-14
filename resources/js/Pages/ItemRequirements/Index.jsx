@@ -188,7 +188,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
         >
             <Head title="Kebutuhan Barang" />
 
-            <div className="py-6 space-y-6 max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6 max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Stats Cards */}
                 {selectedOutlet && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

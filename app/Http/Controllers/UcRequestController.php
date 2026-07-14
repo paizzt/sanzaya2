@@ -17,9 +17,11 @@ class UcRequestController extends Controller
     public function index()
     {
         $users = \App\Models\User::select('id', 'name')->orderBy('name')->get();
+        $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
             
         return Inertia::render('Requests/UC', [
-            'users' => $users
+            'users' => $users,
+            'vehicles' => $vehicles
         ]);
     }
     

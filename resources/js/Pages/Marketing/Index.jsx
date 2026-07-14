@@ -9,6 +9,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
+import CustomDatePicker from '@/Components/CustomDatePicker';
 
 export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -99,7 +100,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         >
             <Head title="Marketing" />
 
-            <div className="py-6 space-y-8">
+            <div className="pb-6 pt-0 space-y-8">
                 
                 {/* Target vs Realization */}
                 <div>
@@ -214,11 +215,9 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <InputLabel value="Tanggal" />
-                                            <TextInput 
-                                                type="date" 
-                                                className="mt-1 block w-full" 
+                                            <CustomDatePicker 
                                                 value={data.visit_date}
-                                                onChange={(e) => setData('visit_date', e.target.value)}
+                                                onChange={(val) => setData('visit_date', val)}
                                             />
                                             <InputError message={errors.visit_date} className="mt-2" />
                                         </div>

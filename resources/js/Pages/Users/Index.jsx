@@ -9,6 +9,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import CustomSelect from '@/Components/CustomSelect';
+import CustomDatePicker from '@/Components/CustomDatePicker';
 
 export default function Index({ users, divisions, positions, areas, roles, companies, featureToggles, userFeatures, spreadsheetSalesNames }) {
     const { flash } = usePage().props;
@@ -168,7 +169,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
         >
             <Head title="Pengguna" />
 
-            <div className="py-6 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <div className="flex justify-between items-center mb-6">
                     <div>
@@ -451,7 +452,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         </div>
                                                         <div>
                                                             <InputLabel value="Tanggal Masuk" />
-                                                            <TextInput type="date" className="mt-1 block w-full" value={data.start_date} onChange={e => setData('start_date', e.target.value)} />
+                                                            <CustomDatePicker value={data.start_date} onChange={val => setData('start_date', val)} />
                                                             <InputError message={errors.start_date} className="mt-1" />
                                                         </div>
                                                     </div>

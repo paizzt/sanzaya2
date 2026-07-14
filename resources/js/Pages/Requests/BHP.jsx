@@ -7,6 +7,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
+import CustomDatePicker from '@/Components/CustomDatePicker';
 
 export default function BHP({ requests, today }) {
     const user = usePage().props.auth.user;
@@ -46,7 +47,7 @@ export default function BHP({ requests, today }) {
         >
             <Head title="Pengajuan BHP" />
 
-            <div className="py-6 space-y-8">
+            <div className="pb-6 pt-0 space-y-8">
                 
                 {/* Form Pengajuan BHP */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
@@ -81,12 +82,12 @@ export default function BHP({ requests, today }) {
 
                         <div>
                             <InputLabel value="Target Tanggal Barang Dibutuhkan *" className="flex items-center gap-2"><Calendar className="w-4 h-4 text-orange-500"/> Tanggal Dibutuhkan</InputLabel>
-                            <TextInput 
-                                type="date"
-                                className="mt-1 block w-full md:w-1/2" 
-                                value={data.target_date}
-                                onChange={(e) => setData('target_date', e.target.value)}
-                            />
+                            <div className="md:w-1/2 mt-1">
+                                <CustomDatePicker 
+                                    value={data.target_date}
+                                    onChange={(val) => setData('target_date', val)}
+                                />
+                            </div>
                             <InputError message={errors.target_date} className="mt-2" />
                         </div>
 

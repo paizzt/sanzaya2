@@ -86,6 +86,8 @@ class AttendanceRecapController extends Controller
                 'type' => 'Hadir',
                 'check_in' => $att->check_in_time,
                 'check_out' => $att->check_out_time,
+                'check_in_photo' => $att->check_in_photo ? asset('storage/' . $att->check_in_photo) : null,
+                'check_out_photo' => $att->check_out_photo ? asset('storage/' . $att->check_out_photo) : null,
                 'status' => 'Selesai'
             ];
         }
@@ -98,6 +100,8 @@ class AttendanceRecapController extends Controller
                 'type' => $req->type,
                 'check_in' => '-',
                 'check_out' => '-',
+                'check_in_photo' => null,
+                'check_out_photo' => null,
                 'status' => $req->status
             ];
         }

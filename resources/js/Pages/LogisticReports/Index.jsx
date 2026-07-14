@@ -8,9 +8,11 @@ import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
+import CustomDatePicker from '@/Components/CustomDatePicker';
+import SearchableSelect from '@/Components/SearchableSelect';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items }) {
+export default function Index({ auth, items, sales, outlets }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
@@ -102,7 +104,7 @@ export default function Index({ auth, items }) {
         >
             <Head title="Laporan Logistik" />
 
-            <div className="py-12">
+            <div className="pb-12 pt-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
@@ -163,7 +165,7 @@ export default function Index({ auth, items }) {
                 </div>
             </div>
 
-            <Modal show={isModalOpen} onClose={closeModal}>
+            <Modal show={isModalOpen} onClose={closeModal} maxWidth="3xl">
                 <form onSubmit={submit} className="p-6">
                     <h2 className="text-lg font-medium text-gray-900 mb-6">
                         {editingItem ? 'Edit Data Logistik' : 'Tambah Data Logistik'}
@@ -172,37 +174,38 @@ export default function Index({ auth, items }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <InputLabel htmlFor="tanggal" value="Tanggal" />
-                            <TextInput
-                                id="tanggal"
-                                type="date"
-                                className="mt-1 block w-full"
-                                value={data.tanggal}
-                                onChange={e => setData('tanggal', e.target.value)}
-                            />
+                            <div className="mt-1">
+                                <CustomDatePicker
+                                    value={data.tanggal}
+                                    onChange={val => setData('tanggal', val)}
+                                />
+                            </div>
                             <InputError message={errors.tanggal} className="mt-2" />
                         </div>
                         
                         <div>
                             <InputLabel htmlFor="nama_sales" value="Nama Sales" />
-                            <TextInput
-                                id="nama_sales"
-                                type="text"
-                                className="mt-1 block w-full"
-                                value={data.nama_sales}
-                                onChange={e => setData('nama_sales', e.target.value)}
-                            />
+                            <div className="mt-1">
+                                <SearchableSelect
+                                    options={sales ? sales.map(s => ({ value: s.name, label: s.name })) : []}
+                                    value={data.nama_sales}
+                                    onChange={val => setData('nama_sales', val)}
+                                    placeholder="Pilih Sales"
+                                />
+                            </div>
                             <InputError message={errors.nama_sales} className="mt-2" />
                         </div>
 
                         <div>
                             <InputLabel htmlFor="nama_outlet" value="Nama Outlet" />
-                            <TextInput
-                                id="nama_outlet"
-                                type="text"
-                                className="mt-1 block w-full"
-                                value={data.nama_outlet}
-                                onChange={e => setData('nama_outlet', e.target.value)}
-                            />
+                            <div className="mt-1">
+                                <SearchableSelect
+                                    options={outlets ? outlets.map(o => ({ value: o.name, label: o.name })) : []}
+                                    value={data.nama_outlet}
+                                    onChange={val => setData('nama_outlet', val)}
+                                    placeholder="Pilih Outlet"
+                                />
+                            </div>
                             <InputError message={errors.nama_outlet} className="mt-2" />
                         </div>
 

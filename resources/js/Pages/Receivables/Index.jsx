@@ -8,25 +8,37 @@ import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
+import SearchableSelect from '@/Components/SearchableSelect';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items }) {
+export default function Index({ auth, items, outlets, companies, filters }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
+    const [filterSearch, setFilterSearch] = useState(filters?.search || '');
+    const [filterPt, setFilterPt] = useState(filters?.pt || '');
+    const [filterYear, setFilterYear] = useState(filters?.year || '');
+
+    const applyFilter = () => {
+        router.get(route('receivables.index'), {
+            search: filterSearch,
+            pt: filterPt,
+            year: filterYear
+        }, { preserveState: true, replace: true });
+    };
+
+    const resetFilter = () => {
+        setFilterSearch('');
+        setFilterPt('');
+        setFilterYear('');
+        router.get(route('receivables.index'));
+    };
+
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
+        nama_pt: '',
         nama_outlet: '',
-        tahun_1: '',
-        tahun_2: '',
-        tahun_3: '',
-        tahun_4: '',
-        total_sanzaya: '',
-        ruma_1: '',
-        ruma_2: '',
-        ruma_3: '',
-        total_ruma: '',
-        total_gabungan: ''
+        details: [{ year: new Date().getFullYear().toString(), amount: '' }]
     });
 
     const openModal = (item = null) => {
@@ -34,21 +46,14 @@ export default function Index({ auth, items }) {
             setEditingItem(item);
             setData({
                 id: item.id,
+                nama_pt: item.nama_pt || '',
                 nama_outlet: item.nama_outlet || '',
-                tahun_1: item.tahun_1 || '',
-                tahun_2: item.tahun_2 || '',
-                tahun_3: item.tahun_3 || '',
-                tahun_4: item.tahun_4 || '',
-                total_sanzaya: item.total_sanzaya || '',
-                ruma_1: item.ruma_1 || '',
-                ruma_2: item.ruma_2 || '',
-                ruma_3: item.ruma_3 || '',
-                total_ruma: item.total_ruma || '',
-                total_gabungan: item.total_gabungan || ''
+                details: item.details && item.details.length > 0 ? item.details : [{ year: new Date().getFullYear().toString(), amount: '' }]
             });
         } else {
             setEditingItem(null);
             reset();
+            setData('details', [{ year: new Date().getFullYear().toString(), amount: '' }]);
         }
         setIsModalOpen(true);
     };
@@ -107,6 +112,12 @@ export default function Index({ auth, items }) {
         });
     };
 
+    // Generate year options from 2020 to 2030
+    const yearOptions = Array.from({ length: 11 }, (_, i) => {
+        const y = (2020 + i).toString();
+        return { value: y, label: y };
+    });
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -114,9 +125,9 @@ export default function Index({ auth, items }) {
         >
             <Head title="Data Piutang" />
 
-            <div className="py-12">
+            <div className="pb-12 pt-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
                             
                             <div className="flex justify-between items-center mb-6">
@@ -130,28 +141,80 @@ export default function Index({ auth, items }) {
                                 </PrimaryButton>
                             </div>
 
+                            <div className="bg-gray-50 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4 items-end">
+                                <div className="w-full md:w-1/3">
+                                    <InputLabel value="Cari Outlet" />
+                                    <TextInput 
+                                        type="text" 
+                                        className="w-full mt-1" 
+                                        placeholder="Nama Outlet..." 
+                                        value={filterSearch} 
+                                        onChange={e => setFilterSearch(e.target.value)} 
+                                        onKeyPress={e => e.key === 'Enter' && applyFilter()}
+                                    />
+                                </div>
+                                <div className="w-full md:w-1/4">
+                                    <InputLabel value="Filter PT" />
+                                    <div className="mt-1">
+                                        <SearchableSelect 
+                                            options={companies ? companies.map(c => ({ value: c.name, label: c.name })) : []}
+                                            value={filterPt}
+                                            onChange={val => setFilterPt(val)}
+                                            placeholder="Semua PT"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="w-full md:w-1/4">
+                                    <InputLabel value="Filter Tahun" />
+                                    <div className="mt-1">
+                                        <SearchableSelect 
+                                            options={yearOptions}
+                                            value={filterYear}
+                                            onChange={val => setFilterYear(val)}
+                                            placeholder="Semua Tahun"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <PrimaryButton onClick={applyFilter} type="button">Filter</PrimaryButton>
+                                    <SecondaryButton onClick={resetFilter} type="button">Reset</SecondaryButton>
+                                </div>
+                            </div>
+
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama PT</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Outlet</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun 1</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun 2</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun 3</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Sanzaya</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Gabungan</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal Piutang</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Piutang</th>
                                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {items.length > 0 ? items.map((item) => (
                                             <tr key={item.id}>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.nama_pt}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.nama_outlet}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.tahun_1}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.tahun_2}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.tahun_3}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap font-bold text-blue-600">{item.total_sanzaya}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">{item.total_gabungan}</td>
+                                                <td className="px-6 py-4">
+                                                    {item.details && item.details.map((d, i) => (
+                                                        <div key={i} className="text-sm font-semibold mb-1">
+                                                            {d.year}
+                                                        </div>
+                                                    ))}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {item.details && item.details.map((d, i) => (
+                                                        <div key={i} className="text-sm mb-1">
+                                                            Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((parseFloat(d.amount) || 0) / 100)}
+                                                        </div>
+                                                    ))}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">
+                                                    Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((parseFloat(item.total) || 0) / 100)}
+                                                </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
                                                         <Edit className="w-4 h-4" />
@@ -185,69 +248,86 @@ export default function Index({ auth, items }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-96 overflow-y-auto pr-2">
                         <div className="md:col-span-2">
+                            <InputLabel htmlFor="nama_pt" value="Nama PT (Perusahaan)" />
+                            <SearchableSelect
+                                options={companies ? companies.map(c => ({ value: c.name, label: c.name })) : []}
+                                value={data.nama_pt}
+                                onChange={val => setData('nama_pt', val)}
+                                placeholder="Pilih PT..."
+                            />
+                            <InputError message={errors.nama_pt} className="mt-2" />
+                        </div>
+
+                        <div className="md:col-span-2">
                             <InputLabel htmlFor="nama_outlet" value="Nama Outlet" />
-                            <TextInput id="nama_outlet" type="text" className="mt-1 block w-full" value={data.nama_outlet} onChange={e => setData('nama_outlet', e.target.value)} />
+                            <SearchableSelect
+                                options={outlets ? outlets.map(o => ({ value: o.name, label: o.name })) : []}
+                                value={data.nama_outlet}
+                                onChange={val => setData('nama_outlet', val)}
+                                placeholder="Pilih Outlet..."
+                            />
                             <InputError message={errors.nama_outlet} className="mt-2" />
                         </div>
 
-                        <div>
-                            <InputLabel htmlFor="tahun_1" value="Tahun 1" />
-                            <TextInput id="tahun_1" type="number" step="any" className="mt-1 block w-full" value={data.tahun_1} onChange={e => setData('tahun_1', e.target.value)} />
-                            <InputError message={errors.tahun_1} className="mt-2" />
-                        </div>
+                        <div className="md:col-span-2 mt-4">
+                            <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-semibold text-gray-700">Daftar Piutang per Tahun</h4>
+                                <button type="button" onClick={() => setData('details', [...data.details, { year: new Date().getFullYear().toString(), amount: '' }])} className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 flex items-center gap-1">
+                                    <Plus className="w-3 h-3" /> Tambah Tahun
+                                </button>
+                            </div>
 
-                        <div>
-                            <InputLabel htmlFor="tahun_2" value="Tahun 2" />
-                            <TextInput id="tahun_2" type="number" step="any" className="mt-1 block w-full" value={data.tahun_2} onChange={e => setData('tahun_2', e.target.value)} />
-                            <InputError message={errors.tahun_2} className="mt-2" />
-                        </div>
+                            {data.details.map((detail, index) => (
+                                <div key={index} className="flex items-center gap-4 mb-3">
+                                    <div className="w-1/3">
+                                        <TextInput
+                                            type="number"
+                                            className="w-full"
+                                            placeholder="Tahun (cth: 2023)"
+                                            value={detail.year}
+                                            onChange={e => {
+                                                const newDetails = [...data.details];
+                                                newDetails[index].year = e.target.value;
+                                                setData('details', newDetails);
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="w-full flex-1">
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span className="text-gray-500 sm:text-sm">Rp</span>
+                                            </div>
+                                            <TextInput
+                                                type="text"
+                                                className="w-full pl-9 font-mono text-right"
+                                                placeholder="0,00"
+                                                value={detail.amount ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(detail.amount) / 100) : ''}
+                                                onChange={e => {
+                                                    const rawValue = e.target.value.replace(/\D/g, '');
+                                                    const newDetails = [...data.details];
+                                                    newDetails[index].amount = rawValue;
+                                                    setData('details', newDetails);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    {data.details.length > 1 && (
+                                        <button type="button" onClick={() => {
+                                            const newDetails = data.details.filter((_, i) => i !== index);
+                                            setData('details', newDetails);
+                                        }} className="text-red-500 hover:text-red-700 p-2">
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
 
-                        <div>
-                            <InputLabel htmlFor="tahun_3" value="Tahun 3" />
-                            <TextInput id="tahun_3" type="number" step="any" className="mt-1 block w-full" value={data.tahun_3} onChange={e => setData('tahun_3', e.target.value)} />
-                            <InputError message={errors.tahun_3} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="tahun_4" value="Tahun 4" />
-                            <TextInput id="tahun_4" type="number" step="any" className="mt-1 block w-full" value={data.tahun_4} onChange={e => setData('tahun_4', e.target.value)} />
-                            <InputError message={errors.tahun_4} className="mt-2" />
-                        </div>
-
-                        <div className="md:col-span-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                            <InputLabel htmlFor="total_sanzaya" value="Total Sanzaya" />
-                            <TextInput id="total_sanzaya" type="number" step="any" className="mt-1 block w-full bg-white" value={data.total_sanzaya} onChange={e => setData('total_sanzaya', e.target.value)} />
-                            <InputError message={errors.total_sanzaya} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="ruma_1" value="Ruma 1" />
-                            <TextInput id="ruma_1" type="number" step="any" className="mt-1 block w-full" value={data.ruma_1} onChange={e => setData('ruma_1', e.target.value)} />
-                            <InputError message={errors.ruma_1} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="ruma_2" value="Ruma 2" />
-                            <TextInput id="ruma_2" type="number" step="any" className="mt-1 block w-full" value={data.ruma_2} onChange={e => setData('ruma_2', e.target.value)} />
-                            <InputError message={errors.ruma_2} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="ruma_3" value="Ruma 3" />
-                            <TextInput id="ruma_3" type="number" step="any" className="mt-1 block w-full" value={data.ruma_3} onChange={e => setData('ruma_3', e.target.value)} />
-                            <InputError message={errors.ruma_3} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="total_ruma" value="Total Ruma" />
-                            <TextInput id="total_ruma" type="number" step="any" className="mt-1 block w-full" value={data.total_ruma} onChange={e => setData('total_ruma', e.target.value)} />
-                            <InputError message={errors.total_ruma} className="mt-2" />
-                        </div>
-
-                        <div className="md:col-span-2 bg-green-50 p-3 rounded-lg border border-green-100 mt-2">
-                            <InputLabel htmlFor="total_gabungan" value="Total Gabungan" />
-                            <TextInput id="total_gabungan" type="number" step="any" className="mt-1 block w-full bg-white font-bold" value={data.total_gabungan} onChange={e => setData('total_gabungan', e.target.value)} />
-                            <InputError message={errors.total_gabungan} className="mt-2" />
+                            <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-100 flex justify-between items-center">
+                                <span className="font-semibold text-gray-700">Total Piutang:</span>
+                                <span className="text-xl font-bold text-green-700">
+                                    Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((data.details.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0)) / 100)}
+                                </span>
+                            </div>
                         </div>
                     </div>
 

@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera } from 'lucide-react';
+import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
 
@@ -17,6 +18,21 @@ export default function Rekap({ auth, recapList, summary, filters, users, isAdmi
         router.get(route('absensi.rekap'), data, {
             preserveState: true,
             preserveScroll: true
+        });
+    };
+
+    const handleShowPhoto = (url, type) => {
+        if (!url) {
+            Swal.fire('Tidak ada foto', `Foto ${type} tidak tersedia.`, 'info');
+            return;
+        }
+        Swal.fire({
+            title: `Foto ${type}`,
+            imageUrl: url,
+            imageAlt: `Foto ${type}`,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#3b82f6',
+            width: '400px'
         });
     };
 
@@ -49,7 +65,7 @@ export default function Rekap({ auth, recapList, summary, filters, users, isAdmi
         >
             <Head title="Rekap Absensi" />
 
-            <div className="py-6 space-y-6">
+            <div className="pb-6 pt-0 space-y-6">
                 
                 {/* Filter Section */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-end gap-4">
@@ -145,6 +161,7 @@ export default function Rekap({ auth, recapList, summary, filters, users, isAdmi
                                     <th className="py-4 px-6 font-semibold">Tipe Absen</th>
                                     <th className="py-4 px-6 font-semibold text-center">Jam Masuk</th>
                                     <th className="py-4 px-6 font-semibold text-center">Jam Keluar</th>
+                                    <th className="py-4 px-6 font-semibold text-center">Foto</th>
                                     <th className="py-4 px-6 font-semibold">Status</th>
                                 </tr>
                             </thead>
@@ -170,6 +187,34 @@ export default function Rekap({ auth, recapList, summary, filters, users, isAdmi
                                             </td>
                                             <td className="py-4 px-6 text-center font-medium">{item.check_in || '-'}</td>
                                             <td className="py-4 px-6 text-center font-medium">{item.check_out || '-'}</td>
+                                            <td className="py-4 px-6 text-center">
+                                                {item.type === 'Hadir' ? (
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button 
+                                                            onClick={() => handleShowPhoto(item.check_in_photo, 'Masuk')}
+                                                            className={`p-1.5 rounded-lg border transition-colors ${item.check_in_photo ? 'border-blue-200 text-blue-600 hover:bg-blue-50' : 'border-gray-200 text-gray-300 cursor-not-allowed'}`}
+                                                            title="Foto Masuk"
+                                                        >
+                                                            <div className="flex items-center gap-1">
+                                                                <Camera className="w-4 h-4" />
+                                                                <span className="text-[10px] font-bold">Masuk</span>
+                                                            </div>
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleShowPhoto(item.check_out_photo, 'Pulang')}
+                                                            className={`p-1.5 rounded-lg border transition-colors ${item.check_out_photo ? 'border-blue-200 text-blue-600 hover:bg-blue-50' : 'border-gray-200 text-gray-300 cursor-not-allowed'}`}
+                                                            title="Foto Pulang"
+                                                        >
+                                                            <div className="flex items-center gap-1">
+                                                                <Camera className="w-4 h-4" />
+                                                                <span className="text-[10px] font-bold">Pulang</span>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </td>
                                             <td className="py-4 px-6">
                                                 <span className={`px-2 py-1 rounded text-xs font-semibold ${
                                                     item.status === 'Selesai' || item.status === 'Disetujui' ? 'text-emerald-600 bg-emerald-50' :

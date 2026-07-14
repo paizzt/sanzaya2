@@ -41,6 +41,13 @@ class ReportController extends Controller
             if ($salesFilter) {
                 $query->where('nama_sales', $salesFilter);
             }
+            if ($outletFilter) {
+                $query->where(function($q) use ($outletNamesToSearch) {
+                    foreach ($outletNamesToSearch as $name) {
+                        $q->orWhere('nama_outlet', 'like', $name);
+                    }
+                });
+            }
             if ($monthFilter) {
                 $query->where('tanggal', 'like', "%{$monthFilter}%");
             }
@@ -55,7 +62,11 @@ class ReportController extends Controller
         } elseif ($tab === 'pesanan') {
             $query = SyncPesananData::query();
             if ($outletFilter) {
-                $query->whereIn('nama_outlet', $outletNamesToSearch);
+                $query->where(function($q) use ($outletNamesToSearch) {
+                    foreach ($outletNamesToSearch as $name) {
+                        $q->orWhere('nama_outlet', 'like', $name);
+                    }
+                });
             }
             if ($monthFilter) {
                 $query->where('tanggal', 'like', "%{$monthFilter}%");
@@ -70,7 +81,11 @@ class ReportController extends Controller
         } elseif ($tab === 'piutang') {
             $query = SyncPiutangData::query();
             if ($outletFilter) {
-                $query->whereIn('nama_outlet', $outletNamesToSearch);
+                $query->where(function($q) use ($outletNamesToSearch) {
+                    foreach ($outletNamesToSearch as $name) {
+                        $q->orWhere('nama_outlet', 'like', $name);
+                    }
+                });
             }
             if ($monthFilter) {
                 $monthNum = array_search($monthFilter, $months) + 1;
@@ -92,6 +107,13 @@ class ReportController extends Controller
         $summaryQuery = SyncLogistikData::query();
         if ($salesFilter) {
             $summaryQuery->where('nama_sales', $salesFilter);
+        }
+        if ($outletFilter) {
+            $summaryQuery->where(function($q) use ($outletNamesToSearch) {
+                foreach ($outletNamesToSearch as $name) {
+                    $q->orWhere('nama_outlet', 'like', $name);
+                }
+            });
         }
         if ($monthFilter) {
             $summaryQuery->where('tanggal', 'like', "%{$monthFilter}%");
@@ -130,7 +152,11 @@ class ReportController extends Controller
         // Summary Pesanan
         $summaryPesananQuery = SyncPesananData::query();
         if ($outletFilter) {
-            $summaryPesananQuery->whereIn('nama_outlet', $outletNamesToSearch);
+            $summaryPesananQuery->where(function($q) use ($outletNamesToSearch) {
+                foreach ($outletNamesToSearch as $name) {
+                    $q->orWhere('nama_outlet', 'like', $name);
+                }
+            });
         }
         if ($monthFilter) {
             $summaryPesananQuery->where('tanggal', 'like', "%{$monthFilter}%");
@@ -161,7 +187,11 @@ class ReportController extends Controller
         // Summary Piutang
         $summaryPiutangQuery = SyncPiutangData::query();
         if ($outletFilter) {
-            $summaryPiutangQuery->whereIn('nama_outlet', $outletNamesToSearch);
+            $summaryPiutangQuery->where(function($q) use ($outletNamesToSearch) {
+                foreach ($outletNamesToSearch as $name) {
+                    $q->orWhere('nama_outlet', 'like', $name);
+                }
+            });
         }
         if ($monthFilter) {
             $monthNum = array_search($monthFilter, $months) + 1;

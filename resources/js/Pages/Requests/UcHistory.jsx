@@ -64,7 +64,7 @@ export default function UcHistory({ requests }) {
         >
             <Head title="Riwayat & Result UC" />
 
-            <div className="py-6 space-y-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
                 
                 {/* Daftar & Upload Result UC */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">

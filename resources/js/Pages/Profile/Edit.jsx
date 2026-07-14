@@ -13,7 +13,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
         >
             <Head title="Pengaturan" />
 
-            <div className="py-6 space-y-6 max-w-4xl mx-auto">
+            <div className="pb-6 pt-0 space-y-6 max-w-4xl mx-auto">
                 
                 {/* Profile Information Section */}
                 <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative">

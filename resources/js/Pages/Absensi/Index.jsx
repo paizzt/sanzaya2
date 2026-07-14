@@ -62,7 +62,7 @@ export default function Index({ attendance, today, currentTime }) {
         >
             <Head title="Absensi" />
 
-            <div className="py-6">
+            <div className="pb-6 pt-0">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                     {/* Camera Section */}

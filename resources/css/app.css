@@ -55,3 +55,10 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Custom DatePicker pop up scale */
+.custom-datepicker-container > div > div.absolute,
+.custom-datepicker-container .absolute.z-50 {
+    transform: scale(0.85);
+    transform-origin: top left;
+}

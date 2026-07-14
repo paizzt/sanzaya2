@@ -11,8 +11,21 @@ class LogisticReportController extends Controller
     public function index()
     {
         $items = LogisticReport::orderBy('id', 'desc')->get();
+        
+        // Coba ambil user dengan role Sales, kalau kosong ambil semua (fallback)
+        try {
+            $sales = \App\Models\User::role('Sales')->get(['id', 'name']);
+            if ($sales->isEmpty()) $sales = \App\Models\User::orderBy('name')->get(['id', 'name']);
+        } catch (\Exception $e) {
+            $sales = \App\Models\User::orderBy('name')->get(['id', 'name']);
+        }
+
+        $outlets = \App\Models\Outlet::orderBy('name')->get(['id', 'name']);
+
         return Inertia::render('LogisticReports/Index', [
-            'items' => $items
+            'items' => $items,
+            'sales' => $sales,
+            'outlets' => $outlets
         ]);
     }
 

@@ -5,6 +5,7 @@ import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store,
 import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
+import SearchableSelect from '@/Components/SearchableSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 
 export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, salesNames, outletNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
@@ -14,12 +15,17 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
     const [isSearchExpanded, setIsSearchExpanded] = useState(!!search);
     const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+    const [isTabDropdownOpen, setIsTabDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const tabDropdownRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsDownloadOpen(false);
+            }
+            if (tabDropdownRef.current && !tabDropdownRef.current.contains(event.target)) {
+                setIsTabDropdownOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -31,10 +37,11 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
     const handleSearch = (e) => {
         e.preventDefault();
         const filters = { tab: tab, search: searchTerm, month_filter: selectedMonth };
-        if (tab === 'pesanan' || tab === 'piutang') {
-            filters.outlet_filter = selectedOutlet;
-        } else {
+        if (tab === 'logistik') {
             filters.sales_filter = selectedSales;
+            filters.outlet_filter = selectedOutlet;
+        } else if (tab === 'pesanan' || tab === 'piutang') {
+            filters.outlet_filter = selectedOutlet;
         }
         router.get(route('reports.index'), filters, { preserveState: true });
     };
@@ -179,7 +186,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
         >
             <Head title="Dashboard Laporan" />
 
-            <div className="py-6 space-y-6 max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6 max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-2">
                     <div>
@@ -440,19 +447,49 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                 )}
 
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex gap-2 w-full lg:w-auto pb-2 lg:pb-0 overflow-x-auto hide-scrollbar">
-                        <button onClick={() => handleTabChange('logistik')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='logistik'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'text-gray-500 hover:bg-gray-50'}`}>
-                            <Package className="w-4 h-4"/> Logistik
+                    <div className="relative w-full lg:w-auto" ref={tabDropdownRef}>
+                        <button
+                            onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
+                            className="flex items-center justify-between w-full lg:w-56 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
+                        >
+                            <div className="flex items-center gap-2">
+                                {tab === 'logistik' && <><Package className="w-4 h-4" /> Logistik</>}
+                                {tab === 'pesanan' && <><ShoppingCart className="w-4 h-4" /> Surat Pesanan</>}
+                                {tab === 'piutang' && <><CreditCard className="w-4 h-4" /> Data Piutang</>}
+                                {tab === 'hutang' && <><CreditCard className="w-4 h-4" /> Data Hutang</>}
+                                {!['logistik', 'pesanan', 'piutang', 'hutang'].includes(tab) && <><BarChart2 className="w-4 h-4" /> Pilih Laporan</>}
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
-                        <button onClick={() => handleTabChange('pesanan')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='pesanan'?'bg-emerald-600 text-white shadow-md shadow-emerald-500/30':'text-gray-500 hover:bg-gray-50'}`}>
-                            <ShoppingCart className="w-4 h-4"/> Surat Pesanan
-                        </button>
-                        <button onClick={() => handleTabChange('piutang')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='piutang'?'bg-purple-600 text-white shadow-md shadow-purple-500/30':'text-gray-500 hover:bg-gray-50'}`}>
-                            <CreditCard className="w-4 h-4"/> Data Piutang
-                        </button>
-                        <button onClick={() => handleTabChange('hutang')} className={`flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm rounded-xl font-bold transition-all whitespace-nowrap ${tab==='hutang'?'bg-orange-600 text-white shadow-md shadow-orange-500/30':'text-gray-500 hover:bg-gray-50'}`}>
-                            <CreditCard className="w-4 h-4"/> Data Hutang
-                        </button>
+                        
+                        {isTabDropdownOpen && (
+                            <div className="absolute left-0 mt-2 w-full lg:w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-40 overflow-hidden">
+                                <button 
+                                    onClick={() => { handleTabChange('logistik'); setIsTabDropdownOpen(false); }} 
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='logistik' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
+                                >
+                                    <Package className="w-4 h-4" /> Logistik
+                                </button>
+                                <button 
+                                    onClick={() => { handleTabChange('pesanan'); setIsTabDropdownOpen(false); }} 
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='pesanan' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:bg-gray-50 hover:text-emerald-600'}`}
+                                >
+                                    <ShoppingCart className="w-4 h-4" /> Surat Pesanan
+                                </button>
+                                <button 
+                                    onClick={() => { handleTabChange('piutang'); setIsTabDropdownOpen(false); }} 
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='piutang' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'}`}
+                                >
+                                    <CreditCard className="w-4 h-4" /> Data Piutang
+                                </button>
+                                <button 
+                                    onClick={() => { handleTabChange('hutang'); setIsTabDropdownOpen(false); }} 
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${tab==='hutang' ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600'}`}
+                                >
+                                    <CreditCard className="w-4 h-4" /> Data Hutang
+                                </button>
+                            </div>
+                        )}
                     </div>
                     
                     <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-nowrap">
@@ -462,8 +499,12 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                 onChange={(value) => {
                                     setSelectedMonth(value);
                                     const filters = { tab: tab, search: searchTerm, month_filter: value };
-                                    if (tab === 'pesanan' || tab === 'piutang') filters.outlet_filter = selectedOutlet;
-                                    else filters.sales_filter = selectedSales;
+                                    if (tab === 'logistik') {
+                                        filters.sales_filter = selectedSales;
+                                        filters.outlet_filter = selectedOutlet;
+                                    } else if (tab === 'pesanan' || tab === 'piutang') {
+                                        filters.outlet_filter = selectedOutlet;
+                                    }
                                     router.get(route('reports.index'), filters, { preserveState: true });
                                 }}
                                 options={[
@@ -475,36 +516,39 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             />
                         </div>
                         
-                        {tab === 'pesanan' || tab === 'piutang' ? (
+                        {tab === 'logistik' && (
                             <div className="w-full md:w-36 lg:w-48 z-10">
-                                <CustomSelect
-                                    value={selectedOutlet}
-                                    onChange={(value) => {
-                                        setSelectedOutlet(value);
-                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, outlet_filter: value, month_filter: selectedMonth }, { preserveState: true });
-                                    }}
-                                    options={[
-                                        { value: '', label: 'Semua Outlet' },
-                                        ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
-                                    ]}
-                                    placeholder="Pilih Outlet..."
-                                    icon={StoreIcon}
-                                />
-                            </div>
-                        ) : (
-                            <div className="w-full md:w-36 lg:w-48 z-10">
-                                <CustomSelect
+                                <SearchableSelect
                                     value={selectedSales}
                                     onChange={(value) => {
                                         setSelectedSales(value);
-                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, month_filter: selectedMonth }, { preserveState: true });
+                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, month_filter: selectedMonth }, { preserveState: true });
                                     }}
                                     options={[
                                         { value: '', label: 'Semua Sales' },
                                         ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
-                                    placeholder="Pilih Sales..."
+                                    placeholder="Cari Sales..."
                                     icon={UserIcon}
+                                />
+                            </div>
+                        )}
+                        {(tab === 'logistik' || tab === 'pesanan' || tab === 'piutang') && (
+                            <div className="w-full md:w-36 lg:w-48 z-10">
+                                <SearchableSelect
+                                    value={selectedOutlet}
+                                    onChange={(value) => {
+                                        setSelectedOutlet(value);
+                                        const filters = { tab: tab, search: searchTerm, outlet_filter: value, month_filter: selectedMonth };
+                                        if (tab === 'logistik') filters.sales_filter = selectedSales;
+                                        router.get(route('reports.index'), filters, { preserveState: true });
+                                    }}
+                                    options={[
+                                        { value: '', label: 'Semua Outlet' },
+                                        ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
+                                    ]}
+                                    placeholder="Cari Outlet..."
+                                    icon={StoreIcon}
                                 />
                             </div>
                         )}

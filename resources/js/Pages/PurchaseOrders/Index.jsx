@@ -8,6 +8,7 @@ import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
+import CustomDatePicker from '@/Components/CustomDatePicker';
 import Swal from 'sweetalert2';
 
 export default function Index({ auth, items }) {
@@ -114,7 +115,7 @@ export default function Index({ auth, items }) {
         >
             <Head title="Surat Pesanan" />
 
-            <div className="py-12">
+            <div className="pb-12 pt-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
@@ -186,7 +187,7 @@ export default function Index({ auth, items }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-96 overflow-y-auto pr-2">
                         <div>
                             <InputLabel htmlFor="tanggal" value="Tanggal" />
-                            <TextInput id="tanggal" type="date" className="mt-1 block w-full" value={data.tanggal} onChange={e => setData('tanggal', e.target.value)} />
+                            <CustomDatePicker value={data.tanggal} onChange={val => setData('tanggal', val)} />
                             <InputError message={errors.tanggal} className="mt-2" />
                         </div>
                         

@@ -8,34 +8,69 @@ use Inertia\Inertia;
 
 class ReceivableController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = Receivable::orderBy('id', 'desc')->get();
+        $query = Receivable::orderBy('id', 'desc');
+
+        if ($request->search) {
+            $query->where('nama_outlet', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->pt) {
+            $query->where('nama_pt', $request->pt);
+        }
+
+        if ($request->year) {
+            $query->whereJsonContains('details', ['year' => $request->year]);
+        }
+
+        $items = $query->get();
+        
+        $outlets = \App\Models\Outlet::orderBy('name')->get();
+        $companies = \App\Models\Company::orderBy('name')->get();
+        
         return Inertia::render('Receivables/Index', [
-            'items' => $items
+            'items' => $items,
+            'outlets' => $outlets,
+            'companies' => $companies,
+            'filters' => $request->only(['search', 'pt', 'year'])
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'nama_pt' => 'nullable|string',
             'nama_outlet' => 'nullable|string',
-            'tahun_1' => 'nullable|numeric',
-            'tahun_2' => 'nullable|numeric',
-            'tahun_3' => 'nullable|numeric',
-            'tahun_4' => 'nullable|numeric',
-            'total_sanzaya' => 'nullable|numeric',
-            'ruma_1' => 'nullable|numeric',
-            'ruma_2' => 'nullable|numeric',
-            'ruma_3' => 'nullable|numeric',
-            'total_ruma' => 'nullable|numeric',
-            'total_gabungan' => 'nullable|numeric',
+            'details' => 'nullable|array',
+            'details.*.year' => 'nullable|string',
+            'details.*.amount' => 'nullable|numeric'
         ]);
+
+        // Calculate total
+        $total = 0;
+        if (!empty($validated['details'])) {
+            foreach ($validated['details'] as $detail) {
+                if (!empty($detail['amount'])) {
+                    $total += (float) $detail['amount'];
+                }
+            }
+        }
+        
+        // Encode details back to json string for DB storage or leave as array if Laravel casts it automatically
+        // Laravel doesn't automatically cast JSON if not defined in $casts, but we can define it or json_encode here.
+        // Actually, we'll just encode it to be safe.
+        $dataToSave = [
+            'nama_pt' => $validated['nama_pt'] ?? null,
+            'nama_outlet' => $validated['nama_outlet'] ?? null,
+            'details' => $validated['details'] ?? [],
+            'total' => $total,
+        ];
         
         if ($request->id) {
-            Receivable::find($request->id)->update($validated);
+            Receivable::find($request->id)->update($dataToSave);
         } else {
-            Receivable::create($validated);
+            Receivable::create($dataToSave);
         }
         
         return redirect()->back()->with('success', 'Data berhasil disimpan.');
