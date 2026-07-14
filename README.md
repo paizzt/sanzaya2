@@ -1,4 +1,6 @@
-# 🏢 Sanzaya Information System (SIS)
+<div align="center">
+
+# <img src="https://api.iconify.design/lucide:building-2.svg?color=%232563eb" width="32" height="32" style="vertical-align: middle;"> Sanzaya Information System (SIS)
 
 ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
@@ -7,47 +9,49 @@
 
 Sanzaya Information System adalah aplikasi sistem informasi manajemen internal atau *Enterprise Resource Planning* (ERP) berskala ringan yang dirancang untuk mendigitalkan seluruh proses operasional bisnis. Aplikasi ini mengelola absensi karyawan, pengajuan biaya dan barang, manajemen outlet, laporan kinerja (marketing & logistik), serta pemantauan keuangan (hutang-piutang).
 
+</div>
+
 ---
 
-## 🎯 Fitur & Penjelasan Proses Utama
+## <img src="https://api.iconify.design/lucide:layout-list.svg?color=%232563eb" width="24" height="24" style="vertical-align: middle;"> Fitur & Penjelasan Proses Utama
 
 Aplikasi ini dibagi menjadi beberapa modul besar yang saling terintegrasi. Berikut adalah rincian detail setiap proses yang ada di dalam sistem:
 
-### 1. 👥 Manajemen Karyawan & Autentikasi
+### <img src="https://api.iconify.design/lucide:users.svg" width="20" height="20" style="vertical-align: middle;"> 1. Manajemen Karyawan & Autentikasi
 *   **Role-Based Access Control (RBAC):** Sistem ini dilengkapi dengan pembagian hak akses (Superadmin, Admin, Manager, Direktur, dan Staff/Sales).
 *   **Profil & Pengaturan:** Karyawan dapat mengelola data profil mereka, sementara Admin dapat mengelola penempatan, jabatan, serta status aktif karyawan.
 
-### 2. 📸 Modul Absensi (Kehadiran)
+### <img src="https://api.iconify.design/lucide:camera.svg" width="20" height="20" style="vertical-align: middle;"> 2. Modul Absensi (Kehadiran)
 Proses pencatatan kehadiran harian karyawan secara *real-time*.
 *   **Check-in & Check-out:** Karyawan melakukan absensi dengan melampirkan foto secara langsung melalui kamera perangkat genggam atau laptop. 
 *   **Pengajuan Izin & Sakit:** Jika karyawan berhalangan hadir, mereka dapat mengisi *Form Pengajuan Absen* dengan memilih tanggal dan melampirkan alasan.
 *   **Rekap Absensi:** Halaman laporan yang menampilkan rangkuman kehadiran, sakit, izin, dan alpa. Admin dapat memantau kehadiran seluruh karyawan, sedangkan staff biasa hanya dapat melihat riwayat mereka sendiri. Halaman ini juga dilengkapi fitur *preview* pop-up untuk **melihat bukti foto absensi**.
 
-### 3. 📝 Modul Pengajuan (Requests)
+### <img src="https://api.iconify.design/lucide:file-text.svg" width="20" height="20" style="vertical-align: middle;"> 3. Modul Pengajuan (Requests)
 Modul untuk mendigitalkan sistem perizinan pengeluaran atau permintaan barang.
 *   **Pengajuan Upcountry (UC):** 
     Digunakan oleh sales atau staff yang akan melakukan perjalanan dinas/luar kota. Karyawan memilih entitas tujuan, jenis transportasi (Darat/Laut/Udara), dan nama pendamping. Sistem secara cerdas akan mengaktifkan form "Estimasi Biaya" (Bensin, Penginapan, Konsumsi) dan meminta nomor plat kendaraan jika transportasi darat dipilih. Proses ini melewati sistem *Approval* berjenjang (Disetujui/Ditolak).
 *   **Pengajuan BHP (Barang Habis Pakai):**
     Proses permintaan alat tulis kantor (ATK) atau perlengkapan operasional. Karyawan memilih barang dan kuantitas, kemudian sistem akan meneruskannya ke bagian logistik untuk diproses.
 
-### 4. 📊 Modul Laporan (Reporting)
+### <img src="https://api.iconify.design/lucide:bar-chart-2.svg" width="20" height="20" style="vertical-align: middle;"> 4. Modul Laporan (Reporting)
 *   **Laporan Logistik:** Form pelaporan pengiriman barang ke outlet. Terintegrasi dengan fitur pencarian cepat (*Searchable Select*) untuk mempercepat pemilihan nama Sales, Nama Outlet, dan rincian logistik lainnya, guna meminimalisir kesalahan ketik (*typo*).
 *   **Laporan Marketing (Daily & Weekly Target):** Pencatatan kinerja harian tim marketing dan penentuan target mingguan. Data ini membantu manajemen melacak produktivitas secara harian.
 *   **Sinkronisasi Spreadsheet:** Terdapat sistem *Spreadsheet Sync* untuk mengekspor atau menarik data pelaporan secara langsung ke/dari Google Sheets.
 
-### 5. 💰 Modul Keuangan (Hutang Piutang)
+### <img src="https://api.iconify.design/lucide:wallet.svg" width="20" height="20" style="vertical-align: middle;"> 5. Modul Keuangan (Hutang Piutang)
 Modul untuk memantau arus kas keluar dan piutang toko.
 *   **Piutang (Receivables):** Mencatat tagihan yang belum dibayar oleh outlet atau klien. Menampilkan sisa tagihan, riwayat cicilan, dan format mata uang Rupiah otomatis.
 *   **Hutang (Payables):** Mencatat tanggungan perusahaan kepada pihak ketiga/distributor.
 
-### 6. 🏢 Manajemen Data Master
+### <img src="https://api.iconify.design/lucide:database.svg" width="20" height="20" style="vertical-align: middle;"> 6. Manajemen Data Master
 Tempat penyimpanan *database* utama yang menjadi tulang punggung transaksi.
 *   **Manajemen Kendaraan:** Mendata plat nomor, jenis, dan kondisi kendaraan operasional.
 *   **Manajemen Provider & Outlet:** Mendata rekanan bisnis dan daftar toko/outlet tujuan distribusi, lengkap dengan pemetaan rute.
 
 ---
 
-## 💻 Teknologi yang Digunakan (Tech Stack)
+## <img src="https://api.iconify.design/lucide:code-2.svg?color=%232563eb" width="24" height="24" style="vertical-align: middle;"> Teknologi yang Digunakan (Tech Stack)
 
 | Bagian | Teknologi |
 | :--- | :--- |
@@ -59,7 +63,7 @@ Tempat penyimpanan *database* utama yang menjadi tulang punggung transaksi.
 
 ---
 
-## 🚀 Panduan Instalasi (Development)
+## <img src="https://api.iconify.design/lucide:terminal.svg?color=%232563eb" width="24" height="24" style="vertical-align: middle;"> Panduan Instalasi (Development)
 
 Jika Anda ingin menjalankan aplikasi ini di lingkungan lokal (*localhost*), ikuti langkah-langkah berikut:
 
@@ -104,4 +108,6 @@ Jika Anda ingin menjalankan aplikasi ini di lingkungan lokal (*localhost*), ikut
    Aplikasi dapat diakses melalui `http://127.0.0.1:8000`.
 
 ---
-*Dibuat & Dikelola untuk kebutuhan operasional Sanzaya Group.*
+<div align="center">
+<i>Dibuat & Dikelola untuk kebutuhan operasional Sanzaya Group.</i>
+</div>
