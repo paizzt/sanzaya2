@@ -48,4 +48,23 @@ class AttendanceRequestController extends Controller
 
         return redirect()->back()->with('success', 'Pengajuan berhasil dikirim dan menunggu persetujuan.');
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!$user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur'])) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses.');
+        }
+
+        $request->validate([
+            'status' => 'required|in:Disetujui,Ditolak'
+        ]);
+
+        $attendanceRequest = AttendanceRequest::findOrFail($id);
+        $attendanceRequest->update([
+            'status' => $request->status
+        ]);
+
+        return redirect()->back()->with('success', 'Status pengajuan berhasil diperbarui.');
+    }
 }

@@ -190,20 +190,22 @@ export default function Authenticated({ user, header, children }) {
         },
         {
             name: 'Master Data', icon: Database, show: true,
-            active: url.startsWith('/outlets') || url.startsWith('/item-requirements') || url.startsWith('/vehicles') || url.startsWith('/providers') || url.startsWith('/users') || url.startsWith('/company'),
+            active: url.startsWith('/outlets') || url.startsWith('/item-requirements') || url.startsWith('/vehicles') || url.startsWith('/providers') || url.startsWith('/users') || url.startsWith('/company') || url.startsWith('/products'),
             children: [
                 { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: true },
                 { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_features?.includes(9) },
                 { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements') },
                 { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_features?.includes(11) },
                 { name: 'Data Penyedia', href: route('providers.index'), active: url.startsWith('/providers'), show: auth.active_features?.includes(12) },
+                { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: true },
                 { name: 'Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_features?.includes(6) },
             ]
         },
         {
             name: 'Sistem', icon: Settings, show: true,
-            active: url.startsWith('/spreadsheet') || url.startsWith('/settings') || url.startsWith('/profile'),
+            active: url.startsWith('/spreadsheet') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/activity-logs'),
             children: [
+                { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.user?.roles?.some(r => ['Superadmin', 'Admin'].includes(r.name)) },
                 { name: 'Sync Spreadsheet', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(1) },
                 { name: 'Notifikasi', href: route('notifications.index'), active: url.startsWith('/settings/notifications'), show: auth.active_features?.includes(13) },
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_features?.includes(14) },

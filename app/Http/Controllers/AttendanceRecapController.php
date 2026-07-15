@@ -14,6 +14,23 @@ class AttendanceRecapController extends Controller
 {
     public function index(Request $request)
     {
+        $data = $this->getRecapData($request);
+        return Inertia::render('Absensi/Rekap', $data);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $data = $this->getRecapData($request);
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data);
+        $pdf->setPaper('a4', 'landscape');
+        
+        $fileName = 'Rekap_Absensi_' . $data['filters']['month'] . '_' . $data['filters']['year'] . '.pdf';
+        return $pdf->download($fileName);
+    }
+
+    private function getRecapData(Request $request)
+    {
         $user = Auth::user();
         $isAdmin = $user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur']);
 
@@ -61,7 +78,6 @@ class AttendanceRecapController extends Controller
         ];
 
         // Process Attendance Requests to count days
-        // We will just simplify: 1 request = 1 day for this basic recap unless we iterate dates
         foreach ($attendanceRequests as $req) {
             if ($req->status !== 'Ditolak') {
                 $start = Carbon::parse($req->start_date);
@@ -113,7 +129,7 @@ class AttendanceRecapController extends Controller
             return strtotime($dateB) - strtotime($dateA);
         });
 
-        return Inertia::render('Absensi/Rekap', [
+        return [
             'recapList' => $recapList,
             'summary' => $summary,
             'filters' => [
@@ -123,6 +139,6 @@ class AttendanceRecapController extends Controller
             ],
             'users' => $users,
             'isAdmin' => $isAdmin
-        ]);
+        ];
     }
 }

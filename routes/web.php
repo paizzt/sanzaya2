@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceRecapController;
 use App\Http\Controllers\AttendanceRequestController;
 use App\Http\Controllers\MarketingDailyReportController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UcRequestController;
 use App\Http\Controllers\BhpRequestController;
 use App\Http\Controllers\SpreadsheetSyncController;
@@ -30,12 +32,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Absensi
     Route::get('/absensi', [AttendanceController::class, 'index'])->name('absensi.index');
-    Route::get('/absensi/rekap', [\App\Http\Controllers\AttendanceRecapController::class, 'index'])->name('absensi.rekap');
+    Route::get('/absensi/rekap', [AttendanceRecapController::class, 'index'])->name('absensi.rekap');
+    Route::get('/absensi/rekap/export-pdf', [AttendanceRecapController::class, 'exportPdf'])->name('absensi.rekap.export-pdf');
     Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
 
     // Pengajuan Izin/Sakit
     Route::get('/absensi/pengajuan', [AttendanceRequestController::class, 'index'])->name('absensi.pengajuan');
     Route::post('/absensi/pengajuan', [AttendanceRequestController::class, 'store'])->name('absensi.pengajuan.store');
+    Route::put('/absensi/pengajuan/{id}/status', [AttendanceRequestController::class, 'updateStatus'])->name('absensi.pengajuan.status');
 
     // Marketing
     Route::get('/marketing', [MarketingDailyReportController::class, 'index'])->name('marketing.index');
@@ -112,11 +116,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/outlet-mappings', [\App\Http\Controllers\OutletMappingController::class, 'store'])->name('outlet-mappings.store');
     Route::delete('/outlet-mappings/{id}', [\App\Http\Controllers\OutletMappingController::class, 'destroy'])->name('outlet-mappings.destroy');
 
-    // Kendaraan / Armada
-    Route::resource('vehicles', \App\Http\Controllers\VehicleController::class);
-
-    // Data Penyedia
-    Route::resource('providers', ProviderController::class);
+    // Master Data
+    Route::resource('company', CompanyController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('outlets', OutletController::class)->except(['show', 'create', 'edit']);
+    Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class)->except(['show', 'create', 'edit']);
+    Route::resource('vehicles', \App\Http\Controllers\VehicleController::class)->except(['show', 'create', 'edit']);
+    Route::resource('providers', ProviderController::class)->except(['show', 'create', 'edit']);
+    Route::resource('products', ProductController::class)->except(['show', 'create', 'edit']);
 
     // Modul Logistik & Keuangan
     Route::resource('logistic-reports', \App\Http\Controllers\LogisticReportController::class);
@@ -129,6 +135,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // System Activity Logs
+    Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('system.activity-logs');
 });
 
 require __DIR__.'/auth.php';

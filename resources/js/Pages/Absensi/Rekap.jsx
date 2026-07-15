@@ -36,6 +36,27 @@ export default function Rekap({ auth, recapList, summary, filters, users, isAdmi
         });
     };
 
+    const handleUpdateStatus = (id, status) => {
+        const realId = id.replace('req_', '');
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: `Anda yakin ingin ${status === 'Disetujui' ? 'menyetujui' : 'menolak'} pengajuan ini?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: status === 'Disetujui' ? '#10b981' : '#ef4444'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.put(route('absensi.pengajuan.status', realId), { status }, {
+                    preserveScroll: true,
+                    onSuccess: () => Swal.fire('Berhasil!', 'Status berhasil diperbarui.', 'success'),
+                    onError: () => Swal.fire('Gagal!', 'Terjadi kesalahan.', 'error')
+                });
+            }
+        });
+    };
+
     // Month Options
     const monthOptions = [
         { value: '1', label: 'Januari' }, { value: '2', label: 'Februari' },
@@ -148,7 +169,10 @@ export default function Rekap({ auth, recapList, summary, filters, users, isAdmi
                         <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                             <FileText className="w-5 h-5 text-blue-500"/> Rincian Kehadiran
                         </h3>
-                        <button className="text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                        <button 
+                            onClick={() => window.open(route('absensi.rekap.export-pdf', { month: data.month, year: data.year, user_id: data.user_id }), '_blank')}
+                            className="text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                        >
                             <Download className="w-4 h-4"/> Export PDF
                         </button>
                     </div>
@@ -216,12 +240,30 @@ export default function Rekap({ auth, recapList, summary, filters, users, isAdmi
                                                 )}
                                             </td>
                                             <td className="py-4 px-6">
-                                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                                    item.status === 'Selesai' || item.status === 'Disetujui' ? 'text-emerald-600 bg-emerald-50' :
-                                                    item.status === 'Menunggu' ? 'text-orange-600 bg-orange-50' : 'text-red-600 bg-red-50'
-                                                }`}>
-                                                    {item.status}
-                                                </span>
+                                                <div className="flex flex-col gap-2 items-start">
+                                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                                        item.status === 'Selesai' || item.status === 'Disetujui' ? 'text-emerald-600 bg-emerald-50' :
+                                                        item.status === 'Menunggu' ? 'text-orange-600 bg-orange-50' : 'text-red-600 bg-red-50'
+                                                    }`}>
+                                                        {item.status}
+                                                    </span>
+                                                    {isAdmin && item.id.startsWith('req_') && item.status === 'Menunggu' && (
+                                                        <div className="flex gap-1.5 mt-1">
+                                                            <button 
+                                                                onClick={() => handleUpdateStatus(item.id, 'Disetujui')}
+                                                                className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold rounded-lg shadow-sm transition-colors"
+                                                            >
+                                                                ACC
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => handleUpdateStatus(item.id, 'Ditolak')}
+                                                                className="px-2.5 py-1 bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-bold rounded-lg shadow-sm transition-colors"
+                                                            >
+                                                                Tolak
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

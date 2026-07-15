@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class UcRequest extends Model
 {
+    use LogsActivity;
+
     protected $guarded = [];
     protected $casts = [
         'companions' => 'array',
