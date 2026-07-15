@@ -1,3 +1,4 @@
+import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
@@ -125,10 +126,13 @@ export default function Index({ auth, items }) {
                                     <FileText className="w-5 h-5 text-blue-500" />
                                     Data Surat Pesanan
                                 </h3>
+                                <div className="flex items-center gap-3">
+                                <ExportDropdown pdfRoute={route('purchase-orders.export.pdf')} excelRoute={route('purchase-orders.export.excel')} />
                                 <PrimaryButton onClick={() => openModal()}>
                                     <Plus className="w-4 h-4 mr-2" />
                                     Tambah Data
                                 </PrimaryButton>
+                            </div>
                             </div>
 
                             <div className="overflow-x-auto">

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\LogisticReport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Exports\GenericExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LogisticReportController extends Controller
 {
@@ -52,5 +55,28 @@ class LogisticReportController extends Controller
     {
         LogisticReport::destroy($id);
         return redirect()->back()->with('success', 'Data berhasil dihapus.');
+    }
+
+    public function exportPdf()
+    {
+        $items = LogisticReport::orderBy('id', 'desc')->get();
+        $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Produk', 'Total Sales'];
+        $rows = $items->map(function($item, $key) {
+            return [$key + 1, $item->tanggal, $item->nama_sales, $item->nama_outlet, $item->nama_produk, number_format($item->total_sales, 0, ',', '.')];
+        });
+        
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Laporan Logistik', 'headings' => $headings, 'rows' => $rows])->setPaper([0, 0, 609.4488, 935.433], 'landscape');
+        return $pdf->download('Laporan_Logistik.pdf');
+    }
+
+    public function exportExcel()
+    {
+        $items = LogisticReport::orderBy('id', 'desc')->get();
+        $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Produk', 'Total Sales'];
+        $rows = $items->map(function($item, $key) {
+            return [$key + 1, $item->tanggal, $item->nama_sales, $item->nama_outlet, $item->nama_produk, $item->total_sales];
+        });
+        
+        return Excel::download(new GenericExport($rows, $headings), 'Laporan_Logistik.xlsx');
     }
 }

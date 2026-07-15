@@ -104,7 +104,47 @@ class MarketingRecapController extends Controller
             'end_date' => $endDate,
         ];
 
-        $pdf = \PDF::loadView('pdf.recap_marketing_pdf', $data);
+        $pdf = \PDF::loadView('pdf.recap_marketing_pdf', $data)->setPaper([0, 0, 609.4488, 935.433], 'portrait');
         return $pdf->download('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf');
+    }
+    public function exportExcel(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur'])) {
+            return abort(403, 'Unauthorized access.');
+        }
+
+        $type = $request->get('type', 'laporan');
+        $salesUserId = $request->get('user_id');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        if ($type === 'laporan') {
+            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc');
+            if ($salesUserId) $query->where('user_id', $salesUserId);
+            if ($startDate) $query->where('visit_date', '>=', $startDate);
+            if ($endDate) $query->where('visit_date', '<=', $endDate);
+            $items = $query->get();
+            
+            $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Keterangan'];
+            $rows = $items->map(function($item, $key) {
+                return [$key+1, $item->visit_date, $item->user->name ?? '-', $item->outlet->name ?? '-', $item->description];
+            });
+            $title = 'Rekap_Laporan_Marketing';
+        } else {
+            $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc');
+            if ($salesUserId) $query->where('user_id', $salesUserId);
+            if ($startDate) $query->where('start_date', '>=', $startDate);
+            if ($endDate) $query->where('end_date', '<=', $endDate);
+            $items = $query->get();
+            
+            $headings = ['No', 'Sales', 'Periode', 'Target', 'Capaian'];
+            $rows = $items->map(function($item, $key) {
+                return [$key+1, $item->user->name ?? '-', $item->start_date . ' - ' . $item->end_date, $item->target_amount, $item->achieved_amount];
+            });
+            $title = 'Rekap_Target_Marketing';
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($rows, $headings), $title . '_' . date('YmdHis') . '.xlsx');
     }
 }

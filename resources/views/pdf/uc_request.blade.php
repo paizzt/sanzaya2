@@ -157,6 +157,14 @@
             font-size: 11px;
             margin-top: 15px;
         }
+    
+        /* PDF Fixes for Overflow & Layout */
+        table { width: 100%; border-collapse: collapse; table-layout: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        th, td { word-wrap: break-word; overflow-wrap: break-word; }
+        .page-break { page-break-after: always; }
     </style>
 </head>
 <body>
@@ -348,8 +356,11 @@
         $gasCost = (float)($uc->estimated_gas_cost ?? 0);
         $mealsCost = (float)($uc->estimated_meals_cost ?? 0);
         $hotelCost = (float)($uc->estimated_accommodation_cost ?? 0);
-        $totalCost = $gasCost + $mealsCost + $hotelCost;
+        $flightCost = (float)($uc->flight_ticket_cost ?? 0);
+        $shipCost = (float)($uc->ship_ticket_cost ?? 0);
+        $totalCost = $gasCost + $mealsCost + $hotelCost + $flightCost + $shipCost;
         $panjarCost = $totalCost / 2;
+        $itemCounter = 1;
     @endphp
 
     <table class="lampiran-table">
@@ -363,19 +374,35 @@
         </thead>
         <tbody>
             <tr>
-                <td class="text-center">1</td>
-                <td>BIAYA BAHAN BAKAR / TIKET</td>
+                <td class="text-center">{{ $itemCounter++ }}</td>
+                <td>BIAYA BAHAN BAKAR / TIKET DARAT</td>
                 <td class="text-center">Transportasi</td>
                 <td class="text-right">Rp. {{ number_format($gasCost, 0, ',', '.') }}</td>
             </tr>
+            @if($flightCost > 0)
             <tr>
-                <td class="text-center">2</td>
+                <td class="text-center">{{ $itemCounter++ }}</td>
+                <td>BIAYA TIKET PESAWAT</td>
+                <td class="text-center">Transportasi Udara</td>
+                <td class="text-right">Rp. {{ number_format($flightCost, 0, ',', '.') }}</td>
+            </tr>
+            @endif
+            @if($shipCost > 0)
+            <tr>
+                <td class="text-center">{{ $itemCounter++ }}</td>
+                <td>BIAYA TIKET KAPAL</td>
+                <td class="text-center">Transportasi Laut</td>
+                <td class="text-right">Rp. {{ number_format($shipCost, 0, ',', '.') }}</td>
+            </tr>
+            @endif
+            <tr>
+                <td class="text-center">{{ $itemCounter++ }}</td>
                 <td>BIAYA KONSUMSI</td>
                 <td class="text-center">Makan</td>
                 <td class="text-right">Rp. {{ number_format($mealsCost, 0, ',', '.') }}</td>
             </tr>
             <tr>
-                <td class="text-center">3</td>
+                <td class="text-center">{{ $itemCounter++ }}</td>
                 <td>BIAYA PENGINAPAN</td>
                 <td class="text-center">Akomodasi (Hotel)</td>
                 <td class="text-right">Rp. {{ number_format($hotelCost, 0, ',', '.') }}</td>

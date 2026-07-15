@@ -103,137 +103,106 @@ class ReportController extends Controller
             $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
         }
 
-        // Calculate Summary
-        $summaryQuery = SyncLogistikData::query();
-        if ($salesFilter) {
-            $summaryQuery->where('nama_sales', $salesFilter);
-        }
-        if ($outletFilter) {
-            $summaryQuery->where(function($q) use ($outletNamesToSearch) {
-                foreach ($outletNamesToSearch as $name) {
-                    $q->orWhere('nama_outlet', 'like', $name);
-                }
-            });
-        }
-        if ($monthFilter) {
-            $summaryQuery->where('tanggal', 'like', "%{$monthFilter}%");
-        }
-        $logistikAll = $summaryQuery->get();
-
-        $totalPenjualan = 0;
-        $outletCounts = [];
-        $produkCounts = [];
-
-        foreach ($logistikAll as $row) {
-            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
-            $totalPenjualan += $val;
-
-            $outlet = $row->nama_outlet;
-            if ($outlet) {
-                $outletCounts[$outlet] = ($outletCounts[$outlet] ?? 0) + 1;
+        // Calculate Summaries using Inertia::defer
+        $summary = Inertia::defer(function () use ($salesFilter, $outletFilter, $monthFilter, $outletNamesToSearch) {
+            $summaryQuery = SyncLogistikData::query();
+            if ($salesFilter) $summaryQuery->where('nama_sales', $salesFilter);
+            if ($outletFilter) {
+                $summaryQuery->where(function($q) use ($outletNamesToSearch) {
+                    foreach ($outletNamesToSearch as $name) {
+                        $q->orWhere('nama_outlet', 'like', $name);
+                    }
+                });
             }
-
-            $produk = $row->nama_produk;
-            if ($produk) {
-                $produkCounts[$produk] = ($produkCounts[$produk] ?? 0) + 1;
+            if ($monthFilter) $summaryQuery->where('tanggal', 'like', "%{$monthFilter}%");
+            
+            $logistikAll = $summaryQuery->select('total_sales', 'nama_outlet', 'nama_produk')->get();
+            $totalPenjualan = 0; $outletCounts = []; $produkCounts = [];
+            foreach ($logistikAll as $row) {
+                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
+                $totalPenjualan += $val;
+                if ($row->nama_outlet) $outletCounts[$row->nama_outlet] = ($outletCounts[$row->nama_outlet] ?? 0) + 1;
+                if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
             }
-        }
+            arsort($outletCounts); arsort($produkCounts);
+            return [
+                'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
+                'top_outlet' => key($outletCounts) ?: '-',
+                'top_produk' => key($produkCounts) ?: '-',
+                'total_pesanan' => $logistikAll->count()
+            ];
+        });
 
-        arsort($outletCounts);
-        arsort($produkCounts);
-
-        $summary = [
-            'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
-            'top_outlet' => key($outletCounts) ?: '-',
-            'top_produk' => key($produkCounts) ?: '-',
-            'total_pesanan' => $logistikAll->count()
-        ];
-
-        // Summary Pesanan
-        $summaryPesananQuery = SyncPesananData::query();
-        if ($outletFilter) {
-            $summaryPesananQuery->where(function($q) use ($outletNamesToSearch) {
-                foreach ($outletNamesToSearch as $name) {
-                    $q->orWhere('nama_outlet', 'like', $name);
-                }
-            });
-        }
-        if ($monthFilter) {
-            $summaryPesananQuery->where('tanggal', 'like', "%{$monthFilter}%");
-        }
-        $pesananAll = $summaryPesananQuery->get();
-
-        $totalFaktur = 0;
-        $totalTerkirim = 0;
-        $totalBelumTerkirim = 0;
-        foreach ($pesananAll as $row) {
-            $faktur = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_faktur);
-            $totalFaktur += $faktur;
-            $totalTerkirim += (float) str_replace(['.', ','], ['', '.'], (string)$row->terkirim);
-            $totalBelumTerkirim += (float) str_replace(['.', ','], ['', '.'], (string)$row->belum_terkirim);
-        }
-
-        $totalItems = $totalTerkirim + $totalBelumTerkirim;
-        $pctTerkirim = $totalItems > 0 ? round(($totalTerkirim / $totalItems) * 100, 1) : 0;
-        $pctBelum = $totalItems > 0 ? round(($totalBelumTerkirim / $totalItems) * 100, 1) : 0;
-
-        $summaryPesanan = [
-            'total_faktur' => 'Rp ' . number_format($totalFaktur, 0, ',', '.'),
-            'total_terkirim' => $pctTerkirim . '%',
-            'total_belum_terkirim' => $pctBelum . '%',
-            'total_pesanan' => $pesananAll->count()
-        ];
-
-        // Summary Piutang
-        $summaryPiutangQuery = SyncPiutangData::query();
-        if ($outletFilter) {
-            $summaryPiutangQuery->where(function($q) use ($outletNamesToSearch) {
-                foreach ($outletNamesToSearch as $name) {
-                    $q->orWhere('nama_outlet', 'like', $name);
-                }
-            });
-        }
-        if ($monthFilter) {
-            $monthNum = array_search($monthFilter, $months) + 1;
-            $summaryPiutangQuery->whereMonth('created_at', $monthNum);
-        }
-        $piutangAll = $summaryPiutangQuery->get();
-
-        $totalSanzaya = 0;
-        $totalRuma = 0;
-        $totalGabungan = 0;
-        foreach ($piutangAll as $row) {
-            $totalSanzaya += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_sanzaya));
-            $totalRuma += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_ruma));
-            $totalGabungan += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_gabungan));
-        }
-        $summaryPiutang = [
-            'total_sanzaya' => 'Rp ' . number_format($totalSanzaya, 0, ',', '.'),
-            'total_ruma' => 'Rp ' . number_format($totalRuma, 0, ',', '.'),
-            'total_gabungan' => 'Rp ' . number_format($totalGabungan, 0, ',', '.'),
-            'total_outlet' => $piutangAll->count()
-        ];
-
-        // Summary Hutang
-        $summaryHutangQuery = SyncHutangData::query();
-        if ($search && $tab === 'hutang') {
-            $summaryHutangQuery->where('nama_penyedia', 'like', "%{$search}%");
-        }
-        $hutangAll = $summaryHutangQuery->get();
-
-        $totalNominalHutang = 0;
-        $penyediaList = [];
-        foreach ($hutangAll as $row) {
-            $totalNominalHutang += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->nominal));
-            if ($row->nama_penyedia) {
-                $penyediaList[] = $row->nama_penyedia;
+        $summaryPesanan = Inertia::defer(function () use ($outletFilter, $monthFilter, $outletNamesToSearch) {
+            $summaryPesananQuery = SyncPesananData::query();
+            if ($outletFilter) {
+                $summaryPesananQuery->where(function($q) use ($outletNamesToSearch) {
+                    foreach ($outletNamesToSearch as $name) {
+                        $q->orWhere('nama_outlet', 'like', $name);
+                    }
+                });
             }
-        }
-        $summaryHutang = [
-            'total_nominal' => 'Rp ' . number_format($totalNominalHutang, 0, ',', '.'),
-            'total_data' => $hutangAll->count(),
-            'total_penyedia' => count(array_unique($penyediaList))
-        ];
+            if ($monthFilter) $summaryPesananQuery->where('tanggal', 'like', "%{$monthFilter}%");
+            
+            $pesananAll = $summaryPesananQuery->select('total_faktur', 'terkirim', 'belum_terkirim')->get();
+            $totalFaktur = 0; $totalTerkirim = 0; $totalBelumTerkirim = 0;
+            foreach ($pesananAll as $row) {
+                $totalFaktur += (float) str_replace(['.', ','], ['', '.'], (string)$row->total_faktur);
+                $totalTerkirim += (float) str_replace(['.', ','], ['', '.'], (string)$row->terkirim);
+                $totalBelumTerkirim += (float) str_replace(['.', ','], ['', '.'], (string)$row->belum_terkirim);
+            }
+            $totalItems = $totalTerkirim + $totalBelumTerkirim;
+            return [
+                'total_faktur' => 'Rp ' . number_format($totalFaktur, 0, ',', '.'),
+                'total_terkirim' => ($totalItems > 0 ? round(($totalTerkirim / $totalItems) * 100, 1) : 0) . '%',
+                'total_belum_terkirim' => ($totalItems > 0 ? round(($totalBelumTerkirim / $totalItems) * 100, 1) : 0) . '%',
+                'total_pesanan' => $pesananAll->count()
+            ];
+        });
+
+        $summaryPiutang = Inertia::defer(function () use ($outletFilter, $monthFilter, $outletNamesToSearch, $months) {
+            $summaryPiutangQuery = SyncPiutangData::query();
+            if ($outletFilter) {
+                $summaryPiutangQuery->where(function($q) use ($outletNamesToSearch) {
+                    foreach ($outletNamesToSearch as $name) {
+                        $q->orWhere('nama_outlet', 'like', $name);
+                    }
+                });
+            }
+            if ($monthFilter) {
+                $monthNum = array_search($monthFilter, $months) + 1;
+                $summaryPiutangQuery->whereMonth('created_at', $monthNum);
+            }
+            $piutangAll = $summaryPiutangQuery->select('total_sanzaya', 'total_ruma', 'total_gabungan')->get();
+            $totalSanzaya = 0; $totalRuma = 0; $totalGabungan = 0;
+            foreach ($piutangAll as $row) {
+                $totalSanzaya += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_sanzaya));
+                $totalRuma += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_ruma));
+                $totalGabungan += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_gabungan));
+            }
+            return [
+                'total_sanzaya' => 'Rp ' . number_format($totalSanzaya, 0, ',', '.'),
+                'total_ruma' => 'Rp ' . number_format($totalRuma, 0, ',', '.'),
+                'total_gabungan' => 'Rp ' . number_format($totalGabungan, 0, ',', '.'),
+                'total_outlet' => $piutangAll->count()
+            ];
+        });
+
+        $summaryHutang = Inertia::defer(function () use ($search, $tab) {
+            $summaryHutangQuery = SyncHutangData::query();
+            if ($search && $tab === 'hutang') $summaryHutangQuery->where('nama_penyedia', 'like', "%{$search}%");
+            $hutangAll = $summaryHutangQuery->select('nominal', 'nama_penyedia')->get();
+            $totalNominalHutang = 0; $penyediaList = [];
+            foreach ($hutangAll as $row) {
+                $totalNominalHutang += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->nominal));
+                if ($row->nama_penyedia) $penyediaList[] = $row->nama_penyedia;
+            }
+            return [
+                'total_nominal' => 'Rp ' . number_format($totalNominalHutang, 0, ',', '.'),
+                'total_data' => $hutangAll->count(),
+                'total_penyedia' => count(array_unique($penyediaList))
+            ];
+        });
 
         return Inertia::render('Reports/Index', [
             'tab' => $tab,
@@ -286,7 +255,7 @@ class ReportController extends Controller
         $piutang = SyncPiutangData::where('created_at', '>=', $startDate)->get();
         $hutang = SyncHutangData::where('created_at', '>=', $startDate)->get();
 
-        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title'));
+        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title'))->setPaper([0, 0, 609.4488, 935.433], 'portrait');
         return $pdf->download("laporan_gabungan_{$period}.pdf");
     }
 }

@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { FileCheck, Edit3, X, Check, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -71,9 +72,14 @@ export default function UcApproval({ requests }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     
                     <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                        <h3 className="font-bold text-xl text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
-                            <FileCheck className="text-blue-500" /> Daftar Pengajuan UC
-                        </h3>
+                        <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
+                            <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
+                                <FileCheck className="text-blue-500" /> Daftar Pengajuan UC
+                            </h3>
+                            <div className="flex items-center gap-3">
+                                <ExportDropdown pdfRoute={route('requests.uc.approval.export.pdf')} excelRoute={route('requests.uc.approval.export.excel')} />
+                            </div>
+                        </div>
                         
                         {!requests || requests.length === 0 ? (
                             <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
@@ -175,6 +181,16 @@ export default function UcApproval({ requests }) {
                                     <span className="font-semibold text-gray-900 block">
                                         Penginapan: {formatRupiah(selectedRequest.estimated_accommodation_cost)}
                                     </span>
+                                    {selectedRequest.flight_ticket_cost > 0 && (
+                                        <span className="font-semibold text-gray-900 block">
+                                            Pesawat: {formatRupiah(selectedRequest.flight_ticket_cost)}
+                                        </span>
+                                    )}
+                                    {selectedRequest.ship_ticket_cost > 0 && (
+                                        <span className="font-semibold text-gray-900 block">
+                                            Kapal: {formatRupiah(selectedRequest.ship_ticket_cost)}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 

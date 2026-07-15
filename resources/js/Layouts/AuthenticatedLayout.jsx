@@ -170,11 +170,11 @@ export default function Authenticated({ user, header, children }) {
             ]
         },
         {
-            name: 'Form BHP', icon: ShoppingCart, show: auth.active_features?.includes(5),
+            name: 'Form BHP', icon: ShoppingCart, show: auth.active_features?.includes(5) || auth.active_features?.includes(24),
             active: url.startsWith('/requests/bhp'),
             children: [
-                { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap') },
-                { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap') },
+                { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(5) },
+                { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(24) },
             ]
         },
         {
@@ -182,23 +182,24 @@ export default function Authenticated({ user, header, children }) {
             active: url.startsWith('/reports') || url.startsWith('/logistic-reports') || url.startsWith('/purchase-orders') || url.startsWith('/receivables') || url.startsWith('/payables'),
             children: [
                 { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_features?.includes(7) },
-                { name: 'Laporan Logistik', href: route('logistic-reports.index'), active: url.startsWith('/logistic-reports') },
-                { name: 'Surat Pesanan', href: route('purchase-orders.index'), active: url.startsWith('/purchase-orders') },
-                { name: 'Data Piutang', href: route('receivables.index'), active: url.startsWith('/receivables') },
-                { name: 'Data Hutang', href: route('payables.index'), active: url.startsWith('/payables') },
+                { name: 'Laporan Logistik', href: route('logistic-reports.index'), active: url.startsWith('/logistic-reports'), show: auth.active_features?.includes(17) },
+                { name: 'Surat Pesanan', href: route('purchase-orders.index'), active: url.startsWith('/purchase-orders'), show: auth.active_features?.includes(18) },
+                { name: 'Data Piutang', href: route('receivables.index'), active: url.startsWith('/receivables'), show: auth.active_features?.includes(19) },
+                { name: 'Data Hutang', href: route('payables.index'), active: url.startsWith('/payables'), show: auth.active_features?.includes(20) },
             ]
         },
         {
             name: 'Master Data', icon: Database, show: true,
             active: url.startsWith('/outlets') || url.startsWith('/item-requirements') || url.startsWith('/vehicles') || url.startsWith('/providers') || url.startsWith('/users') || url.startsWith('/company') || url.startsWith('/products'),
             children: [
-                { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: true },
+                { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: auth.active_features?.includes(21) },
                 { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_features?.includes(9) },
-                { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements') },
+                { name: 'Pemetaan Outlet', href: route('outlet-mappings.index'), active: url.startsWith('/outlet-mappings'), show: auth.active_features?.includes(23) },
+                { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements'), show: auth.active_features?.includes(16) },
                 { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_features?.includes(11) },
                 { name: 'Data Penyedia', href: route('providers.index'), active: url.startsWith('/providers'), show: auth.active_features?.includes(12) },
-                { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: true },
-                { name: 'Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_features?.includes(6) },
+                { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: auth.active_features?.includes(22) },
+                { name: 'Data Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_features?.includes(6) },
             ]
         },
         {

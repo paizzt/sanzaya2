@@ -10,7 +10,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SearchableSelect from '@/Components/SearchableSelect';
 import CustomDatePicker from '@/Components/CustomDatePicker';
 
-export default function UC({ requests, users, vehicles }) {
+export default function UC({ requests, users, vehicles, isAdmin }) {
     const user = usePage().props.auth.user;
     
     // Calculate Days Diff
@@ -24,6 +24,7 @@ export default function UC({ requests, users, vehicles }) {
     };
 
     const { data, setData, post, processing, errors, reset } = useForm({
+        user_id: user.id,
         entity: 'PT. Sanzaya Medika Pratama',
         department: 'Sales',
         destination_city: '',
@@ -36,6 +37,8 @@ export default function UC({ requests, users, vehicles }) {
         estimated_gas_cost: '',
         estimated_meals_cost: '',
         estimated_accommodation_cost: '',
+        flight_ticket_cost: '',
+        ship_ticket_cost: '',
     });
 
     const { flash } = usePage().props;
@@ -123,7 +126,19 @@ export default function UC({ requests, users, vehicles }) {
                             </div>
                             <div>
                                 <InputLabel value="Nama Pegawai" />
-                                <TextInput className="mt-1 block w-full bg-gray-100 cursor-not-allowed" value={user.name} disabled />
+                                {isAdmin ? (
+                                    <div className="mt-1">
+                                        <SearchableSelect
+                                            value={data.user_id}
+                                            onChange={(val) => setData('user_id', val)}
+                                            options={users.map(u => ({ value: u.id, label: u.name }))}
+                                            placeholder="Pilih Pegawai..."
+                                        />
+                                        <InputError message={errors.user_id} className="mt-2" />
+                                    </div>
+                                ) : (
+                                    <TextInput className="mt-1 block w-full bg-gray-100 cursor-not-allowed" value={user.name} disabled />
+                                )}
                             </div>
                             <div>
                                 <InputLabel value="Jabatan / Divisi *" />
@@ -268,6 +283,30 @@ export default function UC({ requests, users, vehicles }) {
                                         onChange={(e) => handleCurrencyChange('estimated_accommodation_cost', e)}
                                     />
                                 </div>
+                                {data.transportation_type === 'Udara' && (
+                                    <div>
+                                        <InputLabel value="Harga Tiket Pesawat (Rp)" />
+                                        <TextInput 
+                                            type="text"
+                                            className="mt-1 block w-full bg-white" 
+                                            placeholder="Rp 0,00"
+                                            value={data.flight_ticket_cost ? formatRupiah(data.flight_ticket_cost) : ''}
+                                            onChange={(e) => handleCurrencyChange('flight_ticket_cost', e)}
+                                        />
+                                    </div>
+                                )}
+                                {data.transportation_type === 'Laut' && (
+                                    <div>
+                                        <InputLabel value="Harga Tiket Kapal (Rp)" />
+                                        <TextInput 
+                                            type="text"
+                                            className="mt-1 block w-full bg-white" 
+                                            placeholder="Rp 0,00"
+                                            value={data.ship_ticket_cost ? formatRupiah(data.ship_ticket_cost) : ''}
+                                            onChange={(e) => handleCurrencyChange('ship_ticket_cost', e)}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 

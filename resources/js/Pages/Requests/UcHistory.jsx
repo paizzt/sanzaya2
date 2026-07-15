@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -7,7 +8,7 @@ import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function UcHistory({ requests }) {
+export default function UcHistory({ requests, activeUcs = [] }) {
     const user = usePage().props.auth.user;
     
     // Form Result State
@@ -17,6 +18,7 @@ export default function UcHistory({ requests }) {
     });
 
     const [selectedUc, setSelectedUc] = useState(null);
+    const [expandedActiveUc, setExpandedActiveUc] = useState(null);
     const [previewUrls, setPreviewUrls] = useState([]);
     const { flash } = usePage().props;
 
@@ -65,12 +67,81 @@ export default function UcHistory({ requests }) {
             <Head title="Riwayat & Result UC" />
 
             <div className="pb-6 pt-0 space-y-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+                {/* Siapa yang Sedang UC Hari Ini */}
+                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                    <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
+                        <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
+                            <PlaneTakeoff className="text-blue-600" /> Sedang UC Hari Ini
+                        </h3>
+                    </div>
+
+                    {activeUcs.length === 0 ? (
+                        <div className="text-center py-6 text-gray-400">
+                            <p>Tidak ada UC hari ini</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {activeUcs.map(uc => (
+                                <div key={uc.id} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+                                    <div 
+                                        className="p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer flex justify-between items-center transition-colors"
+                                        onClick={() => setExpandedActiveUc(expandedActiveUc === uc.id ? null : uc.id)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                                                {uc.user?.name?.charAt(0) || '?'}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800">{uc.user?.name}</h4>
+                                                <p className="text-xs text-gray-500">{uc.department} - {uc.destination_city}</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-semibold px-3 py-1 bg-blue-100 text-blue-700 rounded-full">Sedang Berlangsung</span>
+                                    </div>
+                                    
+                                    {expandedActiveUc === uc.id && (
+                                        <div className="p-4 bg-white border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm animate-in slide-in-from-top-2">
+                                            <div>
+                                                <p className="text-gray-500 mb-1">Tanggal</p>
+                                                <p className="font-semibold text-gray-800"><Calendar className="inline w-4 h-4 mr-1 text-gray-400"/> {uc.departure_date} s/d {uc.return_date}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 mb-1">Durasi & Kendaraan</p>
+                                                <p className="font-semibold text-gray-800">{uc.estimated_days} Hari - {uc.transport_type} {uc.vehicle_number ? `(${uc.vehicle_number})` : ''}</p>
+                                            </div>
+                                            <div className="col-span-1 md:col-span-2 mt-2">
+                                                <p className="text-gray-500 mb-1">Pendamping</p>
+                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                    {uc.companions && uc.companions.length > 0 ? (
+                                                        uc.companions.map((comp, idx) => (
+                                                            <span key={idx} className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium">
+                                                                {comp}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-gray-400 italic">Tidak ada pendamping</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
                 
                 {/* Daftar & Upload Result UC */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                    <h3 className="font-bold text-xl text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
-                        <FileCheck className="text-emerald-500" /> Riwayat & Result UC
-                    </h3>
+                    <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
+                        <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
+                            <FileCheck className="text-blue-600" /> Riwayat Pengajuan
+                        </h3>
+                        <div className="flex items-center gap-3">
+                            <ExportDropdown pdfRoute={route('requests.uc.export.pdf')} excelRoute={route('requests.uc.export.excel')} />
+                        </div>
+                    </div>
 
                     {requests.length === 0 ? (
                         <div className="text-center py-10 text-gray-400">

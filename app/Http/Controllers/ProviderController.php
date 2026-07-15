@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Exports\GenericExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Provider;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -67,5 +71,58 @@ class ProviderController extends Controller
         $provider->delete();
 
         return redirect()->route('providers.index')->with('success', 'Data penyedia berhasil dihapus.');
+    }
+
+    public function exportPdf()
+    {
+        $items = \App\Models\Provider::orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $hidden = ['id', 'created_at', 'updated_at', 'deleted_at', 'password', 'remember_token'];
+            $headings = array_diff(array_keys($items->first()->getAttributes()), $hidden);
+            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $headings);
+            array_unshift($headings, 'No');
+            
+            $rows = $items->map(function($item, $key) use ($hidden) {
+                $row = [$key + 1];
+                foreach ($item->getAttributes() as $col => $val) {
+                    if (!in_array($col, $hidden)) {
+                        $row[] = $val;
+                    }
+                }
+                return $row;
+            });
+        }
+        
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Data Penyedia', 'headings' => $headings, 'rows' => $rows])->setPaper([0, 0, 609.4488, 935.433], 'landscape');
+        return $pdf->download(str_replace(' ', '_', 'Data Penyedia') . '.pdf');
+    }
+
+    public function exportExcel()
+    {
+        $items = \App\Models\Provider::orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $hidden = ['id', 'created_at', 'updated_at', 'deleted_at', 'password', 'remember_token'];
+            $headings = array_diff(array_keys($items->first()->getAttributes()), $hidden);
+            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $headings);
+            array_unshift($headings, 'No');
+            
+            $rows = $items->map(function($item, $key) use ($hidden) {
+                $row = [$key + 1];
+                foreach ($item->getAttributes() as $col => $val) {
+                    if (!in_array($col, $hidden)) {
+                        $row[] = $val;
+                    }
+                }
+                return $row;
+            });
+        }
+        
+        return Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Penyedia') . '.xlsx');
     }
 }

@@ -28,6 +28,36 @@ Route::get('/', function () {
 Route::get('/shared/kebutuhan-barang', [\App\Http\Controllers\ItemRequirementController::class, 'publicIndex'])->name('item-requirements.public');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Added Export Routes
+    Route::get('/logistic-reports-export-pdf', [\App\Http\Controllers\LogisticReportController::class, 'exportPdf'])->name('logistic-reports.export.pdf');
+    Route::get('/logistic-reports-export-excel', [\App\Http\Controllers\LogisticReportController::class, 'exportExcel'])->name('logistic-reports.export.excel');
+    Route::get('/purchase-orders-export-pdf', [\App\Http\Controllers\PurchaseOrderController::class, 'exportPdf'])->name('purchase-orders.export.pdf');
+    Route::get('/purchase-orders-export-excel', [\App\Http\Controllers\PurchaseOrderController::class, 'exportExcel'])->name('purchase-orders.export.excel');
+    Route::get('/receivables-export-pdf', [\App\Http\Controllers\ReceivableController::class, 'exportPdf'])->name('receivables.export.pdf');
+    Route::get('/receivables-export-excel', [\App\Http\Controllers\ReceivableController::class, 'exportExcel'])->name('receivables.export.excel');
+    Route::get('/payables-export-pdf', [\App\Http\Controllers\PayableController::class, 'exportPdf'])->name('payables.export.pdf');
+    Route::get('/payables-export-excel', [\App\Http\Controllers\PayableController::class, 'exportExcel'])->name('payables.export.excel');
+    Route::get('/company-export-pdf', [\App\Http\Controllers\CompanyController::class, 'exportPdf'])->name('company.export.pdf');
+    Route::get('/company-export-excel', [\App\Http\Controllers\CompanyController::class, 'exportExcel'])->name('company.export.excel');
+    Route::get('/outlets-export-pdf', [\App\Http\Controllers\OutletController::class, 'exportPdf'])->name('outlets.export.pdf');
+    Route::get('/outlets-export-excel', [\App\Http\Controllers\OutletController::class, 'exportExcel'])->name('outlets.export.excel');
+    Route::get('/vehicles-export-pdf', [\App\Http\Controllers\VehicleController::class, 'exportPdf'])->name('vehicles.export.pdf');
+    Route::get('/vehicles-export-excel', [\App\Http\Controllers\VehicleController::class, 'exportExcel'])->name('vehicles.export.excel');
+    Route::get('/providers-export-pdf', [\App\Http\Controllers\ProviderController::class, 'exportPdf'])->name('providers.export.pdf');
+    Route::get('/providers-export-excel', [\App\Http\Controllers\ProviderController::class, 'exportExcel'])->name('providers.export.excel');
+    Route::get('/products-export-pdf', [\App\Http\Controllers\ProductController::class, 'exportPdf'])->name('products.export.pdf');
+    Route::get('/products-export-excel', [\App\Http\Controllers\ProductController::class, 'exportExcel'])->name('products.export.excel');
+    Route::get('/users-export-pdf', [\App\Http\Controllers\UserController::class, 'exportPdf'])->name('users.export.pdf');
+    Route::get('/users-export-excel', [\App\Http\Controllers\UserController::class, 'exportExcel'])->name('users.export.excel');
+    Route::get('/marketing-export-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf');
+    Route::get('/marketing-export-excel', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportExcel'])->name('marketing.export.excel');
+    Route::get('/uc-export-pdf', [\App\Http\Controllers\UcRequestController::class, 'exportPdf'])->name('requests.uc.export.pdf');
+    Route::get('/uc-export-excel', [\App\Http\Controllers\UcRequestController::class, 'exportExcel'])->name('requests.uc.export.excel');
+    Route::get('/uc-approval-export-pdf', [\App\Http\Controllers\UcApprovalController::class, 'exportPdf'])->name('requests.uc.approval.export.pdf');
+    Route::get('/uc-approval-export-excel', [\App\Http\Controllers\UcApprovalController::class, 'exportExcel'])->name('requests.uc.approval.export.excel');
+
+
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     // Absensi
@@ -45,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/marketing', [MarketingDailyReportController::class, 'index'])->name('marketing.index');
     Route::get('/marketing/recap-all', [\App\Http\Controllers\MarketingRecapController::class, 'index'])->name('marketing.recap.index');
     Route::get('/marketing/recap-all/pdf', [\App\Http\Controllers\MarketingRecapController::class, 'exportPdf'])->name('marketing.recap.pdf');
+    Route::get('/marketing/recap-all/excel', [\App\Http\Controllers\MarketingRecapController::class, 'exportExcel'])->name('marketing.recap.excel');
     Route::post('/marketing/report', [MarketingDailyReportController::class, 'store'])->name('marketing.report.store');
     Route::post('/marketing/target', [MarketingDailyReportController::class, 'storeTarget'])->name('marketing.target.store');
     Route::get('/requests/uc', [UcRequestController::class, 'index'])->name('requests.uc.index');
@@ -117,16 +148,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/outlet-mappings/{id}', [\App\Http\Controllers\OutletMappingController::class, 'destroy'])->name('outlet-mappings.destroy');
 
     // Master Data
-    Route::resource('company', CompanyController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('outlets', OutletController::class)->except(['show', 'create', 'edit']);
     Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class)->except(['show', 'create', 'edit']);
-    Route::resource('vehicles', \App\Http\Controllers\VehicleController::class)->except(['show', 'create', 'edit']);
+    Route::resource('vehicles', \App\Http\Controllers\VehicleController::class)->except(['show']);
     Route::resource('providers', ProviderController::class)->except(['show', 'create', 'edit']);
     Route::resource('products', ProductController::class)->except(['show', 'create', 'edit']);
 
     // Modul Logistik & Keuangan
     Route::resource('logistic-reports', \App\Http\Controllers\LogisticReportController::class);
     Route::resource('purchase-orders', \App\Http\Controllers\PurchaseOrderController::class);
+    Route::post('receivables/daily-report', [\App\Http\Controllers\ReceivableController::class, 'storeDailyReport'])->name('receivables.dailyReport.store');
     Route::resource('receivables', \App\Http\Controllers\ReceivableController::class);
     Route::resource('payables', \App\Http\Controllers\PayableController::class);
 });

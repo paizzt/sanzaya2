@@ -33,7 +33,7 @@ class BhpRequestController extends Controller
         $qrUrl = route('requests.bhp.index');
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
         
-        $pdf = Pdf::loadView('pdf.bhp_request', compact('bhp', 'qrCode'));
+        $pdf = Pdf::loadView('pdf.bhp_request', compact('bhp', 'qrCode'))->setPaper([0, 0, 609.4488, 935.433], 'portrait');
         return $pdf->download('BHP_Request_' . str_pad($bhp->id, 4, '0', STR_PAD_LEFT) . '.pdf');
     }
 

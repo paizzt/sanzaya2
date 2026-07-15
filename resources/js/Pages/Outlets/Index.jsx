@@ -1,3 +1,4 @@
+import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { Store, Plus, Edit, Trash2, X, Save, MapPin, Phone, User as UserIcon, Building, Briefcase, Search } from 'lucide-react';
@@ -265,7 +266,9 @@ export default function Index({ outlets, areas }) {
                             {cities.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
-                            <button 
+                            <div className="flex items-center gap-3">
+                                <ExportDropdown pdfRoute={route('outlets.export.pdf')} excelRoute={route('outlets.export.excel')} />
+                                <button 
                                 onClick={() => router.get(route('outlet-mappings.index'))}
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/30 whitespace-nowrap text-sm"
                             >
@@ -285,6 +288,7 @@ export default function Index({ outlets, areas }) {
                             >
                                 <Plus className="w-4 h-4" /> Tambah
                             </button>
+                            </div>
                         </div>
                     </div>
                 </div>

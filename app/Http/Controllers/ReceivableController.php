@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Exports\GenericExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Receivable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -29,10 +33,13 @@ class ReceivableController extends Controller
         $outlets = \App\Models\Outlet::orderBy('name')->get();
         $companies = \App\Models\Company::orderBy('name')->get();
         
+        $dailyReports = \App\Models\ReceivableDailyReport::with(['user', 'outlet'])->orderBy('billing_date', 'desc')->get();
+
         return Inertia::render('Receivables/Index', [
             'items' => $items,
             'outlets' => $outlets,
             'companies' => $companies,
+            'dailyReports' => $dailyReports,
             'filters' => $request->only(['search', 'pt', 'year'])
         ]);
     }
@@ -80,5 +87,73 @@ class ReceivableController extends Controller
     {
         Receivable::destroy($id);
         return redirect()->back()->with('success', 'Data berhasil dihapus.');
+    }
+
+    public function exportPdf()
+    {
+        $items = \App\Models\Receivable::orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $hidden = ['id', 'created_at', 'updated_at', 'deleted_at', 'password', 'remember_token'];
+            $headings = array_diff(array_keys($items->first()->getAttributes()), $hidden);
+            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $headings);
+            array_unshift($headings, 'No');
+            
+            $rows = $items->map(function($item, $key) use ($hidden) {
+                $row = [$key + 1];
+                foreach ($item->getAttributes() as $col => $val) {
+                    if (!in_array($col, $hidden)) {
+                        $row[] = $val;
+                    }
+                }
+                return $row;
+            });
+        }
+        
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Data Piutang', 'headings' => $headings, 'rows' => $rows])->setPaper([0, 0, 609.4488, 935.433], 'landscape');
+        return $pdf->download(str_replace(' ', '_', 'Data Piutang') . '.pdf');
+    }
+
+    public function exportExcel()
+    {
+        $items = \App\Models\Receivable::orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $hidden = ['id', 'created_at', 'updated_at', 'deleted_at', 'password', 'remember_token'];
+            $headings = array_diff(array_keys($items->first()->getAttributes()), $hidden);
+            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $headings);
+            array_unshift($headings, 'No');
+            
+            $rows = $items->map(function($item, $key) use ($hidden) {
+                $row = [$key + 1];
+                foreach ($item->getAttributes() as $col => $val) {
+                    if (!in_array($col, $hidden)) {
+                        $row[] = $val;
+                    }
+                }
+                return $row;
+            });
+        }
+        
+        return Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Piutang') . '.xlsx');
+    }
+
+    public function storeDailyReport(Request $request)
+    {
+        $validated = $request->validate([
+            'billing_date' => 'required|date',
+            'outlet_id' => 'required|exists:outlets,id',
+            'result' => 'required|string',
+        ]);
+
+        $validated['user_id'] = auth()->id();
+
+        \App\Models\ReceivableDailyReport::create($validated);
+
+        return redirect()->back()->with('success', 'Laporan harian penagihan berhasil disimpan.');
     }
 }

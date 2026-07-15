@@ -12,6 +12,14 @@
         .header { margin-bottom: 20px; }
         .title { font-size: 18px; font-weight: bold; }
         .subtitle { font-size: 14px; margin-top: 5px; }
+    
+        /* PDF Fixes for Overflow & Layout */
+        table { width: 100%; border-collapse: collapse; table-layout: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        th, td { word-wrap: break-word; overflow-wrap: break-word; }
+        .page-break { page-break-after: always; }
     </style>
 </head>
 <body>

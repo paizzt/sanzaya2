@@ -1,3 +1,4 @@
+import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight } from 'lucide-react';
@@ -179,12 +180,15 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">Kelola akses, jabatan, divisi, PT, dan saklar fitur pengguna.</p>
                     </div>
-                    <button 
+                    <div className="flex items-center gap-3">
+                                <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} />
+                                <button 
                         onClick={openCreateModal}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
                     >
                         <Plus className="w-5 h-5" /> Tambah Pengguna
                     </button>
+                            </div>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">

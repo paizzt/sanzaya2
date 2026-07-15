@@ -1,3 +1,4 @@
+import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench } from 'lucide-react';
@@ -77,12 +78,15 @@ export default function Index({ vehicles }) {
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">Kelola data kendaraan, legalitas, dan jadwal perawatan rutin.</p>
                     </div>
-                    <Link 
+                    <div className="flex items-center gap-3">
+                                <ExportDropdown pdfRoute={route('vehicles.export.pdf')} excelRoute={route('vehicles.export.excel')} />
+                                <Link 
                         href={route('vehicles.create')}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
                     >
                         <Plus className="w-5 h-5" /> Tambah Armada
                     </Link>
+                            </div>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">

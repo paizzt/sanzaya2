@@ -22,8 +22,8 @@ class AttendanceRecapController extends Controller
     {
         $data = $this->getRecapData($request);
         
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data);
-        $pdf->setPaper('a4', 'landscape');
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data)->setPaper([0, 0, 609.4488, 935.433], 'portrait');
+        $pdf->setPaper([0, 0, 609.4488, 935.433], 'landscape');
         
         $fileName = 'Rekap_Absensi_' . $data['filters']['month'] . '_' . $data['filters']['year'] . '.pdf';
         return $pdf->download($fileName);

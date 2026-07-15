@@ -63,10 +63,10 @@ class BhpRecapController extends Controller
             'month' => $request->month,
             'year' => $request->year,
             'status' => $request->status
-        ]);
+        ])->setPaper([0, 0, 609.4488, 935.433], 'portrait');
         
         // Use landscape mode because tables can be wide
-        $pdf->setPaper('a4', 'landscape');
+        $pdf->setPaper([0, 0, 609.4488, 935.433], 'landscape');
 
         return $pdf->download('Rekap_BHP_' . date('Ymd_His') . '.pdf');
     }

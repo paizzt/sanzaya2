@@ -21,7 +21,8 @@ class UcRequestController extends Controller
             
         return Inertia::render('Requests/UC', [
             'users' => $users,
-            'vehicles' => $vehicles
+            'vehicles' => $vehicles,
+            'isAdmin' => Auth::user()->hasAnyRole(['Admin', 'Superadmin', 'admin', 'superadmin'])
         ]);
     }
     
@@ -62,11 +63,16 @@ class UcRequestController extends Controller
             'estimated_gas_cost' => 'nullable|numeric',
             'estimated_meals_cost' => 'nullable|numeric',
             'estimated_accommodation_cost' => 'nullable|numeric',
+            'flight_ticket_cost' => 'nullable|numeric',
+            'ship_ticket_cost' => 'nullable|numeric',
+            'user_id' => 'nullable|exists:users,id',
         ]);
+
+        $userId = (Auth::user()->hasAnyRole(['Admin', 'Superadmin', 'admin', 'superadmin']) && $request->filled('user_id')) ? $request->user_id : Auth::id();
 
         UcRequest::create([
             'request_number' => 'UC-' . date('Ymd') . '-' . strtoupper(Str::random(5)),
-            'user_id' => Auth::id(),
+            'user_id' => $userId,
             'entity' => $request->entity,
             'department' => $request->department,
             'destination_city' => $request->destination_city,
@@ -79,6 +85,8 @@ class UcRequestController extends Controller
             'estimated_gas_cost' => $request->estimated_gas_cost,
             'estimated_meals_cost' => $request->estimated_meals_cost,
             'estimated_accommodation_cost' => $request->estimated_accommodation_cost,
+            'flight_ticket_cost' => $request->flight_ticket_cost,
+            'ship_ticket_cost' => $request->ship_ticket_cost,
             'status' => 'Menunggu'
         ]);
 

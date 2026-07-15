@@ -110,7 +110,7 @@ class ItemRequirementController extends Controller
         $items = $query->orderBy('outlet_name')->orderBy('id', 'desc')->get();
 
         $pdf = Pdf::loadView('pdf.item_requirements', compact('items', 'outlet_name'))
-                  ->setPaper('a4', 'landscape');
+                  ->setPaper([0, 0, 609.4488, 935.433], 'landscape');
                   
         $filename = 'Laporan_Kebutuhan_Barang' . ($outlet_name ? '_' . str_replace(' ', '_', $outlet_name) : '') . '.pdf';
 

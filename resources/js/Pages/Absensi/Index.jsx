@@ -1,8 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Camera, CheckCircle2, Clock, MapPinOff, RefreshCcw } from 'lucide-react';
-import { useRef, useState, useCallback, useEffect } from 'react';
-import Webcam from 'react-webcam';
+import React, { useRef, useState, useCallback, useEffect, Suspense } from 'react';
+const Webcam = React.lazy(() => import('react-webcam'));
 import Swal from 'sweetalert2';
 
 export default function Index({ attendance, today, currentTime }) {
@@ -79,14 +79,17 @@ export default function Index({ attendance, today, currentTime }) {
 
                             <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex items-center justify-center">
                                 {!imgSrc ? (
-                                    <Webcam
-                                        audio={false}
-                                        ref={webcamRef}
-                                        screenshotFormat="image/jpeg"
-                                        className="w-full h-full object-cover"
-                                        videoConstraints={{ facingMode: "user" }}
-                                        mirrored={true}
-                                    />
+                                    <Suspense fallback={<div className="text-white animate-pulse">Memuat Kamera...</div>}>
+                                        <Webcam
+                                            audio={false}
+                                            ref={webcamRef}
+                                            screenshotFormat="image/jpeg"
+                                            screenshotQuality={0.7}
+                                            className="w-full h-full object-cover"
+                                            videoConstraints={{ facingMode: "user", width: 720, height: 480 }}
+                                            mirrored={true}
+                                        />
+                                    </Suspense>
                                 ) : (
                                     <img src={imgSrc} alt="Captured" className="w-full h-full object-cover" />
                                 )}

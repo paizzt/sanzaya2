@@ -10,4 +10,19 @@ export default defineConfig({
         }),
         react(),
     ],
+    build: {
+        target: 'esnext',
+        minify: 'esbuild',
+        cssMinify: true,
+        chunkSizeWarningLimit: 1500,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
+                }
+            }
+        }
+    }
 });

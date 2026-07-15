@@ -38,23 +38,28 @@ class DashboardController extends Controller
             $attendanceQuery->where('user_id', $user->id);
         }
 
-        $stats = [
-            'attendance_today' => $attendanceQuery->count(),
-            'marketing_visits_today' => $marketingQuery->count(),
-            'uc_pending' => $ucQuery->count(),
-            'bhp_pending' => $bhpQuery->count(),
-        ];
+        $cacheKey = "dashboard_stats_user_{$user->id}_" . $today->format('Y_m_d');
+        
+        $stats = \Illuminate\Support\Facades\Cache::remember($cacheKey, 600, function () use ($attendanceQuery, $marketingQuery, $ucQuery, $bhpQuery, $isAdmin) {
+            $data = [
+                'attendance_today' => $attendanceQuery->count(),
+                'marketing_visits_today' => $marketingQuery->count(),
+                'uc_pending' => $ucQuery->count(),
+                'bhp_pending' => $bhpQuery->count(),
+            ];
 
-        // Only admins or specific roles care about high-level spreadsheet totals
-        if ($isAdmin) {
-            $stats['total_surat_pesanan'] = SyncPesananData::count();
-            $stats['total_piutang'] = SyncPiutangData::count();
-            $stats['total_logistik'] = SyncLogistikData::count();
-        } else {
-            $stats['total_surat_pesanan'] = 0;
-            $stats['total_piutang'] = 0;
-            $stats['total_logistik'] = 0;
-        }
+            if ($isAdmin) {
+                $data['total_surat_pesanan'] = SyncPesananData::count();
+                $data['total_piutang'] = SyncPiutangData::count();
+                $data['total_logistik'] = SyncLogistikData::count();
+            } else {
+                $data['total_surat_pesanan'] = 0;
+                $data['total_piutang'] = 0;
+                $data['total_logistik'] = 0;
+            }
+            
+            return $data;
+        });
 
         return Inertia::render('Dashboard', [
             'stats' => $stats,

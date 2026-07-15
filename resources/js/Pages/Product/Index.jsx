@@ -1,3 +1,5 @@
+import ExportDropdown from '@/Components/ExportDropdown';
+import CustomSelect from '@/Components/CustomSelect';
 import React, { useState, useMemo } from 'react';
 import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -24,6 +26,8 @@ export default function Index({ products }) {
         price: '',
         description: '',
         is_active: true,
+        jenis: '',
+        link: '',
     });
 
     const filteredProducts = useMemo(() => {
@@ -52,6 +56,8 @@ export default function Index({ products }) {
             price: product.price || '',
             description: product.description || '',
             is_active: product.is_active,
+            jenis: product.jenis || '',
+            link: product.link || '',
         });
         setIsModalOpen(true);
     };
@@ -181,11 +187,23 @@ export default function Index({ products }) {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-base">{product.name}</p>
-                                                    <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 border border-indigo-100">
-                                                        Kode: {product.code || '-'}
-                                                    </span>
+                                                    <div className="flex flex-wrap gap-2 mt-1">
+                                                        <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded border border-indigo-100">
+                                                            Kode: {product.code || '-'}
+                                                        </span>
+                                                        {product.jenis && (
+                                                            <span className="inline-block bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded border border-green-100">
+                                                                {product.jenis}
+                                                            </span>
+                                                        )}
+                                                        {product.link && (
+                                                            <a href={product.link} target="_blank" rel="noopener noreferrer" className="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-100 transition-colors">
+                                                                Link Eksternal
+                                                            </a>
+                                                        )}
+                                                    </div>
                                                     {product.description && (
-                                                        <div className="text-xs text-gray-500 mt-1 max-w-xs truncate" title={product.description}>
+                                                        <div className="text-xs text-gray-500 mt-2 max-w-xs truncate" title={product.description}>
                                                             {product.description}
                                                         </div>
                                                     )}
@@ -267,7 +285,7 @@ export default function Index({ products }) {
                                         </div>
 
                                         <div>
-                                            <InputLabel htmlFor="code" value="Kode Produk (Opsional)" />
+                                            <InputLabel htmlFor="code" value="Kode Produk" />
                                             <TextInput
                                                 id="code"
                                                 type="text"
@@ -294,7 +312,7 @@ export default function Index({ products }) {
                                         </div>
 
                                         <div className="md:col-span-2">
-                                            <InputLabel htmlFor="description" value="Deskripsi (Opsional)" />
+                                            <InputLabel htmlFor="description" value="Deskripsi" />
                                             <textarea
                                                 id="description"
                                                 name="description"
@@ -304,6 +322,34 @@ export default function Index({ products }) {
                                                 rows="3"
                                             ></textarea>
                                             <InputError message={errors.description} className="mt-2" />
+                                        </div>
+                                        
+                                        <div>
+                                            <InputLabel htmlFor="jenis" value="Jenis" />
+                                            <CustomSelect
+                                                value={data.jenis}
+                                                onChange={(val) => setData('jenis', val)}
+                                                options={[
+                                                    { value: 'Alat Kesehatan', label: 'Alat Kesehatan' },
+                                                    { value: 'BMHP', label: 'BMHP' }
+                                                ]}
+                                                placeholder="Pilih Jenis (Opsional)"
+                                            />
+                                            <InputError message={errors.jenis} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="link" value="Link" />
+                                            <TextInput
+                                                id="link"
+                                                type="url"
+                                                name="link"
+                                                value={data.link}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('link', e.target.value)}
+                                                placeholder="https://"
+                                            />
+                                            <InputError message={errors.link} className="mt-2" />
                                         </div>
 
                                         <div className="md:col-span-2 flex items-center">
@@ -323,9 +369,12 @@ export default function Index({ products }) {
 
                                 <div className="mt-4 flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
-                                    <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
+                                    <div className="flex items-center gap-3">
+                                <ExportDropdown pdfRoute={route('products.export.pdf')} excelRoute={route('products.export.excel')} />
+                                <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
                                         {isEditMode ? 'Simpan Perubahan' : 'Tambahkan'}
                                     </PrimaryButton>
+                            </div>
                                 </div>
                             </form>
                         </div>

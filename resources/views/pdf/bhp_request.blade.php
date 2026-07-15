@@ -9,6 +9,14 @@
         table, th, td { border: 1px solid #ddd; padding: 8px; }
         .signature-box { margin-top: 40px; float: right; text-align: center; }
         .clear { clear: both; }
+    
+        /* PDF Fixes for Overflow & Layout */
+        table { width: 100%; border-collapse: collapse; table-layout: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        th, td { word-wrap: break-word; overflow-wrap: break-word; }
+        .page-break { page-break-after: always; }
     </style>
 </head>
 <body>

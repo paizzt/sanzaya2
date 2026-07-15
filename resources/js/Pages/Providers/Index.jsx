@@ -1,3 +1,4 @@
+import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState, useMemo } from 'react';
 import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -387,9 +388,12 @@ export default function Index({ providers }) {
 
                                 <div className="mt-4 flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
-                                    <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
+                                    <div className="flex items-center gap-3">
+                                <ExportDropdown pdfRoute={route('providers.export.pdf')} excelRoute={route('providers.export.excel')} />
+                                <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
                                         {isEditMode ? 'Simpan Perubahan' : 'Tambahkan'}
                                     </PrimaryButton>
+                            </div>
                                 </div>
                             </form>
                         </div>

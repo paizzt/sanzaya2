@@ -1,3 +1,4 @@
+import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
@@ -114,10 +115,13 @@ export default function Index({ auth, items, sales, outlets }) {
                                     <ClipboardList className="w-5 h-5 text-blue-500" />
                                     Data Laporan Logistik
                                 </h3>
+                                <div className="flex items-center gap-3">
+                                <ExportDropdown pdfRoute={route('logistic-reports.export.pdf')} excelRoute={route('logistic-reports.export.excel')} />
                                 <PrimaryButton onClick={() => openModal()}>
                                     <Plus className="w-4 h-4 mr-2" />
                                     Tambah Data
                                 </PrimaryButton>
+                            </div>
                             </div>
 
                             <div className="overflow-x-auto">
@@ -222,7 +226,7 @@ export default function Index({ auth, items, sales, outlets }) {
                         </div>
 
                         <div className="md:col-span-2">
-                            <InputLabel htmlFor="total_sales" value="Total Sales (Nominal)" />
+                            <InputLabel htmlFor="total_sales" value="Total" />
                             <TextInput
                                 id="total_sales"
                                 type="number"

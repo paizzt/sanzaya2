@@ -14,6 +14,14 @@
         .header { text-align: center; margin-bottom: 20px; }
         .section-title { margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
         .page-break { page-break-before: always; }
+    
+        /* PDF Fixes for Overflow & Layout */
+        table { width: 100%; border-collapse: collapse; table-layout: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        th, td { word-wrap: break-word; overflow-wrap: break-word; }
+        .page-break { page-break-after: always; }
     </style>
 </head>
 <body>

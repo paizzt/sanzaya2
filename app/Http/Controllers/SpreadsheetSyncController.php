@@ -46,10 +46,10 @@ class SpreadsheetSyncController extends Controller
         }
 
         try {
-            $rowsAdded = \App\Services\SpreadsheetSyncService::syncType($type);
-            return redirect()->back()->with('success', 'Sinkronisasi berhasil! ' . $rowsAdded . ' baris data ditarik dan diperbarui.');
+            \App\Jobs\SyncSpreadsheetJob::dispatch($type, auth()->id());
+            return redirect()->back()->with('success', 'Proses sinkronisasi data ' . $type . ' telah dimasukkan ke dalam antrean. Anda akan menerima notifikasi apabila proses telah selesai.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Sinkronisasi gagal: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memasukkan ke antrean: ' . $e->getMessage());
         }
     }
 }

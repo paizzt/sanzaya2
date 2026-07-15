@@ -11,6 +11,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import SearchableSelect from '@/Components/SearchableSelect';
 import CustomSelect from '@/Components/CustomSelect';
+import ExportDropdown from '@/Components/ExportDropdown';
 import Swal from 'sweetalert2';
 
 export default function Index({ auth, groupedItems, outlets, companies = [], filters, activeShares = {} }) {
@@ -274,53 +275,10 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                     </button>
                                 )}
 
-                                <Menu as="div" className="relative inline-block text-left">
-                                    <div>
-                                        <Menu.Button className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-sm shadow-orange-500/30 text-sm whitespace-nowrap">
-                                            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Unduh</span> <ChevronDown className="w-4 h-4" />
-                                        </Menu.Button>
-                                    </div>
-                                    <Transition
-                                        as={Fragment}
-                                        enter="transition ease-out duration-100"
-                                        enterFrom="transform opacity-0 scale-95"
-                                        enterTo="transform opacity-100 scale-100"
-                                        leave="transition ease-in duration-75"
-                                        leaveFrom="transform opacity-100 scale-100"
-                                        leaveTo="transform opacity-0 scale-95"
-                                    >
-                                        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right divide-y divide-gray-100 rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                                            <div className="px-1 py-1 ">
-                                                <Menu.Item>
-                                                    {({ active }) => (
-                                                        <a
-                                                            href={route('item-requirements.export.pdf', selectedOutlet ? { outlet: selectedOutlet } : {})}
-                                                            className={`${
-                                                                active ? 'bg-indigo-500 text-white' : 'text-gray-900'
-                                                            } group flex w-full items-center rounded-lg px-2 py-2 text-sm gap-2`}
-                                                        >
-                                                            <FileText className="w-4 h-4" />
-                                                            Unduh PDF
-                                                        </a>
-                                                    )}
-                                                </Menu.Item>
-                                                <Menu.Item>
-                                                    {({ active }) => (
-                                                        <a
-                                                            href={route('item-requirements.export.excel', selectedOutlet ? { outlet: selectedOutlet } : {})}
-                                                            className={`${
-                                                                active ? 'bg-indigo-500 text-white' : 'text-gray-900'
-                                                            } group flex w-full items-center rounded-lg px-2 py-2 text-sm gap-2 mt-1`}
-                                                        >
-                                                            <FileSpreadsheet className="w-4 h-4" />
-                                                            Unduh Excel
-                                                        </a>
-                                                    )}
-                                                </Menu.Item>
-                                            </div>
-                                        </Menu.Items>
-                                    </Transition>
-                                </Menu>
+                                <ExportDropdown 
+                                    pdfRoute={route('item-requirements.export.pdf', selectedOutlet ? { outlet: selectedOutlet } : {})}
+                                    excelRoute={route('item-requirements.export.excel', selectedOutlet ? { outlet: selectedOutlet } : {})} 
+                                />
                             </>
                         )}
 

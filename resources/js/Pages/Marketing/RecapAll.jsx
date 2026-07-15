@@ -5,6 +5,7 @@ import { ClipboardList, CalendarDays, Filter, Download } from 'lucide-react';
 import CustomSelect from '@/Components/CustomSelect';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
+import ExportDropdown from '@/Components/ExportDropdown';
 
 export default function RecapAll({ reports, allTargets, sales_users, filters, auth }) {
     const [activeTab, setActiveTab] = useState('laporan');
@@ -57,13 +58,13 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         });
     };
 
-    const handleExportPdf = () => {
-        const url = new URL(route('marketing.recap.pdf'), window.location.origin);
+    const getExportUrl = (format) => {
+        const url = new URL(route(`marketing.recap.${format}`), window.location.origin);
         url.searchParams.append('type', activeTab);
         if (filters.user_id) url.searchParams.append('user_id', filters.user_id);
         if (filters.start_date) url.searchParams.append('start_date', filters.start_date);
         if (filters.end_date) url.searchParams.append('end_date', filters.end_date);
-        window.open(url.toString(), '_blank');
+        return url.toString();
     };
 
     return (
@@ -123,10 +124,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                         </button>
                     </div>
                     
-                    <PrimaryButton onClick={handleExportPdf} className="bg-rose-600 hover:bg-rose-700 whitespace-nowrap">
-                        <Download className="w-4 h-4 mr-2" />
-                        Export PDF
-                    </PrimaryButton>
+                    <ExportDropdown pdfRoute={getExportUrl('pdf')} excelRoute={getExportUrl('excel')} />
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">

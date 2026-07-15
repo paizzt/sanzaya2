@@ -10,6 +10,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 import CustomDatePicker from '@/Components/CustomDatePicker';
+import SearchableSelect from '@/Components/SearchableSelect';
 
 export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -215,10 +216,12 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <InputLabel value="Tanggal" />
-                                            <CustomDatePicker 
-                                                value={data.visit_date}
-                                                onChange={(val) => setData('visit_date', val)}
-                                            />
+                                            <div className="mt-1">
+                                                <CustomDatePicker 
+                                                    value={data.visit_date}
+                                                    onChange={(val) => setData('visit_date', val)}
+                                                />
+                                            </div>
                                             <InputError message={errors.visit_date} className="mt-2" />
                                         </div>
                                         <div>
@@ -265,13 +268,11 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                             </div>
                                             <div>
                                                 <InputLabel value="Nama Outlet" />
-                                                <CustomSelect
+                                                <SearchableSelect
                                                     value={data.outlet_id}
                                                     onChange={(val) => setData('outlet_id', val)}
-                                                    options={[
-                                                        { value: '', label: '-- Pilih Outlet --' },
-                                                        ...outlets.map(o => ({ value: o.id, label: `${o.name} - ${o.city}` }))
-                                                    ]}
+                                                    options={outlets.map(o => ({ value: o.id, label: `${o.name} - ${o.city}` }))}
+                                                    placeholder="-- Pilih Outlet --"
                                                 />
                                             </div>
                                         </div>
