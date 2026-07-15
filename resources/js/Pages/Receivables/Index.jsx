@@ -12,7 +12,7 @@ import InputError from '@/Components/InputError';
 import SearchableSelect from '@/Components/SearchableSelect';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items, outlets, companies, filters, dailyReports = [] }) {
+export default function Index({ auth, items, outlets, companies, filters, dailyReports = [], users = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [activeTab, setActiveTab] = useState('data');
@@ -116,6 +116,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
 
     const dailyForm = useForm({
         billing_date: new Date().toISOString().split('T')[0],
+        user_id: auth.user.id.toString(),
         outlet_id: '',
         result: ''
     });
@@ -313,12 +314,15 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                         </div>
                                         <div>
                                             <InputLabel value="Nama Penagih" />
-                                            <TextInput 
-                                                type="text"
-                                                className="mt-1 block w-full bg-gray-100 text-gray-500"
-                                                value={auth.user.name}
-                                                disabled
-                                            />
+                                            <div className="mt-1">
+                                                <SearchableSelect 
+                                                    options={users ? users.map(u => ({ value: u.id.toString(), label: u.name })) : []}
+                                                    value={dailyForm.data.user_id}
+                                                    onChange={val => dailyForm.setData('user_id', val)}
+                                                    placeholder="Pilih Penagih"
+                                                />
+                                            </div>
+                                            <InputError message={dailyForm.errors.user_id} className="mt-2" />
                                         </div>
                                     </div>
                                     <div>

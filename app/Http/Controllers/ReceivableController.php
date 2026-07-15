@@ -34,12 +34,14 @@ class ReceivableController extends Controller
         $companies = \App\Models\Company::orderBy('name')->get();
         
         $dailyReports = \App\Models\ReceivableDailyReport::with(['user', 'outlet'])->orderBy('billing_date', 'desc')->get();
+        $users = \App\Models\User::orderBy('name')->get();
 
         return Inertia::render('Receivables/Index', [
             'items' => $items,
             'outlets' => $outlets,
             'companies' => $companies,
             'dailyReports' => $dailyReports,
+            'users' => $users,
             'filters' => $request->only(['search', 'pt', 'year'])
         ]);
     }
@@ -146,11 +148,10 @@ class ReceivableController extends Controller
     {
         $validated = $request->validate([
             'billing_date' => 'required|date',
+            'user_id' => 'required|exists:users,id',
             'outlet_id' => 'required|exists:outlets,id',
             'result' => 'required|string',
         ]);
-
-        $validated['user_id'] = auth()->id();
 
         \App\Models\ReceivableDailyReport::create($validated);
 
