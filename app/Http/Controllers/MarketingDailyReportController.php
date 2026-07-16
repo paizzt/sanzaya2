@@ -173,7 +173,8 @@ class MarketingDailyReportController extends Controller
 
     public function exportPdf()
     {
-        $items = \App\Models\MarketingDailyReport::orderBy('id', 'desc')->get();
+        $user = Auth::user();
+        $items = \App\Models\MarketingDailyReport::where('user_id', $user->id)->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -198,9 +199,38 @@ class MarketingDailyReportController extends Controller
         return $pdf->download(str_replace(' ', '_', 'Laporan Marketing') . '.pdf');
     }
 
+    public function exportTargetPdf()
+    {
+        $user = Auth::user();
+        $items = \App\Models\MarketingWeeklyTarget::where('user_id', $user->id)->orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $hidden = ['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'target_outlets'];
+            $headings = ['No', 'Tahun', 'Minggu', 'Mulai', 'Selesai', 'Target Kunjungan', 'Target Transaksi'];
+            
+            $rows = $items->map(function($item, $key) {
+                return [
+                    $key + 1,
+                    $item->year,
+                    $item->week_number,
+                    $item->start_date,
+                    $item->end_date,
+                    $item->target_visits,
+                    $item->target_transactions
+                ];
+            });
+        }
+        
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Target Mingguan Marketing', 'headings' => $headings, 'rows' => $rows])->setPaper([0, 0, 609.4488, 935.433], 'landscape');
+        return $pdf->download(str_replace(' ', '_', 'Target Mingguan Marketing') . '.pdf');
+    }
+
     public function exportExcel()
     {
-        $items = \App\Models\MarketingDailyReport::orderBy('id', 'desc')->get();
+        $user = Auth::user();
+        $items = \App\Models\MarketingDailyReport::where('user_id', $user->id)->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);

@@ -3,7 +3,7 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building } from 'lucide-react';
+import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building, BookOpen } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -201,6 +201,11 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: auth.active_features?.includes(22) },
                 { name: 'Data Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_features?.includes(6) },
             ]
+        },
+        {
+            name: 'Manajemen SOP', icon: BookOpen, show: true, // You might want to restrict this by feature/role later
+            active: url.startsWith('/sops'),
+            href: route('sops.index')
         },
         {
             name: 'Sistem', icon: Settings, show: true,

@@ -52,6 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/users-export-excel', [\App\Http\Controllers\UserController::class, 'exportExcel'])->name('users.export.excel');
     Route::get('/marketing-export-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf');
     Route::get('/marketing-export-excel', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportExcel'])->name('marketing.export.excel');
+    Route::get('/marketing-export-target-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportTargetPdf'])->name('marketing.export_target.pdf');
     Route::get('/uc-export-pdf', [\App\Http\Controllers\UcRequestController::class, 'exportPdf'])->name('requests.uc.export.pdf');
     Route::get('/uc-export-excel', [\App\Http\Controllers\UcRequestController::class, 'exportExcel'])->name('requests.uc.export.excel');
     Route::get('/uc-approval-export-pdf', [\App\Http\Controllers\UcApprovalController::class, 'exportPdf'])->name('requests.uc.approval.export.pdf');
@@ -160,6 +161,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('receivables/daily-report', [\App\Http\Controllers\ReceivableController::class, 'storeDailyReport'])->name('receivables.dailyReport.store');
     Route::resource('receivables', \App\Http\Controllers\ReceivableController::class);
     Route::resource('payables', \App\Http\Controllers\PayableController::class);
+
+    // SOP Management
+    Route::get('/sops', [\App\Http\Controllers\SopController::class, 'index'])->name('sops.index');
+    Route::post('/sops/divisions', [\App\Http\Controllers\SopController::class, 'storeDivision'])->name('sops.divisions.store');
+    Route::delete('/sops/divisions/{sop_division}', [\App\Http\Controllers\SopController::class, 'destroyDivision'])->name('sops.divisions.destroy');
+    Route::get('/sops/{sop_division}', [\App\Http\Controllers\SopController::class, 'show'])->name('sops.show');
+    Route::post('/sops/{sop_division}/jobs', [\App\Http\Controllers\SopController::class, 'store'])->name('sops.store');
+    Route::put('/sops/jobs/{sop}', [\App\Http\Controllers\SopController::class, 'update'])->name('sops.update');
+    Route::delete('/sops/jobs/{sop}', [\App\Http\Controllers\SopController::class, 'destroy'])->name('sops.destroy');
 });
 
 Route::middleware('auth')->group(function () {
