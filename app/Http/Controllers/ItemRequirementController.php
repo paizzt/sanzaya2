@@ -55,7 +55,12 @@ class ItemRequirementController extends Controller
             'price' => 'required|numeric|min:0',
             'sent' => 'required|integer|min:0',
             'not_sent' => 'required|integer|min:0',
-            'link' => 'nullable|string'
+            'link' => 'nullable|string',
+            'comparator_1_name' => 'nullable|string|max:255',
+            'comparator_1_link' => 'nullable|string',
+            'comparator_2_name' => 'nullable|string|max:255',
+            'comparator_2_link' => 'nullable|string',
+            'click_status' => 'nullable|string|in:Sudah,Belum'
         ]);
 
         $validated['total'] = $validated['quantity'] * $validated['price'];
@@ -80,7 +85,12 @@ class ItemRequirementController extends Controller
             'price' => 'required|numeric|min:0',
             'sent' => 'required|integer|min:0',
             'not_sent' => 'required|integer|min:0',
-            'link' => 'nullable|string'
+            'link' => 'nullable|string',
+            'comparator_1_name' => 'nullable|string|max:255',
+            'comparator_1_link' => 'nullable|string',
+            'comparator_2_name' => 'nullable|string|max:255',
+            'comparator_2_link' => 'nullable|string',
+            'click_status' => 'nullable|string|in:Sudah,Belum'
         ]);
 
         $validated['total'] = $validated['quantity'] * $validated['price'];

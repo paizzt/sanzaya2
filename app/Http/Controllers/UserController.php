@@ -227,17 +227,14 @@ class UserController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $hidden = ['id', 'created_at', 'updated_at', 'deleted_at', 'password', 'remember_token'];
-            $headings = array_diff(array_keys($items->first()->getAttributes()), $hidden);
-            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $headings);
+            $allowed = ['name', 'email', 'phone', 'level_id', 'status_employee', 'is_active'];
+            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
-            
-            $rows = $items->map(function($item, $key) use ($hidden) {
+
+            $rows = $items->map(function($item, $key) use ($allowed) {
                 $row = [$key + 1];
-                foreach ($item->getAttributes() as $col => $val) {
-                    if (!in_array($col, $hidden)) {
-                        $row[] = $val;
-                    }
+                foreach ($allowed as $col) {
+                    $row[] = $item->$col;
                 }
                 return $row;
             });
@@ -254,17 +251,14 @@ class UserController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $hidden = ['id', 'created_at', 'updated_at', 'deleted_at', 'password', 'remember_token'];
-            $headings = array_diff(array_keys($items->first()->getAttributes()), $hidden);
-            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $headings);
+            $allowed = ['name', 'email', 'phone', 'level_id', 'status_employee', 'is_active'];
+            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
-            
-            $rows = $items->map(function($item, $key) use ($hidden) {
+
+            $rows = $items->map(function($item, $key) use ($allowed) {
                 $row = [$key + 1];
-                foreach ($item->getAttributes() as $col => $val) {
-                    if (!in_array($col, $hidden)) {
-                        $row[] = $val;
-                    }
+                foreach ($allowed as $col) {
+                    $row[] = $item->$col;
                 }
                 return $row;
             });

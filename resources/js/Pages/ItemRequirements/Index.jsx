@@ -11,6 +11,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import SearchableSelect from '@/Components/SearchableSelect';
 import CustomSelect from '@/Components/CustomSelect';
+import CreatableSelect from '@/Components/CreatableSelect';
 import ExportDropdown from '@/Components/ExportDropdown';
 import Swal from 'sweetalert2';
 
@@ -37,7 +38,12 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
         price: 0,
         sent: 0,
         not_sent: 0,
-        link: ''
+        link: '',
+        comparator_1_name: '',
+        comparator_1_link: '',
+        comparator_2_name: '',
+        comparator_2_link: '',
+        click_status: 'Belum'
     });
 
     const handleSearch = (e) => {
@@ -70,7 +76,12 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                 price: 0,
                 sent: 0,
                 not_sent: 0,
-                link: ''
+                link: '',
+                comparator_1_name: '',
+                comparator_1_link: '',
+                comparator_2_name: '',
+                comparator_2_link: '',
+                click_status: 'Belum'
             });
         }
         setIsModalOpen(true);
@@ -396,6 +407,8 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                                 <th className="px-3 py-3">Satuan</th>
                                                 <th className="px-3 py-3 text-center">Qty</th>
                                                 <th className="px-3 py-3">Keterangan</th>
+                                                <th className="px-3 py-3 min-w-[200px]">PT Pembanding</th>
+                                                <th className="px-3 py-3 text-center">Di Klik</th>
                                                 <th className="px-3 py-3 text-right">Harga</th>
                                                 <th className="px-3 py-3 text-center">Terkirim</th>
                                                 <th className="px-3 py-3 text-center">Belum</th>
@@ -413,6 +426,25 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                                     <td className="px-3 py-2 text-sm">{item.unit}</td>
                                                     <td className="px-3 py-2 text-sm text-center font-bold">{item.quantity}</td>
                                                     <td className="px-3 py-2 text-sm">{item.description}</td>
+                                                    <td className="px-3 py-2 text-sm">
+                                                        {(item.comparator_1_name || item.comparator_1_link) && (
+                                                            <div className="mb-2 pb-2 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
+                                                                <div className="text-gray-700"><span className="text-gray-400">1:</span> {item.comparator_1_name || '-'}</div>
+                                                                {item.comparator_1_link && <a href={item.comparator_1_link} target="_blank" className="text-blue-500 hover:underline text-xs">Buka Link 1</a>}
+                                                            </div>
+                                                        )}
+                                                        {(item.comparator_2_name || item.comparator_2_link) && (
+                                                            <div>
+                                                                <div className="text-gray-700"><span className="text-gray-400">2:</span> {item.comparator_2_name || '-'}</div>
+                                                                {item.comparator_2_link && <a href={item.comparator_2_link} target="_blank" className="text-blue-500 hover:underline text-xs">Buka Link 2</a>}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-3 py-2 text-sm text-center">
+                                                        <span className={`px-2 py-1 text-xs rounded-full font-medium ${item.click_status === 'Sudah' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                            {item.click_status || 'Belum'}
+                                                        </span>
+                                                    </td>
                                                     <td className="px-3 py-2 text-sm text-right whitespace-nowrap">{formatRupiah(item.price)}</td>
                                                     <td className="px-3 py-2 text-sm text-center font-bold text-emerald-600">{item.sent}</td>
                                                     <td className="px-3 py-2 text-sm text-center font-bold text-red-500">{item.not_sent}</td>
@@ -436,7 +468,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                             ))}
                                             {filteredOutletItems.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="12" className="px-6 py-8 text-center text-gray-500">
+                                                    <td colSpan="14" className="px-6 py-8 text-center text-gray-500">
                                                         Data tidak ditemukan.
                                                     </td>
                                                 </tr>
@@ -457,9 +489,9 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                         {isEditing ? 'Edit Kebutuhan Barang' : 'Tambah Kebutuhan Barang'}
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {!selectedOutlet && (
-                            <div className="md:col-span-2">
+                            <div className="md:col-span-4">
                                 <InputLabel value="Nama Outlet" />
                                 <SearchableSelect
                                     options={outlets.map(o => ({ value: o, label: o }))}
@@ -473,190 +505,224 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                         
                         {selectedOutlet && (
                             <>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div>
-                                <InputLabel value="Bulan" />
-                                <CustomSelect
-                                    options={[
-                                        { value: 'Januari', label: 'Januari' },
-                                        { value: 'Februari', label: 'Februari' },
-                                        { value: 'Maret', label: 'Maret' },
-                                        { value: 'April', label: 'April' },
-                                        { value: 'Mei', label: 'Mei' },
-                                        { value: 'Juni', label: 'Juni' },
-                                        { value: 'Juli', label: 'Juli' },
-                                        { value: 'Agustus', label: 'Agustus' },
-                                        { value: 'September', label: 'September' },
-                                        { value: 'Oktober', label: 'Oktober' },
-                                        { value: 'November', label: 'November' },
-                                        { value: 'Desember', label: 'Desember' }
-                                    ]}
-                                    value={formData.month}
-                                    onChange={(val) => setFormData({...formData, month: val})}
-                                    placeholder="Pilih Bulan..."
-                                    className="mt-1"
-                                />
-                            </div>
-                            <div>
-                                <InputLabel value="Tahun" />
-                                <CustomSelect
-                                    options={[
-                                        { value: '2024', label: '2024' },
-                                        { value: '2025', label: '2025' },
-                                        { value: '2026', label: '2026' },
-                                        { value: '2027', label: '2027' },
-                                        { value: '2028', label: '2028' },
-                                        { value: '2029', label: '2029' },
-                                        { value: '2030', label: '2030' }
-                                    ]}
-                                    value={formData.year}
-                                    onChange={(val) => setFormData({...formData, year: val})}
-                                    placeholder="Pilih Tahun..."
-                                    className="mt-1"
-                                />
-                            </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel value="Nama Barang" />
-                                <TextInput
-                                    type="text"
-                                    className="mt-1 block w-full rounded-xl"
-                                    value={formData.item_name}
-                                    onChange={(e) => setFormData({...formData, item_name: e.target.value})}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <InputLabel value="Nama Perusahaan (Opsional)" />
-                                <TextInput
-                                    type="text"
-                                    list="company-options"
-                                    className="mt-1 block w-full rounded-xl"
-                                    value={formData.company_name}
-                                    onChange={(e) => setFormData({...formData, company_name: e.target.value})}
-                                    placeholder="Contoh: PT. Abadi"
-                                />
-                                <datalist id="company-options">
-                                    {companies.map((company, idx) => (
-                                        <option key={idx} value={company} />
-                                    ))}
-                                </datalist>
-                            </div>
-                        </div>
-
-                        <div>
-                            <InputLabel value="Satuan" />
-                            <TextInput
-                                type="text"
-                                className="mt-1 block w-full rounded-xl"
-                                value={formData.unit}
-                                onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                                placeholder="Contoh: Pcs, Box, Rim"
-                            />
-                        </div>
-
-                        <div>
-                            <InputLabel value="Qty" />
-                            <TextInput
-                                type="number"
-                                className="mt-1 block w-full rounded-xl"
-                                value={formData.quantity}
-                                onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value) || 0})}
-                                required
-                                min="0"
-                            />
-                        </div>
-
-                        <div>
-                            <InputLabel value="Harga Satuan (Rp)" />
-                            <div className="relative mt-1">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="text-gray-500 sm:text-sm">Rp</span>
+                                <div>
+                                    <InputLabel value="Bulan" />
+                                    <CustomSelect
+                                        options={[
+                                            { value: 'Januari', label: 'Januari' },
+                                            { value: 'Februari', label: 'Februari' },
+                                            { value: 'Maret', label: 'Maret' },
+                                            { value: 'April', label: 'April' },
+                                            { value: 'Mei', label: 'Mei' },
+                                            { value: 'Juni', label: 'Juni' },
+                                            { value: 'Juli', label: 'Juli' },
+                                            { value: 'Agustus', label: 'Agustus' },
+                                            { value: 'September', label: 'September' },
+                                            { value: 'Oktober', label: 'Oktober' },
+                                            { value: 'November', label: 'November' },
+                                            { value: 'Desember', label: 'Desember' }
+                                        ]}
+                                        value={formData.month}
+                                        onChange={(val) => setFormData({...formData, month: val})}
+                                        placeholder="Pilih Bulan..."
+                                        className="mt-1"
+                                    />
                                 </div>
-                                <TextInput
-                                    type="number"
-                                    className="block w-full pl-10 rounded-xl"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({...formData, price: parseInt(e.target.value) || 0})}
-                                    required
-                                    min="0"
-                                />
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <InputLabel value="Total Harga (Otomatis)" />
-                            <div className="relative mt-1">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="text-gray-500 sm:text-sm">Rp</span>
+                                <div>
+                                    <InputLabel value="Tahun" />
+                                    <CustomSelect
+                                        options={[
+                                            { value: '2024', label: '2024' },
+                                            { value: '2025', label: '2025' },
+                                            { value: '2026', label: '2026' },
+                                            { value: '2027', label: '2027' },
+                                            { value: '2028', label: '2028' },
+                                            { value: '2029', label: '2029' },
+                                            { value: '2030', label: '2030' }
+                                        ]}
+                                        value={formData.year}
+                                        onChange={(val) => setFormData({...formData, year: val})}
+                                        placeholder="Pilih Tahun..."
+                                        className="mt-1"
+                                    />
                                 </div>
-                                <TextInput
-                                    type="number"
-                                    className="block w-full pl-10 rounded-xl bg-gray-50 text-gray-500 font-bold"
-                                    value={formData.quantity * formData.price}
-                                    readOnly
-                                    disabled
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <InputLabel value="Terkirim" />
-                            <TextInput
-                                type="number"
-                                className="mt-1 block w-full rounded-xl"
-                                value={formData.sent}
-                                onChange={(e) => setFormData({...formData, sent: parseInt(e.target.value) || 0})}
-                                required
-                                min="0"
-                            />
-                        </div>
-
-                        <div>
-                            <InputLabel value="Belum Terkirim" />
-                            <TextInput
-                                type="number"
-                                className="mt-1 block w-full rounded-xl"
-                                value={formData.not_sent}
-                                onChange={(e) => setFormData({...formData, not_sent: parseInt(e.target.value) || 0})}
-                                required
-                                min="0"
-                            />
-                        </div>
-
-                        <div className="md:col-span-2">
-                            <InputLabel value="Keterangan" />
-                            <CustomSelect
-                                options={[
-                                    { value: 'BHMP', label: 'BHMP' },
-                                    { value: 'ALAT', label: 'ALAT' }
-                                ]}
-                                value={formData.description}
-                                onChange={(val) => setFormData({...formData, description: val})}
-                                placeholder="Pilih Kategori..."
-                                className="mt-1"
-                            />
-                        </div>
-
-                        <div className="md:col-span-2">
-                            <InputLabel value="Tautan (Link) Beli / Bukti" />
-                            <div className="relative mt-1">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <LinkIcon className="h-4 w-4 text-gray-400" />
+                                <div>
+                                    <InputLabel value="Nama Barang" />
+                                    <TextInput
+                                        type="text"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.item_name}
+                                        onChange={(e) => setFormData({...formData, item_name: e.target.value})}
+                                        required
+                                    />
                                 </div>
-                                <TextInput
-                                    type="url"
-                                    className="block w-full pl-10 rounded-xl"
-                                    value={formData.link}
-                                    onChange={(e) => setFormData({...formData, link: e.target.value})}
-                                    placeholder="https://..."
-                                />
-                            </div>
-                        </div>
-                        </>
-                    )}
+                                <div>
+                                    <InputLabel value="Nama Perusahaan" />
+                                    <CreatableSelect
+                                        options={companies}
+                                        value={formData.company_name}
+                                        onChange={(val) => setFormData({...formData, company_name: val})}
+                                        placeholder="Contoh: PT. Abadi"
+                                        className="mt-1 block w-full"
+                                    />
+                                </div>
+
+                                <div>
+                                    <InputLabel value="Satuan" />
+                                    <TextInput
+                                        type="text"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.unit}
+                                        onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                                        placeholder="Contoh: Pcs, Box, Rim"
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel value="Qty" />
+                                    <TextInput
+                                        type="number"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.quantity}
+                                        onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value) || 0})}
+                                        required
+                                        min="0"
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel value="Harga Satuan (Rp)" />
+                                    <div className="relative mt-1">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-gray-500 sm:text-sm">Rp</span>
+                                        </div>
+                                        <TextInput
+                                            type="number"
+                                            className="block w-full pl-10 rounded-xl"
+                                            value={formData.price}
+                                            onChange={(e) => setFormData({...formData, price: parseInt(e.target.value) || 0})}
+                                            required
+                                            min="0"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <InputLabel value="Total Harga" />
+                                    <div className="relative mt-1">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-gray-500 sm:text-sm">Rp</span>
+                                        </div>
+                                        <TextInput
+                                            type="number"
+                                            className="block w-full pl-10 rounded-xl bg-gray-50 text-gray-500 font-bold"
+                                            value={formData.quantity * formData.price}
+                                            readOnly
+                                            disabled
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <InputLabel value="Terkirim" />
+                                    <TextInput
+                                        type="number"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.sent}
+                                        onChange={(e) => setFormData({...formData, sent: parseInt(e.target.value) || 0})}
+                                        required
+                                        min="0"
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel value="Belum Terkirim" />
+                                    <TextInput
+                                        type="number"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.not_sent}
+                                        onChange={(e) => setFormData({...formData, not_sent: parseInt(e.target.value) || 0})}
+                                        required
+                                        min="0"
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel value="Keterangan" />
+                                    <CustomSelect
+                                        options={[
+                                            { value: 'BHMP', label: 'BHMP' },
+                                            { value: 'ALAT', label: 'ALAT' },
+                                            { value: 'OBAT', label: 'OBAT' }
+                                        ]}
+                                        value={formData.description}
+                                        onChange={(val) => setFormData({...formData, description: val})}
+                                        placeholder="Pilih Kategori..."
+                                        className="mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel value="Status Di Klik" />
+                                    <CustomSelect
+                                        options={[
+                                            { value: 'Belum', label: 'Belum' },
+                                            { value: 'Sudah', label: 'Sudah' }
+                                        ]}
+                                        value={formData.click_status}
+                                        onChange={(val) => setFormData({...formData, click_status: val})}
+                                        className="mt-1"
+                                    />
+                                </div>
+
+                                <div className="md:col-span-4">
+                                    <InputLabel value="Tautan (Link) Beli / Bukti" />
+                                    <div className="relative mt-1">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <LinkIcon className="h-4 w-4 text-gray-400" />
+                                        </div>
+                                        <TextInput
+                                            type="url"
+                                            className="block w-full pl-10 rounded-xl"
+                                            value={formData.link}
+                                            onChange={(e) => setFormData({...formData, link: e.target.value})}
+                                            placeholder="https://..."
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="md:col-span-2">
+                                    <InputLabel value="Nama PT Pembanding 1" />
+                                    <TextInput
+                                        type="text"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.comparator_1_name}
+                                        onChange={(e) => setFormData({...formData, comparator_1_name: e.target.value})}
+                                    />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <InputLabel value="Link PT Pembanding 1" />
+                                    <TextInput
+                                        type="url"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.comparator_1_link}
+                                        onChange={(e) => setFormData({...formData, comparator_1_link: e.target.value})}
+                                    />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <InputLabel value="Nama PT Pembanding 2" />
+                                    <TextInput
+                                        type="text"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.comparator_2_name}
+                                        onChange={(e) => setFormData({...formData, comparator_2_name: e.target.value})}
+                                    />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <InputLabel value="Link PT Pembanding 2" />
+                                    <TextInput
+                                        type="url"
+                                        className="mt-1 block w-full rounded-xl"
+                                        value={formData.comparator_2_link}
+                                        onChange={(e) => setFormData({...formData, comparator_2_link: e.target.value})}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">

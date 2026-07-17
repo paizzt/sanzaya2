@@ -249,22 +249,26 @@ export default function Index({ outlets, areas }) {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <select
-                            value={filterType}
-                            onChange={(e) => setFilterType(e.target.value)}
-                            className="w-full md:w-36 shrink-0 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
-                        >
-                            <option value="">Semua Jenis</option>
-                            {types.map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                        <select
-                            value={filterCity}
-                            onChange={(e) => setFilterCity(e.target.value)}
-                            className="w-full md:w-40 shrink-0 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
-                        >
-                            <option value="">Semua Kota</option>
-                            {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
+                        <div className="w-full md:w-40 shrink-0 relative z-20">
+                            <CustomSelect
+                                value={filterType}
+                                onChange={setFilterType}
+                                options={[
+                                    { value: '', label: 'Semua Jenis' },
+                                    ...types.map(t => ({ value: t, label: t }))
+                                ]}
+                            />
+                        </div>
+                        <div className="w-full md:w-40 shrink-0 relative z-10">
+                            <CustomSelect
+                                value={filterCity}
+                                onChange={setFilterCity}
+                                options={[
+                                    { value: '', label: 'Semua Kota' },
+                                    ...cities.map(c => ({ value: c, label: c }))
+                                ]}
+                            />
+                        </div>
                         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
                             <div className="flex items-center gap-3">
                                 <ExportDropdown pdfRoute={route('outlets.export.pdf')} excelRoute={route('outlets.export.excel')} />
