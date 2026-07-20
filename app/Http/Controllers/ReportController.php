@@ -116,20 +116,32 @@ class ReportController extends Controller
             }
             if ($monthFilter) $summaryQuery->where('tanggal', 'like', "%{$monthFilter}%");
             
-            $logistikAll = $summaryQuery->select('total_sales', 'nama_outlet', 'nama_produk')->get();
-            $totalPenjualan = 0; $outletCounts = []; $produkCounts = [];
+            $logistikAll = $summaryQuery->select('total_sales', 'nama_outlet', 'nama_produk', 'nama_sales')->get();
+            $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = [];
             foreach ($logistikAll as $row) {
                 $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
                 $totalPenjualan += $val;
                 if ($row->nama_outlet) $outletCounts[$row->nama_outlet] = ($outletCounts[$row->nama_outlet] ?? 0) + 1;
                 if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
+                if ($row->nama_sales) {
+                    $salesBreakdown[$row->nama_sales] = ($salesBreakdown[$row->nama_sales] ?? 0) + $val;
+                    $pesananSales[$row->nama_sales] = ($pesananSales[$row->nama_sales] ?? 0) + 1;
+                }
             }
-            arsort($outletCounts); arsort($produkCounts);
+            arsort($outletCounts); arsort($produkCounts); arsort($salesBreakdown); arsort($pesananSales);
+            
+            $salesBreakdownFormatted = [];
+            foreach($salesBreakdown as $s => $v) $salesBreakdownFormatted[$s] = 'Rp ' . number_format($v, 0, ',', '.');
+
             return [
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
                 'top_outlet' => key($outletCounts) ?: '-',
                 'top_produk' => key($produkCounts) ?: '-',
-                'total_pesanan' => $logistikAll->count()
+                'total_pesanan' => $logistikAll->count(),
+                'penjualan_detail' => array_slice($salesBreakdownFormatted, 0, 10, true),
+                'outlet_detail' => array_slice($outletCounts, 0, 10, true),
+                'produk_detail' => array_slice($produkCounts, 0, 10, true),
+                'pesanan_detail' => array_slice($pesananSales, 0, 10, true)
             ];
         });
 

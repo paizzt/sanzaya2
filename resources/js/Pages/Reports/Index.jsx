@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
+import Modal from '@/Components/Modal';
 import { Head, usePage, router, Link } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown } from 'lucide-react';
@@ -11,6 +12,7 @@ import { ErrorBoundary } from '@/Components/ErrorBoundary';
 
 export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, salesNames, outletNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const [searchTerm, setSearchTerm] = useState(search || '');
+    const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
@@ -222,7 +224,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                 {/* Summary Cards */}
                 {tab === 'logistik' && summary && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Penjualan', type: 'penjualan', data: summary.penjualan_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Penjualan</p>
@@ -235,7 +237,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total akumulasi dari kolom Total (Rp)</p>
                         </div>
                         
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Pesanan', type: 'pesanan', data: summary.pesanan_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Pesanan</p>
@@ -248,7 +250,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Jumlah baris transaksi tercatat</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Outlet', type: 'outlet', data: summary.outlet_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Top Outlet</p>
@@ -261,7 +263,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Produk', type: 'produk', data: summary.produk_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Top Produk</p>
@@ -278,7 +280,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                 {tab === 'pesanan' && summaryPesanan && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Faktur</p>
@@ -291,7 +293,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total akumulasi dari Total Faktur</p>
                         </div>
                         
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Barang Terkirim</p>
@@ -304,7 +306,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Persentase barang yang berhasil terkirim</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Belum Terkirim</p>
@@ -317,7 +319,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Persentase barang yang belum terkirim</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Surat</p>
@@ -334,7 +336,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                 {tab === 'piutang' && summaryPiutang && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Piutang (Gabungan)</p>
@@ -347,7 +349,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total keseluruhan piutang</p>
                         </div>
                         
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Piutang Sanzaya</p>
@@ -360,7 +362,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total piutang bagian Sanzaya</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Piutang Ruma</p>
@@ -373,7 +375,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total piutang bagian Ruma</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Data Piutang</p>
@@ -390,7 +392,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                 {tab === 'hutang' && summaryHutang && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Nominal</p>
@@ -403,7 +405,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total akumulasi nominal hutang</p>
                         </div>
                         
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Penyedia</p>
@@ -416,7 +418,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Jumlah penyedia berbeda</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-transform hover:-translate-y-1">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Data</p>
@@ -567,7 +569,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     </form>
                 </div>
 
-                <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                <div id="data-table-container" className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                     <div className="overflow-x-auto">
                         {tab === 'logistik' && renderLogistikTable()}
                         {tab === 'pesanan' && renderPesananTable()}
@@ -599,6 +601,43 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     )}
                                     </div>
                 </div>
+                            {/* Detail Modal */}
+                <Modal show={detailModal.isOpen} onClose={() => setDetailModal({ ...detailModal, isOpen: false })} maxWidth="md">
+                    <div className="p-6">
+                        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                            <h3 className="text-xl font-bold text-gray-800">Detail {detailModal.title}</h3>
+                            <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        
+                        <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {!detailModal.data || Object.keys(detailModal.data).length === 0 ? (
+                                <div className="text-center py-8 text-gray-500">
+                                    Tidak ada detail data yang tersedia.
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
+                                        <span>{detailModal.type === 'penjualan' || detailModal.type === 'pesanan' ? 'Nama Sales' : (detailModal.type === 'outlet' ? 'Nama Outlet' : 'Nama Produk')}</span>
+                                        <span>{detailModal.type === 'penjualan' ? 'Total (Rp)' : 'Jumlah'}</span>
+                                    </div>
+                                    {Object.entries(detailModal.data).map(([key, value], idx) => (
+                                        <div key={idx} className="flex justify-between items-center p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">
+                                            <div className="flex items-center gap-3 min-w-0 pr-4">
+                                                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                                                    {idx + 1}
+                                                </div>
+                                                <span className="text-sm font-medium text-gray-700 truncate" title={key}>{key}</span>
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap">{value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </Modal>
             </AuthenticatedLayout>
         </ErrorBoundary>
     );

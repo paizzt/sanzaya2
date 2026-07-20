@@ -190,14 +190,11 @@ export default function BhpRecap({ requests }) {
                             <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm w-full md:w-auto text-center">
                                 Total Data: <span className="text-gray-900 font-bold">{filteredRequests.length}</span>
                             </div>
-                            <a 
-                                href={exportUrl} 
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition-colors shadow-sm whitespace-nowrap"
-                            >
-                                <FileBarChart className="w-4 h-4" /> Unduh PDF
-                            </a>
+                            <ExportDropdown pdfRoute={exportUrl} trigger={
+                                        <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition-colors shadow-sm whitespace-nowrap">
+                                            <FileBarChart className="w-4 h-4" /> Unduh PDF
+                                        </button>
+                                    } />
                         </div>
                     </div>
                     

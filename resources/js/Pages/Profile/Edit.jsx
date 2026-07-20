@@ -62,7 +62,6 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-red-600">Hapus Akun</h3>
-                                <p className="text-sm text-red-400">Setelah dihapus, semua data akan hilang secara permanen.</p>
                             </div>
                         </div>
                         <DeleteUserForm />

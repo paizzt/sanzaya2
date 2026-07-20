@@ -153,6 +153,7 @@ export default function Show({ auth, division }) {
                         </p>
                     </div>
 
+                    {auth.user.role === 'superadmin' && (
                     <button
                         onClick={() => setShowAddModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
@@ -160,6 +161,7 @@ export default function Show({ auth, division }) {
                         <Plus className="w-4 h-4" />
                         Tambah Pekerjaan
                     </button>
+                    )}
                 </div>
 
                 {division.sops.length === 0 ? (
@@ -171,6 +173,7 @@ export default function Show({ auth, division }) {
                         <p className="text-gray-500 mb-6 max-w-md mx-auto">
                             Tambahkan pekerjaan baru untuk mulai menulis alur kerjanya.
                         </p>
+                        {auth.user.role === 'superadmin' && (
                         <button
                             onClick={() => setShowAddModal(true)}
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition-colors"
@@ -178,6 +181,7 @@ export default function Show({ auth, division }) {
                             <Plus className="w-5 h-5" />
                             Tambah Pekerjaan
                         </button>
+                        )}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -192,6 +196,7 @@ export default function Show({ auth, division }) {
                                         <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-300">
                                             <FileText className="w-6 h-6" />
                                         </div>
+                                        {auth.user.role === 'superadmin' && (
                                         <button 
                                             onClick={(e) => handleDelete(sop.id, e)}
                                             className="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
@@ -199,6 +204,7 @@ export default function Show({ auth, division }) {
                                         >
                                             <Trash2 className="w-5 h-5" />
                                         </button>
+                                        )}
                                     </div>
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">{sop.title}</h3>
                                     <div className="mt-4 flex items-center text-sm font-medium text-blue-600">
@@ -255,13 +261,15 @@ export default function Show({ auth, division }) {
                             </h2>
                             <div className="flex items-center gap-2">
                                 {!isEditingContent ? (
-                                    <button
-                                        onClick={() => setIsEditingContent(true)}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors"
-                                    >
-                                        <Edit2 className="w-4 h-4" />
-                                        Edit Alur
-                                    </button>
+                                    auth.user.role === 'superadmin' && (
+                                        <button
+                                            onClick={() => setIsEditingContent(true)}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors"
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                            Edit Alur
+                                        </button>
+                                    )
                                 ) : (
                                     <>
                                         <button
@@ -455,12 +463,14 @@ export default function Show({ auth, division }) {
                                         <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                                             <FileText className="w-12 h-12 mb-4 text-gray-200" />
                                             <p>Detail SOP belum diisi.</p>
+                                            {auth.user.role === 'superadmin' && (
                                             <button 
                                                 onClick={() => setIsEditingContent(true)}
                                                 className="mt-4 text-blue-600 font-medium hover:underline"
                                             >
                                                 Mulai Edit Alur
                                             </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
