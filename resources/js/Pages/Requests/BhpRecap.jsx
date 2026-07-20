@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { 
@@ -318,12 +319,11 @@ export default function BhpRecap({ requests }) {
                         </div>
 
                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <a 
-                                href={route('requests.bhp.pdf', selectedRequest.id)}
-                                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-teal-600 transition-colors shadow-sm w-full sm:w-auto"
-                            >
-                                <Download className="w-4 h-4" /> Unduh PDF Form Ini
-                            </a>
+                            <ExportDropdown pdfRoute={route('requests.bhp.pdf', selectedRequest.id)} trigger={
+                                <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-teal-600 transition-colors shadow-sm w-full sm:w-auto">
+                                    <Download className="w-4 h-4" /> Unduh PDF Form Ini
+                                </button>
+                            } />
                             
                             {selectedRequest.status === 'Menunggu' && (
                                 <div className="flex gap-2 w-full sm:w-auto">

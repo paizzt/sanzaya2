@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <title>Rekap Pengajuan BHP</title>
     <style>
+
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
         body { font-family: sans-serif; font-size: 12px; }
         .header { text-align: center; margin-bottom: 20px; }
         .header h2 { margin: 0; padding: 0; }
@@ -25,14 +31,14 @@
 </head>
 <body>
     @php
-        \ = (\ && \ != 'Semua') ? date('F', strtotime('2024-' . \ . '-01')) : 'Semua Bulan';
-        \ = (\ ?? 'Semua') != 'Semua' ? \ : 'Semua Tahun';
+        $monthName = ($month && $month != 'Semua') ? date('F', strtotime('2024-' . $month . '-01')) : 'Semua Bulan';
+        $yearName = ($year ?? 'Semua') != 'Semua' ? $year : 'Semua Tahun';
     @endphp
     <div class="header">
         <h2>Rekapitulasi Pengajuan BHP (Bahan Medis Habis Pakai)</h2>
         <p>
-            Periode: {{ \ }} {{ \ }} | 
-            Filter Status: {{ \ ?? 'Semua' }}
+            Periode: {{ $monthName }} {{ $yearName }} | 
+            Filter Status: {{ $status ?? 'Semua' }}
         </p>
     </div>
 
@@ -51,20 +57,20 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (\ as \ => \)
+            @foreach ($requests as $index => $item)
                 <tr>
-                    <td>{{ \ + 1 }}</td>
-                    <td>{{ \->request_number }}</td>
-                    <td>{{ date('d-m-Y', strtotime(\->request_date)) }}</td>
-                    <td>{{ \->user->name ?? 'Unknown' }}</td>
-                    <td>{{ \->division_name }}</td>
-                    <td>{{ \->product_name }}</td>
-                    <td>{{ \->specifications }}</td>
-                    <td>{{ date('d-m-Y', strtotime(\->target_date)) }}</td>
-                    <td class="status-{{ strtolower(\->status) }}">{{ \->status }}</td>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $item->request_number }}</td>
+                    <td>{{ date('d-m-Y', strtotime($item->request_date)) }}</td>
+                    <td>{{ $item->user->name ?? 'Unknown' }}</td>
+                    <td>{{ $item->division_name }}</td>
+                    <td>{{ $item->product_name }}</td>
+                    <td>{{ $item->specifications }}</td>
+                    <td>{{ date('d-m-Y', strtotime($item->target_date)) }}</td>
+                    <td class="status-{{ strtolower($item->status) }}">{{ $item->status }}</td>
                 </tr>
             @endforeach
-            @if(count(\) == 0)
+            @if(count($requests) == 0)
                 <tr>
                     <td colspan="9" style="text-align: center;">Tidak ada data pengajuan BHP pada periode ini.</td>
                 </tr>

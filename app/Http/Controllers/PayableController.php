@@ -64,8 +64,8 @@ class PayableController extends Controller
             });
         }
         
-        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Data Hutang', 'headings' => $headings, 'rows' => $rows])->setPaper([0, 0, 609.4488, 935.433], 'landscape');
-        return $pdf->download(str_replace(' ', '_', 'Data Hutang') . '.pdf');
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Data Hutang', 'headings' => $headings, 'rows' => $rows])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Data Hutang') . '.pdf') : $pdf->download(str_replace(' ', '_', 'Data Hutang') . '.pdf');
     }
 
     public function exportExcel()
@@ -88,6 +88,6 @@ class PayableController extends Controller
             });
         }
         
-        return Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Hutang') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Hutang') . '.xlsx');
     }
 }

@@ -120,11 +120,11 @@ class ItemRequirementController extends Controller
         $items = $query->orderBy('outlet_name')->orderBy('id', 'desc')->get();
 
         $pdf = Pdf::loadView('pdf.item_requirements', compact('items', 'outlet_name'))
-                  ->setPaper([0, 0, 609.4488, 935.433], 'landscape');
+                  ->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
                   
         $filename = 'Laporan_Kebutuhan_Barang' . ($outlet_name ? '_' . str_replace(' ', '_', $outlet_name) : '') . '.pdf';
 
-        return $pdf->download($filename);
+        return request()->has('preview') ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
     public function exportExcel(Request $request)
@@ -132,7 +132,7 @@ class ItemRequirementController extends Controller
         $outlet_name = $request->query('outlet');
         $filename = 'Laporan_Kebutuhan_Barang' . ($outlet_name ? '_' . str_replace(' ', '_', $outlet_name) : '') . '.xlsx';
         
-        return Excel::download(new ItemRequirementExport($outlet_name), $filename);
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new ItemRequirementExport($outlet_name)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new ItemRequirementExport($outlet_name), $filename);
     }
 
     public function toggleShare(Request $request)

@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Target, TrendingUp, Building, MapPin, Send, AlertTriangle, CalendarDays, CheckSquare, ClipboardList, Download } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -503,9 +504,11 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         <ClipboardList className="text-indigo-600 w-5 h-5" />
                                         Rekap Laporan Harian
                                     </div>
-                                    <a href={route('marketing.export.pdf')} className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors">
-                                        <Download className="w-4 h-4" /> Unduh PDF
-                                    </a>
+                                    <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
+                                        <button className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors">
+                                            <Download className="w-4 h-4" /> Unduh
+                                        </button>
+                                    } />
                                 </h3>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm text-left">
@@ -566,9 +569,11 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         <CalendarDays className="text-teal-600 w-5 h-5" />
                                         Rekap Target Mingguan
                                     </div>
-                                    <a href={route('marketing.export_target.pdf')} className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors">
-                                        <Download className="w-4 h-4" /> Unduh PDF
-                                    </a>
+                                    <ExportDropdown pdfRoute={route('marketing.export_target.pdf')} trigger={
+                                        <button className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors">
+                                            <Download className="w-4 h-4" /> Unduh
+                                        </button>
+                                    } />
                                 </h3>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm text-left">

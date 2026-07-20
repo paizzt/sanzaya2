@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <title>{{ $title }}</title>
     <style>
+
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
         body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; }
         h2, h3 { color: #333; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; page-break-inside: avoid; }

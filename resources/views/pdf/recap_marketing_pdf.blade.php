@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <title>Rekap Marketing - {{ ucfirst($type) }}</title>
     <style>
+
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
         body { font-family: sans-serif; font-size: 12px; color: #333; }
         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
         .header h1 { margin: 0; font-size: 18px; }

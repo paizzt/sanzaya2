@@ -22,11 +22,11 @@ class AttendanceRecapController extends Controller
     {
         $data = $this->getRecapData($request);
         
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data)->setPaper([0, 0, 609.4488, 935.433], 'portrait');
-        $pdf->setPaper([0, 0, 609.4488, 935.433], 'landscape');
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        $pdf->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         
         $fileName = 'Rekap_Absensi_' . $data['filters']['month'] . '_' . $data['filters']['year'] . '.pdf';
-        return $pdf->download($fileName);
+        return request()->has('preview') ? $pdf->stream($fileName) : $pdf->download($fileName);
     }
 
     private function getRecapData(Request $request)
@@ -92,6 +92,42 @@ class AttendanceRecapController extends Controller
             }
         }
 
+        // Calculate User Summaries
+        $userSummaries = [];
+        $users = \App\Models\User::all();
+        foreach ($users as $user) {
+            $userSummaries[$user->id] = [
+                'name' => $user->name,
+                'hadir' => 0,
+                'sakit' => 0,
+                'izin' => 0,
+                'alpa' => 0
+            ];
+        }
+
+        foreach ($attendances as $att) {
+            if ($att->status == 'Hadir') {
+                $userSummaries[$att->user_id]['hadir']++;
+            } else {
+                $userSummaries[$att->user_id]['alpa']++;
+            }
+        }
+
+        foreach ($attendanceRequests as $req) {
+            if ($req->status !== 'Ditolak') {
+                $start = Carbon::parse($req->start_date);
+                $end = Carbon::parse($req->end_date);
+                $days = $start->diffInDays($end) + 1;
+                
+                if (strtolower($req->type) === 'sakit') {
+                    $userSummaries[$req->user_id]['sakit'] += $days;
+                } else {
+                    $userSummaries[$req->user_id]['izin'] += $days;
+                }
+            }
+        }
+        $userSummaries = array_values($userSummaries);
+
         // Prepare data table format
         $recapList = [];
         foreach ($attendances as $att) {
@@ -132,6 +168,7 @@ class AttendanceRecapController extends Controller
         return [
             'recapList' => $recapList,
             'summary' => $summary,
+            'userSummaries' => $userSummaries,
             'filters' => [
                 'month' => (int)$month,
                 'year' => (int)$year,

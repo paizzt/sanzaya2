@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { ShoppingCart, Send, FileCheck, Calendar, PackageOpen, Box, Download } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -155,12 +156,11 @@ export default function BHP({ requests, today }) {
                                             </span>
                                             {/* Simulate approval logic for demo purposes */}
                                             {req.status !== 'Ditolak' && (
-                                                <a 
-                                                    href={route('requests.bhp.pdf', req.id)}
-                                                    className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-bold rounded-full transition-colors flex items-center gap-1"
-                                                >
+                                                <ExportDropdown pdfRoute={route('requests.bhp.pdf', req.id)} trigger={
+                                                <button className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-bold rounded-full transition-colors flex items-center gap-1">
                                                     <Download className="w-3 h-3" /> PDF
-                                                </a>
+                                                </button>
+                                            } />
                                             )}
                                         </div>
                                     </div>

@@ -2,6 +2,12 @@
 <html>
 <head>
     <style>
+
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
         body { font-family: Arial, sans-serif; font-size: 14px; }
         .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
         .title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }

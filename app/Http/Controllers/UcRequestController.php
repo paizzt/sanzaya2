@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Exports\GenericExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\UcRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
 
@@ -44,8 +47,8 @@ class UcRequestController extends Controller
         $qrUrl = route('requests.uc.index'); // Can be a verification URL
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
         
-        $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode'));
-        return $pdf->download('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf');
+        $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        return request()->has('preview') ? $pdf->stream('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf') : $pdf->download('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf');
     }
 
     public function store(Request $request)
@@ -122,5 +125,84 @@ class UcRequestController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Result UC dan Nota berhasil dikirim!');
+    }
+
+    public function exportPdf()
+    {
+        $items = \App\Models\UcRequest::with('user')->orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $headings = [
+                'No', 
+                'No Request', 
+                'Pemohon', 
+                'Entitas', 
+                'Kota Asal', 
+                'Kota Tujuan', 
+                'Tgl Berangkat', 
+                'Tgl Pulang', 
+                'Transportasi', 
+                'Status'
+            ];
+            
+            $rows = $items->map(function($item, $key) {
+                return [
+                    $key + 1,
+                    $item->request_number,
+                    $item->user ? $item->user->name : '-',
+                    $item->entity,
+                    $item->departure_city,
+                    $item->destination_city,
+                    date('d/m/Y', strtotime($item->departure_date)),
+                    date('d/m/Y', strtotime($item->return_date)),
+                    $item->transport_type,
+                    $item->status
+                ];
+            });
+        }
+        
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Form UC', 'headings' => $headings, 'rows' => $rows])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Form UC') . '.pdf') : $pdf->download(str_replace(' ', '_', 'Form UC') . '.pdf');
+    }
+
+    public function exportExcel()
+    {
+        $items = \App\Models\UcRequest::with('user')->orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $headings = [
+                'No', 
+                'No Request', 
+                'Pemohon', 
+                'Entitas', 
+                'Kota Asal', 
+                'Kota Tujuan', 
+                'Tgl Berangkat', 
+                'Tgl Pulang', 
+                'Transportasi', 
+                'Status'
+            ];
+            
+            $rows = $items->map(function($item, $key) {
+                return [
+                    $key + 1,
+                    $item->request_number,
+                    $item->user ? $item->user->name : '-',
+                    $item->entity,
+                    $item->departure_city,
+                    $item->destination_city,
+                    date('d/m/Y', strtotime($item->departure_date)),
+                    date('d/m/Y', strtotime($item->return_date)),
+                    $item->transport_type,
+                    $item->status
+                ];
+            });
+        }
+        
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Form UC') . '.xlsx');
     }
 }

@@ -3,6 +3,12 @@
 <head>
     <title>Laporan Pemenuhan Kebutuhan Barang</title>
     <style>
+
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
         body { font-family: sans-serif; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #000; padding: 5px; text-align: left; }

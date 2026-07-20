@@ -3,6 +3,12 @@
 <head>
     <title>{{ $title }}</title>
     <style>
+
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
         body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
         .header { text-align: center; margin-bottom: 20px; }
         .header h2 { margin: 0; padding: 0; font-size: 16px; }

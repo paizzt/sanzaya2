@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Rekap({ auth, recapList, summary, filters, users, isAdmin }) {
+export default function Rekap({ auth, recapList, summary, userSummaries, filters, users, isAdmin }) {
     
     // Setup Filter Form
     const { data, setData } = useForm({
@@ -163,18 +163,58 @@ export default function Rekap({ auth, recapList, summary, filters, users, isAdmi
                     </div>
                 </div>
 
+                {/* User Summaries Table */}
+                <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                    <div className="p-6 border-b border-gray-50 flex justify-between items-center">
+                        <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                            <Users className="w-5 h-5 text-blue-500"/> Ringkasan Kehadiran per Karyawan
+                        </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                                    <th className="py-4 px-6 font-semibold">Nama Karyawan</th>
+                                    <th className="py-4 px-6 font-semibold text-center text-blue-600">Hadir</th>
+                                    <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
+                                    <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
+                                    <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-sm text-gray-700">
+                                {userSummaries && userSummaries.length > 0 ? (
+                                    userSummaries.map((u, idx) => (
+                                        <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                                            <td className="py-4 px-6 font-medium text-gray-900">{u.name}</td>
+                                            <td className="py-4 px-6 text-center font-bold text-blue-600">{u.hadir}</td>
+                                            <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
+                                            <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
+                                            <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="py-6 text-center text-gray-500">
+                                            Tidak ada data karyawan.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 {/* Table Data */}
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                     <div className="p-6 border-b border-gray-50 flex justify-between items-center">
                         <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                             <FileText className="w-5 h-5 text-blue-500"/> Rincian Kehadiran
                         </h3>
-                        <button 
-                            onClick={() => window.open(route('absensi.rekap.export-pdf', { month: data.month, year: data.year, user_id: data.user_id }), '_blank')}
-                            className="text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                            <Download className="w-4 h-4"/> Export PDF
-                        </button>
+                        <ExportDropdown pdfRoute={route('absensi.rekap.export-pdf', { month: data.month, year: data.year, user_id: data.user_id })} trigger={
+                            <button className="text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                                <Download className="w-4 h-4"/> Export PDF
+                            </button>
+                        } />
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">

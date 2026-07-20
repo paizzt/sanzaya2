@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, usePage, router, Link } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown } from 'lucide-react';
@@ -209,26 +210,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         
                         {isDownloadOpen && (
                             <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 overflow-hidden">
-                                <a href="#" onClick={(e) => { 
-                                    e.preventDefault(); 
-                                    setIsDownloadOpen(false); 
-                                    window.open(route('reports.pdf', { tab: tab, period: '1_hari' }), '_blank');
-                                }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Hari</a>
-                                <a href="#" onClick={(e) => { 
-                                    e.preventDefault(); 
-                                    setIsDownloadOpen(false); 
-                                    window.open(route('reports.pdf', { tab: tab, period: '1_minggu' }), '_blank');
-                                }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Minggu</a>
-                                <a href="#" onClick={(e) => { 
-                                    e.preventDefault(); 
-                                    setIsDownloadOpen(false); 
-                                    window.open(route('reports.pdf', { tab: tab, period: '1_bulan' }), '_blank');
-                                }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Bulan</a>
-                                <a href="#" onClick={(e) => { 
-                                    e.preventDefault(); 
-                                    setIsDownloadOpen(false); 
-                                    window.open(route('reports.pdf', { tab: tab, period: '1_tahun' }), '_blank');
-                                }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">1 Tahun</a>
+                                <ExportDropdown pdfRoute={route('reports.pdf', { tab: tab, period: '1_hari' })} trigger={<a href="#" onClick={(e) => { e.preventDefault(); setIsDownloadOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Hari</a>} />
+                                <ExportDropdown pdfRoute={route('reports.pdf', { tab: tab, period: '1_minggu' })} trigger={<a href="#" onClick={(e) => { e.preventDefault(); setIsDownloadOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Minggu</a>} />
+                                <ExportDropdown pdfRoute={route('reports.pdf', { tab: tab, period: '1_bulan' })} trigger={<a href="#" onClick={(e) => { e.preventDefault(); setIsDownloadOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Bulan</a>} />
+                                <ExportDropdown pdfRoute={route('reports.pdf', { tab: tab, period: '1_tahun' })} trigger={<a href="#" onClick={(e) => { e.preventDefault(); setIsDownloadOpen(false); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">1 Tahun</a>} />
                             </div>
                         )}
                     </div>

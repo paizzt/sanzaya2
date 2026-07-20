@@ -5,12 +5,13 @@ import React, { useRef, useState, useCallback, useEffect, Suspense } from 'react
 const Webcam = React.lazy(() => import('react-webcam'));
 import Swal from 'sweetalert2';
 
-export default function Index({ attendance, today, currentTime }) {
+export default function Index({ attendance, today, currentTime, isOvertime }) {
     const webcamRef = useRef(null);
     const [imgSrc, setImgSrc] = useState(null);
     const { data, setData, post, processing } = useForm({
         photo: '',
         type: '',
+        notes: '',
     });
 
     const { flash } = usePage().props;
@@ -163,13 +164,31 @@ export default function Index({ attendance, today, currentTime }) {
                                         <p className="text-sm text-gray-500 mt-1">{hasCheckedOut ? attendance.check_out_time : 'Belum Absen'}</p>
 
                                         {hasCheckedIn && !hasCheckedOut && imgSrc && (
-                                            <button
-                                                onClick={() => submitAttendance('check_out')}
-                                                disabled={processing}
-                                                className="mt-3 w-full bg-purple-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-purple-700 transition-all disabled:opacity-50"
-                                            >
-                                                Kirim Absen Pulang
-                                            </button>
+                                            <div className="mt-4 space-y-3">
+                                                {isOvertime && (
+                                                    <div>
+                                                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                                            Catatan Lembur <span className="text-red-500">*</span>
+                                                        </label>
+                                                        <textarea
+                                                            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-purple-500 focus:border-purple-500"
+                                                            rows="2"
+                                                            placeholder="Jelaskan pekerjaan lembur Anda..."
+                                                            value={data.notes}
+                                                            onChange={(e) => setData('notes', e.target.value)}
+                                                            required
+                                                        ></textarea>
+                                                        <p className="text-xs text-red-500 mt-1">Wajib diisi karena absen di atas jam 20:00</p>
+                                                    </div>
+                                                )}
+                                                <button
+                                                    onClick={() => submitAttendance('check_out')}
+                                                    disabled={processing || (isOvertime && !data.notes.trim())}
+                                                    className="w-full bg-purple-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-purple-700 transition-all disabled:opacity-50"
+                                                >
+                                                    Kirim Absen Pulang
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                 </div>

@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <title>Rekap Absensi</title>
     <style>
+
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
         body { font-family: sans-serif; font-size: 12px; }
         .header { text-align: center; margin-bottom: 20px; }
         .header h2 { margin: 0; padding: 0; }
@@ -42,13 +48,44 @@
     </div>
 
     <div class="summary-box">
-        <strong>Ringkasan Kehadiran:</strong>
+        <strong>Ringkasan Kehadiran Keseluruhan:</strong>
         <p>Hadir: <span class="status-hadir">{{ $summary['hadir'] }} hari</span></p>
         <p>Sakit: <span class="status-sakit">{{ $summary['sakit'] }} hari</span></p>
         <p>Izin: <span class="status-izin">{{ $summary['izin'] }} hari</span></p>
         <p>Alpa: <span class="status-alpa">{{ $summary['alpa'] }} hari</span></p>
     </div>
 
+    @if(isset($userSummaries) && count($userSummaries) > 0)
+    <div style="margin-top: 20px;">
+        <strong>Ringkasan Kehadiran per Karyawan:</strong>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Karyawan</th>
+                    <th class="text-center">Hadir</th>
+                    <th class="text-center">Sakit</th>
+                    <th class="text-center">Izin</th>
+                    <th class="text-center">Alpa</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($userSummaries as $u)
+                <tr>
+                    <td>{{ $u['name'] }}</td>
+                    <td class="text-center status-hadir">{{ $u['hadir'] }}</td>
+                    <td class="text-center status-sakit">{{ $u['sakit'] }}</td>
+                    <td class="text-center status-izin">{{ $u['izin'] }}</td>
+                    <td class="text-center status-alpa">{{ $u['alpa'] }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @endif
+
+    <div style="margin-top: 30px;">
+        <strong>Rincian Kehadiran:</strong>
+    </div>
     <table>
         <thead>
             <tr>

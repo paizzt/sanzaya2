@@ -59,52 +59,80 @@ class UcApprovalController extends Controller
 
     public function exportPdf()
     {
-        $items = \App\Models\UcRequest::orderBy('id', 'desc')->get();
+        $items = \App\Models\UcRequest::with('user')->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['request_number', 'department', 'departure_city', 'destination_city', 'departure_date', 'status'];
-            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
-            array_unshift($headings, 'No');
+            $headings = [
+                'No', 
+                'No Request', 
+                'Pemohon', 
+                'Entitas', 
+                'Kota Asal', 
+                'Kota Tujuan', 
+                'Tgl Berangkat', 
+                'Tgl Pulang', 
+                'Transportasi', 
+                'Status'
+            ];
             
-            $rows = $items->map(function($item, $key) use ($allowed) {
-                $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $val = $item->$col;
-                    $row[] = is_array($val) ? json_encode($val) : $val;
-                }
-                return $row;
+            $rows = $items->map(function($item, $key) {
+                return [
+                    $key + 1,
+                    $item->request_number,
+                    $item->user ? $item->user->name : '-',
+                    $item->entity,
+                    $item->departure_city,
+                    $item->destination_city,
+                    date('d/m/Y', strtotime($item->departure_date)),
+                    date('d/m/Y', strtotime($item->return_date)),
+                    $item->transport_type,
+                    $item->status
+                ];
             });
         }
         
-        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Persetujuan UC', 'headings' => $headings, 'rows' => $rows])->setPaper([0, 0, 609.4488, 935.433], 'landscape');
-        return $pdf->download(str_replace(' ', '_', 'Persetujuan UC') . '.pdf');
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Persetujuan UC', 'headings' => $headings, 'rows' => $rows])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Persetujuan UC') . '.pdf') : $pdf->download(str_replace(' ', '_', 'Persetujuan UC') . '.pdf');
     }
 
     public function exportExcel()
     {
-        $items = \App\Models\UcRequest::orderBy('id', 'desc')->get();
+        $items = \App\Models\UcRequest::with('user')->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
         } else {
-            $hidden = ['id', 'created_at', 'updated_at', 'deleted_at', 'password', 'remember_token'];
-            $headings = array_diff(array_keys($items->first()->getAttributes()), $hidden);
-            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $headings);
-            array_unshift($headings, 'No');
+            $headings = [
+                'No', 
+                'No Request', 
+                'Pemohon', 
+                'Entitas', 
+                'Kota Asal', 
+                'Kota Tujuan', 
+                'Tgl Berangkat', 
+                'Tgl Pulang', 
+                'Transportasi', 
+                'Status'
+            ];
             
-            $rows = $items->map(function($item, $key) use ($hidden) {
-                $row = [$key + 1];
-                foreach ($item->getAttributes() as $col => $val) {
-                    if (!in_array($col, $hidden)) {
-                        $row[] = is_array($val) ? json_encode($val) : $val;
-                    }
-                }
-                return $row;
+            $rows = $items->map(function($item, $key) {
+                return [
+                    $key + 1,
+                    $item->request_number,
+                    $item->user ? $item->user->name : '-',
+                    $item->entity,
+                    $item->departure_city,
+                    $item->destination_city,
+                    date('d/m/Y', strtotime($item->departure_date)),
+                    date('d/m/Y', strtotime($item->return_date)),
+                    $item->transport_type,
+                    $item->status
+                ];
             });
         }
         
-        return Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Persetujuan UC') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Persetujuan UC') . '.xlsx');
     }
 }

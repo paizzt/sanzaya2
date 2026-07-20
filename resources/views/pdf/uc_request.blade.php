@@ -2,6 +2,12 @@
 <html>
 <head>
     <style>
+
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
         @page {
             margin: 30px 40px 60px 40px; /* Added more bottom margin for footer */
         }

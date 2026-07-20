@@ -104,8 +104,8 @@ class MarketingRecapController extends Controller
             'end_date' => $endDate,
         ];
 
-        $pdf = \PDF::loadView('pdf.recap_marketing_pdf', $data)->setPaper([0, 0, 609.4488, 935.433], 'portrait');
-        return $pdf->download('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf');
+        $pdf = \PDF::loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        return request()->has('preview') ? $pdf->stream('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf') : $pdf->download('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf');
     }
     public function exportExcel(Request $request)
     {
@@ -145,6 +145,6 @@ class MarketingRecapController extends Controller
             $title = 'Rekap_Target_Marketing';
         }
 
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($rows, $headings), $title . '_' . date('YmdHis') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new \App\Exports\GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($rows, $headings), $title . '_' . date('YmdHis') . '.xlsx');
     }
 }
