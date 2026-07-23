@@ -46,7 +46,7 @@ class HandleInertiaRequests extends Middleware
             'vapid_public_key' => $setting ? $setting->vapid_public_key : null,
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user() ? $request->user()->load('company') : null,
+                'user' => $request->user() ? $request->user()->load(['company', 'roles']) : null,
                 'notifications' => $request->user() ? $request->user()->unreadNotifications()->take(5)->get() : [],
                 'unread_count' => $request->user() ? $request->user()->unreadNotifications()->count() : 0,
                 'active_features' => $active_features,

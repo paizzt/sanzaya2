@@ -82,7 +82,7 @@ export default function Index({ auth, divisions }) {
                         </p>
                     </div>
 
-                    {auth.user.role === 'superadmin' && (
+                    {auth.user?.roles?.some(r => r.name === 'Superadmin') && (
                     <button
                         onClick={() => setShowModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
@@ -102,7 +102,7 @@ export default function Index({ auth, divisions }) {
                         <p className="text-gray-500 mb-6 max-w-md mx-auto">
                             Mulai dengan menambahkan Devisi baru untuk mengelompokkan SOP Anda.
                         </p>
-                        {auth.user.role === 'superadmin' && (
+                        {auth.user?.roles?.some(r => r.name === 'Superadmin') && (
                         <button
                             onClick={() => setShowModal(true)}
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition-colors"
@@ -121,7 +121,7 @@ export default function Index({ auth, divisions }) {
                                         <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-300">
                                             <FolderOpen className="w-6 h-6" />
                                         </div>
-                                        {auth.user.role === 'superadmin' && (
+                                        {auth.user?.roles?.some(r => r.name === 'Superadmin') && (
                                         <button 
                                             onClick={(e) => { e.preventDefault(); handleDelete(division.id); }}
                                             className="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"

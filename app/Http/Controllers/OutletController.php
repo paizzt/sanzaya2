@@ -53,6 +53,7 @@ class OutletController extends Controller
             'pic_name' => 'nullable|string|max:255',
             'pic_position' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:255',
+            'coordinates' => 'nullable|string|max:255',
         ]);
 
         Outlet::create($request->all());
@@ -69,6 +70,7 @@ class OutletController extends Controller
             'pic_name' => 'nullable|string|max:255',
             'pic_position' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:255',
+            'coordinates' => 'nullable|string|max:255',
         ]);
 
         $outlet->update($request->all());

@@ -1,5 +1,6 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link } from '@inertiajs/react';
+import PWAInstallPrompt from '@/Components/PWAInstallPrompt';
 
 export default function Guest({ children }) {
     return (
@@ -14,6 +15,7 @@ export default function Guest({ children }) {
             <div className="w-full sm:max-w-[420px] p-8 sm:p-10 bg-white/70 backdrop-blur-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] rounded-[2rem] border border-white/60 relative z-10 transition-all duration-500 hover:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.08)]">
                 {children}
             </div>
+            <PWAInstallPrompt />
         </div>
     );
 }

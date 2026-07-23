@@ -74,7 +74,8 @@ class AttendanceRecapController extends Controller
             'hadir' => $attendances->where('status', 'Hadir')->count(),
             'sakit' => 0,
             'izin' => 0,
-            'alpa' => 0 // Can be calculated if we know total working days
+            'alpa' => 0,
+            'lembur' => $attendances->where('status', 'Lembur')->count()
         ];
 
         // Process Attendance Requests to count days
@@ -86,6 +87,8 @@ class AttendanceRecapController extends Controller
 
                 if (strtolower($req->type) === 'sakit') {
                     $summary['sakit'] += $days;
+                } elseif (strtolower($req->type) === 'lembur') {
+                    $summary['lembur'] += $days;
                 } else {
                     $summary['izin'] += $days;
                 }
@@ -101,15 +104,16 @@ class AttendanceRecapController extends Controller
                 'hadir' => 0,
                 'sakit' => 0,
                 'izin' => 0,
-                'alpa' => 0
+                'alpa' => 0,
+                'lembur' => 0
             ];
         }
 
         foreach ($attendances as $att) {
             if ($att->status == 'Hadir') {
                 $userSummaries[$att->user_id]['hadir']++;
-            } else {
-                $userSummaries[$att->user_id]['alpa']++;
+            } elseif ($att->status == 'Lembur') {
+                $userSummaries[$att->user_id]['lembur']++;
             }
         }
 
@@ -121,11 +125,30 @@ class AttendanceRecapController extends Controller
                 
                 if (strtolower($req->type) === 'sakit') {
                     $userSummaries[$req->user_id]['sakit'] += $days;
+                } elseif (strtolower($req->type) === 'lembur') {
+                    $userSummaries[$req->user_id]['lembur'] += $days;
                 } else {
                     $userSummaries[$req->user_id]['izin'] += $days;
                 }
             }
         }
+        // Calculate working days in month
+        $startOfMonth = Carbon::create($year, $month, 1);
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $totalWorkingDays = 0;
+        while ($startOfMonth->lte($endOfMonth)) {
+            if (!$startOfMonth->isWeekend()) {
+                $totalWorkingDays++;
+            }
+            $startOfMonth->addDay();
+        }
+
+        foreach ($userSummaries as $userId => &$uSum) {
+            $attended = $uSum['hadir'] + $uSum['sakit'] + $uSum['izin'];
+            $uSum['alpa'] = max(0, $totalWorkingDays - $attended);
+            $summary['alpa'] += $uSum['alpa']; // add to total alpa summary
+        }
+
         $userSummaries = array_values($userSummaries);
 
         // Prepare data table format

@@ -104,6 +104,7 @@ export default function Index({ outlets, areas }) {
         pic_name: '',
         pic_position: '',
         phone: '',
+        coordinates: '',
     });
 
     useEffect(() => {
@@ -134,6 +135,7 @@ export default function Index({ outlets, areas }) {
             pic_name: outlet.pic_name || '',
             pic_position: outlet.pic_position || '',
             phone: outlet.phone || '',
+            coordinates: outlet.coordinates || '',
         });
         setIsModalOpen(true);
     };
@@ -452,6 +454,19 @@ export default function Index({ outlets, areas }) {
                                     </div>
 
                                 </div>
+
+                                    {/* Koordinat */}
+                                    <div className="space-y-4">
+                                        <h4 className="font-semibold text-gray-700 border-b pb-2 flex items-center gap-2"><MapPin className="w-4 h-4"/> Koordinat Peta (Opsional)</h4>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <div>
+                                                <InputLabel value="Koordinat (Latitude, Longitude)" />
+                                                <TextInput className="mt-1 block w-full" value={data.coordinates} onChange={e => setData('coordinates', e.target.value)} placeholder="Contoh: -6.200000, 106.816666" />
+                                                <p className="text-xs text-gray-500 mt-1">Gunakan format desimal dipisah koma. Contoh: -6.2088, 106.8456</p>
+                                                <InputError message={errors.coordinates} className="mt-1" />
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 {/* Data Pemetaan Nama */}
                                 {isEditMode && editingOutlet?.mappings?.length > 0 && (

@@ -53,6 +53,7 @@
         <p>Sakit: <span class="status-sakit">{{ $summary['sakit'] }} hari</span></p>
         <p>Izin: <span class="status-izin">{{ $summary['izin'] }} hari</span></p>
         <p>Alpa: <span class="status-alpa">{{ $summary['alpa'] }} hari</span></p>
+        <p>Lembur: <span style="color:#8b5cf6; font-weight:bold;">{{ $summary['lembur'] ?? 0 }} hari</span></p>
     </div>
 
     @if(isset($userSummaries) && count($userSummaries) > 0)
@@ -66,6 +67,7 @@
                     <th class="text-center">Sakit</th>
                     <th class="text-center">Izin</th>
                     <th class="text-center">Alpa</th>
+                      <th class="text-center">Lembur</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,6 +78,7 @@
                     <td class="text-center status-sakit">{{ $u['sakit'] }}</td>
                     <td class="text-center status-izin">{{ $u['izin'] }}</td>
                     <td class="text-center status-alpa">{{ $u['alpa'] }}</td>
+                      <td class="text-center" style="color:#8b5cf6; font-weight:bold;">{{ $u['lembur'] ?? 0 }}</td>
                 </tr>
                 @endforeach
             </tbody>

@@ -7,7 +7,8 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Notification;
+use App\Models\User;
+use App\Notifications\SpreadsheetSyncCompleted;
 
 class SyncSpreadsheetJob implements ShouldQueue
 {
@@ -28,23 +29,25 @@ class SyncSpreadsheetJob implements ShouldQueue
             $rowsAdded = \App\Services\SpreadsheetSyncService::syncType($this->type);
             
             if ($this->userId) {
-                Notification::create([
-                    'user_id' => $this->userId,
-                    'title' => 'Sinkronisasi Spreadsheet Selesai',
-                    'message' => 'Sinkronisasi ' . $this->type . ' berhasil. ' . $rowsAdded . ' baris data diperbarui.',
-                    'type' => 'success',
-                    'is_read' => false,
-                ]);
+                $user = User::find($this->userId);
+                if ($user) {
+                    $user->notify(new SpreadsheetSyncCompleted(
+                        'Sinkronisasi Spreadsheet Selesai',
+                        'Sinkronisasi ' . $this->type . ' berhasil. ' . $rowsAdded . ' baris data diperbarui.',
+                        'success'
+                    ));
+                }
             }
         } catch (\Exception $e) {
             if ($this->userId) {
-                Notification::create([
-                    'user_id' => $this->userId,
-                    'title' => 'Sinkronisasi Spreadsheet Gagal',
-                    'message' => 'Gagal sinkronisasi ' . $this->type . ': ' . $e->getMessage(),
-                    'type' => 'error',
-                    'is_read' => false,
-                ]);
+                $user = User::find($this->userId);
+                if ($user) {
+                    $user->notify(new SpreadsheetSyncCompleted(
+                        'Sinkronisasi Spreadsheet Gagal',
+                        'Gagal sinkronisasi ' . $this->type . ': ' . $e->getMessage(),
+                        'error'
+                    ));
+                }
             }
             throw $e;
         }

@@ -125,7 +125,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
                             <CheckCircle2 className="w-6 h-6" />
@@ -180,6 +180,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
                                     <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
                                     <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
+                                    <th className="py-4 px-6 font-semibold text-center text-purple-600">Lembur</th>
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
@@ -191,11 +192,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
                                             <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
                                             <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
+                                            <td className="py-4 px-6 text-center font-bold text-purple-600">{u.lembur || 0}</td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="5" className="py-6 text-center text-gray-500">
+                                        <td colSpan="6" className="py-6 text-center text-gray-500">
                                             Tidak ada data karyawan.
                                         </td>
                                     </tr>
@@ -245,7 +247,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                                     item.type === 'Hadir' ? 'bg-blue-50 text-blue-600' :
-                                                    item.type === 'Sakit' ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-600'
+                                                    item.type === 'Sakit' ? 'bg-orange-50 text-orange-600' : item.type === 'Lembur' ? 'bg-purple-50 text-purple-600' : 'bg-emerald-50 text-emerald-600'
                                                 }`}>
                                                     {item.type}
                                                 </span>

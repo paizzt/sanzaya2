@@ -11,6 +11,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import CustomSelect from '@/Components/CustomSelect';
 import CustomDatePicker from '@/Components/CustomDatePicker';
+import CurrencyInput from '@/Components/CurrencyInput';
 
 export default function Index({ users, divisions, positions, areas, roles, companies, featureToggles, userFeatures, spreadsheetSalesNames }) {
     const { flash } = usePage().props;
@@ -288,7 +289,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                 {/* MODAL FORM */}
                 {isModalOpen && (
                     <div className="fixed inset-0 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10 px-4 bg-gray-900/50 backdrop-blur-sm custom-scrollbar">
-                        <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl transform transition-all my-auto">
+                        <div className="bg-white rounded-3xl max-w-5xl w-full shadow-2xl transform transition-all my-auto">
                             <div className="flex justify-between items-center p-6 border-b border-gray-100">
                                 <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                     {isEditMode ? <Edit className="w-5 h-5 text-blue-600"/> : <Plus className="w-5 h-5 text-blue-600"/>}
@@ -331,13 +332,13 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </div>
                                                 <div>
                                                     <InputLabel value="Perusahaan (PT)" />
-                                                    <div className="relative">
-                                                        <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                        <select className="mt-1 block w-full pl-9 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" value={data.company_id} onChange={e => setData('company_id', e.target.value)}>
-                                                            <option value="">-- Pilih PT --</option>
-                                                            {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                                        </select>
-                                                    </div>
+                                                    <CustomSelect 
+                                                        icon={Building}
+                                                        value={data.company_id}
+                                                        onChange={val => setData('company_id', val)}
+                                                        options={companies.map(c => ({ value: c.id, label: c.name }))}
+                                                        placeholder="-- Pilih PT --"
+                                                    />
                                                     <InputError message={errors.company_id} className="mt-1" />
                                                 </div>
                                             </div>
@@ -347,22 +348,24 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 <h4 className="font-semibold text-gray-700 border-b pb-2 mb-4 flex items-center gap-2"><Briefcase className="w-4 h-4"/> Pekerjaan & Akses</h4>
                                                 <div>
                                                     <InputLabel value="Akses (Role) *" />
-                                                    <div className="relative">
-                                                        <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                        <select className="mt-1 block w-full pl-9 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" value={data.role} onChange={e => setData('role', e.target.value)} required>
-                                                            <option value="">-- Pilih Role --</option>
-                                                            {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
-                                                        </select>
-                                                    </div>
+                                                    <CustomSelect 
+                                                        icon={ShieldCheck}
+                                                        value={data.role}
+                                                        onChange={val => setData('role', val)}
+                                                        options={roles.map(r => ({ value: r.name, label: r.name }))}
+                                                        placeholder="-- Pilih Role --"
+                                                    />
                                                     <InputError message={errors.role} className="mt-1" />
                                                 </div>
                                                 
                                                 <div>
                                                     <InputLabel value="Tautkan ke Nama Sales Spreadsheet (Opsional)" />
-                                                    <select className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" value={data.spreadsheet_sales_name} onChange={e => setData('spreadsheet_sales_name', e.target.value)}>
-                                                        <option value="">-- Tidak Ditautkan --</option>
-                                                        {spreadsheetSalesNames.map((name, idx) => <option key={idx} value={name}>{name}</option>)}
-                                                    </select>
+                                                    <CustomSelect 
+                                                        value={data.spreadsheet_sales_name}
+                                                        onChange={val => setData('spreadsheet_sales_name', val)}
+                                                        options={spreadsheetSalesNames.map((name) => ({ value: name, label: name }))}
+                                                        placeholder="-- Tidak Ditautkan --"
+                                                    />
                                                     <InputError message={errors.spreadsheet_sales_name} className="mt-1" />
                                                     <p className="text-xs text-gray-500 mt-1">Pilih nama ini untuk mengaitkan akun dengan data logistik di spreadsheet.</p>
                                                 </div>
@@ -389,18 +392,22 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     <>
                                                         <div>
                                                             <InputLabel value="Jabatan" />
-                                                            <select className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" value={data.position_id} onChange={e => setData('position_id', e.target.value)}>
-                                                                <option value="">-- Pilih Jabatan --</option>
-                                                                {positions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                                            </select>
+                                                            <CustomSelect 
+                                                                value={data.position_id}
+                                                                onChange={val => setData('position_id', val)}
+                                                                options={positions.map(p => ({ value: p.id, label: p.name }))}
+                                                                placeholder="-- Pilih Jabatan --"
+                                                            />
                                                             <InputError message={errors.position_id} className="mt-1" />
                                                         </div>
                                                         <div>
                                                             <InputLabel value="Divisi" />
-                                                            <select className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" value={data.division_id} onChange={e => setData('division_id', e.target.value)}>
-                                                                <option value="">-- Pilih Divisi --</option>
-                                                                {divisions.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                                                            </select>
+                                                            <CustomSelect 
+                                                                value={data.division_id}
+                                                                onChange={val => setData('division_id', val)}
+                                                                options={divisions.map(d => ({ value: d.id, label: d.name }))}
+                                                                placeholder="-- Pilih Divisi --"
+                                                            />
                                                             <InputError message={errors.division_id} className="mt-1" />
                                                         </div>
                                                     </>
@@ -456,29 +463,35 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         </div>
                                                         <div>
                                                             <InputLabel value="Tanggal Masuk" />
-                                                            <CustomDatePicker value={data.start_date} onChange={val => setData('start_date', val)} />
+                                                            <div className="mt-1">
+                                                                <CustomDatePicker value={data.start_date} onChange={val => setData('start_date', val)} />
+                                                            </div>
                                                             <InputError message={errors.start_date} className="mt-1" />
                                                         </div>
                                                     </div>
-                                                    <div>
+                                                    <div className="mt-2">
                                                         <InputLabel value="Status Karyawan" />
-                                                        <select className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" value={data.employment_status} onChange={e => setData('employment_status', e.target.value)}>
-                                                            <option value="">-- Pilih Status --</option>
-                                                            <option value="PKWT">PKWT (Kontrak)</option>
-                                                            <option value="PKWTT">PKWTT (Tetap)</option>
-                                                            <option value="Probation">Probation</option>
-                                                        </select>
+                                                        <CustomSelect 
+                                                            value={data.employment_status} 
+                                                            onChange={val => setData('employment_status', val)}
+                                                            options={[
+                                                                { value: 'PKWT', label: 'PKWT (Kontrak)' },
+                                                                { value: 'PKWTT', label: 'PKWTT (Tetap)' },
+                                                                { value: 'Probation', label: 'Probation' },
+                                                            ]}
+                                                            placeholder="-- Pilih Status --"
+                                                        />
                                                         <InputError message={errors.employment_status} className="mt-1" />
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div>
                                                             <InputLabel value="Gaji Pokok (Rp)" />
-                                                            <TextInput type="number" className="mt-1 block w-full" value={data.salary} onChange={e => setData('salary', e.target.value)} />
+                                                            <CurrencyInput className="mt-1 block w-full" value={data.salary} onChange={val => setData('salary', val)} />
                                                             <InputError message={errors.salary} className="mt-1" />
                                                         </div>
                                                         <div>
                                                             <InputLabel value="Operasional (Rp)" />
-                                                            <TextInput type="number" className="mt-1 block w-full" value={data.operational_allowance} onChange={e => setData('operational_allowance', e.target.value)} />
+                                                            <CurrencyInput className="mt-1 block w-full" value={data.operational_allowance} onChange={val => setData('operational_allowance', val)} />
                                                             <InputError message={errors.operational_allowance} className="mt-1" />
                                                         </div>
                                                     </div>

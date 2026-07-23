@@ -9,6 +9,8 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SearchableSelect from '@/Components/SearchableSelect';
 import CustomDatePicker from '@/Components/CustomDatePicker';
+import UcPreview from '@/Components/UcPreview';
+
 
 export default function UC({ requests, users, vehicles, isAdmin }) {
     const user = usePage().props.auth.user;
@@ -94,10 +96,10 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
         >
             <Head title="Pengajuan UC" />
 
-            <div className="pb-6 pt-0 space-y-8">
-                
-                {/* Form Pengajuan UC */}
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+            <div className="pb-6 pt-0">
+                <div className="flex flex-col lg:flex-row gap-8">
+                    {/* Form Pengajuan UC */}
+                    <div className="w-full lg:w-5/12 xl:w-1/2 bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-fit">
                     <div className="mb-6 border-b border-gray-50 pb-4">
                         <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
                             <PlaneTakeoff className="text-blue-600" /> Form Pengajuan Biaya (UC)
@@ -317,8 +319,18 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                             </PrimaryButton>
                         </div>
                     </form>
-                </div>
+                    </div>
 
+                    {/* Live Preview Paper */}
+                    <div className="hidden lg:block w-full lg:w-7/12 xl:w-1/2">
+                        <div className="sticky top-6">
+                            <h3 className="font-bold text-lg text-gray-700 mb-4 flex items-center gap-2">
+                                Preview Cetakan
+                            </h3>
+                            <UcPreview data={data} user={user} />
+                        </div>
+                    </div>
+                </div>
             </div>
         </AuthenticatedLayout>
     );
