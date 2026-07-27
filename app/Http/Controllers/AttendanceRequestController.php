@@ -28,7 +28,7 @@ class AttendanceRequestController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string',
-            'attachment' => 'nullable|file|max:5120' // max 5MB
+            'attachment' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120' // max 5MB
         ]);
 
         $path = null;

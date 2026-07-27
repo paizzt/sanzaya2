@@ -58,6 +58,23 @@ trait LogsActivity
                 $old_values = json_encode($attributes);
             }
 
+            // Redact sensitive data
+            $sensitive_fields = ['password', 'remember_token', 'vapid_private_key'];
+            if ($old_values) {
+                $old_arr = json_decode($old_values, true);
+                foreach ($sensitive_fields as $field) {
+                    if (isset($old_arr[$field])) $old_arr[$field] = '********';
+                }
+                $old_values = json_encode($old_arr);
+            }
+            if ($new_values) {
+                $new_arr = json_decode($new_values, true);
+                foreach ($sensitive_fields as $field) {
+                    if (isset($new_arr[$field])) $new_arr[$field] = '********';
+                }
+                $new_values = json_encode($new_arr);
+            }
+
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'action' => $action,

@@ -116,7 +116,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                 {/* Tab Navigation & Export */}
                 <div className="flex flex-wrap items-center justify-between gap-4 w-full pb-2">
                     <div className="flex gap-2 overflow-x-auto">
-                        <button onClick={() => setActiveTab('laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='laporan'?'bg-indigo-600 text-white shadow-md shadow-indigo-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
+                        <button onClick={() => setActiveTab('laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='laporan'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
                              Rekap Laporan Harian
                         </button>
                         <button onClick={() => setActiveTab('target')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='target'?'bg-teal-600 text-white shadow-md shadow-teal-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
@@ -132,7 +132,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                     {activeTab === 'laporan' && (
                         <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                             <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
-                                <ClipboardList className="text-indigo-600 w-5 h-5" />
+                                <ClipboardList className="text-blue-600 w-5 h-5" />
                                 Rekap Laporan Harian
                             </h3>
                             <div className="overflow-x-auto">

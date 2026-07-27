@@ -460,7 +460,7 @@ export default function Show({ auth, division }) {
                                                 onClick={() => setIsEditingContent(true)}
                                                 className="mt-4 text-blue-600 font-medium hover:underline"
                                             >
-                                                Mulai Edit</button>
+                                                Edit</button>
                                             )}
                                         </div>
                                     )}

@@ -30,21 +30,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $user = User::where('email', $this->email)->first();
-
-        $isValid = false;
-        if ($user) {
-            try {
-                $decrypted = Crypt::decryptString($user->password);
-                if ($decrypted === $this->password) {
-                    $isValid = true;
-                }
-            } catch (\Exception $e) {
-                // Ignore decryption errors for failed login
-            }
-        }
-
-        if (! $isValid) {
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -52,7 +38,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        Auth::login($user, $this->boolean('remember'));
+        $user = Auth::user();
+
+        if (! $user->is_active) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda telah dinonaktifkan.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

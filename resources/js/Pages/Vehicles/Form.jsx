@@ -221,7 +221,7 @@ export default function Form({ vehicle }) {
                     {/* Administrasi & Legalitas */}
                     <div className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                         <h4 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-6 border-b pb-4">
-                            <FileText className="w-5 h-5 text-indigo-600" />
+                            <FileText className="w-5 h-5 text-blue-600" />
                             Administrasi & Legalitas
                         </h4>
                         
@@ -373,7 +373,7 @@ export default function Form({ vehicle }) {
                     {/* Target Penggantian Sparepart */}
                     <div className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                         <h4 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-6 border-b pb-4">
-                            <Wrench className="w-5 h-5 text-indigo-600" />
+                            <Wrench className="w-5 h-5 text-blue-600" />
                             Target Penggantian Suku Cadang (Sparepart)
                         </h4>
                         

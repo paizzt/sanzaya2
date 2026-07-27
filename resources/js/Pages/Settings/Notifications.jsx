@@ -88,16 +88,16 @@ export default function Notifications({ setting }) {
                             disabled={vapidProcessing}
                             className="w-full py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                         >
-                             Generate VAPID Keys Baru
+                             Generate
                         </button>
                     </div>
 
                     {/* Subscription Note */}
-                    <div className="bg-indigo-600 rounded-3xl p-6 text-white shadow-xl shadow-indigo-500/20">
+                    <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20">
                         <h3 className="font-bold text-xl mb-2 flex items-center gap-2">
                             <BellRing className="w-6 h-6" /> Notifikasi Karyawan
                         </h3>
-                        <p className="text-indigo-100 text-sm leading-relaxed mb-4">
+                        <p className="text-blue-100 text-sm leading-relaxed mb-4">
                             Saat pengguna login, browser akan secara otomatis meminta izin untuk mengirimkan notifikasi. 
                             Pastikan pengaturan jam di bawah sudah sesuai. Notifikasi akan dikirim otomatis oleh sistem (Cron Job).
                         </p>

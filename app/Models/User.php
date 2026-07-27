@@ -28,6 +28,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'password' => 'hashed',
             'birth_date' => 'date',
             'start_date' => 'date',
             'is_active' => 'boolean',
@@ -35,19 +36,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = Crypt::encryptString($value);
-    }
 
-    public function getDecryptedPassword()
-    {
-        try {
-            return Crypt::decryptString($this->password);
-        } catch (\Exception $e) {
-            return null;
-        }
-    }
 
     public function division()
     {

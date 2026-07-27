@@ -339,7 +339,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     <div>
                                         <InputLabel value="Hasil" />
                                         <textarea
-                                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                            className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                             rows="3"
                                             value={dailyForm.data.result}
                                             onChange={e => dailyForm.setData('result', e.target.value)}

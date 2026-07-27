@@ -21,15 +21,7 @@ export default function ForgotPassword({ status }) {
         <GuestLayout>
             <Head title="Lupa Kata Sandi" />
 
-            <div className="flex items-center mb-6">
-                <Link
-                    href={route('login')}
-                    className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors group"
-                    title="Kembali ke halaman Masuk"
-                >
-                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                </Link>
-            </div>
+
 
             {status && (
                 <div className="mb-6 text-sm font-medium text-green-600 bg-green-50 p-4 rounded-xl border border-green-100">
@@ -67,17 +59,16 @@ export default function ForgotPassword({ status }) {
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-4 space-y-3">
                     <PrimaryButton className="w-full justify-center py-3.5 rounded-xl text-[15px] font-semibold tracking-wide bg-blue-500 hover:bg-blue-600 active:scale-[0.98] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(59,130,246,0.4)] hover:shadow-[0_10px_25px_-6px_rgba(59,130,246,0.5)] border-0" disabled={processing}>
-                        {processing ? (
-                            <span className="flex items-center gap-2">
-                                
-                                Mengirim...
-                            </span>
-                        ) : (
-                            'Kirim'
-                        )}
+                        {processing ? 'Mengirim...' : 'Kirim'}
                     </PrimaryButton>
+                    <Link
+                        href={route('login')}
+                        className="flex items-center justify-center w-full py-3.5 rounded-xl text-[15px] font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                    >
+                        Kembali
+                    </Link>
                 </div>
             </form>
         </GuestLayout>

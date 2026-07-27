@@ -101,7 +101,7 @@ class UcRequestController extends Controller
         $request->validate([
             'result_summary' => 'required|string',
             'receipt_photos' => 'required|array',
-            'receipt_photos.*' => 'file|image|max:5120'
+            'receipt_photos.*' => 'file|mimes:jpeg,png,jpg|max:5120'
         ]);
 
         $uc = UcRequest::findOrFail($id);

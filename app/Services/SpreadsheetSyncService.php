@@ -30,10 +30,12 @@ class SpreadsheetSyncService
         
         $rowsAdded = 0;
 
-        if ($type == 'logistik') \App\Models\SyncLogistikData::truncate();
-        if ($type == 'pesanan') \App\Models\SyncPesananData::truncate();
-        if ($type == 'piutang') \App\Models\SyncPiutangData::truncate();
-        if ($type == 'hutang') \App\Models\SyncHutangData::truncate();
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            if ($type == 'logistik') \App\Models\SyncLogistikData::query()->delete();
+            if ($type == 'pesanan') \App\Models\SyncPesananData::query()->delete();
+            if ($type == 'piutang') \App\Models\SyncPiutangData::query()->delete();
+            if ($type == 'hutang') \App\Models\SyncHutangData::query()->delete();
 
         if (is_array($config->sheets_config)) {
             foreach ($config->sheets_config as $sheet) {
@@ -70,8 +72,13 @@ class SpreadsheetSyncService
             }
         }
 
-        $config->update(['last_synced_at' => Carbon::now()]);
-        return $rowsAdded;
+            $config->update(['last_synced_at' => Carbon::now()]);
+            \Illuminate\Support\Facades\DB::commit();
+            return $rowsAdded;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            throw $e;
+        }
     }
 
     private static function getColValue($row, $colLetter) {

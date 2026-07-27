@@ -43,7 +43,7 @@ export default function CurrencyInput({ value, onChange, className = '', ...prop
                 {...props}
                 type="text"
                 className={
-                    'block w-full pl-9 pr-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm ' +
+                    'block w-full pl-9 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm ' +
                     className
                 }
                 value={formatValue(value)}

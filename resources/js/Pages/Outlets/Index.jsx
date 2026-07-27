@@ -223,7 +223,7 @@ export default function Index({ outlets, areas }) {
                         </div>
                     </div>
                     <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
-                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
                             <Store className="w-6 h-6" />
                         </div>
                         <div>
@@ -246,7 +246,7 @@ export default function Index({ outlets, areas }) {
                             <input
                                 type="text"
                                
-                                className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
+                                className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -276,7 +276,7 @@ export default function Index({ outlets, areas }) {
                                 <ExportDropdown pdfRoute={route('outlets.export.pdf')} excelRoute={route('outlets.export.excel')} />
                                 <button 
                                 onClick={() => router.get(route('outlet-mappings.index'))}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/30 whitespace-nowrap text-sm"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30 whitespace-nowrap text-sm"
                             >
                                  Pemetaan
                             </button>
@@ -323,7 +323,7 @@ export default function Index({ outlets, areas }) {
                                             {outlet.name}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
+                                            <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200">
                                                 {outlet.type}
                                             </span>
                                         </td>

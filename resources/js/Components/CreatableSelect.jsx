@@ -27,7 +27,7 @@ export default function CreatableSelect({ value, onChange, options, placeholder 
             }}>
                 {({ open }) => (
                     <div className="relative mt-1">
-                        <div className="relative w-full cursor-text overflow-hidden rounded-xl bg-white text-left border border-gray-300 shadow-sm focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500 sm:text-sm transition-all duration-200">
+                        <div className="relative w-full cursor-text overflow-hidden rounded-xl bg-white text-left border border-gray-300 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 sm:text-sm transition-all duration-200">
                             <Combobox.Input
                                 className="w-full border-none py-2.5 pl-4 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
                                 displayValue={(val) => val}
@@ -69,18 +69,18 @@ export default function CreatableSelect({ value, onChange, options, placeholder 
                                             key={idx}
                                             className={({ active }) =>
                                                 `relative cursor-pointer select-none py-2.5 pl-10 pr-4 transition-colors ${
-                                                    active ? 'bg-indigo-50 text-indigo-700' : 'text-gray-900'
+                                                    active ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
                                                 }`
                                             }
                                             value={option.value}
                                         >
                                             {({ selected, active }) => (
                                                 <>
-                                                    <span className={`block truncate ${selected ? 'font-bold text-indigo-700' : 'font-normal'}`}>
+                                                    <span className={`block truncate ${selected ? 'font-bold text-blue-700' : 'font-normal'}`}>
                                                         {option.label}
                                                     </span>
                                                     {selected ? (
-                                                        <span className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-indigo-700' : 'text-indigo-600'}`}>
+                                                        <span className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-blue-700' : 'text-blue-600'}`}>
                                                             <Check className="h-4 w-4" aria-hidden="true" />
                                                         </span>
                                                     ) : null}

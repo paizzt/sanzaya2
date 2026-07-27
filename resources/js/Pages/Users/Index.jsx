@@ -228,7 +228,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     </span>
                                                 )}
                                                 {user.monthly_target && (
-                                                    <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200 w-max font-medium mt-1">
+                                                    <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200 w-max font-medium mt-1">
                                                         Target: Rp {new Intl.NumberFormat('id-ID').format(user.monthly_target)}
                                                     </span>
                                                 )}
@@ -239,7 +239,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 {user.company && (
                                                     <span className="text-xs font-semibold text-gray-600 flex items-center gap-1"><Building className="w-3 h-3"/> {user.company.name}</span>
                                                 )}
-                                                <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
+                                                <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200">
                                                     {user.roles && user.roles.length > 0 ? user.roles[0].name : 'Tidak ada role'}
                                                 </span>
                                             </div>
@@ -616,7 +616,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-gray-500 font-medium">Role Sistem</p>
-                                                    <span className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200 mt-1">
+                                                    <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200 mt-1">
                                                         {previewUser.roles && previewUser.roles.length > 0 ? previewUser.roles[0].name : '-'}
                                                     </span>
                                                 </div>

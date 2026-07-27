@@ -187,7 +187,7 @@ export default function Index({ products }) {
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-base">{product.name}</p>
                                                     <div className="flex flex-wrap gap-2 mt-1">
-                                                        <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded border border-indigo-100">
+                                                        <span className="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100">
                                                             Kode: {product.code || '-'}
                                                         </span>
                                                         {product.jenis && (

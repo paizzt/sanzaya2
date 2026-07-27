@@ -70,7 +70,14 @@ class AttendanceController extends Controller
         $image = $request->photo;
         $imageParts = explode(";base64,", $image);
         $imageTypeAux = explode("image/", $imageParts[0]);
-        $imageType = $imageTypeAux[1];
+        $imageType = $imageTypeAux[1] ?? 'png';
+        
+        // Secure file extension
+        $allowedExtensions = ['jpeg', 'png', 'jpg'];
+        if (!in_array(strtolower($imageType), $allowedExtensions)) {
+            $imageType = 'png'; // Fallback to png
+        }
+
         $imageBase64 = base64_decode($imageParts[1]);
         
         $fileName = 'attendances/' . $user->id . '_' . time() . '.' . $imageType;

@@ -40,11 +40,7 @@ class NotificationController extends Controller
         try {
             $keys = VAPID::createVapidKeys();
         } catch (\Exception $e) {
-            // Fallback for Windows XAMPP environments where OpenSSL isn't properly configured
-            $keys = [
-                'publicKey' => 'BPu8wmwcHrSjL3Ng8goJppgtUxC5TkyiWNoSZ6L0-k7xtItmnv6C186eqQhWD_2-xvyHRQj_74BELL4eYNpvLnk',
-                'privateKey' => 'Hp7Ig3NDXBuQGfqFoQyMalo_IrKowzQ38fZt9dG0Z8Q',
-            ];
+            return redirect()->back()->withErrors(['error' => 'Gagal meng-generate VAPID Keys: ' . $e->getMessage() . '. Pastikan OpenSSL dikonfigurasi dengan benar di server Anda.']);
         }
         
         $setting = NotificationSetting::first();

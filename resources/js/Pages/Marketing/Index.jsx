@@ -183,7 +183,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     <button onClick={() => setActiveTab('target')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='target'?'bg-emerald-600 text-white shadow-md shadow-emerald-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
                          Form Target Mingguan
                     </button>
-                    <button onClick={() => setActiveTab('rekap_laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='rekap_laporan'?'bg-indigo-600 text-white shadow-md shadow-indigo-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
+                    <button onClick={() => setActiveTab('rekap_laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='rekap_laporan'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
                          Rekap Laporan Harian
                     </button>
                     <button onClick={() => setActiveTab('rekap_target')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='rekap_target'?'bg-teal-600 text-white shadow-md shadow-teal-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
@@ -486,7 +486,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                                     <div className="pt-6 border-t border-gray-100 flex justify-end">
                                         <PrimaryButton disabled={targetProcessing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/30">
-                                             Tetapkan Target
+                                             Simpan
                                         </PrimaryButton>
                                     </div>
                                 </form>
@@ -500,7 +500,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                             <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                                 <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center justify-between border-b border-gray-50 pb-4">
                                     <div className="flex items-center gap-2">
-                                        <ClipboardList className="text-indigo-600 w-5 h-5" />
+                                        <ClipboardList className="text-blue-600 w-5 h-5" />
                                         Rekap Laporan Harian
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={

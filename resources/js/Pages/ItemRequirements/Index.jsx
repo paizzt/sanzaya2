@@ -205,7 +205,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                 {selectedOutlet && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm flex items-center gap-4">
-                        <div className="p-4 bg-indigo-50 text-indigo-600 rounded-2xl">
+                        <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl">
                             <ShoppingCart className="w-6 h-6" />
                         </div>
                         <div>
@@ -803,7 +803,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                             <SecondaryButton onClick={() => setIsShareModalOpen(false)}>
                                 Batal</SecondaryButton>
                             <PrimaryButton onClick={copyShareLink} className="bg-emerald-600 hover:bg-emerald-700">
-                                Salin Link
+                                Salin
                             </PrimaryButton>
                         </div>
                     </div>

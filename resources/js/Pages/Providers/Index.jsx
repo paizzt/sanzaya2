@@ -131,7 +131,7 @@ export default function Index({ providers }) {
             case 'bengkel': return <Wrench className="w-5 h-5 text-orange-600" />;
             case 'toko sparepart': return <Store className="w-5 h-5 text-blue-600" />;
             case 'bmhp': return <FileText className="w-5 h-5 text-teal-600" />;
-            case 'alat': return <Wrench className="w-5 h-5 text-indigo-600" />;
+            case 'alat': return <Wrench className="w-5 h-5 text-blue-600" />;
             case 'asuransi': return <ShieldCheck className="w-5 h-5 text-green-600" />;
             default: return <Building className="w-5 h-5 text-gray-600" />;
         }
@@ -204,7 +204,7 @@ export default function Index({ providers }) {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-base">{provider.name}</p>
-                                                    <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 border border-indigo-100">
+                                                    <span className="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 border border-blue-100">
                                                         {provider.type || 'Lainnya'}
                                                     </span>
                                                 </div>
@@ -413,12 +413,12 @@ export default function Index({ providers }) {
 
                             <div className="p-6">
                                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
-                                    <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
+                                    <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center">
                                         {getProviderIcon(previewProvider.type)}
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-xl text-gray-900">{previewProvider.name}</h4>
-                                        <span className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200 mt-1">
+                                        <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200 mt-1">
                                             {previewProvider.type || 'Lainnya'}
                                         </span>
                                     </div>

@@ -166,13 +166,13 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                                     onClick={() => setSelectedUc(selectedUc === req.id ? null : req.id)}
                                                     className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-colors"
                                                 >
-                                                    Isi Result & Nota
+                                                    Result
                                                 </button>
                                             )}
                                             {req.status === 'Selesai / Result Dikirim' && (
                                                 <ExportDropdown pdfRoute={route('requests.uc.pdf', req.id)} trigger={
                                                 <button className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1">
-                                                     Unduh PDF
+                                                     Unduh
                                                 </button>
                                             } />
                                             )}

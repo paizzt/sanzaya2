@@ -56,7 +56,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                             <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
                                 <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
                                     <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                                        <Archive className="text-indigo-500 w-5 h-5"/>
+                                        <Archive className="text-blue-500 w-5 h-5"/>
                                         Total Data Sinkronisasi Spreadsheet
                                     </h3>
                                 </div>

@@ -73,7 +73,7 @@ class SopController extends Controller
             'description' => 'nullable|string',
             'step_texts' => 'nullable|array',
             'step_images' => 'nullable|array',
-            'step_images.*' => 'nullable|image|max:5120',
+            'step_images.*' => 'nullable|file|mimes:jpeg,png,jpg|max:5120',
             'existing_step_images' => 'nullable|array',
         ]);
 

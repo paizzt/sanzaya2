@@ -115,7 +115,7 @@ export default function UcApproval({ requests }) {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                        req.status?.includes('Selesai') ? 'bg-indigo-100 text-indigo-700' :
+                                                        req.status?.includes('Selesai') ? 'bg-blue-100 text-blue-700' :
                                                         req.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
                                                         req.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
                                                         req.status === 'Direvisi' ? 'bg-orange-100 text-orange-700' :
