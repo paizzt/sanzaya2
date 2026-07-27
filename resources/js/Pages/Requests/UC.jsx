@@ -122,7 +122,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                             { value: 'PT. MSI', label: 'PT. MSI (MSI)' },
                                             { value: 'PT. Ruma', label: 'PT. Ruma (Ruma)' }
                                         ]}
-                                        placeholder="Pilih Entitas..."
+                                       
                                     />
                                 </div>
                             </div>
@@ -134,7 +134,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                             value={data.user_id}
                                             onChange={(val) => setData('user_id', val)}
                                             options={users.map(u => ({ value: u.id, label: u.name }))}
-                                            placeholder="Pilih Pegawai..."
+                                           
                                         />
                                         <InputError message={errors.user_id} className="mt-2" />
                                     </div>
@@ -158,7 +158,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                 <InputLabel value="Kota Tujuan *" className="flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-500"/> Tujuan</InputLabel>
                                 <TextInput 
                                     className="mt-1 block w-full bg-white" 
-                                    placeholder="Contoh: Pinrang, Parepare..."
+                                   
                                     value={data.destination_city}
                                     onChange={(e) => setData('destination_city', e.target.value)}
                                 />
@@ -202,19 +202,19 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                     value={data.companions?.[0] || ''}
                                     onChange={(val) => handleCompanionChange(0, val)}
                                     options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                    placeholder="Pilih Pendamping 1"
+                                   
                                 />
                                 <SearchableSelect
                                     value={data.companions?.[1] || ''}
                                     onChange={(val) => handleCompanionChange(1, val)}
                                     options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                    placeholder="Pilih Pendamping 2"
+                                   
                                 />
                                 <SearchableSelect
                                     value={data.companions?.[2] || ''}
                                     onChange={(val) => handleCompanionChange(2, val)}
                                     options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                    placeholder="Pilih Pendamping 3"
+                                   
                                 />
                             </div>
                         </div>
@@ -231,7 +231,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                             { value: 'Laut', label: 'Laut' },
                                             { value: 'Udara', label: 'Udara' }
                                         ]}
-                                        placeholder="Pilih Transportasi"
+                                       
                                     />
                                 </div>
                             </div>
@@ -245,7 +245,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                             value: v.license_plate, 
                                             label: `${v.license_plate} - ${v.brand_type || 'Kendaraan'}` 
                                         }))}
-                                        placeholder="Pilih Kendaraan (Opsional)"
+                                       
                                     />
                                 </div>
                             </div>
@@ -259,7 +259,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                     <TextInput 
                                         type="text"
                                         className={`mt-1 block w-full ${data.transportation_type !== 'Darat' ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`} 
-                                        placeholder="Rp 0,00"
+                                       
                                         value={data.estimated_gas_cost ? formatRupiah(data.estimated_gas_cost) : ''}
                                         onChange={(e) => handleCurrencyChange('estimated_gas_cost', e)}
                                         disabled={data.transportation_type !== 'Darat'}
@@ -270,7 +270,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                     <TextInput 
                                         type="text"
                                         className="mt-1 block w-full bg-white" 
-                                        placeholder="Rp 0,00"
+                                       
                                         value={data.estimated_meals_cost ? formatRupiah(data.estimated_meals_cost) : ''}
                                         onChange={(e) => handleCurrencyChange('estimated_meals_cost', e)}
                                     />
@@ -280,7 +280,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                     <TextInput 
                                         type="text"
                                         className="mt-1 block w-full bg-white" 
-                                        placeholder="Rp 0,00"
+                                       
                                         value={data.estimated_accommodation_cost ? formatRupiah(data.estimated_accommodation_cost) : ''}
                                         onChange={(e) => handleCurrencyChange('estimated_accommodation_cost', e)}
                                     />
@@ -291,7 +291,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                         <TextInput 
                                             type="text"
                                             className="mt-1 block w-full bg-white" 
-                                            placeholder="Rp 0,00"
+                                           
                                             value={data.flight_ticket_cost ? formatRupiah(data.flight_ticket_cost) : ''}
                                             onChange={(e) => handleCurrencyChange('flight_ticket_cost', e)}
                                         />
@@ -303,7 +303,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                         <TextInput 
                                             type="text"
                                             className="mt-1 block w-full bg-white" 
-                                            placeholder="Rp 0,00"
+                                           
                                             value={data.ship_ticket_cost ? formatRupiah(data.ship_ticket_cost) : ''}
                                             onChange={(e) => handleCurrencyChange('ship_ticket_cost', e)}
                                         />

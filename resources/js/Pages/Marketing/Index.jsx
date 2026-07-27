@@ -111,7 +111,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Card 1: Target Kunjungan Mingguan (Merged) */}
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-blue-500/20">
+                        <div className="bg-blue-600 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-blue-500/20">
                             <p className="text-blue-100 text-sm font-medium mb-1">Target Kunjungan Mingguan</p>
                             <div className="flex items-end gap-2 mb-4">
                                 <h2 className="text-3xl sm:text-4xl font-black">{realization.visits}</h2>
@@ -134,9 +134,9 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
 
                         {/* Card ke-3: Total Penjualan Perbulan */}
-                        <div className="bg-gradient-to-br from-purple-600 to-fuchsia-700 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-purple-500/20">
+                        <div className="bg-blue-600 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-blue-500/20">
                             <div className="flex justify-between items-start mb-1">
-                                <p className="text-purple-100 text-sm font-medium">Total Penjualan Perbulan</p>
+                                <p className="text-blue-100 text-sm font-medium">Total Penjualan Perbulan</p>
                                 {spreadsheet?.monthly_target > 0 && (
                                     <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-lg">
                                         Target: Rp {new Intl.NumberFormat('id-ID').format(spreadsheet.monthly_target)}
@@ -148,11 +148,11 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     Rp {new Intl.NumberFormat('id-ID').format(spreadsheet?.total_monthly || 0)}
                                 </h2>
                             </div>
-                            <p className="text-xs text-purple-100 mb-2">
+                            <p className="text-xs text-blue-100 mb-2">
                                 {spreadsheet?.sales_name ? `Data Spreadsheet: ${spreadsheet.sales_name}` : 'Belum Terhubung dengan Spreadsheet'}
                             </p>
                             
-                            <div className="flex justify-between items-center text-xs text-purple-100 mb-1">
+                            <div className="flex justify-between items-center text-xs text-blue-100 mb-1">
                                 <span>Progres Pencapaian</span>
                                 <span className="font-bold">
                                     {spreadsheet?.monthly_target > 0 
@@ -160,7 +160,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         : 0}%
                                 </span>
                             </div>
-                            <div className="w-full bg-purple-900/30 rounded-full h-2">
+                            <div className="w-full bg-blue-900/30 rounded-full h-2">
                                 <div 
                                     className="bg-white h-2 rounded-full transition-all duration-1000" 
                                     style={{ 
@@ -178,16 +178,16 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                 {/* Tab Navigation */}
                 <div className="flex gap-2 w-full overflow-x-auto pb-2">
                     <button onClick={() => setActiveTab('laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='laporan'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
-                        <ClipboardList className="w-4 h-4"/> Form Laporan Harian
+                         Form Laporan Harian
                     </button>
                     <button onClick={() => setActiveTab('target')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='target'?'bg-emerald-600 text-white shadow-md shadow-emerald-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
-                        <Target className="w-4 h-4"/> Form Target Mingguan
+                         Form Target Mingguan
                     </button>
                     <button onClick={() => setActiveTab('rekap_laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='rekap_laporan'?'bg-indigo-600 text-white shadow-md shadow-indigo-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
-                        <TrendingUp className="w-4 h-4"/> Rekap Laporan Harian
+                         Rekap Laporan Harian
                     </button>
                     <button onClick={() => setActiveTab('rekap_target')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='rekap_target'?'bg-teal-600 text-white shadow-md shadow-teal-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
-                        <CalendarDays className="w-4 h-4"/> Rekap Target Mingguan
+                         Rekap Target Mingguan
                     </button>
                 </div>
 
@@ -273,7 +273,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                     value={data.outlet_id}
                                                     onChange={(val) => setData('outlet_id', val)}
                                                     options={outlets.map(o => ({ value: o.id, label: `${o.name} - ${o.city}` }))}
-                                                    placeholder="-- Pilih Outlet --"
+                                                   
                                                 />
                                             </div>
                                         </div>
@@ -352,7 +352,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                     className="mt-1 block w-full bg-white" 
                                                     value={data.competitor_notes}
                                                     onChange={(e) => setData('competitor_notes', e.target.value)}
-                                                    placeholder="Nama produk/vendor kompetitor..."
+                                                   
                                                 />
                                             </div>
                                         </div>
@@ -388,8 +388,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                                 <div className="pt-4 border-t border-gray-100 flex justify-end">
                                     <PrimaryButton disabled={processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2">
-                                        <Send className="w-4 h-4" /> Simpan Laporan
-                                    </PrimaryButton>
+                                        Simpan</PrimaryButton>
                                 </div>
                             </form>
                         </div>
@@ -487,7 +486,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                                     <div className="pt-6 border-t border-gray-100 flex justify-end">
                                         <PrimaryButton disabled={targetProcessing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/30">
-                                            <CheckSquare className="w-4 h-4" /> Tetapkan Target
+                                             Tetapkan Target
                                         </PrimaryButton>
                                     </div>
                                 </form>
@@ -506,7 +505,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
                                         <button className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors">
-                                            <Download className="w-4 h-4" /> Unduh
+                                             Unduh
                                         </button>
                                     } />
                                 </h3>
@@ -571,7 +570,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export_target.pdf')} trigger={
                                         <button className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors">
-                                            <Download className="w-4 h-4" /> Unduh
+                                             Unduh
                                         </button>
                                     } />
                                 </h3>

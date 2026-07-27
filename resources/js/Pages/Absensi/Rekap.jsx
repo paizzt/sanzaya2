@@ -119,7 +119,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                     )}
                     <div className="w-full md:w-auto flex gap-2">
                         <PrimaryButton onClick={handleFilter} className="h-[42px] px-6 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center justify-center gap-2">
-                            <Search className="w-4 h-4" /> Tampilkan
+                             Tampilkan
                         </PrimaryButton>
                     </div>
                 </div>
@@ -180,7 +180,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
                                     <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
                                     <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
-                                    <th className="py-4 px-6 font-semibold text-center text-purple-600">Lembur</th>
+                                    <th className="py-4 px-6 font-semibold text-center text-blue-600">Lembur</th>
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
@@ -192,7 +192,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
                                             <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
                                             <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
-                                            <td className="py-4 px-6 text-center font-bold text-purple-600">{u.lembur || 0}</td>
+                                            <td className="py-4 px-6 text-center font-bold text-blue-600">{u.lembur || 0}</td>
                                         </tr>
                                     ))
                                 ) : (
@@ -215,7 +215,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         </h3>
                         <ExportDropdown pdfRoute={route('absensi.rekap.export-pdf', { month: data.month, year: data.year, user_id: data.user_id })} trigger={
                             <button className="text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
-                                <Download className="w-4 h-4"/> Export PDF
+                                 Export PDF
                             </button>
                         } />
                     </div>
@@ -247,7 +247,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                                     item.type === 'Hadir' ? 'bg-blue-50 text-blue-600' :
-                                                    item.type === 'Sakit' ? 'bg-orange-50 text-orange-600' : item.type === 'Lembur' ? 'bg-purple-50 text-purple-600' : 'bg-emerald-50 text-emerald-600'
+                                                    item.type === 'Sakit' ? 'bg-orange-50 text-orange-600' : item.type === 'Lembur' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'
                                                 }`}>
                                                     {item.type}
                                                 </span>
@@ -263,7 +263,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                             title="Foto Masuk"
                                                         >
                                                             <div className="flex items-center gap-1">
-                                                                <Camera className="w-4 h-4" />
+                                                                
                                                                 <span className="text-[10px] font-bold">Masuk</span>
                                                             </div>
                                                         </button>
@@ -273,7 +273,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                             title="Foto Pulang"
                                                         >
                                                             <div className="flex items-center gap-1">
-                                                                <Camera className="w-4 h-4" />
+                                                                
                                                                 <span className="text-[10px] font-bold">Pulang</span>
                                                             </div>
                                                         </button>

@@ -142,7 +142,7 @@ export default function BhpRecap({ requests }) {
                                 <input
                                     type="text"
                                     className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-all shadow-sm"
-                                    placeholder="Cari No. Form, Barang, atau Pemohon..."
+                                   
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
@@ -156,7 +156,7 @@ export default function BhpRecap({ requests }) {
                                         { value: 'Semua', label: 'Semua Bulan' },
                                         ...monthOptions
                                     ]}
-                                    placeholder="Bulan"
+                                   
                                 />
                             </div>
 
@@ -168,7 +168,7 @@ export default function BhpRecap({ requests }) {
                                         { value: 'Semua', label: 'Semua Tahun' },
                                         ...yearOptions
                                     ]}
-                                    placeholder="Tahun"
+                                   
                                 />
                             </div>
                             
@@ -182,7 +182,7 @@ export default function BhpRecap({ requests }) {
                                         { value: 'Disetujui', label: 'Disetujui' },
                                         { value: 'Ditolak', label: 'Ditolak' }
                                     ]}
-                                    placeholder="Semua Status"
+                                   
                                 />
                             </div>
                         </div>
@@ -192,7 +192,7 @@ export default function BhpRecap({ requests }) {
                             </div>
                             <ExportDropdown pdfRoute={exportUrl} trigger={
                                         <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition-colors shadow-sm whitespace-nowrap">
-                                            <FileBarChart className="w-4 h-4" /> Unduh PDF
+                                             Unduh PDF
                                         </button>
                                     } />
                         </div>
@@ -276,7 +276,7 @@ export default function BhpRecap({ requests }) {
                                 <p className="text-sm text-gray-500">{selectedRequest.request_number}</p>
                             </div>
                             <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full">
-                                <X className="w-5 h-5" />
+                                
                             </button>
                         </div>
                         
@@ -318,7 +318,7 @@ export default function BhpRecap({ requests }) {
                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-3">
                             <ExportDropdown pdfRoute={route('requests.bhp.pdf', selectedRequest.id)} trigger={
                                 <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-teal-600 transition-colors shadow-sm w-full sm:w-auto">
-                                    <Download className="w-4 h-4" /> Unduh PDF Form Ini
+                                     Unduh PDF Form Ini
                                 </button>
                             } />
                             
@@ -328,13 +328,13 @@ export default function BhpRecap({ requests }) {
                                         onClick={() => handleUpdateStatus(selectedRequest.id, 'Ditolak')}
                                         className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-xl transition-colors font-medium border border-red-200"
                                     >
-                                        <X className="w-4 h-4" /> Tolak
+                                         Tolak
                                     </button>
                                     <button
                                         onClick={() => handleUpdateStatus(selectedRequest.id, 'Disetujui')}
                                         className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white hover:bg-teal-700 rounded-xl transition-colors font-medium shadow-sm"
                                     >
-                                        <Check className="w-4 h-4" /> Setujui
+                                         Setujui
                                     </button>
                                 </div>
                             )}

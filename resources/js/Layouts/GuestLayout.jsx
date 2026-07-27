@@ -4,7 +4,7 @@ import PWAInstallPrompt from '@/Components/PWAInstallPrompt';
 
 export default function Guest({ children }) {
     return (
-        <div className="min-h-screen flex flex-col sm:justify-center items-center p-4 sm:p-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col sm:justify-center items-center p-4 sm:p-0 bg-slate-50 relative overflow-hidden">
             {/* Background Decorations */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-400/10 blur-[100px] mix-blend-multiply"></div>

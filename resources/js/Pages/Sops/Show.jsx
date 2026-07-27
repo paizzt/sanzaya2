@@ -158,9 +158,8 @@ export default function Show({ auth, division }) {
                         onClick={() => setShowAddModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
                     >
-                        <Plus className="w-4 h-4" />
-                        Tambah Pekerjaan
-                    </button>
+                        
+                        Tambah</button>
                     )}
                 </div>
 
@@ -178,9 +177,8 @@ export default function Show({ auth, division }) {
                             onClick={() => setShowAddModal(true)}
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition-colors"
                         >
-                            <Plus className="w-5 h-5" />
-                            Tambah Pekerjaan
-                        </button>
+                            
+                            Tambah</button>
                         )}
                     </div>
                 ) : (
@@ -200,9 +198,9 @@ export default function Show({ auth, division }) {
                                         <button 
                                             onClick={(e) => handleDelete(sop.id, e)}
                                             className="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                                            title="Hapus Pekerjaan"
+                                            title="Hapus"
                                         >
-                                            <Trash2 className="w-5 h-5" />
+                                            
                                         </button>
                                         )}
                                     </div>
@@ -234,18 +232,16 @@ export default function Show({ auth, division }) {
                             className="mt-1 block w-full"
                             isFocused={true}
                             onChange={(e) => setAddData('title', e.target.value)}
-                            placeholder="Contoh: Proses Rekrutmen"
+                           
                         />
                         <InputError message={addErrors.title} className="mt-2" />
                     </div>
 
                     <div className="flex justify-end gap-3">
                         <SecondaryButton onClick={() => setShowAddModal(false)}>
-                            Batal
-                        </SecondaryButton>
+                            Batal</SecondaryButton>
                         <PrimaryButton disabled={processingAdd}>
-                            Simpan
-                        </PrimaryButton>
+                            Simpan</PrimaryButton>
                     </div>
                 </form>
             </Modal>
@@ -266,9 +262,8 @@ export default function Show({ auth, division }) {
                                             onClick={() => setIsEditingContent(true)}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors"
                                         >
-                                            <Edit2 className="w-4 h-4" />
-                                            Edit Alur
-                                        </button>
+                                            
+                                            Edit</button>
                                     )
                                 ) : (
                                     <>
@@ -280,24 +275,22 @@ export default function Show({ auth, division }) {
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-gray-600 bg-gray-100 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
                                             disabled={processingEdit}
                                         >
-                                            <X className="w-4 h-4" />
-                                            Batal
-                                        </button>
+                                            
+                                            Batal</button>
                                         <button
                                             onClick={submitEdit}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                                             disabled={processingEdit}
                                         >
-                                            <Check className="w-4 h-4" />
-                                            Simpan
-                                        </button>
+                                            
+                                            Simpan</button>
                                     </>
                                 )}
                                 <button
                                     onClick={() => setSelectedSop(null)}
                                     className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg ml-2"
                                 >
-                                    <X className="w-5 h-5" />
+                                    
                                 </button>
                             </div>
                         </div>
@@ -323,7 +316,7 @@ export default function Show({ auth, division }) {
                                                                 newTexts[index] = e.target.value;
                                                                 setEditData('step_texts', newTexts);
                                                             }}
-                                                            placeholder="Deskripsi langkah pekerjaan..."
+                                                           
                                                         />
                                                         
                                                         <div className="flex items-center gap-3">
@@ -366,9 +359,9 @@ export default function Show({ auth, division }) {
                                                             });
                                                         }}
                                                         className="p-2 text-gray-400 hover:text-red-500 bg-white border border-gray-200 hover:border-red-200 hover:bg-red-50 rounded-lg transition-colors"
-                                                        title="Hapus Tahap"
+                                                        title="Hapus"
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
+                                                        
                                                     </button>
                                                 </div>
                                             ))}
@@ -385,8 +378,7 @@ export default function Show({ auth, division }) {
                                             }}
                                             className="mt-4 text-blue-600 font-medium text-sm flex items-center gap-1.5 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors w-fit"
                                         >
-                                            <Plus className="w-4 h-4" /> Tambah Tahap
-                                        </button>
+                                             Tambah</button>
                                         <InputError message={editErrors.step_texts} className="mt-2" />
                                         <InputError message={editErrors.step_images} className="mt-2" />
                                     </div>
@@ -398,7 +390,7 @@ export default function Show({ auth, division }) {
                                         <InputLabel value="Catatan Tambahan (Opsional)" className="mb-3 text-lg font-bold text-gray-800" />
                                         <textarea
                                             className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm resize-none p-4"
-                                            placeholder="Tambahkan catatan khusus jika diperlukan..."
+                                           
                                             value={editData.description}
                                             onChange={(e) => setEditData('description', e.target.value)}
                                             rows="4"
@@ -468,8 +460,7 @@ export default function Show({ auth, division }) {
                                                 onClick={() => setIsEditingContent(true)}
                                                 className="mt-4 text-blue-600 font-medium hover:underline"
                                             >
-                                                Mulai Edit Alur
-                                            </button>
+                                                Mulai Edit</button>
                                             )}
                                         </div>
                                     )}

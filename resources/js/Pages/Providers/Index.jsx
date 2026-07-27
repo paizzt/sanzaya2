@@ -158,8 +158,7 @@ export default function Index({ providers }) {
                         onClick={openCreateModal}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
                     >
-                        <Plus className="w-5 h-5" /> Tambah Penyedia
-                    </button>
+                         Tambah</button>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
@@ -171,7 +170,7 @@ export default function Index({ providers }) {
                             <input
                                 type="text"
                                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
-                                placeholder="Cari nama atau jenis penyedia..."
+                               
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -242,14 +241,14 @@ export default function Index({ providers }) {
                                                     className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" 
                                                     title="Edit"
                                                 >
-                                                    <Edit className="w-4 h-4" />
+                                                    
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(provider.id)} 
                                                     className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" 
                                                     title="Hapus"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    
                                                 </button>
                                             </div>
                                         </td>
@@ -276,7 +275,7 @@ export default function Index({ providers }) {
                                         <Store className="w-6 h-6 text-blue-600"/>
                                         {isEditMode ? 'Edit Data Penyedia' : 'Tambah Penyedia Baru'}
                                     </h3>
-                                    <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                                    <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"></button>
                                 </div>
 
                                 <div className="p-6 space-y-6">
@@ -391,7 +390,7 @@ export default function Index({ providers }) {
                                     <div className="flex items-center gap-3">
                                 <ExportDropdown pdfRoute={route('providers.export.pdf')} excelRoute={route('providers.export.excel')} />
                                 <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
-                                        {isEditMode ? 'Simpan Perubahan' : 'Tambahkan'}
+                                        {isEditMode ? 'Simpan' : 'Tambahkan'}
                                     </PrimaryButton>
                             </div>
                                 </div>
@@ -409,7 +408,7 @@ export default function Index({ providers }) {
                                     <Store className="w-5 h-5 text-blue-600"/>
                                     Detail Penyedia
                                 </h3>
-                                <button type="button" onClick={() => setIsPreviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                                <button type="button" onClick={() => setIsPreviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"></button>
                             </div>
 
                             <div className="p-6">

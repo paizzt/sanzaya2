@@ -98,8 +98,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
 
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-50">
                     <PrimaryButton disabled={processing} className="h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 focus:ring-blue-500">
-                        Simpan Perubahan
-                    </PrimaryButton>
+                        Simpan</PrimaryButton>
 
                     <div className={`transition-opacity duration-500 ${recentlySuccessful ? 'opacity-100' : 'opacity-0'}`}>
                         <p className="text-sm text-gray-600 flex items-center gap-1">

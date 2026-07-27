@@ -219,7 +219,7 @@ export default function UcApproval({ requests }) {
                                         className="w-full mt-1"
                                         value={data.approved_gas_cost}
                                         onChange={e => setData('approved_gas_cost', e.target.value)}
-                                        placeholder="Kosongkan jika tidak ada biaya"
+                                       
                                     />
                                     <p className="text-xs text-gray-500 mt-1">Ubah nominal ini jika Anda ingin merevisi biaya yang diajukan.</p>
                                 </div>
@@ -232,7 +232,7 @@ export default function UcApproval({ requests }) {
                                             className="w-full mt-1"
                                             value={data.approved_meals_cost}
                                             onChange={e => setData('approved_meals_cost', e.target.value)}
-                                            placeholder="Kosongkan jika tidak ada"
+                                           
                                         />
                                     </div>
                                     <div>
@@ -242,7 +242,7 @@ export default function UcApproval({ requests }) {
                                             className="w-full mt-1"
                                             value={data.approved_accommodation_cost}
                                             onChange={e => setData('approved_accommodation_cost', e.target.value)}
-                                            placeholder="Kosongkan jika tidak ada"
+                                           
                                         />
                                     </div>
                                 </div>
@@ -254,7 +254,7 @@ export default function UcApproval({ requests }) {
                                         rows="3"
                                         value={data.finance_note}
                                         onChange={e => setData('finance_note', e.target.value)}
-                                        placeholder="Berikan catatan perihal persetujuan atau revisi..."
+                                       
                                     ></textarea>
                                 </div>
                             </div>

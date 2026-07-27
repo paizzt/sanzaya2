@@ -88,7 +88,7 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                             onClick={() => router.get(route('outlets.index'))}
                             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-medium bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50"
                         >
-                            <ArrowLeft className="w-5 h-5" /> Kembali ke Data Outlet
+                             Kembali ke Data Outlet
                         </button>
                     </div>
 
@@ -105,7 +105,7 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <input
                                     type="text"
-                                    placeholder="Cari nama typo..."
+                                   
                                     className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -161,7 +161,7 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                                                     }}
                                                     className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
                                                 >
-                                                    <Check className="w-4 h-4" /> Konfirmasi
+                                                     Konfirmasi
                                                 </button>
                                             </td>
                                         </tr>
@@ -205,9 +205,9 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                                                 <button 
                                                     onClick={() => handleDelete(mapping.id)}
                                                     className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                                                    title="Hapus Pemetaan"
+                                                    title="Hapus"
                                                 >
-                                                    <X className="w-5 h-5" />
+                                                    
                                                 </button>
                                             </td>
                                         </tr>

@@ -109,7 +109,7 @@ export default function Pengajuan({ requests }) {
                                         rows="3"
                                         value={data.reason}
                                         onChange={(e) => setData('reason', e.target.value)}
-                                        placeholder="Tuliskan alasan lengkap..."
+                                       
                                     ></textarea>
                                     <InputError message={errors.reason} className="mt-2" />
                                 </div>
@@ -135,9 +135,8 @@ export default function Pengajuan({ requests }) {
                                 </div>
 
                                 <div className="pt-2">
-                                    <PrimaryButton disabled={processing} className="w-full justify-center py-3 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2">
-                                        <Send className="w-4 h-4" /> Kirim Pengajuan
-                                    </PrimaryButton>
+                                    <PrimaryButton disabled={processing} className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 font-bold text-sm shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2">
+                                        Kirim</PrimaryButton>
                                 </div>
                             </form>
                         </div>
@@ -159,7 +158,7 @@ export default function Pengajuan({ requests }) {
                                         <div key={req.id} className="p-4 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow flex items-start justify-between">
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${req.type === 'Sakit' ? 'bg-red-100 text-red-600' : 'bg-purple-100 text-purple-600'}`}>
+                                                    <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${req.type === 'Sakit' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
                                                         {req.type}
                                                     </span>
                                                     <span className="text-sm font-semibold text-gray-700">

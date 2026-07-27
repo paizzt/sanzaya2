@@ -226,7 +226,7 @@ export default function Authenticated({ user, header, children }) {
                 <div className="p-6 flex items-center justify-center h-28 border-b border-gray-50 mb-2">
                     <Link href={route('dashboard')} className={`relative flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100/80 hover:shadow-[0_4px_15px_-3px_rgba(6,81,237,0.15)] hover:border-blue-100 transition-all duration-300 group overflow-hidden ${sidebarCollapsed ? 'w-12 h-12 p-2' : 'w-full h-16 p-2'}`}>
                         {/* Decorative background glow */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                         
                         {auth.user?.company?.logo ? (
                             <img 

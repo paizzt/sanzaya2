@@ -245,7 +245,7 @@ export default function Index({ outlets, areas }) {
                             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                             <input
                                 type="text"
-                                placeholder="Cari nama atau kota..."
+                               
                                 className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -278,22 +278,21 @@ export default function Index({ outlets, areas }) {
                                 onClick={() => router.get(route('outlet-mappings.index'))}
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/30 whitespace-nowrap text-sm"
                             >
-                                <Store className="w-4 h-4" /> Pemetaan
+                                 Pemetaan
                             </button>
                             {selectedIds.length > 0 && (
                                 <button 
                                     onClick={handleBulkDelete}
                                     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-red-500/30 whitespace-nowrap text-sm"
                                 >
-                                    <Trash2 className="w-4 h-4" /> Hapus ({selectedIds.length})
+                                     Hapus ({selectedIds.length})
                                 </button>
                             )}
                             <button 
                                 onClick={openCreateModal}
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30 whitespace-nowrap text-sm"
                             >
-                                <Plus className="w-4 h-4" /> Tambah
-                            </button>
+                                 Tambah</button>
                             </div>
                         </div>
                     </div>
@@ -357,8 +356,8 @@ export default function Index({ outlets, areas }) {
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center gap-2">
-                                                <button onClick={() => openEditModal(outlet)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit Outlet"><Edit className="w-4 h-4" /></button>
-                                                <button onClick={() => handleDelete(outlet.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus Outlet"><Trash2 className="w-4 h-4" /></button>
+                                                <button onClick={() => openEditModal(outlet)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit"></button>
+                                                <button onClick={() => handleDelete(outlet.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus"></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -382,7 +381,7 @@ export default function Index({ outlets, areas }) {
                                     {isEditMode ? <Edit className="w-5 h-5 text-blue-600"/> : <Plus className="w-5 h-5 text-blue-600"/>}
                                     {isEditMode ? 'Edit Outlet' : 'Tambah Outlet Baru'}
                                 </h3>
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"></button>
                             </div>
 
                             <form onSubmit={submitForm} className="p-6">
@@ -394,7 +393,7 @@ export default function Index({ outlets, areas }) {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <InputLabel value="Nama Outlet *" />
-                                                <TextInput className="mt-1 block w-full" value={data.name} onChange={e => setData('name', e.target.value)} required placeholder="Contoh: RSUD Kota..." />
+                                                <TextInput className="mt-1 block w-full" value={data.name} onChange={e => setData('name', e.target.value)} required />
                                                 <InputError message={errors.name} className="mt-1" />
                                             </div>
                                             <div>
@@ -437,17 +436,17 @@ export default function Index({ outlets, areas }) {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="md:col-span-2">
                                                 <InputLabel value="Nama PIC" />
-                                                <TextInput className="mt-1 block w-full" value={data.pic_name} onChange={e => setData('pic_name', e.target.value)} placeholder="Contoh: dr. Budi Santoso" />
+                                                <TextInput className="mt-1 block w-full" value={data.pic_name} onChange={e => setData('pic_name', e.target.value)} />
                                                 <InputError message={errors.pic_name} className="mt-1" />
                                             </div>
                                             <div>
                                                 <InputLabel value="Jabatan PIC" />
-                                                <TextInput className="mt-1 block w-full" value={data.pic_position} onChange={e => setData('pic_position', e.target.value)} placeholder="Contoh: Kepala Pengadaan" />
+                                                <TextInput className="mt-1 block w-full" value={data.pic_position} onChange={e => setData('pic_position', e.target.value)} />
                                                 <InputError message={errors.pic_position} className="mt-1" />
                                             </div>
                                             <div>
                                                 <InputLabel value="No. HP / WhatsApp" />
-                                                <TextInput className="mt-1 block w-full" value={data.phone} onChange={e => setData('phone', e.target.value)} placeholder="Contoh: 081234567890" />
+                                                <TextInput className="mt-1 block w-full" value={data.phone} onChange={e => setData('phone', e.target.value)} />
                                                 <InputError message={errors.phone} className="mt-1" />
                                             </div>
                                         </div>
@@ -461,7 +460,7 @@ export default function Index({ outlets, areas }) {
                                         <div className="grid grid-cols-1 gap-4">
                                             <div>
                                                 <InputLabel value="Koordinat (Latitude, Longitude)" />
-                                                <TextInput className="mt-1 block w-full" value={data.coordinates} onChange={e => setData('coordinates', e.target.value)} placeholder="Contoh: -6.200000, 106.816666" />
+                                                <TextInput className="mt-1 block w-full" value={data.coordinates} onChange={e => setData('coordinates', e.target.value)} />
                                                 <p className="text-xs text-gray-500 mt-1">Gunakan format desimal dipisah koma. Contoh: -6.2088, 106.8456</p>
                                                 <InputError message={errors.coordinates} className="mt-1" />
                                             </div>
@@ -479,7 +478,7 @@ export default function Index({ outlets, areas }) {
                                                 <span key={m.id} className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 pl-3 pr-1 py-1 rounded-lg text-sm font-medium">
                                                     {m.raw_name}
                                                     <button type="button" onClick={() => handleDeleteMapping(m.id, m.raw_name)} className="p-0.5 hover:bg-green-200 rounded text-green-600 hover:text-green-800 transition-colors">
-                                                        <X className="w-3 h-3" />
+                                                        
                                                     </button>
                                                 </span>
                                             ))}
@@ -495,7 +494,7 @@ export default function Index({ outlets, areas }) {
                                 <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
                                     <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
-                                        <Save className="w-4 h-4 mr-2" /> {isEditMode ? 'Simpan Perubahan' : 'Buat Outlet'}
+                                         {isEditMode ? 'Simpan' : 'Buat'}
                                     </PrimaryButton>
                                 </div>
                             </form>

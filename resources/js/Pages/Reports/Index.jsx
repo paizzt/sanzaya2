@@ -125,7 +125,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                 <tr>
                     <th className="px-6 py-4" rowSpan="2">Outlet</th>
                     <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Sanzaya</th>
-                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-purple-50/50" colSpan="4">Ruma</th>
+                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Ruma</th>
                     <th className="px-6 py-4 text-right font-bold" rowSpan="2">Total Gabungan</th>
                 </tr>
                 <tr>
@@ -133,10 +133,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     <th className="px-4 py-2 bg-blue-50/50">Tahun 2</th>
                     <th className="px-4 py-2 bg-blue-50/50">Tahun 3</th>
                     <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total</th>
-                    <th className="px-4 py-2 bg-purple-50/50">Ruma 1</th>
-                    <th className="px-4 py-2 bg-purple-50/50">Ruma 2</th>
-                    <th className="px-4 py-2 bg-purple-50/50">Ruma 3</th>
-                    <th className="px-4 py-2 text-right bg-purple-100/50 font-bold">Total Ruma</th>
+                    <th className="px-4 py-2 bg-blue-50/50">Ruma 1</th>
+                    <th className="px-4 py-2 bg-blue-50/50">Ruma 2</th>
+                    <th className="px-4 py-2 bg-blue-50/50">Ruma 3</th>
+                    <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total Ruma</th>
                 </tr>
             </thead>
             <tbody>
@@ -150,7 +150,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         <td className="px-4 py-3">{row.ruma_1}</td>
                         <td className="px-4 py-3">{row.ruma_2}</td>
                         <td className="px-4 py-3">{row.ruma_3}</td>
-                        <td className="px-4 py-3 text-right font-bold text-purple-700 bg-purple-50/30">{row.total_ruma}</td>
+                        <td className="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/30">{row.total_ruma}</td>
                         <td className="px-6 py-4 text-right font-bold text-gray-900 bg-gray-50">{row.total_gabungan}</td>
                     </tr>
                 ))}
@@ -205,9 +205,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             onClick={() => setIsDownloadOpen(!isDownloadOpen)}
                             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/30 text-sm"
                         >
-                            <Download className="w-4 h-4" />
+                            
                             Unduh PDF
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDownloadOpen ? 'rotate-180' : ''}`} />
+                            
                         </button>
                         
                         {isDownloadOpen && (
@@ -256,8 +256,8 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     <p className="text-sm font-semibold text-gray-500 truncate">Top Outlet</p>
                                     <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.top_outlet}>{summary.top_outlet}</h4>
                                 </div>
-                                <div className="p-3 bg-purple-50 rounded-2xl">
-                                    <Store className="w-6 h-6 text-purple-600" />
+                                <div className="p-3 bg-blue-50 rounded-2xl">
+                                    <Store className="w-6 h-6 text-blue-600" />
                                 </div>
                             </div>
                             <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
@@ -366,10 +366,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Piutang Ruma</p>
-                                    <h4 className="text-xl font-bold text-purple-700 mt-1 truncate" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
+                                    <h4 className="text-xl font-bold text-blue-700 mt-1 truncate" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
                                 </div>
-                                <div className="p-3 bg-purple-50 rounded-2xl">
-                                    <TrendingUp className="w-6 h-6 text-purple-600" />
+                                <div className="p-3 bg-blue-50 rounded-2xl">
+                                    <TrendingUp className="w-6 h-6 text-blue-600" />
                                 </div>
                             </div>
                             <p className="text-xs text-gray-400">Total piutang bagian Ruma</p>
@@ -440,13 +440,13 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             className="flex items-center justify-between w-full lg:w-56 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
                         >
                             <div className="flex items-center gap-2">
-                                {tab === 'logistik' && <><Package className="w-4 h-4" /> Logistik</>}
-                                {tab === 'pesanan' && <><ShoppingCart className="w-4 h-4" /> Surat Pesanan</>}
-                                {tab === 'piutang' && <><CreditCard className="w-4 h-4" /> Data Piutang</>}
-                                {tab === 'hutang' && <><CreditCard className="w-4 h-4" /> Data Hutang</>}
-                                {!['logistik', 'pesanan', 'piutang', 'hutang'].includes(tab) && <><BarChart2 className="w-4 h-4" /> Pilih Laporan</>}
+                                {tab === 'logistik' && <> Logistik</>}
+                                {tab === 'pesanan' && <> Surat Pesanan</>}
+                                {tab === 'piutang' && <> Data Piutang</>}
+                                {tab === 'hutang' && <> Data Hutang</>}
+                                {!['logistik', 'pesanan', 'piutang', 'hutang'].includes(tab) && <> Pilih Laporan</>}
                             </div>
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
+                            
                         </button>
                         
                         {isTabDropdownOpen && (
@@ -455,25 +455,25 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     onClick={() => { handleTabChange('logistik'); setIsTabDropdownOpen(false); }} 
                                     className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='logistik' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
                                 >
-                                    <Package className="w-4 h-4" /> Logistik
+                                     Logistik
                                 </button>
                                 <button 
                                     onClick={() => { handleTabChange('pesanan'); setIsTabDropdownOpen(false); }} 
                                     className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='pesanan' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:bg-gray-50 hover:text-emerald-600'}`}
                                 >
-                                    <ShoppingCart className="w-4 h-4" /> Surat Pesanan
+                                     Surat Pesanan
                                 </button>
                                 <button 
                                     onClick={() => { handleTabChange('piutang'); setIsTabDropdownOpen(false); }} 
-                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='piutang' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'}`}
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='piutang' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
                                 >
-                                    <CreditCard className="w-4 h-4" /> Data Piutang
+                                     Data Piutang
                                 </button>
                                 <button 
                                     onClick={() => { handleTabChange('hutang'); setIsTabDropdownOpen(false); }} 
                                     className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${tab==='hutang' ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600'}`}
                                 >
-                                    <CreditCard className="w-4 h-4" /> Data Hutang
+                                     Data Hutang
                                 </button>
                             </div>
                         )}
@@ -498,7 +498,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     { value: '', label: 'Semua Bulan' },
                                     ...months.map(m => ({ value: m, label: m }))
                                 ]}
-                                placeholder="Pilih Bulan..."
+                               
                                 icon={Calendar}
                             />
                         </div>
@@ -515,7 +515,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         { value: '', label: 'Semua Sales' },
                                         ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
-                                    placeholder="Cari Sales..."
+                                   
                                     icon={UserIcon}
                                 />
                             </div>
@@ -534,7 +534,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         { value: '', label: 'Semua Outlet' },
                                         ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
-                                    placeholder="Cari Outlet..."
+                                   
                                     icon={StoreIcon}
                                 />
                             </div>
@@ -546,7 +546,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     <TextInput 
                                         type="text" 
                                         className="w-full pl-10 rounded-xl" 
-                                        placeholder="Cari data..." 
+                                        
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         onBlur={() => {
@@ -561,7 +561,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     onClick={() => setIsSearchExpanded(true)}
                                     className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 border border-gray-200 transition-colors"
                                 >
-                                    <Search className="w-4 h-4" />
+                                    
                                 </button>
                             )}
                         </div>

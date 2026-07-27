@@ -117,10 +117,10 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                 <div className="flex flex-wrap items-center justify-between gap-4 w-full pb-2">
                     <div className="flex gap-2 overflow-x-auto">
                         <button onClick={() => setActiveTab('laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='laporan'?'bg-indigo-600 text-white shadow-md shadow-indigo-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
-                            <ClipboardList className="w-4 h-4"/> Rekap Laporan Harian
+                             Rekap Laporan Harian
                         </button>
                         <button onClick={() => setActiveTab('target')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='target'?'bg-teal-600 text-white shadow-md shadow-teal-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
-                            <CalendarDays className="w-4 h-4"/> Rekap Target Mingguan
+                             Rekap Target Mingguan
                         </button>
                     </div>
                     

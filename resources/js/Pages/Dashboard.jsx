@@ -44,7 +44,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                 {/* Main Metrics (Today/Pending) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard title="Absen (Hari Ini)" value={stats.attendance_today} icon={Users} color="blue" />
-                    <StatCard title="Kunjungan Sales" value={stats.marketing_visits_today} icon={Building} color="purple" />
+                    <StatCard title="Kunjungan Sales" value={stats.marketing_visits_today} icon={Building} color="blue" />
                     <StatCard title="Pengajuan UC (Pending)" value={stats.uc_pending} icon={CreditCard} color="emerald" />
                     <StatCard title="Pengajuan BHP (Pending)" value={stats.bhp_pending} icon={ClipboardList} color="orange" />
                 </div>
