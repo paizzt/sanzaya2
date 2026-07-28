@@ -88,7 +88,7 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                             onClick={() => router.get(route('outlets.index'))}
                             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-medium bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50"
                         >
-                             Kembali ke Data Outlet
+                            <ArrowLeft className="w-5 h-5" /> Kembali ke Data Outlet
                         </button>
                     </div>
 
@@ -96,7 +96,7 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                    <Database className="w-5 h-5 text-blue-600" />
+                                    <Database className="w-5 h-5 text-indigo-600" />
                                     Outlet Belum Terpetakan ({unmapped.length})
                                 </h3>
                                 <p className="text-sm text-gray-500 mt-1">Nama dari spreadsheet yang tidak cocok dengan master data.</p>
@@ -105,8 +105,8 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <input
                                     type="text"
-                                   
-                                    className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm"
+                                    placeholder="Cari nama typo..."
+                                    className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
@@ -159,9 +159,9 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                                                         }
                                                         handleConfirm(item.raw_name, val);
                                                     }}
-                                                    className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+                                                    className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
                                                 >
-                                                     Konfirmasi
+                                                    <Check className="w-4 h-4" /> Konfirmasi
                                                 </button>
                                             </td>
                                         </tr>
@@ -205,9 +205,9 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                                                 <button 
                                                     onClick={() => handleDelete(mapping.id)}
                                                     className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                                                    title="Hapus"
+                                                    title="Hapus Pemetaan"
                                                 >
-                                                    
+                                                    <X className="w-5 h-5" />
                                                 </button>
                                             </td>
                                         </tr>

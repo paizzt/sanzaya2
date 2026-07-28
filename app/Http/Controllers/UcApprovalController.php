@@ -15,16 +15,6 @@ class UcApprovalController extends Controller
 {
     public function index()
     {
-        // Temukan ID toggle fitur Menu Persetujuan UC secara otomatis untuk ditambahkan jika belum ada
-        if (!\App\Models\FeatureToggle::where('name', 'Menu Persetujuan UC')->exists()) {
-            \Illuminate\Support\Facades\DB::table('feature_toggles')->insert([
-                'name' => 'Menu Persetujuan UC',
-                'is_active' => 1,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-        }
-
         // Get all UC requests with user relationship
         $requests = UcRequest::with('user')->orderBy('created_at', 'desc')->get();
         
@@ -36,7 +26,7 @@ class UcApprovalController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|string',
+            'status' => 'required|string|in:' . implode(',', \App\Enums\RequestStatus::ucStatuses()),
             'approved_gas_cost' => 'nullable|numeric',
             'approved_meals_cost' => 'nullable|numeric',
             'approved_accommodation_cost' => 'nullable|numeric',

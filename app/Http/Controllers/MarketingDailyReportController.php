@@ -70,7 +70,7 @@ class MarketingDailyReportController extends Controller
             }
         }
 
-        $isAdminMarketing = $user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur']);
+        $isAdminMarketing = $user->isAdminUser();
         $salesUsers = $isAdminMarketing ? \App\Models\User::where('is_active', true)
             ->whereHas('roles', function($q) {
                 $q->where('name', 'Sales');
@@ -113,6 +113,7 @@ class MarketingDailyReportController extends Controller
             'issue_type' => 'nullable|string',
             'competitor_notes' => 'nullable|string',
             'visit_result' => 'nullable|string',
+            'signature' => 'nullable|string',
             'photos' => 'nullable|file|mimes:jpeg,png,jpg|max:5120',
         ]);
 
@@ -136,6 +137,7 @@ class MarketingDailyReportController extends Controller
             'issue_type' => $request->issue_type,
             'competitor_notes' => $request->competitor_notes,
             'visit_result' => $request->visit_result,
+            'signature' => $request->signature,
             'photos' => $photoPath,
         ]);
 

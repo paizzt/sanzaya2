@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Facades\Crypt;
 
 class User extends Authenticatable
 {
@@ -56,5 +55,14 @@ class User extends Authenticatable
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Check if user has admin-level role.
+     * Centralized helper to avoid hardcoded role arrays across controllers.
+     */
+    public function isAdminUser(): bool
+    {
+        return $this->hasAnyRole(['Superadmin', 'Admin', 'Manager', 'Direktur']);
     }
 }

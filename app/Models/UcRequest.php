@@ -19,5 +19,8 @@ class UcRequest extends Model
         return $this->belongsTo(User::class);
     }
 
-    //
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
 }

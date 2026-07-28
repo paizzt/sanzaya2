@@ -8,6 +8,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
+import CurrencyInput from '@/Components/CurrencyInput';
 
 export default function UcApproval({ requests }) {
     const user = usePage().props.auth.user;
@@ -115,7 +116,7 @@ export default function UcApproval({ requests }) {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                        req.status?.includes('Selesai') ? 'bg-blue-100 text-blue-700' :
+                                                        req.status?.includes('Selesai') ? 'bg-indigo-100 text-indigo-700' :
                                                         req.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
                                                         req.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
                                                         req.status === 'Direvisi' ? 'bg-orange-100 text-orange-700' :
@@ -197,29 +198,28 @@ export default function UcApproval({ requests }) {
                             <div className="space-y-4">
                                 <div>
                                     <InputLabel value="Status Persetujuan" />
-                                    <select 
-                                        className="w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm mt-1"
+                                    <CustomSelect
                                         value={data.status}
-                                        onChange={e => setData('status', e.target.value)}
-                                        required
-                                    >
-                                        <option value="Menunggu">Menunggu</option>
-                                        <option value="Disetujui">Disetujui</option>
-                                        <option value="Direvisi">Direvisi</option>
-                                        <option value="Dicairkan">Dicairkan</option>
-                                        <option value="Ditolak">Ditolak</option>
-                                        <option value="Selesai / Result Dikirim">Selesai / Result Dikirim</option>
-                                    </select>
+                                        onChange={val => setData('status', val)}
+                                        options={[
+                                            { value: 'Menunggu', label: 'Menunggu' },
+                                            { value: 'Disetujui', label: 'Disetujui' },
+                                            { value: 'Direvisi', label: 'Direvisi' },
+                                            { value: 'Dicairkan', label: 'Dicairkan' },
+                                            { value: 'Ditolak', label: 'Ditolak' },
+                                            { value: 'Selesai / Result Dikirim', label: 'Selesai / Result Dikirim' },
+                                        ]}
+                                        placeholder="Pilih Status..."
+                                    />
                                 </div>
 
                                 <div>
                                     <InputLabel value="Nominal Biaya Bensin Disetujui (Rp)" />
-                                    <TextInput
-                                        type="number"
+                                    <CurrencyInput
                                         className="w-full mt-1"
                                         value={data.approved_gas_cost}
-                                        onChange={e => setData('approved_gas_cost', e.target.value)}
-                                       
+                                        onChange={val => setData('approved_gas_cost', val)}
+                                        placeholder="Kosongkan jika tidak ada biaya"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">Ubah nominal ini jika Anda ingin merevisi biaya yang diajukan.</p>
                                 </div>
@@ -227,22 +227,20 @@ export default function UcApproval({ requests }) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <InputLabel value="Biaya Konsumsi Disetujui (Rp)" />
-                                        <TextInput
-                                            type="number"
+                                        <CurrencyInput
                                             className="w-full mt-1"
                                             value={data.approved_meals_cost}
-                                            onChange={e => setData('approved_meals_cost', e.target.value)}
-                                           
+                                            onChange={val => setData('approved_meals_cost', val)}
+                                            placeholder="Kosongkan jika tidak ada"
                                         />
                                     </div>
                                     <div>
                                         <InputLabel value="Biaya Penginapan Disetujui (Rp)" />
-                                        <TextInput
-                                            type="number"
+                                        <CurrencyInput
                                             className="w-full mt-1"
                                             value={data.approved_accommodation_cost}
-                                            onChange={e => setData('approved_accommodation_cost', e.target.value)}
-                                           
+                                            onChange={val => setData('approved_accommodation_cost', val)}
+                                            placeholder="Kosongkan jika tidak ada"
                                         />
                                     </div>
                                 </div>
@@ -254,7 +252,7 @@ export default function UcApproval({ requests }) {
                                         rows="3"
                                         value={data.finance_note}
                                         onChange={e => setData('finance_note', e.target.value)}
-                                       
+                                        placeholder="Berikan catatan perihal persetujuan atau revisi..."
                                     ></textarea>
                                 </div>
                             </div>

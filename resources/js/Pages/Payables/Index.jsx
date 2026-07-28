@@ -111,8 +111,9 @@ export default function Index({ auth, items, providers }) {
                                 <div className="flex items-center gap-3">
                                 <ExportDropdown pdfRoute={route('payables.export.pdf')} excelRoute={route('payables.export.excel')} />
                                 <PrimaryButton onClick={() => openModal()}>
-                                    
-                                    Tambah</PrimaryButton>
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Tambah Data
+                                </PrimaryButton>
                             </div>
                             </div>
 
@@ -134,10 +135,10 @@ export default function Index({ auth, items, providers }) {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
-                                                        
+                                                        <Edit className="w-4 h-4" />
                                                     </button>
                                                     <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900">
-                                                        
+                                                        <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -171,7 +172,7 @@ export default function Index({ auth, items, providers }) {
                                     options={providers ? providers.map(p => ({ value: p.name, label: p.name })) : []}
                                     value={data.nama_penyedia}
                                     onChange={val => setData('nama_penyedia', val)}
-                                   
+                                    placeholder="Pilih Penyedia"
                                 />
                             </div>
                             <InputError message={errors.nama_penyedia} className="mt-2" />
@@ -187,7 +188,7 @@ export default function Index({ auth, items, providers }) {
                                     id="nominal" 
                                     type="text" 
                                     className="block w-full pl-9 font-mono text-right" 
-                                   
+                                    placeholder="0,00"
                                     value={data.nominal ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(data.nominal) / 100) : ''} 
                                     onChange={e => {
                                         const rawValue = e.target.value.replace(/\D/g, '');

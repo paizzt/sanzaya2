@@ -87,8 +87,9 @@ export default function Index({ auth, divisions }) {
                         onClick={() => setShowModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
                     >
-                        
-                        Tambah</button>
+                        <Plus className="w-4 h-4" />
+                        Tambah Devisi
+                    </button>
                     )}
                 </div>
 
@@ -106,8 +107,9 @@ export default function Index({ auth, divisions }) {
                             onClick={() => setShowModal(true)}
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition-colors"
                         >
-                            
-                            Tambah</button>
+                            <Plus className="w-5 h-5" />
+                            Tambah Devisi Pertama
+                        </button>
                         )}
                     </div>
                 ) : (
@@ -123,9 +125,9 @@ export default function Index({ auth, divisions }) {
                                         <button 
                                             onClick={(e) => { e.preventDefault(); handleDelete(division.id); }}
                                             className="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                                            title="Hapus"
+                                            title="Hapus Devisi"
                                         >
-                                            
+                                            <Trash2 className="w-5 h-5" />
                                         </button>
                                         )}
                                     </div>
@@ -162,16 +164,18 @@ export default function Index({ auth, divisions }) {
                             className="mt-1 block w-full"
                             isFocused={true}
                             onChange={(e) => setData('name', e.target.value)}
-                           
+                            placeholder="Contoh: Marketing, HRD, IT, dll"
                         />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
 
                     <div className="flex justify-end gap-3">
                         <SecondaryButton onClick={() => setShowModal(false)}>
-                            Batal</SecondaryButton>
+                            Batal
+                        </SecondaryButton>
                         <PrimaryButton disabled={processing}>
-                            Simpan</PrimaryButton>
+                            Simpan
+                        </PrimaryButton>
                     </div>
                 </form>
             </Modal>

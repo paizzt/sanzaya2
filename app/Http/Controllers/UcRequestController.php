@@ -25,7 +25,7 @@ class UcRequestController extends Controller
         return Inertia::render('Requests/UC', [
             'users' => $users,
             'vehicles' => $vehicles,
-            'isAdmin' => Auth::user()->hasAnyRole(['Admin', 'Superadmin', 'admin', 'superadmin'])
+            'isAdmin' => Auth::user()->isAdminUser()
         ]);
     }
     
@@ -71,7 +71,7 @@ class UcRequestController extends Controller
             'user_id' => 'nullable|exists:users,id',
         ]);
 
-        $userId = (Auth::user()->hasAnyRole(['Admin', 'Superadmin', 'admin', 'superadmin']) && $request->filled('user_id')) ? $request->user_id : Auth::id();
+        $userId = (Auth::user()->isAdminUser() && $request->filled('user_id')) ? $request->user_id : Auth::id();
 
         UcRequest::create([
             'request_number' => 'UC-' . date('Ymd') . '-' . strtoupper(Str::random(5)),

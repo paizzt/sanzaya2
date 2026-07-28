@@ -62,7 +62,12 @@ class NotificationController extends Controller
         ]);
 
         $setting = NotificationSetting::first();
-        $setting->update($request->all());
+        $setting->update($request->only([
+            'morning_reminder_time',
+            'evening_reminder_time',
+            'marketing_report_time',
+            'days_active',
+        ]));
 
         return redirect()->back()->with('success', 'Pengaturan notifikasi berhasil disimpan.');
     }
@@ -96,5 +101,14 @@ class NotificationController extends Controller
     {
         $request->user()->unreadNotifications->markAsRead();
         return back();
+    }
+
+    public function getVapidPublicKey()
+    {
+        $setting = NotificationSetting::first();
+        if ($setting && $setting->vapid_public_key) {
+            return response()->json(['publicKey' => $setting->vapid_public_key]);
+        }
+        return response()->json(['publicKey' => null], 404);
     }
 }

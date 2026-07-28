@@ -101,11 +101,11 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Logistik</h4>
-                    <button type="button" onClick={() => addSheet(logistikForm, {sheet_name:'', col_date:'', col_sales_name:'', col_outlet_name:'', col_product_name:'', col_total_sales:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"> Tambah</button>
+                    <button type="button" onClick={() => addSheet(logistikForm, {sheet_name:'', col_date:'', col_sales_name:'', col_outlet_name:'', col_product_name:'', col_total_sales:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
                 </div>
                 {logistikForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
-                        {logistikForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(logistikForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"></button>}
+                        {logistikForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(logistikForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
                         <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(logistikForm, index, 'sheet_name', e.target.value)} /></div>
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                             <div><InputLabel value="Kol. Tanggal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_date} onChange={(e) => handleSheetChange(logistikForm, index, 'col_date', e.target.value)} /></div>
@@ -117,7 +117,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl"> Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Logistik</PrimaryButton></div>
         </form>
     );
 
@@ -130,11 +130,11 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Surat Pesanan</h4>
-                    <button type="button" onClick={() => addSheet(pesananForm, {sheet_name:'', col_tanggal:'', col_nama_outlet:'', col_nama_produk:'', col_jumlah:'', col_satuan:'', col_total_faktur:'', col_terkirim:'', col_belum_terkirim:'', col_persen_terpenuhi:'', col_persen_belum_terpenuhi:'', col_keterangan:''})} className="text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"> Tambah</button>
+                    <button type="button" onClick={() => addSheet(pesananForm, {sheet_name:'', col_tanggal:'', col_nama_outlet:'', col_nama_produk:'', col_jumlah:'', col_satuan:'', col_total_faktur:'', col_terkirim:'', col_belum_terkirim:'', col_persen_terpenuhi:'', col_persen_belum_terpenuhi:'', col_keterangan:''})} className="text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
                 </div>
                 {pesananForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
-                        {pesananForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(pesananForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"></button>}
+                        {pesananForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(pesananForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
                         <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(pesananForm, index, 'sheet_name', e.target.value)} /></div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <div><InputLabel value="Kol. Tanggal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tanggal} onChange={(e) => handleSheetChange(pesananForm, index, 'col_tanggal', e.target.value)} /></div>
@@ -152,7 +152,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} className="py-3 px-8 bg-emerald-600 hover:bg-emerald-700 rounded-xl"> Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} className="py-3 px-8 bg-emerald-600 hover:bg-emerald-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Pesanan</PrimaryButton></div>
         </form>
     );
 
@@ -165,11 +165,11 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Piutang</h4>
-                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"> Tambah</button>
+                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-purple-600 hover:text-purple-700 bg-purple-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
                 </div>
                 {piutangForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
-                        {piutangForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(piutangForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"></button>}
+                        {piutangForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(piutangForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
                         <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(piutangForm, index, 'sheet_name', e.target.value)} /></div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <div><InputLabel value="Kol. Outlet *" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_outlet} onChange={(e) => handleSheetChange(piutangForm, index, 'col_nama_outlet', e.target.value)} /></div>
@@ -186,7 +186,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl"> Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} className="py-3 px-8 bg-purple-600 hover:bg-purple-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Piutang</PrimaryButton></div>
         </form>
     );
 
@@ -199,11 +199,11 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Hutang</h4>
-                    <button type="button" onClick={() => addSheet(hutangForm, {sheet_name:'', col_no:'', col_nama_penyedia:'', col_nominal:''})} className="text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"> Tambah</button>
+                    <button type="button" onClick={() => addSheet(hutangForm, {sheet_name:'', col_no:'', col_nama_penyedia:'', col_nominal:''})} className="text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
                 </div>
                 {hutangForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
-                        {hutangForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(hutangForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"></button>}
+                        {hutangForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(hutangForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
                         <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(hutangForm, index, 'sheet_name', e.target.value)} /></div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div><InputLabel value="Kol. No" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_no} onChange={(e) => handleSheetChange(hutangForm, index, 'col_no', e.target.value)} /></div>
@@ -213,7 +213,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} className="py-3 px-8 bg-orange-600 hover:bg-orange-700 rounded-xl"> Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} className="py-3 px-8 bg-orange-600 hover:bg-orange-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Hutang</PrimaryButton></div>
         </form>
     );
 
@@ -230,7 +230,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                 
                 {/* Stats / Status */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-slate-800 rounded-3xl p-6 text-white shadow-xl flex items-center justify-between">
+                    <div className="bg-gradient-to-br from-slate-700 to-gray-900 rounded-3xl p-6 text-white shadow-xl flex items-center justify-between">
                         <div>
                             <p className="text-gray-300 text-sm font-medium mb-1">Status {activeTab.toUpperCase()}</p>
                             <h2 className="text-2xl font-bold">{activeConfig?.last_synced_at ? 'Tersinkronisasi' : 'Belum Pernah Sync'}</h2>
@@ -250,7 +250,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                             disabled={syncProcessing}
                             className="w-full py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                         >
-                            
+                            <RefreshCw className={`w-5 h-5 ${syncProcessing ? 'animate-spin' : ''}`} />
                             Mulai Sinkronisasi Manual ({activeTab})
                         </button>
                     </div>
@@ -266,12 +266,12 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                                 className="w-full md:w-auto flex items-center justify-between gap-3 px-6 py-3 bg-white border border-gray-200 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:bg-gray-50 transition-all text-gray-700 font-bold text-sm"
                             >
                                 <div className="flex items-center gap-2">
-                                    {activeTab === 'logistik' && <> Laporan Logistik</>}
-                                    {activeTab === 'pesanan' && <> Surat Pesanan</>}
-                                    {activeTab === 'piutang' && <> Data Piutang</>}
-                                    {activeTab === 'hutang' && <> Data Hutang</>}
+                                    {activeTab === 'logistik' && <><Package className="w-4 h-4 text-blue-600"/> Laporan Logistik</>}
+                                    {activeTab === 'pesanan' && <><ShoppingCart className="w-4 h-4 text-emerald-600"/> Surat Pesanan</>}
+                                    {activeTab === 'piutang' && <><CreditCard className="w-4 h-4 text-purple-600"/> Data Piutang</>}
+                                    {activeTab === 'hutang' && <><CreditCard className="w-4 h-4 text-orange-600"/> Data Hutang</>}
                                 </div>
-                                
+                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
 
                             {isTabDropdownOpen && (
@@ -281,25 +281,25 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                                             onClick={() => { setActiveTab('logistik'); setIsTabDropdownOpen(false); }} 
                                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='logistik'?'bg-blue-50 text-blue-700':'text-gray-500 hover:bg-gray-50'}`}
                                         >
-                                             Laporan Logistik
+                                            <Package className="w-4 h-4"/> Laporan Logistik
                                         </button>
                                         <button 
                                             onClick={() => { setActiveTab('pesanan'); setIsTabDropdownOpen(false); }} 
                                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='pesanan'?'bg-emerald-50 text-emerald-700':'text-gray-500 hover:bg-gray-50'}`}
                                         >
-                                             Surat Pesanan
+                                            <ShoppingCart className="w-4 h-4"/> Surat Pesanan
                                         </button>
                                         <button 
                                             onClick={() => { setActiveTab('piutang'); setIsTabDropdownOpen(false); }} 
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='piutang'?'bg-blue-50 text-blue-700':'text-gray-500 hover:bg-gray-50'}`}
+                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='piutang'?'bg-purple-50 text-purple-700':'text-gray-500 hover:bg-gray-50'}`}
                                         >
-                                             Data Piutang
+                                            <CreditCard className="w-4 h-4"/> Data Piutang
                                         </button>
                                         <button 
                                             onClick={() => { setActiveTab('hutang'); setIsTabDropdownOpen(false); }} 
                                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='hutang'?'bg-orange-50 text-orange-700':'text-gray-500 hover:bg-gray-50'}`}
                                         >
-                                             Data Hutang
+                                            <CreditCard className="w-4 h-4"/> Data Hutang
                                         </button>
                                     </div>
                                 </div>
@@ -335,7 +335,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                                                 className="p-1.5 bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-colors flex-shrink-0 shadow-sm"
                                                 title="Salin Email"
                                             >
-                                                
+                                                <Copy className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </div>

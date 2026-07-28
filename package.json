@@ -31,6 +31,7 @@
         "react-leaflet": "^4.2.1",
         "react-tailwindcss-datepicker": "^1.6.6",
         "react-webcam": "^7.2.0",
+        "recharts": "^3.10.1",
         "sweetalert2": "^11.26.25",
         "tailwind-merge": "^3.6.0"
     }

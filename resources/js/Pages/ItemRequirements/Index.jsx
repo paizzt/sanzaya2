@@ -13,6 +13,7 @@ import SearchableSelect from '@/Components/SearchableSelect';
 import CustomSelect from '@/Components/CustomSelect';
 import CreatableSelect from '@/Components/CreatableSelect';
 import ExportDropdown from '@/Components/ExportDropdown';
+import CurrencyInput from '@/Components/CurrencyInput';
 import Swal from 'sweetalert2';
 
 export default function Index({ auth, groupedItems, outlets, companies = [], filters, activeShares = {} }) {
@@ -205,7 +206,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                 {selectedOutlet && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm flex items-center gap-4">
-                        <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl">
+                        <div className="p-4 bg-indigo-50 text-indigo-600 rounded-2xl">
                             <ShoppingCart className="w-6 h-6" />
                         </div>
                         <div>
@@ -257,7 +258,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                             <TextInput 
                                 type="text" 
                                 className="w-full pl-10 rounded-xl text-sm" 
-                                
+                                placeholder="Cari barang / outlet..." 
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -282,7 +283,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         onClick={handleShareClick}
                                         className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-500/30 text-sm whitespace-nowrap"
                                     >
-                                         <span className="hidden sm:inline">Bagikan</span>
+                                        <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Bagikan</span>
                                     </button>
                                 )}
 
@@ -297,7 +298,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                             onClick={() => openModal()}
                             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/30 text-sm whitespace-nowrap"
                         >
-                             <span className="hidden sm:inline">Tambah</span>
+                            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Tambah Data</span>
                         </button>
                     </div>
                 </div>
@@ -318,7 +319,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                     >
                                         <div className="flex items-center gap-3 mb-3">
                                             <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                                
+                                                <Store className="w-6 h-6" />
                                             </div>
                                             <h4 className="font-bold text-lg text-gray-800 line-clamp-2">{outlet}</h4>
                                         </div>
@@ -326,7 +327,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                             <span className="bg-gray-100 text-gray-600 text-sm font-medium px-3 py-1 rounded-full">
                                                 {groupedItems[outlet].length} Barang
                                             </span>
-                                            
+                                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
                                         </div>
                                     </button>
                                 ))}
@@ -342,7 +343,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                             }}
                                             className="p-2 hover:bg-gray-200 rounded-xl text-gray-600 transition-colors flex items-center gap-2 font-medium"
                                         >
-                                             Kembali
+                                            <ChevronLeft className="w-5 h-5" /> Kembali
                                         </button>
                                         <h4 className="font-bold text-lg text-gray-800 hidden md:block">{selectedOutlet}</h4>
                                     </div>
@@ -370,7 +371,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={detailFilters.month}
                                         onChange={(val) => setDetailFilters({...detailFilters, month: val})}
-                                       
+                                        placeholder="Semua Bulan"
                                     />
                                     <CustomSelect
                                         options={[
@@ -385,11 +386,11 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={detailFilters.year}
                                         onChange={(val) => setDetailFilters({...detailFilters, year: val})}
-                                       
+                                        placeholder="Semua Tahun"
                                     />
                                     <TextInput 
                                         type="text" 
-                                       
+                                        placeholder="Cari Satuan..."
                                         value={detailFilters.unit}
                                         onChange={(e) => setDetailFilters({...detailFilters, unit: e.target.value})}
                                         className="w-full rounded-xl sm:text-sm border-gray-300"
@@ -457,10 +458,10 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                                                 </a>
                                                             )}
                                                             <button onClick={() => openModal(item)} className="text-amber-500 hover:text-amber-700 bg-amber-50 p-1.5 rounded-lg" title="Edit">
-                                                                
+                                                                <Edit className="w-4 h-4" />
                                                             </button>
                                                             <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded-lg" title="Hapus">
-                                                                
+                                                                <Trash2 className="w-4 h-4" />
                                                             </button>
                                                         </div>
                                                     </td>
@@ -497,7 +498,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                     options={outlets.map(o => ({ value: o, label: o }))}
                                     value={formData.outlet_name}
                                     onChange={(val) => setFormData({...formData, outlet_name: val})}
-                                   
+                                    placeholder="Cari nama outlet..."
                                     className="mt-1 block w-full"
                                 />
                             </div>
@@ -524,7 +525,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={formData.month}
                                         onChange={(val) => setFormData({...formData, month: val})}
-                                       
+                                        placeholder="Pilih Bulan..."
                                         className="mt-1"
                                     />
                                 </div>
@@ -542,7 +543,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={formData.year}
                                         onChange={(val) => setFormData({...formData, year: val})}
-                                       
+                                        placeholder="Pilih Tahun..."
                                         className="mt-1"
                                     />
                                 </div>
@@ -562,7 +563,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         options={companies}
                                         value={formData.company_name}
                                         onChange={(val) => setFormData({...formData, company_name: val})}
-                                       
+                                        placeholder="Contoh: PT. Abadi"
                                         className="mt-1 block w-full"
                                     />
                                 </div>
@@ -574,7 +575,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         className="mt-1 block w-full rounded-xl"
                                         value={formData.unit}
                                         onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                                       
+                                        placeholder="Contoh: Pcs, Box, Rim"
                                     />
                                 </div>
                                 <div>
@@ -594,13 +595,11 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span className="text-gray-500 sm:text-sm">Rp</span>
                                         </div>
-                                        <TextInput
-                                            type="number"
+                                        <CurrencyInput
                                             className="block w-full pl-10 rounded-xl"
                                             value={formData.price}
-                                            onChange={(e) => setFormData({...formData, price: parseInt(e.target.value) || 0})}
+                                            onChange={(val) => setFormData({...formData, price: parseInt(val) || 0})}
                                             required
-                                            min="0"
                                         />
                                     </div>
                                 </div>
@@ -652,7 +651,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={formData.description}
                                         onChange={(val) => setFormData({...formData, description: val})}
-                                       
+                                        placeholder="Pilih Kategori..."
                                         className="mt-1"
                                     />
                                 </div>
@@ -680,7 +679,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                             className="block w-full pl-10 rounded-xl"
                                             value={formData.link}
                                             onChange={(e) => setFormData({...formData, link: e.target.value})}
-                                           
+                                            placeholder="https://..."
                                         />
                                     </div>
                                 </div>
@@ -746,7 +745,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                 Lanjut
                             </PrimaryButton>
                         ) : (
-                            <PrimaryButton type="submit">Simpan</PrimaryButton>
+                            <PrimaryButton type="submit">Simpan Data</PrimaryButton>
                         )}
                     </div>
                 </form>
@@ -776,7 +775,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                 ]}
                                 value={shareModalFilters.month}
                                 onChange={(val) => setShareModalFilters({...shareModalFilters, month: val})}
-                               
+                                placeholder="Semua Bulan"
                             />
                         </div>
 
@@ -795,15 +794,16 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                 ]}
                                 value={shareModalFilters.year}
                                 onChange={(val) => setShareModalFilters({...shareModalFilters, year: val})}
-                               
+                                placeholder="Semua Tahun"
                             />
                         </div>
 
                         <div className="pt-4 flex justify-end gap-3">
                             <SecondaryButton onClick={() => setIsShareModalOpen(false)}>
-                                Batal</SecondaryButton>
+                                Batal
+                            </SecondaryButton>
                             <PrimaryButton onClick={copyShareLink} className="bg-emerald-600 hover:bg-emerald-700">
-                                Salin
+                                Salin Link
                             </PrimaryButton>
                         </div>
                     </div>

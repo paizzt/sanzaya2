@@ -23,7 +23,7 @@ export default function ResetPassword({ token, email }) {
 
     return (
         <GuestLayout>
-            <Head title="Atur" />
+            <Head title="Reset Password" />
 
             <form onSubmit={submit}>
                 <div>

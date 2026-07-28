@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Camera, CheckCircle2, Clock, RefreshCcw } from 'lucide-react';
+import { Camera, CheckCircle2, Clock, MapPinOff, RefreshCcw } from 'lucide-react';
 import React, { useRef, useState, useCallback, useEffect, Suspense } from 'react';
 const Webcam = React.lazy(() => import('react-webcam'));
 import Swal from 'sweetalert2';
@@ -108,14 +108,14 @@ export default function Index({ attendance, today, currentTime, isOvertime }) {
                                         onClick={capture}
                                         className="flex-1 bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
                                     >
-                                         Ambil Foto
+                                        <Camera className="w-5 h-5" /> Ambil Foto
                                     </button>
                                 ) : (
                                     <button
                                         onClick={() => setImgSrc(null)}
                                         className="flex-1 bg-gray-100 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                                     >
-                                         Ulangi Foto
+                                        <RefreshCcw className="w-5 h-5" /> Ulangi Foto
                                     </button>
                                 )}
                             </div>
@@ -124,7 +124,7 @@ export default function Index({ attendance, today, currentTime, isOvertime }) {
 
                     {/* Status Section */}
                     <div className="space-y-6">
-                        <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20">
+                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20">
                             <p className="text-blue-100 text-sm font-medium">{today}</p>
                             <h2 className="text-5xl font-black mt-2 tracking-tighter">{currentTime}</h2>
                         </div>
@@ -148,7 +148,8 @@ export default function Index({ attendance, today, currentTime, isOvertime }) {
                                                 disabled={processing}
                                                 className="mt-3 w-full bg-blue-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
                                             >
-                                                Kirim</button>
+                                                Kirim Absen Masuk
+                                            </button>
                                         )}
                                     </div>
                                 </div>
@@ -170,9 +171,9 @@ export default function Index({ attendance, today, currentTime, isOvertime }) {
                                                             Catatan Lembur <span className="text-red-500">*</span>
                                                         </label>
                                                         <textarea
-                                                            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-purple-500 focus:border-purple-500"
                                                             rows="2"
-                                                           
+                                                            placeholder="Jelaskan pekerjaan lembur Anda..."
                                                             value={data.notes}
                                                             onChange={(e) => setData('notes', e.target.value)}
                                                             required
@@ -183,9 +184,10 @@ export default function Index({ attendance, today, currentTime, isOvertime }) {
                                                 <button
                                                     onClick={() => submitAttendance('check_out')}
                                                     disabled={processing || (isOvertime && !data.notes.trim())}
-                                                    className="w-full bg-blue-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
+                                                    className="w-full bg-purple-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-purple-700 transition-all disabled:opacity-50"
                                                 >
-                                                    Kirim</button>
+                                                    Kirim Absen Pulang
+                                                </button>
                                             </div>
                                         )}
                                     </div>

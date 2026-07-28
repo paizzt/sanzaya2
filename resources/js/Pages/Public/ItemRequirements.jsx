@@ -19,12 +19,12 @@ export default function ItemRequirementsPublic({ groupedItems, outletName, filte
                                 onClick={() => setSelectedOutlet(null)}
                                 className="p-2 hover:bg-gray-200 rounded-full transition-colors"
                             >
-                                
+                                <ChevronLeft className="w-6 h-6 text-gray-600" />
                             </button>
                         )}
                         <div className="flex flex-col">
                             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                <Store className="w-6 h-6 text-blue-600" />
+                                <Store className="w-6 h-6 text-indigo-600" />
                                 {selectedOutlet}
                             </h1>
                             {(filterMonth || filterYear) && (
@@ -76,7 +76,7 @@ export default function ItemRequirementsPublic({ groupedItems, outletName, filte
                                                 </td>
                                                 <td className="px-3 py-2">
                                                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                        item.description === 'BHMP' ? 'bg-blue-50 text-blue-700' : 
+                                                        item.description === 'BHMP' ? 'bg-purple-50 text-purple-700' : 
                                                         item.description === 'ALAT' ? 'bg-orange-50 text-orange-700' : 
                                                         'bg-gray-50 text-gray-700'
                                                     }`}>
@@ -125,7 +125,7 @@ export default function ItemRequirementsPublic({ groupedItems, outletName, filte
             <div className="max-w-7xl mx-auto space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <Package className="w-7 h-7 text-blue-600" />
+                        <Package className="w-7 h-7 text-indigo-600" />
                         Kebutuhan Barang
                     </h2>
                 </div>
@@ -143,16 +143,16 @@ export default function ItemRequirementsPublic({ groupedItems, outletName, filte
                                 <button
                                     key={outlet}
                                     onClick={() => setSelectedOutlet(outlet)}
-                                    className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 hover:shadow-md hover:border-blue-100 transition-all group text-left w-full"
+                                    className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 hover:shadow-md hover:border-indigo-100 transition-all group text-left w-full"
                                 >
                                     <div className="p-6">
                                         <div className="flex items-center justify-between mb-4">
-                                            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                                                
+                                            <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+                                                <Store className="w-6 h-6 text-indigo-600" />
                                             </div>
-                                            
+                                            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
                                         </div>
-                                        <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-700 transition-colors">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-indigo-700 transition-colors">
                                             {outlet}
                                         </h3>
                                         <p className="text-sm text-gray-500 font-medium">

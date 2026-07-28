@@ -113,7 +113,7 @@ export default function UpdatePasswordForm({ className = '' }) {
 
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-50">
                     <PrimaryButton disabled={processing} className="h-11 px-8 rounded-xl bg-orange-500 hover:bg-orange-600 focus:ring-orange-500">
-                        Simpan
+                        Perbarui Sandi
                     </PrimaryButton>
 
                     <div className={`transition-opacity duration-500 ${recentlySuccessful ? 'opacity-100' : 'opacity-0'}`}>

@@ -16,7 +16,6 @@ use App\Models\SyncLogistikData;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Crypt;
 
 class UserController extends Controller
 {
@@ -60,7 +59,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255|unique:users',
-            'password' => 'required|string|min:4',
+            'password' => 'required|string|min:8',
             'role' => 'required|string',
             'division_id' => 'nullable|exists:divisions,id',
             'position_id' => 'nullable|exists:positions,id',
@@ -126,7 +125,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:4',
+            'password' => 'nullable|string|min:8',
             'role' => 'required|string',
             'division_id' => 'nullable|exists:divisions,id',
             'position_id' => 'nullable|exists:positions,id',

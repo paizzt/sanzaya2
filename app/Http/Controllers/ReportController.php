@@ -156,19 +156,38 @@ class ReportController extends Controller
             }
             if ($monthFilter) $summaryPesananQuery->where('tanggal', 'like', "%{$monthFilter}%");
             
-            $pesananAll = $summaryPesananQuery->select('total_faktur', 'terkirim', 'belum_terkirim')->get();
+            $pesananAll = $summaryPesananQuery->select('total_faktur', 'terkirim', 'belum_terkirim', 'nama_outlet', 'nama_produk')->get();
             $totalFaktur = 0; $totalTerkirim = 0; $totalBelumTerkirim = 0;
+            $fakturOutlet = []; $terkirimOutlet = [];
             foreach ($pesananAll as $row) {
-                $totalFaktur += (float) str_replace(['.', ','], ['', '.'], (string)$row->total_faktur);
-                $totalTerkirim += (float) str_replace(['.', ','], ['', '.'], (string)$row->terkirim);
-                $totalBelumTerkirim += (float) str_replace(['.', ','], ['', '.'], (string)$row->belum_terkirim);
+                $f = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_faktur);
+                $totalFaktur += $f;
+                $t = (float) str_replace(['.', ','], ['', '.'], (string)$row->terkirim);
+                $totalTerkirim += $t;
+                $bt = (float) str_replace(['.', ','], ['', '.'], (string)$row->belum_terkirim);
+                $totalBelumTerkirim += $bt;
+
+                if ($row->nama_outlet) {
+                    $fakturOutlet[$row->nama_outlet] = ($fakturOutlet[$row->nama_outlet] ?? 0) + $f;
+                    $terkirimOutlet[$row->nama_outlet] = ($terkirimOutlet[$row->nama_outlet] ?? 0) + $t;
+                }
             }
+            arsort($fakturOutlet); arsort($terkirimOutlet);
+            
+            $fakturOutletFormatted = [];
+            foreach($fakturOutlet as $o => $v) $fakturOutletFormatted[$o] = 'Rp ' . number_format($v, 0, ',', '.');
+            
+            $terkirimOutletFormatted = [];
+            foreach($terkirimOutlet as $o => $v) $terkirimOutletFormatted[$o] = number_format($v, 0, ',', '.') . ' Terkirim';
+
             $totalItems = $totalTerkirim + $totalBelumTerkirim;
             return [
                 'total_faktur' => 'Rp ' . number_format($totalFaktur, 0, ',', '.'),
                 'total_terkirim' => ($totalItems > 0 ? round(($totalTerkirim / $totalItems) * 100, 1) : 0) . '%',
                 'total_belum_terkirim' => ($totalItems > 0 ? round(($totalBelumTerkirim / $totalItems) * 100, 1) : 0) . '%',
-                'total_pesanan' => $pesananAll->count()
+                'total_pesanan' => $pesananAll->count(),
+                'faktur_detail' => array_slice($fakturOutletFormatted, 0, 10, true),
+                'terkirim_detail' => array_slice($terkirimOutletFormatted, 0, 10, true)
             ];
         });
 
@@ -185,18 +204,38 @@ class ReportController extends Controller
                 $monthNum = array_search($monthFilter, $months) + 1;
                 $summaryPiutangQuery->whereMonth('created_at', $monthNum);
             }
-            $piutangAll = $summaryPiutangQuery->select('total_sanzaya', 'total_ruma', 'total_gabungan')->get();
+            $piutangAll = $summaryPiutangQuery->select('total_sanzaya', 'total_ruma', 'total_gabungan', 'nama_outlet')->get();
             $totalSanzaya = 0; $totalRuma = 0; $totalGabungan = 0;
+            $sanzayaOutlet = []; $rumaOutlet = []; $gabunganOutlet = [];
+            
             foreach ($piutangAll as $row) {
-                $totalSanzaya += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_sanzaya));
-                $totalRuma += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_ruma));
-                $totalGabungan += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_gabungan));
+                $s = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_sanzaya));
+                $totalSanzaya += $s;
+                $r = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_ruma));
+                $totalRuma += $r;
+                $g = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_gabungan));
+                $totalGabungan += $g;
+                
+                if ($row->nama_outlet) {
+                    $sanzayaOutlet[$row->nama_outlet] = ($sanzayaOutlet[$row->nama_outlet] ?? 0) + $s;
+                    $rumaOutlet[$row->nama_outlet] = ($rumaOutlet[$row->nama_outlet] ?? 0) + $r;
+                    $gabunganOutlet[$row->nama_outlet] = ($gabunganOutlet[$row->nama_outlet] ?? 0) + $g;
+                }
             }
+            arsort($sanzayaOutlet); arsort($rumaOutlet); arsort($gabunganOutlet);
+            
+            $sanzayaOutletFormatted = []; foreach($sanzayaOutlet as $o => $v) $sanzayaOutletFormatted[$o] = 'Rp ' . number_format($v, 0, ',', '.');
+            $rumaOutletFormatted = []; foreach($rumaOutlet as $o => $v) $rumaOutletFormatted[$o] = 'Rp ' . number_format($v, 0, ',', '.');
+            $gabunganOutletFormatted = []; foreach($gabunganOutlet as $o => $v) $gabunganOutletFormatted[$o] = 'Rp ' . number_format($v, 0, ',', '.');
+            
             return [
                 'total_sanzaya' => 'Rp ' . number_format($totalSanzaya, 0, ',', '.'),
                 'total_ruma' => 'Rp ' . number_format($totalRuma, 0, ',', '.'),
                 'total_gabungan' => 'Rp ' . number_format($totalGabungan, 0, ',', '.'),
-                'total_outlet' => $piutangAll->count()
+                'total_outlet' => $piutangAll->count(),
+                'sanzaya_detail' => array_slice($sanzayaOutletFormatted, 0, 10, true),
+                'ruma_detail' => array_slice($rumaOutletFormatted, 0, 10, true),
+                'gabungan_detail' => array_slice($gabunganOutletFormatted, 0, 10, true),
             ];
         });
 
@@ -205,14 +244,25 @@ class ReportController extends Controller
             if ($search && $tab === 'hutang') $summaryHutangQuery->where('nama_penyedia', 'like', "%{$search}%");
             $hutangAll = $summaryHutangQuery->select('nominal', 'nama_penyedia')->get();
             $totalNominalHutang = 0; $penyediaList = [];
+            $hutangPenyedia = [];
+            
             foreach ($hutangAll as $row) {
-                $totalNominalHutang += (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->nominal));
-                if ($row->nama_penyedia) $penyediaList[] = $row->nama_penyedia;
+                $n = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->nominal));
+                $totalNominalHutang += $n;
+                if ($row->nama_penyedia) {
+                    $penyediaList[] = $row->nama_penyedia;
+                    $hutangPenyedia[$row->nama_penyedia] = ($hutangPenyedia[$row->nama_penyedia] ?? 0) + $n;
+                }
             }
+            arsort($hutangPenyedia);
+            $hutangPenyediaFormatted = [];
+            foreach($hutangPenyedia as $p => $v) $hutangPenyediaFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
+            
             return [
                 'total_nominal' => 'Rp ' . number_format($totalNominalHutang, 0, ',', '.'),
                 'total_data' => $hutangAll->count(),
-                'total_penyedia' => count(array_unique($penyediaList))
+                'total_penyedia' => count(array_unique($penyediaList)),
+                'hutang_detail' => array_slice($hutangPenyediaFormatted, 0, 10, true)
             ];
         });
 

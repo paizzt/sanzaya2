@@ -120,5 +120,13 @@
         </tbody>
     </table>
 
+    <div style="margin-top: 40px; float: right; text-align: center; width: 250px;">
+        <p>Makassar, {{ date('d F Y') }}</p>
+        <p>Mengetahui,</p>
+        <br><br><br>
+        <p><strong>HR / Manager</strong></p>
+    </div>
+    <div style="clear: both;"></div>
+
 </body>
 </html>

@@ -53,7 +53,12 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         >
                                             Log in
                                         </Link>
-
+                                        <Link
+                                            href={route('register')}
+                                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                        >
+                                            Register
+                                        </Link>
                                     </>
                                 )}
                             </nav>
@@ -81,7 +86,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                             alt="Laravel documentation screenshot"
                                             className="hidden aspect-video h-full w-full flex-1 rounded-[10px] object-cover object-top drop-shadow-[0px_4px_34px_rgba(0,0,0,0.25)] dark:block"
                                         />
-                                        <div className="absolute -bottom-16 -left-16 h-40 w-[calc(100%+8rem)] bg-white dark:bg-zinc-900"></div>
+                                        <div className="absolute -bottom-16 -left-16 h-40 w-[calc(100%+8rem)] bg-gradient-to-b from-transparent via-white to-white dark:via-zinc-900 dark:to-zinc-900"></div>
                                     </div>
 
                                     <div className="relative flex items-center gap-6 lg:items-end">

@@ -187,7 +187,8 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         onClick={openCreateModal}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
                     >
-                         Tambah</button>
+                        <Plus className="w-5 h-5" /> Tambah Pengguna
+                    </button>
                             </div>
                 </div>
 
@@ -228,7 +229,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     </span>
                                                 )}
                                                 {user.monthly_target && (
-                                                    <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200 w-max font-medium mt-1">
+                                                    <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200 w-max font-medium mt-1">
                                                         Target: Rp {new Intl.NumberFormat('id-ID').format(user.monthly_target)}
                                                     </span>
                                                 )}
@@ -239,7 +240,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 {user.company && (
                                                     <span className="text-xs font-semibold text-gray-600 flex items-center gap-1"><Building className="w-3 h-3"/> {user.company.name}</span>
                                                 )}
-                                                <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200">
+                                                <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
                                                     {user.roles && user.roles.length > 0 ? user.roles[0].name : 'Tidak ada role'}
                                                 </span>
                                             </div>
@@ -267,9 +268,9 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                                <button onClick={() => openEditModal(user)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit"></button>
+                                                <button onClick={() => openEditModal(user)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
                                                 {usePage().props.auth.user.id !== user.id && (
-                                                    <button onClick={() => handleDelete(user.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus"></button>
+                                                    <button onClick={() => handleDelete(user.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
                                                 )}
                                             </div>
                                         </td>
@@ -294,7 +295,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                     {isEditMode ? <Edit className="w-5 h-5 text-blue-600"/> : <Plus className="w-5 h-5 text-blue-600"/>}
                                     {isEditMode ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}
                                 </h3>
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"></button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
                             </div>
 
                             <form onSubmit={submitForm} className="p-6">
@@ -325,7 +326,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     <InputLabel value={isEditMode ? "Password (Kosongkan jika tidak diubah)" : "Password *"} />
                                                     <div className="relative">
                                                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                        <TextInput type="text" className="mt-1 block w-full pl-9" value={data.password} onChange={e => setData('password', e.target.value)} required={!isEditMode} />
+                                                        <TextInput type="text" className="mt-1 block w-full pl-9" value={data.password} onChange={e => setData('password', e.target.value)} required={!isEditMode} placeholder={isEditMode ? '********' : 'Contoh: sanzaya123'} />
                                                     </div>
                                                     <InputError message={errors.password} className="mt-1" />
                                                 </div>
@@ -336,7 +337,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         value={data.company_id}
                                                         onChange={val => setData('company_id', val)}
                                                         options={companies.map(c => ({ value: c.id, label: c.name }))}
-                                                       
+                                                        placeholder="-- Pilih PT --"
                                                     />
                                                     <InputError message={errors.company_id} className="mt-1" />
                                                 </div>
@@ -352,7 +353,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         value={data.role}
                                                         onChange={val => setData('role', val)}
                                                         options={roles.map(r => ({ value: r.name, label: r.name }))}
-                                                       
+                                                        placeholder="-- Pilih Role --"
                                                     />
                                                     <InputError message={errors.role} className="mt-1" />
                                                 </div>
@@ -363,7 +364,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         value={data.spreadsheet_sales_name}
                                                         onChange={val => setData('spreadsheet_sales_name', val)}
                                                         options={spreadsheetSalesNames.map((name) => ({ value: name, label: name }))}
-                                                       
+                                                        placeholder="-- Tidak Ditautkan --"
                                                     />
                                                     <InputError message={errors.spreadsheet_sales_name} className="mt-1" />
                                                     <p className="text-xs text-gray-500 mt-1">Pilih nama ini untuk mengaitkan akun dengan data logistik di spreadsheet.</p>
@@ -374,12 +375,11 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         <InputLabel value="Target Bulanan (Rp) (Opsional)" />
                                                         <div className="relative">
                                                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">Rp</span>
-                                                            <TextInput 
-                                                                type="number" 
+                                                            <CurrencyInput 
                                                                 className="mt-1 block w-full pl-9" 
-                                                               
+                                                                placeholder="Contoh: 15.000.000"
                                                                 value={data.monthly_target} 
-                                                                onChange={e => setData('monthly_target', e.target.value)} 
+                                                                onChange={val => setData('monthly_target', val)} 
                                                             />
                                                         </div>
                                                         <InputError message={errors.monthly_target} className="mt-1" />
@@ -395,7 +395,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 value={data.position_id}
                                                                 onChange={val => setData('position_id', val)}
                                                                 options={positions.map(p => ({ value: p.id, label: p.name }))}
-                                                               
+                                                                placeholder="-- Pilih Jabatan --"
                                                             />
                                                             <InputError message={errors.position_id} className="mt-1" />
                                                         </div>
@@ -405,7 +405,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 value={data.division_id}
                                                                 onChange={val => setData('division_id', val)}
                                                                 options={divisions.map(d => ({ value: d.id, label: d.name }))}
-                                                               
+                                                                placeholder="-- Pilih Divisi --"
                                                             />
                                                             <InputError message={errors.division_id} className="mt-1" />
                                                         </div>
@@ -446,7 +446,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     </div>
                                                     <div>
                                                         <InputLabel value="Kontak Darurat (Nama & No HP)" />
-                                                        <TextInput className="mt-1 block w-full" value={data.emergency_contact} onChange={e => setData('emergency_contact', e.target.value)} />
+                                                        <TextInput className="mt-1 block w-full" placeholder="Cth: Istri - 0812345678" value={data.emergency_contact} onChange={e => setData('emergency_contact', e.target.value)} />
                                                         <InputError message={errors.emergency_contact} className="mt-1" />
                                                     </div>
                                                 </div>
@@ -478,7 +478,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 { value: 'PKWTT', label: 'PKWTT (Tetap)' },
                                                                 { value: 'Probation', label: 'Probation' },
                                                             ]}
-                                                           
+                                                            placeholder="-- Pilih Status --"
                                                         />
                                                         <InputError message={errors.employment_status} className="mt-1" />
                                                     </div>
@@ -543,7 +543,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                             
                                             <TextInput 
                                                 type="text" 
-                                                
+                                                placeholder="Cari Kota..." 
                                                 className="w-full text-sm mb-3"
                                                 value={searchTerm}
                                                 onChange={e => setSearchTerm(e.target.value)}
@@ -574,7 +574,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
                                     <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
-                                         {isEditMode ? 'Simpan' : 'Buat'}
+                                        <Save className="w-4 h-4 mr-2" /> {isEditMode ? 'Simpan Perubahan' : 'Buat Pengguna'}
                                     </PrimaryButton>
                                 </div>
                             </form>
@@ -591,7 +591,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                     <User className="w-5 h-5 text-blue-600"/>
                                     Detail Karyawan
                                 </h3>
-                                <button type="button" onClick={() => setIsPreviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"></button>
+                                <button type="button" onClick={() => setIsPreviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
                             </div>
 
                             <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
@@ -616,7 +616,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-gray-500 font-medium">Role Sistem</p>
-                                                    <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200 mt-1">
+                                                    <span className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200 mt-1">
                                                         {previewUser.roles && previewUser.roles.length > 0 ? previewUser.roles[0].name : '-'}
                                                     </span>
                                                 </div>

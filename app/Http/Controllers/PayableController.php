@@ -30,7 +30,7 @@ class PayableController extends Controller
         ]);
         
         if ($request->id) {
-            Payable::find($request->id)->update($validated);
+            Payable::findOrFail($request->id)->update($validated);
         } else {
             Payable::create($validated);
         }

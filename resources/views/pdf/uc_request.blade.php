@@ -197,23 +197,34 @@
                             <th width="33%">Disetujui Oleh</th>
                         </tr>
                         <tr>
+                        <tr>
                             <td style="padding: 10px;">
                                 <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
                                 <div class="signature-name">{{ $uc->user->name ?? 'Staff Pegawai' }}</div>
                             </td>
                             <td style="padding: 10px;">
-                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">Bapak Manajer</div>
+                                @if(in_array($uc->status, ['Disetujui', 'Selesai / Result Dikirim']))
+                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
+                                    <div class="signature-name">{{ $uc->approver->name ?? 'Manager' }}</div>
+                                @else
+                                    <div style="height: 50px;"></div>
+                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
+                                @endif
                             </td>
                             <td style="padding: 10px;">
-                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">Ibu Finance</div>
+                                @if(in_array($uc->status, ['Disetujui', 'Selesai / Result Dikirim']))
+                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
+                                    <div class="signature-name">Finance</div>
+                                @else
+                                    <div style="height: 50px;"></div>
+                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
+                                @endif
                             </td>
                         </tr>
                         <tr>
-                            <td>Staff</td>
-                            <td>Manager</td>
-                            <td>Finance</td>
+                            <td>Dibuat (Staff)</td>
+                            <td>Diperiksa (Manager)</td>
+                            <td>Disetujui (Finance)</td>
                         </tr>
                     </table>
                 </div>
@@ -240,7 +251,7 @@
             <td>2.</td>
             <td>Jabatan</td>
             <td>:</td>
-            <td>Staff - Sales</td>
+            <td>{{ $uc->department ?? '-' }}</td>
         </tr>
         <tr>
             <td>3.</td>
@@ -340,11 +351,11 @@
                             </td>
                             <td style="padding: 10px;">
                                 <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">Bapak Manajer</div>
+                                <div class="signature-name">Digital Signature</div>
                             </td>
                             <td style="padding: 10px;">
                                 <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">Ibu Finance</div>
+                                <div class="signature-name">Digital Signature</div>
                             </td>
                         </tr>
                         <tr>
@@ -457,7 +468,7 @@
                             </td>
                             <td style="padding: 10px;">
                                 <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">Bapak Manajer</div>
+                                <div class="signature-name">Digital Signature</div>
                             </td>
                         </tr>
                         <tr>

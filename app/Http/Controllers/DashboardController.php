@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $today = Carbon::today();
         
-        $isAdmin = $user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur']);
+        $isAdmin = $user->isAdminUser();
 
         // Base Queries
         $attendanceQuery = Attendance::whereDate('created_at', $today);
@@ -52,10 +52,12 @@ class DashboardController extends Controller
                 $data['total_surat_pesanan'] = SyncPesananData::count();
                 $data['total_piutang'] = SyncPiutangData::count();
                 $data['total_logistik'] = SyncLogistikData::count();
+                $data['total_hutang'] = \App\Models\SyncHutangData::count();
             } else {
                 $data['total_surat_pesanan'] = 0;
                 $data['total_piutang'] = 0;
                 $data['total_logistik'] = 0;
+                $data['total_hutang'] = 0;
             }
             
             return $data;

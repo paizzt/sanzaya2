@@ -25,6 +25,7 @@ class BhpRecapController extends Controller
 
         $bhp = BhpRequest::findOrFail($id);
         $bhp->status = $request->status;
+        $bhp->approved_by = \Illuminate\Support\Facades\Auth::id();
         $bhp->save();
 
         return redirect()->back()->with('success', 'Status pengajuan BHP berhasil diperbarui.');
@@ -63,10 +64,7 @@ class BhpRecapController extends Controller
             'month' => $request->month,
             'year' => $request->year,
             'status' => $request->status
-        ])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
-        
-        // Use landscape mode because tables can be wide
-        $pdf->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        ])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
 
         return request()->has('preview') ? $pdf->stream('Rekap_BHP_' . date('Ymd_His') . '.pdf') : $pdf->download('Rekap_BHP_' . date('Ymd_His') . '.pdf');
     }

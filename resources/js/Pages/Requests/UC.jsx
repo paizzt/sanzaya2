@@ -10,6 +10,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SearchableSelect from '@/Components/SearchableSelect';
 import CustomDatePicker from '@/Components/CustomDatePicker';
 import UcPreview from '@/Components/UcPreview';
+import CurrencyInput from '@/Components/CurrencyInput';
 
 
 export default function UC({ requests, users, vehicles, isAdmin }) {
@@ -75,19 +76,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
         setData('companions', newCompanions.filter(c => c !== '')); // Remove empties
     };
 
-    const handleCurrencyChange = (field, e) => {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value) {
-            setData(field, (parseInt(value, 10) / 100).toString());
-        } else {
-            setData(field, '');
-        }
-    };
-
-    const formatRupiah = (value) => {
-        if (!value) return '';
-        return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
-    };
+    // Removed handleCurrencyChange and formatRupiah because CurrencyInput handles formatting internally
 
     return (
         <AuthenticatedLayout
@@ -122,7 +111,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                             { value: 'PT. MSI', label: 'PT. MSI (MSI)' },
                                             { value: 'PT. Ruma', label: 'PT. Ruma (Ruma)' }
                                         ]}
-                                       
+                                        placeholder="Pilih Entitas..."
                                     />
                                 </div>
                             </div>
@@ -134,7 +123,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                             value={data.user_id}
                                             onChange={(val) => setData('user_id', val)}
                                             options={users.map(u => ({ value: u.id, label: u.name }))}
-                                           
+                                            placeholder="Pilih Pegawai..."
                                         />
                                         <InputError message={errors.user_id} className="mt-2" />
                                     </div>
@@ -158,7 +147,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                 <InputLabel value="Kota Tujuan *" className="flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-500"/> Tujuan</InputLabel>
                                 <TextInput 
                                     className="mt-1 block w-full bg-white" 
-                                   
+                                    placeholder="Contoh: Pinrang, Parepare..."
                                     value={data.destination_city}
                                     onChange={(e) => setData('destination_city', e.target.value)}
                                 />
@@ -202,19 +191,19 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                     value={data.companions?.[0] || ''}
                                     onChange={(val) => handleCompanionChange(0, val)}
                                     options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                   
+                                    placeholder="Pilih Pendamping 1"
                                 />
                                 <SearchableSelect
                                     value={data.companions?.[1] || ''}
                                     onChange={(val) => handleCompanionChange(1, val)}
                                     options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                   
+                                    placeholder="Pilih Pendamping 2"
                                 />
                                 <SearchableSelect
                                     value={data.companions?.[2] || ''}
                                     onChange={(val) => handleCompanionChange(2, val)}
                                     options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                   
+                                    placeholder="Pilih Pendamping 3"
                                 />
                             </div>
                         </div>
@@ -231,7 +220,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                             { value: 'Laut', label: 'Laut' },
                                             { value: 'Udara', label: 'Udara' }
                                         ]}
-                                       
+                                        placeholder="Pilih Transportasi"
                                     />
                                 </div>
                             </div>
@@ -245,7 +234,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                                             value: v.license_plate, 
                                             label: `${v.license_plate} - ${v.brand_type || 'Kendaraan'}` 
                                         }))}
-                                       
+                                        placeholder="Pilih Kendaraan (Opsional)"
                                     />
                                 </div>
                             </div>
@@ -256,56 +245,51 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <InputLabel value="Estimasi Biaya Bensin (Rp)" />
-                                    <TextInput 
-                                        type="text"
+                                    <CurrencyInput 
                                         className={`mt-1 block w-full ${data.transportation_type !== 'Darat' ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`} 
-                                       
-                                        value={data.estimated_gas_cost ? formatRupiah(data.estimated_gas_cost) : ''}
-                                        onChange={(e) => handleCurrencyChange('estimated_gas_cost', e)}
+                                        placeholder="Rp 0"
+                                        value={data.estimated_gas_cost}
+                                        onChange={(val) => setData('estimated_gas_cost', val)}
                                         disabled={data.transportation_type !== 'Darat'}
                                     />
                                 </div>
                                 <div>
                                     <InputLabel value="Estimasi Biaya Konsumsi (Rp)" />
-                                    <TextInput 
-                                        type="text"
+                                    <CurrencyInput 
                                         className="mt-1 block w-full bg-white" 
-                                       
-                                        value={data.estimated_meals_cost ? formatRupiah(data.estimated_meals_cost) : ''}
-                                        onChange={(e) => handleCurrencyChange('estimated_meals_cost', e)}
+                                        placeholder="Rp 0"
+                                        value={data.estimated_meals_cost}
+                                        onChange={(val) => setData('estimated_meals_cost', val)}
                                     />
                                 </div>
                                 <div>
                                     <InputLabel value="Estimasi Biaya Penginapan (Rp)" />
-                                    <TextInput 
-                                        type="text"
+                                    <CurrencyInput 
                                         className="mt-1 block w-full bg-white" 
-                                       
-                                        value={data.estimated_accommodation_cost ? formatRupiah(data.estimated_accommodation_cost) : ''}
-                                        onChange={(e) => handleCurrencyChange('estimated_accommodation_cost', e)}
+                                        placeholder="Rp 0"
+                                        value={data.estimated_accommodation_cost}
+                                        onChange={(val) => setData('estimated_accommodation_cost', val)}
                                     />
                                 </div>
                                 {data.transportation_type === 'Udara' && (
                                     <div>
                                         <InputLabel value="Harga Tiket Pesawat (Rp)" />
-                                        <TextInput 
-                                            type="text"
+                                        <CurrencyInput 
                                             className="mt-1 block w-full bg-white" 
-                                           
-                                            value={data.flight_ticket_cost ? formatRupiah(data.flight_ticket_cost) : ''}
-                                            onChange={(e) => handleCurrencyChange('flight_ticket_cost', e)}
+                                            placeholder="Rp 0"
+                                            value={data.flight_ticket_cost}
+                                            onChange={(val) => setData('flight_ticket_cost', val)}
                                         />
                                     </div>
                                 )}
                                 {data.transportation_type === 'Laut' && (
                                     <div>
                                         <InputLabel value="Harga Tiket Kapal (Rp)" />
-                                        <TextInput 
-                                            type="text"
+                                        <CurrencyInput 
                                             className="mt-1 block w-full bg-white" 
-                                           
-                                            value={data.ship_ticket_cost ? formatRupiah(data.ship_ticket_cost) : ''}
-                                            onChange={(e) => handleCurrencyChange('ship_ticket_cost', e)}
+                                            placeholder="Rp 0"
+                                            value={data.ship_ticket_cost}
+                                            onChange={(val) => setData('ship_ticket_cost', val)}
                                         />
                                     </div>
                                 )}

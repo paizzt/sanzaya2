@@ -50,7 +50,8 @@ export default function DeleteUserForm({ className = '' }) {
                 onClick={confirmUserDeletion}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             >
-                 Hapus</button>
+                <Trash2 className="w-5 h-5" /> Hapus Akun
+            </button>
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
                 <div className="p-8">
@@ -84,7 +85,7 @@ export default function DeleteUserForm({ className = '' }) {
                                     onChange={(e) => setData('password', e.target.value)}
                                     className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-red-500 focus:ring-red-500 transition-all"
                                     isFocused
-                                   
+                                    placeholder="Masukkan kata sandi untuk konfirmasi"
                                 />
                             </div>
                             <InputError message={errors.password} className="mt-2" />
@@ -92,14 +93,16 @@ export default function DeleteUserForm({ className = '' }) {
 
                         <div className="mt-8 flex justify-end gap-3">
                             <SecondaryButton onClick={closeModal} className="h-11 px-6 rounded-xl border-gray-300">
-                                Batal</SecondaryButton>
+                                Batal
+                            </SecondaryButton>
 
                             <button
                                 type="submit"
                                 className="inline-flex items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 h-11"
                                 disabled={processing}
                             >
-                                 Hapus</button>
+                                <Trash2 className="w-4 h-4" /> Hapus Akun Secara Permanen
+                            </button>
                         </div>
                     </form>
                 </div>

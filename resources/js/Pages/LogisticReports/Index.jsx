@@ -118,8 +118,9 @@ export default function Index({ auth, items, sales, outlets }) {
                                 <div className="flex items-center gap-3">
                                 <ExportDropdown pdfRoute={route('logistic-reports.export.pdf')} excelRoute={route('logistic-reports.export.excel')} />
                                 <PrimaryButton onClick={() => openModal()}>
-                                    
-                                    Tambah</PrimaryButton>
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Tambah Data
+                                </PrimaryButton>
                             </div>
                             </div>
 
@@ -145,10 +146,10 @@ export default function Index({ auth, items, sales, outlets }) {
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.total_sales}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
-                                                        
+                                                        <Edit className="w-4 h-4" />
                                                     </button>
                                                     <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900">
-                                                        
+                                                        <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -193,7 +194,7 @@ export default function Index({ auth, items, sales, outlets }) {
                                     options={sales ? sales.map(s => ({ value: s.name, label: s.name })) : []}
                                     value={data.nama_sales}
                                     onChange={val => setData('nama_sales', val)}
-                                   
+                                    placeholder="Pilih Sales"
                                 />
                             </div>
                             <InputError message={errors.nama_sales} className="mt-2" />
@@ -206,7 +207,7 @@ export default function Index({ auth, items, sales, outlets }) {
                                     options={outlets ? outlets.map(o => ({ value: o.name, label: o.name })) : []}
                                     value={data.nama_outlet}
                                     onChange={val => setData('nama_outlet', val)}
-                                   
+                                    placeholder="Pilih Outlet"
                                 />
                             </div>
                             <InputError message={errors.nama_outlet} className="mt-2" />

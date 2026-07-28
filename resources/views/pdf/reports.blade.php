@@ -159,5 +159,12 @@
         </tbody>
     </table>
 
+    <div style="margin-top: 40px; float: right; text-align: center; width: 250px;">
+        <p>Makassar, {{ \Carbon\Carbon::now()->format('d M Y') }}</p>
+        <p>Mengetahui,</p>
+        <br><br><br>
+        <p><strong>Admin Logistik / Keuangan</strong></p>
+    </div>
+    <div style="clear: both;"></div>
 </body>
 </html>

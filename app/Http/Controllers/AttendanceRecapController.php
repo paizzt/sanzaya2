@@ -22,8 +22,7 @@ class AttendanceRecapController extends Controller
     {
         $data = $this->getRecapData($request);
         
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
-        $pdf->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         
         $fileName = 'Rekap_Absensi_' . $data['filters']['month'] . '_' . $data['filters']['year'] . '.pdf';
         return request()->has('preview') ? $pdf->stream($fileName) : $pdf->download($fileName);
@@ -32,7 +31,7 @@ class AttendanceRecapController extends Controller
     private function getRecapData(Request $request)
     {
         $user = Auth::user();
-        $isAdmin = $user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur']);
+        $isAdmin = $user->isAdminUser();
 
         // Default filters
         $month = $request->input('month', Carbon::now()->month);

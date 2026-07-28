@@ -33,6 +33,7 @@
     <table>
         <tr><td width="30%"><strong>Nama Pemohon</strong></td><td>{{ $bhp->user->name ?? '-' }}</td></tr>
         <tr><td><strong>Divisi / Departemen</strong></td><td>{{ $bhp->department }}</td></tr>
+
         <tr><td><strong>Tanggal Pengajuan</strong></td><td>{{ $bhp->request_date }}</td></tr>
         <tr><td><strong>Target Dibutuhkan</strong></td><td>{{ $bhp->target_date }}</td></tr>
         <tr><td><strong>Nama Barang</strong></td><td>{{ $bhp->product_name }}</td></tr>
@@ -41,8 +42,13 @@
 
     <div class="signature-box">
         <p>Disetujui Oleh,</p>
-        <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="80" />
-        <p><strong>Digital Signature</strong><br><small>{{ date('d M Y') }}</small></p>
+        @if($bhp->status == 'Disetujui')
+            <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="80" />
+            <p><strong>{{ $bhp->approver->name ?? 'Digital Signature' }}</strong><br><small>{{ \Carbon\Carbon::parse($bhp->updated_at)->format('d M Y') }}</small></p>
+        @else
+            <div style="height: 80px;"></div>
+            <p style="color: #999;"><strong>(Menunggu)</strong><br><small>-</small></p>
+        @endif
     </div>
     <div class="clear"></div>
 </body>

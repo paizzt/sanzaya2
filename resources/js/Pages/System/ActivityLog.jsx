@@ -132,7 +132,7 @@ export default function ActivityLog({ auth, logs, filters }) {
                                     <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                     <TextInput
                                         type="text"
-                                       
+                                        placeholder="Cari user, modul, aksi..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         className="pl-10 w-full md:w-64"
@@ -185,7 +185,7 @@ export default function ActivityLog({ auth, logs, filters }) {
                                                     className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-colors"
                                                     title="Lihat Detail"
                                                 >
-                                                    
+                                                    <Eye className="w-4 h-4" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -233,7 +233,7 @@ export default function ActivityLog({ auth, logs, filters }) {
                     <div className="flex justify-between items-center mb-6">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                                
+                                <History className="w-5 h-5" />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">Detail Perubahan</h2>

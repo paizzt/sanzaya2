@@ -52,7 +52,7 @@ class AttendanceRequestController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $user = Auth::user();
-        if (!$user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur'])) {
+        if (!$user->can('approve pengajuan absensi')) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses.');
         }
 

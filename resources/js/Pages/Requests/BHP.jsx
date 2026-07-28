@@ -100,7 +100,7 @@ export default function BHP({ requests, today }) {
                                             <InputLabel value="Nama Produk / Barang *" className="flex items-center gap-2"><PackageOpen className="w-4 h-4 text-orange-500"/> Nama Barang</InputLabel>
                                             <TextInput 
                                                 className="mt-1 block w-full bg-white" 
-                                               
+                                                placeholder="Contoh: Kertas HVS A4, Tinta Printer Epson, dll..."
                                                 value={data.product_name}
                                                 onChange={(e) => setData('product_name', e.target.value)}
                                             />
@@ -111,7 +111,7 @@ export default function BHP({ requests, today }) {
                                             <textarea 
                                                 className="mt-1 block w-full rounded-xl border-gray-200 focus:border-orange-500 focus:ring-orange-500 bg-white"
                                                 rows="3"
-                                               
+                                                placeholder="Contoh: 5 Rim Kertas A4 80gsm, 2 Botol Tinta Hitam..."
                                                 value={data.specifications}
                                                 onChange={(e) => setData('specifications', e.target.value)}
                                             ></textarea>
@@ -122,7 +122,7 @@ export default function BHP({ requests, today }) {
 
                                 <div className="pt-4 flex justify-end">
                                     <PrimaryButton disabled={processing} className="py-3 px-8 bg-orange-500 hover:bg-orange-600 rounded-xl flex items-center gap-2 text-sm">
-                                        Ajukan
+                                        <Send className="w-4 h-4" /> Ajukan Form BHP
                                     </PrimaryButton>
                                 </div>
                             </form>
@@ -160,7 +160,7 @@ export default function BHP({ requests, today }) {
                                                     {req.status !== 'Ditolak' && (
                                                         <ExportDropdown pdfRoute={route('requests.bhp.pdf', req.id)} trigger={
                                                         <button className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-bold rounded-full transition-colors flex items-center gap-1">
-                                                             PDF
+                                                            <Download className="w-3 h-3" /> PDF
                                                         </button>
                                                     } />
                                                     )}
@@ -183,7 +183,7 @@ export default function BHP({ requests, today }) {
                             <div className="bg-white shadow-[0_10px_40px_rgba(0,0,0,0.1)] rounded-sm p-8 sm:p-10 w-full aspect-[1/1.414] relative border border-gray-200 font-serif text-gray-900 mx-auto max-w-[500px]">
                                 {/* Paper watermark / styling */}
                                 <div className="absolute inset-0 border-[20px] border-white pointer-events-none rounded-sm"></div>
-                                <div className="absolute inset-0 bg-black/5 opacity-5 pointer-events-none rounded-sm"></div>
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 opacity-5 pointer-events-none rounded-sm"></div>
 
                                 <div className="relative z-10 h-full flex flex-col">
                                     <div className="text-center border-b-2 border-gray-800 pb-4 mb-6">

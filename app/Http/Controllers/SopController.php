@@ -6,6 +6,7 @@ use App\Models\Sop;
 use App\Models\SopDivision;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class SopController extends Controller
 {
@@ -19,9 +20,9 @@ class SopController extends Controller
 
     public function storeDivision(Request $request)
     {
-        if (!auth()->user()->hasRole('Superadmin')) { abort(403, 'Unauthorized action.'); }
-
-        if (!auth()->user()->hasRole('Superadmin')) { abort(403, 'Unauthorized action.'); }
+        if (!auth()->user()->can('manage master data')) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $request->validate([
             'name' => 'required|string|max:255'
@@ -34,9 +35,9 @@ class SopController extends Controller
 
     public function destroyDivision(SopDivision $sop_division)
     {
-        if (!auth()->user()->hasRole('Superadmin')) { abort(403, 'Unauthorized action.'); }
-
-        if (!auth()->user()->hasRole('Superadmin')) { abort(403, 'Unauthorized action.'); }
+        if (!auth()->user()->can('manage master data')) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $sop_division->delete();
         return redirect()->back()->with('success', 'Devisi SOP berhasil dihapus');
@@ -66,7 +67,9 @@ class SopController extends Controller
 
     public function update(Request $request, Sop $sop)
     {
-        if (!auth()->user()->hasRole('Superadmin')) { abort(403, 'Unauthorized action.'); }
+        if (!auth()->user()->can('manage master data')) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $request->validate([
             'title' => 'required|string|max:255',

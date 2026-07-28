@@ -9,6 +9,7 @@ import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
 import SearchableSelect from '@/Components/SearchableSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, salesNames, outletNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const [searchTerm, setSearchTerm] = useState(search || '');
@@ -35,6 +36,13 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const parseRpToNumber = (str) => {
+        if (!str) return 0;
+        return parseInt(str.toString().replace(/[^0-9]/g, ''), 10) || 0;
+    };
+
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#a4de6c', '#d0ed57', '#8dd1e1'];
+
     const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
     const handleSearch = (e) => {
@@ -55,6 +63,138 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
         setSelectedSales('');
         setSelectedOutlet('');
         setSelectedMonth('');
+    };
+
+    // Chart Renderers
+    const renderLogistikChart = () => {
+        if (!summary?.penjualan_detail || Object.keys(summary.penjualan_detail).length === 0) return null;
+        const data = Object.entries(summary.penjualan_detail).map(([name, val]) => ({
+            name: name,
+            Penjualan: parseRpToNumber(val)
+        }));
+
+        return (
+            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
+                <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-45} textAnchor="end" />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
+                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                            <Bar dataKey="Penjualan" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+        );
+    };
+
+    const renderPesananChart = () => {
+        if (!summaryPesanan) return null;
+        
+        const terkirim = parseFloat((summaryPesanan.total_terkirim || '0').replace('%', ''));
+        const belum = parseFloat((summaryPesanan.total_belum_terkirim || '0').replace('%', ''));
+        
+        if (terkirim === 0 && belum === 0) return null;
+
+        const pieData = [
+            { name: 'Terkirim', value: terkirim, color: '#10b981' }, // emerald-500
+            { name: 'Belum Terkirim', value: belum, color: '#ef4444' } // red-500
+        ];
+
+        const barData = Object.entries(summaryPesanan.faktur_detail || {}).map(([name, val]) => ({
+            name: name,
+            TotalFaktur: parseRpToNumber(val)
+        }));
+
+        return (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                    {pieData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <RechartsTooltip formatter={(val) => `${val}%`} />
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+                <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2">
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</h4>
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={barData} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-15} textAnchor="end" />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
+                                <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                                <Bar dataKey="TotalFaktur" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={30} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const renderPiutangChart = () => {
+        if (!summaryPiutang?.gabungan_detail || Object.keys(summaryPiutang.gabungan_detail).length === 0) return null;
+        
+        const data = Object.entries(summaryPiutang.gabungan_detail).map(([name, val]) => ({
+            name: name,
+            TotalPiutang: parseRpToNumber(val)
+        }));
+
+        return (
+            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Top 10 Total Piutang Outlet</h4>
+                <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-15} textAnchor="end" />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
+                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                            <Bar dataKey="TotalPiutang" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+        );
+    };
+
+    const renderHutangChart = () => {
+        if (!summaryHutang?.hutang_detail || Object.keys(summaryHutang.hutang_detail).length === 0) return null;
+        
+        const data = Object.entries(summaryHutang.hutang_detail).map(([name, val]) => ({
+            name: name,
+            TotalHutang: parseRpToNumber(val)
+        }));
+
+        return (
+            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</h4>
+                <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data} layout="vertical" margin={{ top: 10, right: 30, left: 100, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
+                            <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} />
+                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                            <Bar dataKey="TotalHutang" fill="#f97316" radius={[0, 4, 4, 0]} barSize={20} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+        );
     };
 
     // ... renderLogistikTable ...
@@ -125,7 +265,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                 <tr>
                     <th className="px-6 py-4" rowSpan="2">Outlet</th>
                     <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Sanzaya</th>
-                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Ruma</th>
+                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-purple-50/50" colSpan="4">Ruma</th>
                     <th className="px-6 py-4 text-right font-bold" rowSpan="2">Total Gabungan</th>
                 </tr>
                 <tr>
@@ -133,10 +273,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     <th className="px-4 py-2 bg-blue-50/50">Tahun 2</th>
                     <th className="px-4 py-2 bg-blue-50/50">Tahun 3</th>
                     <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total</th>
-                    <th className="px-4 py-2 bg-blue-50/50">Ruma 1</th>
-                    <th className="px-4 py-2 bg-blue-50/50">Ruma 2</th>
-                    <th className="px-4 py-2 bg-blue-50/50">Ruma 3</th>
-                    <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total Ruma</th>
+                    <th className="px-4 py-2 bg-purple-50/50">Ruma 1</th>
+                    <th className="px-4 py-2 bg-purple-50/50">Ruma 2</th>
+                    <th className="px-4 py-2 bg-purple-50/50">Ruma 3</th>
+                    <th className="px-4 py-2 text-right bg-purple-100/50 font-bold">Total Ruma</th>
                 </tr>
             </thead>
             <tbody>
@@ -150,7 +290,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         <td className="px-4 py-3">{row.ruma_1}</td>
                         <td className="px-4 py-3">{row.ruma_2}</td>
                         <td className="px-4 py-3">{row.ruma_3}</td>
-                        <td className="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/30">{row.total_ruma}</td>
+                        <td className="px-4 py-3 text-right font-bold text-purple-700 bg-purple-50/30">{row.total_ruma}</td>
                         <td className="px-6 py-4 text-right font-bold text-gray-900 bg-gray-50">{row.total_gabungan}</td>
                     </tr>
                 ))}
@@ -205,9 +345,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             onClick={() => setIsDownloadOpen(!isDownloadOpen)}
                             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/30 text-sm"
                         >
-                            
-                            Unduh
-                            
+                            <Download className="w-4 h-4" />
+                            Unduh PDF
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDownloadOpen ? 'rotate-180' : ''}`} />
                         </button>
                         
                         {isDownloadOpen && (
@@ -256,8 +396,8 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     <p className="text-sm font-semibold text-gray-500 truncate">Top Outlet</p>
                                     <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.top_outlet}>{summary.top_outlet}</h4>
                                 </div>
-                                <div className="p-3 bg-blue-50 rounded-2xl">
-                                    <Store className="w-6 h-6 text-blue-600" />
+                                <div className="p-3 bg-purple-50 rounded-2xl">
+                                    <Store className="w-6 h-6 text-purple-600" />
                                 </div>
                             </div>
                             <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
@@ -280,7 +420,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                 {tab === 'pesanan' && summaryPesanan && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Faktur', type: 'faktur', data: summaryPesanan.faktur_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Faktur</p>
@@ -293,7 +433,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total akumulasi dari Total Faktur</p>
                         </div>
                         
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Barang Terkirim', type: 'terkirim', data: summaryPesanan.terkirim_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Barang Terkirim</p>
@@ -336,7 +476,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                 {tab === 'piutang' && summaryPiutang && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Piutang (Gabungan)', type: 'gabungan', data: summaryPiutang.gabungan_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Piutang (Gabungan)</p>
@@ -349,7 +489,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total keseluruhan piutang</p>
                         </div>
                         
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Piutang Sanzaya', type: 'sanzaya', data: summaryPiutang.sanzaya_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Piutang Sanzaya</p>
@@ -362,14 +502,14 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total piutang bagian Sanzaya</p>
                         </div>
 
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Piutang Ruma', type: 'ruma', data: summaryPiutang.ruma_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Piutang Ruma</p>
-                                    <h4 className="text-xl font-bold text-blue-700 mt-1 truncate" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
+                                    <h4 className="text-xl font-bold text-purple-700 mt-1 truncate" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
                                 </div>
-                                <div className="p-3 bg-blue-50 rounded-2xl">
-                                    <TrendingUp className="w-6 h-6 text-blue-600" />
+                                <div className="p-3 bg-purple-50 rounded-2xl">
+                                    <TrendingUp className="w-6 h-6 text-purple-600" />
                                 </div>
                             </div>
                             <p className="text-xs text-gray-400">Total piutang bagian Ruma</p>
@@ -392,7 +532,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                 {tab === 'hutang' && summaryHutang && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Nominal', type: 'hutang', data: summaryHutang.hutang_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Nominal</p>
@@ -440,13 +580,13 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             className="flex items-center justify-between w-full lg:w-56 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
                         >
                             <div className="flex items-center gap-2">
-                                {tab === 'logistik' && <> Logistik</>}
-                                {tab === 'pesanan' && <> Surat Pesanan</>}
-                                {tab === 'piutang' && <> Data Piutang</>}
-                                {tab === 'hutang' && <> Data Hutang</>}
-                                {!['logistik', 'pesanan', 'piutang', 'hutang'].includes(tab) && <> Pilih Laporan</>}
+                                {tab === 'logistik' && <><Package className="w-4 h-4" /> Logistik</>}
+                                {tab === 'pesanan' && <><ShoppingCart className="w-4 h-4" /> Surat Pesanan</>}
+                                {tab === 'piutang' && <><CreditCard className="w-4 h-4" /> Data Piutang</>}
+                                {tab === 'hutang' && <><CreditCard className="w-4 h-4" /> Data Hutang</>}
+                                {!['logistik', 'pesanan', 'piutang', 'hutang'].includes(tab) && <><BarChart2 className="w-4 h-4" /> Pilih Laporan</>}
                             </div>
-                            
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
                         
                         {isTabDropdownOpen && (
@@ -455,25 +595,25 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     onClick={() => { handleTabChange('logistik'); setIsTabDropdownOpen(false); }} 
                                     className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='logistik' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
                                 >
-                                     Logistik
+                                    <Package className="w-4 h-4" /> Logistik
                                 </button>
                                 <button 
                                     onClick={() => { handleTabChange('pesanan'); setIsTabDropdownOpen(false); }} 
                                     className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='pesanan' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:bg-gray-50 hover:text-emerald-600'}`}
                                 >
-                                     Surat Pesanan
+                                    <ShoppingCart className="w-4 h-4" /> Surat Pesanan
                                 </button>
                                 <button 
                                     onClick={() => { handleTabChange('piutang'); setIsTabDropdownOpen(false); }} 
-                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='piutang' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='piutang' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'}`}
                                 >
-                                     Data Piutang
+                                    <CreditCard className="w-4 h-4" /> Data Piutang
                                 </button>
                                 <button 
                                     onClick={() => { handleTabChange('hutang'); setIsTabDropdownOpen(false); }} 
                                     className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${tab==='hutang' ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600'}`}
                                 >
-                                     Data Hutang
+                                    <CreditCard className="w-4 h-4" /> Data Hutang
                                 </button>
                             </div>
                         )}
@@ -498,7 +638,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     { value: '', label: 'Semua Bulan' },
                                     ...months.map(m => ({ value: m, label: m }))
                                 ]}
-                               
+                                placeholder="Pilih Bulan..."
                                 icon={Calendar}
                             />
                         </div>
@@ -515,7 +655,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         { value: '', label: 'Semua Sales' },
                                         ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
-                                   
+                                    placeholder="Cari Sales..."
                                     icon={UserIcon}
                                 />
                             </div>
@@ -534,7 +674,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         { value: '', label: 'Semua Outlet' },
                                         ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
-                                   
+                                    placeholder="Cari Outlet..."
                                     icon={StoreIcon}
                                 />
                             </div>
@@ -546,7 +686,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     <TextInput 
                                         type="text" 
                                         className="w-full pl-10 rounded-xl" 
-                                        
+                                        placeholder="Cari data..." 
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         onBlur={() => {
@@ -561,13 +701,19 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     onClick={() => setIsSearchExpanded(true)}
                                     className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 border border-gray-200 transition-colors"
                                 >
-                                    
+                                    <Search className="w-4 h-4" />
                                 </button>
                             )}
                         </div>
                         <button type="submit" className="hidden"></button>
                     </form>
                 </div>
+
+                {/* Charts Area */}
+                {tab === 'logistik' && renderLogistikChart()}
+                {tab === 'pesanan' && renderPesananChart()}
+                {tab === 'piutang' && renderPiutangChart()}
+                {tab === 'hutang' && renderHutangChart()}
 
                 <div id="data-table-container" className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                     <div className="overflow-x-auto">

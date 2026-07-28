@@ -77,7 +77,7 @@ class ReceivableController extends Controller
         ];
         
         if ($request->id) {
-            Receivable::find($request->id)->update($dataToSave);
+            Receivable::findOrFail($request->id)->update($dataToSave);
         } else {
             Receivable::create($dataToSave);
         }

@@ -130,8 +130,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/settings/notifications/vapid', [NotificationController::class, 'generateVapid'])->name('notifications.vapid');
     Route::post('/settings/notifications/store', [NotificationController::class, 'storeSettings'])->name('notifications.store');
-    Route::post('/push-subscribe', [NotificationController::class, 'subscribe'])->name('push.subscribe');
-    
+    Route::get('/settings/vapid-public-key', [NotificationController::class, 'getVapidPublicKey'])->name('notifications.vapidPublicKey');
+    Route::post('/settings/push-subscription', [NotificationController::class, 'subscribe'])->name('push.subscribe');
+
     // DB Notifications
     Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markRead'])->name('notifications.markRead');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');

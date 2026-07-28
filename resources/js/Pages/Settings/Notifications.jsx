@@ -88,16 +88,16 @@ export default function Notifications({ setting }) {
                             disabled={vapidProcessing}
                             className="w-full py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                         >
-                             Generate
+                            <Key className="w-4 h-4" /> Generate VAPID Keys Baru
                         </button>
                     </div>
 
                     {/* Subscription Note */}
-                    <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20">
+                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-xl shadow-indigo-500/20">
                         <h3 className="font-bold text-xl mb-2 flex items-center gap-2">
                             <BellRing className="w-6 h-6" /> Notifikasi Karyawan
                         </h3>
-                        <p className="text-blue-100 text-sm leading-relaxed mb-4">
+                        <p className="text-indigo-100 text-sm leading-relaxed mb-4">
                             Saat pengguna login, browser akan secara otomatis meminta izin untuk mengirimkan notifikasi. 
                             Pastikan pengaturan jam di bawah sudah sesuai. Notifikasi akan dikirim otomatis oleh sistem (Cron Job).
                         </p>
@@ -150,7 +150,7 @@ export default function Notifications({ setting }) {
                             <InputLabel value="Hari Aktif Notifikasi (1=Senin, 7=Minggu)" className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-gray-400"/> Pisahkan dengan koma</InputLabel>
                             <TextInput 
                                 className="mt-1 block w-full md:w-1/2" 
-                               
+                                placeholder="Contoh: 1,2,3,4,5"
                                 value={data.days_active}
                                 onChange={(e) => setData('days_active', e.target.value)}
                             />
@@ -160,7 +160,8 @@ export default function Notifications({ setting }) {
 
                         <div className="pt-4 flex justify-end">
                             <PrimaryButton disabled={processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2 text-sm">
-                                 Simpan</PrimaryButton>
+                                <Save className="w-4 h-4" /> Simpan Jadwal
+                            </PrimaryButton>
                         </div>
                     </form>
                 </div>

@@ -166,13 +166,13 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                                     onClick={() => setSelectedUc(selectedUc === req.id ? null : req.id)}
                                                     className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-colors"
                                                 >
-                                                    Result
+                                                    Isi Result & Nota
                                                 </button>
                                             )}
                                             {req.status === 'Selesai / Result Dikirim' && (
                                                 <ExportDropdown pdfRoute={route('requests.uc.pdf', req.id)} trigger={
                                                 <button className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1">
-                                                     Unduh
+                                                    <Download className="w-3 h-3" /> Unduh PDF
                                                 </button>
                                             } />
                                             )}
@@ -188,7 +188,7 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                                     <textarea 
                                                         className="mt-1 block w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                                                         rows="3"
-                                                       
+                                                        placeholder="Ceritakan detail hasil perjalanan dinas..."
                                                         value={resultData.result_summary}
                                                         onChange={(e) => setResultData('result_summary', e.target.value)}
                                                     ></textarea>
@@ -223,7 +223,7 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                                                         onClick={() => removeFile(i)}
                                                                         className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                                                                     >
-                                                                        
+                                                                        <X className="w-4 h-4" />
                                                                     </button>
                                                                 </div>
                                                             ))}
@@ -239,7 +239,8 @@ export default function UcHistory({ requests, activeUcs = [] }) {
 
                                                 <div className="flex justify-end">
                                                     <PrimaryButton disabled={resultProcessing} className="py-2.5 px-6 bg-emerald-600 hover:bg-emerald-700 rounded-xl">
-                                                        Kirim</PrimaryButton>
+                                                        Kirim Result UC
+                                                    </PrimaryButton>
                                                 </div>
                                             </form>
                                         </div>

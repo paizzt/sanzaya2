@@ -163,14 +163,14 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 onClick={() => setActiveTab('data')}
                                 className={`${activeTab === 'data' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
                             >
-                                
+                                <Wallet className="w-4 h-4" />
                                 Data Piutang
                             </button>
                             <button
                                 onClick={() => setActiveTab('daily')}
                                 className={`${activeTab === 'daily' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
                             >
-                                
+                                <ClipboardList className="w-4 h-4" />
                                 Laporan Harian
                             </button>
                         </nav>
@@ -188,8 +188,9 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 <div className="flex items-center gap-3">
                                 <ExportDropdown pdfRoute={route('receivables.export.pdf')} excelRoute={route('receivables.export.excel')} />
                                 <PrimaryButton onClick={() => openModal()}>
-                                    
-                                    Tambah</PrimaryButton>
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Tambah Data
+                                </PrimaryButton>
                             </div>
                             </div>
 
@@ -199,7 +200,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     <TextInput 
                                         type="text" 
                                         className="w-full mt-1" 
-                                        
+                                        placeholder="Nama Outlet..." 
                                         value={filterSearch} 
                                         onChange={e => setFilterSearch(e.target.value)} 
                                         onKeyPress={e => e.key === 'Enter' && applyFilter()}
@@ -212,7 +213,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             options={companies ? companies.map(c => ({ value: c.name, label: c.name })) : []}
                                             value={filterPt}
                                             onChange={val => setFilterPt(val)}
-                                           
+                                            placeholder="Semua PT"
                                         />
                                     </div>
                                 </div>
@@ -223,7 +224,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             options={yearOptions}
                                             value={filterYear}
                                             onChange={val => setFilterYear(val)}
-                                           
+                                            placeholder="Semua Tahun"
                                         />
                                     </div>
                                 </div>
@@ -269,10 +270,10 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
-                                                        
+                                                        <Edit className="w-4 h-4" />
                                                     </button>
                                                     <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900">
-                                                        
+                                                        <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -318,7 +319,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                                     options={users ? users.map(u => ({ value: u.id.toString(), label: u.name })) : []}
                                                     value={dailyForm.data.user_id}
                                                     onChange={val => dailyForm.setData('user_id', val)}
-                                                   
+                                                    placeholder="Pilih Penagih"
                                                 />
                                             </div>
                                             <InputError message={dailyForm.errors.user_id} className="mt-2" />
@@ -331,7 +332,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                                 options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
                                                 value={dailyForm.data.outlet_id}
                                                 onChange={val => dailyForm.setData('outlet_id', val)}
-                                               
+                                                placeholder="Pilih Outlet"
                                             />
                                         </div>
                                         <InputError message={dailyForm.errors.outlet_id} className="mt-2" />
@@ -339,17 +340,18 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     <div>
                                         <InputLabel value="Hasil" />
                                         <textarea
-                                            className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
+                                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                             rows="3"
                                             value={dailyForm.data.result}
                                             onChange={e => dailyForm.setData('result', e.target.value)}
-                                           
+                                            placeholder="Deskripsikan hasil penagihan..."
                                         />
                                         <InputError message={dailyForm.errors.result} className="mt-2" />
                                     </div>
                                     <div className="flex justify-end">
                                         <PrimaryButton type="submit" disabled={dailyForm.processing}>
-                                            Simpan</PrimaryButton>
+                                            Simpan Laporan
+                                        </PrimaryButton>
                                     </div>
                                 </form>
                             </div>
@@ -408,7 +410,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 options={companies ? companies.map(c => ({ value: c.name, label: c.name })) : []}
                                 value={data.nama_pt}
                                 onChange={val => setData('nama_pt', val)}
-                               
+                                placeholder="Pilih PT..."
                             />
                             <InputError message={errors.nama_pt} className="mt-2" />
                         </div>
@@ -419,7 +421,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 options={outlets ? outlets.map(o => ({ value: o.name, label: o.name })) : []}
                                 value={data.nama_outlet}
                                 onChange={val => setData('nama_outlet', val)}
-                               
+                                placeholder="Pilih Outlet..."
                             />
                             <InputError message={errors.nama_outlet} className="mt-2" />
                         </div>
@@ -427,8 +429,9 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                         <div className="md:col-span-2 mt-4">
                             <div className="flex justify-between items-center mb-2">
                                 <h4 className="font-semibold text-gray-700">Daftar Piutang per Tahun</h4>
-                                <button type="button" onClick={() => setData('details', [...data.details, { year: new Date().getFullYear().toString(), amount: '' }])} className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 flex items-center gap-1">
-                                     Tambah</button>
+                                <button type="button" onClick={() => setData('details', [...data.details, { year: new Date().getFullYear().toString(), amount: '' }])} className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 flex items-center gap-1">
+                                    <Plus className="w-3 h-3" /> Tambah Tahun
+                                </button>
                             </div>
 
                             {data.details.map((detail, index) => (
@@ -437,7 +440,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                         <TextInput
                                             type="number"
                                             className="w-full"
-                                           
+                                            placeholder="Tahun (cth: 2023)"
                                             value={detail.year}
                                             onChange={e => {
                                                 const newDetails = [...data.details];
@@ -454,7 +457,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             <TextInput
                                                 type="text"
                                                 className="w-full pl-9 font-mono text-right"
-                                               
+                                                placeholder="0,00"
                                                 value={detail.amount ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(detail.amount) / 100) : ''}
                                                 onChange={e => {
                                                     const rawValue = e.target.value.replace(/\D/g, '');
@@ -465,14 +468,12 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             />
                                         </div>
                                     </div>
-                                    {data.details.length > 1 && (
-                                        <button type="button" onClick={() => {
-                                            const newDetails = data.details.filter((_, i) => i !== index);
-                                            setData('details', newDetails);
-                                        }} className="text-red-500 hover:text-red-700 p-2">
-                                            
-                                        </button>
-                                    )}
+                                    <button type="button" onClick={() => {
+                                        const newDetails = data.details.filter((_, i) => i !== index);
+                                        setData('details', newDetails);
+                                    }} className="text-red-500 hover:text-red-700 p-2">
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
                                 </div>
                             ))}
 

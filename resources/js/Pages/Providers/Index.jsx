@@ -11,6 +11,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
+import CustomSelect from '@/Components/CustomSelect';
 
 export default function Index({ providers }) {
     const { auth } = usePage().props;
@@ -131,7 +132,7 @@ export default function Index({ providers }) {
             case 'bengkel': return <Wrench className="w-5 h-5 text-orange-600" />;
             case 'toko sparepart': return <Store className="w-5 h-5 text-blue-600" />;
             case 'bmhp': return <FileText className="w-5 h-5 text-teal-600" />;
-            case 'alat': return <Wrench className="w-5 h-5 text-blue-600" />;
+            case 'alat': return <Wrench className="w-5 h-5 text-indigo-600" />;
             case 'asuransi': return <ShieldCheck className="w-5 h-5 text-green-600" />;
             default: return <Building className="w-5 h-5 text-gray-600" />;
         }
@@ -158,7 +159,8 @@ export default function Index({ providers }) {
                         onClick={openCreateModal}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
                     >
-                         Tambah</button>
+                        <Plus className="w-5 h-5" /> Tambah Penyedia
+                    </button>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
@@ -170,7 +172,7 @@ export default function Index({ providers }) {
                             <input
                                 type="text"
                                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
-                               
+                                placeholder="Cari nama atau jenis penyedia..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -204,7 +206,7 @@ export default function Index({ providers }) {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-base">{provider.name}</p>
-                                                    <span className="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 border border-blue-100">
+                                                    <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 border border-indigo-100">
                                                         {provider.type || 'Lainnya'}
                                                     </span>
                                                 </div>
@@ -241,14 +243,14 @@ export default function Index({ providers }) {
                                                     className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" 
                                                     title="Edit"
                                                 >
-                                                    
+                                                    <Edit className="w-4 h-4" />
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(provider.id)} 
                                                     className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" 
                                                     title="Hapus"
                                                 >
-                                                    
+                                                    <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </td>
@@ -275,7 +277,7 @@ export default function Index({ providers }) {
                                         <Store className="w-6 h-6 text-blue-600"/>
                                         {isEditMode ? 'Edit Data Penyedia' : 'Tambah Penyedia Baru'}
                                     </h3>
-                                    <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"></button>
+                                    <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
                                 </div>
 
                                 <div className="p-6 space-y-6">
@@ -296,18 +298,15 @@ export default function Index({ providers }) {
 
                                         <div>
                                             <InputLabel htmlFor="type" value="Jenis Penyedia" />
-                                            <select
-                                                id="type"
-                                                name="type"
+                                            <CustomSelect
                                                 value={data.type}
-                                                onChange={(e) => setData('type', e.target.value)}
-                                                className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm"
-                                            >
-                                                <option value="">-- Pilih Jenis --</option>
-                                                {providerTypes.map(type => (
-                                                    <option key={type} value={type}>{type}</option>
-                                                ))}
-                                            </select>
+                                                onChange={(val) => setData('type', val)}
+                                                options={[
+                                                    { value: '', label: '-- Pilih Jenis --' },
+                                                    ...providerTypes.map(type => ({ value: type, label: type }))
+                                                ]}
+                                                placeholder="-- Pilih Jenis --"
+                                            />
                                             <InputError message={errors.type} className="mt-2" />
                                         </div>
 
@@ -390,7 +389,7 @@ export default function Index({ providers }) {
                                     <div className="flex items-center gap-3">
                                 <ExportDropdown pdfRoute={route('providers.export.pdf')} excelRoute={route('providers.export.excel')} />
                                 <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
-                                        {isEditMode ? 'Simpan' : 'Tambahkan'}
+                                        {isEditMode ? 'Simpan Perubahan' : 'Tambahkan'}
                                     </PrimaryButton>
                             </div>
                                 </div>
@@ -408,17 +407,17 @@ export default function Index({ providers }) {
                                     <Store className="w-5 h-5 text-blue-600"/>
                                     Detail Penyedia
                                 </h3>
-                                <button type="button" onClick={() => setIsPreviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"></button>
+                                <button type="button" onClick={() => setIsPreviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
                             </div>
 
                             <div className="p-6">
                                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
-                                    <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center">
+                                    <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
                                         {getProviderIcon(previewProvider.type)}
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-xl text-gray-900">{previewProvider.name}</h4>
-                                        <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200 mt-1">
+                                        <span className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200 mt-1">
                                             {previewProvider.type || 'Lainnya'}
                                         </span>
                                     </div>

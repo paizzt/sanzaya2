@@ -148,10 +148,10 @@ export default function Index({ vehicles }) {
                                             <div className="flex justify-center items-center gap-2">
                                                 <button 
                                                     onClick={() => { setSelectedVehicle(vehicle); setIsModalOpen(true); }}
-                                                    className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors tooltip"
+                                                    className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors tooltip"
                                                     title="Lihat Detail"
                                                 >
-                                                    
+                                                    <Eye className="w-4 h-4" />
                                                 </button>
                                                 <Link 
                                                     href={route('vehicles.edit', vehicle.id)}
@@ -165,7 +165,7 @@ export default function Index({ vehicles }) {
                                                     className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors tooltip"
                                                     title="Hapus"
                                                 >
-                                                    
+                                                    <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </td>
@@ -198,7 +198,7 @@ export default function Index({ vehicles }) {
                                 onClick={() => setIsModalOpen(false)}
                                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                             >
-                                
+                                <X className="w-6 h-6" />
                             </button>
                         </div>
 
@@ -253,7 +253,7 @@ export default function Index({ vehicles }) {
                                     {/* Legalitas */}
                                     <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                         <h4 className="text-base font-bold text-gray-800 flex items-center gap-2 mb-4 border-b pb-3">
-                                            <ShieldCheck className="w-5 h-5 text-blue-600" />
+                                            <ShieldCheck className="w-5 h-5 text-indigo-600" />
                                             Administrasi & Legalitas
                                         </h4>
                                         <div className="grid grid-cols-2 gap-y-4 gap-x-6">
@@ -341,7 +341,7 @@ export default function Index({ vehicles }) {
                                     {/* Target Suku Cadang */}
                                     <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                         <h4 className="text-base font-bold text-gray-800 flex items-center gap-2 mb-4 border-b pb-3">
-                                            <Wrench className="w-5 h-5 text-blue-600" />
+                                            <Wrench className="w-5 h-5 text-indigo-600" />
                                             Target Penggantian Suku Cadang
                                         </h4>
                                         

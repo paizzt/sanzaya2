@@ -129,8 +129,9 @@ export default function Index({ auth, items }) {
                                 <div className="flex items-center gap-3">
                                 <ExportDropdown pdfRoute={route('purchase-orders.export.pdf')} excelRoute={route('purchase-orders.export.excel')} />
                                 <PrimaryButton onClick={() => openModal()}>
-                                    
-                                    Tambah</PrimaryButton>
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Tambah Data
+                                </PrimaryButton>
                             </div>
                             </div>
 
@@ -158,10 +159,10 @@ export default function Index({ auth, items }) {
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.total_faktur}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
-                                                        
+                                                        <Edit className="w-4 h-4" />
                                                     </button>
                                                     <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900">
-                                                        
+                                                        <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </td>
                                             </tr>

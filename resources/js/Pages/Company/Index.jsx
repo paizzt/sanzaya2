@@ -120,8 +120,9 @@ export default function Index({ auth, companies }) {
                         onClick={() => openModal()}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-sm text-white tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 gap-2 shadow-sm"
                     >
-                        
-                        Tambah</button>
+                        <Plus className="w-5 h-5" />
+                        Tambah Perusahaan
+                    </button>
                             </div>
                 </div>
             }
@@ -155,12 +156,14 @@ export default function Index({ auth, companies }) {
                                                     onClick={() => openModal(company)}
                                                     className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors gap-1"
                                                 >
-                                                     Edit</button>
+                                                    <Edit className="w-4 h-4" /> Edit
+                                                </button>
                                                 <button
                                                     onClick={() => handleDelete(company.id)}
                                                     className="inline-flex items-center text-sm font-medium text-red-600 hover:text-red-800 transition-colors gap-1"
                                                 >
-                                                     Hapus</button>
+                                                    <Trash2 className="w-4 h-4" /> Hapus
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
@@ -176,8 +179,9 @@ export default function Index({ auth, companies }) {
                                         onClick={() => openModal()}
                                         className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-sm text-white tracking-widest hover:bg-blue-700 transition ease-in-out duration-150 shadow-sm"
                                     >
-                                        
-                                        Tambah</button>
+                                        <Plus className="w-5 h-5 mr-2" />
+                                        Tambah Perusahaan Pertama
+                                    </button>
                                 </div>
                             )}
 
@@ -193,7 +197,7 @@ export default function Index({ auth, companies }) {
                             {isEditing ? 'Edit Data Perusahaan' : 'Tambah Perusahaan Baru'}
                         </h3>
                         <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition">
-                            
+                            <X className="w-6 h-6" />
                         </button>
                     </div>
 
@@ -222,7 +226,7 @@ export default function Index({ auth, companies }) {
                                         onClick={() => logoInputRef.current?.click()}
                                         className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 gap-2"
                                     >
-                                        
+                                        <Upload className="w-4 h-4" />
                                         Pilih Gambar
                                     </button>
                                     <p className="mt-2 text-xs text-gray-500">Maksimal ukuran 2MB. Format JPG, PNG.</p>
@@ -253,7 +257,7 @@ export default function Index({ auth, companies }) {
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
                                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                   
+                                    placeholder="Masukkan nama perusahaan"
                                     required
                                 />
                             </div>
@@ -275,7 +279,7 @@ export default function Index({ auth, companies }) {
                                     onChange={(e) => setData('address', e.target.value)}
                                     rows={4}
                                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                   
+                                    placeholder="Masukkan alamat lengkap perusahaan"
                                 />
                             </div>
                             <InputError message={errors.address} className="mt-2" />
@@ -287,13 +291,14 @@ export default function Index({ auth, companies }) {
                                 onClick={closeModal}
                                 className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-semibold text-sm text-gray-700 tracking-widest hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150"
                             >
-                                Batal</button>
+                                Batal
+                            </button>
                             <button
                                 type="submit"
                                 disabled={processing}
                                 className="inline-flex items-center px-6 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-sm text-white tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 gap-2 disabled:opacity-50"
                             >
-                                
+                                <Save className="w-4 h-4" />
                                 {processing ? 'Menyimpan...' : 'Simpan'}
                             </button>
                         </div>

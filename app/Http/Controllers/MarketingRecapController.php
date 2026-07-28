@@ -72,7 +72,7 @@ class MarketingRecapController extends Controller
     public function exportPdf(Request $request)
     {
         $user = Auth::user();
-        if (!$user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur'])) {
+        if (!$user->can('export marketing')) {
             return abort(403, 'Unauthorized access.');
         }
 
@@ -110,7 +110,7 @@ class MarketingRecapController extends Controller
     public function exportExcel(Request $request)
     {
         $user = Auth::user();
-        if (!$user->hasRole(['Superadmin', 'Admin', 'Manager', 'Direktur'])) {
+        if (!$user->can('export marketing')) {
             return abort(403, 'Unauthorized access.');
         }
 
