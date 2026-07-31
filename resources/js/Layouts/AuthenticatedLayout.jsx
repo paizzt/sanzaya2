@@ -69,9 +69,28 @@ export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const { url } = usePage();
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props;
     const notifications = auth?.notifications || [];
     const unreadCount = auth?.unread_count || 0;
+
+    useEffect(() => {
+        if (flash?.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: flash.success,
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        }
+        if (flash?.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: flash.error,
+            });
+        }
+    }, [flash]);
 
     const markAsRead = (id) => {
         router.post(route('notifications.markRead', id), {}, { preserveScroll: true, preserveState: true });
@@ -84,6 +103,10 @@ export default function Authenticated({ user, header, children }) {
 
     useEffect(() => {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
+            if (Notification.permission === 'denied') {
+                return; // Do not attempt to subscribe if blocked
+            }
+            
             navigator.serviceWorker.ready.then(registration => {
                 registration.pushManager.getSubscription().then(subscription => {
                     if (!subscription) {
@@ -170,11 +193,13 @@ export default function Authenticated({ user, header, children }) {
             ]
         },
         {
-            name: 'Form BHP', icon: ShoppingCart, show: auth.active_features?.includes(5) || auth.active_features?.includes(24),
-            active: url.startsWith('/requests/bhp'),
+            name: 'Pengajuan', icon: FileText, show: true,
+            active: url.startsWith('/requests/bhp') || url.startsWith('/payment-requests') || url.startsWith('/payment-approvals'),
             children: [
                 { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(5) },
                 { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(24) },
+                { name: 'Pengajuan Pembayaran', href: route('payment-requests.index'), active: url.startsWith('/payment-requests'), show: true },
+                { name: 'Persetujuan Pembayaran', href: route('payment-approvals.index'), active: url.startsWith('/payment-approvals'), show: auth.user?.roles?.some(r => ['Manager', 'General Accounting', 'Direktur', 'Superadmin'].includes(r.name)) },
             ]
         },
         {

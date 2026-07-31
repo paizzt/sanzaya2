@@ -387,35 +387,28 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     </div>
                                                 )}
                                                 
-                                                {data.role !== 'Superadmin' && (
-                                                    <>
-                                                        <div>
-                                                            <InputLabel value="Jabatan" />
-                                                            <CustomSelect 
-                                                                value={data.position_id}
-                                                                onChange={val => setData('position_id', val)}
-                                                                options={positions.map(p => ({ value: p.id, label: p.name }))}
-                                                                placeholder="-- Pilih Jabatan --"
-                                                            />
-                                                            <InputError message={errors.position_id} className="mt-1" />
-                                                        </div>
-                                                        <div>
-                                                            <InputLabel value="Divisi" />
-                                                            <CustomSelect 
-                                                                value={data.division_id}
-                                                                onChange={val => setData('division_id', val)}
-                                                                options={divisions.map(d => ({ value: d.id, label: d.name }))}
-                                                                placeholder="-- Pilih Divisi --"
-                                                            />
-                                                            <InputError message={errors.division_id} className="mt-1" />
-                                                        </div>
-                                                    </>
-                                                )}
-                                                {data.role === 'Superadmin' && (
-                                                        <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100 text-sm text-yellow-800">
-                                                            Superadmin memiliki akses penuh, pilihan Jabatan dan Divisi dinonaktifkan.
-                                                        </div>
-                                                    )}
+                                                <>
+                                                    <div>
+                                                        <InputLabel value="Jabatan" />
+                                                        <CustomSelect 
+                                                            value={data.position_id}
+                                                            onChange={val => setData('position_id', val)}
+                                                            options={positions.map(p => ({ value: p.id, label: p.name }))}
+                                                            placeholder="-- Pilih Jabatan --"
+                                                        />
+                                                        <InputError message={errors.position_id} className="mt-1" />
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="Divisi" />
+                                                        <CustomSelect 
+                                                            value={data.division_id}
+                                                            onChange={val => setData('division_id', val)}
+                                                            options={divisions.map(d => ({ value: d.id, label: d.name }))}
+                                                            placeholder="-- Pilih Divisi --"
+                                                        />
+                                                        <InputError message={errors.division_id} className="mt-1" />
+                                                    </div>
+                                                </>
                                                 </div>
                                             </div>
 

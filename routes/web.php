@@ -199,6 +199,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/sops/jobs/{sop}', [\App\Http\Controllers\SopController::class, 'update'])->name('sops.update');
         Route::delete('/sops/jobs/{sop}', [\App\Http\Controllers\SopController::class, 'destroy'])->name('sops.destroy');
     });
+
+    // Payment Requests
+    Route::middleware(['can:payment-request.view-own'])->group(function() {
+        Route::get('payment-approvals', [\App\Http\Controllers\PaymentRequestController::class, 'approvals'])->name('payment-approvals.index');
+        Route::post('payment-requests/{payment_request}/submit', [\App\Http\Controllers\PaymentRequestController::class, 'submit'])->name('payment-requests.submit');
+        Route::post('payment-requests/{payment_request}/approve', [\App\Http\Controllers\PaymentRequestController::class, 'approve'])->name('payment-requests.approve');
+        Route::post('payment-requests/{payment_request}/reject', [\App\Http\Controllers\PaymentRequestController::class, 'reject'])->name('payment-requests.reject');
+        Route::get('payment-requests/{payment_request}/pdf', [\App\Http\Controllers\PaymentRequestController::class, 'downloadPdf'])->name('payment-requests.pdf');
+        Route::resource('payment-requests', \App\Http\Controllers\PaymentRequestController::class);
+    });
 });
 
 Route::middleware('auth')->group(function () {
