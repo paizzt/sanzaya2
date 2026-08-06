@@ -18,7 +18,10 @@ class VehicleController extends Controller
      */
     public function index()
     {
-        $vehicles = Vehicle::latest()->paginate(10);
+        $vehicles = Vehicle::with(['vehicleUsages' => function($q) {
+            $q->orderBy('created_at', 'desc');
+        }, 'vehicleUsages.user'])->latest()->paginate(10);
+        
         return Inertia::render('Vehicles/Index', [
             'vehicles' => $vehicles
         ]);

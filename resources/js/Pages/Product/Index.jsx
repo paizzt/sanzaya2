@@ -16,7 +16,7 @@ import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 
-export default function Index({ products, providers }) {
+export default function Index({ products }) {
     const { auth } = usePage().props;
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,7 +35,6 @@ export default function Index({ products, providers }) {
         is_active: true,
         jenis: '',
         link: '',
-        provider_id: '',
         registration_no: '',
         qty: '',
         unit: '',
@@ -47,8 +46,7 @@ export default function Index({ products, providers }) {
         keys: [
             'name', 
             'code',
-            'registration_no',
-            'provider.name'
+            'registration_no'
         ],
         threshold: 0.3,
         ignoreLocation: true
@@ -87,7 +85,6 @@ export default function Index({ products, providers }) {
             is_active: product.is_active,
             jenis: product.jenis || '',
             link: product.link || '',
-            provider_id: product.provider_id || '',
             registration_no: product.registration_no || '',
             qty: product.qty || '',
             unit: product.unit || '',
@@ -219,7 +216,6 @@ export default function Index({ products, providers }) {
                                     <th className="px-6 py-4 text-center">TKDN</th>
                                     <th className="px-6 py-4">Satuan</th>
                                     <th className="px-6 py-4 text-center">Jumlah</th>
-                                    <th className="px-6 py-4">Penyedia</th>
                                     <th className="px-6 py-4">Harga + PPN</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
@@ -245,9 +241,6 @@ export default function Index({ products, providers }) {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <span className="text-gray-900 font-bold">{product.qty}</span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-gray-900 font-medium">{product.provider?.name || '-'}</span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-gray-900 font-medium">{formatRupiah(product.price)}</span>
@@ -431,19 +424,7 @@ export default function Index({ products, providers }) {
                                         
 
 
-                                        <div className="md:col-span-2">
-                                            <InputLabel htmlFor="provider_id" value="Penyedia (Supplier)" />
-                                            <SearchableSelect
-                                                value={data.provider_id}
-                                                onChange={(val) => setData('provider_id', val)}
-                                                options={providers.map(p => ({
-                                                    value: p.id,
-                                                    label: `${p.name} ${p.type ? `(${p.type})` : ''}`
-                                                }))}
-                                                placeholder="Pilih Penyedia (Opsional)"
-                                            />
-                                            <InputError message={errors.provider_id} className="mt-2" />
-                                        </div>
+
 
                                         <div>
                                             <InputLabel htmlFor="link" value="Link" />

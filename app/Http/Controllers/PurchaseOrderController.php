@@ -14,9 +14,11 @@ class PurchaseOrderController extends Controller
 {
     public function index()
     {
-        $items = PurchaseOrder::orderBy('id', 'desc')->get();
+        $items = PurchaseOrder::with('outlet')->orderBy('id', 'desc')->get();
+        $outlets = \App\Models\Outlet::orderBy('name')->get();
         return Inertia::render('PurchaseOrders/Index', [
-            'items' => $items
+            'items' => $items,
+            'outlets' => $outlets
         ]);
     }
 
@@ -24,7 +26,7 @@ class PurchaseOrderController extends Controller
     {
         $validated = $request->validate([
             'tanggal' => 'nullable|date',
-            'nama_outlet' => 'nullable|string',
+            'outlet_id' => 'nullable|exists:outlets,id',
             'nama_produk' => 'nullable|string',
             'jumlah' => 'nullable|integer',
             'satuan' => 'nullable|string',
@@ -53,7 +55,7 @@ class PurchaseOrderController extends Controller
 
     public function exportPdf()
     {
-        $items = \App\Models\PurchaseOrder::orderBy('id', 'desc')->get();
+        $items = \App\Models\PurchaseOrder::with('outlet')->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -62,11 +64,14 @@ class PurchaseOrderController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($allowed) {
+            $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $row[] = $item->$col;
-                }
+                $row[] = $item->tanggal;
+                $row[] = $item->outlet ? $item->outlet->name : '-';
+                $row[] = $item->nama_produk;
+                $row[] = $item->jumlah;
+                $row[] = $item->satuan;
+                $row[] = $item->total_faktur;
                 return $row;
             });
         }
@@ -77,7 +82,7 @@ class PurchaseOrderController extends Controller
 
     public function exportExcel()
     {
-        $items = \App\Models\PurchaseOrder::orderBy('id', 'desc')->get();
+        $items = \App\Models\PurchaseOrder::with('outlet')->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -86,11 +91,14 @@ class PurchaseOrderController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($allowed) {
+            $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $row[] = $item->$col;
-                }
+                $row[] = $item->tanggal;
+                $row[] = $item->outlet ? $item->outlet->name : '-';
+                $row[] = $item->nama_produk;
+                $row[] = $item->jumlah;
+                $row[] = $item->satuan;
+                $row[] = $item->total_faktur;
                 return $row;
             });
         }

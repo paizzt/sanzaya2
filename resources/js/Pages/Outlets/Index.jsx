@@ -10,6 +10,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import CustomSelect from '@/Components/CustomSelect';
+import ClientPagination from '@/Components/ClientPagination';
 
 export default function Index({ outlets, areas }) {
     const { flash } = usePage().props;
@@ -20,6 +21,8 @@ export default function Index({ outlets, areas }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('');
     const [filterCity, setFilterCity] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
 
     const handleSelectAll = (e) => {
         if (e.target.checked) {
@@ -179,6 +182,15 @@ export default function Index({ outlets, areas }) {
         return matchSearch && matchType && matchCity;
     });
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterType, filterCity]);
+
+    const currentOutlets = filteredOutlets.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
     const totalOutlet = outlets.length;
     const totalRS = outlets.filter(o => o.type === 'RS').length;
     const totalDinkes = outlets.filter(o => o.type === 'DINKES').length;
@@ -300,6 +312,19 @@ export default function Index({ outlets, areas }) {
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                    {filteredOutlets.length > 0 && (
+                        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/50">
+                            <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                                Total Data: <span className="text-gray-900 font-bold">{filteredOutlets.length}</span>
+                            </div>
+                            <ClientPagination 
+                                total={filteredOutlets.length} 
+                                itemsPerPage={itemsPerPage} 
+                                currentPage={currentPage} 
+                                onPageChange={setCurrentPage} 
+                            />
+                        </div>
+                    )}
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
@@ -315,7 +340,7 @@ export default function Index({ outlets, areas }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredOutlets.map((outlet) => (
+                                {currentOutlets.map((outlet) => (
                                     <tr key={outlet.id} className="bg-white border-b border-gray-50 hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 text-center">
                                             <input type="checkbox" checked={selectedIds.includes(outlet.id)} onChange={() => handleSelectOne(outlet.id)} className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
@@ -371,6 +396,16 @@ export default function Index({ outlets, areas }) {
                             </tbody>
                         </table>
                     </div>
+                    {filteredOutlets.length > 0 && (
+                        <div className="mt-4 border-t border-gray-100 p-4">
+                            <ClientPagination 
+                                total={filteredOutlets.length} 
+                                itemsPerPage={itemsPerPage} 
+                                currentPage={currentPage} 
+                                onPageChange={setCurrentPage} 
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* MODAL FORM */}

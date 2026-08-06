@@ -1,7 +1,8 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench } from 'lucide-react';
+import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
+import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench, Activity, Image as ImageIcon } from 'lucide-react';
+import { NumericFormat } from 'react-number-format';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
@@ -10,6 +11,27 @@ export default function Index({ vehicles }) {
     const { flash } = usePage().props;
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isUsageFormOpen, setIsUsageFormOpen] = useState(false);
+
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
+        destination: '',
+        gas_expense: '',
+        usage_photo: null,
+        receipt_photo: null,
+        vehicle_id: null
+    });
+
+    const handleUsageSubmit = (e) => {
+        e.preventDefault();
+        post(route('vehicle-usages.store'), {
+            onSuccess: () => {
+                setIsUsageFormOpen(false);
+                reset();
+                clearErrors();
+                setIsModalOpen(false); // Reload happens, close modal or just fetch updated data
+            }
+        });
+    };
 
     useEffect(() => {
         if (flash.success) {
@@ -79,6 +101,12 @@ export default function Index({ vehicles }) {
                         <p className="text-sm text-gray-500 mt-1">Kelola data kendaraan, legalitas, dan jadwal perawatan rutin.</p>
                     </div>
                     <div className="flex items-center gap-3">
+                                <Link 
+                                    href={route('vehicle-usages.index')}
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-sm border border-gray-200"
+                                >
+                                    <Activity className="w-5 h-5" /> Log Armada
+                                </Link>
                                 <ExportDropdown pdfRoute={route('vehicles.export.pdf')} excelRoute={route('vehicles.export.excel')} />
                                 <Link 
                         href={route('vehicles.create')}
@@ -413,9 +441,156 @@ export default function Index({ vehicles }) {
                                             </div>
                                         </div>
                                     </div>
+
+                                    
+                                    {/* Riwayat Penggunaan Singkat */}
+                                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mt-6">
+                                        <div className="flex justify-between items-center mb-4 border-b pb-3">
+                                            <h4 className="text-base font-bold text-gray-800 flex items-center gap-2">
+                                                <Activity className="w-5 h-5 text-green-600" />
+                                                Riwayat Penggunaan
+                                            </h4>
+                                            <button 
+                                                onClick={() => {
+                                                    setData('vehicle_id', selectedVehicle.id);
+                                                    setIsUsageFormOpen(true);
+                                                }}
+                                                className="bg-green-50 hover:bg-green-100 text-green-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1"
+                                            >
+                                                <Plus className="w-4 h-4" /> Catat
+                                            </button>
+                                        </div>
+                                        <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                                            {selectedVehicle.vehicle_usages && selectedVehicle.vehicle_usages.length > 0 ? (
+                                                selectedVehicle.vehicle_usages.slice(0, 5).map(usage => (
+                                                    <div key={usage.id} className="border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <p className="font-semibold text-gray-800 text-sm">{usage.destination || 'Tanpa Tujuan'}</p>
+                                                                <p className="text-xs text-gray-500">{dayjs(usage.created_at).format('DD MMM YYYY HH:mm')}</p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                {usage.gas_expense > 0 && (
+                                                                    <p className="text-xs font-bold text-red-600">Bensin: Rp {Number(usage.gas_expense).toLocaleString('id-ID')}</p>
+                                                                )}
+                                                                <div className="flex gap-2 mt-1 justify-end">
+                                                                    {usage.usage_photo && (
+                                                                        <a href={`/storage/${usage.usage_photo}`} target="_blank" className="text-blue-500 hover:text-blue-700 tooltip" title="Foto Kendaraan">
+                                                                            <ImageIcon className="w-4 h-4" />
+                                                                        </a>
+                                                                    )}
+                                                                    {usage.receipt_photo && (
+                                                                        <a href={`/storage/${usage.receipt_photo}`} target="_blank" className="text-orange-500 hover:text-orange-700 tooltip" title="Nota Bensin">
+                                                                            <FileText className="w-4 h-4" />
+                                                                        </a>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-sm text-gray-500 text-center py-4">Belum ada riwayat penggunaan</p>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {isUsageFormOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm p-4">
+                    <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <form onSubmit={handleUsageSubmit}>
+                            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    <Activity className="w-6 h-6 text-green-600" />
+                                    Catat Penggunaan Kendaraan
+                                </h3>
+                                <button 
+                                    type="button"
+                                    onClick={() => {
+                                        setIsUsageFormOpen(false);
+                                        reset();
+                                        clearErrors();
+                                    }}
+                                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+                            <div className="p-6 overflow-y-auto space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Tujuan Penggunaan</label>
+                                    <input 
+                                        type="text" 
+                                        value={data.destination}
+                                        onChange={e => setData('destination', e.target.value)}
+                                        className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
+                                        placeholder="Misal: Mengirim barang ke Toko A"
+                                    />
+                                    {errors.destination && <p className="text-red-500 text-xs mt-1">{errors.destination}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Biaya Bensin (Opsional)</label>
+                                    <NumericFormat
+                                        value={data.gas_expense}
+                                        onValueChange={(values) => {
+                                            setData('gas_expense', values.value);
+                                        }}
+                                        thousandSeparator="."
+                                        decimalSeparator=","
+                                        prefix="Rp "
+                                        className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
+                                        placeholder="Rp 0"
+                                    />
+                                    {errors.gas_expense && <p className="text-red-500 text-xs mt-1">{errors.gas_expense}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto Penggunaan (Opsional)</label>
+                                    <input 
+                                        type="file" 
+                                        accept="image/*"
+                                        onChange={e => setData('usage_photo', e.target.files[0])}
+                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                                    />
+                                    {errors.usage_photo && <p className="text-red-500 text-xs mt-1">{errors.usage_photo}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto Nota Bensin (Opsional)</label>
+                                    <input 
+                                        type="file" 
+                                        accept="image/*"
+                                        onChange={e => setData('receipt_photo', e.target.files[0])}
+                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                                    />
+                                    {errors.receipt_photo && <p className="text-red-500 text-xs mt-1">{errors.receipt_photo}</p>}
+                                </div>
+                            </div>
+                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 rounded-b-3xl">
+                                <button 
+                                    type="button" 
+                                    onClick={() => {
+                                        setIsUsageFormOpen(false);
+                                        reset();
+                                        clearErrors();
+                                    }}
+                                    className="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-medium transition-colors"
+                                >
+                                    Batal
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    disabled={processing}
+                                    className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 font-medium transition-colors disabled:opacity-50"
+                                >
+                                    {processing ? 'Menyimpan...' : 'Simpan'}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

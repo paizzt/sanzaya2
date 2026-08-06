@@ -171,6 +171,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class)->except(['show', 'create', 'edit']);
         Route::resource('vehicles', \App\Http\Controllers\VehicleController::class)->except(['show']);
         Route::resource('providers', ProviderController::class)->except(['create', 'edit']);
+        Route::resource('provider-products', \App\Http\Controllers\ProviderProductController::class)->except(['index', 'create', 'edit', 'show']);
         Route::resource('products', ProductController::class)->except(['show', 'create', 'edit']);
     });
 
@@ -179,6 +180,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('logistic-reports', \App\Http\Controllers\LogisticReportController::class);
         Route::resource('purchase-orders', \App\Http\Controllers\PurchaseOrderController::class);
     });
+
+    // Vehicle Usages (Open to all authenticated users)
+    Route::get('vehicle-usages', [\App\Http\Controllers\VehicleUsageController::class, 'index'])->name('vehicle-usages.index');
+    Route::post('vehicle-usages', [\App\Http\Controllers\VehicleUsageController::class, 'store'])->name('vehicle-usages.store');
+    Route::delete('vehicle-usages/{id}', [\App\Http\Controllers\VehicleUsageController::class, 'destroy'])->name('vehicle-usages.destroy');
 
     Route::middleware(['can:view receivables'])->group(function() {
         Route::post('receivables/daily-report', [\App\Http\Controllers\ReceivableController::class, 'storeDailyReport'])->name('receivables.dailyReport.store');

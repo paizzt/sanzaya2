@@ -11,4 +11,14 @@ class LogisticReport extends Model
     use LogsActivity;
 
     protected $guarded = [];
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

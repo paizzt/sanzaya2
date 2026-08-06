@@ -43,4 +43,9 @@ class Vehicle extends Model
         'battery_target_date',
         'tire_target_date',
     ];
+
+    public function vehicleUsages()
+    {
+        return $this->hasMany(VehicleUsage::class);
+    }
 }

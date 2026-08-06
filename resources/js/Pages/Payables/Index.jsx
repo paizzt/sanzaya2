@@ -18,7 +18,7 @@ export default function Index({ auth, items, providers }) {
 
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
-        nama_penyedia: '',
+        provider_id: '',
         nominal: ''
     });
 
@@ -27,7 +27,7 @@ export default function Index({ auth, items, providers }) {
             setEditingItem(item);
             setData({
                 id: item.id,
-                nama_penyedia: item.nama_penyedia || '',
+                provider_id: item.provider_id || '',
                 nominal: item.nominal || ''
             });
         } else {
@@ -129,7 +129,7 @@ export default function Index({ auth, items, providers }) {
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {items.length > 0 ? items.map((item) => (
                                             <tr key={item.id}>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.nama_penyedia}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.provider ? item.provider.name : '-'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap font-bold text-red-600">
                                                     Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((parseFloat(item.nominal) || 0) / 100)}
                                                 </td>
@@ -166,16 +166,16 @@ export default function Index({ auth, items, providers }) {
 
                     <div className="grid grid-cols-1 gap-4">
                         <div>
-                            <InputLabel htmlFor="nama_penyedia" value="Nama Penyedia" />
+                            <InputLabel htmlFor="provider_id" value="Nama Penyedia" />
                             <div className="mt-1">
                                 <SearchableSelect
-                                    options={providers ? providers.map(p => ({ value: p.name, label: p.name })) : []}
-                                    value={data.nama_penyedia}
-                                    onChange={val => setData('nama_penyedia', val)}
+                                    options={providers ? providers.map(p => ({ value: p.id.toString(), label: p.name })) : []}
+                                    value={data.provider_id ? data.provider_id.toString() : ''}
+                                    onChange={val => setData('provider_id', val)}
                                     placeholder="Pilih Penyedia"
                                 />
                             </div>
-                            <InputError message={errors.nama_penyedia} className="mt-2" />
+                            <InputError message={errors.provider_id} className="mt-2" />
                         </div>
 
                         <div>

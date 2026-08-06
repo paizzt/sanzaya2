@@ -24,9 +24,9 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
     const [filterData, setFilterData] = useState({
         bulan: filters?.bulan ? (Array.isArray(filters.bulan) ? filters.bulan : [filters.bulan]) : [],
         tahun: filters?.tahun || '',
-        nama_pt: filters?.nama_pt || '',
+        company_id: filters?.company_id || '',
         jenis_barang: filters?.jenis_barang || '',
-        pelanggan: filters?.pelanggan || '',
+        outlet_id: filters?.outlet_id || '',
         nama_sales: filters?.nama_sales || '',
     });
 
@@ -74,7 +74,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
     };
 
     const resetFilter = () => {
-        const cleared = { bulan: [], tahun: '', nama_pt: '', jenis_barang: '', pelanggan: '', nama_sales: '' };
+        const cleared = { bulan: [], tahun: '', company_id: '', jenis_barang: '', outlet_id: '', nama_sales: '' };
         setFilterData(cleared);
         router.get(route('logistic-reports.index'), cleared, { preserveState: true, replace: true });
     };
@@ -86,8 +86,8 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         tanggal: getTodayDate(),
-        nama_pt: '',
-        pelanggan: '',
+        company_id: '',
+        outlet_id: '',
         jenis_pelanggan: '',
         nama_sales: '',
         no_faktur: '',
@@ -140,8 +140,8 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
             
             setData({
                 tanggal: item.tanggal || getTodayDate(),
-                nama_pt: item.nama_pt || '',
-                pelanggan: item.pelanggan || '',
+                company_id: item.company_id || '',
+                outlet_id: item.outlet_id || '',
                 jenis_pelanggan: item.jenis_pelanggan || '',
                 nama_sales: item.nama_sales || '',
                 no_faktur: item.no_faktur || '',
@@ -342,9 +342,9 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 <div className="w-full md:flex-1 min-w-[200px]">
                                     <InputLabel value="Nama PT" className="mb-1" />
                                     <SearchableSelect 
-                                        options={[{value:'', label:'Semua PT'}, ...(companies || []).map(c => ({ value: c.name, label: c.name }))]} 
-                                        value={filterData.nama_pt} 
-                                        onChange={val => setFilterData({...filterData, nama_pt: val})} 
+                                        options={[{value:'', label:'Semua PT'}, ...(companies || []).map(c => ({ value: c.id.toString(), label: c.name }))]} 
+                                        value={filterData.company_id} 
+                                        onChange={val => setFilterData({...filterData, company_id: val})} 
                                         placeholder="Pilih PT" 
                                     />
                                 </div>
@@ -364,9 +364,9 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 <div className="w-full md:flex-1 min-w-[200px]">
                                     <InputLabel value="Pelanggan" className="mb-1" />
                                     <SearchableSelect 
-                                        options={[{value:'', label:'Semua Pelanggan'}, ...(outlets || []).map(o => ({ value: o.name, label: o.name }))]} 
-                                        value={filterData.pelanggan} 
-                                        onChange={val => setFilterData({...filterData, pelanggan: val})} 
+                                        options={[{value:'', label:'Semua Pelanggan'}, ...(outlets || []).map(o => ({ value: o.id.toString(), label: o.name }))]} 
+                                        value={filterData.outlet_id} 
+                                        onChange={val => setFilterData({...filterData, outlet_id: val})} 
                                         placeholder="Pilih Pelanggan" 
                                     />
                                 </div>
@@ -425,7 +425,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         {(items.data || items).length > 0 ? (items.data || items).map((item) => (
                                             <tr key={item.id}>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.tanggal}</td>
-                                                <td className="px-6 py-4 whitespace-normal break-words min-w-[150px]">{item.pelanggan}</td>
+                                                <td className="px-6 py-4 whitespace-normal break-words min-w-[150px]">{item.outlet ? item.outlet.name : '-'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.jenis_barang}</td>
                                                 <td className="px-6 py-4 whitespace-normal break-words min-w-[120px]">{item.nama_sales}</td>
                                                 <td className="px-6 py-4 whitespace-normal break-words min-w-[200px]" title={item.nama_produk}>{item.nama_produk}</td>
@@ -504,24 +504,24 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <InputLabel htmlFor="nama_pt" value="Nama PT" />
+                            <InputLabel htmlFor="company_id" value="Nama PT" />
                             <SearchableSelect
-                                options={companies ? companies.map(c => ({ value: c.name, label: c.name })) : []}
-                                value={data.nama_pt}
-                                onChange={val => setData('nama_pt', val)}
+                                options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
+                                value={data.company_id ? data.company_id.toString() : ''}
+                                onChange={val => setData('company_id', val)}
                                 placeholder="Pilih PT / Perusahaan"
                             />
-                            <InputError message={errors.nama_pt} className="mt-2" />
+                            <InputError message={errors.company_id} className="mt-2" />
                         </div>
                         <div>
-                            <InputLabel htmlFor="pelanggan" value="Pelanggan" />
+                            <InputLabel htmlFor="outlet_id" value="Pelanggan" />
                             <SearchableSelect
-                                options={outlets ? outlets.map(o => ({ value: o.name, label: o.name })) : []}
-                                value={data.pelanggan}
-                                onChange={val => setData('pelanggan', val)}
+                                options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
+                                value={data.outlet_id ? data.outlet_id.toString() : ''}
+                                onChange={val => setData('outlet_id', val)}
                                 placeholder="Pilih Pelanggan / Outlet"
                             />
-                            <InputError message={errors.pelanggan} className="mt-2" />
+                            <InputError message={errors.outlet_id} className="mt-2" />
                         </div>
                         <div>
                             <InputLabel htmlFor="jenis_pelanggan" value="Jenis Pelanggan" />

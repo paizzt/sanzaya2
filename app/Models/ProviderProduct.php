@@ -2,14 +2,10 @@
 
 namespace App\Models;
 
-use App\Traits\LogsActivity;
-
 use Illuminate\Database\Eloquent\Model;
 
-class Payable extends Model
+class ProviderProduct extends Model
 {
-    use LogsActivity;
-
     protected $guarded = [];
 
     public function provider()

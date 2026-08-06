@@ -33,9 +33,4 @@ class Product extends Model
         'tkdn' => 'decimal:2',
         'qty' => 'integer',
     ];
-
-    public function provider()
-    {
-        return $this->belongsTo(Provider::class);
-    }
 }

@@ -26,6 +26,6 @@ class Provider extends Model
 
     public function products()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(ProviderProduct::class);
     }
 }

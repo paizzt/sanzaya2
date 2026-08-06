@@ -7,4 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class PurchaseOrder extends Model
 {
     protected $guarded = [];
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
 }

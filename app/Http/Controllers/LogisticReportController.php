@@ -48,8 +48,8 @@ class LogisticReportController extends Controller
         if ($request->filled('tahun')) {
             $query->whereYear('tanggal', $request->tahun);
         }
-        if ($request->filled('nama_pt')) {
-            $query->where('nama_pt', $request->nama_pt);
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
         }
         if ($request->filled('nama_sales')) {
             $query->where('nama_sales', $request->nama_sales);
@@ -57,11 +57,11 @@ class LogisticReportController extends Controller
         if ($request->filled('jenis_barang')) {
             $query->where('jenis_barang', $request->jenis_barang);
         }
-        if ($request->filled('pelanggan')) {
-            $query->where('pelanggan', $request->pelanggan);
+        if ($request->filled('outlet_id')) {
+            $query->where('outlet_id', $request->outlet_id);
         }
 
-        $items = $query->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
+        $items = $query->with(['company', 'outlet'])->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
         $items = $this->attachGrandTotals($items);
         
         $summary = [
@@ -109,7 +109,7 @@ class LogisticReportController extends Controller
             'sales' => $sales,
             'outlets' => $outlets,
             'companies' => $companies,
-            'filters' => $request->only(['bulan', 'tahun', 'nama_pt', 'jenis_barang', 'pelanggan', 'nama_sales']),
+            'filters' => $request->only(['bulan', 'tahun', 'company_id', 'jenis_barang', 'outlet_id', 'nama_sales']),
             'summary' => $summary,
             'chartData' => $chartData
         ]);
@@ -118,8 +118,8 @@ class LogisticReportController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_pt' => 'nullable|string',
-            'pelanggan' => 'nullable|string',
+            'company_id' => 'nullable|exists:companies,id',
+            'outlet_id' => 'nullable|exists:outlets,id',
             'jenis_pelanggan' => 'nullable|string',
             'tanggal' => 'nullable|date',
             'nama_sales' => 'nullable|string',
@@ -175,8 +175,8 @@ class LogisticReportController extends Controller
         if ($request->filled('tahun')) {
             $query->whereYear('tanggal', $request->tahun);
         }
-        if ($request->filled('nama_pt')) {
-            $query->where('nama_pt', $request->nama_pt);
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
         }
         if ($request->filled('nama_sales')) {
             $query->where('nama_sales', $request->nama_sales);
@@ -184,11 +184,11 @@ class LogisticReportController extends Controller
         if ($request->filled('jenis_barang')) {
             $query->where('jenis_barang', $request->jenis_barang);
         }
-        if ($request->filled('pelanggan')) {
-            $query->where('pelanggan', $request->pelanggan);
+        if ($request->filled('outlet_id')) {
+            $query->where('outlet_id', $request->outlet_id);
         }
 
-        $items = $query->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
+        $items = $query->with(['company', 'outlet'])->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
         $items = $this->attachGrandTotals($items);
         
         $summary = [
@@ -212,10 +212,16 @@ class LogisticReportController extends Controller
             $activeFilters['Bulan'] = implode(', ', $bulanTexts);
         }
         if ($request->filled('tahun')) $activeFilters['Tahun'] = $request->tahun;
-        if ($request->filled('nama_pt')) $activeFilters['Nama PT'] = $request->nama_pt;
+        if ($request->filled('company_id')) {
+            $company = \App\Models\Company::find($request->company_id);
+            if($company) $activeFilters['Nama PT'] = $company->name;
+        }
         if ($request->filled('nama_sales')) $activeFilters['Nama Sales'] = $request->nama_sales;
         if ($request->filled('jenis_barang')) $activeFilters['Jenis Barang'] = $request->jenis_barang;
-        if ($request->filled('pelanggan')) $activeFilters['Pelanggan'] = $request->pelanggan;
+        if ($request->filled('outlet_id')) {
+            $outlet = \App\Models\Outlet::find($request->outlet_id);
+            if($outlet) $activeFilters['Pelanggan'] = $outlet->name;
+        }
 
         $allHeadings = ['No', 'Nama PT', 'Pelanggan', 'Jenis', 'Tanggal', 'Sales Name', 'No Faktur', 'ID PAKET', 'BRAND', 'Nama Produk', 'Qty', 'Satuan', 'HNA', 'Subtotal', 'PPN', 'Total', 'Grand Total', 'Jenis Brg'];
         
@@ -229,8 +235,8 @@ class LogisticReportController extends Controller
         $rows = $items->map(function($item, $key) use ($allHeadings, $headings) {
             $fullRow = [
                 'No' => $key + 1, 
-                'Nama PT' => $item->nama_pt, 
-                'Pelanggan' => $item->pelanggan, 
+                'Nama PT' => $item->company ? $item->company->name : '-', 
+                'Pelanggan' => $item->outlet ? $item->outlet->name : '-', 
                 'Jenis' => $item->jenis_pelanggan, 
                 'Tanggal' => $item->tanggal, 
                 'Sales Name' => $item->nama_sales, 
@@ -255,7 +261,9 @@ class LogisticReportController extends Controller
             return $filteredRow;
         });
         
-        $revenuePerPt = $items->groupBy('nama_pt')->map(function($ptItems) {
+        $revenuePerPt = $items->groupBy(function($item) {
+            return $item->company ? $item->company->name : '-';
+        })->map(function($ptItems) {
             return $ptItems->sum('total');
         });
         
@@ -278,8 +286,8 @@ class LogisticReportController extends Controller
         if ($request->filled('tahun')) {
             $query->whereYear('tanggal', $request->tahun);
         }
-        if ($request->filled('nama_pt')) {
-            $query->where('nama_pt', $request->nama_pt);
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
         }
         if ($request->filled('nama_sales')) {
             $query->where('nama_sales', $request->nama_sales);
@@ -287,11 +295,11 @@ class LogisticReportController extends Controller
         if ($request->filled('jenis_barang')) {
             $query->where('jenis_barang', $request->jenis_barang);
         }
-        if ($request->filled('pelanggan')) {
-            $query->where('pelanggan', $request->pelanggan);
+        if ($request->filled('outlet_id')) {
+            $query->where('outlet_id', $request->outlet_id);
         }
 
-        $items = $query->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
+        $items = $query->with(['company', 'outlet'])->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->get();
         $items = $this->attachGrandTotals($items);
 
         $allHeadings = ['No', 'Nama PT', 'Pelanggan', 'Jenis', 'Tanggal', 'Sales Name', 'No Faktur', 'ID PAKET', 'BRAND', 'Nama Produk', 'Qty', 'Satuan', 'HNA', 'Subtotal', 'PPN', 'Total', 'Grand Total', 'Jenis Brg'];
@@ -305,8 +313,8 @@ class LogisticReportController extends Controller
         $rows = $items->map(function($item, $key) use ($allHeadings, $headings) {
             $fullRow = [
                 'No' => $key + 1, 
-                'Nama PT' => $item->nama_pt, 
-                'Pelanggan' => $item->pelanggan, 
+                'Nama PT' => $item->company ? $item->company->name : '-', 
+                'Pelanggan' => $item->outlet ? $item->outlet->name : '-', 
                 'Jenis' => $item->jenis_pelanggan, 
                 'Tanggal' => $item->tanggal, 
                 'Sales Name' => $item->nama_sales, 

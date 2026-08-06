@@ -15,7 +15,7 @@ class OutletMappingController extends Controller
     public function index()
     {
         // Get all unique raw names from all synced sheets
-        $logistikNames = SyncLogistikData::select('nama_outlet')->distinct()->whereNotNull('nama_outlet')->pluck('nama_outlet')->toArray();
+        $logistikNames = SyncLogistikData::select('pelanggan')->distinct()->whereNotNull('pelanggan')->pluck('pelanggan')->toArray();
         $pesananNames = SyncPesananData::select('nama_outlet')->distinct()->whereNotNull('nama_outlet')->pluck('nama_outlet')->toArray();
         $piutangNames = SyncPiutangData::select('nama_outlet')->distinct()->whereNotNull('nama_outlet')->pluck('nama_outlet')->toArray();
 

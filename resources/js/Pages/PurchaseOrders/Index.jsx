@@ -10,16 +10,17 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import CustomDatePicker from '@/Components/CustomDatePicker';
+import SearchableSelect from '@/Components/SearchableSelect';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items }) {
+export default function Index({ auth, items, outlets }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
         tanggal: '',
-        nama_outlet: '',
+        outlet_id: '',
         nama_produk: '',
         jumlah: '',
         satuan: '',
@@ -37,7 +38,7 @@ export default function Index({ auth, items }) {
             setData({
                 id: item.id,
                 tanggal: item.tanggal || '',
-                nama_outlet: item.nama_outlet || '',
+                outlet_id: item.outlet_id || '',
                 nama_produk: item.nama_produk || '',
                 jumlah: item.jumlah || '',
                 satuan: item.satuan || '',
@@ -152,7 +153,7 @@ export default function Index({ auth, items }) {
                                         {items.length > 0 ? items.map((item) => (
                                             <tr key={item.id}>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.tanggal}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.nama_outlet}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.outlet ? item.outlet.name : '-'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.nama_produk}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.jumlah}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.satuan}</td>
@@ -196,9 +197,14 @@ export default function Index({ auth, items }) {
                         </div>
                         
                         <div>
-                            <InputLabel htmlFor="nama_outlet" value="Nama Outlet" />
-                            <TextInput id="nama_outlet" type="text" className="mt-1 block w-full" value={data.nama_outlet} onChange={e => setData('nama_outlet', e.target.value)} />
-                            <InputError message={errors.nama_outlet} className="mt-2" />
+                            <InputLabel htmlFor="outlet_id" value="Nama Outlet" />
+                            <SearchableSelect
+                                options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
+                                value={data.outlet_id ? data.outlet_id.toString() : ''}
+                                onChange={val => setData('outlet_id', val)}
+                                placeholder="Pilih Outlet"
+                            />
+                            <InputError message={errors.outlet_id} className="mt-2" />
                         </div>
 
                         <div>

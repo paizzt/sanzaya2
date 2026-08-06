@@ -14,7 +14,7 @@ class PayableController extends Controller
 {
     public function index()
     {
-        $items = Payable::orderBy('id', 'desc')->get();
+        $items = Payable::with('provider')->orderBy('id', 'desc')->get();
         $providers = \App\Models\Provider::orderBy('name')->get();
         return Inertia::render('Payables/Index', [
             'items' => $items,
@@ -25,7 +25,7 @@ class PayableController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_penyedia' => 'nullable|string',
+            'provider_id' => 'nullable|exists:providers,id',
             'nominal' => 'nullable|numeric',
         ]);
         
@@ -46,7 +46,7 @@ class PayableController extends Controller
 
     public function exportPdf()
     {
-        $items = \App\Models\Payable::orderBy('id', 'desc')->get();
+        $items = \App\Models\Payable::with('provider')->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -55,11 +55,10 @@ class PayableController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($allowed) {
+            $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $row[] = $item->$col;
-                }
+                $row[] = $item->provider ? $item->provider->name : '-';
+                $row[] = $item->nominal;
                 return $row;
             });
         }
@@ -70,7 +69,7 @@ class PayableController extends Controller
 
     public function exportExcel()
     {
-        $items = \App\Models\Payable::orderBy('id', 'desc')->get();
+        $items = \App\Models\Payable::with('provider')->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -79,11 +78,10 @@ class PayableController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($allowed) {
+            $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $row[] = $item->$col;
-                }
+                $row[] = $item->provider ? $item->provider->name : '-';
+                $row[] = $item->nominal;
                 return $row;
             });
         }

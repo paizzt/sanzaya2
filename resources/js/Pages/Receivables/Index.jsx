@@ -53,13 +53,14 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
     }, {});
 
     const summaryByPT = items.reduce((acc, item) => {
-        if (item.nama_pt) {
-            acc[item.nama_pt] = (acc[item.nama_pt] || 0) + Number(item.total || 0);
+        const companyName = item.company ? item.company.name : '-';
+        if (companyName) {
+            acc[companyName] = (acc[companyName] || 0) + Number(item.total || 0);
         }
         return acc;
     }, {});
 
-    const totalOutlets = new Set(items.map(item => item.nama_outlet).filter(Boolean)).size;
+    const totalOutlets = new Set(items.map(item => item.outlet ? item.outlet.name : '').filter(Boolean)).size;
 
     const totalPiutangKeseluruhan = items.reduce((sum, item) => sum + Number(item.total || 0), 0);
 
@@ -69,8 +70,8 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
 
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
-        nama_pt: '',
-        nama_outlet: '',
+        company_id: '',
+        outlet_id: '',
         details: [{ year: new Date().getFullYear().toString(), amount: '' }]
     });
 
@@ -79,8 +80,8 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
             setEditingItem(item);
             setData({
                 id: item.id,
-                nama_pt: item.nama_pt || '',
-                nama_outlet: item.nama_outlet || '',
+                company_id: item.company_id || '',
+                outlet_id: item.outlet_id || '',
                 details: item.details && item.details.length > 0 ? item.details : [{ year: new Date().getFullYear().toString(), amount: '' }]
             });
         } else {
@@ -281,7 +282,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     <InputLabel value="Filter PT" />
                                     <div className="mt-1">
                                         <SearchableSelect 
-                                            options={companies ? companies.map(c => ({ value: c.name, label: c.name })) : []}
+                                            options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
                                             value={filterPt}
                                             onChange={val => setFilterPt(val)}
                                             placeholder="Semua PT"
@@ -331,8 +332,8 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {items.length > 0 ? items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                                             <tr key={item.id}>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.nama_pt}</td>
-                                                <td className="px-6 py-4 whitespace-normal break-words max-w-xs md:max-w-md">{item.nama_outlet}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.company ? item.company.name : '-'}</td>
+                                                <td className="px-6 py-4 whitespace-normal break-words max-w-xs md:max-w-md">{item.outlet ? item.outlet.name : '-'}</td>
                                                 <td className="px-6 py-4">
                                                     {item.details && item.details.map((d, i) => (
                                                         <div key={i} className="text-sm font-semibold mb-1">
@@ -498,25 +499,25 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-96 overflow-y-auto pr-2">
                         <div className="md:col-span-2">
-                            <InputLabel htmlFor="nama_pt" value="Nama PT (Perusahaan)" />
+                            <InputLabel htmlFor="company_id" value="Nama PT (Perusahaan)" />
                             <SearchableSelect
-                                options={companies ? companies.map(c => ({ value: c.name, label: c.name })) : []}
-                                value={data.nama_pt}
-                                onChange={val => setData('nama_pt', val)}
+                                options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
+                                value={data.company_id ? data.company_id.toString() : ''}
+                                onChange={val => setData('company_id', val)}
                                 placeholder="Pilih PT..."
                             />
-                            <InputError message={errors.nama_pt} className="mt-2" />
+                            <InputError message={errors.company_id} className="mt-2" />
                         </div>
 
                         <div className="md:col-span-2">
-                            <InputLabel htmlFor="nama_outlet" value="Nama Outlet" />
+                            <InputLabel htmlFor="outlet_id" value="Nama Outlet" />
                             <SearchableSelect
-                                options={outlets ? outlets.map(o => ({ value: o.name, label: o.name })) : []}
-                                value={data.nama_outlet}
-                                onChange={val => setData('nama_outlet', val)}
+                                options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
+                                value={data.outlet_id ? data.outlet_id.toString() : ''}
+                                onChange={val => setData('outlet_id', val)}
                                 placeholder="Pilih Outlet..."
                             />
-                            <InputError message={errors.nama_outlet} className="mt-2" />
+                            <InputError message={errors.outlet_id} className="mt-2" />
                         </div>
 
                         <div className="md:col-span-2 mt-4">

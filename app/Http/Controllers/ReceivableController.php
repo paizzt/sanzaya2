@@ -14,14 +14,16 @@ class ReceivableController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Receivable::orderBy('id', 'desc');
+        $query = Receivable::with(['outlet', 'company'])->orderBy('id', 'desc');
 
         if ($request->search) {
-            $query->where('nama_outlet', 'like', '%' . $request->search . '%');
+            $query->whereHas('outlet', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->pt) {
-            $query->where('nama_pt', $request->pt);
+            $query->where('company_id', $request->pt);
         }
 
         if ($request->year) {
@@ -49,8 +51,8 @@ class ReceivableController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_pt' => 'nullable|string',
-            'nama_outlet' => 'nullable|string',
+            'company_id' => 'nullable|exists:companies,id',
+            'outlet_id' => 'nullable|exists:outlets,id',
             'details' => 'nullable|array',
             'details.*.year' => 'nullable|string',
             'details.*.amount' => 'nullable|numeric'
@@ -66,12 +68,9 @@ class ReceivableController extends Controller
             }
         }
         
-        // Encode details back to json string for DB storage or leave as array if Laravel casts it automatically
-        // Laravel doesn't automatically cast JSON if not defined in $casts, but we can define it or json_encode here.
-        // Actually, we'll just encode it to be safe.
         $dataToSave = [
-            'nama_pt' => $validated['nama_pt'] ?? null,
-            'nama_outlet' => $validated['nama_outlet'] ?? null,
+            'company_id' => $validated['company_id'] ?? null,
+            'outlet_id' => $validated['outlet_id'] ?? null,
             'details' => $validated['details'] ?? [],
             'total' => $total,
         ];
@@ -93,7 +92,7 @@ class ReceivableController extends Controller
 
     public function exportPdf()
     {
-        $items = \App\Models\Receivable::orderBy('id', 'desc')->get();
+        $items = \App\Models\Receivable::with(['outlet', 'company'])->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -102,11 +101,11 @@ class ReceivableController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($allowed) {
+            $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $row[] = $item->$col;
-                }
+                $row[] = $item->outlet ? $item->outlet->name : '-';
+                $row[] = $item->company ? $item->company->name : '-';
+                $row[] = $item->total;
                 return $row;
             });
         }
@@ -117,7 +116,7 @@ class ReceivableController extends Controller
 
     public function exportExcel()
     {
-        $items = \App\Models\Receivable::orderBy('id', 'desc')->get();
+        $items = \App\Models\Receivable::with(['outlet', 'company'])->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -126,11 +125,11 @@ class ReceivableController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($allowed) {
+            $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $row[] = $item->$col;
-                }
+                $row[] = $item->outlet ? $item->outlet->name : '-';
+                $row[] = $item->company ? $item->company->name : '-';
+                $row[] = $item->total;
                 return $row;
             });
         }

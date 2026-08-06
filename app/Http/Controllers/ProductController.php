@@ -22,12 +22,10 @@ class ProductController extends Controller
                   ->orWhere('code', 'like', "%{$search}%");
         }
 
-        $products = $query->with('provider')->orderBy('name')->get();
-        $providers = \App\Models\Provider::orderBy('name')->get(['id', 'name', 'type']);
+        $products = $query->orderBy('name')->get();
 
         return Inertia::render('Product/Index', [
             'products' => $products,
-            'providers' => $providers,
             'filters' => $request->only('search')
         ]);
     }
@@ -42,7 +40,6 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'jenis' => 'nullable|string|in:Alat Kesehatan,BMHP',
             'link' => 'nullable|string',
-            'provider_id' => 'nullable|exists:providers,id',
             'registration_no' => 'nullable|string|max:100',
             'qty' => 'nullable|integer|min:0',
             'unit' => 'nullable|string|max:50',
@@ -65,7 +62,6 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'jenis' => 'nullable|string|in:Alat Kesehatan,BMHP',
             'link' => 'nullable|string',
-            'provider_id' => 'nullable|exists:providers,id',
             'registration_no' => 'nullable|string|max:100',
             'qty' => 'nullable|integer|min:0',
             'unit' => 'nullable|string|max:50',

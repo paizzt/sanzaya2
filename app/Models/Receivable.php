@@ -15,4 +15,14 @@ class Receivable extends Model
     protected $casts = [
         'details' => 'array',
     ];
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

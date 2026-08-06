@@ -88,7 +88,7 @@ export default function Show({ provider, products, filters }) {
             shape: 'rounded-xl'
         }).then((result) => {
             if (result.isConfirmed) {
-                destroy(route('products.destroy', id), {
+                destroy(route('provider-products.destroy', id), {
                     preserveScroll: true,
                     onSuccess: () => {
                         Swal.fire('Terhapus!', 'Data barang telah dihapus.', 'success');
@@ -117,9 +117,9 @@ export default function Show({ provider, products, filters }) {
         };
 
         if (isEditMode) {
-            put(route('products.update', editingProduct.id), options);
+            put(route('provider-products.update', editingProduct.id), options);
         } else {
-            post(route('products.store'), options);
+            post(route('provider-products.store'), options);
         }
     };
 
@@ -325,9 +325,9 @@ export default function Show({ provider, products, filters }) {
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <div className="flex justify-center gap-2">
-                                                    {product.notes && product.notes.startsWith('http') && (
+                                                    {product.link && (
                                                         <a 
-                                                            href={product.notes} 
+                                                            href={product.link.startsWith('http') ? product.link : `https://${product.link}`}
                                                             target="_blank" 
                                                             rel="noopener noreferrer"
                                                             className="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition-colors"
