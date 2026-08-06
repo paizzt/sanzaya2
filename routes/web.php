@@ -170,7 +170,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('outlets', OutletController::class)->except(['show', 'create', 'edit']);
         Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class)->except(['show', 'create', 'edit']);
         Route::resource('vehicles', \App\Http\Controllers\VehicleController::class)->except(['show']);
-        Route::resource('providers', ProviderController::class)->except(['show', 'create', 'edit']);
+        Route::resource('providers', ProviderController::class)->except(['create', 'edit']);
         Route::resource('products', ProductController::class)->except(['show', 'create', 'edit']);
     });
 

@@ -2,18 +2,33 @@ import React, { useState } from 'react';
 import { Download, FileText, Sheet, X, Settings2 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 
-export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null }) {
+export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null, availableColumns = [] }) {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(pdfRoute ? 'pdf' : 'excel');
 
     // PDF Settings State
     const [paperSize, setPaperSize] = useState('a4');
-    const [orientation, setOrientation] = useState('portrait');
+    const [orientation, setOrientation] = useState('landscape');
     const [fontFamily, setFontFamily] = useState('sans-serif');
     const [fontSize, setFontSize] = useState('12');
+    
+    // Column Selection State
+    const [selectedColumns, setSelectedColumns] = useState(() => {
+        // Default to all columns if provided
+        return availableColumns.length > 0 ? [...availableColumns] : [];
+    });
 
     const handleOpen = () => setIsOpen(true);
     const handleClose = () => setIsOpen(false);
+
+    const toggleColumn = (col) => {
+        if (col === 'No') return; // Prevent unchecking "No"
+        setSelectedColumns(prev => 
+            prev.includes(col) 
+                ? prev.filter(c => c !== col) 
+                : [...prev, col]
+        );
+    };
 
     const buildUrlParams = (url, isPreview = false) => {
         if (!url) return '';
@@ -23,6 +38,12 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
         const params = new URLSearchParams();
         if (isPreview) params.append('preview', '1');
         
+        if (activeTab === 'pdf' || activeTab === 'excel') {
+            if (availableColumns.length > 0) {
+                selectedColumns.forEach(col => params.append('columns[]', col));
+            }
+        }
+
         if (activeTab === 'pdf') {
             params.append('paper', paperSize);
             params.append('orientation', orientation);
@@ -62,13 +83,33 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                     <div className="flex flex-col md:flex-row gap-6">
                         {/* Settings Sidebar (Only for PDF) */}
                         {activeTab === 'pdf' && (
-                            <div className="w-full md:w-64 flex-shrink-0 bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <div className="w-full md:w-72 flex-shrink-0 bg-gray-50 rounded-xl p-4 border border-gray-200 overflow-y-auto max-h-[60vh]">
                                 <h3 className="font-semibold text-gray-800 flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
                                     <Settings2 className="w-4 h-4 text-blue-600" />
                                     Pengaturan PDF
                                 </h3>
                                 
                                 <div className="space-y-4">
+                                    {availableColumns.length > 0 && (
+                                        <div className="mb-4">
+                                            <label className="block text-xs font-medium text-gray-700 mb-2">Kolom Ditampilkan</label>
+                                            <div className="space-y-1.5 max-h-40 overflow-y-auto pr-2 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg">
+                                                {availableColumns.map((col, idx) => (
+                                                    <label key={idx} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={selectedColumns.includes(col)}
+                                                            onChange={() => toggleColumn(col)}
+                                                            disabled={col === 'No'}
+                                                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                        />
+                                                        {col}
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div>
                                         <label className="block text-xs font-medium text-gray-700 mb-1">Ukuran Kertas</label>
                                         <select 

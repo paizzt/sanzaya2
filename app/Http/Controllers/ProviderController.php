@@ -15,11 +15,28 @@ class ProviderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $providers = Provider::latest()->get();
+        $query = Provider::query();
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('type', 'like', "%{$search}%")
+                  ->orWhere('pic_name', 'like', "%{$search}%")
+                  ->orWhereHas('products', function($pq) use ($search) {
+                      $pq->where('name', 'like', "%{$search}%")
+                         ->orWhere('code', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $providers = $query->latest()->get();
+
         return Inertia::render('Providers/Index', [
-            'providers' => $providers
+            'providers' => $providers,
+            'filters' => $request->only(['search'])
         ]);
     }
 
@@ -31,6 +48,7 @@ class ProviderController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'nullable|string|max:255',
+            'business_type' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'phone' => 'nullable|string|max:255',
             'pic_name' => 'nullable|string|max:255',
@@ -44,6 +62,31 @@ class ProviderController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Request $request, Provider $provider)
+    {
+        $search = $request->input('search');
+        
+        $productsQuery = $provider->products();
+        if ($search) {
+            $productsQuery->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhere('registration_no', 'like', "%{$search}%");
+            });
+        }
+        
+        $products = $productsQuery->paginate(50)->withQueryString();
+
+        return Inertia::render('Providers/Show', [
+            'provider' => $provider,
+            'products' => $products,
+            'filters' => ['search' => $search]
+        ]);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Provider $provider)
@@ -51,6 +94,7 @@ class ProviderController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'nullable|string|max:255',
+            'business_type' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'phone' => 'nullable|string|max:255',
             'pic_name' => 'nullable|string|max:255',

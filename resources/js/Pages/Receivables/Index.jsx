@@ -10,12 +10,17 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import SearchableSelect from '@/Components/SearchableSelect';
+import ClientPagination from '@/Components/ClientPagination';
 import Swal from 'sweetalert2';
 
 export default function Index({ auth, items, outlets, companies, filters, dailyReports = [], users = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [activeTab, setActiveTab] = useState('data');
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
 
     const [filterSearch, setFilterSearch] = useState(filters?.search || '');
     const [filterPt, setFilterPt] = useState(filters?.pt || '');
@@ -33,7 +38,33 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
         setFilterSearch('');
         setFilterPt('');
         setFilterYear('');
-        router.get(route('receivables.index'));
+        router.get(route('receivables.index'), {}, { preserveState: true, replace: true });
+    };
+
+    const summaryByYear = items.reduce((acc, item) => {
+        if (item.details) {
+            item.details.forEach(d => {
+                if (d.year && d.year !== 'Total') {
+                    acc[d.year] = (acc[d.year] || 0) + Number(d.amount || 0);
+                }
+            });
+        }
+        return acc;
+    }, {});
+
+    const summaryByPT = items.reduce((acc, item) => {
+        if (item.nama_pt) {
+            acc[item.nama_pt] = (acc[item.nama_pt] || 0) + Number(item.total || 0);
+        }
+        return acc;
+    }, {});
+
+    const totalOutlets = new Set(items.map(item => item.nama_outlet).filter(Boolean)).size;
+
+    const totalPiutangKeseluruhan = items.reduce((sum, item) => sum + Number(item.total || 0), 0);
+
+    const formatRupiah = (number) => {
+        return new Intl.NumberFormat('id-ID').format(number);
     };
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -194,6 +225,46 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                             </div>
                             </div>
 
+                            {/* Summary Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center">
+                                    <h4 className="text-sm font-semibold text-amber-800 mb-2">Total Semua Piutang</h4>
+                                    <span className="text-xl xl:text-2xl font-extrabold text-amber-600 whitespace-nowrap">Rp {formatRupiah(totalPiutangKeseluruhan)}</span>
+                                </div>
+
+                                <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
+                                    <h4 className="text-sm font-semibold text-blue-800 mb-2">Piutang Berdasarkan Tahun</h4>
+                                    <div className="space-y-1">
+                                        {Object.entries(summaryByYear).sort(([a], [b]) => b - a).map(([year, amount]) => (
+                                            <div key={year} className="flex justify-between text-sm">
+                                                <span className="text-blue-700">{year}</span>
+                                                <span className="font-bold text-blue-900">Rp {formatRupiah(amount)}</span>
+                                            </div>
+                                        ))}
+                                        {Object.keys(summaryByYear).length === 0 && <div className="text-sm text-blue-600/70">Tidak ada data</div>}
+                                    </div>
+                                </div>
+                                
+                                <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl shadow-sm">
+                                    <h4 className="text-sm font-semibold text-indigo-800 mb-2">Piutang Berdasarkan PT</h4>
+                                    <div className="space-y-1">
+                                        {Object.entries(summaryByPT).map(([pt, amount]) => (
+                                            <div key={pt} className="flex justify-between text-sm">
+                                                <span className="text-indigo-700">{pt}</span>
+                                                <span className="font-bold text-indigo-900">Rp {formatRupiah(amount)}</span>
+                                            </div>
+                                        ))}
+                                        {Object.keys(summaryByPT).length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
+                                    </div>
+                                </div>
+
+                                <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center">
+                                    <h4 className="text-sm font-semibold text-emerald-800 mb-2">Total Outlet yang Punya Piutang</h4>
+                                    <span className="text-4xl font-extrabold text-emerald-600">{totalOutlets}</span>
+                                    <span className="text-emerald-700 text-sm mt-1">Outlet</span>
+                                </div>
+                            </div>
+
                             <div className="bg-gray-50 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4 items-end">
                                 <div className="w-full md:w-1/3">
                                     <InputLabel value="Cari Outlet" />
@@ -233,6 +304,17 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     <SecondaryButton onClick={resetFilter} type="button">Reset</SecondaryButton>
                                 </div>
                             </div>
+                            
+                            {items.length > 0 && (
+                                <div className="mb-4">
+                                    <ClientPagination 
+                                        total={items.length} 
+                                        itemsPerPage={itemsPerPage} 
+                                        currentPage={currentPage} 
+                                        onPageChange={setCurrentPage} 
+                                    />
+                                </div>
+                            )}
 
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
@@ -247,10 +329,10 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {items.length > 0 ? items.map((item) => (
+                                        {items.length > 0 ? items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                                             <tr key={item.id}>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.nama_pt}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.nama_outlet}</td>
+                                                <td className="px-6 py-4 whitespace-normal break-words max-w-xs md:max-w-md">{item.nama_outlet}</td>
                                                 <td className="px-6 py-4">
                                                     {item.details && item.details.map((d, i) => (
                                                         <div key={i} className="text-sm font-semibold mb-1">
@@ -287,6 +369,17 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            {items.length > 0 && (
+                                <div className="mt-4 border-t">
+                                    <ClientPagination 
+                                        total={items.length} 
+                                        itemsPerPage={itemsPerPage} 
+                                        currentPage={currentPage} 
+                                        onPageChange={setCurrentPage} 
+                                    />
+                                </div>
+                            )}
 
                         </div>
                     </div>

@@ -93,15 +93,25 @@ class SpreadsheetSyncService
     }
 
     private static function insertLogistik($row, $sheetName, $config) {
-        $namaOutlet = self::getColValue($row, $config['col_outlet_name'] ?? null);
-
         \App\Models\SyncLogistikData::create([
             'sheet_name' => $sheetName,
-            'tanggal' => self::getColValue($row, $config['col_date'] ?? null),
-            'nama_sales' => self::getColValue($row, $config['col_sales_name'] ?? null),
-            'nama_outlet' => $namaOutlet,
-            'nama_produk' => self::getColValue($row, $config['col_product_name'] ?? null),
-            'total_sales' => self::getColValue($row, $config['col_total_sales'] ?? null),
+            'nama_pt' => self::getColValue($row, $config['col_nama_pt'] ?? null),
+            'pelanggan' => self::getColValue($row, $config['col_pelanggan'] ?? null),
+            'jenis_pelanggan' => self::getColValue($row, $config['col_jenis_pelanggan'] ?? null),
+            'tanggal' => self::getColValue($row, $config['col_tanggal'] ?? null),
+            'nama_sales' => self::getColValue($row, $config['col_nama_sales'] ?? null),
+            'no_faktur' => self::getColValue($row, $config['col_no_faktur'] ?? null),
+            'id_paket' => self::getColValue($row, $config['col_id_paket'] ?? null),
+            'brand' => self::getColValue($row, $config['col_brand'] ?? null),
+            'nama_produk' => self::getColValue($row, $config['col_nama_produk'] ?? null),
+            'qty' => self::getColValue($row, $config['col_qty'] ?? null),
+            'satuan' => self::getColValue($row, $config['col_satuan'] ?? null),
+            'hna' => self::getColValue($row, $config['col_hna'] ?? null),
+            'subtotal' => self::getColValue($row, $config['col_subtotal'] ?? null),
+            'ppn' => self::getColValue($row, $config['col_ppn'] ?? null),
+            'total' => self::getColValue($row, $config['col_total'] ?? null),
+            'grand_total' => self::getColValue($row, $config['col_grand_total'] ?? null),
+            'jenis_barang' => self::getColValue($row, $config['col_jenis_barang'] ?? null),
         ]);
     }
 

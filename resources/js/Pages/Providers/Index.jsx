@@ -1,9 +1,9 @@
 import ExportDropdown from '@/Components/ExportDropdown';
-import React, { useState, useMemo } from 'react';
-import { Head, Link, usePage, useForm } from '@inertiajs/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { 
-    Users, Plus, Search, Edit, Trash2, Eye, Building, Phone, User, Store, FileText, Wrench, X, ShieldCheck
+    Users, Plus, Search, Edit, Trash2, Eye, Building, Phone, User, Store, FileText, Wrench, X, ShieldCheck, MessageCircle
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -12,19 +12,23 @@ import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import CustomSelect from '@/Components/CustomSelect';
+import ClientPagination from '@/Components/ClientPagination';
 
-export default function Index({ providers }) {
+export default function Index({ providers, filters }) {
     const { auth } = usePage().props;
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(filters?.search || '');
+    const [filterType, setFilterType] = useState('All');
+    const firstRender = useRef(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingProvider, setEditingProvider] = useState(null);
-    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-    const [previewProvider, setPreviewProvider] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         name: '',
         type: '',
+        business_type: '',
         address: '',
         phone: '',
         pic_name: '',
@@ -34,15 +38,31 @@ export default function Index({ providers }) {
 
     const providerTypes = [
         'BMHP',
-        'Alat'
+        'Alat',
+        'Lainnya'
     ];
 
-    const filteredProviders = useMemo(() => {
-        return providers.filter(provider => 
-            provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (provider.type && provider.type.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-    }, [providers, searchTerm]);
+    const businessTypes = [
+        'Distributor',
+        'Non Distributor'
+    ];
+
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(() => {
+            router.get(
+                route('providers.index'),
+                { search: searchTerm },
+                { preserveState: true, preserveScroll: true, replace: true }
+            );
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
 
     const openCreateModal = () => {
         setIsEditMode(false);
@@ -59,6 +79,7 @@ export default function Index({ providers }) {
         setData({
             name: provider.name || '',
             type: provider.type || '',
+            business_type: provider.business_type || '',
             address: provider.address || '',
             phone: provider.phone || '',
             pic_name: provider.pic_name || '',
@@ -68,9 +89,13 @@ export default function Index({ providers }) {
         setIsModalOpen(true);
     };
 
-    const openPreviewModal = (provider) => {
-        setPreviewProvider(provider);
-        setIsPreviewModalOpen(true);
+    const getWaLink = (phone) => {
+        if (!phone) return null;
+        let formatted = phone.toString().replace(/\D/g, '');
+        if (formatted.startsWith('0')) {
+            formatted = '62' + formatted.substring(1);
+        }
+        return `https://wa.me/${formatted}`;
     };
 
     const handleDelete = (id) => {
@@ -138,6 +163,31 @@ export default function Index({ providers }) {
         }
     };
 
+    const countAlat = providers.filter(p => p?.type?.toLowerCase() === 'alat').length;
+    const countBMHP = providers.filter(p => p?.type?.toLowerCase() === 'bmhp').length;
+    const countDistributor = providers.filter(p => p?.business_type?.toLowerCase() === 'distributor').length;
+    const countNonDistributor = providers.filter(p => p?.business_type?.toLowerCase() === 'non distributor').length;
+
+    const filteredProviders = providers.filter(provider => {
+        const type = provider?.type?.toLowerCase();
+        const businessType = provider?.business_type?.toLowerCase();
+        
+        if (filterType === 'All') return true;
+        if (filterType === 'Alat') return type === 'alat';
+        if (filterType === 'BMHP') return type === 'bmhp';
+        if (filterType === 'Distributor') return businessType === 'distributor';
+        if (filterType === 'Non Distributor') return businessType === 'non distributor';
+        return true;
+    }).filter(provider => {
+        if (!searchTerm) return true;
+        return provider.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+               provider.type?.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterType]);
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -147,20 +197,78 @@ export default function Index({ providers }) {
 
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-4">
+                    <div 
+                        onClick={() => setFilterType(filterType === 'Alat' ? 'All' : 'Alat')}
+                        className={`bg-white rounded-3xl p-6 shadow-sm border cursor-pointer transition-all ${filterType === 'Alat' ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50/50' : 'border-gray-100 hover:border-blue-200 hover:shadow-md'}`}
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center">
+                                <Wrench className="w-6 h-6 text-blue-600" />
+                            </div>
+                        </div>
+                        <p className="text-sm font-medium text-gray-500 mb-1">Penyedia Alat</p>
+                        <h3 className="text-3xl font-extrabold text-gray-900">{countAlat}</h3>
+                    </div>
+
+                    <div 
+                        onClick={() => setFilterType(filterType === 'BMHP' ? 'All' : 'BMHP')}
+                        className={`bg-white rounded-3xl p-6 shadow-sm border cursor-pointer transition-all ${filterType === 'BMHP' ? 'border-teal-500 ring-2 ring-teal-100 bg-teal-50/50' : 'border-gray-100 hover:border-teal-200 hover:shadow-md'}`}
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-teal-100 flex items-center justify-center">
+                                <FileText className="w-6 h-6 text-teal-600" />
+                            </div>
+                        </div>
+                        <p className="text-sm font-medium text-gray-500 mb-1">Penyedia BMHP</p>
+                        <h3 className="text-3xl font-extrabold text-gray-900">{countBMHP}</h3>
+                    </div>
+
+                    <div 
+                        onClick={() => setFilterType(filterType === 'Distributor' ? 'All' : 'Distributor')}
+                        className={`bg-white rounded-3xl p-6 shadow-sm border cursor-pointer transition-all ${filterType === 'Distributor' ? 'border-indigo-500 ring-2 ring-indigo-100 bg-indigo-50/50' : 'border-gray-100 hover:border-indigo-200 hover:shadow-md'}`}
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center">
+                                <Building className="w-6 h-6 text-indigo-600" />
+                            </div>
+                        </div>
+                        <p className="text-sm font-medium text-gray-500 mb-1">Total Distributor</p>
+                        <h3 className="text-3xl font-extrabold text-gray-900">{countDistributor}</h3>
+                    </div>
+
+                    <div 
+                        onClick={() => setFilterType(filterType === 'Non Distributor' ? 'All' : 'Non Distributor')}
+                        className={`bg-white rounded-3xl p-6 shadow-sm border cursor-pointer transition-all ${filterType === 'Non Distributor' ? 'border-orange-500 ring-2 ring-orange-100 bg-orange-50/50' : 'border-gray-100 hover:border-orange-200 hover:shadow-md'}`}
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+                                <ShieldCheck className="w-6 h-6 text-orange-600" />
+                            </div>
+                        </div>
+                        <p className="text-sm font-medium text-gray-500 mb-1">Total Non Distributor</p>
+                        <h3 className="text-3xl font-extrabold text-gray-900">{countNonDistributor}</h3>
+                    </div>
+                </div>
+
                 <div className="flex justify-between items-center mb-6">
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                             <Store className="w-6 h-6 text-blue-600" />
-                            Daftar Penyedia (Provider)
+                            Daftar Penyedia
                         </h3>
-                        <p className="text-sm text-gray-500 mt-1">Kelola data bengkel, toko sparepart, dealer, BMHP, dan asuransi.</p>
+                        <p className="text-sm text-gray-500 mt-1">Kelola data penyedia BMHP, Alat, Distributor, dan Non Distributor.</p>
                     </div>
-                    <button 
-                        onClick={openCreateModal}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
-                    >
-                        <Plus className="w-5 h-5" /> Tambah Penyedia
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <ExportDropdown pdfRoute={route('providers.export.pdf')} excelRoute={route('providers.export.excel')} />
+                        <button 
+                            onClick={openCreateModal}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
+                        >
+                            <Plus className="w-5 h-5" /> Tambah Penyedia
+                        </button>
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
@@ -182,6 +290,17 @@ export default function Index({ providers }) {
                         </div>
                     </div>
                     
+                    {filteredProviders.length > 0 && (
+                        <div className="mb-4 mt-2">
+                            <ClientPagination 
+                                total={filteredProviders.length} 
+                                itemsPerPage={itemsPerPage} 
+                                currentPage={currentPage} 
+                                onPageChange={setCurrentPage} 
+                            />
+                        </div>
+                    )}
+
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
@@ -193,10 +312,10 @@ export default function Index({ providers }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredProviders.length > 0 ? filteredProviders.map((provider) => (
+                                {filteredProviders.length > 0 ? filteredProviders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((provider) => (
                                     <tr 
                                         key={provider.id} 
-                                        onClick={() => openPreviewModal(provider)}
+                                        onClick={() => router.get(route('providers.show', provider.id))}
                                         className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer"
                                     >
                                         <td className="px-6 py-4">
@@ -209,6 +328,11 @@ export default function Index({ providers }) {
                                                     <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 border border-indigo-100">
                                                         {provider.type || 'Lainnya'}
                                                     </span>
+                                                    {provider.business_type && (
+                                                        <span className="inline-block bg-emerald-50 text-emerald-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 ml-2 border border-emerald-100">
+                                                            {provider.business_type}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                         </td>
@@ -237,16 +361,32 @@ export default function Index({ providers }) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                            <div className="flex justify-center gap-2">
                                                 <button 
-                                                    onClick={() => openEditModal(provider)} 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        router.get(route('providers.show', provider.id));
+                                                    }} 
+                                                    className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors" 
+                                                    title="Detail"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openEditModal(provider);
+                                                    }} 
                                                     className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" 
                                                     title="Edit"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleDelete(provider.id)} 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDelete(provider.id);
+                                                    }} 
                                                     className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" 
                                                     title="Hapus"
                                                 >
@@ -265,6 +405,17 @@ export default function Index({ providers }) {
                             </tbody>
                         </table>
                     </div>
+
+                    {filteredProviders.length > 0 && (
+                        <div className="mt-4 border-t">
+                            <ClientPagination 
+                                total={filteredProviders.length} 
+                                itemsPerPage={itemsPerPage} 
+                                currentPage={currentPage} 
+                                onPageChange={setCurrentPage} 
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* MODAL FORM (Tambah/Edit) */}
@@ -272,7 +423,7 @@ export default function Index({ providers }) {
                     <div className="fixed inset-0 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10 px-4 bg-gray-900/50 backdrop-blur-sm custom-scrollbar">
                         <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl transform transition-all my-auto">
                             <form onSubmit={handleSubmit}>
-                                <div className="flex justify-between items-center p-6 border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur z-10 rounded-t-3xl">
+                                <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-white rounded-t-3xl">
                                     <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                         <Store className="w-6 h-6 text-blue-600"/>
                                         {isEditMode ? 'Edit Data Penyedia' : 'Tambah Penyedia Baru'}
@@ -297,17 +448,31 @@ export default function Index({ providers }) {
                                         </div>
 
                                         <div>
-                                            <InputLabel htmlFor="type" value="Jenis Penyedia" />
+                                            <InputLabel htmlFor="type" value="Kategori Penyedia" />
                                             <CustomSelect
                                                 value={data.type}
                                                 onChange={(val) => setData('type', val)}
                                                 options={[
-                                                    { value: '', label: '-- Pilih Jenis --' },
+                                                    { value: '', label: '-- Pilih Kategori --' },
                                                     ...providerTypes.map(type => ({ value: type, label: type }))
                                                 ]}
-                                                placeholder="-- Pilih Jenis --"
+                                                placeholder="-- Pilih Kategori --"
                                             />
                                             <InputError message={errors.type} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="business_type" value="Tipe Penyedia" />
+                                            <CustomSelect
+                                                value={data.business_type}
+                                                onChange={(val) => setData('business_type', val)}
+                                                options={[
+                                                    { value: '', label: '-- Pilih Tipe --' },
+                                                    ...businessTypes.map(type => ({ value: type, label: type }))
+                                                ]}
+                                                placeholder="-- Pilih Tipe --"
+                                            />
+                                            <InputError message={errors.business_type} className="mt-2" />
                                         </div>
 
                                         <div>
@@ -386,70 +551,14 @@ export default function Index({ providers }) {
 
                                 <div className="mt-4 flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
-                                    <div className="flex items-center gap-3">
-                                <ExportDropdown pdfRoute={route('providers.export.pdf')} excelRoute={route('providers.export.excel')} />
-                                <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
+                                    <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
                                         {isEditMode ? 'Simpan Perubahan' : 'Tambahkan'}
                                     </PrimaryButton>
-                            </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                 )}
-
-                {/* MODAL PREVIEW (Lihat Detail) */}
-                {isPreviewModalOpen && previewProvider && (
-                    <div className="fixed inset-0 z-50 overflow-y-auto flex justify-center items-center p-4 bg-gray-900/50 backdrop-blur-sm">
-                        <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl transform transition-all">
-                            <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                    <Store className="w-5 h-5 text-blue-600"/>
-                                    Detail Penyedia
-                                </h3>
-                                <button type="button" onClick={() => setIsPreviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
-                            </div>
-
-                            <div className="p-6">
-                                <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
-                                    <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
-                                        {getProviderIcon(previewProvider.type)}
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-xl text-gray-900">{previewProvider.name}</h4>
-                                        <span className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200 mt-1">
-                                            {previewProvider.type || 'Lainnya'}
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-[120px_1fr] gap-2">
-                                        <p className="text-sm text-gray-500 font-medium">No. Telepon:</p>
-                                        <p className="text-sm font-semibold text-gray-900">{previewProvider.phone || '-'}</p>
-                                    </div>
-                                    <div className="grid grid-cols-[120px_1fr] gap-2">
-                                        <p className="text-sm text-gray-500 font-medium">Alamat:</p>
-                                        <p className="text-sm font-semibold text-gray-900">{previewProvider.address || '-'}</p>
-                                    </div>
-                                    <div className="grid grid-cols-[120px_1fr] gap-2">
-                                        <p className="text-sm text-gray-500 font-medium">PIC / P. Jawab:</p>
-                                        <p className="text-sm font-semibold text-gray-900">{previewProvider.pic_name || '-'}</p>
-                                    </div>
-                                    <div className="grid grid-cols-[120px_1fr] gap-2">
-                                        <p className="text-sm text-gray-500 font-medium">Kontak PIC:</p>
-                                        <p className="text-sm font-semibold text-gray-900">{previewProvider.pic_phone || '-'}</p>
-                                    </div>
-                                    <div className="grid grid-cols-[120px_1fr] gap-2">
-                                        <p className="text-sm text-gray-500 font-medium">Catatan:</p>
-                                        <p className="text-sm font-medium text-gray-700 p-3 bg-gray-50 rounded-xl whitespace-pre-wrap">{previewProvider.notes || '-'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
             </div>
         </AuthenticatedLayout>
     );

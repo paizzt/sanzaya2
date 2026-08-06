@@ -16,7 +16,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
     const logistikForm = useForm({
         type: 'logistik',
         spreadsheet_id: config_logistik?.spreadsheet_id || '',
-        sheets_config: config_logistik?.sheets_config || [{sheet_name:'', col_date:'', col_sales_name:'', col_outlet_name:'', col_product_name:'', col_total_sales:''}],
+        sheets_config: config_logistik?.sheets_config || [{sheet_name:'', col_nama_pt:'', col_pelanggan:'', col_jenis_pelanggan:'', col_tanggal:'', col_nama_sales:'', col_no_faktur:'', col_id_paket:'', col_brand:'', col_nama_produk:'', col_qty:'', col_satuan:'', col_hna:'', col_subtotal:'', col_ppn:'', col_total:'', col_grand_total:'', col_jenis_barang:''}],
     });
 
     const pesananForm = useForm({
@@ -101,18 +101,31 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Logistik</h4>
-                    <button type="button" onClick={() => addSheet(logistikForm, {sheet_name:'', col_date:'', col_sales_name:'', col_outlet_name:'', col_product_name:'', col_total_sales:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
+                    <button type="button" onClick={() => addSheet(logistikForm, {sheet_name:'', col_nama_pt:'', col_pelanggan:'', col_jenis_pelanggan:'', col_tanggal:'', col_nama_sales:'', col_no_faktur:'', col_id_paket:'', col_brand:'', col_nama_produk:'', col_qty:'', col_satuan:'', col_hna:'', col_subtotal:'', col_ppn:'', col_total:'', col_grand_total:'', col_jenis_barang:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
                 </div>
                 {logistikForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
                         {logistikForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(logistikForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
                         <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(logistikForm, index, 'sheet_name', e.target.value)} /></div>
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                            <div><InputLabel value="Kol. Tanggal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_date} onChange={(e) => handleSheetChange(logistikForm, index, 'col_date', e.target.value)} /></div>
-                            <div><InputLabel value="Kol. Sales" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_sales_name} onChange={(e) => handleSheetChange(logistikForm, index, 'col_sales_name', e.target.value)} /></div>
-                            <div><InputLabel value="Kol. Outlet *" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_outlet_name} onChange={(e) => handleSheetChange(logistikForm, index, 'col_outlet_name', e.target.value)} /></div>
-                            <div><InputLabel value="Kol. Produk" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_product_name} onChange={(e) => handleSheetChange(logistikForm, index, 'col_product_name', e.target.value)} /></div>
-                            <div><InputLabel value="Kol. Total" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_total_sales} onChange={(e) => handleSheetChange(logistikForm, index, 'col_total_sales', e.target.value)} /></div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                            <div><InputLabel value="Kol. Nama PT" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_pt} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_pt', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Pelanggan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_pelanggan} onChange={(e) => handleSheetChange(logistikForm, index, 'col_pelanggan', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Jenis Pelanggan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_jenis_pelanggan} onChange={(e) => handleSheetChange(logistikForm, index, 'col_jenis_pelanggan', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Tanggal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tanggal} onChange={(e) => handleSheetChange(logistikForm, index, 'col_tanggal', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Nama Sales" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_sales} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_sales', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. No Faktur" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_no_faktur} onChange={(e) => handleSheetChange(logistikForm, index, 'col_no_faktur', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. ID Paket" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_id_paket} onChange={(e) => handleSheetChange(logistikForm, index, 'col_id_paket', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Brand" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_brand} onChange={(e) => handleSheetChange(logistikForm, index, 'col_brand', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Nama Produk" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_produk} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_produk', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Qty" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_qty} onChange={(e) => handleSheetChange(logistikForm, index, 'col_qty', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Satuan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_satuan} onChange={(e) => handleSheetChange(logistikForm, index, 'col_satuan', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. HNA" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_hna} onChange={(e) => handleSheetChange(logistikForm, index, 'col_hna', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Subtotal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_subtotal} onChange={(e) => handleSheetChange(logistikForm, index, 'col_subtotal', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. PPN" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_ppn} onChange={(e) => handleSheetChange(logistikForm, index, 'col_ppn', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Total" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_total} onChange={(e) => handleSheetChange(logistikForm, index, 'col_total', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Grand Total" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_grand_total} onChange={(e) => handleSheetChange(logistikForm, index, 'col_grand_total', e.target.value)} /></div>
+                            <div><InputLabel value="Kol. Jenis Brg" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_jenis_barang} onChange={(e) => handleSheetChange(logistikForm, index, 'col_jenis_barang', e.target.value)} /></div>
                         </div>
                     </div>
                 ))}

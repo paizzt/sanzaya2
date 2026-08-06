@@ -1,8 +1,11 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import CustomSelect from '@/Components/CustomSelect';
+import SearchableSelect from '@/Components/SearchableSelect';
+import ClientPagination from '@/Components/ClientPagination';
 import React, { useState, useMemo } from 'react';
 import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Fuse from 'fuse.js';
 import { 
     Plus, Search, Edit, Trash2, Box, Eye, CheckCircle, XCircle, X
 } from 'lucide-react';
@@ -13,12 +16,16 @@ import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 
-export default function Index({ products }) {
+export default function Index({ products, providers }) {
     const { auth } = usePage().props;
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         name: '',
@@ -28,14 +35,36 @@ export default function Index({ products }) {
         is_active: true,
         jenis: '',
         link: '',
+        provider_id: '',
+        registration_no: '',
+        qty: '',
+        unit: '',
+        tkdn: '',
+        hna: '',
     });
 
+    const fuse = useMemo(() => new Fuse(products, {
+        keys: [
+            'name', 
+            'code',
+            'registration_no',
+            'provider.name'
+        ],
+        threshold: 0.3,
+        ignoreLocation: true
+    }), [products]);
+
     const filteredProducts = useMemo(() => {
-        return products.filter(product => 
-            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (product.code && product.code.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-    }, [products, searchTerm]);
+        let result = products;
+        if (searchTerm) {
+            result = fuse.search(searchTerm).map(result => result.item);
+        }
+        return result;
+    }, [fuse, searchTerm, products]);
+
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     const openCreateModal = () => {
         setIsEditMode(false);
@@ -58,6 +87,12 @@ export default function Index({ products }) {
             is_active: product.is_active,
             jenis: product.jenis || '',
             link: product.link || '',
+            provider_id: product.provider_id || '',
+            registration_no: product.registration_no || '',
+            qty: product.qty || '',
+            unit: product.unit || '',
+            tkdn: product.tkdn || '',
+            hna: product.hna || '',
         });
         setIsModalOpen(true);
     };
@@ -164,65 +199,58 @@ export default function Index({ products }) {
                         </div>
                     </div>
                     
+                    {filteredProducts.length > 0 && (
+                        <div className="mb-4 mt-2">
+                            <ClientPagination 
+                                total={filteredProducts.length} 
+                                itemsPerPage={itemsPerPage} 
+                                currentPage={currentPage} 
+                                onPageChange={setCurrentPage} 
+                            />
+                        </div>
+                    )}
+
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    <th className="px-6 py-4">Informasi Produk</th>
-                                    <th className="px-6 py-4">Harga</th>
-                                    <th className="px-6 py-4">Status</th>
+                                    <th className="px-6 py-4">Nama Produk</th>
+                                    <th className="px-6 py-4">No. Registrasi</th>
+                                    <th className="px-6 py-4 text-center">TKDN</th>
+                                    <th className="px-6 py-4">Satuan</th>
+                                    <th className="px-6 py-4 text-center">Jumlah</th>
+                                    <th className="px-6 py-4">Penyedia</th>
+                                    <th className="px-6 py-4">Harga + PPN</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredProducts.length > 0 ? filteredProducts.map((product) => (
+                                {filteredProducts.length > 0 ? filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((product) => (
                                     <tr 
                                         key={product.id} 
                                         className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors"
                                     >
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center">
-                                                    <Box className="w-5 h-5 text-blue-600" />
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-gray-900 text-base">{product.name}</p>
-                                                    <div className="flex flex-wrap gap-2 mt-1">
-                                                        <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded border border-indigo-100">
-                                                            Kode: {product.code || '-'}
-                                                        </span>
-                                                        {product.jenis && (
-                                                            <span className="inline-block bg-green-50 text-green-700 text-xs font-semibold px-2 py-0.5 rounded border border-green-100">
-                                                                {product.jenis}
-                                                            </span>
-                                                        )}
-                                                        {product.link && (
-                                                            <a href={product.link} target="_blank" rel="noopener noreferrer" className="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-100 transition-colors">
-                                                                Link Eksternal
-                                                            </a>
-                                                        )}
-                                                    </div>
-                                                    {product.description && (
-                                                        <div className="text-xs text-gray-500 mt-2 max-w-xs truncate" title={product.description}>
-                                                            {product.description}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            <div className="font-bold text-gray-900">{product.name}</div>
+                                            <div className="text-xs text-gray-500">Kode: {product.code || '-'}</div>
                                         </td>
-                                        <td className="px-6 py-4 font-medium text-gray-800">
-                                            {formatRupiah(product.price)}
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-gray-600 font-medium">{product.registration_no || '-'}</span>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            {product.is_active ? (
-                                                <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-lg border border-green-200">
-                                                    <CheckCircle className="w-3.5 h-3.5" /> Aktif
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-lg border border-red-200">
-                                                    <XCircle className="w-3.5 h-3.5" /> Tidak Aktif
-                                                </span>
-                                            )}
+                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            <span className="text-gray-600 font-medium">{product.tkdn ? `${product.tkdn}%` : '-'}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-gray-600 font-medium">{product.unit || '-'}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            <span className="text-gray-900 font-bold">{product.qty}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-gray-900 font-medium">{product.provider?.name || '-'}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-gray-900 font-medium">{formatRupiah(product.price)}</span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center gap-2">
@@ -245,7 +273,7 @@ export default function Index({ products }) {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                                             Tidak ada data produk yang ditemukan.
                                         </td>
                                     </tr>
@@ -253,6 +281,17 @@ export default function Index({ products }) {
                             </tbody>
                         </table>
                     </div>
+                    
+                    {filteredProducts.length > 0 && (
+                        <div className="mt-4 border-t">
+                            <ClientPagination 
+                                total={filteredProducts.length} 
+                                itemsPerPage={itemsPerPage} 
+                                currentPage={currentPage} 
+                                onPageChange={setCurrentPage} 
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* MODAL FORM (Tambah/Edit) */}
@@ -260,7 +299,7 @@ export default function Index({ products }) {
                     <div className="fixed inset-0 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10 px-4 bg-gray-900/50 backdrop-blur-sm custom-scrollbar">
                         <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl transform transition-all my-auto">
                             <form onSubmit={handleSubmit}>
-                                <div className="flex justify-between items-center p-6 border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur z-10 rounded-t-3xl">
+                                <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-white rounded-t-3xl">
                                     <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                         <Box className="w-6 h-6 text-blue-600"/>
                                         {isEditMode ? 'Edit Data Produk' : 'Tambah Produk Baru'}
@@ -298,7 +337,73 @@ export default function Index({ products }) {
                                         </div>
 
                                         <div>
-                                            <InputLabel htmlFor="price" value="Harga" required />
+                                            <InputLabel htmlFor="registration_no" value="No. Registrasi" />
+                                            <TextInput
+                                                id="registration_no"
+                                                type="text"
+                                                name="registration_no"
+                                                value={data.registration_no}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('registration_no', e.target.value)}
+                                            />
+                                            <InputError message={errors.registration_no} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="qty" value="Jumlah" />
+                                            <TextInput
+                                                id="qty"
+                                                type="number"
+                                                name="qty"
+                                                value={data.qty}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('qty', e.target.value)}
+                                            />
+                                            <InputError message={errors.qty} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="unit" value="Satuan (Pcs, Box, dll)" />
+                                            <TextInput
+                                                id="unit"
+                                                type="text"
+                                                name="unit"
+                                                value={data.unit}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('unit', e.target.value)}
+                                            />
+                                            <InputError message={errors.unit} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="tkdn" value="TKDN (%)" />
+                                            <TextInput
+                                                id="tkdn"
+                                                type="number"
+                                                step="0.01"
+                                                name="tkdn"
+                                                value={data.tkdn}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('tkdn', e.target.value)}
+                                            />
+                                            <InputError message={errors.tkdn} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="hna" value="HNA (Harga Netto Apotek)" />
+                                            <TextInput
+                                                id="hna"
+                                                type="number"
+                                                name="hna"
+                                                value={data.hna}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('hna', e.target.value)}
+                                            />
+                                            <InputError message={errors.hna} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="price" value="Harga + PPN" required />
                                             <TextInput
                                                 id="price"
                                                 type="number"
@@ -324,18 +429,20 @@ export default function Index({ products }) {
                                             <InputError message={errors.description} className="mt-2" />
                                         </div>
                                         
-                                        <div>
-                                            <InputLabel htmlFor="jenis" value="Jenis" />
-                                            <CustomSelect
-                                                value={data.jenis}
-                                                onChange={(val) => setData('jenis', val)}
-                                                options={[
-                                                    { value: 'Alat Kesehatan', label: 'Alat Kesehatan' },
-                                                    { value: 'BMHP', label: 'BMHP' }
-                                                ]}
-                                                placeholder="Pilih Jenis (Opsional)"
+
+
+                                        <div className="md:col-span-2">
+                                            <InputLabel htmlFor="provider_id" value="Penyedia (Supplier)" />
+                                            <SearchableSelect
+                                                value={data.provider_id}
+                                                onChange={(val) => setData('provider_id', val)}
+                                                options={providers.map(p => ({
+                                                    value: p.id,
+                                                    label: `${p.name} ${p.type ? `(${p.type})` : ''}`
+                                                }))}
+                                                placeholder="Pilih Penyedia (Opsional)"
                                             />
-                                            <InputError message={errors.jenis} className="mt-2" />
+                                            <InputError message={errors.provider_id} className="mt-2" />
                                         </div>
 
                                         <div>

@@ -18,10 +18,24 @@ class Product extends Model
         'is_active',
         'jenis',
         'link',
+        'provider_id',
+        'registration_no',
+        'qty',
+        'unit',
+        'tkdn',
+        'hna',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'price' => 'decimal:2',
+        'hna' => 'decimal:2',
+        'tkdn' => 'decimal:2',
+        'qty' => 'integer',
     ];
+
+    public function provider()
+    {
+        return $this->belongsTo(Provider::class);
+    }
 }

@@ -7,7 +7,7 @@ export default function CustomDatePicker({ value, onChange, placeholder = "Pilih
     };
 
     return (
-        <div className="w-full relative custom-datepicker-container">
+        <div className="w-full relative custom-datepicker-container mt-1">
             <Datepicker 
                 primaryColor={"emerald"}
                 asSingle={true}
