@@ -34,32 +34,38 @@ class MarketingDailyReportController extends Controller
             ->first();
             
         $allTargets = MarketingWeeklyTarget::where('user_id', $userId)
-            ->orderBy('year', 'desc')
-            ->orderBy('week_number', 'desc')
+            ->orderBy('start_date', 'desc')
             ->get();
 
-        // Calculate Realization
-        $realizedVisits = MarketingDailyReport::where('user_id', $userId)
-            ->whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->count();
-            
-        $realizedTransactions = MarketingDailyReport::where('user_id', $userId)
-            ->whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->sum('actual_value');
+        if ($user->isAdminUser()) {
+            $realizedVisits = MarketingDailyReport::whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count();
+            $realizedTransactions = MarketingDailyReport::whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->sum('actual_value');
+            $target = MarketingWeeklyTarget::where('week_number', $weekNumber)
+                ->selectRaw('SUM(target_visits) as target_visits, SUM(target_new_outlets) as target_new_outlets, SUM(target_transactions) as target_transactions')
+                ->first();
+        } else {
+            $realizedVisits = MarketingDailyReport::where('user_id', $userId)
+                ->whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                ->count();
+                
+            $realizedTransactions = MarketingDailyReport::where('user_id', $userId)
+                ->whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                ->sum('actual_value');
+        }
 
         // Calculate Spreadsheet Sales for current month
         $spreadsheetSalesTotal = 0;
         $spreadsheetSalesName = $user->spreadsheet_sales_name;
         $monthlyTarget = $user->monthly_target;
         
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $monthIndo = $months[Carbon::now()->month] . ' ' . Carbon::now()->year;
+
         if ($spreadsheetSalesName) {
-            $months = [
-                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 
-                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 
-                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-            ];
-            $monthIndo = $months[Carbon::now()->month] . ' ' . Carbon::now()->year;
-            
             $logistikData = \App\Models\SyncLogistikData::where('nama_sales', $spreadsheetSalesName)
                 ->where('tanggal', 'LIKE', '%' . $monthIndo . '%')
                 ->get();
@@ -68,6 +74,14 @@ class MarketingDailyReportController extends Controller
                 $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
                 $spreadsheetSalesTotal += $val;
             }
+        } elseif ($user->isAdminUser()) {
+            $logistikData = \App\Models\SyncLogistikData::where('tanggal', 'LIKE', '%' . $monthIndo . '%')->get();
+            foreach ($logistikData as $row) {
+                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
+                $spreadsheetSalesTotal += $val;
+            }
+            $spreadsheetSalesName = 'Semua Data (Admin View)';
+            $monthlyTarget = \App\Models\User::sum('monthly_target');
         }
 
         $isAdminMarketing = $user->isAdminUser();

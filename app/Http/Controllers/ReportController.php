@@ -110,18 +110,18 @@ class ReportController extends Controller
             if ($outletFilter) {
                 $summaryQuery->where(function($q) use ($outletNamesToSearch) {
                     foreach ($outletNamesToSearch as $name) {
-                        $q->orWhere('nama_outlet', 'like', $name);
+                        $q->orWhere('pelanggan', 'like', $name);
                     }
                 });
             }
             if ($monthFilter) $summaryQuery->where('tanggal', 'like', "%{$monthFilter}%");
             
-            $logistikAll = $summaryQuery->select('total_sales', 'nama_outlet', 'nama_produk', 'nama_sales')->get();
+            $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = [];
             foreach ($logistikAll as $row) {
-                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
+                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
                 $totalPenjualan += $val;
-                if ($row->nama_outlet) $outletCounts[$row->nama_outlet] = ($outletCounts[$row->nama_outlet] ?? 0) + 1;
+                if ($row->pelanggan) $outletCounts[$row->pelanggan] = ($outletCounts[$row->pelanggan] ?? 0) + 1;
                 if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
                 if ($row->nama_sales) {
                     $salesBreakdown[$row->nama_sales] = ($salesBreakdown[$row->nama_sales] ?? 0) + $val;

@@ -120,7 +120,7 @@ class PaymentRequestController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $vendors = Provider::select('id', 'nama_provider')->get();
+        $vendors = Provider::select('id', 'name')->get();
         $companies = \App\Models\Company::select('id', 'name')->get();
 
         return Inertia::render('PaymentRequests/Create', [

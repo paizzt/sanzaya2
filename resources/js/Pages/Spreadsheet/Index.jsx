@@ -130,7 +130,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Logistik</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl">Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -165,7 +165,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} className="py-3 px-8 bg-emerald-600 hover:bg-emerald-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Pesanan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} className="py-3 px-8 bg-emerald-600 hover:bg-emerald-700 rounded-xl">Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -199,7 +199,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} className="py-3 px-8 bg-purple-600 hover:bg-purple-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Piutang</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} className="py-3 px-8 bg-purple-600 hover:bg-purple-700 rounded-xl">Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -226,7 +226,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} className="py-3 px-8 bg-orange-600 hover:bg-orange-700 rounded-xl"><Save className="w-4 h-4 mr-2" /> Simpan Hutang</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} className="py-3 px-8 bg-orange-600 hover:bg-orange-700 rounded-xl">Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -235,9 +235,14 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
     return (
         <AuthenticatedLayout
             user={usePage().props.auth.user}
-            header={<h2 className="font-bold text-2xl text-gray-800 leading-tight">Sync Multi-Spreadsheet</h2>}
+            header={
+                <div>
+                    <h2 className="font-bold text-2xl text-gray-800 leading-tight">Data Laporan Tersinkronisasi</h2>
+                    <p className="text-sm text-gray-500 mt-1">Menampilkan data yang telah ditarik dari Google Spreadsheet</p>
+                </div>
+            }
         >
-            <Head title="Spreadsheet Sync" />
+            <Head title="Data Laporan Tersinkronisasi" />
 
             <div className="pb-6 pt-0 space-y-8">
                 

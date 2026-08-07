@@ -317,12 +317,7 @@ export default function Index({ outlets, areas }) {
                             <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
                                 Total Data: <span className="text-gray-900 font-bold">{filteredOutlets.length}</span>
                             </div>
-                            <ClientPagination 
-                                total={filteredOutlets.length} 
-                                itemsPerPage={itemsPerPage} 
-                                currentPage={currentPage} 
-                                onPageChange={setCurrentPage} 
-                            />
+
                         </div>
                     )}
                     <div className="overflow-x-auto">
@@ -345,7 +340,7 @@ export default function Index({ outlets, areas }) {
                                         <td className="px-6 py-4 text-center">
                                             <input type="checkbox" checked={selectedIds.includes(outlet.id)} onChange={() => handleSelectOne(outlet.id)} className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
                                         </td>
-                                        <td className="px-6 py-4 font-semibold text-gray-900">
+                                        <td className="px-6 py-4 font-semibold text-gray-900 uppercase">
                                             {outlet.name}
                                         </td>
                                         <td className="px-6 py-4">
@@ -530,7 +525,7 @@ export default function Index({ outlets, areas }) {
                                 <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
                                     <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
-                                        <Save className="w-4 h-4 mr-2" /> {isEditMode ? 'Simpan Perubahan' : 'Buat Outlet'}
+                                        {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>
                             </form>

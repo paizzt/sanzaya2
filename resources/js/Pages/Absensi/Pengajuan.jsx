@@ -136,7 +136,7 @@ export default function Pengajuan({ requests }) {
 
                                 <div className="pt-2">
                                     <PrimaryButton disabled={processing} className="w-full justify-center py-3 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2">
-                                        <Send className="w-4 h-4" /> Kirim Pengajuan
+                                        Kirim
                                     </PrimaryButton>
                                 </div>
                             </form>

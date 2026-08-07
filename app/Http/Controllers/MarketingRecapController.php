@@ -36,7 +36,7 @@ class MarketingRecapController extends Controller
         $reports = $reportsQuery->get();
 
         // Query Targets
-        $targetsQuery = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc')->orderBy('week_number', 'desc');
+        $targetsQuery = MarketingWeeklyTarget::with('user')->orderBy('start_date', 'desc');
         if ($salesUserId) {
             $targetsQuery->where('user_id', $salesUserId);
         }

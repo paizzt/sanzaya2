@@ -93,11 +93,11 @@ export default function Notifications({ setting }) {
                     </div>
 
                     {/* Subscription Note */}
-                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-xl shadow-indigo-500/20">
-                        <h3 className="font-bold text-xl mb-2 flex items-center gap-2">
-                            <BellRing className="w-6 h-6" /> Notifikasi Karyawan
+                    <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-center">
+                        <h3 className="font-bold text-lg text-gray-800 mb-2 flex items-center gap-2">
+                            <BellRing className="text-indigo-600 w-5 h-5" /> Notifikasi Karyawan
                         </h3>
-                        <p className="text-indigo-100 text-sm leading-relaxed mb-4">
+                        <p className="text-gray-500 text-sm leading-relaxed mb-4">
                             Saat pengguna login, browser akan secara otomatis meminta izin untuk mengirimkan notifikasi. 
                             Pastikan pengaturan jam di bawah sudah sesuai. Notifikasi akan dikirim otomatis oleh sistem (Cron Job).
                         </p>
@@ -160,7 +160,7 @@ export default function Notifications({ setting }) {
 
                         <div className="pt-4 flex justify-end">
                             <PrimaryButton disabled={processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2 text-sm">
-                                <Save className="w-4 h-4" /> Simpan Jadwal
+                                Simpan
                             </PrimaryButton>
                         </div>
                     </form>

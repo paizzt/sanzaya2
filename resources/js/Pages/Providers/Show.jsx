@@ -515,7 +515,7 @@ export default function Show({ provider, products, filters }) {
                                 <div className="p-6 border-t border-gray-100 bg-gray-50/50 sticky bottom-0 z-10 rounded-b-3xl flex justify-end gap-3">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
                                     <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
-                                        {isEditMode ? 'Simpan Perubahan' : 'Tambahkan Barang'}
+                                        {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>
                             </form>

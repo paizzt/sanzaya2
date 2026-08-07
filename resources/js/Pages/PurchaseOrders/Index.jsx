@@ -2,7 +2,8 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { FileText, Plus, Edit, Trash2 } from 'lucide-react';
+import { FileText, Plus, Edit, Trash2, TrendingUp, ShoppingCart, Activity, Store, BarChart2, PieChart as PieChartIcon } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Modal from '@/Components/Modal';
@@ -13,7 +14,7 @@ import CustomDatePicker from '@/Components/CustomDatePicker';
 import SearchableSelect from '@/Components/SearchableSelect';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items, outlets }) {
+export default function Index({ auth, items, outlets, summary }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
@@ -109,6 +110,15 @@ export default function Index({ auth, items, outlets }) {
             }
         });
     };
+    const pieData = [
+        { name: 'Terkirim', value: summary?.persen_terkirim || 0, color: '#10b981' },
+        { name: 'Belum Terkirim', value: summary?.persen_belum_terkirim || 0, color: '#ef4444' }
+    ];
+
+    const barData = Object.entries(summary?.faktur_detail || {}).map(([name, val]) => ({
+        name: name,
+        TotalFaktur: val
+    }));
 
     return (
         <AuthenticatedLayout
@@ -119,6 +129,106 @@ export default function Index({ auth, items, outlets }) {
 
             <div className="pb-12 pt-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    
+                    {summary && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+                            <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="min-w-0 flex-1 pr-4">
+                                        <p className="text-sm font-semibold text-gray-500 truncate">Total Faktur</p>
+                                        <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.total_faktur}>
+                                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(summary.total_faktur)}
+                                        </h4>
+                                    </div>
+                                    <div className="p-3 bg-emerald-50 rounded-2xl">
+                                        <TrendingUp className="w-6 h-6 text-emerald-600" />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400">Total akumulasi dari Total Faktur</p>
+                            </div>
+                            
+                            <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="min-w-0 flex-1 pr-4">
+                                        <p className="text-sm font-semibold text-gray-500 truncate">Barang Terkirim</p>
+                                        <h4 className="text-xl font-bold text-emerald-600 mt-1 truncate" title={`${summary.persen_terkirim}%`}>
+                                            {summary.persen_terkirim}%
+                                        </h4>
+                                    </div>
+                                    <div className="p-3 bg-emerald-50 rounded-2xl">
+                                        <ShoppingCart className="w-6 h-6 text-emerald-600" />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400">Persentase barang yang berhasil terkirim</p>
+                            </div>
+
+                            <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="min-w-0 flex-1 pr-4">
+                                        <p className="text-sm font-semibold text-gray-500 truncate">Belum Terkirim</p>
+                                        <h4 className="text-xl font-bold text-red-600 mt-1 truncate" title={`${summary.persen_belum_terkirim}%`}>
+                                            {summary.persen_belum_terkirim}%
+                                        </h4>
+                                    </div>
+                                    <div className="p-3 bg-red-50 rounded-2xl">
+                                        <Activity className="w-6 h-6 text-red-600" />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400">Persentase barang yang belum terkirim</p>
+                            </div>
+
+                            <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="min-w-0 flex-1 pr-4">
+                                        <p className="text-sm font-semibold text-gray-500 truncate">Total Surat</p>
+                                        <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.total_surat}>
+                                            {summary.total_surat}
+                                        </h4>
+                                    </div>
+                                    <div className="p-3 bg-blue-50 rounded-2xl">
+                                        <Store className="w-6 h-6 text-blue-600" />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400">Jumlah baris surat pesanan tercatat</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {summary && (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
+                                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChartIcon className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
+                                <div className="h-64 w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                                {pieData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <RechartsTooltip formatter={(val) => `${val}%`} />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2">
+                                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</h4>
+                                <div className="h-64 w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={barData} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-15} textAnchor="end" />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
+                                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                                            <Bar dataKey="TotalFaktur" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={30} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
                             

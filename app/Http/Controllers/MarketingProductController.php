@@ -88,7 +88,7 @@ class MarketingProductController extends Controller
         }
 
         // Merge and Sort
-        $allProducts = $internalProducts->merge($distributorProducts)->sortBy('name')->values();
+        $allProducts = collect($internalProducts->all())->merge($distributorProducts->all())->sortBy('name')->values();
 
         return Inertia::render('Marketing/Products', [
             'products' => $allProducts,

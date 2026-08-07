@@ -262,8 +262,8 @@ export default function UcApproval({ requests }) {
                                     Batal
                                 </button>
                                 <PrimaryButton disabled={processing} className="rounded-xl flex items-center gap-2 transition-all duration-200">
-                                    {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                                    {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                    {processing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                    {processing ? 'Menyimpan...' : 'Simpan'}
                                 </PrimaryButton>
                             </div>
                         </form>

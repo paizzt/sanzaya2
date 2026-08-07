@@ -2,7 +2,8 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { CreditCard, Plus, Edit, Trash2 } from 'lucide-react';
+import { CreditCard, Plus, Edit, Trash2, TrendingUp, User as UserIcon, Database, Activity } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Modal from '@/Components/Modal';
@@ -12,7 +13,7 @@ import InputError from '@/Components/InputError';
 import SearchableSelect from '@/Components/SearchableSelect';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items, providers }) {
+export default function Index({ auth, items, providers, summary }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
@@ -91,6 +92,11 @@ export default function Index({ auth, items, providers }) {
         });
     };
 
+    const chartData = Object.entries(summary?.hutang_detail || {}).map(([name, val]) => ({
+        name: name,
+        TotalHutang: val
+    }));
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -100,6 +106,73 @@ export default function Index({ auth, items, providers }) {
 
             <div className="pb-12 pt-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    
+                    {summary && (
+                        <>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="min-w-0 flex-1 pr-4">
+                                            <p className="text-sm font-semibold text-gray-500 truncate">Total Nominal</p>
+                                            <h4 className="text-xl font-bold text-orange-700 mt-1 truncate" title={summary.total_nominal}>
+                                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(summary.total_nominal)}
+                                            </h4>
+                                        </div>
+                                        <div className="p-3 bg-orange-50 rounded-2xl">
+                                            <TrendingUp className="w-6 h-6 text-orange-600" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-400">Total akumulasi nominal hutang</p>
+                                </div>
+                                
+                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="min-w-0 flex-1 pr-4">
+                                            <p className="text-sm font-semibold text-gray-500 truncate">Total Penyedia</p>
+                                            <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.total_penyedia}>
+                                                {summary.total_penyedia}
+                                            </h4>
+                                        </div>
+                                        <div className="p-3 bg-blue-50 rounded-2xl">
+                                            <UserIcon className="w-6 h-6 text-blue-600" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-400">Jumlah penyedia berbeda</p>
+                                </div>
+
+                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="min-w-0 flex-1 pr-4">
+                                            <p className="text-sm font-semibold text-gray-500 truncate">Total Data</p>
+                                            <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.total_data}>
+                                                {summary.total_data}
+                                            </h4>
+                                        </div>
+                                        <div className="p-3 bg-green-50 rounded-2xl">
+                                            <Database className="w-6 h-6 text-green-600" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-400">Jumlah baris data hutang tercatat</p>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+                                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</h4>
+                                <div className="h-72 w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 30, left: 100, bottom: 5 }}>
+                                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                                            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
+                                            <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} />
+                                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                                            <Bar dataKey="TotalHutang" fill="#f97316" radius={[0, 4, 4, 0]} barSize={20} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
                             

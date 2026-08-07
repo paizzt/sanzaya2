@@ -460,7 +460,7 @@ export default function Index({ products }) {
                                     <div className="flex items-center gap-3">
                                 <ExportDropdown pdfRoute={route('products.export.pdf')} excelRoute={route('products.export.excel')} />
                                 <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
-                                        {isEditMode ? 'Simpan Perubahan' : 'Tambahkan'}
+                                        {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                             </div>
                                 </div>

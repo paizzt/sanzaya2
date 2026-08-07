@@ -263,7 +263,7 @@ export default function Form({ vehicle }) {
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="kir_expiry_date" value="Tanggal KIR/Uji Berkala (Opsional)" />
+                                <InputLabel htmlFor="kir_expiry_date" value="Tanggal KIR/Uji Berkala" />
                                 <CustomDatePicker
                                     value={data.kir_expiry_date}
                                     onChange={(val) => setData('kir_expiry_date', val)}
@@ -477,7 +477,7 @@ export default function Form({ vehicle }) {
                             disabled={processing}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            <Save className="w-5 h-5" /> {processing ? 'Menyimpan...' : 'Simpan Data Armada'}
+                            {processing ? 'Menyimpan...' : 'Simpan'}
                         </button>
                     </div>
 

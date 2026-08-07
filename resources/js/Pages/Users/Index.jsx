@@ -22,6 +22,8 @@ export default function Index({ users, divisions, positions, areas, roles, compa
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const [previewUser, setPreviewUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
@@ -194,24 +196,20 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
-                    <ClientPagination 
-                        data={users}
-                        itemsPerPage={50}
-                        renderTable={(currentItems) => (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm text-left text-gray-500">
-                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
-                                        <tr>
-                                            <th className="px-6 py-4">Nama Lengkap</th>
-                                            <th className="px-6 py-4">Kontak / Akun</th>
-                                            <th className="px-6 py-4">Perusahaan & Role</th>
-                                            <th className="px-6 py-4">Jabatan & Divisi</th>
-                                            <th className="px-6 py-4">Area Marketing</th>
-                                            <th className="px-6 py-4 text-center">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {currentItems.map((user) => (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left text-gray-500">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th className="px-6 py-4">Nama Lengkap</th>
+                                    <th className="px-6 py-4">Kontak / Akun</th>
+                                    <th className="px-6 py-4">Perusahaan & Role</th>
+                                    <th className="px-6 py-4">Jabatan & Divisi</th>
+                                    <th className="px-6 py-4">Area Marketing</th>
+                                    <th className="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((user) => (
                                             <tr 
                                                 key={user.id} 
                                                 onClick={() => openPreviewModal(user)}
@@ -281,16 +279,25 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </td>
                                             </tr>
                                         ))}
-                                        {currentItems.length === 0 && (
+                                        {users.length === 0 && (
                                             <tr>
-                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500 font-medium">Belum ada pengguna.</td>
+                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                                                    Belum ada pengguna terdaftar.
+                                                </td>
                                             </tr>
                                         )}
                                     </tbody>
                                 </table>
                             </div>
-                        )}
-                    />
+                        
+                    {users.length > 0 && (
+                        <ClientPagination 
+                            total={users.length}
+                            itemsPerPage={itemsPerPage}
+                            currentPage={currentPage}
+                            onPageChange={setCurrentPage}
+                        />
+                    )}
                 </div>
 
                 {/* MODAL FORM */}
@@ -574,7 +581,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
                                     <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
-                                        <Save className="w-4 h-4 mr-2" /> {isEditMode ? 'Simpan Perubahan' : 'Buat Pengguna'}
+                                        {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>
                             </form>

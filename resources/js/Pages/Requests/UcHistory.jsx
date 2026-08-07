@@ -239,7 +239,7 @@ export default function UcHistory({ requests, activeUcs = [] }) {
 
                                                 <div className="flex justify-end">
                                                     <PrimaryButton disabled={resultProcessing} className="py-2.5 px-6 bg-emerald-600 hover:bg-emerald-700 rounded-xl">
-                                                        Kirim Result UC
+                                                        Kirim
                                                     </PrimaryButton>
                                                 </div>
                                             </form>

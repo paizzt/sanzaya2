@@ -259,7 +259,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
                                 Batal
                             </Link>
                             <PrimaryButton type="submit" disabled={processing}>
-                                Perbarui Draft
+                                Simpan
                             </PrimaryButton>
                         </div>
                     </form>

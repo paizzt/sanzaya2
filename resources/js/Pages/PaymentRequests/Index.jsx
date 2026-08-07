@@ -67,7 +67,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                     className="block w-full"
                                 />
                                 <select 
-                                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    className="rounded-xl border-gray-200 text-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 px-4 bg-white hover:border-gray-300 transition-colors cursor-pointer min-w-[180px]"
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value)}
                                 >
@@ -85,7 +85,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
 
                             {!isApprovalView && (
                                 <Link href={route('payment-requests.create')}>
-                                    <PrimaryButton>Buat Pengajuan</PrimaryButton>
+                                    <PrimaryButton>Buat</PrimaryButton>
                                 </Link>
                             )}
                         </div>

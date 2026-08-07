@@ -16,9 +16,23 @@ class PayableController extends Controller
     {
         $items = Payable::with('provider')->orderBy('id', 'desc')->get();
         $providers = \App\Models\Provider::orderBy('name')->get();
+
+        $summary = [
+            'total_nominal' => $items->sum('nominal'),
+            'total_penyedia' => $items->pluck('provider_id')->unique()->count(),
+            'total_data' => $items->count(),
+        ];
+
+        $summary['hutang_detail'] = $items->groupBy(function($item) {
+            return $item->provider ? $item->provider->name : 'Lainnya';
+        })->map(function($group) {
+            return $group->sum('nominal');
+        })->sortDesc()->take(10)->toArray();
+
         return Inertia::render('Payables/Index', [
             'items' => $items,
-            'providers' => $providers
+            'providers' => $providers,
+            'summary' => $summary
         ]);
     }
 

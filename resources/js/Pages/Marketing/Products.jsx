@@ -8,6 +8,8 @@ export default function Products({ auth, products, filters }) {
     const [search, setSearch] = useState(filters.search || '');
     const [type, setType] = useState(filters.type || '');
     const [source, setSource] = useState(filters.source || '');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -87,23 +89,19 @@ export default function Products({ auth, products, filters }) {
 
                     {/* Table Data */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <ClientPagination 
-                            data={products}
-                            itemsPerPage={20}
-                            renderTable={(currentItems) => (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-sm text-left text-gray-600">
-                                        <thead className="text-xs text-gray-700 uppercase bg-gray-50/80 border-b border-gray-100">
-                                            <tr>
-                                                <th className="px-6 py-4 font-semibold">Nama Produk & Sumber</th>
-                                                <th className="px-6 py-4 font-semibold">Kategori</th>
-                                                <th className="px-6 py-4 font-semibold">NIE / Reg. No</th>
-                                                <th className="px-6 py-4 font-semibold">Kemasan</th>
-                                                <th className="px-6 py-4 font-semibold text-right">Harga</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-50">
-                                            {currentItems.length > 0 ? currentItems.map((product) => (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left text-gray-600">
+                                <thead className="text-xs text-gray-700 uppercase bg-gray-50/80 border-b border-gray-100">
+                                    <tr>
+                                        <th className="px-6 py-4 font-semibold">Nama Produk & Sumber</th>
+                                        <th className="px-6 py-4 font-semibold">Kategori</th>
+                                        <th className="px-6 py-4 font-semibold">NIE / Reg. No</th>
+                                        <th className="px-6 py-4 font-semibold">Kemasan</th>
+                                        <th className="px-6 py-4 font-semibold text-right">Harga</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {products.length > 0 ? products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((product) => (
                                                 <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
                                                     <td className="px-6 py-4">
                                                         <div className="font-semibold text-gray-900">{product.name}</div>
@@ -145,8 +143,15 @@ export default function Products({ auth, products, filters }) {
                                         </tbody>
                                     </table>
                                 </div>
-                            )}
-                        />
+                        
+                        {products.length > 0 && (
+                            <ClientPagination 
+                                total={products.length}
+                                itemsPerPage={itemsPerPage}
+                                currentPage={currentPage}
+                                onPageChange={setCurrentPage}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

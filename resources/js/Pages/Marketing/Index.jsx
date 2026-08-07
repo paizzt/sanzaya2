@@ -113,58 +113,67 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Card 1: Target Kunjungan Mingguan (Merged) */}
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-blue-500/20">
-                            <p className="text-blue-100 text-sm font-medium mb-1">Target Kunjungan Mingguan</p>
-                            <div className="flex items-end gap-2 mb-4">
-                                <h2 className="text-3xl sm:text-4xl font-black">{realization.visits}</h2>
-                                <span className="text-blue-200 mb-1">/ {target?.target_visits || 0} Outlet</span>
+                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-50 text-blue-500 shadow-inner">
+                                    <Target className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-500">Target Kunjungan Mingguan</p>
+                                    <div className="flex items-end gap-2">
+                                        <h3 className="text-2xl font-black text-gray-800">{realization.visits}</h3>
+                                        <span className="text-gray-500 text-sm mb-1">/ {target?.target_visits || 0} Outlet</span>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <div className="flex justify-between items-center text-xs text-blue-100 mb-1">
+                            <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
                                 <span>Realisasi Kunjungan</span>
-                                <span className="font-bold">
+                                <span className="font-bold text-gray-700">
                                     {target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%
                                 </span>
                             </div>
-                            <div className="w-full bg-blue-900/50 rounded-full h-2">
+                            <div className="w-full bg-gray-100 rounded-full h-2">
                                 <div 
-                                    className="bg-white h-2 rounded-full transition-all duration-500" 
+                                    className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
                                     style={{ width: `${Math.min(100, target?.target_visits > 0 ? (realization.visits / target.target_visits) * 100 : 0)}%` }}
                                 ></div>
                             </div>
                         </div>
 
-
-                        {/* Card ke-3: Total Penjualan Perbulan */}
-                        <div className="bg-gradient-to-br from-purple-600 to-fuchsia-700 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-purple-500/20">
-                            <div className="flex justify-between items-start mb-1">
-                                <p className="text-purple-100 text-sm font-medium">Total Penjualan Perbulan</p>
+                        {/* Card ke-2: Total Penjualan Perbulan */}
+                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-purple-50 text-purple-500 shadow-inner">
+                                        <TrendingUp className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-500">Total Penjualan Perbulan</p>
+                                        <h3 className="text-2xl font-black text-gray-800 truncate">
+                                            Rp {new Intl.NumberFormat('id-ID').format(spreadsheet?.total_monthly || 0)}
+                                        </h3>
+                                    </div>
+                                </div>
                                 {spreadsheet?.monthly_target > 0 && (
-                                    <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-lg">
+                                    <span className="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-1 rounded-lg">
                                         Target: Rp {new Intl.NumberFormat('id-ID').format(spreadsheet.monthly_target)}
                                     </span>
                                 )}
                             </div>
-                            <div className="flex items-end gap-2 mb-4 mt-2">
-                                <h2 className="text-3xl sm:text-4xl font-black truncate">
-                                    Rp {new Intl.NumberFormat('id-ID').format(spreadsheet?.total_monthly || 0)}
-                                </h2>
-                            </div>
-                            <p className="text-xs text-purple-100 mb-2">
-                                {spreadsheet?.sales_name ? `Data Spreadsheet: ${spreadsheet.sales_name}` : 'Belum Terhubung dengan Spreadsheet'}
-                            </p>
                             
-                            <div className="flex justify-between items-center text-xs text-purple-100 mb-1">
+                            
+                            <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
                                 <span>Progres Pencapaian</span>
-                                <span className="font-bold">
+                                <span className="font-bold text-gray-700">
                                     {spreadsheet?.monthly_target > 0 
                                         ? Math.min(100, Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100)) 
                                         : 0}%
                                 </span>
                             </div>
-                            <div className="w-full bg-purple-900/30 rounded-full h-2">
+                            <div className="w-full bg-gray-100 rounded-full h-2">
                                 <div 
-                                    className="bg-white h-2 rounded-full transition-all duration-1000" 
+                                    className="bg-purple-500 h-2 rounded-full transition-all duration-1000" 
                                     style={{ 
                                         width: `${spreadsheet?.monthly_target > 0 
                                             ? Math.min(100, ((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
@@ -397,7 +406,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                                 <div className="pt-4 border-t border-gray-100 flex justify-end">
                                     <PrimaryButton disabled={processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2">
-                                        <Send className="w-4 h-4" /> Simpan Laporan
+                                        {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>
                             </form>
@@ -452,6 +461,40 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                         }));
                                                     }}
                                                 />
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const start = new Date();
+                                                        const end = new Date();
+                                                        end.setDate(end.getDate() + 7);
+                                                        setTargetData(d => ({
+                                                            ...d,
+                                                            start_date: start.toISOString().split('T')[0],
+                                                            end_date: end.toISOString().split('T')[0]
+                                                        }));
+                                                    }}
+                                                    className="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-colors font-medium"
+                                                >
+                                                    1 Minggu ke Depan
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const start = new Date();
+                                                        const end = new Date();
+                                                        end.setMonth(end.getMonth() + 1);
+                                                        setTargetData(d => ({
+                                                            ...d,
+                                                            start_date: start.toISOString().split('T')[0],
+                                                            end_date: end.toISOString().split('T')[0]
+                                                        }));
+                                                    }}
+                                                    className="text-xs bg-purple-50 text-purple-600 hover:bg-purple-100 px-3 py-1.5 rounded-lg border border-purple-200 transition-colors font-medium"
+                                                >
+                                                    1 Bulan ke Depan
+                                                </button>
                                             </div>
                                             <InputError message={targetErrors.start_date} className="mt-2" />
                                             <InputError message={targetErrors.end_date} className="mt-1" />

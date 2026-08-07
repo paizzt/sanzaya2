@@ -259,7 +259,7 @@ export default function Create({ auth, vendors, companies, user }) {
                                 Batal
                             </Link>
                             <PrimaryButton type="submit" disabled={processing}>
-                                Simpan Draft
+                                Simpan
                             </PrimaryButton>
                         </div>
                     </form>

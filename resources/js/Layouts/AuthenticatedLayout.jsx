@@ -238,7 +238,7 @@ export default function Authenticated({ user, header, children }) {
             active: url.startsWith('/spreadsheet') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/activity-logs'),
             children: [
                 { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.user?.roles?.some(r => ['Superadmin', 'Admin'].includes(r.name)) },
-                { name: 'Sync Spreadsheet', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(1) },
+                { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(1) },
                 { name: 'Notifikasi', href: route('notifications.index'), active: url.startsWith('/settings/notifications'), show: auth.active_features?.includes(13) },
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_features?.includes(14) },
             ]

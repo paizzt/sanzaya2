@@ -16,9 +16,27 @@ class PurchaseOrderController extends Controller
     {
         $items = PurchaseOrder::with('outlet')->orderBy('id', 'desc')->get();
         $outlets = \App\Models\Outlet::orderBy('name')->get();
+
+        $summary = [
+            'total_faktur' => $items->sum('total_faktur'),
+            'total_surat' => $items->count(),
+            'total_terkirim' => $items->sum('terkirim'),
+            'total_jumlah' => $items->sum('jumlah'),
+        ];
+        
+        $summary['persen_terkirim'] = $summary['total_jumlah'] > 0 ? round(($summary['total_terkirim'] / $summary['total_jumlah']) * 100, 1) : 0;
+        $summary['persen_belum_terkirim'] = $summary['total_jumlah'] > 0 ? 100 - $summary['persen_terkirim'] : 0;
+
+        $summary['faktur_detail'] = $items->groupBy(function($item) {
+            return $item->outlet ? $item->outlet->name : 'Lainnya';
+        })->map(function($group) {
+            return $group->sum('total_faktur');
+        })->sortDesc()->take(10)->toArray();
+
         return Inertia::render('PurchaseOrders/Index', [
             'items' => $items,
-            'outlets' => $outlets
+            'outlets' => $outlets,
+            'summary' => $summary
         ]);
     }
 

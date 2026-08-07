@@ -542,7 +542,7 @@ export default function Index({ vehicles }) {
                                     {errors.destination && <p className="text-red-500 text-xs mt-1">{errors.destination}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Biaya Bensin (Opsional)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Biaya Bensin</label>
                                     <NumericFormat
                                         value={data.gas_expense}
                                         onValueChange={(values) => {
@@ -557,7 +557,7 @@ export default function Index({ vehicles }) {
                                     {errors.gas_expense && <p className="text-red-500 text-xs mt-1">{errors.gas_expense}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto Penggunaan (Opsional)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto Penggunaan</label>
                                     <input 
                                         type="file" 
                                         accept="image/*"
@@ -567,7 +567,7 @@ export default function Index({ vehicles }) {
                                     {errors.usage_photo && <p className="text-red-500 text-xs mt-1">{errors.usage_photo}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto Nota Bensin (Opsional)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto Nota Bensin</label>
                                     <input 
                                         type="file" 
                                         accept="image/*"
