@@ -38,26 +38,35 @@ export default function Usages({ usages, vehicles, filters }) {
 
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center mb-6">
-                    <div className="flex flex-col gap-1">
-                        <Link href={route('vehicles.index')} className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 font-medium w-fit mb-2">
-                            <ArrowLeft className="w-4 h-4" /> Kembali ke Data Armada
+                    <div className="flex items-center gap-4">
+                        <Link 
+                            href={route('vehicles.index')}
+                            className="p-2.5 bg-white text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-xl shadow-sm transition-all border border-gray-100"
+                            title="Kembali ke Data Armada"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
                         </Link>
-                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <Activity className="w-6 h-6 text-green-600" />
-                            Riwayat Penggunaan Seluruh Armada
-                        </h3>
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                <Activity className="w-6 h-6 text-green-600" />
+                                Riwayat Penggunaan Seluruh Armada
+                            </h3>
+                        </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <select 
-                            value={filters.vehicle_id || ''}
-                            onChange={handleFilterChange}
-                            className="border-gray-300 rounded-xl shadow-sm text-sm focus:border-green-500 focus:ring-green-500 py-2.5"
-                        >
-                            <option value="">Semua Kendaraan</option>
-                            {vehicles.map(v => (
-                                <option key={v.id} value={v.id}>{v.license_plate} - {v.brand_type}</option>
-                            ))}
-                        </select>
+                        <div className="relative">
+                            <Truck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <select 
+                                value={filters.vehicle_id || ''}
+                                onChange={handleFilterChange}
+                                className="pl-9 pr-10 py-2.5 bg-white border-gray-200 text-gray-700 font-medium rounded-xl shadow-sm text-sm focus:border-green-500 focus:ring-green-500 hover:border-gray-300 transition-colors appearance-none cursor-pointer"
+                            >
+                                <option value="">Semua Kendaraan</option>
+                                {vehicles.map(v => (
+                                    <option key={v.id} value={v.id}>{v.license_plate} - {v.brand_type}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
 

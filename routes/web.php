@@ -74,14 +74,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/absensi/pengajuan/{id}/status', [AttendanceRequestController::class, 'updateStatus'])->name('absensi.pengajuan.status');
     });
 
+    // Modul Marketing
     Route::middleware(['can:view marketing'])->group(function() {
-        // Marketing
         Route::get('/marketing', [MarketingDailyReportController::class, 'index'])->name('marketing.index');
         Route::get('/marketing/recap-all', [\App\Http\Controllers\MarketingRecapController::class, 'index'])->name('marketing.recap.index');
         Route::get('/marketing/recap-all/pdf', [\App\Http\Controllers\MarketingRecapController::class, 'exportPdf'])->name('marketing.recap.pdf');
         Route::get('/marketing/recap-all/excel', [\App\Http\Controllers\MarketingRecapController::class, 'exportExcel'])->name('marketing.recap.excel');
         Route::post('/marketing/report', [MarketingDailyReportController::class, 'store'])->name('marketing.report.store');
         Route::post('/marketing/target', [MarketingDailyReportController::class, 'storeTarget'])->name('marketing.target.store');
+        Route::get('/marketing-export-pdf', [MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf');
+        Route::get('/marketing-export-excel', [MarketingDailyReportController::class, 'exportExcel'])->name('marketing.export.excel');
+        Route::get('/marketing-export-target-pdf', [MarketingDailyReportController::class, 'exportTargetPdf'])->name('marketing.export_target.pdf');
+        
+        // Fitur Pencarian Produk
+        Route::get('/marketing/products', [\App\Http\Controllers\MarketingProductController::class, 'index'])->name('marketing.products.index');
     });
 
     Route::middleware(['can:view uc requests'])->group(function() {

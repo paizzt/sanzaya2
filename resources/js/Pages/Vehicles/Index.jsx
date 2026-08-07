@@ -175,6 +175,13 @@ export default function Index({ vehicles }) {
                                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex justify-center items-center gap-2">
                                                 <button 
+                                                    onClick={() => { setSelectedVehicle(vehicle); setData('vehicle_id', vehicle.id); setIsUsageFormOpen(true); }}
+                                                    className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors tooltip"
+                                                    title="Catat Penggunaan"
+                                                >
+                                                    <Activity className="w-4 h-4" />
+                                                </button>
+                                                <button 
                                                     onClick={() => { setSelectedVehicle(vehicle); setIsModalOpen(true); }}
                                                     className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors tooltip"
                                                     title="Lihat Detail"

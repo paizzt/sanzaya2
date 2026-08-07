@@ -74,7 +74,8 @@ class AttendanceRecapController extends Controller
             'sakit' => 0,
             'izin' => 0,
             'alpa' => 0,
-            'lembur' => $attendances->where('status', 'Lembur')->count()
+            'lembur' => $attendances->where('status', 'Lembur')->count(),
+            'terlambat' => 0
         ];
 
         // Process Attendance Requests to count days
@@ -104,13 +105,48 @@ class AttendanceRecapController extends Controller
                 'sakit' => 0,
                 'izin' => 0,
                 'alpa' => 0,
-                'lembur' => 0
+                'lembur' => 0,
+                'terlambat' => 0
             ];
+        }
+
+                // Build Lembur Map
+        $lemburMap = [];
+        $startLimit = Carbon::create($year, $month, 1)->subDays(7);
+        
+        $lemburAttendances = Attendance::where('status', 'Lembur')
+            ->where('date', '>=', $startLimit->format('Y-m-d'))->get();
+        foreach ($lemburAttendances as $la) {
+            $lemburMap[$la->user_id][substr($la->date, 0, 10)] = true;
+        }
+
+        $lemburRequests = AttendanceRequest::where('status', '!=', 'Ditolak')
+            ->whereRaw('LOWER(type) = ?', ['lembur'])
+            ->where('end_date', '>=', $startLimit->format('Y-m-d'))->get();
+        foreach ($lemburRequests as $lr) {
+            $st = Carbon::parse($lr->start_date);
+            $en = Carbon::parse($lr->end_date);
+            while ($st->lte($en)) {
+                $lemburMap[$lr->user_id][$st->format('Y-m-d')] = true;
+                $st->addDay();
+            }
         }
 
         foreach ($attendances as $att) {
             if ($att->status == 'Hadir') {
                 $userSummaries[$att->user_id]['hadir']++;
+                
+                // Calculate Terlambat
+                $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
+                $isLemburYesterday = isset($lemburMap[$att->user_id][$prevDate]);
+                $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
+                
+                $att->is_late = $att->check_in_time > $threshold;
+                if ($att->is_late) {
+                    $userSummaries[$att->user_id]['terlambat']++;
+                    $summary['terlambat']++;
+                }
+
             } elseif ($att->status == 'Lembur') {
                 $userSummaries[$att->user_id]['lembur']++;
             }
@@ -162,6 +198,7 @@ class AttendanceRecapController extends Controller
                 'check_out' => $att->check_out_time,
                 'check_in_photo' => $att->check_in_photo ? asset('storage/' . $att->check_in_photo) : null,
                 'check_out_photo' => $att->check_out_photo ? asset('storage/' . $att->check_out_photo) : null,
+                'is_late' => $att->is_late ?? false,
                 'status' => 'Selesai'
             ];
         }

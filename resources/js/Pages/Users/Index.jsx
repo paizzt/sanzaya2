@@ -1,4 +1,5 @@
 import ExportDropdown from '@/Components/ExportDropdown';
+import ClientPagination from '@/Components/ClientPagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight } from 'lucide-react';
@@ -193,97 +194,103 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left text-gray-500">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
-                                <tr>
-                                    <th className="px-6 py-4">Nama Lengkap</th>
-                                    <th className="px-6 py-4">Kontak / Akun</th>
-                                    <th className="px-6 py-4">Perusahaan & Role</th>
-                                    <th className="px-6 py-4">Jabatan & Divisi</th>
-                                    <th className="px-6 py-4">Area Marketing</th>
-                                    <th className="px-6 py-4 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map((user) => (
-                                    <tr 
-                                        key={user.id} 
-                                        onClick={() => openPreviewModal(user)}
-                                        className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer"
-                                    >
-                                        <td className="px-6 py-4 font-semibold text-gray-900">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
-                                                    {user.name.charAt(0).toUpperCase()}
-                                                </div>
-                                                {user.name}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-gray-900 font-medium">{user.email}</span>
-                                                {user.spreadsheet_sales_name && (
-                                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200 w-max">
-                                                        Sales: {user.spreadsheet_sales_name}
-                                                    </span>
-                                                )}
-                                                {user.monthly_target && (
-                                                    <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200 w-max font-medium mt-1">
-                                                        Target: Rp {new Intl.NumberFormat('id-ID').format(user.monthly_target)}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col items-start gap-1">
-                                                {user.company && (
-                                                    <span className="text-xs font-semibold text-gray-600 flex items-center gap-1"><Building className="w-3 h-3"/> {user.company.name}</span>
-                                                )}
-                                                <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
-                                                    {user.roles && user.roles.length > 0 ? user.roles[0].name : 'Tidak ada role'}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {(!user.roles || (user.roles.length > 0 && user.roles[0].name !== 'Superadmin')) ? (
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-gray-700">{user.position?.name || '-'}</span>
-                                                    <span className="text-xs text-gray-500">{user.division?.name || '-'}</span>
-                                                </div>
-                                            ) : (
-                                                <span className="text-xs text-gray-500 italic">Semua Akses</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 max-w-xs">
-                                            <div className="flex flex-wrap gap-1">
-                                                {user.marketing_areas && user.marketing_areas.length > 0 ? (
-                                                    user.marketing_areas.map(area => (
-                                                        <span key={area.id} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md border border-gray-200">
-                                                            {area.name}
+                    <ClientPagination 
+                        data={users}
+                        itemsPerPage={50}
+                        renderTable={(currentItems) => (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left text-gray-500">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                                        <tr>
+                                            <th className="px-6 py-4">Nama Lengkap</th>
+                                            <th className="px-6 py-4">Kontak / Akun</th>
+                                            <th className="px-6 py-4">Perusahaan & Role</th>
+                                            <th className="px-6 py-4">Jabatan & Divisi</th>
+                                            <th className="px-6 py-4">Area Marketing</th>
+                                            <th className="px-6 py-4 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {currentItems.map((user) => (
+                                            <tr 
+                                                key={user.id} 
+                                                onClick={() => openPreviewModal(user)}
+                                                className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer"
+                                            >
+                                                <td className="px-6 py-4 font-semibold text-gray-900">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                                                            {user.name.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        {user.name}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-gray-900 font-medium">{user.email}</span>
+                                                        {user.spreadsheet_sales_name && (
+                                                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200 w-max">
+                                                                Sales: {user.spreadsheet_sales_name}
+                                                            </span>
+                                                        )}
+                                                        {user.monthly_target && (
+                                                            <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200 w-max font-medium mt-1">
+                                                                Target: Rp {new Intl.NumberFormat('id-ID').format(user.monthly_target)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col items-start gap-1">
+                                                        {user.company && (
+                                                            <span className="text-xs font-semibold text-gray-600 flex items-center gap-1"><Building className="w-3 h-3"/> {user.company.name}</span>
+                                                        )}
+                                                        <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
+                                                            {user.roles && user.roles.length > 0 ? user.roles[0].name : 'Tidak ada role'}
                                                         </span>
-                                                    ))
-                                                ) : '-'}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                                <button onClick={() => openEditModal(user)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
-                                                {usePage().props.auth.user.id !== user.id && (
-                                                    <button onClick={() => handleDelete(user.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {users.length === 0 && (
-                                    <tr>
-                                        <td colSpan="6" className="px-6 py-8 text-center text-gray-500 font-medium">Belum ada pengguna.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {(!user.roles || (user.roles.length > 0 && user.roles[0].name !== 'Superadmin')) ? (
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold text-gray-700">{user.position?.name || '-'}</span>
+                                                            <span className="text-xs text-gray-500">{user.division?.name || '-'}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-gray-500 italic">Semua Akses</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 max-w-xs">
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {user.marketing_areas && user.marketing_areas.length > 0 ? (
+                                                            user.marketing_areas.map(area => (
+                                                                <span key={area.id} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md border border-gray-200">
+                                                                    {area.name}
+                                                                </span>
+                                                            ))
+                                                        ) : '-'}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                                        <button onClick={() => openEditModal(user)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
+                                                        {usePage().props.auth.user.id !== user.id && (
+                                                            <button onClick={() => handleDelete(user.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {currentItems.length === 0 && (
+                                            <tr>
+                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500 font-medium">Belum ada pengguna.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    />
                 </div>
 
                 {/* MODAL FORM */}

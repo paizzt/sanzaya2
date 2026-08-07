@@ -30,6 +30,7 @@
         .status-sakit { color: #f59e0b; font-weight: bold; }
         .status-izin { color: #3b82f6; font-weight: bold; }
         .status-alpa { color: #ef4444; font-weight: bold; }
+        .status-terlambat { color: #e11d48; font-weight: bold; } /* rose-600 */
     
         /* PDF Fixes for Overflow & Layout */
         table { width: 100%; border-collapse: collapse; table-layout: auto; }
@@ -53,6 +54,7 @@
         <p>Sakit: <span class="status-sakit">{{ $summary['sakit'] }} hari</span></p>
         <p>Izin: <span class="status-izin">{{ $summary['izin'] }} hari</span></p>
         <p>Alpa: <span class="status-alpa">{{ $summary['alpa'] }} hari</span></p>
+        <p>Terlambat: <span class="status-terlambat">{{ $summary['terlambat'] ?? 0 }} hari</span></p>
         <p>Lembur: <span style="color:#8b5cf6; font-weight:bold;">{{ $summary['lembur'] ?? 0 }} hari</span></p>
     </div>
 
@@ -67,6 +69,7 @@
                     <th class="text-center">Sakit</th>
                     <th class="text-center">Izin</th>
                     <th class="text-center">Alpa</th>
+                    <th class="text-center">Terlambat</th>
                       <th class="text-center">Lembur</th>
                 </tr>
             </thead>
@@ -78,6 +81,7 @@
                     <td class="text-center status-sakit">{{ $u['sakit'] }}</td>
                     <td class="text-center status-izin">{{ $u['izin'] }}</td>
                     <td class="text-center status-alpa">{{ $u['alpa'] }}</td>
+                    <td class="text-center status-terlambat">{{ $u['terlambat'] ?? 0 }}</td>
                       <td class="text-center" style="color:#8b5cf6; font-weight:bold;">{{ $u['lembur'] ?? 0 }}</td>
                 </tr>
                 @endforeach
@@ -108,7 +112,12 @@
                     <td>{{ $item['user_name'] }}</td>
                     <td>{{ $item['date'] }}</td>
                     <td>{{ $item['type'] }}</td>
-                    <td class="text-center">{{ $item['check_in'] ?? '-' }}</td>
+                    <td class="text-center">
+                        {{ $item['check_in'] ?? '-' }}
+                        @if(!empty($item['is_late']))
+                            <br><small class="status-terlambat">(Terlambat)</small>
+                        @endif
+                    </td>
                     <td class="text-center">{{ $item['check_out'] ?? '-' }}</td>
                     <td class="text-center">{{ $item['status'] }}</td>
                 </tr>

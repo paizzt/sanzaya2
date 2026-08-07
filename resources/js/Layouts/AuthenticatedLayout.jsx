@@ -181,6 +181,7 @@ export default function Authenticated({ user, header, children }) {
             children: [
                 { name: 'Form Marketing', href: route('marketing.index'), active: url === '/marketing', show: auth.active_features?.includes(3) },
                 { name: 'Rekap Marketing', href: route('marketing.recap.index'), active: url.startsWith('/marketing/recap-all'), show: auth.active_features?.includes(10) },
+                { name: 'Cari Produk', href: route('marketing.products.index'), active: url.startsWith('/marketing/products'), show: auth.active_features?.includes(3) || auth.active_features?.includes(10) },
             ]
         },
         {
