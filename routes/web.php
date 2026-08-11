@@ -238,6 +238,10 @@ require __DIR__.'/auth.php';
 
 // Route sementara untuk membuat storage link di cPanel
 Route::get('/create-storage-link', function () {
-    \Illuminate\Support\Facades\Artisan::call('storage:link');
-    return 'Storage link berhasil dibuat! Silakan kembali ke aplikasi.';
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return 'Storage link berhasil dibuat! Silakan kembali ke aplikasi.';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
 });
