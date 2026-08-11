@@ -236,11 +236,21 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Route sementara untuk membuat storage link di cPanel
-Route::get('/create-storage-link', function () {
+// Route sementara untuk import data penyedia ke database cPanel
+Route::get('/import-providers', function () {
     try {
-        \Illuminate\Support\Facades\Artisan::call('storage:link');
-        return 'Storage link berhasil dibuat! Silakan kembali ke aplikasi.';
+        $providers = [
+            ['name' => 'PT Indowell Medtech Indonesia', 'type' => 'Distributor', 'address' => 'RUKO Apartment city Home, Jalan Raya Boulevard Block M56, RT.006/RW.019, Kelapa Gading', 'phone' => '+622121698396'],
+            ['name' => 'PT SNA Medika', 'type' => 'Non distributor'],
+            ['name' => 'PT. STANDARD BIOSENSOR HEALTHCARE', 'type' => 'Non distributor'],
+            ['name' => 'PT. YUWELL MEDICA INDONESIA', 'type' => 'Distributor'],
+            ['name' => 'PT. GOLDEN GLOBE MEDICA', 'type' => 'Distributor']
+        ];
+
+        foreach ($providers as $data) {
+            \App\Models\Provider::updateOrCreate(['name' => $data['name']], $data);
+        }
+        return 'Data 5 Penyedia berhasil ditambahkan ke database hosting!';
     } catch (\Exception $e) {
         return 'Error: ' . $e->getMessage();
     }
