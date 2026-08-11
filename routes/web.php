@@ -235,3 +235,9 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Route sementara untuk membuat storage link di cPanel
+Route::get('/create-storage-link', function () {
+    \Illuminate\Support\Facades\Artisan::call('storage:link');
+    return 'Storage link berhasil dibuat! Silakan kembali ke aplikasi.';
+});
