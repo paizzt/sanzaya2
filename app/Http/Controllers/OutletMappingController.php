@@ -18,8 +18,10 @@ class OutletMappingController extends Controller
         $logistikNames = SyncLogistikData::select('pelanggan')->distinct()->whereNotNull('pelanggan')->pluck('pelanggan')->toArray();
         $pesananNames = SyncPesananData::select('nama_outlet')->distinct()->whereNotNull('nama_outlet')->pluck('nama_outlet')->toArray();
         $piutangNames = SyncPiutangData::select('nama_outlet')->distinct()->whereNotNull('nama_outlet')->pluck('nama_outlet')->toArray();
+        $itemRequirementNames = \App\Models\ItemRequirement::select('outlet_name')->distinct()->whereNotNull('outlet_name')->pluck('outlet_name')->toArray();
+        $paymentRequestNames = \App\Models\PaymentRequest::select('project_or_outlet')->distinct()->whereNotNull('project_or_outlet')->pluck('project_or_outlet')->toArray();
 
-        $allRawNames = array_unique(array_merge($logistikNames, $pesananNames, $piutangNames));
+        $allRawNames = array_unique(array_merge($logistikNames, $pesananNames, $piutangNames, $itemRequirementNames, $paymentRequestNames));
         
         // Remove empty strings
         $allRawNames = array_filter($allRawNames, function($val) { return trim($val) !== ''; });
