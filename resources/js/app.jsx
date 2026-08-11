@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component {
 }
 
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Sanzaya Information System';
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
