@@ -204,7 +204,7 @@ export default function Authenticated({ user, header, children }) {
             children: [
                 { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(5) && hasPermission('view bhp requests') },
                 { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(24) && hasPermission('approve bhp requests') },
-                { name: 'Pengajuan Pembayaran', href: route('payment-requests.index'), active: url.startsWith('/payment-requests'), show: true },
+                { name: 'Pengajuan Pembayaran', href: route('payment-requests.index'), active: url.startsWith('/payment-requests'), show: auth.active_features?.includes(25) },
                 { name: 'Persetujuan Pembayaran', href: route('payment-approvals.index'), active: url.startsWith('/payment-approvals'), show: auth.user?.roles?.some(r => ['Manager', 'General Accounting', 'Direktur', 'Superadmin'].includes(r.name)) },
             ]
         },

@@ -201,12 +201,48 @@ class UserController extends Controller
     private function syncFeatureToggles($userId, $enabledFeatureIds)
     {
         $features = FeatureToggle::all();
+        $user = \App\Models\User::find($userId);
+        
+        // Map feature IDs to their required Spatie permissions
+        $featurePermissions = [
+            1 => ['manage spreadsheet sync'],
+            2 => ['view absensi'],
+            3 => ['view marketing'],
+            4 => ['view uc requests'],
+            5 => ['view bhp requests'],
+            6 => ['view users'],
+            7 => ['view laporan finansial'],
+            8 => ['approve uc requests'],
+            9 => ['manage master data'],
+            10 => ['view marketing'],
+            11 => ['manage master data'],
+            12 => ['manage master data'],
+            16 => ['manage master data'],
+            17 => ['view purchase orders'],
+            18 => ['view purchase orders'],
+            19 => ['view receivables'],
+            20 => ['view payables'],
+            21 => ['manage company'],
+            22 => ['manage master data'],
+            23 => ['manage master data'],
+            24 => ['approve bhp requests'],
+            25 => ['payment-request.view-own', 'payment-request.create', 'payment-request.update-own', 'payment-request.submit', 'payment-request.delete-draft'],
+        ];
+
+        // We will collect all permissions that should be granted directly to the user via features
+        $permissionsToGrant = [];
+
         foreach ($features as $feature) {
             $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
             
             if (in_array($feature->id, $enabledFeatureIds)) {
                 // Feature is ENABLED for this user -> Remove user from disabled list
                 $disabledUsers = array_diff($disabledUsers, [$userId]);
+                
+                // Collect permissions to grant
+                if (isset($featurePermissions[$feature->id])) {
+                    $permissionsToGrant = array_merge($permissionsToGrant, $featurePermissions[$feature->id]);
+                }
             } else {
                 // Feature is DISABLED for this user -> Add user to disabled list
                 if (!in_array($userId, $disabledUsers)) {
@@ -216,6 +252,18 @@ class UserController extends Controller
             
             $feature->disabled_for_users = json_encode(array_values($disabledUsers));
             $feature->save();
+        }
+
+        // Sync the direct permissions to the user based on the features they have enabled
+        if ($user) {
+            // First get all unique permissions to grant
+            $permissionsToGrant = array_unique($permissionsToGrant);
+            
+            // We use syncPermissions to replace the user's direct permissions
+            // Note: This does NOT remove permissions granted via Roles, which is perfect.
+            // But wait! syncPermissions replaces all direct permissions. If they had other direct permissions, they'd be lost.
+            // Since this app relies purely on Roles and Feature Toggles, it's safe to sync.
+            $user->syncPermissions($permissionsToGrant);
         }
     }
 

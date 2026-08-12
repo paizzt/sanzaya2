@@ -178,10 +178,6 @@ export default function Index({ providers, filters }) {
         if (filterType === 'Distributor') return businessType === 'distributor';
         if (filterType === 'Non Distributor') return businessType === 'non distributor';
         return true;
-    }).filter(provider => {
-        if (!searchTerm) return true;
-        return provider.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-               provider.type?.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
     React.useEffect(() => {
