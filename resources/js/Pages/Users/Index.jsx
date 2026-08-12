@@ -22,6 +22,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const [previewUser, setPreviewUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchUserTerm, setSearchUserTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 50;
 
@@ -167,6 +168,13 @@ export default function Index({ users, divisions, positions, areas, roles, compa
 
     const filteredAreas = areas.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
+    const filteredUsers = users.filter(user => 
+        user.name.toLowerCase().includes(searchUserTerm.toLowerCase()) || 
+        user.email.toLowerCase().includes(searchUserTerm.toLowerCase()) ||
+        (user.roles && user.roles.length > 0 && user.roles[0].name.toLowerCase().includes(searchUserTerm.toLowerCase())) ||
+        (user.company && user.company.name.toLowerCase().includes(searchUserTerm.toLowerCase()))
+    );
+
     return (
         <AuthenticatedLayout
             user={usePage().props.auth.user}
@@ -185,7 +193,16 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         <p className="text-sm text-gray-500 mt-1">Kelola akses, jabatan, divisi, PT, dan saklar fitur pengguna.</p>
                     </div>
                     <div className="flex items-center gap-3">
-                                <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} />
+                        <div className="relative">
+                            <input 
+                                type="text"
+                                placeholder="Cari nama, email, role..."
+                                value={searchUserTerm}
+                                onChange={(e) => { setSearchUserTerm(e.target.value); setCurrentPage(1); }}
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm px-4 py-2.5 w-64"
+                            />
+                        </div>
+                        <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} />
                                 <button 
                         onClick={openCreateModal}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
@@ -209,7 +226,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((user) => (
+                                {filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((user) => (
                                             <tr 
                                                 key={user.id} 
                                                 onClick={() => openPreviewModal(user)}
@@ -279,7 +296,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </td>
                                             </tr>
                                         ))}
-                                        {users.length === 0 && (
+                                        {filteredUsers.length === 0 && (
                                             <tr>
                                                 <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
                                                     Belum ada pengguna terdaftar.
@@ -290,9 +307,9 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 </table>
                             </div>
                         
-                    {users.length > 0 && (
+                    {filteredUsers.length > 0 && (
                         <ClientPagination 
-                            total={users.length}
+                            total={filteredUsers.length}
                             itemsPerPage={itemsPerPage}
                             currentPage={currentPage}
                             onPageChange={setCurrentPage}

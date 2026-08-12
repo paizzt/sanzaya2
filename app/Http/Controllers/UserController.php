@@ -227,6 +227,9 @@ class UserController extends Controller
             23 => ['manage master data'],
             24 => ['approve bhp requests'],
             25 => ['payment-request.view-own', 'payment-request.create', 'payment-request.update-own', 'payment-request.submit', 'payment-request.delete-draft'],
+            26 => ['payment-request.view-all', 'payment-request.review'],
+            27 => ['view activity log'],
+            28 => ['manage master data'],
         ];
 
         // We will collect all permissions that should be granted directly to the user via features

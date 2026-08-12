@@ -205,7 +205,7 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(5) && hasPermission('view bhp requests') },
                 { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap'), show: auth.active_features?.includes(24) && hasPermission('approve bhp requests') },
                 { name: 'Pengajuan Pembayaran', href: route('payment-requests.index'), active: url.startsWith('/payment-requests'), show: auth.active_features?.includes(25) },
-                { name: 'Persetujuan Pembayaran', href: route('payment-approvals.index'), active: url.startsWith('/payment-approvals'), show: auth.user?.roles?.some(r => ['Manager', 'General Accounting', 'Direktur', 'Superadmin'].includes(r.name)) },
+                { name: 'Persetujuan Pembayaran', href: route('payment-approvals.index'), active: url.startsWith('/payment-approvals'), show: auth.active_features?.includes(26) },
             ]
         },
         {
@@ -234,7 +234,7 @@ export default function Authenticated({ user, header, children }) {
             ]
         },
         {
-            name: 'Manajemen SOP', icon: BookOpen, show: hasPermission('manage master data'),
+            name: 'Manajemen SOP', icon: BookOpen, show: auth.active_features?.includes(28),
             active: url.startsWith('/sops'),
             href: route('sops.index')
         },
@@ -242,7 +242,7 @@ export default function Authenticated({ user, header, children }) {
             name: 'Sistem', icon: Settings, show: true,
             active: url.startsWith('/spreadsheet') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/activity-logs'),
             children: [
-                { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: hasPermission('view activity log') },
+                { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.active_features?.includes(27) },
                 { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(1) && hasPermission('manage spreadsheet sync') },
                 { name: 'Notifikasi', href: route('notifications.index'), active: url.startsWith('/settings/notifications'), show: auth.active_features?.includes(13) },
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_features?.includes(14) },
