@@ -11,6 +11,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import SearchableSelect from '@/Components/SearchableSelect';
+import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
 
 export default function Index({ auth, items, providers, summary }) {
@@ -20,6 +21,10 @@ export default function Index({ auth, items, providers, summary }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
         provider_id: '',
+        tanggal_terima_invoice: '',
+        nomor_transaksi: '',
+        memo: '',
+        jatuh_tempo_hari: '',
         nominal: ''
     });
 
@@ -29,6 +34,10 @@ export default function Index({ auth, items, providers, summary }) {
             setData({
                 id: item.id,
                 provider_id: item.provider_id || '',
+                tanggal_terima_invoice: item.tanggal_terima_invoice ? item.tanggal_terima_invoice.substring(0, 10) : '',
+                nomor_transaksi: item.nomor_transaksi || '',
+                memo: item.memo || '',
+                jatuh_tempo_hari: item.jatuh_tempo_hari || '',
                 nominal: item.nominal || ''
             });
         } else {
@@ -194,17 +203,33 @@ export default function Index({ auth, items, providers, summary }) {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Terima Invoice</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Transaksi</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Penyedia</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jatuh Tempo</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Umur Hutang</th>
                                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {items.length > 0 ? items.map((item) => (
                                             <tr key={item.id}>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.provider ? item.provider.name : '-'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                    {item.tanggal_terima_invoice ? new Date(item.tanggal_terima_invoice).toLocaleDateString('id-ID') : '-'}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">{item.nomor_transaksi || '-'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm">{item.provider ? item.provider.name : '-'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.jatuh_tempo_hari ? `${item.jatuh_tempo_hari} Hari` : '-'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap font-bold text-red-600">
                                                     Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((parseFloat(item.nominal) || 0) / 100)}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                    {item.umur_hutang > 0 ? (
+                                                        <span className="text-red-600 font-bold">{item.umur_hutang} Hari Terlambat</span>
+                                                    ) : (
+                                                        <span className="text-green-600 font-medium">Belum Jatuh Tempo</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
@@ -217,7 +242,7 @@ export default function Index({ auth, items, providers, summary }) {
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan="3" className="px-6 py-12 text-center text-gray-500">
+                                                <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
                                                     Belum ada data hutang.
                                                 </td>
                                             </tr>
@@ -231,13 +256,40 @@ export default function Index({ auth, items, providers, summary }) {
                 </div>
             </div>
 
-            <Modal show={isModalOpen} onClose={closeModal} maxWidth="sm">
+            <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl">
                 <form onSubmit={submit} className="p-6">
                     <h2 className="text-lg font-medium text-gray-900 mb-6">
                         {editingItem ? 'Edit Data Hutang' : 'Tambah Data Hutang'}
                     </h2>
 
                     <div className="grid grid-cols-1 gap-4">
+                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <InputLabel htmlFor="tanggal_terima_invoice" value="Tanggal Terima Invoice" />
+                                <TextInput
+                                    id="tanggal_terima_invoice"
+                                    type="date"
+                                    className="mt-1 block w-full"
+                                    value={data.tanggal_terima_invoice}
+                                    onChange={e => setData('tanggal_terima_invoice', e.target.value)}
+                                />
+                                <InputError message={errors.tanggal_terima_invoice} className="mt-2" />
+                            </div>
+
+                            <div>
+                                <InputLabel htmlFor="nomor_transaksi" value="Nomor Transaksi" />
+                                <TextInput
+                                    id="nomor_transaksi"
+                                    type="text"
+                                    className="mt-1 block w-full"
+                                    value={data.nomor_transaksi}
+                                    onChange={e => setData('nomor_transaksi', e.target.value)}
+                                    placeholder="Contoh: INV-12345"
+                                />
+                                <InputError message={errors.nomor_transaksi} className="mt-2" />
+                            </div>
+                        </div>
+
                         <div>
                             <InputLabel htmlFor="provider_id" value="Nama Penyedia" />
                             <div className="mt-1">
@@ -250,26 +302,55 @@ export default function Index({ auth, items, providers, summary }) {
                             </div>
                             <InputError message={errors.provider_id} className="mt-2" />
                         </div>
-
+                        
                         <div>
-                            <InputLabel htmlFor="nominal" value="Nominal" />
-                            <div className="relative mt-1">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="text-gray-500 sm:text-sm">Rp</span>
-                                </div>
-                                <TextInput 
-                                    id="nominal" 
-                                    type="text" 
-                                    className="block w-full pl-9 font-mono text-right" 
-                                    placeholder="0,00"
-                                    value={data.nominal ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(data.nominal) / 100) : ''} 
-                                    onChange={e => {
-                                        const rawValue = e.target.value.replace(/\D/g, '');
-                                        setData('nominal', rawValue);
-                                    }} 
+                            <InputLabel htmlFor="memo" value="Memo" />
+                            <TextInput
+                                id="memo"
+                                type="text"
+                                className="mt-1 block w-full"
+                                value={data.memo}
+                                onChange={e => setData('memo', e.target.value)}
+                                placeholder="Keterangan singkat"
+                            />
+                            <InputError message={errors.memo} className="mt-2" />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <InputLabel htmlFor="jatuh_tempo_hari" value="Jatuh Tempo" />
+                                <CustomSelect
+                                    value={data.jatuh_tempo_hari ? data.jatuh_tempo_hari.toString() : ''}
+                                    onChange={val => setData('jatuh_tempo_hari', val)}
+                                    options={[
+                                        { value: '14', label: '14 Hari' },
+                                        { value: '30', label: '30 Hari' }
+                                    ]}
+                                    placeholder="Pilih Hari"
                                 />
+                                <InputError message={errors.jatuh_tempo_hari} className="mt-2" />
                             </div>
-                            <InputError message={errors.nominal} className="mt-2" />
+
+                            <div>
+                                <InputLabel htmlFor="nominal" value="Nominal" />
+                                <div className="relative mt-1">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span className="text-gray-500 sm:text-sm">Rp</span>
+                                    </div>
+                                    <TextInput 
+                                        id="nominal" 
+                                        type="text" 
+                                        className="block w-full pl-9 font-mono text-right" 
+                                        placeholder="0,00"
+                                        value={data.nominal ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(data.nominal) / 100) : ''} 
+                                        onChange={e => {
+                                            const rawValue = e.target.value.replace(/\D/g, '');
+                                            setData('nominal', rawValue);
+                                        }} 
+                                    />
+                                </div>
+                                <InputError message={errors.nominal} className="mt-2" />
+                            </div>
                         </div>
                     </div>
 

@@ -225,6 +225,23 @@ class PaymentRequestController extends Controller
             // Completeness check
             $this->paymentService->checkCompleteness($paymentRequest);
 
+            if ($request->hasFile('lampiran_foto')) {
+                $file = $request->file('lampiran_foto');
+                $path = $file->store('payment_requests', 'public');
+                \Illuminate\Support\Facades\DB::table('payment_request_attachments')->insert([
+                    'payment_request_id' => $paymentRequest->id,
+                    'attachment_type' => 'Lampiran Foto',
+                    'original_name' => $file->getClientOriginalName(),
+                    'stored_name' => basename($path),
+                    'file_path' => $path,
+                    'mime_type' => $file->getClientMimeType(),
+                    'file_size' => $file->getSize(),
+                    'uploaded_by' => $user->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
             DB::commit();
 
             return redirect()->route('payment-requests.show', $paymentRequest->id)
@@ -385,6 +402,44 @@ class PaymentRequestController extends Controller
             ]);
 
             $this->paymentService->checkCompleteness($paymentRequest);
+
+            if ($request->hasFile('lampiran_foto')) {
+                $file = $request->file('lampiran_foto');
+                $path = $file->store('payment_requests', 'public');
+                
+                $oldAttachment = \Illuminate\Support\Facades\DB::table('payment_request_attachments')
+                    ->where('payment_request_id', $paymentRequest->id)
+                    ->where('attachment_type', 'Lampiran Foto')
+                    ->first();
+                    
+                if ($oldAttachment) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAttachment->file_path);
+                    \Illuminate\Support\Facades\DB::table('payment_request_attachments')
+                        ->where('id', $oldAttachment->id)
+                        ->update([
+                            'original_name' => $file->getClientOriginalName(),
+                            'stored_name' => basename($path),
+                            'file_path' => $path,
+                            'mime_type' => $file->getClientMimeType(),
+                            'file_size' => $file->getSize(),
+                            'uploaded_by' => $user->id,
+                            'updated_at' => now(),
+                        ]);
+                } else {
+                    \Illuminate\Support\Facades\DB::table('payment_request_attachments')->insert([
+                        'payment_request_id' => $paymentRequest->id,
+                        'attachment_type' => 'Lampiran Foto',
+                        'original_name' => $file->getClientOriginalName(),
+                        'stored_name' => basename($path),
+                        'file_path' => $path,
+                        'mime_type' => $file->getClientMimeType(),
+                        'file_size' => $file->getSize(),
+                        'uploaded_by' => $user->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
 
             DB::commit();
 

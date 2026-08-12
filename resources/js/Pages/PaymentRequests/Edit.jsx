@@ -10,7 +10,8 @@ import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
 
 export default function Edit({ auth, vendors, companies, paymentRequest }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
+        _method: 'PUT',
         company_name: paymentRequest.company_name || '',
         payment_deadline: paymentRequest.payment_deadline || '',
         transaction_date: paymentRequest.transaction_date || '',
@@ -31,7 +32,8 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
         vat_rate: paymentRequest.vat_rate || 0,
         discount: paymentRequest.discount || 0,
         other_cost: paymentRequest.other_cost || 0,
-        items: paymentRequest.items && paymentRequest.items.length > 0 ? paymentRequest.items : [{ description: '', quantity: 1, unit: '', unit_price: 0 }]
+        items: paymentRequest.items && paymentRequest.items.length > 0 ? paymentRequest.items : [{ description: '', quantity: 1, unit: '', unit_price: 0 }],
+        lampiran_foto: null
     });
 
     const addItem = () => {
@@ -56,7 +58,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
 
     const submit = (e) => {
         e.preventDefault();
-        put(route('payment-requests.update', paymentRequest.id), {
+        post(route('payment-requests.update', paymentRequest.id), {
             onError: (errors) => {
                 console.error(errors);
                 Swal.fire({
@@ -244,12 +246,40 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
                                             <TextInput value={data.account_number} onChange={e => setData('account_number', e.target.value)} className="w-full" required />
                                             <InputError message={errors.account_number} />
                                         </div>
-                                        <div>
-                                            <InputLabel value="Atas Nama Rekening" />
-                                            <TextInput value={data.account_name} onChange={e => setData('account_name', e.target.value)} className="w-full" required />
-                                            <InputError message={errors.account_name} />
-                                        </div>
                                     </>
+                                )}
+                                <div>
+                                    <InputLabel value="Atas Nama Rekening / Penerima" />
+                                    <TextInput value={data.account_name} onChange={e => setData('account_name', e.target.value)} className="w-full" required />
+                                    <InputError message={errors.account_name} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section D: Lampiran */}
+                        <div>
+                            <h3 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Lampiran Tambahan</h3>
+                            <div className="mt-4">
+                                <InputLabel value="Lampiran Foto (Pilih file baru jika ingin mengubah foto lama)" />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => setData('lampiran_foto', e.target.files[0])}
+                                    className="mt-1 block w-full text-sm text-gray-500
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-md file:border-0
+                                      file:text-sm file:font-medium
+                                      file:bg-indigo-50 file:text-indigo-700
+                                      hover:file:bg-indigo-100 border border-gray-300 rounded-md p-1"
+                                />
+                                <InputError message={errors.lampiran_foto} />
+                                {paymentRequest.attachments?.find(a => a.attachment_type === 'Lampiran Foto') && (
+                                    <div className="mt-2 text-sm text-gray-600">
+                                        Saat ini ada lampiran terpasang: 
+                                        <a href={`/storage/${paymentRequest.attachments.find(a => a.attachment_type === 'Lampiran Foto').file_path}`} target="_blank" className="text-indigo-600 hover:underline ml-1">
+                                            Lihat Foto
+                                        </a>
+                                    </div>
                                 )}
                             </div>
                         </div>

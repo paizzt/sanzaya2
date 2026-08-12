@@ -31,7 +31,8 @@ export default function Create({ auth, vendors, companies, user }) {
         vat_rate: 0,
         discount: 0,
         other_cost: 0,
-        items: [{ description: '', quantity: 1, unit: '', unit_price: 0 }]
+        items: [{ description: '', quantity: 1, unit: '', unit_price: 0 }],
+        lampiran_foto: null
     });
 
     const addItem = () => {
@@ -244,13 +245,33 @@ export default function Create({ auth, vendors, companies, user }) {
                                             <TextInput value={data.account_number} onChange={e => setData('account_number', e.target.value)} className="w-full" required />
                                             <InputError message={errors.account_number} />
                                         </div>
-                                        <div>
-                                            <InputLabel value="Atas Nama Rekening" />
-                                            <TextInput value={data.account_name} onChange={e => setData('account_name', e.target.value)} className="w-full" required />
-                                            <InputError message={errors.account_name} />
-                                        </div>
                                     </>
                                 )}
+                                <div>
+                                    <InputLabel value="Atas Nama Rekening / Penerima" />
+                                    <TextInput value={data.account_name} onChange={e => setData('account_name', e.target.value)} className="w-full" required />
+                                    <InputError message={errors.account_name} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section D: Lampiran */}
+                        <div>
+                            <h3 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Lampiran Tambahan</h3>
+                            <div className="mt-4">
+                                <InputLabel value="Lampiran Foto" />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => setData('lampiran_foto', e.target.files[0])}
+                                    className="mt-1 block w-full text-sm text-gray-500
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-md file:border-0
+                                      file:text-sm file:font-medium
+                                      file:bg-indigo-50 file:text-indigo-700
+                                      hover:file:bg-indigo-100 border border-gray-300 rounded-md p-1"
+                                />
+                                <InputError message={errors.lampiran_foto} />
                             </div>
                         </div>
 

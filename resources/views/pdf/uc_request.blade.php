@@ -370,12 +370,10 @@
     </table>
 
     @php
-        $gasCost = (float)($uc->estimated_gas_cost ?? 0);
-        $mealsCost = (float)($uc->estimated_meals_cost ?? 0);
-        $hotelCost = (float)($uc->estimated_accommodation_cost ?? 0);
-        $flightCost = (float)($uc->flight_ticket_cost ?? 0);
-        $shipCost = (float)($uc->ship_ticket_cost ?? 0);
-        $totalCost = $gasCost + $mealsCost + $hotelCost + $flightCost + $shipCost;
+        $totalCost = 0;
+        foreach ($uc->items as $item) {
+            $totalCost += $item->total_cost;
+        }
         $panjarCost = $totalCost / 2;
         $itemCounter = 1;
     @endphp
@@ -390,44 +388,19 @@
             </tr>
         </thead>
         <tbody>
+            @foreach($uc->items as $item)
             <tr>
                 <td class="text-center">{{ $itemCounter++ }}</td>
-                <td>BIAYA BAHAN BAKAR / TIKET DARAT</td>
-                <td class="text-center">Transportasi</td>
-                <td class="text-right">Rp. {{ number_format($gasCost, 0, ',', '.') }}</td>
+                <td>BIAYA {{ strtoupper($item->item_name) }}</td>
+                <td class="text-center">{{ $item->quantity }} x Rp. {{ number_format($item->estimated_cost, 0, ',', '.') }}</td>
+                <td class="text-right">Rp. {{ number_format($item->total_cost, 0, ',', '.') }}</td>
             </tr>
-            @if($flightCost > 0)
-            <tr>
-                <td class="text-center">{{ $itemCounter++ }}</td>
-                <td>BIAYA TIKET PESAWAT</td>
-                <td class="text-center">Transportasi Udara</td>
-                <td class="text-right">Rp. {{ number_format($flightCost, 0, ',', '.') }}</td>
-            </tr>
-            @endif
-            @if($shipCost > 0)
-            <tr>
-                <td class="text-center">{{ $itemCounter++ }}</td>
-                <td>BIAYA TIKET KAPAL</td>
-                <td class="text-center">Transportasi Laut</td>
-                <td class="text-right">Rp. {{ number_format($shipCost, 0, ',', '.') }}</td>
-            </tr>
-            @endif
-            <tr>
-                <td class="text-center">{{ $itemCounter++ }}</td>
-                <td>BIAYA KONSUMSI</td>
-                <td class="text-center">Makan</td>
-                <td class="text-right">Rp. {{ number_format($mealsCost, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td class="text-center">{{ $itemCounter++ }}</td>
-                <td>BIAYA PENGINAPAN</td>
-                <td class="text-center">Akomodasi (Hotel)</td>
-                <td class="text-right">Rp. {{ number_format($hotelCost, 0, ',', '.') }}</td>
-            </tr>
+            @endforeach
             <tr>
                 <td colspan="3"><strong>TOTAL ESTIMASI BIAYA PERJALANAN</strong></td>
                 <td class="text-right"><strong>Rp. {{ number_format($totalCost, 0, ',', '.') }}</strong></td>
             </tr>
+            @if(empty($uc->payment_option) || $uc->payment_option === 'PANJAR BIAYA 50%')
             <tr>
                 <td colspan="3"><strong>PANJAR BIAYA 50%</strong></td>
                 <td class="text-right"><strong>Rp. {{ number_format($panjarCost, 0, ',', '.') }}</strong></td>
@@ -436,6 +409,12 @@
                 <td colspan="3"><strong>SISA BIAYA KLAIM PERJALANAN</strong></td>
                 <td class="text-right"><strong>Rp. {{ number_format($panjarCost, 0, ',', '.') }}</strong></td>
             </tr>
+            @else
+            <tr>
+                <td colspan="3"><strong>BAYAR FULL</strong></td>
+                <td class="text-right"><strong>Rp. {{ number_format($totalCost, 0, ',', '.') }}</strong></td>
+            </tr>
+            @endif
         </tbody>
     </table>
 

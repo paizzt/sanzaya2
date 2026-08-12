@@ -41,6 +41,10 @@ class PayableController extends Controller
         $validated = $request->validate([
             'provider_id' => 'nullable|exists:providers,id',
             'nominal' => 'nullable|numeric',
+            'tanggal_terima_invoice' => 'nullable|date',
+            'nomor_transaksi' => 'nullable|string|max:255',
+            'memo' => 'nullable|string',
+            'jatuh_tempo_hari' => 'nullable|integer|in:14,30',
         ]);
         
         if ($request->id) {
@@ -65,14 +69,19 @@ class PayableController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['nama_penyedia', 'nominal'];
+            $allowed = ['tanggal_terima_invoice', 'nomor_transaksi', 'nama_penyedia', 'memo', 'jatuh_tempo_hari', 'nominal', 'umur_hutang'];
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
+                $row[] = $item->tanggal_terima_invoice ? $item->tanggal_terima_invoice->format('d/m/Y') : '-';
+                $row[] = $item->nomor_transaksi ?: '-';
                 $row[] = $item->provider ? $item->provider->name : '-';
+                $row[] = $item->memo ?: '-';
+                $row[] = $item->jatuh_tempo_hari ? $item->jatuh_tempo_hari . ' Hari' : '-';
                 $row[] = $item->nominal;
+                $row[] = $item->umur_hutang > 0 ? $item->umur_hutang . ' Hari Terlambat' : 'Belum Jatuh Tempo';
                 return $row;
             });
         }
@@ -88,14 +97,19 @@ class PayableController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['nama_penyedia', 'nominal'];
+            $allowed = ['tanggal_terima_invoice', 'nomor_transaksi', 'nama_penyedia', 'memo', 'jatuh_tempo_hari', 'nominal', 'umur_hutang'];
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
+                $row[] = $item->tanggal_terima_invoice ? $item->tanggal_terima_invoice->format('d/m/Y') : '-';
+                $row[] = $item->nomor_transaksi ?: '-';
                 $row[] = $item->provider ? $item->provider->name : '-';
+                $row[] = $item->memo ?: '-';
+                $row[] = $item->jatuh_tempo_hari ? $item->jatuh_tempo_hari . ' Hari' : '-';
                 $row[] = $item->nominal;
+                $row[] = $item->umur_hutang > 0 ? $item->umur_hutang . ' Hari Terlambat' : 'Belum Jatuh Tempo';
                 return $row;
             });
         }

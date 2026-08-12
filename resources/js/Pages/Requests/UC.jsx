@@ -37,11 +37,8 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
         companions: [],
         transportation_type: 'Darat',
         vehicle_number: '',
-        estimated_gas_cost: '',
-        estimated_meals_cost: '',
-        estimated_accommodation_cost: '',
-        flight_ticket_cost: '',
-        ship_ticket_cost: '',
+        items: [{ item_name: '', quantity: 1, estimated_cost: '' }],
+        payment_option: 'PANJAR BIAYA 50%',
     });
 
     const { flash } = usePage().props;
@@ -75,6 +72,32 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
         newCompanions[index] = value;
         setData('companions', newCompanions.filter(c => c !== '')); // Remove empties
     };
+
+    const handleItemChange = (index, field, value) => {
+        const newItems = [...data.items];
+        newItems[index][field] = value;
+        setData('items', newItems);
+    };
+
+    const addItem = () => {
+        setData('items', [...data.items, { item_name: '', quantity: 1, estimated_cost: '' }]);
+    };
+
+    const removeItem = (index) => {
+        const newItems = data.items.filter((_, i) => i !== index);
+        setData('items', newItems);
+    };
+
+    const itemOptions = [
+        { value: 'Bensin', label: 'Bensin' },
+        { value: 'Penginapan', label: 'Penginapan' },
+        { value: 'Konsumsi', label: 'Konsumsi' },
+        { value: 'Parkir', label: 'Parkir' },
+        { value: 'Sewa kapal', label: 'Sewa kapal' },
+        { value: 'Penyeberangan', label: 'Penyeberangan' },
+        { value: 'Sewa motor', label: 'Sewa motor' },
+        { value: 'Angkutan umum', label: 'Angkutan umum' }
+    ];
 
     // Removed handleCurrencyChange and formatRupiah because CurrencyInput handles formatting internally
 
@@ -241,59 +264,89 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                         </div>
 
                         <div className="p-5 mt-6 bg-gray-50 border border-gray-100 rounded-2xl">
-                            <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">Estimasi Biaya</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div>
-                                    <InputLabel value="Estimasi Biaya Bensin (Rp)" />
-                                    <CurrencyInput 
-                                        className={`mt-1 block w-full ${data.transportation_type !== 'Darat' ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`} 
-                                        placeholder="Rp 0"
-                                        value={data.estimated_gas_cost}
-                                        onChange={(val) => setData('estimated_gas_cost', val)}
-                                        disabled={data.transportation_type !== 'Darat'}
-                                    />
-                                </div>
-                                <div>
-                                    <InputLabel value="Estimasi Biaya Konsumsi (Rp)" />
-                                    <CurrencyInput 
-                                        className="mt-1 block w-full bg-white" 
-                                        placeholder="Rp 0"
-                                        value={data.estimated_meals_cost}
-                                        onChange={(val) => setData('estimated_meals_cost', val)}
-                                    />
-                                </div>
-                                <div>
-                                    <InputLabel value="Estimasi Biaya Penginapan (Rp)" />
-                                    <CurrencyInput 
-                                        className="mt-1 block w-full bg-white" 
-                                        placeholder="Rp 0"
-                                        value={data.estimated_accommodation_cost}
-                                        onChange={(val) => setData('estimated_accommodation_cost', val)}
-                                    />
-                                </div>
-                                {data.transportation_type === 'Udara' && (
-                                    <div>
-                                        <InputLabel value="Harga Tiket Pesawat (Rp)" />
-                                        <CurrencyInput 
-                                            className="mt-1 block w-full bg-white" 
-                                            placeholder="Rp 0"
-                                            value={data.flight_ticket_cost}
-                                            onChange={(val) => setData('flight_ticket_cost', val)}
-                                        />
-                                    </div>
-                                )}
-                                {data.transportation_type === 'Laut' && (
-                                    <div>
-                                        <InputLabel value="Harga Tiket Kapal (Rp)" />
-                                        <CurrencyInput 
-                                            className="mt-1 block w-full bg-white" 
-                                            placeholder="Rp 0"
-                                            value={data.ship_ticket_cost}
-                                            onChange={(val) => setData('ship_ticket_cost', val)}
-                                        />
-                                    </div>
-                                )}
+                            <div className="flex justify-between items-center mb-4">
+                                <h4 className="font-semibold text-gray-700 flex items-center gap-2">Estimasi Biaya</h4>
+                                <button type="button" onClick={addItem} className="px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-semibold rounded-lg hover:bg-blue-200 transition-colors">
+                                    + Tambah Item
+                                </button>
                             </div>
+                            
+                            <div className="space-y-4">
+                                {data.items.map((item, index) => (
+                                    <div key={index} className="flex flex-col md:flex-row gap-4 p-4 bg-white border border-gray-200 rounded-xl items-end relative">
+                                        {data.items.length > 1 && (
+                                            <button 
+                                                type="button" 
+                                                onClick={() => removeItem(index)} 
+                                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-200 transition-colors font-bold z-10"
+                                                title="Hapus Item"
+                                            >
+                                                &times;
+                                            </button>
+                                        )}
+                                        <div className="w-full md:w-5/12">
+                                            <InputLabel value="Nama Item" />
+                                            <SearchableSelect 
+                                                value={item.item_name}
+                                                onChange={(val) => handleItemChange(index, 'item_name', val)}
+                                                options={itemOptions}
+                                                placeholder="Pilih Item"
+                                            />
+                                            <InputError message={errors[`items.${index}.item_name`]} />
+                                        </div>
+                                        <div className="w-full md:w-2/12">
+                                            <InputLabel value="QTY" />
+                                            <TextInput 
+                                                type="number" 
+                                                min="1"
+                                                value={item.quantity} 
+                                                onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} 
+                                                className="w-full" 
+                                            />
+                                            <InputError message={errors[`items.${index}.quantity`]} />
+                                        </div>
+                                        <div className="w-full md:w-5/12">
+                                            <InputLabel value="Estimasi Biaya (Satuan)" />
+                                            <CurrencyInput 
+                                                className="mt-1 block w-full bg-white" 
+                                                placeholder="Rp 0"
+                                                value={item.estimated_cost}
+                                                onChange={(val) => handleItemChange(index, 'estimated_cost', val)}
+                                            />
+                                            <InputError message={errors[`items.${index}.estimated_cost`]} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="p-5 mt-6 bg-blue-50 border border-blue-100 rounded-2xl">
+                            <InputLabel value="Opsi Pembayaran *" className="text-blue-800 font-semibold mb-3" />
+                            <div className="flex gap-6">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        name="payment_option"
+                                        value="PANJAR BIAYA 50%"
+                                        checked={data.payment_option === 'PANJAR BIAYA 50%'}
+                                        onChange={(e) => setData('payment_option', e.target.value)}
+                                        className="text-blue-600 border-gray-300 focus:ring-blue-500 w-5 h-5"
+                                    />
+                                    <span className="text-gray-700 font-medium">PANJAR BIAYA 50%</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        name="payment_option"
+                                        value="BAYAR FULL"
+                                        checked={data.payment_option === 'BAYAR FULL'}
+                                        onChange={(e) => setData('payment_option', e.target.value)}
+                                        className="text-blue-600 border-gray-300 focus:ring-blue-500 w-5 h-5"
+                                    />
+                                    <span className="text-gray-700 font-medium">BAYAR FULL</span>
+                                </label>
+                            </div>
+                            <InputError message={errors.payment_option} className="mt-2" />
                         </div>
 
                         <div className="pt-4 flex justify-end">

@@ -63,17 +63,17 @@ class UcRequestController extends Controller
             'companions' => 'nullable|array',
             'transportation_type' => 'required|string',
             'vehicle_number' => 'nullable|string',
-            'estimated_gas_cost' => 'nullable|numeric',
-            'estimated_meals_cost' => 'nullable|numeric',
-            'estimated_accommodation_cost' => 'nullable|numeric',
-            'flight_ticket_cost' => 'nullable|numeric',
-            'ship_ticket_cost' => 'nullable|numeric',
+            'items' => 'required|array|min:1',
+            'items.*.item_name' => 'required|string',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.estimated_cost' => 'required|numeric|min:0',
             'user_id' => 'nullable|exists:users,id',
+            'payment_option' => 'required|string|in:PANJAR BIAYA 50%,BAYAR FULL',
         ]);
 
         $userId = (Auth::user()->isAdminUser() && $request->filled('user_id')) ? $request->user_id : Auth::id();
 
-        UcRequest::create([
+        $ucRequest = UcRequest::create([
             'request_number' => 'UC-' . date('Ymd') . '-' . strtoupper(Str::random(5)),
             'user_id' => $userId,
             'entity' => $request->entity,
@@ -85,13 +85,18 @@ class UcRequestController extends Controller
             'companions' => $request->companions,
             'transport_type' => $request->transportation_type,
             'vehicle_number' => $request->vehicle_number,
-            'estimated_gas_cost' => $request->estimated_gas_cost,
-            'estimated_meals_cost' => $request->estimated_meals_cost,
-            'estimated_accommodation_cost' => $request->estimated_accommodation_cost,
-            'flight_ticket_cost' => $request->flight_ticket_cost,
-            'ship_ticket_cost' => $request->ship_ticket_cost,
+            'payment_option' => $request->payment_option,
             'status' => 'Menunggu'
         ]);
+
+        foreach ($request->items as $item) {
+            $ucRequest->items()->create([
+                'item_name' => $item['item_name'],
+                'quantity' => $item['quantity'],
+                'estimated_cost' => $item['estimated_cost'],
+                'total_cost' => $item['quantity'] * $item['estimated_cost']
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Form Pengajuan UC berhasil dikirim!');
     }

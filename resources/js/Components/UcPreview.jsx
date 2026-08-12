@@ -10,12 +10,12 @@ export default function UcPreview({ data, user }) {
         return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
     };
 
-    const gasCost = parseFloat(data.estimated_gas_cost) || 0;
-    const mealsCost = parseFloat(data.estimated_meals_cost) || 0;
-    const hotelCost = parseFloat(data.estimated_accommodation_cost) || 0;
-    const flightCost = parseFloat(data.flight_ticket_cost) || 0;
-    const shipCost = parseFloat(data.ship_ticket_cost) || 0;
-    const totalCost = gasCost + mealsCost + hotelCost + flightCost + shipCost;
+    const items = data.items || [];
+    const totalCost = items.reduce((sum, item) => {
+        const qty = parseFloat(item.quantity) || 0;
+        const cost = parseFloat(item.estimated_cost) || 0;
+        return sum + (qty * cost);
+    }, 0);
     const panjarCost = totalCost / 2;
 
     let itemCounter = 1;
@@ -202,52 +202,40 @@ export default function UcPreview({ data, user }) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td className="border border-black p-2 text-center">{itemCounter++}</td>
-                            <td className="border border-black p-2">BIAYA BAHAN BAKAR / TIKET DARAT</td>
-                            <td className="border border-black p-2 text-center">Transportasi</td>
-                            <td className="border border-black p-2 text-right">Rp. {formatRupiah(gasCost)}</td>
-                        </tr>
-                        {flightCost > 0 && (
-                        <tr>
-                            <td className="border border-black p-2 text-center">{itemCounter++}</td>
-                            <td className="border border-black p-2">BIAYA TIKET PESAWAT</td>
-                            <td className="border border-black p-2 text-center">Transportasi Udara</td>
-                            <td className="border border-black p-2 text-right">Rp. {formatRupiah(flightCost)}</td>
-                        </tr>
-                        )}
-                        {shipCost > 0 && (
-                        <tr>
-                            <td className="border border-black p-2 text-center">{itemCounter++}</td>
-                            <td className="border border-black p-2">BIAYA TIKET KAPAL</td>
-                            <td className="border border-black p-2 text-center">Transportasi Laut</td>
-                            <td className="border border-black p-2 text-right">Rp. {formatRupiah(shipCost)}</td>
-                        </tr>
-                        )}
-                        <tr>
-                            <td className="border border-black p-2 text-center">{itemCounter++}</td>
-                            <td className="border border-black p-2">BIAYA KONSUMSI</td>
-                            <td className="border border-black p-2 text-center">Makan</td>
-                            <td className="border border-black p-2 text-right">Rp. {formatRupiah(mealsCost)}</td>
-                        </tr>
-                        <tr>
-                            <td className="border border-black p-2 text-center">{itemCounter++}</td>
-                            <td className="border border-black p-2">BIAYA PENGINAPAN</td>
-                            <td className="border border-black p-2 text-center">Akomodasi (Hotel)</td>
-                            <td className="border border-black p-2 text-right">Rp. {formatRupiah(hotelCost)}</td>
-                        </tr>
+                        {items.map((item, idx) => {
+                            const qty = parseFloat(item.quantity) || 0;
+                            const cost = parseFloat(item.estimated_cost) || 0;
+                            const subtotal = qty * cost;
+                            return (
+                                <tr key={idx}>
+                                    <td className="border border-black p-2 text-center">{itemCounter++}</td>
+                                    <td className="border border-black p-2">BIAYA {item.item_name?.toUpperCase() || '-'}</td>
+                                    <td className="border border-black p-2 text-center">{qty} x Rp. {formatRupiah(cost)}</td>
+                                    <td className="border border-black p-2 text-right">Rp. {formatRupiah(subtotal)}</td>
+                                </tr>
+                            );
+                        })}
                         <tr>
                             <td colSpan="3" className="border border-black p-2 font-bold">TOTAL ESTIMASI BIAYA PERJALANAN</td>
                             <td className="border border-black p-2 text-right font-bold">Rp. {formatRupiah(totalCost)}</td>
                         </tr>
-                        <tr>
-                            <td colSpan="3" className="border border-black p-2 font-bold">PANJAR BIAYA 50%</td>
-                            <td className="border border-black p-2 text-right font-bold">Rp. {formatRupiah(panjarCost)}</td>
-                        </tr>
-                        <tr>
-                            <td colSpan="3" className="border border-black p-2 font-bold">SISA BIAYA KLAIM PERJALANAN</td>
-                            <td className="border border-black p-2 text-right font-bold">Rp. {formatRupiah(panjarCost)}</td>
-                        </tr>
+                        {(!data.payment_option || data.payment_option === 'PANJAR BIAYA 50%') ? (
+                            <>
+                                <tr>
+                                    <td colSpan="3" className="border border-black p-2 font-bold">PANJAR BIAYA 50%</td>
+                                    <td className="border border-black p-2 text-right font-bold">Rp. {formatRupiah(panjarCost)}</td>
+                                </tr>
+                                <tr>
+                                    <td colSpan="3" className="border border-black p-2 font-bold">SISA BIAYA KLAIM PERJALANAN</td>
+                                    <td className="border border-black p-2 text-right font-bold">Rp. {formatRupiah(panjarCost)}</td>
+                                </tr>
+                            </>
+                        ) : (
+                            <tr>
+                                <td colSpan="3" className="border border-black p-2 font-bold">BAYAR FULL</td>
+                                <td className="border border-black p-2 text-right font-bold">Rp. {formatRupiah(totalCost)}</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
 
