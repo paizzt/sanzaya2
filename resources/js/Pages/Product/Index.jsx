@@ -29,6 +29,7 @@ export default function Index({ products }) {
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         name: '',
+        manufacturer: '',
         code: '',
         price: '',
         description: '',
@@ -45,6 +46,7 @@ export default function Index({ products }) {
     const fuse = useMemo(() => new Fuse(products, {
         keys: [
             'name', 
+            'manufacturer',
             'code',
             'registration_no'
         ],
@@ -79,6 +81,7 @@ export default function Index({ products }) {
         clearErrors();
         setData({
             name: product.name || '',
+            manufacturer: product.manufacturer || '',
             code: product.code || '',
             price: product.price || '',
             description: product.description || '',
@@ -211,12 +214,12 @@ export default function Index({ products }) {
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    <th className="px-6 py-4">Nama Produk</th>
-                                    <th className="px-6 py-4">No. Registrasi</th>
-                                    <th className="px-6 py-4 text-center">TKDN</th>
+                                    <th className="px-6 py-4">Brand</th>
+                                    <th className="px-6 py-4">Produk</th>
                                     <th className="px-6 py-4">Satuan</th>
-                                    <th className="px-6 py-4 text-center">Jumlah</th>
-                                    <th className="px-6 py-4">Harga + PPN</th>
+                                    <th className="px-6 py-4">NIE</th>
+                                    <th className="px-6 py-4 text-right">Harga</th>
+                                    <th className="px-6 py-4 text-right">Harga + PPN</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -227,23 +230,22 @@ export default function Index({ products }) {
                                         className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors"
                                     >
                                         <td className="px-6 py-4">
-                                            <div className="font-bold text-gray-900">{product.name}</div>
-                                            <div className="text-xs text-gray-500">Kode: {product.code || '-'}</div>
+                                            <div className="font-bold text-gray-900">{product.manufacturer || '-'}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-gray-900">{product.name}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-gray-600">{product.unit || '-'}</span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-gray-600 font-medium">{product.registration_no || '-'}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                                            <span className="text-gray-600 font-medium">{product.tkdn ? `${product.tkdn}%` : '-'}</span>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            <span className="text-gray-900 font-medium">{formatRupiah(product.hna || 0)}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-gray-600 font-medium">{product.unit || '-'}</span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                                            <span className="text-gray-900 font-bold">{product.qty}</span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-gray-900 font-medium">{formatRupiah(product.price)}</span>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            <span className="text-gray-900 font-bold">{formatRupiah(product.price)}</span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center gap-2">
@@ -303,7 +305,20 @@ export default function Index({ products }) {
                                 <div className="p-6 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="md:col-span-2">
-                                            <InputLabel htmlFor="name" value="Nama Produk" required />
+                                            <InputLabel htmlFor="manufacturer" value="Brand" />
+                                            <TextInput
+                                                id="manufacturer"
+                                                type="text"
+                                                name="manufacturer"
+                                                value={data.manufacturer}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('manufacturer', e.target.value)}
+                                            />
+                                            <InputError message={errors.manufacturer} className="mt-2" />
+                                        </div>
+
+                                        <div className="md:col-span-2">
+                                            <InputLabel htmlFor="name" value="Produk" required />
                                             <TextInput
                                                 id="name"
                                                 type="text"
@@ -317,46 +332,7 @@ export default function Index({ products }) {
                                         </div>
 
                                         <div>
-                                            <InputLabel htmlFor="code" value="Kode Produk" />
-                                            <TextInput
-                                                id="code"
-                                                type="text"
-                                                name="code"
-                                                value={data.code}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('code', e.target.value)}
-                                            />
-                                            <InputError message={errors.code} className="mt-2" />
-                                        </div>
-
-                                        <div>
-                                            <InputLabel htmlFor="registration_no" value="No. Registrasi" />
-                                            <TextInput
-                                                id="registration_no"
-                                                type="text"
-                                                name="registration_no"
-                                                value={data.registration_no}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('registration_no', e.target.value)}
-                                            />
-                                            <InputError message={errors.registration_no} className="mt-2" />
-                                        </div>
-
-                                        <div>
-                                            <InputLabel htmlFor="qty" value="Jumlah" />
-                                            <TextInput
-                                                id="qty"
-                                                type="number"
-                                                name="qty"
-                                                value={data.qty}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('qty', e.target.value)}
-                                            />
-                                            <InputError message={errors.qty} className="mt-2" />
-                                        </div>
-
-                                        <div>
-                                            <InputLabel htmlFor="unit" value="Satuan (Pcs, Box, dll)" />
+                                            <InputLabel htmlFor="unit" value="Satuan" />
                                             <TextInput
                                                 id="unit"
                                                 type="text"
@@ -369,21 +345,20 @@ export default function Index({ products }) {
                                         </div>
 
                                         <div>
-                                            <InputLabel htmlFor="tkdn" value="TKDN (%)" />
+                                            <InputLabel htmlFor="registration_no" value="NIE" />
                                             <TextInput
-                                                id="tkdn"
-                                                type="number"
-                                                step="0.01"
-                                                name="tkdn"
-                                                value={data.tkdn}
+                                                id="registration_no"
+                                                type="text"
+                                                name="registration_no"
+                                                value={data.registration_no}
                                                 className="mt-1 block w-full"
-                                                onChange={(e) => setData('tkdn', e.target.value)}
+                                                onChange={(e) => setData('registration_no', e.target.value)}
                                             />
-                                            <InputError message={errors.tkdn} className="mt-2" />
+                                            <InputError message={errors.registration_no} className="mt-2" />
                                         </div>
 
                                         <div>
-                                            <InputLabel htmlFor="hna" value="HNA (Harga Netto Apotek)" />
+                                            <InputLabel htmlFor="hna" value="Harga" />
                                             <TextInput
                                                 id="hna"
                                                 type="number"
@@ -407,37 +382,6 @@ export default function Index({ products }) {
                                                 required
                                             />
                                             <InputError message={errors.price} className="mt-2" />
-                                        </div>
-
-                                        <div className="md:col-span-2">
-                                            <InputLabel htmlFor="description" value="Deskripsi" />
-                                            <textarea
-                                                id="description"
-                                                name="description"
-                                                value={data.description}
-                                                onChange={(e) => setData('description', e.target.value)}
-                                                className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm"
-                                                rows="3"
-                                            ></textarea>
-                                            <InputError message={errors.description} className="mt-2" />
-                                        </div>
-                                        
-
-
-
-
-                                        <div>
-                                            <InputLabel htmlFor="link" value="Link" />
-                                            <TextInput
-                                                id="link"
-                                                type="url"
-                                                name="link"
-                                                value={data.link}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('link', e.target.value)}
-                                                placeholder="https://"
-                                            />
-                                            <InputError message={errors.link} className="mt-2" />
                                         </div>
 
                                         <div className="md:col-span-2 flex items-center">

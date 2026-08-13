@@ -34,6 +34,7 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'manufacturer' => 'nullable|string|max:255',
             'code' => 'nullable|string|max:100',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
@@ -56,6 +57,7 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'manufacturer' => 'nullable|string|max:255',
             'code' => 'nullable|string|max:100',
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
@@ -88,8 +90,8 @@ class ProductController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['name', 'code', 'price', 'jenis'];
-            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
+            $allowed = ['manufacturer', 'name', 'unit', 'registration_no', 'hna', 'price'];
+            $headings = ['Brand', 'Produk', 'Satuan', 'NIE', 'Harga', 'Harga + PPN'];
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) use ($allowed) {
@@ -112,8 +114,8 @@ class ProductController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['name', 'code', 'price', 'jenis'];
-            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
+            $allowed = ['manufacturer', 'name', 'unit', 'registration_no', 'hna', 'price'];
+            $headings = ['Brand', 'Produk', 'Satuan', 'NIE', 'Harga', 'Harga + PPN'];
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) use ($allowed) {
