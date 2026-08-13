@@ -26,6 +26,7 @@ class MarketingProductController extends Controller
             if ($search) {
                 $internalQuery->where(function($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('manufacturer', 'like', "%{$search}%")
                       ->orWhere('registration_no', 'like', "%{$search}%");
                 });
             }
@@ -42,7 +43,7 @@ class MarketingProductController extends Controller
                     'real_id' => $item->id,
                     'name' => $item->name,
                     'source_type' => 'Internal',
-                    'provider_name' => 'Produk Sendiri',
+                    'provider_name' => $item->manufacturer ?: 'Produk Sendiri',
                     'jenis' => str_replace('Alat Kesehatan', 'Alat', $item->jenis),
                     'price' => $item->price,
                     'unit' => $item->unit,
