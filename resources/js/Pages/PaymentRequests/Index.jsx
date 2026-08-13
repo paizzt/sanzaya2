@@ -35,7 +35,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* Dashboard Summary Cards - Only show on Request View */}
-                    {!isApprovalView && (
+                    {!isApprovalView ? (
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Total Pengajuan</p>
@@ -52,6 +52,21 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-gray-400">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Draft</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.draft || 0}</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+                                <p className="text-sm text-gray-500 font-semibold uppercase">Menunggu Persetujuan Anda</p>
+                                <p className="text-3xl font-bold text-gray-800">{summary?.waiting_approval || 0}</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
+                                <p className="text-sm text-gray-500 font-semibold uppercase">Dekat Jatuh Tempo</p>
+                                <p className="text-3xl font-bold text-gray-800">{summary?.nearing_deadline || 0}</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                                <p className="text-sm text-gray-500 font-semibold uppercase">Lewat Jatuh Tempo</p>
+                                <p className="text-3xl font-bold text-gray-800">{summary?.overdue || 0}</p>
                             </div>
                         </div>
                     )}

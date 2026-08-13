@@ -111,6 +111,21 @@ class PaymentRequestController extends Controller
             'paymentRequests' => $paymentRequests,
             'filters' => $request->only(['search', 'status']),
             'isApprovalView' => true,
+            'summary' => Inertia::defer(function () use ($query) {
+                $summaryData = (clone $query)->get(['id', 'payment_deadline']);
+                $now = now()->startOfDay();
+                $threeDaysLater = now()->addDays(3)->endOfDay();
+                
+                return [
+                    'waiting_approval' => $summaryData->count(),
+                    'nearing_deadline' => $summaryData->filter(function($pr) use ($now, $threeDaysLater) {
+                        return $pr->payment_deadline >= $now && $pr->payment_deadline <= $threeDaysLater;
+                    })->count(),
+                    'overdue' => $summaryData->filter(function($pr) use ($now) {
+                        return $pr->payment_deadline < $now;
+                    })->count(),
+                ];
+            }),
         ]);
     }
 
