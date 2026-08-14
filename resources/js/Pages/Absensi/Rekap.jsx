@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
@@ -5,6 +6,7 @@ import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, File
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
 
 export default function Rekap({ auth, recapList, summary, userSummaries, filters, users, isAdmin }) {
     
@@ -14,6 +16,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         year: filters.year.toString(),
         user_id: filters.user_id ? filters.user_id.toString() : 'all'
     });
+
+    const [searchQuery, setSearchQuery] = useState('');
 
     const handleFilter = () => {
         router.get(route('absensi.rekap'), data, {
@@ -80,6 +84,14 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         ...users.map(u => ({ value: u.id.toString(), label: u.name }))
     ];
 
+    const filteredUserSummaries = userSummaries?.filter(u => 
+        u.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+    const filteredRecapList = recapList?.filter(item => 
+        item.user_name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -122,6 +134,17 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <Search className="w-4 h-4" /> Tampilkan
                         </PrimaryButton>
                     </div>
+                </div>
+
+                {/* Search Input */}
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center">
+                    <TextInput
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Cari nama karyawan..."
+                        className="block w-full max-w-md"
+                    />
                 </div>
 
                 {/* Summary Cards */}
@@ -195,8 +218,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
-                                {userSummaries && userSummaries.length > 0 ? (
-                                    userSummaries.map((u, idx) => (
+                                {filteredUserSummaries.length > 0 ? (
+                                    filteredUserSummaries.map((u, idx) => (
                                         <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                             <td className="py-4 px-6 font-medium text-gray-900">{u.name}</td>
                                             <td className="py-4 px-6 text-center font-bold text-blue-600">{u.hadir}</td>
@@ -209,8 +232,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="6" className="py-6 text-center text-gray-500">
-                                            Tidak ada data karyawan.
+                                        <td colSpan="7" className="py-6 text-center text-gray-500">
+                                            Tidak ada data karyawan yang cocok dengan pencarian.
                                         </td>
                                     </tr>
                                 )}
@@ -245,14 +268,14 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
-                                {recapList.length === 0 ? (
+                                {filteredRecapList.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="py-8 text-center text-gray-500">
-                                            Tidak ada riwayat absensi pada periode ini.
+                                        <td colSpan="7" className="py-8 text-center text-gray-500">
+                                            Tidak ada riwayat absensi yang cocok dengan pencarian.
                                         </td>
                                     </tr>
                                 ) : (
-                                    recapList.map((item, idx) => (
+                                    filteredRecapList.map((item, idx) => (
                                         <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                             <td className="py-4 px-6 font-medium">{item.user_name}</td>
                                             <td className="py-4 px-6">{item.date}</td>

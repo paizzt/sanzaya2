@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import CustomSelect from '@/Components/CustomSelect';
 
 // Formatting helper local
 const formatCurrency = (value) => {
@@ -18,6 +19,17 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const [status, setStatus] = useState(filters.status || '');
     
     const pageTitle = isApprovalView ? "Persetujuan Pembayaran" : "Pengajuan Pembayaran";
+
+    const statusOptions = [
+        { value: '', label: 'Semua Status' },
+        { value: 'draft', label: 'Draft' },
+        { value: 'waiting_supervisor', label: 'Menunggu Atasan' },
+        { value: 'waiting_ga', label: 'Menunggu GA' },
+        { value: 'waiting_director', label: 'Menunggu Direktur' },
+        { value: 'approved', label: 'Disetujui' },
+        { value: 'rejected', label: 'Ditolak' },
+        { value: 'paid', label: 'Dibayar' }
+    ];
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -81,20 +93,12 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                     placeholder="Cari Referensi, Penerima..."
                                     className="block w-full"
                                 />
-                                <select 
-                                    className="rounded-xl border-gray-200 text-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 px-4 bg-white hover:border-gray-300 transition-colors cursor-pointer min-w-[180px]"
+                                <CustomSelect 
                                     value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                >
-                                    <option value="">Semua Status</option>
-                                    <option value="draft">Draft</option>
-                                    <option value="waiting_supervisor">Menunggu Atasan</option>
-                                    <option value="waiting_ga">Menunggu GA</option>
-                                    <option value="waiting_director">Menunggu Direktur</option>
-                                    <option value="approved">Disetujui</option>
-                                    <option value="rejected">Ditolak</option>
-                                    <option value="paid">Dibayar</option>
-                                </select>
+                                    onChange={(val) => setStatus(val)}
+                                    options={statusOptions}
+                                    className="min-w-[200px]"
+                                />
                                 <PrimaryButton type="submit">Filter</PrimaryButton>
                             </form>
 
