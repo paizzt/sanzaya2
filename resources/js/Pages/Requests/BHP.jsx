@@ -94,35 +94,31 @@ export default function BHP({ requests, today }) {
                                     <InputError message={errors.target_date} className="mt-2" />
                                 </div>
 
-                                <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-50">
-                                    <div className="space-y-6">
-                                        <div>
-                                            <InputLabel value="Nama Produk / Barang *" className="flex items-center gap-2"><PackageOpen className="w-4 h-4 text-orange-500"/> Nama Barang</InputLabel>
-                                            <TextInput 
-                                                className="mt-1 block w-full bg-white" 
-                                                placeholder="Contoh: Kertas HVS A4, Tinta Printer Epson, dll..."
-                                                value={data.product_name}
-                                                onChange={(e) => setData('product_name', e.target.value)}
-                                            />
-                                            <InputError message={errors.product_name} className="mt-2" />
-                                        </div>
-                                        <div>
-                                            <InputLabel value="Spesifikasi Detail & Jumlah *" />
-                                            <textarea 
-                                                className="mt-1 block w-full rounded-xl border-gray-200 focus:border-orange-500 focus:ring-orange-500 bg-white"
-                                                rows="3"
-                                                placeholder="Contoh: 5 Rim Kertas A4 80gsm, 2 Botol Tinta Hitam..."
-                                                value={data.specifications}
-                                                onChange={(e) => setData('specifications', e.target.value)}
-                                            ></textarea>
-                                            <InputError message={errors.specifications} className="mt-2" />
-                                        </div>
+                                <div className="space-y-6">
+                                    <div>
+                                        <InputLabel value="Nama Produk / Barang *" className="flex items-center gap-2"><PackageOpen className="w-4 h-4 text-orange-500"/> Nama Barang</InputLabel>
+                                        <TextInput 
+                                            className="mt-1 block w-full" 
+                                            value={data.product_name}
+                                            onChange={(e) => setData('product_name', e.target.value)}
+                                        />
+                                        <InputError message={errors.product_name} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Spesifikasi Detail & Jumlah *" />
+                                        <textarea 
+                                            className="mt-1 block w-full rounded-xl border-gray-200 focus:border-orange-500 focus:ring-orange-500"
+                                            rows="3"
+                                            value={data.specifications}
+                                            onChange={(e) => setData('specifications', e.target.value)}
+                                        ></textarea>
+                                        <InputError message={errors.specifications} className="mt-2" />
                                     </div>
                                 </div>
 
                                 <div className="pt-4 flex justify-end">
                                     <PrimaryButton disabled={processing} className="py-3 px-8 bg-orange-500 hover:bg-orange-600 rounded-xl flex items-center gap-2 text-sm">
-                                        <Send className="w-4 h-4" /> Ajukan Form BHP
+                                        Ajukan
                                     </PrimaryButton>
                                 </div>
                             </form>

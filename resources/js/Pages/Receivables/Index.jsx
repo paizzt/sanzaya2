@@ -438,13 +438,12 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             rows="3"
                                             value={dailyForm.data.result}
                                             onChange={e => dailyForm.setData('result', e.target.value)}
-                                            placeholder="Deskripsikan hasil penagihan..."
                                         />
                                         <InputError message={dailyForm.errors.result} className="mt-2" />
                                     </div>
                                     <div className="flex justify-end">
                                         <PrimaryButton type="submit" disabled={dailyForm.processing}>
-                                            Simpan Laporan
+                                            Simpan
                                         </PrimaryButton>
                                     </div>
                                 </form>
@@ -534,7 +533,6 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                         <TextInput
                                             type="number"
                                             className="w-full"
-                                            placeholder="Tahun (cth: 2023)"
                                             value={detail.year}
                                             onChange={e => {
                                                 const newDetails = [...data.details];
@@ -551,7 +549,6 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             <TextInput
                                                 type="text"
                                                 className="w-full pl-9 font-mono text-right"
-                                                placeholder="0,00"
                                                 value={detail.amount ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(detail.amount) / 100) : ''}
                                                 onChange={e => {
                                                     const rawValue = e.target.value.replace(/\D/g, '');
