@@ -142,26 +142,28 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                             {/* Rincian Anggaran */}
                             <div className="bg-white p-6 rounded-lg shadow-sm">
                                 <h3 className="text-lg font-bold border-b pb-2 mb-4">Rincian Anggaran</h3>
-                                <table className="w-full text-sm text-left mb-6">
-                                    <thead className="bg-gray-50 text-gray-700">
-                                        <tr>
-                                            <th className="px-3 py-2">Uraian</th>
-                                            <th className="px-3 py-2 text-center">Qty</th>
-                                            <th className="px-3 py-2 text-right">Harga Satuan</th>
-                                            <th className="px-3 py-2 text-right">Jumlah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {paymentRequest.items.map((item, idx) => (
-                                            <tr key={idx}>
-                                                <td className="px-3 py-2">{item.description}</td>
-                                                <td className="px-3 py-2 text-center">{item.quantity} {item.unit}</td>
-                                                <td className="px-3 py-2 text-right">{formatCurrency(item.unit_price)}</td>
-                                                <td className="px-3 py-2 text-right font-medium">{formatCurrency(item.amount)}</td>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm text-left mb-6">
+                                        <thead className="bg-gray-50 text-gray-700">
+                                            <tr>
+                                                <th className="px-3 py-2">Uraian</th>
+                                                <th className="px-3 py-2 text-center">Qty</th>
+                                                <th className="px-3 py-2 text-right">Harga Satuan</th>
+                                                <th className="px-3 py-2 text-right">Jumlah</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {paymentRequest.items.map((item, idx) => (
+                                                <tr key={idx}>
+                                                    <td className="px-3 py-2">{item.description}</td>
+                                                    <td className="px-3 py-2 text-center">{item.quantity} {item.unit}</td>
+                                                    <td className="px-3 py-2 text-right">{formatCurrency(item.unit_price)}</td>
+                                                    <td className="px-3 py-2 text-right font-medium">{formatCurrency(item.amount)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
 
                                 <div className="flex justify-end border-t pt-4">
                                     <div className="w-64 space-y-2 text-sm">

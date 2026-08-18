@@ -157,7 +157,7 @@ export default function UcApproval({ requests }) {
                         </div>
                         <form onSubmit={submitApproval} className="p-6">
                             
-                            <div className="bg-gray-50 p-4 rounded-xl mb-6 text-sm grid grid-cols-2 gap-4">
+                            <div className="bg-gray-50 p-4 rounded-xl mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <span className="text-gray-500 block mb-1">Pengaju</span>
                                     <span className="font-semibold text-gray-900">{selectedRequest.user?.name} ({selectedRequest.department})</span>

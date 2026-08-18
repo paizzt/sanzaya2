@@ -199,126 +199,134 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
     // ... renderLogistikTable ...
     const renderLogistikTable = () => (
-        <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
-                <tr>
-                    <th className="px-6 py-4">Tanggal</th>
-                    <th className="px-6 py-4">Nama Sales</th>
-                    <th className="px-6 py-4">Outlet</th>
-                    <th className="px-6 py-4">Produk</th>
-                    <th className="px-6 py-4 text-right">Total (Rp)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {reportData.data.map((row) => (
-                    <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
-                        <td className="px-6 py-4 font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
-                        <td className="px-6 py-4"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
-                        <td className="px-6 py-4">{row.nama_produk}</td>
-                        <td className="px-6 py-4 text-right font-bold text-blue-600">{row.total_sales}</td>
+        <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th className="px-6 py-4">Tanggal</th>
+                        <th className="px-6 py-4">Nama Sales</th>
+                        <th className="px-6 py-4">Outlet</th>
+                        <th className="px-6 py-4">Produk</th>
+                        <th className="px-6 py-4 text-right">Total (Rp)</th>
                     </tr>
-                ))}
-                {reportData.data.length === 0 && <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Data laporan logistik kosong atau tidak ditemukan.</td></tr>}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {reportData.data.map((row) => (
+                        <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
+                            <td className="px-6 py-4 font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
+                            <td className="px-6 py-4"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
+                            <td className="px-6 py-4">{row.nama_produk}</td>
+                            <td className="px-6 py-4 text-right font-bold text-blue-600">{row.total_sales}</td>
+                        </tr>
+                    ))}
+                    {reportData.data.length === 0 && <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Data laporan logistik kosong atau tidak ditemukan.</td></tr>}
+                </tbody>
+            </table>
+        </div>
     );
 
     const renderPesananTable = () => (
-        <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
-                <tr>
-                    <th className="px-6 py-4">Tanggal</th>
-                    <th className="px-6 py-4">Outlet</th>
-                    <th className="px-6 py-4">Produk</th>
-                    <th className="px-6 py-4 text-right">Jml</th>
-                    <th className="px-6 py-4">Satuan</th>
-                    <th className="px-6 py-4 text-right">T.Faktur</th>
-                    <th className="px-6 py-4">Status Pengiriman</th>
-                </tr>
-            </thead>
-            <tbody>
-                {reportData.data.map((row) => (
-                    <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
-                        <td className="px-6 py-4 font-semibold text-gray-900"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
-                        <td className="px-6 py-4">{row.nama_produk}</td>
-                        <td className="px-6 py-4 text-right">{row.jumlah}</td>
-                        <td className="px-6 py-4">{row.satuan}</td>
-                        <td className="px-6 py-4 text-right font-bold text-emerald-600">{row.total_faktur}</td>
-                        <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1 text-xs">
-                                <span className="text-emerald-600">Terkirim: {row.terkirim} ({row.persen_terpenuhi})</span>
-                                <span className="text-red-500">Belum: {row.belum_terkirim} ({row.persen_belum_terpenuhi})</span>
-                            </div>
-                        </td>
+        <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th className="px-6 py-4">Tanggal</th>
+                        <th className="px-6 py-4">Outlet</th>
+                        <th className="px-6 py-4">Produk</th>
+                        <th className="px-6 py-4 text-right">Jml</th>
+                        <th className="px-6 py-4">Satuan</th>
+                        <th className="px-6 py-4 text-right">T.Faktur</th>
+                        <th className="px-6 py-4">Status Pengiriman</th>
                     </tr>
-                ))}
-                {reportData.data.length === 0 && <tr><td colSpan="7" className="px-6 py-8 text-center text-gray-500">Data surat pesanan kosong atau tidak ditemukan.</td></tr>}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {reportData.data.map((row) => (
+                        <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
+                            <td className="px-6 py-4 font-semibold text-gray-900"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
+                            <td className="px-6 py-4">{row.nama_produk}</td>
+                            <td className="px-6 py-4 text-right">{row.jumlah}</td>
+                            <td className="px-6 py-4">{row.satuan}</td>
+                            <td className="px-6 py-4 text-right font-bold text-emerald-600">{row.total_faktur}</td>
+                            <td className="px-6 py-4">
+                                <div className="flex flex-col gap-1 text-xs">
+                                    <span className="text-emerald-600">Terkirim: {row.terkirim} ({row.persen_terpenuhi})</span>
+                                    <span className="text-red-500">Belum: {row.belum_terkirim} ({row.persen_belum_terpenuhi})</span>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                    {reportData.data.length === 0 && <tr><td colSpan="7" className="px-6 py-8 text-center text-gray-500">Data surat pesanan kosong atau tidak ditemukan.</td></tr>}
+                </tbody>
+            </table>
+        </div>
     );
 
     const renderPiutangTable = () => (
-        <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
-                <tr>
-                    <th className="px-6 py-4" rowSpan="2">Outlet</th>
-                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Sanzaya</th>
-                    <th className="px-6 py-3 text-center border-b border-gray-100 bg-purple-50/50" colSpan="4">Ruma</th>
-                    <th className="px-6 py-4 text-right font-bold" rowSpan="2">Total Gabungan</th>
-                </tr>
-                <tr>
-                    <th className="px-4 py-2 bg-blue-50/50">Tahun 1</th>
-                    <th className="px-4 py-2 bg-blue-50/50">Tahun 2</th>
-                    <th className="px-4 py-2 bg-blue-50/50">Tahun 3</th>
-                    <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total</th>
-                    <th className="px-4 py-2 bg-purple-50/50">Ruma 1</th>
-                    <th className="px-4 py-2 bg-purple-50/50">Ruma 2</th>
-                    <th className="px-4 py-2 bg-purple-50/50">Ruma 3</th>
-                    <th className="px-4 py-2 text-right bg-purple-100/50 font-bold">Total Ruma</th>
-                </tr>
-            </thead>
-            <tbody>
-                {reportData.data.map((row) => (
-                    <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
-                        <td className="px-6 py-4 font-semibold text-gray-900"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
-                        <td className="px-4 py-3">{row.tahun_1}</td>
-                        <td className="px-4 py-3">{row.tahun_2}</td>
-                        <td className="px-4 py-3">{row.tahun_3}</td>
-                        <td className="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/30">{row.total_sanzaya}</td>
-                        <td className="px-4 py-3">{row.ruma_1}</td>
-                        <td className="px-4 py-3">{row.ruma_2}</td>
-                        <td className="px-4 py-3">{row.ruma_3}</td>
-                        <td className="px-4 py-3 text-right font-bold text-purple-700 bg-purple-50/30">{row.total_ruma}</td>
-                        <td className="px-6 py-4 text-right font-bold text-gray-900 bg-gray-50">{row.total_gabungan}</td>
+        <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th className="px-6 py-4" rowSpan="2">Outlet</th>
+                        <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Sanzaya</th>
+                        <th className="px-6 py-3 text-center border-b border-gray-100 bg-purple-50/50" colSpan="4">Ruma</th>
+                        <th className="px-6 py-4 text-right font-bold" rowSpan="2">Total Gabungan</th>
                     </tr>
-                ))}
-                {reportData.data.length === 0 && <tr><td colSpan="10" className="px-6 py-8 text-center text-gray-500">Data piutang kosong atau tidak ditemukan.</td></tr>}
-            </tbody>
-        </table>
+                    <tr>
+                        <th className="px-4 py-2 bg-blue-50/50">Tahun 1</th>
+                        <th className="px-4 py-2 bg-blue-50/50">Tahun 2</th>
+                        <th className="px-4 py-2 bg-blue-50/50">Tahun 3</th>
+                        <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total</th>
+                        <th className="px-4 py-2 bg-purple-50/50">Ruma 1</th>
+                        <th className="px-4 py-2 bg-purple-50/50">Ruma 2</th>
+                        <th className="px-4 py-2 bg-purple-50/50">Ruma 3</th>
+                        <th className="px-4 py-2 text-right bg-purple-100/50 font-bold">Total Ruma</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {reportData.data.map((row) => (
+                        <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
+                            <td className="px-6 py-4 font-semibold text-gray-900"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
+                            <td className="px-4 py-3">{row.tahun_1}</td>
+                            <td className="px-4 py-3">{row.tahun_2}</td>
+                            <td className="px-4 py-3">{row.tahun_3}</td>
+                            <td className="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/30">{row.total_sanzaya}</td>
+                            <td className="px-4 py-3">{row.ruma_1}</td>
+                            <td className="px-4 py-3">{row.ruma_2}</td>
+                            <td className="px-4 py-3">{row.ruma_3}</td>
+                            <td className="px-4 py-3 text-right font-bold text-purple-700 bg-purple-50/30">{row.total_ruma}</td>
+                            <td className="px-6 py-4 text-right font-bold text-gray-900 bg-gray-50">{row.total_gabungan}</td>
+                        </tr>
+                    ))}
+                    {reportData.data.length === 0 && <tr><td colSpan="10" className="px-6 py-8 text-center text-gray-500">Data piutang kosong atau tidak ditemukan.</td></tr>}
+                </tbody>
+            </table>
+        </div>
     );
 
     const renderHutangTable = () => (
-        <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
-                <tr>
-                    <th className="px-6 py-4 w-16 text-center">No</th>
-                    <th className="px-6 py-4">Nama Penyedia</th>
-                    <th className="px-6 py-4 text-right">Nominal (Rp)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {reportData.data.map((row) => (
-                    <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
-                        <td className="px-6 py-4 text-center font-medium text-gray-900">{row.no}</td>
-                        <td className="px-6 py-4 font-semibold text-gray-900">{row.nama_penyedia}</td>
-                        <td className="px-6 py-4 text-right font-bold text-orange-600">{row.nominal}</td>
+        <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th className="px-6 py-4 w-16 text-center">No</th>
+                        <th className="px-6 py-4">Nama Penyedia</th>
+                        <th className="px-6 py-4 text-right">Nominal (Rp)</th>
                     </tr>
-                ))}
-                {reportData.data.length === 0 && <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-500">Data hutang kosong atau tidak ditemukan.</td></tr>}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {reportData.data.map((row) => (
+                        <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
+                            <td className="px-6 py-4 text-center font-medium text-gray-900">{row.no}</td>
+                            <td className="px-6 py-4 font-semibold text-gray-900">{row.nama_penyedia}</td>
+                            <td className="px-6 py-4 text-right font-bold text-orange-600">{row.nominal}</td>
+                        </tr>
+                    ))}
+                    {reportData.data.length === 0 && <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-500">Data hutang kosong atau tidak ditemukan.</td></tr>}
+                </tbody>
+            </table>
+        </div>
     );
 
     return (
