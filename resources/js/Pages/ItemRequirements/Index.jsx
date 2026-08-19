@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Package, Plus, ChevronDown, ChevronRight, ChevronLeft, Edit, Trash2, Search, Link as LinkIcon, DollarSign, Store, Download, FileText, FileSpreadsheet, Share2, Truck, AlertCircle, ShoppingCart } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';

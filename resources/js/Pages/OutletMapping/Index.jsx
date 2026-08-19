@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { Check, X, Search, Database, ArrowLeft } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';

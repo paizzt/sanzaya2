@@ -201,12 +201,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('payables', \App\Http\Controllers\PayableController::class);
     });
 
+    // SOP Read-Only Access for all authenticated users
+    Route::get('/sops', [\App\Http\Controllers\SopController::class, 'index'])->name('sops.index');
+    Route::get('/sops/{sop_division}', [\App\Http\Controllers\SopController::class, 'show'])->name('sops.show');
+
     Route::middleware(['can:manage master data'])->group(function() { // Or create manage sops permission
-        // SOP Management
-        Route::get('/sops', [\App\Http\Controllers\SopController::class, 'index'])->name('sops.index');
+        // SOP Management (Write Operations)
         Route::post('/sops/divisions', [\App\Http\Controllers\SopController::class, 'storeDivision'])->name('sops.divisions.store');
         Route::delete('/sops/divisions/{sop_division}', [\App\Http\Controllers\SopController::class, 'destroyDivision'])->name('sops.divisions.destroy');
-        Route::get('/sops/{sop_division}', [\App\Http\Controllers\SopController::class, 'show'])->name('sops.show');
         Route::post('/sops/{sop_division}/jobs', [\App\Http\Controllers\SopController::class, 'store'])->name('sops.store');
         Route::put('/sops/jobs/{sop}', [\App\Http\Controllers\SopController::class, 'update'])->name('sops.update');
         Route::delete('/sops/jobs/{sop}', [\App\Http\Controllers\SopController::class, 'destroy'])->name('sops.destroy');

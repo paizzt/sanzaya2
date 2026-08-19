@@ -134,7 +134,7 @@ export default function Show({ auth, division }) {
         <AuthenticatedLayout user={auth.user}>
             <Head title={`SOP - ${division.name}`} />
 
-            <div className="py-8 lg:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div className="pt-4 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 <div className="mb-6">
                     <Link 
                         href={route('sops.index')} 

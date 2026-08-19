@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Package, ChevronDown, ChevronRight, ChevronLeft, Store, Link as LinkIcon } from 'lucide-react';
 
 export default function ItemRequirementsPublic({ groupedItems, outletName, filterMonth, filterYear }) {

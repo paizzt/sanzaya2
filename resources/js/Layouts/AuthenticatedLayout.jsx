@@ -325,6 +325,14 @@ export default function Authenticated({ user, header, children }) {
                             </div>
 
                             <div className="flex items-center ml-auto gap-4">
+                                <Link
+                                    href={route('sops.index')}
+                                    className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
+                                    title="Lihat SOP"
+                                >
+                                    <BookOpen className="w-5 h-5" />
+                                </Link>
+
                                 <Menu as="div" className="relative">
                                     <Menu.Button className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none">
                                         <Bell className="w-5 h-5" />
