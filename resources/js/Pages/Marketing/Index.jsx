@@ -187,17 +187,17 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                 
                 {/* Tab Navigation */}
-                <div className="flex gap-2 w-full overflow-x-auto pb-2">
-                    <button onClick={() => setActiveTab('laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='laporan'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
+                <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full pb-2">
+                    <button onClick={() => setActiveTab('laporan')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='laporan'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
                         <ClipboardList className="w-4 h-4"/> Form Laporan Harian
                     </button>
-                    <button onClick={() => setActiveTab('target')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='target'?'bg-emerald-600 text-white shadow-md shadow-emerald-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
+                    <button onClick={() => setActiveTab('target')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='target'?'bg-emerald-600 text-white shadow-md shadow-emerald-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
                         <Target className="w-4 h-4"/> Form Target Mingguan
                     </button>
-                    <button onClick={() => setActiveTab('rekap_laporan')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='rekap_laporan'?'bg-indigo-600 text-white shadow-md shadow-indigo-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
+                    <button onClick={() => setActiveTab('rekap_laporan')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='rekap_laporan'?'bg-indigo-600 text-white shadow-md shadow-indigo-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
                         <TrendingUp className="w-4 h-4"/> Rekap Laporan Harian
                     </button>
-                    <button onClick={() => setActiveTab('rekap_target')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab==='rekap_target'?'bg-teal-600 text-white shadow-md shadow-teal-500/30':'bg-white text-gray-500 hover:bg-gray-50 border border-gray-100'}`}>
+                    <button onClick={() => setActiveTab('rekap_target')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='rekap_target'?'bg-teal-600 text-white shadow-md shadow-teal-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
                         <CalendarDays className="w-4 h-4"/> Rekap Target Mingguan
                     </button>
                 </div>

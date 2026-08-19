@@ -533,26 +533,77 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </div>
                                             </div>
                                             
-                                            {/* Saklar Fitur (Toggles) */}
-                                        <div className="space-y-4 pt-4 border-t border-gray-100">
-                                            <h4 className="font-semibold text-gray-700 mb-2 flex items-center gap-2"><ToggleRight className="w-4 h-4"/> Saklar Fitur (Feature Toggles)</h4>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                {featureToggles.map(feature => {
-                                                    const isEnabled = data.feature_toggles.includes(feature.id);
+                                        {/* Saklar Fitur (Toggles) */}
+                                        <div className="space-y-6 pt-6 border-t border-gray-100">
+                                            <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><ToggleRight className="w-5 h-5 text-indigo-500"/> Manajemen Akses Fitur</h4>
+                                            
+                                            {(() => {
+                                                const groups = {
+                                                    "Absensi": ["Ambil Absensi", "Izin / Sakit"],
+                                                    "Marketing": ["Form Marketing", "Menu Marketing", "Rekap Marketing", "Data Outlet", "Pemetaan Outlet"],
+                                                    "Pengajuan": ["Menu Pengajuan UC", "Menu Pengajuan BHP", "Menu Pengajuan Pembayaran"],
+                                                    "Finance": ["Menu Persetujuan UC", "Persetujuan Pembayaran", "Data Piutang", "Data Hutang"],
+                                                    "Logistik": ["Kebutuhan Barang", "Laporan Logistik", "Surat Pesanan", "Data Armada", "Data Penyedia", "Rekap BHP", "Data Produk"],
+                                                    "Manajemen": ["Data Pengguna", "Data Perusahaan", "Manajemen SOP", "Dashboard Laporan"],
+                                                    "Sistem": ["Profil & Akun", "Dashboard", "Notifikasi", "Riwayat Perubahan"],
+                                                    "Spreadsheet": []
+                                                };
+
+                                                const groupedFeatures = {};
+                                                const usedIds = new Set();
+
+                                                Object.keys(groups).forEach(groupName => {
+                                                    groupedFeatures[groupName] = [];
+                                                    groups[groupName].forEach(featureName => {
+                                                        const f = featureToggles.find(x => x.name.toLowerCase() === featureName.toLowerCase());
+                                                        if (f) {
+                                                            groupedFeatures[groupName].push(f);
+                                                            usedIds.add(f.id);
+                                                        }
+                                                    });
+                                                });
+
+                                                // Fitur lainnya yang belum dikelompokkan
+                                                const otherFeatures = featureToggles.filter(f => !usedIds.has(f.id));
+                                                if (otherFeatures.length > 0) {
+                                                    groupedFeatures["Lainnya"] = otherFeatures;
+                                                }
+
+                                                return Object.entries(groupedFeatures).map(([groupName, features]) => {
+                                                    // Jangan sembunyikan grup Absensi dan Spreadsheet sesuai permintaan user
+                                                    if (features.length === 0 && groupName !== "Spreadsheet" && groupName !== "Absensi") return null;
+                                                    
                                                     return (
-                                                        <div 
-                                                            key={feature.id} 
-                                                            onClick={() => toggleFeature(feature.id)}
-                                                            className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${isEnabled ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200 opacity-70'}`}
-                                                        >
-                                                            <span className={`text-sm font-medium ${isEnabled ? 'text-blue-900' : 'text-gray-600'}`}>{feature.name}</span>
-                                                            <button type="button" className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isEnabled ? 'bg-blue-600' : 'bg-gray-300'}`}>
-                                                                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
-                                                            </button>
+                                                        <div key={groupName} className="mb-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                                            <h5 className="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+                                                                <div className="w-1.5 h-4 bg-indigo-500 rounded-full"></div>
+                                                                {groupName}
+                                                            </h5>
+                                                            {features.length > 0 ? (
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                                    {features.map(feature => {
+                                                                        const isEnabled = data.feature_toggles.includes(feature.id);
+                                                                        return (
+                                                                            <div 
+                                                                                key={feature.id} 
+                                                                                onClick={() => toggleFeature(feature.id)}
+                                                                                className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${isEnabled ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-gray-50 border-gray-200 opacity-70 hover:opacity-100 hover:border-indigo-300'}`}
+                                                                            >
+                                                                                <span className={`text-sm font-medium ${isEnabled ? 'text-indigo-900' : 'text-gray-600'}`}>{feature.name}</span>
+                                                                                <button type="button" className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isEnabled ? 'bg-indigo-600' : 'bg-gray-300'}`}>
+                                                                                    <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isEnabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                                                                                </button>
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            ) : (
+                                                                <p className="text-sm text-gray-400 italic px-2">Belum ada menu / fitur untuk kategori {groupName}.</p>
+                                                            )}
                                                         </div>
                                                     );
-                                                })}
-                                            </div>
+                                                });
+                                            })()}
                                         </div>
                                     </div>
 

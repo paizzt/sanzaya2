@@ -23,13 +23,16 @@ export default function SignaturePad({ onEnd }) {
         const ctx = canvas.getContext('2d');
         const rect = canvas.getBoundingClientRect();
         
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
         let x, y;
         if (e.touches && e.touches.length > 0) {
-            x = e.touches[0].clientX - rect.left;
-            y = e.touches[0].clientY - rect.top;
+            x = (e.touches[0].clientX - rect.left) * scaleX;
+            y = (e.touches[0].clientY - rect.top) * scaleY;
         } else {
-            x = e.clientX - rect.left;
-            y = e.clientY - rect.top;
+            x = (e.clientX - rect.left) * scaleX;
+            y = (e.clientY - rect.top) * scaleY;
         }
 
         ctx.beginPath();
@@ -47,13 +50,16 @@ export default function SignaturePad({ onEnd }) {
         const ctx = canvas.getContext('2d');
         const rect = canvas.getBoundingClientRect();
         
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
         let x, y;
         if (e.touches && e.touches.length > 0) {
-            x = e.touches[0].clientX - rect.left;
-            y = e.touches[0].clientY - rect.top;
+            x = (e.touches[0].clientX - rect.left) * scaleX;
+            y = (e.touches[0].clientY - rect.top) * scaleY;
         } else {
-            x = e.clientX - rect.left;
-            y = e.clientY - rect.top;
+            x = (e.clientX - rect.left) * scaleX;
+            y = (e.clientY - rect.top) * scaleY;
         }
 
         ctx.lineTo(x, y);
