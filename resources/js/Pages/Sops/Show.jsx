@@ -136,9 +136,12 @@ export default function Show({ auth, division }) {
 
             <div className="py-8 lg:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 <div className="mb-6">
-                    <Link href={route('sops.index')} className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Kembali ke Devisi
+                    <Link 
+                        href={route('sops.index')} 
+                        className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100 flex items-center justify-center w-fit"
+                        title="Kembali ke Devisi"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left w-5 h-5" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
                     </Link>
                 </div>
 
@@ -153,7 +156,7 @@ export default function Show({ auth, division }) {
                         </p>
                     </div>
 
-                    {auth.user?.roles?.some(r => r.name === 'Superadmin') && (
+                    {auth.user?.roles?.some(r => r.name === 'SUPERADMIN') && (
                     <button
                         onClick={() => setShowAddModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
@@ -173,7 +176,7 @@ export default function Show({ auth, division }) {
                         <p className="text-gray-500 mb-6 max-w-md mx-auto">
                             Tambahkan pekerjaan baru untuk mulai menulis alur kerjanya.
                         </p>
-                        {auth.user?.roles?.some(r => r.name === 'Superadmin') && (
+                        {auth.user?.roles?.some(r => r.name === 'SUPERADMIN') && (
                         <button
                             onClick={() => setShowAddModal(true)}
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition-colors"
@@ -196,7 +199,7 @@ export default function Show({ auth, division }) {
                                         <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-300">
                                             <FileText className="w-6 h-6" />
                                         </div>
-                                        {auth.user?.roles?.some(r => r.name === 'Superadmin') && (
+                                        {auth.user?.roles?.some(r => r.name === 'SUPERADMIN') && (
                                         <button 
                                             onClick={(e) => handleDelete(sop.id, e)}
                                             className="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
@@ -261,7 +264,7 @@ export default function Show({ auth, division }) {
                             </h2>
                             <div className="flex items-center gap-2">
                                 {!isEditingContent ? (
-                                    auth.user?.roles?.some(r => r.name === 'Superadmin') && (
+                                    auth.user?.roles?.some(r => r.name === 'SUPERADMIN') && (
                                         <button
                                             onClick={() => setIsEditingContent(true)}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors"
@@ -463,7 +466,7 @@ export default function Show({ auth, division }) {
                                         <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                                             <FileText className="w-12 h-12 mb-4 text-gray-200" />
                                             <p>Detail SOP belum diisi.</p>
-                                            {auth.user?.roles?.some(r => r.name === 'Superadmin') && (
+                                            {auth.user?.roles?.some(r => r.name === 'SUPERADMIN') && (
                                             <button 
                                                 onClick={() => setIsEditingContent(true)}
                                                 className="mt-4 text-blue-600 font-medium hover:underline"

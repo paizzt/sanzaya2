@@ -83,7 +83,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                         </div>
                     )}
 
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <div className="bg-white overflow-visible shadow-sm sm:rounded-lg p-6">
                         <div className="flex justify-between items-center mb-6">
                             <form onSubmit={handleSearch} className="flex space-x-2 w-full max-w-lg">
                                 <TextInput

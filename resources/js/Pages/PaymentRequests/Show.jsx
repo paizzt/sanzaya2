@@ -92,9 +92,10 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                     <div className="flex items-center space-x-3">
                         <Link 
                             href={route('payment-requests.index')}
-                            className="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
+                            className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100"
+                            title="Kembali"
                         >
-                            Kembali
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left w-5 h-5" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
                         </Link>
                         <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
                             {paymentRequest.workflow_status.replace(/_/g, ' ').toUpperCase()}
