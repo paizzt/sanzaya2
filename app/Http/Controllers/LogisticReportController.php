@@ -267,7 +267,7 @@ class LogisticReportController extends Controller
             return $ptItems->sum('total');
         });
         
-        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Laporan Logistik', 'headings' => $headings, 'rows' => $rows, 'summary' => $summary, 'activeFilters' => $activeFilters, 'revenuePerPt' => $revenuePerPt])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Laporan Logistik', 'headings' => $headings, 'rows' => $rows, 'summary' => $summary, 'activeFilters' => $activeFilters, 'revenuePerPt' => $revenuePerPt])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('Laporan_Logistik.pdf') : $pdf->download('Laporan_Logistik.pdf');
     }
 

@@ -103,7 +103,7 @@ class ProductController extends Controller
             });
         }
         
-        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Data Produk', 'headings' => $headings, 'rows' => $rows])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Data Produk', 'headings' => $headings, 'rows' => $rows])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Data Produk') . '.pdf') : $pdf->download(str_replace(' ', '_', 'Data Produk') . '.pdf');
     }
 

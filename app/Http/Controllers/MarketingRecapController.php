@@ -104,7 +104,7 @@ class MarketingRecapController extends Controller
             'end_date' => $endDate,
         ];
 
-        $pdf = \PDF::loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        $pdf = \PDF::loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf') : $pdf->download('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf');
     }
     public function exportExcel(Request $request)

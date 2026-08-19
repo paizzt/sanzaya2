@@ -47,7 +47,7 @@ class UcRequestController extends Controller
         $qrUrl = route('requests.uc.index'); // Can be a verification URL
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
         
-        $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf') : $pdf->download('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf');
     }
 
@@ -168,7 +168,7 @@ class UcRequestController extends Controller
             });
         }
         
-        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Form UC', 'headings' => $headings, 'rows' => $rows])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Form UC', 'headings' => $headings, 'rows' => $rows])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Form UC') . '.pdf') : $pdf->download(str_replace(' ', '_', 'Form UC') . '.pdf');
     }
 

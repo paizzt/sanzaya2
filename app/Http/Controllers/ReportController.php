@@ -317,7 +317,7 @@ class ReportController extends Controller
         $piutang = SyncPiutangData::where('created_at', '>=', $startDate)->get();
         $hutang = SyncHutangData::where('created_at', '>=', $startDate)->get();
 
-        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
     }
 }

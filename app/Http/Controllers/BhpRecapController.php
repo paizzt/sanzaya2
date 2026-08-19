@@ -64,7 +64,7 @@ class BhpRecapController extends Controller
             'month' => $request->month,
             'year' => $request->year,
             'status' => $request->status
-        ])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+        ])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
 
         return request()->has('preview') ? $pdf->stream('Rekap_BHP_' . date('Ymd_His') . '.pdf') : $pdf->download('Rekap_BHP_' . date('Ymd_His') . '.pdf');
     }
