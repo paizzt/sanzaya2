@@ -142,7 +142,6 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Cari nama karyawan..."
                         className="block w-full max-w-md"
                     />
                 </div>

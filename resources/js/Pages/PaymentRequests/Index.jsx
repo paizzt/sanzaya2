@@ -90,7 +90,6 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Cari Referensi, Penerima..."
                                     className="block w-full"
                                 />
                                 <CustomSelect 

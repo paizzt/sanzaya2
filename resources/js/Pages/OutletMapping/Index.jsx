@@ -100,13 +100,12 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                                     <Database className="w-5 h-5 text-indigo-600" />
                                     Outlet Belum Terpetakan ({unmapped.length})
                                 </h3>
-                                <p className="text-sm text-gray-500 mt-1">Nama dari spreadsheet yang tidak cocok dengan master data.</p>
+                                <p className="text-sm text-gray-500 mt-1">Nama outlet dari berbagai sumber data yang tidak cocok dengan master data.</p>
                             </div>
                             <div className="relative w-full md:w-64">
                                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <input
                                     type="text"
-                                    placeholder="Cari nama typo..."
                                     className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -118,7 +117,7 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                             <table className="w-full text-sm text-left">
                                 <thead className="text-xs text-gray-500 uppercase bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-4 font-bold rounded-tl-2xl">Nama Typo (Spreadsheet)</th>
+                                        <th className="px-6 py-4 font-bold rounded-tl-2xl">Nama Typo / Asal Data</th>
                                         <th className="px-6 py-4 font-bold">Saran Master Outlet</th>
                                         <th className="px-6 py-4 font-bold">Kecocokan</th>
                                         <th className="px-6 py-4 font-bold rounded-tr-2xl text-right">Aksi</th>
@@ -188,7 +187,7 @@ export default function Index({ auth, unmapped, mappings, masterOutlets }) {
                             <table className="w-full text-sm text-left">
                                 <thead className="text-xs text-gray-500 uppercase bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-4 font-bold rounded-tl-2xl">Nama Typo (Spreadsheet)</th>
+                                        <th className="px-6 py-4 font-bold rounded-tl-2xl">Nama Typo / Asal Data</th>
                                         <th className="px-6 py-4 font-bold">Master Outlet</th>
                                         <th className="px-6 py-4 font-bold rounded-tr-2xl text-right">Aksi</th>
                                     </tr>

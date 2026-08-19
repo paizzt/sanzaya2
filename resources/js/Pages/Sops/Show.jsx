@@ -237,8 +237,7 @@ export default function Show({ auth, division }) {
                             className="mt-1 block w-full"
                             isFocused={true}
                             onChange={(e) => setAddData('title', e.target.value)}
-                            placeholder="Contoh: Proses Rekrutmen"
-                        />
+                            />
                         <InputError message={addErrors.title} className="mt-2" />
                     </div>
 
@@ -326,8 +325,7 @@ export default function Show({ auth, division }) {
                                                                 newTexts[index] = e.target.value;
                                                                 setEditData('step_texts', newTexts);
                                                             }}
-                                                            placeholder="Deskripsi langkah pekerjaan..."
-                                                        />
+                                                            />
                                                         
                                                         <div className="flex items-center gap-3">
                                                             <label className="flex-1 cursor-pointer bg-white border border-gray-200 border-dashed rounded-lg p-2 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
@@ -401,7 +399,6 @@ export default function Show({ auth, division }) {
                                         <InputLabel value="Catatan Tambahan (Opsional)" className="mb-3 text-lg font-bold text-gray-800" />
                                         <textarea
                                             className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm resize-none p-4"
-                                            placeholder="Tambahkan catatan khusus jika diperlukan..."
                                             value={editData.description}
                                             onChange={(e) => setEditData('description', e.target.value)}
                                             rows="4"

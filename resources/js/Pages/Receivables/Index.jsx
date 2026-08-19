@@ -272,7 +272,6 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     <TextInput 
                                         type="text" 
                                         className="w-full mt-1" 
-                                        placeholder="Nama Outlet..." 
                                         value={filterSearch} 
                                         onChange={e => setFilterSearch(e.target.value)} 
                                         onKeyPress={e => e.key === 'Enter' && applyFilter()}
@@ -285,8 +284,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
                                             value={filterPt}
                                             onChange={val => setFilterPt(val)}
-                                            placeholder="Semua PT"
-                                        />
+                                            />
                                     </div>
                                 </div>
                                 <div className="w-full md:w-1/4">
@@ -296,8 +294,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             options={yearOptions}
                                             value={filterYear}
                                             onChange={val => setFilterYear(val)}
-                                            placeholder="Semua Tahun"
-                                        />
+                                            />
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
@@ -413,8 +410,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                                     options={users ? users.map(u => ({ value: u.id.toString(), label: u.name })) : []}
                                                     value={dailyForm.data.user_id}
                                                     onChange={val => dailyForm.setData('user_id', val)}
-                                                    placeholder="Pilih Penagih"
-                                                />
+                                                    />
                                             </div>
                                             <InputError message={dailyForm.errors.user_id} className="mt-2" />
                                         </div>
@@ -426,8 +422,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                                 options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
                                                 value={dailyForm.data.outlet_id}
                                                 onChange={val => dailyForm.setData('outlet_id', val)}
-                                                placeholder="Pilih Outlet"
-                                            />
+                                                />
                                         </div>
                                         <InputError message={dailyForm.errors.outlet_id} className="mt-2" />
                                     </div>
@@ -503,8 +498,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
                                 value={data.company_id ? data.company_id.toString() : ''}
                                 onChange={val => setData('company_id', val)}
-                                placeholder="Pilih PT..."
-                            />
+                                />
                             <InputError message={errors.company_id} className="mt-2" />
                         </div>
 
@@ -514,8 +508,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
                                 value={data.outlet_id ? data.outlet_id.toString() : ''}
                                 onChange={val => setData('outlet_id', val)}
-                                placeholder="Pilih Outlet..."
-                            />
+                                />
                             <InputError message={errors.outlet_id} className="mt-2" />
                         </div>
 

@@ -109,8 +109,7 @@ export default function Pengajuan({ requests }) {
                                         rows="3"
                                         value={data.reason}
                                         onChange={(e) => setData('reason', e.target.value)}
-                                        placeholder="Tuliskan alasan lengkap..."
-                                    ></textarea>
+                                        ></textarea>
                                     <InputError message={errors.reason} className="mt-2" />
                                 </div>
 

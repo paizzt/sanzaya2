@@ -150,7 +150,6 @@ export default function Notifications({ setting }) {
                             <InputLabel value="Hari Aktif Notifikasi (1=Senin, 7=Minggu)" className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-gray-400"/> Pisahkan dengan koma</InputLabel>
                             <TextInput 
                                 className="mt-1 block w-full md:w-1/2" 
-                                placeholder="Contoh: 1,2,3,4,5"
                                 value={data.days_active}
                                 onChange={(e) => setData('days_active', e.target.value)}
                             />

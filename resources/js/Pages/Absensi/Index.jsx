@@ -173,7 +173,6 @@ export default function Index({ attendance, today, currentTime, isOvertime }) {
                                                         <textarea
                                                             className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-purple-500 focus:border-purple-500"
                                                             rows="2"
-                                                            placeholder="Jelaskan pekerjaan lembur Anda..."
                                                             value={data.notes}
                                                             onChange={(e) => setData('notes', e.target.value)}
                                                             required

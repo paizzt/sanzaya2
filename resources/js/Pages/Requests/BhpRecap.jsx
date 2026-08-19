@@ -142,7 +142,6 @@ export default function BhpRecap({ requests }) {
                                 <input
                                     type="text"
                                     className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-all shadow-sm"
-                                    placeholder="Cari No. Form, Barang, atau Pemohon..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
@@ -156,8 +155,7 @@ export default function BhpRecap({ requests }) {
                                         { value: 'Semua', label: 'Semua Bulan' },
                                         ...monthOptions
                                     ]}
-                                    placeholder="Bulan"
-                                />
+                                    />
                             </div>
 
                             <div className="w-[120px]">
@@ -168,8 +166,7 @@ export default function BhpRecap({ requests }) {
                                         { value: 'Semua', label: 'Semua Tahun' },
                                         ...yearOptions
                                     ]}
-                                    placeholder="Tahun"
-                                />
+                                    />
                             </div>
                             
                             <div className="w-[180px]">
@@ -182,8 +179,7 @@ export default function BhpRecap({ requests }) {
                                         { value: 'Disetujui', label: 'Disetujui' },
                                         { value: 'Ditolak', label: 'Ditolak' }
                                     ]}
-                                    placeholder="Semua Status"
-                                />
+                                    />
                             </div>
                         </div>
                         <div className="flex flex-row items-center gap-3">

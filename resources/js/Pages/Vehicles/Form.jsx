@@ -120,8 +120,7 @@ export default function Form({ vehicle }) {
                                     className="mt-1 block w-full uppercase"
                                     onChange={(e) => setData('license_plate', e.target.value.toUpperCase())}
                                     required
-                                    placeholder="Contoh: B 1234 ABC"
-                                />
+                                    />
                                 <InputError message={errors.license_plate} className="mt-2" />
                             </div>
 
@@ -134,8 +133,7 @@ export default function Form({ vehicle }) {
                                     value={data.brand_type}
                                     className="mt-1 block w-full"
                                     onChange={(e) => setData('brand_type', e.target.value)}
-                                    placeholder="Contoh: Toyota Avanza / Isuzu Elf"
-                                />
+                                    />
                                 <InputError message={errors.brand_type} className="mt-2" />
                             </div>
 
@@ -188,8 +186,7 @@ export default function Form({ vehicle }) {
                                     value={data.capacity}
                                     className="mt-1 block w-full"
                                     onChange={(e) => setData('capacity', e.target.value)}
-                                    placeholder="Contoh: 15 Penumpang / 2 Ton"
-                                />
+                                    />
                                 <InputError message={errors.capacity} className="mt-2" />
                             </div>
 
@@ -363,8 +360,7 @@ export default function Form({ vehicle }) {
                                     onChange={(e) => setData('repair_history', e.target.value)}
                                     className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm"
                                     rows="4"
-                                    placeholder="Contoh: Turun mesin di bengkel A pada tgl 12 Mei..."
-                                ></textarea>
+                                    ></textarea>
                                 <InputError message={errors.repair_history} className="mt-2" />
                             </div>
                         </div>
@@ -385,7 +381,7 @@ export default function Form({ vehicle }) {
                                 <div>
                                     <InputLabel htmlFor="engine_oil_target_km" value="Oli Mesin (Target KM)" />
                                     <div className="flex items-center mt-1">
-                                        <TextInput id="engine_oil_target_km" type="number" value={data.engine_oil_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('engine_oil_target_km', e.target.value)} placeholder="Contoh: 10000" />
+                                        <TextInput id="engine_oil_target_km" type="number" value={data.engine_oil_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('engine_oil_target_km', e.target.value)} />
                                         <span className="px-3 py-[9px] bg-gray-50 border border-gray-300 rounded-r-lg text-gray-500 font-medium text-sm">KM</span>
                                     </div>
                                     <InputError message={errors.engine_oil_target_km} className="mt-2" />
@@ -394,7 +390,7 @@ export default function Form({ vehicle }) {
                                 <div>
                                     <InputLabel htmlFor="oil_filter_target_km" value="Filter Oli (Target KM)" />
                                     <div className="flex items-center mt-1">
-                                        <TextInput id="oil_filter_target_km" type="number" value={data.oil_filter_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('oil_filter_target_km', e.target.value)} placeholder="Contoh: 10000" />
+                                        <TextInput id="oil_filter_target_km" type="number" value={data.oil_filter_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('oil_filter_target_km', e.target.value)} />
                                         <span className="px-3 py-[9px] bg-gray-50 border border-gray-300 rounded-r-lg text-gray-500 font-medium text-sm">KM</span>
                                     </div>
                                     <InputError message={errors.oil_filter_target_km} className="mt-2" />
@@ -403,7 +399,7 @@ export default function Form({ vehicle }) {
                                 <div>
                                     <InputLabel htmlFor="air_filter_target_km" value="Saringan Udara Mesin (Target KM)" />
                                     <div className="flex items-center mt-1">
-                                        <TextInput id="air_filter_target_km" type="number" value={data.air_filter_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('air_filter_target_km', e.target.value)} placeholder="Contoh: 10000" />
+                                        <TextInput id="air_filter_target_km" type="number" value={data.air_filter_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('air_filter_target_km', e.target.value)} />
                                         <span className="px-3 py-[9px] bg-gray-50 border border-gray-300 rounded-r-lg text-gray-500 font-medium text-sm">KM</span>
                                     </div>
                                     <InputError message={errors.air_filter_target_km} className="mt-2" />
@@ -412,7 +408,7 @@ export default function Form({ vehicle }) {
                                 <div>
                                     <InputLabel htmlFor="ac_filter_target_km" value="Saringan Udara AC (Target KM)" />
                                     <div className="flex items-center mt-1">
-                                        <TextInput id="ac_filter_target_km" type="number" value={data.ac_filter_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('ac_filter_target_km', e.target.value)} placeholder="Contoh: 10000" />
+                                        <TextInput id="ac_filter_target_km" type="number" value={data.ac_filter_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('ac_filter_target_km', e.target.value)} />
                                         <span className="px-3 py-[9px] bg-gray-50 border border-gray-300 rounded-r-lg text-gray-500 font-medium text-sm">KM</span>
                                     </div>
                                     <InputError message={errors.ac_filter_target_km} className="mt-2" />
@@ -421,7 +417,7 @@ export default function Form({ vehicle }) {
                                 <div>
                                     <InputLabel htmlFor="transmission_oil_target_km" value="Oli Transmisi Matic (Target KM)" />
                                     <div className="flex items-center mt-1">
-                                        <TextInput id="transmission_oil_target_km" type="number" value={data.transmission_oil_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('transmission_oil_target_km', e.target.value)} placeholder="Contoh: 40000" />
+                                        <TextInput id="transmission_oil_target_km" type="number" value={data.transmission_oil_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('transmission_oil_target_km', e.target.value)} />
                                         <span className="px-3 py-[9px] bg-gray-50 border border-gray-300 rounded-r-lg text-gray-500 font-medium text-sm">KM</span>
                                     </div>
                                     <InputError message={errors.transmission_oil_target_km} className="mt-2" />
@@ -430,7 +426,7 @@ export default function Form({ vehicle }) {
                                 <div>
                                     <InputLabel htmlFor="spark_plug_target_km" value="Busi (Target KM)" />
                                     <div className="flex items-center mt-1">
-                                        <TextInput id="spark_plug_target_km" type="number" value={data.spark_plug_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('spark_plug_target_km', e.target.value)} placeholder="Contoh: 40000" />
+                                        <TextInput id="spark_plug_target_km" type="number" value={data.spark_plug_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('spark_plug_target_km', e.target.value)} />
                                         <span className="px-3 py-[9px] bg-gray-50 border border-gray-300 rounded-r-lg text-gray-500 font-medium text-sm">KM</span>
                                     </div>
                                     <InputError message={errors.spark_plug_target_km} className="mt-2" />
@@ -439,7 +435,7 @@ export default function Form({ vehicle }) {
                                 <div>
                                     <InputLabel htmlFor="brake_pad_target_km" value="Kampas Rem Depan/Belakang (Target KM)" />
                                     <div className="flex items-center mt-1">
-                                        <TextInput id="brake_pad_target_km" type="number" value={data.brake_pad_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('brake_pad_target_km', e.target.value)} placeholder="Contoh: 60000" />
+                                        <TextInput id="brake_pad_target_km" type="number" value={data.brake_pad_target_km} className="block w-full rounded-r-none border-r-0" onChange={(e) => setData('brake_pad_target_km', e.target.value)} />
                                         <span className="px-3 py-[9px] bg-gray-50 border border-gray-300 rounded-r-lg text-gray-500 font-medium text-sm">KM</span>
                                     </div>
                                     <InputError message={errors.brake_pad_target_km} className="mt-2" />

@@ -284,8 +284,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                     value={data.outlet_id}
                                                     onChange={(val) => setData('outlet_id', val)}
                                                     options={outlets.map(o => ({ value: o.id, label: `${o.name} - ${o.city}` }))}
-                                                    placeholder="-- Pilih Outlet --"
-                                                />
+                                                    />
                                             </div>
                                         </div>
 
@@ -363,8 +362,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                     className="mt-1 block w-full bg-white" 
                                                     value={data.competitor_notes}
                                                     onChange={(e) => setData('competitor_notes', e.target.value)}
-                                                    placeholder="Nama produk/vendor kompetitor..."
-                                                />
+                                                    />
                                             </div>
                                         </div>
                                     </div>
@@ -381,10 +379,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         rows="4"
                                         value={data.visit_result}
                                         onChange={(e) => setData('visit_result', e.target.value)}
-                                        placeholder={data.activity_type === 'Non-Kunjungan (Kantor / Administrasi / Rapat)' 
-                                            ? "Tulis rincian hasil kegiatan/pertemuan hari ini..." 
-                                            : "Ceritakan detail aktivitas atau hasil kunjungan hari ini..."}
-                                    ></textarea>
+                                        ></textarea>
                                 </div>
 
                                 <div>

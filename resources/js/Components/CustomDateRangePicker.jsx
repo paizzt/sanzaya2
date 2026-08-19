@@ -22,7 +22,6 @@ export default function CustomDateRangePicker({ value, onChange }) {
                 showFooter={true}
                 displayFormat={"DD MMM YYYY"}
                 separator={"sampai"}
-                placeholder={"Pilih Rentang Tanggal"}
                 configs={{
                     shortcuts: {
                         today: "Hari Ini",

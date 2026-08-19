@@ -258,7 +258,6 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                             <TextInput 
                                 type="text" 
                                 className="w-full pl-10 rounded-xl text-sm" 
-                                placeholder="Cari barang / outlet..." 
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -372,8 +371,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={detailFilters.month}
                                         onChange={(val) => setDetailFilters({...detailFilters, month: val})}
-                                        placeholder="Semua Bulan"
-                                    />
+                                        />
                                     <CustomSelect
                                         options={[
                                             { value: '', label: 'Semua Tahun' },
@@ -387,11 +385,9 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={detailFilters.year}
                                         onChange={(val) => setDetailFilters({...detailFilters, year: val})}
-                                        placeholder="Semua Tahun"
-                                    />
+                                        />
                                     <TextInput 
                                         type="text" 
-                                        placeholder="Cari Satuan..."
                                         value={detailFilters.unit}
                                         onChange={(e) => setDetailFilters({...detailFilters, unit: e.target.value})}
                                         className="w-full rounded-xl sm:text-sm border-gray-300"
@@ -499,7 +495,6 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                     options={outlets.map(o => ({ value: o, label: o }))}
                                     value={formData.outlet_name}
                                     onChange={(val) => setFormData({...formData, outlet_name: val})}
-                                    placeholder="Cari nama outlet..."
                                     className="mt-1 block w-full"
                                 />
                             </div>
@@ -526,7 +521,6 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={formData.month}
                                         onChange={(val) => setFormData({...formData, month: val})}
-                                        placeholder="Pilih Bulan..."
                                         className="mt-1"
                                     />
                                 </div>
@@ -544,7 +538,6 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={formData.year}
                                         onChange={(val) => setFormData({...formData, year: val})}
-                                        placeholder="Pilih Tahun..."
                                         className="mt-1"
                                     />
                                 </div>
@@ -564,7 +557,6 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         options={companies}
                                         value={formData.company_name}
                                         onChange={(val) => setFormData({...formData, company_name: val})}
-                                        placeholder="Contoh: PT. Abadi"
                                         className="mt-1 block w-full"
                                     />
                                 </div>
@@ -576,8 +568,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         className="mt-1 block w-full rounded-xl"
                                         value={formData.unit}
                                         onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                                        placeholder="Contoh: Pcs, Box, Rim"
-                                    />
+                                        />
                                 </div>
                                 <div>
                                     <InputLabel value="Qty" />
@@ -652,7 +643,6 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                         ]}
                                         value={formData.description}
                                         onChange={(val) => setFormData({...formData, description: val})}
-                                        placeholder="Pilih Kategori..."
                                         className="mt-1"
                                     />
                                 </div>
@@ -680,8 +670,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                             className="block w-full pl-10 rounded-xl"
                                             value={formData.link}
                                             onChange={(e) => setFormData({...formData, link: e.target.value})}
-                                            placeholder="https://..."
-                                        />
+                                            />
                                     </div>
                                 </div>
 
@@ -776,8 +765,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                 ]}
                                 value={shareModalFilters.month}
                                 onChange={(val) => setShareModalFilters({...shareModalFilters, month: val})}
-                                placeholder="Semua Bulan"
-                            />
+                                />
                         </div>
 
                         <div>
@@ -795,8 +783,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                 ]}
                                 value={shareModalFilters.year}
                                 onChange={(val) => setShareModalFilters({...shareModalFilters, year: val})}
-                                placeholder="Semua Tahun"
-                            />
+                                />
                         </div>
 
                         <div className="pt-4 flex justify-end gap-3">

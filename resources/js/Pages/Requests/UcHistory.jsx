@@ -188,7 +188,6 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                                     <textarea 
                                                         className="mt-1 block w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                                                         rows="3"
-                                                        placeholder="Ceritakan detail hasil perjalanan dinas..."
                                                         value={resultData.result_summary}
                                                         onChange={(e) => setResultData('result_summary', e.target.value)}
                                                     ></textarea>

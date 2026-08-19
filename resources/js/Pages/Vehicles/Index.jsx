@@ -537,8 +537,7 @@ export default function Index({ vehicles }) {
                                         value={data.destination}
                                         onChange={e => setData('destination', e.target.value)}
                                         className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
-                                        placeholder="Misal: Mengirim barang ke Toko A"
-                                    />
+                                        />
                                     {errors.destination && <p className="text-red-500 text-xs mt-1">{errors.destination}</p>}
                                 </div>
                                 <div>
@@ -552,8 +551,7 @@ export default function Index({ vehicles }) {
                                         decimalSeparator=","
                                         prefix="Rp "
                                         className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
-                                        placeholder="Rp 0"
-                                    />
+                                        />
                                     {errors.gas_expense && <p className="text-red-500 text-xs mt-1">{errors.gas_expense}</p>}
                                 </div>
                                 <div>

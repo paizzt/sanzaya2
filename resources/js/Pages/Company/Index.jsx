@@ -257,7 +257,6 @@ export default function Index({ auth, companies }) {
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
                                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    placeholder="Masukkan nama perusahaan"
                                     required
                                 />
                             </div>
@@ -279,8 +278,7 @@ export default function Index({ auth, companies }) {
                                     onChange={(e) => setData('address', e.target.value)}
                                     rows={4}
                                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    placeholder="Masukkan alamat lengkap perusahaan"
-                                />
+                                    />
                             </div>
                             <InputError message={errors.address} className="mt-2" />
                         </div>

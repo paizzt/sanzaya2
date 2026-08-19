@@ -257,7 +257,6 @@ export default function Index({ outlets, areas }) {
                             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                             <input
                                 type="text"
-                                placeholder="Cari nama atau kota..."
                                 className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm text-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -424,7 +423,7 @@ export default function Index({ outlets, areas }) {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <InputLabel value="Nama Outlet *" />
-                                                <TextInput className="mt-1 block w-full" value={data.name} onChange={e => setData('name', e.target.value)} required placeholder="Contoh: RSUD Kota..." />
+                                                <TextInput className="mt-1 block w-full" value={data.name} onChange={e => setData('name', e.target.value)} required />
                                                 <InputError message={errors.name} className="mt-1" />
                                             </div>
                                             <div>
@@ -467,17 +466,17 @@ export default function Index({ outlets, areas }) {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="md:col-span-2">
                                                 <InputLabel value="Nama PIC" />
-                                                <TextInput className="mt-1 block w-full" value={data.pic_name} onChange={e => setData('pic_name', e.target.value)} placeholder="Contoh: dr. Budi Santoso" />
+                                                <TextInput className="mt-1 block w-full" value={data.pic_name} onChange={e => setData('pic_name', e.target.value)} />
                                                 <InputError message={errors.pic_name} className="mt-1" />
                                             </div>
                                             <div>
                                                 <InputLabel value="Jabatan PIC" />
-                                                <TextInput className="mt-1 block w-full" value={data.pic_position} onChange={e => setData('pic_position', e.target.value)} placeholder="Contoh: Kepala Pengadaan" />
+                                                <TextInput className="mt-1 block w-full" value={data.pic_position} onChange={e => setData('pic_position', e.target.value)} />
                                                 <InputError message={errors.pic_position} className="mt-1" />
                                             </div>
                                             <div>
                                                 <InputLabel value="No. HP / WhatsApp" />
-                                                <TextInput className="mt-1 block w-full" value={data.phone} onChange={e => setData('phone', e.target.value)} placeholder="Contoh: 081234567890" />
+                                                <TextInput className="mt-1 block w-full" value={data.phone} onChange={e => setData('phone', e.target.value)} />
                                                 <InputError message={errors.phone} className="mt-1" />
                                             </div>
                                         </div>
@@ -491,7 +490,7 @@ export default function Index({ outlets, areas }) {
                                         <div className="grid grid-cols-1 gap-4">
                                             <div>
                                                 <InputLabel value="Koordinat (Latitude, Longitude)" />
-                                                <TextInput className="mt-1 block w-full" value={data.coordinates} onChange={e => setData('coordinates', e.target.value)} placeholder="Contoh: -6.200000, 106.816666" />
+                                                <TextInput className="mt-1 block w-full" value={data.coordinates} onChange={e => setData('coordinates', e.target.value)} />
                                                 <p className="text-xs text-gray-500 mt-1">Gunakan format desimal dipisah koma. Contoh: -6.2088, 106.8456</p>
                                                 <InputError message={errors.coordinates} className="mt-1" />
                                             </div>

@@ -85,8 +85,7 @@ export default function DeleteUserForm({ className = '' }) {
                                     onChange={(e) => setData('password', e.target.value)}
                                     className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-red-500 focus:ring-red-500 transition-all"
                                     isFocused
-                                    placeholder="Masukkan kata sandi untuk konfirmasi"
-                                />
+                                    />
                             </div>
                             <InputError message={errors.password} className="mt-2" />
                         </div>

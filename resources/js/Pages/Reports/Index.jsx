@@ -646,7 +646,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     { value: '', label: 'Semua Bulan' },
                                     ...months.map(m => ({ value: m, label: m }))
                                 ]}
-                                placeholder="Pilih Bulan..."
                                 icon={Calendar}
                             />
                         </div>
@@ -663,7 +662,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         { value: '', label: 'Semua Sales' },
                                         ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
-                                    placeholder="Cari Sales..."
                                     icon={UserIcon}
                                 />
                             </div>
@@ -682,7 +680,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         { value: '', label: 'Semua Outlet' },
                                         ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
-                                    placeholder="Cari Outlet..."
                                     icon={StoreIcon}
                                 />
                             </div>
@@ -694,7 +691,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     <TextInput 
                                         type="text" 
                                         className="w-full pl-10 rounded-xl" 
-                                        placeholder="Cari data..." 
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         onBlur={() => {

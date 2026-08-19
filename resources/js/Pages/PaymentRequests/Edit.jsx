@@ -91,7 +91,6 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
                                         value={data.company_name} 
                                         onChange={(val) => setData('company_name', val)} 
                                         options={companies.map(c => ({ value: c.name, label: c.name }))} 
-                                        placeholder="Pilih Perusahaan..."
                                         className="w-full"
                                     />
                                     <InputError message={errors.company_name} />
@@ -229,7 +228,6 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
                                             { value: 'Tunai', label: 'Tunai' },
                                             { value: 'E-Wallet', label: 'E-Wallet' }
                                         ]} 
-                                        placeholder="Pilih Metode..."
                                         className="w-full"
                                     />
                                     <InputError message={errors.payment_method} />

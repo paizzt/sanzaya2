@@ -196,7 +196,6 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         <div className="relative">
                             <input 
                                 type="text"
-                                placeholder="Cari nama, email, role..."
                                 value={searchUserTerm}
                                 onChange={(e) => { setSearchUserTerm(e.target.value); setCurrentPage(1); }}
                                 className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm px-4 py-2.5 w-64"
@@ -357,7 +356,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     <InputLabel value={isEditMode ? "Password (Kosongkan jika tidak diubah)" : "Password *"} />
                                                     <div className="relative">
                                                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                        <TextInput type="text" className="mt-1 block w-full pl-9" value={data.password} onChange={e => setData('password', e.target.value)} required={!isEditMode} placeholder={isEditMode ? '********' : 'Contoh: sanzaya123'} />
+                                                        <TextInput type="text" className="mt-1 block w-full pl-9" value={data.password} onChange={e => setData('password', e.target.value)} required={!isEditMode} />
                                                     </div>
                                                     <InputError message={errors.password} className="mt-1" />
                                                 </div>
@@ -368,8 +367,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         value={data.company_id}
                                                         onChange={val => setData('company_id', val)}
                                                         options={companies.map(c => ({ value: c.id, label: c.name }))}
-                                                        placeholder="-- Pilih PT --"
-                                                    />
+                                                        />
                                                     <InputError message={errors.company_id} className="mt-1" />
                                                 </div>
                                             </div>
@@ -384,8 +382,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         value={data.role}
                                                         onChange={val => setData('role', val)}
                                                         options={roles.map(r => ({ value: r.name, label: r.name }))}
-                                                        placeholder="-- Pilih Role --"
-                                                    />
+                                                        />
                                                     <InputError message={errors.role} className="mt-1" />
                                                 </div>
                                                 
@@ -395,8 +392,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         value={data.spreadsheet_sales_name}
                                                         onChange={val => setData('spreadsheet_sales_name', val)}
                                                         options={spreadsheetSalesNames.map((name) => ({ value: name, label: name }))}
-                                                        placeholder="-- Tidak Ditautkan --"
-                                                    />
+                                                        />
                                                     <InputError message={errors.spreadsheet_sales_name} className="mt-1" />
                                                     <p className="text-xs text-gray-500 mt-1">Pilih nama ini untuk mengaitkan akun dengan data logistik di spreadsheet.</p>
                                                 </div>
@@ -408,7 +404,6 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">Rp</span>
                                                             <CurrencyInput 
                                                                 className="mt-1 block w-full pl-9" 
-                                                                placeholder="Contoh: 15.000.000"
                                                                 value={data.monthly_target} 
                                                                 onChange={val => setData('monthly_target', val)} 
                                                             />
@@ -425,8 +420,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                             value={data.position_id}
                                                             onChange={val => setData('position_id', val)}
                                                             options={positions.map(p => ({ value: p.id, label: p.name }))}
-                                                            placeholder="-- Pilih Jabatan --"
-                                                        />
+                                                            />
                                                         <InputError message={errors.position_id} className="mt-1" />
                                                     </div>
                                                     <div>
@@ -435,8 +429,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                             value={data.division_id}
                                                             onChange={val => setData('division_id', val)}
                                                             options={divisions.map(d => ({ value: d.id, label: d.name }))}
-                                                            placeholder="-- Pilih Divisi --"
-                                                        />
+                                                            />
                                                         <InputError message={errors.division_id} className="mt-1" />
                                                     </div>
                                                 </>
@@ -470,7 +463,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     </div>
                                                     <div>
                                                         <InputLabel value="Kontak Darurat (Nama & No HP)" />
-                                                        <TextInput className="mt-1 block w-full" placeholder="Cth: Istri - 0812345678" value={data.emergency_contact} onChange={e => setData('emergency_contact', e.target.value)} />
+                                                        <TextInput className="mt-1 block w-full" value={data.emergency_contact} onChange={e => setData('emergency_contact', e.target.value)} />
                                                         <InputError message={errors.emergency_contact} className="mt-1" />
                                                     </div>
                                                 </div>
@@ -502,8 +495,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 { value: 'PKWTT', label: 'PKWTT (Tetap)' },
                                                                 { value: 'Probation', label: 'Probation' },
                                                             ]}
-                                                            placeholder="-- Pilih Status --"
-                                                        />
+                                                            />
                                                         <InputError message={errors.employment_status} className="mt-1" />
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
@@ -658,7 +650,6 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                             
                                             <TextInput 
                                                 type="text" 
-                                                placeholder="Cari Kota..." 
                                                 className="w-full text-sm mb-3"
                                                 value={searchTerm}
                                                 onChange={e => setSearchTerm(e.target.value)}

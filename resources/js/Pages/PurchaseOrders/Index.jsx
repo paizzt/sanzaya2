@@ -312,8 +312,7 @@ export default function Index({ auth, items, outlets, summary }) {
                                 options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
                                 value={data.outlet_id ? data.outlet_id.toString() : ''}
                                 onChange={val => setData('outlet_id', val)}
-                                placeholder="Pilih Outlet"
-                            />
+                                />
                             <InputError message={errors.outlet_id} className="mt-2" />
                         </div>
 

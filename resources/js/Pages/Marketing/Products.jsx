@@ -50,7 +50,6 @@ export default function Products({ auth, products, filters }) {
                                 <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <input
                                     type="text"
-                                    placeholder="Cari nama produk atau NIE..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="w-full pl-10 pr-4 py-2.5 border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500"

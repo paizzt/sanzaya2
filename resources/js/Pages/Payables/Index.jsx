@@ -284,8 +284,7 @@ export default function Index({ auth, items, providers, summary }) {
                                     className="mt-1 block w-full"
                                     value={data.nomor_transaksi}
                                     onChange={e => setData('nomor_transaksi', e.target.value)}
-                                    placeholder="Contoh: INV-12345"
-                                />
+                                    />
                                 <InputError message={errors.nomor_transaksi} className="mt-2" />
                             </div>
                         </div>
@@ -297,8 +296,7 @@ export default function Index({ auth, items, providers, summary }) {
                                     options={providers ? providers.map(p => ({ value: p.id.toString(), label: p.name })) : []}
                                     value={data.provider_id ? data.provider_id.toString() : ''}
                                     onChange={val => setData('provider_id', val)}
-                                    placeholder="Pilih Penyedia"
-                                />
+                                    />
                             </div>
                             <InputError message={errors.provider_id} className="mt-2" />
                         </div>
@@ -311,8 +309,7 @@ export default function Index({ auth, items, providers, summary }) {
                                 className="mt-1 block w-full"
                                 value={data.memo}
                                 onChange={e => setData('memo', e.target.value)}
-                                placeholder="Keterangan singkat"
-                            />
+                                />
                             <InputError message={errors.memo} className="mt-2" />
                         </div>
 
@@ -326,8 +323,7 @@ export default function Index({ auth, items, providers, summary }) {
                                         { value: '14', label: '14 Hari' },
                                         { value: '30', label: '30 Hari' }
                                     ]}
-                                    placeholder="Pilih Hari"
-                                />
+                                    />
                                 <InputError message={errors.jatuh_tempo_hari} className="mt-2" />
                             </div>
 
@@ -341,7 +337,6 @@ export default function Index({ auth, items, providers, summary }) {
                                         id="nominal" 
                                         type="text" 
                                         className="block w-full pl-9 font-mono text-right" 
-                                        placeholder="0,00"
                                         value={data.nominal ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(data.nominal) / 100) : ''} 
                                         onChange={e => {
                                             const rawValue = e.target.value.replace(/\D/g, '');

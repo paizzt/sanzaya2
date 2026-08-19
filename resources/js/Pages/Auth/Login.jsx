@@ -74,8 +74,7 @@ export default function Login({ status, canResetPassword }) {
                         autoComplete="username"
                         isFocused={true}
                         onChange={(e) => setData('email', e.target.value)}
-                        placeholder="staff@sanzaya.com"
-                    />
+                        />
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>
@@ -92,8 +91,7 @@ export default function Login({ status, canResetPassword }) {
                             className="mt-1 block w-full px-4 py-3.5 pr-12 rounded-xl border-gray-200/80 bg-white/50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] transition-all duration-300 text-sm"
                             autoComplete="current-password"
                             onChange={(e) => setData('password', e.target.value)}
-                            placeholder="••••••••"
-                        />
+                            />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}

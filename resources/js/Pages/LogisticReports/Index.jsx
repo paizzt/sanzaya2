@@ -327,8 +327,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         options={monthOptions} 
                                         value={filterData.bulan} 
                                         onChange={val => setFilterData({...filterData, bulan: val})} 
-                                        placeholder="Pilih Bulan" 
-                                    />
+                                        />
                                 </div>
                                 <div className="w-full md:w-32">
                                     <InputLabel value="Tahun" className="mb-1" />
@@ -336,8 +335,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         options={yearOptions} 
                                         value={filterData.tahun} 
                                         onChange={val => setFilterData({...filterData, tahun: val})} 
-                                        placeholder="Pilih Tahun" 
-                                    />
+                                        />
                                 </div>
                                 <div className="w-full md:flex-1 min-w-[200px]">
                                     <InputLabel value="Nama PT" className="mb-1" />
@@ -345,8 +343,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         options={[{value:'', label:'Semua PT'}, ...(companies || []).map(c => ({ value: c.id.toString(), label: c.name }))]} 
                                         value={filterData.company_id} 
                                         onChange={val => setFilterData({...filterData, company_id: val})} 
-                                        placeholder="Pilih PT" 
-                                    />
+                                        />
                                 </div>
                                 <div className="w-full md:w-40">
                                     <InputLabel value="Jenis Barang" className="mb-1" />
@@ -358,8 +355,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         ]} 
                                         value={filterData.jenis_barang} 
                                         onChange={val => setFilterData({...filterData, jenis_barang: val})} 
-                                        placeholder="Pilih Jenis" 
-                                    />
+                                        />
                                 </div>
                                 <div className="w-full md:flex-1 min-w-[200px]">
                                     <InputLabel value="Pelanggan" className="mb-1" />
@@ -367,8 +363,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         options={[{value:'', label:'Semua Pelanggan'}, ...(outlets || []).map(o => ({ value: o.id.toString(), label: o.name }))]} 
                                         value={filterData.outlet_id} 
                                         onChange={val => setFilterData({...filterData, outlet_id: val})} 
-                                        placeholder="Pilih Pelanggan" 
-                                    />
+                                        />
                                 </div>
                                 <div className="w-full md:flex-1 min-w-[200px]">
                                     <InputLabel value="Nama Sales" className="mb-1" />
@@ -376,8 +371,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         options={[{value:'', label:'Semua Sales'}, ...(sales || []).map(s => ({ value: s.name, label: s.name }))]} 
                                         value={filterData.nama_sales} 
                                         onChange={val => setFilterData({...filterData, nama_sales: val})} 
-                                        placeholder="Pilih Sales" 
-                                    />
+                                        />
                                 </div>
                                 <div className="w-full md:w-auto flex items-center gap-2 h-11">
                                     <PrimaryButton type="submit" className="w-full md:w-auto justify-center h-full">
@@ -509,8 +503,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
                                 value={data.company_id ? data.company_id.toString() : ''}
                                 onChange={val => setData('company_id', val)}
-                                placeholder="Pilih PT / Perusahaan"
-                            />
+                                />
                             <InputError message={errors.company_id} className="mt-2" />
                         </div>
                         <div>
@@ -519,8 +512,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
                                 value={data.outlet_id ? data.outlet_id.toString() : ''}
                                 onChange={val => setData('outlet_id', val)}
-                                placeholder="Pilih Pelanggan / Outlet"
-                            />
+                                />
                             <InputError message={errors.outlet_id} className="mt-2" />
                         </div>
                         <div>
@@ -534,8 +526,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 ]}
                                 value={data.jenis_pelanggan}
                                 onChange={val => setData('jenis_pelanggan', val)}
-                                placeholder="Pilih Jenis"
-                            />
+                                />
                             <InputError message={errors.jenis_pelanggan} className="mt-2" />
                         </div>
                         
@@ -550,8 +541,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 options={sales ? sales.map(s => ({ value: s.name, label: s.name })) : []}
                                 value={data.nama_sales}
                                 onChange={val => setData('nama_sales', val)}
-                                placeholder="Pilih Sales"
-                            />
+                                />
                             <InputError message={errors.nama_sales} className="mt-2" />
                         </div>
                         <div>
@@ -592,8 +582,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 options={[{value: 'BMHP', label: 'BMHP'}, {value: 'ALAT', label: 'ALAT'}]}
                                 value={data.jenis_barang}
                                 onChange={val => setData('jenis_barang', val)}
-                                placeholder="Pilih Jenis"
-                            />
+                                />
                             <InputError message={errors.jenis_barang} className="mt-2" />
                         </div>
                         

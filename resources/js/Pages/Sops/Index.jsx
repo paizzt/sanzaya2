@@ -164,8 +164,7 @@ export default function Index({ auth, divisions }) {
                             className="mt-1 block w-full"
                             isFocused={true}
                             onChange={(e) => setData('name', e.target.value)}
-                            placeholder="Contoh: Marketing, HRD, IT, dll"
-                        />
+                            />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
 

@@ -132,7 +132,6 @@ export default function ActivityLog({ auth, logs, filters }) {
                                     <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                     <TextInput
                                         type="text"
-                                        placeholder="Cari user, modul, aksi..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         className="pl-10 w-full md:w-64"

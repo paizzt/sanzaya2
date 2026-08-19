@@ -258,7 +258,6 @@ export default function Show({ provider, products, filters }) {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Cari nama/kode barang..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         onKeyDown={handleKeyDown}
@@ -492,8 +491,7 @@ export default function Show({ provider, products, filters }) {
                                                 value={data.link}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('link', e.target.value)}
-                                                placeholder="https://"
-                                            />
+                                                />
                                             <InputError message={errors.link} className="mt-2" />
                                         </div>
 

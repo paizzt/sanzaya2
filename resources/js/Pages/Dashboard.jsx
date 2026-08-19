@@ -24,7 +24,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
     useEffect(() => {
         const interval = setInterval(() => {
             router.reload({ only: ['stats'], preserveScroll: true, preserveState: true });
-        }, 15000);
+        }, 60000);
         return () => clearInterval(interval);
     }, []);
 
@@ -92,7 +92,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                             <h3 className="font-bold text-lg mb-2 relative z-10">Selamat Datang,</h3>
                             <h2 className="text-3xl font-black mb-6 relative z-10">{auth.user.name}</h2>
                             <p className="text-blue-100 text-sm mb-8 relative z-10 leading-relaxed">
-                                Fitur Dashboard Real-Time diaktifkan. Data pada layar ini diperbarui secara otomatis setiap 15 detik.
+                                Fitur Dashboard Real-Time diaktifkan. Data pada layar ini diperbarui secara otomatis setiap 1 menit.
                             </p>
                         </div>
                         <Link href={route('absensi.index')} className="w-full bg-white text-center text-blue-600 font-bold py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors shadow-lg relative z-10">
