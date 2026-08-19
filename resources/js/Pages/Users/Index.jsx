@@ -539,14 +539,54 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                             
                                             {(() => {
                                                 const groups = {
-                                                    "Absensi": ["Ambil Absensi", "Izin / Sakit"],
-                                                    "Marketing": ["Form Marketing", "Menu Marketing", "Rekap Marketing", "Data Outlet", "Pemetaan Outlet"],
-                                                    "Pengajuan": ["Menu Pengajuan UC", "Menu Pengajuan BHP", "Menu Pengajuan Pembayaran"],
-                                                    "Finance": ["Menu Persetujuan UC", "Persetujuan Pembayaran", "Data Piutang", "Data Hutang"],
-                                                    "Logistik": ["Kebutuhan Barang", "Laporan Logistik", "Surat Pesanan", "Data Armada", "Data Penyedia", "Rekap BHP", "Data Produk"],
-                                                    "Manajemen": ["Data Pengguna", "Data Perusahaan", "Manajemen SOP", "Dashboard Laporan"],
-                                                    "Sistem": ["Profil & Akun", "Dashboard", "Notifikasi", "Riwayat Perubahan"],
-                                                    "Spreadsheet": []
+                                                    "Dashboard": [{ label: "Dashboard", db: "Dashboard" }],
+                                                    "Absensi": [
+                                                        { label: "Ambil Absensi", db: "Ambil Absensi" },
+                                                        { label: "Izin/Sakit", db: "Izin / Sakit" }
+                                                    ],
+                                                    "Marketing": [
+                                                        { label: "Form Marketing", db: "Form Marketing" },
+                                                        { label: "Rekap Marketing", db: "Rekap Marketing" },
+                                                        { label: "Cari Produk", db: "Cari Produk" }
+                                                    ],
+                                                    "Pengajuan": [
+                                                        { label: "Form UC", db: "Menu Pengajuan UC" },
+                                                        { label: "Riwayat UC", db: "Riwayat UC" },
+                                                        { label: "Persetujuan UC", db: "Menu Persetujuan UC" },
+                                                        { label: "Input BHP", db: "Menu Pengajuan BHP" },
+                                                        { label: "Rekap BHP", db: "Rekap BHP" },
+                                                        { label: "Pengajuan Pembayaran", db: "Menu Pengajuan Pembayaran" }
+                                                    ],
+                                                    "Finance": [
+                                                        { label: "Data Hutang", db: "Data Hutang" },
+                                                        { label: "Data Piutang", db: "Data Piutang" },
+                                                        { label: "Persetujuan Pembayaran", db: "Persetujuan Pembayaran" }
+                                                    ],
+                                                    "Logistik": [
+                                                        { label: "Laporan Logistik", db: "Laporan Logistik" },
+                                                        { label: "Surat Pesanan", db: "Surat Pesanan" },
+                                                        { label: "Data Penyedia", db: "Data Penyedia" },
+                                                        { label: "Data Produk", db: "Data Produk" },
+                                                        { label: "Kebutuhan Barang", db: "Kebutuhan Barang" },
+                                                        { label: "Data Outlet", db: "Data Outlet" },
+                                                        { label: "Pemetaan Outlet", db: "Pemetaan Outlet" }
+                                                    ],
+                                                    "Manajemen": [
+                                                        { label: "Data Armada", db: "Data Armada" },
+                                                        { label: "Data Perusahaan", db: "Data Perusahaan" },
+                                                        { label: "Data Pengguna", db: "Data Pengguna" },
+                                                        { label: "Manajemen SOP", db: "Manajemen SOP" },
+                                                        { label: "Rekap Absensi", db: "Rekap Absensi" }
+                                                    ],
+                                                    "Sistem": [
+                                                        { label: "Riwayat Perubahan", db: "Riwayat Perubahan" },
+                                                        { label: "Notifikasi", db: "Notifikasi" },
+                                                        { label: "Profil & Akun", db: "Profil & Akun" }
+                                                    ],
+                                                    "Spreadsheet": [
+                                                        { label: "Data Laporan Tersinkronisasi", db: "Data Laporan Tersinkronisasi" },
+                                                        { label: "Dashboard Laporan", db: "Dashboard Laporan" }
+                                                    ]
                                                 };
 
                                                 const groupedFeatures = {};
@@ -554,10 +594,10 @@ export default function Index({ users, divisions, positions, areas, roles, compa
 
                                                 Object.keys(groups).forEach(groupName => {
                                                     groupedFeatures[groupName] = [];
-                                                    groups[groupName].forEach(featureName => {
-                                                        const f = featureToggles.find(x => x.name.toLowerCase() === featureName.toLowerCase());
+                                                    groups[groupName].forEach(item => {
+                                                        const f = featureToggles.find(x => x.name.toLowerCase() === item.db.toLowerCase());
                                                         if (f) {
-                                                            groupedFeatures[groupName].push(f);
+                                                            groupedFeatures[groupName].push({ ...f, display_name: item.label });
                                                             usedIds.add(f.id);
                                                         }
                                                     });
@@ -566,7 +606,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 // Fitur lainnya yang belum dikelompokkan
                                                 const otherFeatures = featureToggles.filter(f => !usedIds.has(f.id));
                                                 if (otherFeatures.length > 0) {
-                                                    groupedFeatures["Lainnya"] = otherFeatures;
+                                                    groupedFeatures["Lainnya"] = otherFeatures.map(f => ({ ...f, display_name: f.name }));
                                                 }
 
                                                 return Object.entries(groupedFeatures).map(([groupName, features]) => {
@@ -589,7 +629,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                                 onClick={() => toggleFeature(feature.id)}
                                                                                 className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${isEnabled ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-gray-50 border-gray-200 opacity-70 hover:opacity-100 hover:border-indigo-300'}`}
                                                                             >
-                                                                                <span className={`text-sm font-medium ${isEnabled ? 'text-indigo-900' : 'text-gray-600'}`}>{feature.name}</span>
+                                                                                <span className={`text-sm font-medium ${isEnabled ? 'text-indigo-900' : 'text-gray-600'}`}>{feature.display_name}</span>
                                                                                 <button type="button" className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isEnabled ? 'bg-indigo-600' : 'bg-gray-300'}`}>
                                                                                     <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isEnabled ? 'translate-x-4' : 'translate-x-0'}`} />
                                                                                 </button>
