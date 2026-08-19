@@ -21,7 +21,7 @@ class MasterDataSeeder extends Seeder
         }
 
         // 2. Roles
-        $roles = ['Superadmin', 'Admin', 'Karyawan', 'Sales', 'Finance', 'Logistik', 'HR'];
+        $roles = ['LOGISTIK', 'FINANCE', 'MANAJEMEN', 'MARKETING', 'SUPERADMIN', 'STAFF'];
         foreach ($roles as $name) {
             Role::firstOrCreate(['name' => $name]);
         }
@@ -33,7 +33,7 @@ class MasterDataSeeder extends Seeder
         }
         
         // 4. Divisions
-        $divisions = ['Finance', 'Logistik', 'Management'];
+        $divisions = ['LOGISTIK', 'FINANCE', 'MANAJEMEN', 'MARKETING', 'SUPERADMIN', 'STAFF'];
         foreach ($divisions as $name) {
             Division::firstOrCreate(['name' => $name]);
         }

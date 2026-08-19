@@ -15,20 +15,13 @@ class PaymentModuleSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Divisions
-        $divisions = ['Purchasing', 'Marketing', 'HRGA', 'Admin Fakturis', 'Tax', 'PJT', 'Interior'];
-        foreach ($divisions as $division) {
-            Division::firstOrCreate(['name' => $division]);
-        }
+        // 1. Divisions (Di-handle di MasterDataSeeder)
 
-        // 2. Role General Accounting
-        $gaRole = Role::firstOrCreate(['name' => 'General Accounting', 'guard_name' => 'web']);
-        $apRole = Role::firstOrCreate(['name' => 'Finance', 'guard_name' => 'web']); // Account Payable
-        $directorRole = Role::firstOrCreate(['name' => 'Direktur', 'guard_name' => 'web']);
-        $managerRole = Role::firstOrCreate(['name' => 'Manager', 'guard_name' => 'web']);
-        $adminRole = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
-        $superadminRole = Role::firstOrCreate(['name' => 'Superadmin', 'guard_name' => 'web']);
-        $employeeRole = Role::firstOrCreate(['name' => 'Karyawan', 'guard_name' => 'web']);
+        // 2. Roles
+        $financeRole = Role::firstOrCreate(['name' => 'FINANCE', 'guard_name' => 'web']);
+        $superadminRole = Role::firstOrCreate(['name' => 'SUPERADMIN', 'guard_name' => 'web']);
+        $manajemenRole = Role::firstOrCreate(['name' => 'MANAJEMEN', 'guard_name' => 'web']);
+        $staffRole = Role::firstOrCreate(['name' => 'STAFF', 'guard_name' => 'web']);
 
         // 3. Permissions
         $permissions = [
@@ -57,7 +50,7 @@ class PaymentModuleSeeder extends Seeder
         // 4. Assign permissions to roles
         $superadminRole->givePermissionTo(Permission::all());
 
-        $employeeRole->syncPermissions([
+        $staffRole->syncPermissions([
             'payment-request.view-own',
             'payment-request.create',
             'payment-request.update-own',
@@ -65,7 +58,7 @@ class PaymentModuleSeeder extends Seeder
             'payment-request.submit',
         ]);
 
-        $managerRole->syncPermissions([
+        $manajemenRole->syncPermissions([
             'payment-request.view-own',
             'payment-request.create',
             'payment-request.update-own',
@@ -76,48 +69,37 @@ class PaymentModuleSeeder extends Seeder
             'payment-request.approve-supervisor',
         ]);
 
-        $apRole->syncPermissions([
+        $financeRole->syncPermissions([
             'payment-request.view-all',
             'payment-request.verify-finance',
             'payment-request.process-payment',
             'payment-request.export',
-        ]);
-
-        $gaRole->syncPermissions([
-            'payment-request.view-all',
             'payment-request.approve-ga',
-            'payment-request.export',
-        ]);
-
-        $directorRole->syncPermissions([
-            'payment-request.view-all',
-            'payment-request.approve-director',
-            'payment-request.export',
         ]);
 
         // 5. Thresholds
         if (PaymentApprovalThreshold::count() == 0) {
             PaymentApprovalThreshold::create([
-                'name' => 'Finance / Account Payable',
+                'name' => 'Finance',
                 'minimum_amount' => 0,
                 'maximum_amount' => 9999999.99,
-                'required_role' => 'Finance',
+                'required_role' => 'FINANCE',
                 'approval_order' => 1,
             ]);
 
             PaymentApprovalThreshold::create([
-                'name' => 'General Accounting',
+                'name' => 'Manajemen',
                 'minimum_amount' => 10000000,
                 'maximum_amount' => 49999999.99,
-                'required_role' => 'General Accounting',
+                'required_role' => 'MANAJEMEN',
                 'approval_order' => 2,
             ]);
 
             PaymentApprovalThreshold::create([
-                'name' => 'Direktur',
+                'name' => 'Direktur / Superadmin',
                 'minimum_amount' => 50000000,
                 'maximum_amount' => null,
-                'required_role' => 'Direktur',
+                'required_role' => 'SUPERADMIN',
                 'approval_order' => 3,
             ]);
         }

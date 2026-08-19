@@ -59,10 +59,10 @@ class DatabaseSeeder extends Seeder
         }
 
         // create roles and assign created permissions
-        $roleSuperadmin = Role::firstOrCreate(['name' => 'Superadmin']);
+        $roleSuperadmin = Role::firstOrCreate(['name' => 'SUPERADMIN']);
         $roleSuperadmin->syncPermissions(Permission::all());
 
-        $roleHR = Role::firstOrCreate(['name' => 'HR']);
+        $roleHR = Role::firstOrCreate(['name' => 'MANAJEMEN']);
         $roleHR->syncPermissions([
             'view users', 'create users', 'update users',
             'view absensi', 'create absensi', 'update absensi', 'export absensi',
@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
             'view pengajuan absensi', 'approve pengajuan absensi', 'reject pengajuan absensi',
         ]);
 
-        $roleSales = Role::firstOrCreate(['name' => 'Sales']);
+        $roleSales = Role::firstOrCreate(['name' => 'MARKETING']);
         $roleSales->syncPermissions([
             'view absensi', 'create absensi',
             'view pengajuan absensi', 'create pengajuan absensi',
@@ -88,6 +88,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
         
-        $user->assignRole('Superadmin');
+        $user->assignRole('SUPERADMIN');
     }
 }

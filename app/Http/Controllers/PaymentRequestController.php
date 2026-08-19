@@ -66,16 +66,13 @@ class PaymentRequestController extends Controller
 
         // RBAC for approvals
         $allowedStatuses = [];
-        if ($user->hasRole('Manager')) {
+        if ($user->hasRole('MANAJEMEN')) {
             $allowedStatuses[] = 'waiting_supervisor';
         }
-        if ($user->hasRole('General Accounting')) {
+        if ($user->hasRole('FINANCE')) {
             $allowedStatuses[] = 'waiting_ga';
         }
-        if ($user->hasRole('Direktur')) {
-            $allowedStatuses[] = 'waiting_director';
-        }
-        if ($user->hasRole('Superadmin')) {
+        if ($user->hasRole('SUPERADMIN')) {
             $allowedStatuses = ['waiting_supervisor', 'waiting_ga', 'waiting_director'];
         }
 
@@ -280,7 +277,7 @@ class PaymentRequestController extends Controller
         $user = Auth::user();
         
         // Check Access
-        if (!$user->hasRole('Superadmin') && !$user->hasPermissionTo('payment-request.view-all')) {
+        if (!$user->hasRole('SUPERADMIN') && !$user->hasPermissionTo('payment-request.view-all')) {
             if ($user->hasPermissionTo('payment-request.view-division') && $paymentRequest->division_id !== $user->division_id) {
                 abort(403);
             }
@@ -294,16 +291,16 @@ class PaymentRequestController extends Controller
         $canApprove = false;
         $canReject = false;
 
-        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('Manager')) {
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
             $canApprove = true;
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('General Accounting')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
             $canApprove = true;
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('Direktur')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('SUPERADMIN')) {
             $canApprove = true;
             $canReject = true;
-        } elseif ($user->hasRole('Superadmin') && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga', 'waiting_director'])) {
+        } elseif ($user->hasRole('SUPERADMIN') && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga', 'waiting_director'])) {
             $canApprove = true;
             $canReject = true;
         }
@@ -496,19 +493,19 @@ class PaymentRequestController extends Controller
         $nextStatus = '';
         $approvedField = '';
 
-        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('Manager')) {
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
             $canApprove = true;
             $nextStatus = 'waiting_ga';
             $approvedField = 'supervisor_approved_at';
-        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('General Accounting')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
             $canApprove = true;
             $nextStatus = 'waiting_director';
             $approvedField = 'finance_verified_at';
-        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('Direktur')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('SUPERADMIN')) {
             $canApprove = true;
             $nextStatus = 'approved';
             $approvedField = 'approved_for_payment_at';
-        } elseif ($user->hasRole('Superadmin')) {
+        } elseif ($user->hasRole('SUPERADMIN')) {
             $canApprove = true;
             if ($paymentRequest->workflow_status === 'waiting_supervisor') {
                 $nextStatus = 'waiting_ga';
@@ -557,13 +554,13 @@ class PaymentRequestController extends Controller
 
         $canReject = false;
 
-        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('Manager')) {
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('General Accounting')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('Direktur')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('SUPERADMIN')) {
             $canReject = true;
-        } elseif ($user->hasRole('Superadmin')) {
+        } elseif ($user->hasRole('SUPERADMIN')) {
             $canReject = in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga', 'waiting_director']);
         }
 
@@ -596,13 +593,13 @@ class PaymentRequestController extends Controller
         
         // Basic authorization check
         $canView = false;
-        if ($user->hasRole('Superadmin') || $user->hasPermissionTo('payment-request.view-all')) {
+        if ($user->hasRole('SUPERADMIN') || $user->hasPermissionTo('payment-request.view-all')) {
             $canView = true;
         } elseif ($user->hasPermissionTo('payment-request.view-division') && $paymentRequest->division_id == $user->division_id) {
             $canView = true;
         } elseif ($paymentRequest->requester_id == $user->id) {
             $canView = true;
-        } elseif ($user->hasRole('Manager') || $user->hasRole('General Accounting') || $user->hasRole('Direktur')) {
+        } elseif ($user->hasRole('MANAJEMEN') || $user->hasRole('FINANCE')) {
             // Approvers can view
             $canView = true;
         }

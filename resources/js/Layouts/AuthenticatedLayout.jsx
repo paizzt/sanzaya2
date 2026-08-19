@@ -173,10 +173,9 @@ export default function Authenticated({ user, header, children }) {
         { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, active: url === '/dashboard', show: auth.active_features?.includes(15) },
         { 
             name: 'Absensi', icon: Camera, show: auth.active_features?.includes(2) && hasPermission('view absensi'), 
-            active: url.startsWith('/absensi'),
+            active: url.startsWith('/absensi') && !url.startsWith('/absensi/rekap'),
             children: [
                 { name: 'Ambil Absensi', href: route('absensi.index'), active: url === '/absensi' },
-                { name: 'Rekap Absensi', href: route('absensi.rekap'), active: url.startsWith('/absensi/rekap'), show: hasPermission('view rekap absensi') },
                 { name: 'Izin/Sakit', href: route('absensi.pengajuan'), active: url.startsWith('/absensi/pengajuan') },
             ]
         },
@@ -224,13 +223,14 @@ export default function Authenticated({ user, header, children }) {
             ]
         },
         {
-            name: 'Manajemen', icon: Database, show: hasPermission('manage master data'),
-            active: url.startsWith('/vehicles') || url.startsWith('/company') || url.startsWith('/users') || url.startsWith('/sops'),
+            name: 'Manajemen', icon: Database, show: hasPermission('manage master data') || hasPermission('view rekap absensi'),
+            active: url.startsWith('/vehicles') || url.startsWith('/company') || url.startsWith('/users') || url.startsWith('/sops') || url.startsWith('/absensi/rekap'),
             children: [
                 { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_features?.includes(11) },
                 { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: auth.active_features?.includes(21) && hasPermission('manage company') },
                 { name: 'Data Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_features?.includes(6) && hasPermission('view users') },
                 { name: 'Manajemen SOP', href: route('sops.index'), active: url.startsWith('/sops'), show: auth.active_features?.includes(28) },
+                { name: 'Rekap Absensi', href: route('absensi.rekap'), active: url.startsWith('/absensi/rekap'), show: hasPermission('view rekap absensi') },
             ]
         },
         {
