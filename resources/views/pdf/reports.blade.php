@@ -79,6 +79,26 @@
             </tr>
         </table>
         @endif
+
+        @if(isset($summary['outlet_penjualan']) && count($summary['outlet_penjualan']) > 0)
+        <h4 style="margin-bottom: 5px; margin-top: 10px; font-size: 11px; color: #4b5563;">Top 8 Penjualan per Outlet</h4>
+        <table style="width: 100%; border: none;">
+            <tr>
+                @foreach(array_chunk(array_slice($summary['outlet_penjualan'], 0, 8, true), 4, true) as $chunk)
+                <td style="width: 50%; vertical-align: top; border: none; padding: 0;">
+                    <table style="width: 95%;">
+                        @foreach($chunk as $nama => $total)
+                        <tr>
+                            <th style="background:#e0f2fe; width:50%; font-size: 9px;">{{ Str::limit($nama, 25) }}</th>
+                            <td class="text-right font-bold" style="font-size: 9px;">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </table>
+                </td>
+                @endforeach
+            </tr>
+        </table>
+        @endif
     </div>
     @endif
 

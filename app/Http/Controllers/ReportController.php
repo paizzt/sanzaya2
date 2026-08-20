@@ -321,14 +321,19 @@ class ReportController extends Controller
         // --- HITUNG RINGKASAN ---
         $totalPenjualan = 0;
         $salesPenjualan = [];
+        $outletPenjualan = [];
         foreach ($logistik as $row) {
             $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
             $totalPenjualan += $val;
             
             $salesName = $row->nama_sales ?? '-';
             $salesPenjualan[$salesName] = ($salesPenjualan[$salesName] ?? 0) + $val;
+
+            $outletName = $row->pelanggan ?? '-';
+            $outletPenjualan[$outletName] = ($outletPenjualan[$outletName] ?? 0) + $val;
         }
         arsort($salesPenjualan);
+        arsort($outletPenjualan);
 
         $totalPiutang = 0;
         foreach ($piutang as $row) {
@@ -359,6 +364,7 @@ class ReportController extends Controller
             'pesanan_terkirim' => $pesananTerkirim,
             'pesanan_belum' => $pesananBelum,
             'sales_penjualan' => $salesPenjualan,
+            'outlet_penjualan' => $outletPenjualan,
         ];
 
         // --- BUAT GRAFIK (QUICKCHART.IO) ---
