@@ -326,13 +326,13 @@ class ReportController extends Controller
 
         $totalPiutang = 0;
         foreach ($piutang as $row) {
-            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->sisa_piutang);
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_gabungan);
             $totalPiutang += $val;
         }
 
         $totalHutang = 0;
         foreach ($hutang as $row) {
-            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->sisa_hutang);
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->nominal);
             $totalHutang += $val;
         }
 

@@ -69,7 +69,7 @@
             <tr>
                 <th>Tanggal</th>
                 <th>Nama Sales</th>
-                <th>Outlet</th>
+                <th>Outlet / Pelanggan</th>
                 <th>Produk</th>
                 <th class="text-right">Total (Rp)</th>
             </tr>
@@ -79,9 +79,9 @@
                 <tr>
                     <td>{{ $row->tanggal }}</td>
                     <td>{{ $row->nama_sales }}</td>
-                    <td>{{ $row->nama_outlet }}</td>
+                    <td>{{ $row->pelanggan }}</td>
                     <td>{{ $row->nama_produk }}</td>
-                    <td class="text-right">{{ $row->total_sales }}</td>
+                    <td class="text-right">{{ $row->grand_total }}</td>
                 </tr>
             @empty
                 <tr><td colspan="5" class="text-center">Tidak ada data logistik untuk periode ini</td></tr>
