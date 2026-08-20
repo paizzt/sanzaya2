@@ -47,19 +47,19 @@
                 @if(in_array('logistik', $datasets ?? []))
                 <td style="background-color: #3b82f6; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Penjualan</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan']/1000000, 2, ',', '.') }} Jt</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('piutang', $datasets ?? []))
                 <td style="background-color: #14b8a6; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Piutang</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang']/1000000, 2, ',', '.') }} Jt</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('hutang', $datasets ?? []))
                 <td style="background-color: #f59e0b; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Hutang</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang']/1000000, 2, ',', '.') }} Jt</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('pesanan', $datasets ?? []))
