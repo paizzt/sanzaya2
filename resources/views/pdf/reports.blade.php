@@ -39,37 +39,67 @@
 
     <!-- RINGKASAN -->
     @if(isset($summary))
-    <div style="margin-bottom: 30px;">
-        <h3 class="section-title">Ringkasan Eksekutif</h3>
-        <table style="width: 100%; border: none; margin-bottom: 10px;">
-            <tr style="border: none;">
-                <td style="width: 50%; vertical-align: top; border: none; padding: 0;">
-                    <table style="width: 95%;">
-                        @if(in_array('logistik', $datasets ?? []))
-                        <tr><th style="background:#e0f2fe; width:50%;">Total Penjualan</th><td class="text-right font-bold">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</td></tr>
-                        @endif
-                        @if(in_array('piutang', $datasets ?? []))
-                        <tr><th style="background:#fef3c7;">Total Piutang</th><td class="text-right">Rp {{ number_format($summary['total_piutang'], 0, ',', '.') }}</td></tr>
-                        @endif
-                        @if(in_array('hutang', $datasets ?? []))
-                        <tr><th style="background:#fee2e2;">Total Hutang</th><td class="text-right">Rp {{ number_format($summary['total_hutang'], 0, ',', '.') }}</td></tr>
-                        @endif
-                        @if(in_array('pesanan', $datasets ?? []))
-                        <tr><th style="background:#d1fae5;">Pesanan Terkirim</th><td class="text-right">{{ number_format($summary['pesanan_terkirim'], 0, ',', '.') }} Data</td></tr>
-                        <tr><th style="background:#fef2f2;">Pesanan Belum Terkirim</th><td class="text-right">{{ number_format($summary['pesanan_belum'], 0, ',', '.') }} Data</td></tr>
-                        @endif
-                    </table>
+    <div style="margin-bottom: 20px;">
+        <h3 class="section-title" style="margin-bottom: 5px;">Dashboard Eksekutif</h3>
+        
+        <table style="width: 100%; border-collapse: separate; border-spacing: 5px; margin-bottom: 10px; margin-left: -5px;">
+            <tr>
+                @if(in_array('logistik', $datasets ?? []))
+                <td style="background-color: #3b82f6; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Penjualan</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan']/1000000, 2, ',', '.') }} Jt</p>
                 </td>
-                <td style="width: 50%; vertical-align: top; border: none; padding: 0; text-align: center;">
-                    @if(isset($chartBase64))
-                    <img src="{{ $chartBase64 }}" style="max-width: 100%; height: auto; max-height: 180px; border: 1px solid #eee; padding: 5px; background: #fff; border-radius: 5px;" alt="Grafik Ringkasan" />
-                    @endif
+                @endif
+                @if(in_array('piutang', $datasets ?? []))
+                <td style="background-color: #14b8a6; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Piutang</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang']/1000000, 2, ',', '.') }} Jt</p>
                 </td>
+                @endif
+                @if(in_array('hutang', $datasets ?? []))
+                <td style="background-color: #f59e0b; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Hutang</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang']/1000000, 2, ',', '.') }} Jt</p>
+                </td>
+                @endif
+                @if(in_array('pesanan', $datasets ?? []))
+                <td style="background-color: #10b981; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Pesanan Terkirim</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_terkirim'], 0, ',', '.') }}</p>
+                </td>
+                <td style="background-color: #059669; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Belum Terkirim</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_belum'], 0, ',', '.') }}</p>
+                </td>
+                @endif
             </tr>
         </table>
-        
-        @if(in_array('logistik', $datasets ?? []) && isset($summary['sales_penjualan']) && count($summary['sales_penjualan']) > 0)
-        <h4 style="margin-bottom: 5px; font-size: 11px; color: #4b5563;">Rincian Penjualan per Sales</h4>
+
+        <!-- Charts Grid -->
+        <table style="width: 100%; border-collapse: separate; border-spacing: 10px; margin-left: -10px; margin-bottom: 5px;">
+            <tr>
+                @if(in_array('logistik', $datasets ?? []) && !empty($charts['outlets']))
+                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 45%;">
+                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Top 5 Outlet (Juta)</h4>
+                    <img src="{{ $charts['outlets'] }}" style="width: 100%; max-height: 150px;" />
+                </td>
+                @endif
+
+                @if((in_array('piutang', $datasets ?? []) || in_array('hutang', $datasets ?? [])) && !empty($charts['piutang_hutang']))
+                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 30%;">
+                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Piutang vs Hutang (Juta)</h4>
+                    <img src="{{ $charts['piutang_hutang'] }}" style="width: 100%; max-height: 150px;" />
+                </td>
+                @endif
+                
+                @if(in_array('pesanan', $datasets ?? []) && !empty($charts['pesanan']))
+                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 25%;">
+                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Status Pesanan</h4>
+                    <img src="{{ $charts['pesanan'] }}" style="max-height: 130px;" />
+                </td>
+                @endif
+            </tr>
+        </table>
         <table style="width: 100%; border: none;">
             <tr>
                 @foreach(array_chunk(array_slice($summary['sales_penjualan'], 0, 8, true), 4, true) as $chunk)

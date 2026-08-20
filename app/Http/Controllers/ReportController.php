@@ -299,24 +299,62 @@ class ReportController extends Controller
             $days = 365;
         }
 
-        $dateStrings = [];
-        $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        for ($i = 0; $i < $days; $i++) {
-            $d = Carbon::today()->subDays($i);
-            $m = $months[$d->month - 1];
-            $dateStrings[] = $d->format('j') . ' ' . $m . ' ' . $d->format('Y');
-            $dateStrings[] = $d->format('d') . ' ' . $m . ' ' . $d->format('Y');
+        $selectedMonths = $request->query('months', []);
+        $monthsNameMap = [
+            '1' => 'Januari', '2' => 'Februari', '3' => 'Maret', '4' => 'April',
+            '5' => 'Mei', '6' => 'Juni', '7' => 'Juli', '8' => 'Agustus',
+            '9' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+        ];
+
+        if (!empty($selectedMonths)) {
+            $currentYear = \Carbon\Carbon::now()->year;
+            $title = "Laporan Rekapitulasi (Bulan Pilihan Tahun $currentYear)";
+            
+            $logistik = SyncLogistikData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
+                foreach($selectedMonths as $m) {
+                    $q->orWhere('tanggal', 'LIKE', '%' . $monthsNameMap[$m] . ' ' . $currentYear . '%');
+                }
+            })->get();
+            
+            $pesanan = SyncPesananData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
+                foreach($selectedMonths as $m) {
+                    $q->orWhere('tanggal', 'LIKE', '%' . $monthsNameMap[$m] . ' ' . $currentYear . '%');
+                }
+            })->get();
+            
+            $piutang = SyncPiutangData::whereYear('created_at', $currentYear)
+                ->where(function($q) use ($selectedMonths) {
+                    foreach($selectedMonths as $m) {
+                        $q->orWhereMonth('created_at', $m);
+                    }
+                })->get();
+                
+            $hutang = SyncHutangData::whereYear('created_at', $currentYear)
+                ->where(function($q) use ($selectedMonths) {
+                    foreach($selectedMonths as $m) {
+                        $q->orWhereMonth('created_at', $m);
+                    }
+                })->get();
+        } else {
+            $dateStrings = [];
+            $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            for ($i = 0; $i < $days; $i++) {
+                $d = Carbon::today()->subDays($i);
+                $m = $months[$d->month - 1];
+                $dateStrings[] = $d->format('j') . ' ' . $m . ' ' . $d->format('Y');
+                $dateStrings[] = $d->format('d') . ' ' . $m . ' ' . $d->format('Y');
+            }
+            $dateStrings = array_unique($dateStrings);
+
+            $startDate = Carbon::today()->subDays($days - 1);
+
+            $title = "Laporan Rekapitulasi (" . ucwords(str_replace('_', ' ', $period)) . ")";
+
+            $logistik = SyncLogistikData::whereIn('tanggal', $dateStrings)->get();
+            $pesanan = SyncPesananData::whereIn('tanggal', $dateStrings)->get();
+            $piutang = SyncPiutangData::where('created_at', '>=', $startDate)->get();
+            $hutang = SyncHutangData::where('created_at', '>=', $startDate)->get();
         }
-        $dateStrings = array_unique($dateStrings);
-
-        $startDate = Carbon::today()->subDays($days - 1);
-
-        $title = "Laporan Rekapitulasi (" . ucwords(str_replace('_', ' ', $period)) . ")";
-
-        $logistik = SyncLogistikData::whereIn('tanggal', $dateStrings)->get();
-        $pesanan = SyncPesananData::whereIn('tanggal', $dateStrings)->get();
-        $piutang = SyncPiutangData::where('created_at', '>=', $startDate)->get();
-        $hutang = SyncHutangData::where('created_at', '>=', $startDate)->get();
 
         // --- HITUNG RINGKASAN ---
         $totalPenjualan = 0;
@@ -368,67 +406,68 @@ class ReportController extends Controller
         ];
 
         // --- BUAT GRAFIK (QUICKCHART.IO) ---
-        $chartLabels = [];
-        $chartDataValues = [];
-        $chartColors = [];
-
-        if (in_array('logistik', $datasets)) {
-            $chartLabels[] = 'Penjualan';
-            $chartDataValues[] = round($totalPenjualan / 1000000, 2);
-            $chartColors[] = '#3b82f6';
-        }
-        if (in_array('piutang', $datasets)) {
-            $chartLabels[] = 'Piutang';
-            $chartDataValues[] = round($totalPiutang / 1000000, 2);
-            $chartColors[] = '#f59e0b';
-        }
-        if (in_array('hutang', $datasets)) {
-            $chartLabels[] = 'Hutang';
-            $chartDataValues[] = round($totalHutang / 1000000, 2);
-            $chartColors[] = '#ef4444';
-        }
-
-        $chartConfig = [
-            'type' => 'bar',
-            'data' => [
-                'labels' => $chartLabels,
-                'datasets' => [[
-                    'label' => 'Total (Jutaan Rupiah)',
-                    'data' => $chartDataValues,
-                    'backgroundColor' => $chartColors
-                ]]
-            ],
-            'options' => [
-                'plugins' => [
-                    'datalabels' => [
-                        'anchor' => 'end',
-                        'align' => 'top',
-                        'font' => ['weight' => 'bold']
-                    ]
-                ],
-                'scales' => [
-                    'yAxes' => [[
-                        'ticks' => ['beginAtZero' => true]
-                    ]]
-                ]
-            ]
+        $charts = [
+            'piutang_hutang' => null,
+            'pesanan' => null,
+            'outlets' => null,
         ];
-        
-        $chartBase64 = null;
-        if (count($chartLabels) > 0) {
-            $chartUrl = 'https://quickchart.io/chart?w=500&h=300&c=' . urlencode(json_encode($chartConfig));
-            // Fetch image via cURL to avoid DOMPDF remote issues, convert to base64
+
+        // 1. Chart Piutang vs Hutang
+        if (in_array('piutang', $datasets) || in_array('hutang', $datasets)) {
+            $phLabels = [];
+            $phData = [];
+            $phColors = [];
+            if (in_array('piutang', $datasets)) { $phLabels[] = 'Piutang'; $phData[] = round($totalPiutang / 1000000, 2); $phColors[] = '#f59e0b'; }
+            if (in_array('hutang', $datasets)) { $phLabels[] = 'Hutang'; $phData[] = round($totalHutang / 1000000, 2); $phColors[] = '#ef4444'; }
+            
+            $configPH = [
+                'type' => 'bar',
+                'data' => [
+                    'labels' => $phLabels,
+                    'datasets' => [['label' => 'Total (Juta)', 'data' => $phData, 'backgroundColor' => $phColors]]
+                ],
+                'options' => ['scales' => ['yAxes' => [['ticks' => ['beginAtZero' => true]]]]]
+            ];
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(10)->get($chartUrl);
-                if ($response->successful()) {
-                    $chartBase64 = 'data:image/png;base64,' . base64_encode($response->body());
-                }
-            } catch (\Exception $e) {
-                // Jika gagal ambil gambar grafik, biarkan kosong
-            }
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=300&h=200&c=' . urlencode(json_encode($configPH)));
+                if ($res->successful()) $charts['piutang_hutang'] = 'data:image/png;base64,' . base64_encode($res->body());
+            } catch (\Exception $e) {}
         }
 
-        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'chartBase64', 'datasets'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        // 2. Chart Doughnut Pesanan
+        if (in_array('pesanan', $datasets)) {
+            $configPesanan = [
+                'type' => 'doughnut',
+                'data' => [
+                    'labels' => ['Terkirim', 'Belum'],
+                    'datasets' => [['data' => [$pesananTerkirim, $pesananBelum], 'backgroundColor' => ['#10b981', '#f43f5e']]]
+                ],
+                'options' => ['plugins' => ['datalabels' => ['color' => '#fff']]]
+            ];
+            try {
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=250&h=200&c=' . urlencode(json_encode($configPesanan)));
+                if ($res->successful()) $charts['pesanan'] = 'data:image/png;base64,' . base64_encode($res->body());
+            } catch (\Exception $e) {}
+        }
+
+        // 3. Chart Top Outlets
+        if (in_array('logistik', $datasets) && !empty($outletPenjualan)) {
+            $topOutlets = array_slice($outletPenjualan, 0, 5, true);
+            $configOutlets = [
+                'type' => 'bar',
+                'data' => [
+                    'labels' => array_map(function($l) { return \Illuminate\Support\Str::limit($l, 10); }, array_keys($topOutlets)),
+                    'datasets' => [['label' => 'Penjualan (Juta)', 'data' => array_map(function($v) { return round($v/1000000, 2); }, array_values($topOutlets)), 'backgroundColor' => '#8b5cf6']]
+                ],
+                'options' => ['scales' => ['yAxes' => [['ticks' => ['beginAtZero' => true]]]]]
+            ];
+            try {
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=400&h=200&c=' . urlencode(json_encode($configOutlets)));
+                if ($res->successful()) $charts['outlets'] = 'data:image/png;base64,' . base64_encode($res->body());
+            } catch (\Exception $e) {}
+        }
+
+        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'charts', 'datasets'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
     }
 }

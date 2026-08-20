@@ -20,6 +20,9 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     
     // Dataset Selection State
     const [selectedDatasets, setSelectedDatasets] = useState(['logistik', 'pesanan', 'piutang', 'hutang']);
+    
+    // Month Filter State
+    const [selectedMonths, setSelectedMonths] = useState([]);
 
     const handleOpen = () => setIsOpen(true);
     const handleClose = () => setIsOpen(false);
@@ -38,6 +41,14 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             prev.includes(ds) 
                 ? prev.filter(d => d !== ds) 
                 : [...prev, ds]
+        );
+    };
+
+    const toggleMonth = (m) => {
+        setSelectedMonths(prev => 
+            prev.includes(m) 
+                ? prev.filter(x => x !== m) 
+                : [...prev, m]
         );
     };
 
@@ -61,6 +72,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             params.append('font', fontFamily);
             params.append('size', fontSize);
             selectedDatasets.forEach(ds => params.append('datasets[]', ds));
+            selectedMonths.forEach(m => params.append('months[]', m));
         }
         
         return `${resultUrl}${separator}${params.toString()}`;
@@ -119,6 +131,29 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                                         className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
                                                     />
                                                     {ds.label}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Bulan Ditampilkan */}
+                                    <div className="mb-4">
+                                        <label className="block text-xs font-medium text-gray-700 mb-2">Bulan (Opsional)</label>
+                                        <div className="grid grid-cols-2 gap-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
+                                            {[
+                                                { id: '1', label: 'Januari' }, { id: '2', label: 'Februari' }, { id: '3', label: 'Maret' },
+                                                { id: '4', label: 'April' }, { id: '5', label: 'Mei' }, { id: '6', label: 'Juni' },
+                                                { id: '7', label: 'Juli' }, { id: '8', label: 'Agustus' }, { id: '9', label: 'September' },
+                                                { id: '10', label: 'Oktober' }, { id: '11', label: 'November' }, { id: '12', label: 'Desember' }
+                                            ].map((m) => (
+                                                <label key={m.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={selectedMonths.includes(m.id)}
+                                                        onChange={() => toggleMonth(m.id)}
+                                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                    />
+                                                    {m.label}
                                                 </label>
                                             ))}
                                         </div>
