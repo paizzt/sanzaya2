@@ -17,6 +17,9 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
         // Default to all columns if provided
         return availableColumns.length > 0 ? [...availableColumns] : [];
     });
+    
+    // Dataset Selection State
+    const [selectedDatasets, setSelectedDatasets] = useState(['logistik', 'pesanan', 'piutang', 'hutang']);
 
     const handleOpen = () => setIsOpen(true);
     const handleClose = () => setIsOpen(false);
@@ -27,6 +30,14 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             prev.includes(col) 
                 ? prev.filter(c => c !== col) 
                 : [...prev, col]
+        );
+    };
+
+    const toggleDataset = (ds) => {
+        setSelectedDatasets(prev => 
+            prev.includes(ds) 
+                ? prev.filter(d => d !== ds) 
+                : [...prev, ds]
         );
     };
 
@@ -49,6 +60,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             params.append('orientation', orientation);
             params.append('font', fontFamily);
             params.append('size', fontSize);
+            selectedDatasets.forEach(ds => params.append('datasets[]', ds));
         }
         
         return `${resultUrl}${separator}${params.toString()}`;
@@ -90,6 +102,28 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                 </h3>
                                 
                                 <div className="space-y-4">
+                                    <div className="mb-4">
+                                        <label className="block text-xs font-medium text-gray-700 mb-2">Data Ditampilkan</label>
+                                        <div className="space-y-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg">
+                                            {[
+                                                { id: 'logistik', label: 'Data Logistik' },
+                                                { id: 'pesanan', label: 'Surat Pesanan' },
+                                                { id: 'piutang', label: 'Data Piutang' },
+                                                { id: 'hutang', label: 'Data Hutang' }
+                                            ].map((ds) => (
+                                                <label key={ds.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={selectedDatasets.includes(ds.id)}
+                                                        onChange={() => toggleDataset(ds.id)}
+                                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                    />
+                                                    {ds.label}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     {availableColumns.length > 0 && (
                                         <div className="mb-4">
                                             <label className="block text-xs font-medium text-gray-700 mb-2">Kolom Ditampilkan</label>

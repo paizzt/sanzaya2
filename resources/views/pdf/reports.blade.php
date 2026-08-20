@@ -59,9 +59,30 @@
                 </td>
             </tr>
         </table>
+        
+        @if(isset($summary['sales_penjualan']) && count($summary['sales_penjualan']) > 0)
+        <h4 style="margin-bottom: 5px; font-size: 11px; color: #4b5563;">Rincian Penjualan per Sales</h4>
+        <table style="width: 100%; border: none;">
+            <tr>
+                @foreach(array_chunk(array_slice($summary['sales_penjualan'], 0, 8, true), 4, true) as $chunk)
+                <td style="width: 50%; vertical-align: top; border: none; padding: 0;">
+                    <table style="width: 95%;">
+                        @foreach($chunk as $nama => $total)
+                        <tr>
+                            <th style="background:#f3f4f6; width:50%;">{{ $nama }}</th>
+                            <td class="text-right font-bold">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </table>
+                </td>
+                @endforeach
+            </tr>
+        </table>
+        @endif
     </div>
     @endif
 
+    @if(in_array('logistik', $datasets ?? []))
     <!-- LOGISTIK -->
     <h3 class="section-title">1. Data Logistik</h3>
     <table>
@@ -88,7 +109,9 @@
             @endforelse
         </tbody>
     </table>
+    @endif
 
+    @if(in_array('pesanan', $datasets ?? []))
     <!-- SURAT PESANAN -->
     <h3 class="section-title">2. Data Surat Pesanan</h3>
     <table>
@@ -122,7 +145,9 @@
             @endforelse
         </tbody>
     </table>
+    @endif
 
+    @if(in_array('piutang', $datasets ?? []))
     <!-- DATA PIUTANG -->
     <div class="page-break"></div>
     <h3 class="section-title">3. Data Piutang</h3>
@@ -160,8 +185,11 @@
             @endforelse
         </tbody>
     </table>
+    @endif
 
+    @if(in_array('hutang', $datasets ?? []))
     <!-- DATA HUTANG -->
+    <div class="page-break"></div>
     <h3 class="section-title">4. Data Hutang</h3>
     <table>
         <thead>
@@ -183,6 +211,7 @@
             @endforelse
         </tbody>
     </table>
+    @endif
 
     <div style="margin-top: 40px; float: right; text-align: center; width: 250px;">
         <p>Makassar, {{ \Carbon\Carbon::now()->format('d M Y') }}</p>

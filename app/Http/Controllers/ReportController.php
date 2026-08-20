@@ -288,6 +288,7 @@ class ReportController extends Controller
 
         $tab = $request->query('tab', 'logistik');
         $period = $request->query('period', '1_bulan'); 
+        $datasets = $request->query('datasets', ['logistik', 'pesanan', 'piutang', 'hutang']);
 
         $days = 1;
         if ($period === '1_minggu') {
@@ -319,10 +320,15 @@ class ReportController extends Controller
 
         // --- HITUNG RINGKASAN ---
         $totalPenjualan = 0;
+        $salesPenjualan = [];
         foreach ($logistik as $row) {
             $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
             $totalPenjualan += $val;
+            
+            $salesName = $row->nama_sales ?? '-';
+            $salesPenjualan[$salesName] = ($salesPenjualan[$salesName] ?? 0) + $val;
         }
+        arsort($salesPenjualan);
 
         $totalPiutang = 0;
         foreach ($piutang as $row) {
@@ -352,6 +358,7 @@ class ReportController extends Controller
             'total_hutang' => $totalHutang,
             'pesanan_terkirim' => $pesananTerkirim,
             'pesanan_belum' => $pesananBelum,
+            'sales_penjualan' => $salesPenjualan,
         ];
 
         // --- BUAT GRAFIK (QUICKCHART.IO) ---
@@ -393,7 +400,7 @@ class ReportController extends Controller
             // Jika gagal ambil gambar grafik, biarkan kosong
         }
 
-        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'chartBase64'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'chartBase64', 'datasets'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
     }
 }
