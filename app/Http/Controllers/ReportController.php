@@ -471,7 +471,7 @@ class ReportController extends Controller
             } catch (\Exception $e) {}
         }
 
-        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'charts', 'datasets'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'charts', 'datasets'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
         return request()->has('preview') ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());

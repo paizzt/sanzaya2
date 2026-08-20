@@ -8,7 +8,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
 
     // PDF Settings State
     const [paperSize, setPaperSize] = useState('a4');
-    const [orientation, setOrientation] = useState('landscape');
+    const [orientation, setOrientation] = useState('portrait');
     const [fontFamily, setFontFamily] = useState('sans-serif');
     const [fontSize, setFontSize] = useState('12');
     
