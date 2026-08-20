@@ -317,7 +317,83 @@ class ReportController extends Controller
         $piutang = SyncPiutangData::where('created_at', '>=', $startDate)->get();
         $hutang = SyncHutangData::where('created_at', '>=', $startDate)->get();
 
-        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        // --- HITUNG RINGKASAN ---
+        $totalPenjualan = 0;
+        foreach ($logistik as $row) {
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
+            $totalPenjualan += $val;
+        }
+
+        $totalPiutang = 0;
+        foreach ($piutang as $row) {
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->sisa_piutang);
+            $totalPiutang += $val;
+        }
+
+        $totalHutang = 0;
+        foreach ($hutang as $row) {
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->sisa_hutang);
+            $totalHutang += $val;
+        }
+
+        $pesananTerkirim = 0;
+        $pesananBelum = 0;
+        foreach ($pesanan as $row) {
+            if (strtolower(trim($row->status_pengiriman)) === 'terkirim') {
+                $pesananTerkirim++;
+            } else {
+                $pesananBelum++;
+            }
+        }
+
+        $summary = [
+            'total_penjualan' => $totalPenjualan,
+            'total_piutang' => $totalPiutang,
+            'total_hutang' => $totalHutang,
+            'pesanan_terkirim' => $pesananTerkirim,
+            'pesanan_belum' => $pesananBelum,
+        ];
+
+        // --- BUAT GRAFIK (QUICKCHART.IO) ---
+        $chartConfig = [
+            'type' => 'bar',
+            'data' => [
+                'labels' => ['Penjualan', 'Piutang', 'Hutang'],
+                'datasets' => [[
+                    'label' => 'Total (Jutaan Rupiah)',
+                    'data' => [round($totalPenjualan/1000000, 2), round($totalPiutang/1000000, 2), round($totalHutang/1000000, 2)],
+                    'backgroundColor' => ['#3b82f6', '#f59e0b', '#ef4444']
+                ]]
+            ],
+            'options' => [
+                'plugins' => [
+                    'datalabels' => [
+                        'anchor' => 'end',
+                        'align' => 'top',
+                        'font' => ['weight' => 'bold']
+                    ]
+                ],
+                'scales' => [
+                    'yAxes' => [[
+                        'ticks' => ['beginAtZero' => true]
+                    ]]
+                ]
+            ]
+        ];
+        $chartUrl = 'https://quickchart.io/chart?w=500&h=300&c=' . urlencode(json_encode($chartConfig));
+
+        // Fetch image via cURL to avoid DOMPDF remote issues, convert to base64
+        $chartBase64 = null;
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($chartUrl);
+            if ($response->successful()) {
+                $chartBase64 = 'data:image/png;base64,' . base64_encode($response->body());
+            }
+        } catch (\Exception $e) {
+            // Jika gagal ambil gambar grafik, biarkan kosong
+        }
+
+        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'chartBase64'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
     }
 }
