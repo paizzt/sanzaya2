@@ -283,12 +283,14 @@ class ReportController extends Controller
 
     public function exportPdf(Request $request)
     {
-        ini_set('memory_limit', '2G');
-        set_time_limit(300);
+        try {
+            ini_set('memory_limit', '2G');
+            set_time_limit(300);
 
-        $tab = $request->query('tab', 'logistik');
-        $period = $request->query('period', '1_bulan'); 
-        $datasets = $request->query('datasets', ['logistik', 'pesanan', 'piutang', 'hutang']);
+            $tab = $request->query('tab', 'logistik');
+            $period = $request->query('period', '1_bulan'); 
+            $datasets = $request->query('datasets', ['logistik', 'pesanan', 'piutang', 'hutang']);
+            if (!is_array($datasets)) $datasets = [$datasets];
 
         $days = 1;
         if ($period === '1_minggu') {
@@ -300,6 +302,8 @@ class ReportController extends Controller
         }
 
         $selectedMonths = $request->query('months', []);
+        if (!is_array($selectedMonths)) $selectedMonths = [$selectedMonths];
+
         $monthsNameMap = [
             '1' => 'Januari', '2' => 'Februari', '3' => 'Maret', '4' => 'April',
             '5' => 'Mei', '6' => 'Juni', '7' => 'Juli', '8' => 'Agustus',
@@ -469,5 +473,9 @@ class ReportController extends Controller
 
         $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'charts', 'datasets'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+            throw $e;
+        }
     }
 }
