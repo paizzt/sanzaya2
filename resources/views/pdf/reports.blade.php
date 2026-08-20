@@ -116,7 +116,6 @@
                 @endforeach
             </tr>
         </table>
-        @endif
 
         @if(in_array('logistik', $datasets ?? []) && isset($summary['outlet_penjualan']) && count($summary['outlet_penjualan']) > 0)
         <h4 style="margin-bottom: 5px; margin-top: 10px; font-size: 11px; color: #4b5563;">Top 8 Penjualan per Outlet</h4>
