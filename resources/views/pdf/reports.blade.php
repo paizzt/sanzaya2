@@ -79,23 +79,23 @@
         <table style="width: 100%; border-collapse: separate; border-spacing: 10px; margin-left: -10px; margin-bottom: 5px;">
             <tr>
                 @if(in_array('logistik', $datasets ?? []) && !empty($charts['outlets']))
-                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 45%;">
+                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 45%; vertical-align: middle;">
                     <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Top 5 Outlet (Juta)</h4>
-                    <img src="{{ $charts['outlets'] }}" style="width: 100%; max-height: 150px;" />
+                    <img src="{{ $charts['outlets'] }}" style="width: 100%; height: auto;" />
                 </td>
                 @endif
 
                 @if((in_array('piutang', $datasets ?? []) || in_array('hutang', $datasets ?? [])) && !empty($charts['piutang_hutang']))
-                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 30%;">
+                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 30%; vertical-align: middle;">
                     <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Piutang vs Hutang (Juta)</h4>
-                    <img src="{{ $charts['piutang_hutang'] }}" style="width: 100%; max-height: 150px;" />
+                    <img src="{{ $charts['piutang_hutang'] }}" style="width: 100%; height: auto;" />
                 </td>
                 @endif
                 
                 @if(in_array('pesanan', $datasets ?? []) && !empty($charts['pesanan']))
-                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 25%;">
+                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 25%; vertical-align: middle;">
                     <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Status Pesanan</h4>
-                    <img src="{{ $charts['pesanan'] }}" style="max-height: 130px;" />
+                    <img src="{{ $charts['pesanan'] }}" style="width: 100%; height: auto;" />
                 </td>
                 @endif
             </tr>
