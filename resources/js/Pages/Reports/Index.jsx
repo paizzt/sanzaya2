@@ -26,7 +26,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsDownloadOpen(false);
+                // Prevent closing if clicking inside the PDF preview modal
+                if (!event.target.closest('#modal') && !event.target.closest('[role="dialog"]')) {
+                    setIsDownloadOpen(false);
+                }
             }
             if (tabDropdownRef.current && !tabDropdownRef.current.contains(event.target)) {
                 setIsTabDropdownOpen(false);
