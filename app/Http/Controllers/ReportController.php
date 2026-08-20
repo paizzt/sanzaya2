@@ -368,14 +368,34 @@ class ReportController extends Controller
         ];
 
         // --- BUAT GRAFIK (QUICKCHART.IO) ---
+        $chartLabels = [];
+        $chartDataValues = [];
+        $chartColors = [];
+
+        if (in_array('logistik', $datasets)) {
+            $chartLabels[] = 'Penjualan';
+            $chartDataValues[] = round($totalPenjualan / 1000000, 2);
+            $chartColors[] = '#3b82f6';
+        }
+        if (in_array('piutang', $datasets)) {
+            $chartLabels[] = 'Piutang';
+            $chartDataValues[] = round($totalPiutang / 1000000, 2);
+            $chartColors[] = '#f59e0b';
+        }
+        if (in_array('hutang', $datasets)) {
+            $chartLabels[] = 'Hutang';
+            $chartDataValues[] = round($totalHutang / 1000000, 2);
+            $chartColors[] = '#ef4444';
+        }
+
         $chartConfig = [
             'type' => 'bar',
             'data' => [
-                'labels' => ['Penjualan', 'Piutang', 'Hutang'],
+                'labels' => $chartLabels,
                 'datasets' => [[
                     'label' => 'Total (Jutaan Rupiah)',
-                    'data' => [round($totalPenjualan/1000000, 2), round($totalPiutang/1000000, 2), round($totalHutang/1000000, 2)],
-                    'backgroundColor' => ['#3b82f6', '#f59e0b', '#ef4444']
+                    'data' => $chartDataValues,
+                    'backgroundColor' => $chartColors
                 ]]
             ],
             'options' => [
@@ -393,17 +413,19 @@ class ReportController extends Controller
                 ]
             ]
         ];
-        $chartUrl = 'https://quickchart.io/chart?w=500&h=300&c=' . urlencode(json_encode($chartConfig));
-
-        // Fetch image via cURL to avoid DOMPDF remote issues, convert to base64
+        
         $chartBase64 = null;
-        try {
-            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($chartUrl);
-            if ($response->successful()) {
-                $chartBase64 = 'data:image/png;base64,' . base64_encode($response->body());
+        if (count($chartLabels) > 0) {
+            $chartUrl = 'https://quickchart.io/chart?w=500&h=300&c=' . urlencode(json_encode($chartConfig));
+            // Fetch image via cURL to avoid DOMPDF remote issues, convert to base64
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(10)->get($chartUrl);
+                if ($response->successful()) {
+                    $chartBase64 = 'data:image/png;base64,' . base64_encode($response->body());
+                }
+            } catch (\Exception $e) {
+                // Jika gagal ambil gambar grafik, biarkan kosong
             }
-        } catch (\Exception $e) {
-            // Jika gagal ambil gambar grafik, biarkan kosong
         }
 
         $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'chartBase64', 'datasets'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
