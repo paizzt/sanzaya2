@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Download, FileText, Sheet, X, Settings2 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 
-export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null, availableColumns = [] }) {
+export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null, availableColumns = [], isReportDashboard = false }) {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(pdfRoute ? 'pdf' : 'excel');
 
@@ -114,50 +114,54 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                 </h3>
                                 
                                 <div className="space-y-4">
-                                    <div className="mb-4">
-                                        <label className="block text-xs font-medium text-gray-700 mb-2">Data Ditampilkan</label>
-                                        <div className="space-y-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg">
-                                            {[
-                                                { id: 'logistik', label: 'Data Logistik' },
-                                                { id: 'pesanan', label: 'Surat Pesanan' },
-                                                { id: 'piutang', label: 'Data Piutang' },
-                                                { id: 'hutang', label: 'Data Hutang' }
-                                            ].map((ds) => (
-                                                <label key={ds.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={selectedDatasets.includes(ds.id)}
-                                                        onChange={() => toggleDataset(ds.id)}
-                                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
-                                                    />
-                                                    {ds.label}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
+                                    {isReportDashboard && (
+                                        <>
+                                            <div className="mb-4">
+                                                <label className="block text-xs font-medium text-gray-700 mb-2">Data Ditampilkan</label>
+                                                <div className="space-y-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg">
+                                                    {[
+                                                        { id: 'logistik', label: 'Data Logistik' },
+                                                        { id: 'pesanan', label: 'Surat Pesanan' },
+                                                        { id: 'piutang', label: 'Data Piutang' },
+                                                        { id: 'hutang', label: 'Data Hutang' }
+                                                    ].map((ds) => (
+                                                        <label key={ds.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={selectedDatasets.includes(ds.id)}
+                                                                onChange={() => toggleDataset(ds.id)}
+                                                                className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                            />
+                                                            {ds.label}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
 
-                                    {/* Bulan Ditampilkan */}
-                                    <div className="mb-4">
-                                        <label className="block text-xs font-medium text-gray-700 mb-2">Bulan (Opsional)</label>
-                                        <div className="grid grid-cols-2 gap-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
-                                            {[
-                                                { id: '1', label: 'Januari' }, { id: '2', label: 'Februari' }, { id: '3', label: 'Maret' },
-                                                { id: '4', label: 'April' }, { id: '5', label: 'Mei' }, { id: '6', label: 'Juni' },
-                                                { id: '7', label: 'Juli' }, { id: '8', label: 'Agustus' }, { id: '9', label: 'September' },
-                                                { id: '10', label: 'Oktober' }, { id: '11', label: 'November' }, { id: '12', label: 'Desember' }
-                                            ].map((m) => (
-                                                <label key={m.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={selectedMonths.includes(m.id)}
-                                                        onChange={() => toggleMonth(m.id)}
-                                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
-                                                    />
-                                                    {m.label}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
+                                            {/* Bulan Ditampilkan */}
+                                            <div className="mb-4">
+                                                <label className="block text-xs font-medium text-gray-700 mb-2">Bulan (Opsional)</label>
+                                                <div className="grid grid-cols-2 gap-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
+                                                    {[
+                                                        { id: '1', label: 'Januari' }, { id: '2', label: 'Februari' }, { id: '3', label: 'Maret' },
+                                                        { id: '4', label: 'April' }, { id: '5', label: 'Mei' }, { id: '6', label: 'Juni' },
+                                                        { id: '7', label: 'Juli' }, { id: '8', label: 'Agustus' }, { id: '9', label: 'September' },
+                                                        { id: '10', label: 'Oktober' }, { id: '11', label: 'November' }, { id: '12', label: 'Desember' }
+                                                    ].map((m) => (
+                                                        <label key={m.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={selectedMonths.includes(m.id)}
+                                                                onChange={() => toggleMonth(m.id)}
+                                                                className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                            />
+                                                            {m.label}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
 
                                     {availableColumns.length > 0 && (
                                         <div className="mb-4">
