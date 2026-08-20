@@ -25,8 +25,8 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="window.location.reload()" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
-                    Muat Ulang Halaman
+                <button onclick="window.history.back()" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
+                    Kembali ke Halaman Sebelumnya
                 </button>
                 <a href="{{ url('/') }}" class="inline-flex justify-center items-center px-6 py-3 border border-gray-200 text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
                     Kembali ke Beranda
