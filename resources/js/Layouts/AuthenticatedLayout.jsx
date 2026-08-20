@@ -301,7 +301,7 @@ export default function Authenticated({ user, header, children }) {
             {/* Main Content Area */}
             <div className={`flex-1 min-w-0 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
                 {/* Topbar */}
-                <header className="bg-white/80 backdrop-blur-md sticky top-0 z-10 border-b border-gray-100 shadow-sm transition-all duration-300">
+                <header className="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100 shadow-sm transition-all duration-300">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between h-16">
                             <div className="flex items-center lg:hidden">
