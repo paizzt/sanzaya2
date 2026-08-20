@@ -245,7 +245,8 @@
         <p>Makassar, {{ \Carbon\Carbon::now()->format('d M Y') }}</p>
         <p>Mengetahui,</p>
         <br><br><br>
-        <p><strong>Admin Logistik / Keuangan</strong></p>
+        <p style="text-decoration: underline; font-weight: bold; margin-bottom: 2px;">{{ auth()->user()->name ?? '..........................................' }}</p>
+        <p style="margin-top: 0; font-size: 11px; color: #4b5563;">Admin Logistik / Keuangan</p>
     </div>
     <div style="clear: both;"></div>
 </body>
