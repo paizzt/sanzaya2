@@ -93,26 +93,28 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                     )}
 
                     <div className="bg-white overflow-visible shadow-sm sm:rounded-lg p-6">
-                        <div className="flex justify-between items-center mb-6">
-                            <form onSubmit={handleSearch} className="flex space-x-2 w-full max-w-lg">
+                        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 w-full md:max-w-lg">
                                 <TextInput
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="block w-full"
+                                    placeholder="Cari..."
                                 />
-                                <CustomSelect 
-                                    value={status}
-                                    onChange={(val) => setStatus(val)}
-                                    options={statusOptions}
-                                    className="min-w-[200px]"
-                                />
-                                <PrimaryButton type="submit">Filter</PrimaryButton>
+                                <div className="w-full sm:w-auto sm:min-w-[200px]">
+                                    <CustomSelect 
+                                        value={status}
+                                        onChange={(val) => setStatus(val)}
+                                        options={statusOptions}
+                                    />
+                                </div>
+                                <PrimaryButton type="submit" className="justify-center">Filter</PrimaryButton>
                             </form>
 
                             {!isApprovalView && (
-                                <Link href={route('payment-requests.create')}>
-                                    <PrimaryButton>Buat</PrimaryButton>
+                                <Link href={route('payment-requests.create')} className="w-full md:w-auto">
+                                    <PrimaryButton className="w-full justify-center">Buat Baru</PrimaryButton>
                                 </Link>
                             )}
                         </div>
