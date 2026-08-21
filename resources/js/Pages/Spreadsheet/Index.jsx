@@ -106,10 +106,18 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                 {logistikForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
                         {logistikForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(logistikForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
-                        <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(logistikForm, index, 'sheet_name', e.target.value)} /></div>
+                        <div className="mb-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <InputLabel value={`Nama Sheet #${index + 1} *`} />
+                                <TextInput className="mt-1 block w-full" value={sheet.sheet_name} onChange={(e) => handleSheetChange(logistikForm, index, 'sheet_name', e.target.value)} />
+                            </div>
+                            <div>
+                                <InputLabel value="Nama PT (Penanda)" />
+                                <TextInput className="mt-1 block w-full" value={sheet.col_nama_pt} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_pt', e.target.value)} placeholder="Misal: Data_Sanzaya_Ruma" />
+                            </div>
+                        </div>
                         
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                            <div><InputLabel value="Kol. Nama PT" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_pt} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_pt', e.target.value)} /></div>
                             <div><InputLabel value="Kol. Pelanggan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_pelanggan} onChange={(e) => handleSheetChange(logistikForm, index, 'col_pelanggan', e.target.value)} /></div>
                             <div><InputLabel value="Kol. Jenis Pelanggan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_jenis_pelanggan} onChange={(e) => handleSheetChange(logistikForm, index, 'col_jenis_pelanggan', e.target.value)} /></div>
                             <div><InputLabel value="Kol. Tanggal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tanggal} onChange={(e) => handleSheetChange(logistikForm, index, 'col_tanggal', e.target.value)} /></div>

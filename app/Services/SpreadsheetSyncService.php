@@ -95,7 +95,7 @@ class SpreadsheetSyncService
     private static function insertLogistik($row, $sheetName, $config) {
         \App\Models\SyncLogistikData::create([
             'sheet_name' => $sheetName,
-            'nama_pt' => self::getColValue($row, $config['col_nama_pt'] ?? null),
+            'nama_pt' => $config['col_nama_pt'] ?? null,
             'pelanggan' => self::getColValue($row, $config['col_pelanggan'] ?? null),
             'jenis_pelanggan' => self::getColValue($row, $config['col_jenis_pelanggan'] ?? null),
             'tanggal' => self::getColValue($row, $config['col_tanggal'] ?? null),
