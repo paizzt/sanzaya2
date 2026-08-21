@@ -18,6 +18,14 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || '');
     
+    const isSuperAdmin = auth.user?.roles?.some(r => r.name === 'SUPERADMIN');
+
+    const handleDelete = (id) => {
+        if (confirm('Apakah Anda yakin ingin menghapus pengajuan ini?')) {
+            router.delete(route('payment-requests.destroy', id));
+        }
+    };
+    
     const pageTitle = isApprovalView ? "Persetujuan Pembayaran" : "Pengajuan Pembayaran";
 
     const statusOptions = [
@@ -156,6 +164,16 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-900 font-semibold">
                                                         PDF
                                                     </a>
+                                                    {isSuperAdmin && (
+                                                        <>
+                                                            <Link href={route('payment-requests.edit', pr.id)} className="text-blue-600 hover:text-blue-900 font-semibold">
+                                                                Edit
+                                                            </Link>
+                                                            <button onClick={() => handleDelete(pr.id)} className="text-red-600 hover:text-red-900 font-semibold">
+                                                                Hapus
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))

@@ -315,8 +315,8 @@ class PaymentRequestController extends Controller
         $paymentRequest = PaymentRequest::with(['items', 'requester', 'division'])->findOrFail($id);
         $user = Auth::user();
 
-        // Only requester can edit their draft
-        if ($paymentRequest->requester_id !== $user->id || $paymentRequest->workflow_status !== 'draft') {
+        // Only requester can edit their draft, except SUPERADMIN can edit anytime
+        if (!$user->hasRole('SUPERADMIN') && ($paymentRequest->requester_id !== $user->id || $paymentRequest->workflow_status !== 'draft')) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
@@ -335,7 +335,7 @@ class PaymentRequestController extends Controller
         $paymentRequest = PaymentRequest::findOrFail($id);
         $user = Auth::user();
 
-        if ($paymentRequest->requester_id !== $user->id || $paymentRequest->workflow_status !== 'draft') {
+        if (!$user->hasRole('SUPERADMIN') && ($paymentRequest->requester_id !== $user->id || $paymentRequest->workflow_status !== 'draft')) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
@@ -608,5 +608,27 @@ class PaymentRequestController extends Controller
 
         $filename = 'Pengajuan_Pembayaran_' . str_replace(['/', '\\'], '-', $paymentRequest->reference_number) . '.pdf';
         return $pdf->download($filename);
+    }
+
+    public function destroy($id)
+    {
+        $paymentRequest = PaymentRequest::findOrFail($id);
+        
+        if (!Auth::user()->hasRole('SUPERADMIN')) {
+            abort(403, 'Hanya superadmin yang dapat menghapus pengajuan.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Delete related items and verifications explicitly if no cascade on DB level
+            $paymentRequest->items()->delete();
+            $paymentRequest->approvals()->delete();
+            $paymentRequest->delete();
+            DB::commit();
+            return redirect()->back()->with('success', 'Pengajuan berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus data.');
+        }
     }
 }
