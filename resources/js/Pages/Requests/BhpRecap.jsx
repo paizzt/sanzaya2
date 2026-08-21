@@ -147,7 +147,7 @@ export default function BhpRecap({ requests }) {
                                 />
                             </div>
                             
-                            <div className="w-[140px]">
+                            <div className="w-full sm:w-[140px]">
                                 <CustomSelect
                                     value={monthFilter}
                                     onChange={setMonthFilter}
@@ -158,7 +158,7 @@ export default function BhpRecap({ requests }) {
                                     />
                             </div>
 
-                            <div className="w-[120px]">
+                            <div className="w-full sm:w-[120px]">
                                 <CustomSelect
                                     value={yearFilter}
                                     onChange={setYearFilter}
@@ -169,7 +169,7 @@ export default function BhpRecap({ requests }) {
                                     />
                             </div>
                             
-                            <div className="w-[180px]">
+                            <div className="w-full sm:w-[180px]">
                                 <CustomSelect
                                     value={statusFilter}
                                     onChange={setStatusFilter}

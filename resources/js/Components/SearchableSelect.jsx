@@ -22,7 +22,7 @@ export default function SearchableSelect({ value, onChange, options, placeholder
         <div className={`relative ${className}`}>
             <Combobox value={value} onChange={onChange}>
                 {({ open }) => (
-                    <div className="relative mt-1">
+                    <div className="relative">
                         <div className="relative w-full cursor-default overflow-hidden rounded-xl bg-white text-left border border-gray-300 shadow-sm focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500 sm:text-sm transition-all duration-200">
                             {Icon && (
                                 <span className={`pointer-events-none absolute inset-y-0 flex items-center text-gray-400 z-20 transition-all duration-300 ${compact ? 'md:left-1/2 md:-translate-x-1/2 md:pl-0 md:group-hover:left-0 md:group-hover:translate-x-0 md:group-hover:pl-3 left-0 pl-3' : 'left-0 pl-3'}`}>
