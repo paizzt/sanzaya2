@@ -809,7 +809,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                                 <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
                                                     {idx + 1}
                                                 </div>
-                                                <span className="text-sm font-medium text-gray-700 truncate" title={key}>{key}</span>
+                                                <div className="text-sm font-medium text-gray-700 truncate" title={key}>{key}</div>
                                             </div>
                                             <span className="text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap">{value}</span>
                                         </div>

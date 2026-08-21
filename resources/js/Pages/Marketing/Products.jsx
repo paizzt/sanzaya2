@@ -57,13 +57,13 @@ export default function Products({ auth, products, filters }) {
                             </div>
                         </form>
                         
-                        <div className="flex gap-3 min-w-fit">
-                            <div className="relative">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                            <div className="relative w-full sm:w-auto">
                                 <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <select
                                     value={source}
                                     onChange={(e) => handleFilterChange('source', e.target.value)}
-                                    className="pl-9 pr-10 py-2.5 border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white min-w-[160px]"
+                                    className="pl-9 pr-10 py-2.5 border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white w-full sm:min-w-[160px]"
                                 >
                                     <option value="">Semua Sumber</option>
                                     <option value="Distributor">Produk Distributor</option>
@@ -71,12 +71,12 @@ export default function Products({ auth, products, filters }) {
                                 </select>
                             </div>
 
-                            <div className="relative">
+                            <div className="relative w-full sm:w-auto">
                                 <Box className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <select
                                     value={type}
                                     onChange={(e) => handleFilterChange('type', e.target.value)}
-                                    className="pl-9 pr-10 py-2.5 border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white min-w-[160px]"
+                                    className="pl-9 pr-10 py-2.5 border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white w-full sm:min-w-[160px]"
                                 >
                                     <option value="">Semua Kategori</option>
                                     <option value="BMHP">BMHP</option>
