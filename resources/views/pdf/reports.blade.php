@@ -159,7 +159,7 @@
                     <td>{{ $row->nama_sales }}</td>
                     <td>{{ $row->pelanggan }}</td>
                     <td>{{ $row->nama_produk }}</td>
-                    <td class="text-right">{{ $row->grand_total }}</td>
+                    <td class="text-right">{{ $row->total ? 'Rp ' . number_format(intval(preg_replace('/[^0-9]/', '', $row->total)), 0, ',', '.') : '-' }}</td>
                 </tr>
             @empty
                 <tr><td colspan="5" class="text-center">Tidak ada data logistik untuk periode ini</td></tr>
