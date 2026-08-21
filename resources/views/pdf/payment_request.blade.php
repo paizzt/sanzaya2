@@ -136,20 +136,39 @@
     <div class="approval-section" style="margin-top: 50px;">
         <table class="approval-table">
             <tr>
-                <td>
+                <td style="width: 33%;">
                     Dibuat Oleh,<br>
-                    <div class="signature-box"></div>
-                    <b>{{ $paymentRequest->requester->name ?? 'Pemohon' }}</b>
+                    <div class="signature-box" style="text-align: center; height: auto; min-height: 80px;">
+                        <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="70" style="margin-top: 10px;" />
+                    </div>
+                    <b>{{ $paymentRequest->requester->name ?? 'Pemohon' }}</b><br>
+                    <small>{{ \Carbon\Carbon::parse($paymentRequest->created_at)->format('d M Y') }}</small>
                 </td>
-                <td>
+                <td style="width: 33%;">
                     Diperiksa,<br>
-                    <div class="signature-box"></div>
-                    <b>Manager</b>
+                    @if($paymentRequest->supervisor_approved_at)
+                        <div class="signature-box" style="text-align: center; height: auto; min-height: 80px;">
+                            <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="70" style="margin-top: 10px;" />
+                        </div>
+                        <b>Manager</b><br>
+                        <small>{{ \Carbon\Carbon::parse($paymentRequest->supervisor_approved_at)->format('d M Y') }}</small>
+                    @else
+                        <div class="signature-box" style="height: 80px;"></div>
+                        <b>Manager</b>
+                    @endif
                 </td>
-                <td>
+                <td style="width: 33%;">
                     Disetujui,<br>
-                    <div class="signature-box"></div>
-                    <b>Finance</b>
+                    @if($paymentRequest->finance_verified_at)
+                        <div class="signature-box" style="text-align: center; height: auto; min-height: 80px;">
+                            <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="70" style="margin-top: 10px;" />
+                        </div>
+                        <b>Finance</b><br>
+                        <small>{{ \Carbon\Carbon::parse($paymentRequest->finance_verified_at)->format('d M Y') }}</small>
+                    @else
+                        <div class="signature-box" style="height: 80px;"></div>
+                        <b>Finance</b>
+                    @endif
                 </td>
             </tr>
         </table>

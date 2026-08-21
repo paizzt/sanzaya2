@@ -598,8 +598,12 @@ class PaymentRequestController extends Controller
 
         $paymentRequest->load(['requester', 'division', 'vendor', 'items', 'approvals.approver']);
 
+        $qrUrl = url('/payment-requests/' . $paymentRequest->id);
+        $qrCode = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(100)->generate($qrUrl));
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.payment_request', [
-            'paymentRequest' => $paymentRequest
+            'paymentRequest' => $paymentRequest,
+            'qrCode' => $qrCode
         ]);
 
         $filename = 'Pengajuan_Pembayaran_' . str_replace(['/', '\\'], '-', $paymentRequest->reference_number) . '.pdf';
