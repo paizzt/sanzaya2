@@ -2,7 +2,7 @@ import { Fragment, useState, useRef } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { Check, ChevronDown, Search } from 'lucide-react';
 
-export default function SearchableSelect({ value, onChange, options, placeholder = "Cari atau pilih...", className = "", icon: Icon }) {
+export default function SearchableSelect({ value, onChange, options, placeholder = "Cari atau pilih...", className = "", icon: Icon, compact = false }) {
     const [query, setQuery] = useState('');
     const buttonRef = useRef(null);
 
@@ -30,7 +30,7 @@ export default function SearchableSelect({ value, onChange, options, placeholder
                                 </span>
                             )}
                             <Combobox.Input
-                                className={`w-full border-none py-2.5 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 cursor-text ${Icon ? 'pl-10' : 'pl-4'}`}
+                                className={`w-full border-none py-2.5 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 cursor-text ${Icon ? 'pl-10' : 'pl-4'} ${compact ? 'md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 bg-transparent relative z-10' : ''}`}
                                 displayValue={(val) => {
                                     const opt = options.find(o => String(o.value) === String(val));
                                     return opt ? opt.label : '';
@@ -47,7 +47,7 @@ export default function SearchableSelect({ value, onChange, options, placeholder
                                     }
                                 }}
                                 />
-                            <Combobox.Button ref={buttonRef} className="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <Combobox.Button ref={buttonRef} className={`absolute inset-y-0 right-0 flex items-center pr-3 z-20 ${compact ? 'md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none md:group-hover:pointer-events-auto' : ''}`}>
                                 <ChevronDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
                             </Combobox.Button>
                         </div>

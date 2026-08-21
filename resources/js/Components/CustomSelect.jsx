@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { Check, ChevronDown } from 'lucide-react';
 
-export default function CustomSelect({ value, onChange, options, placeholder = "Pilih...", className = "", icon: Icon }) {
+export default function CustomSelect({ value, onChange, options, placeholder = "Pilih...", className = "", icon: Icon, compact = false }) {
     const selectedOption = options.find(opt => String(opt.value) === String(value)) || null;
 
     return (
@@ -15,10 +15,10 @@ export default function CustomSelect({ value, onChange, options, placeholder = "
                                 <Icon className="h-4 w-4" />
                             </span>
                         )}
-                        <span className={`block truncate ${Icon ? 'ml-7' : ''} ${!selectedOption ? 'text-gray-500' : 'text-gray-900 font-medium'}`}>
+                        <span className={`block truncate ${Icon ? 'ml-7' : ''} ${!selectedOption ? 'text-gray-500' : 'text-gray-900 font-medium'} ${compact ? 'md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300' : ''}`}>
                             {selectedOption ? selectedOption.label : placeholder}
                         </span>
-                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <span className={`pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 ${compact ? 'md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300' : ''}`}>
                             <ChevronDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
                         </span>
                     </Listbox.Button>

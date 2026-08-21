@@ -634,7 +634,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     </div>
                     
                     <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-wrap">
-                        <div className="w-full md:w-32 lg:w-32 xl:w-36 z-20">
+                        <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-36 xl:hover:w-40 transition-all duration-300 ease-in-out group z-20">
                             <CustomSelect
                                 value={selectedMonth}
                                 onChange={(value) => {
@@ -654,12 +654,13 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     ...months.map(m => ({ value: m, label: m }))
                                 ]}
                                 icon={Calendar}
+                                compact={true}
                             />
                         </div>
                         
                         {tab === 'logistik' && (
                             <>
-                                <div className="w-full md:w-36 lg:w-36 xl:w-40 z-10">
+                                <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group z-10">
                                     <SearchableSelect
                                         value={selectedPt}
                                         onChange={(value) => {
@@ -671,26 +672,29 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                             ...(Array.isArray(ptNames) ? ptNames : Object.values(ptNames || {})).map(name => ({ value: name, label: name }))
                                         ]}
                                         icon={Package}
+                                        compact={true}
                                     />
                                 </div>
-                                <div className="w-full md:w-36 lg:w-36 xl:w-40 z-10">
+                                <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group z-10">
                                     <SearchableSelect
                                         value={selectedSales}
                                         onChange={(value) => {
                                             setSelectedSales(value);
                                             router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, pt_filter: selectedPt, month_filter: selectedMonth }, { preserveState: true });
                                         }}
-                                    options={[
-                                        { value: '', label: 'Semua Sales' },
-                                        ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
-                                    ]}
-                                    icon={UserIcon}
-                                />
-                            </div>
+                                        options={[
+                                            { value: '', label: 'Semua Sales' },
+                                            ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
+                                        ]}
+                                        icon={UserIcon}
+                                        compact={true}
+                                    />
+                                </div>
                             </>
                         )}
-                        {(tab === 'logistik' || tab === 'pesanan' || tab === 'piutang') && (
-                            <div className="w-full md:w-36 lg:w-36 xl:w-40 z-10">
+
+                        {['logistik', 'pesanan', 'piutang'].includes(tab) && (
+                            <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group z-10">
                                 <SearchableSelect
                                     value={selectedOutlet}
                                     onChange={(value) => {
@@ -706,7 +710,8 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         { value: '', label: 'Semua Outlet' },
                                         ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
-                                    icon={StoreIcon}
+                                    icon={MapPin}
+                                    compact={true}
                                 />
                             </div>
                         )}
