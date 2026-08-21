@@ -193,18 +193,18 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         <p className="text-sm text-gray-500 mt-1">Kelola akses, jabatan, divisi, PT, dan saklar fitur pengguna.</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                        <div className="relative">
+                        <div className="relative w-full sm:w-auto">
                             <input 
                                 type="text"
                                 value={searchUserTerm}
                                 onChange={(e) => { setSearchUserTerm(e.target.value); setCurrentPage(1); }}
-                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm px-4 py-2.5 w-64"
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm px-4 py-2.5 w-full sm:w-64"
                             />
                         </div>
                         <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} />
                                 <button 
                         onClick={openCreateModal}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-500/30 w-full sm:w-auto"
                     >
                         <Plus className="w-5 h-5" /> Tambah Pengguna
                     </button>
@@ -233,7 +233,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                             >
                                                 <td className="px-6 py-4 font-semibold text-gray-900">
                                                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                                                        <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                                                        <div className="w-10 h-10 flex-shrink-0 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
                                                             {user.name.charAt(0).toUpperCase()}
                                                         </div>
                                                         {user.name}
