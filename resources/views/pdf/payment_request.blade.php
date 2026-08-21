@@ -138,7 +138,7 @@
             <tr>
                 <td style="width: 33%;">
                     Dibuat Oleh,<br>
-                    <div class="signature-box" style="text-align: center; height: auto; min-height: 80px;">
+                    <div class="signature-box" style="text-align: center; height: auto; min-height: 80px; border-bottom: none;">
                         <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="70" style="margin-top: 10px;" />
                     </div>
                     <b>{{ $paymentRequest->requester->name ?? 'Pemohon' }}</b><br>
@@ -147,7 +147,7 @@
                 <td style="width: 33%;">
                     Diperiksa,<br>
                     @if($paymentRequest->supervisor_approved_at)
-                        <div class="signature-box" style="text-align: center; height: auto; min-height: 80px;">
+                        <div class="signature-box" style="text-align: center; height: auto; min-height: 80px; border-bottom: none;">
                             <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="70" style="margin-top: 10px;" />
                         </div>
                         <b>Manager</b><br>
@@ -160,7 +160,7 @@
                 <td style="width: 33%;">
                     Disetujui,<br>
                     @if($paymentRequest->finance_verified_at)
-                        <div class="signature-box" style="text-align: center; height: auto; min-height: 80px;">
+                        <div class="signature-box" style="text-align: center; height: auto; min-height: 80px; border-bottom: none;">
                             <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="70" style="margin-top: 10px;" />
                         </div>
                         <b>Finance</b><br>
