@@ -184,7 +184,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
 
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                             <Users className="w-6 h-6 text-blue-600" />
@@ -192,7 +192,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">Kelola akses, jabatan, divisi, PT, dan saklar fitur pengguna.</p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                         <div className="relative">
                             <input 
                                 type="text"
@@ -232,7 +232,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer"
                                             >
                                                 <td className="px-6 py-4 font-semibold text-gray-900">
-                                                    <div className="flex items-center gap-3">
+                                                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                                         <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
                                                             {user.name.charAt(0).toUpperCase()}
                                                         </div>

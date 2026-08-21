@@ -283,7 +283,7 @@ export default function Index({ outlets, areas }) {
                             />
                         </div>
                         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                 <ExportDropdown pdfRoute={route('outlets.export.pdf')} excelRoute={route('outlets.export.excel')} />
                                 <button 
                                 onClick={() => router.get(route('outlet-mappings.index'))}

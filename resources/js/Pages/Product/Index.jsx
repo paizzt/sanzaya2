@@ -164,7 +164,7 @@ export default function Index({ products }) {
 
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                             <Box className="w-6 h-6 text-blue-600" />
@@ -400,7 +400,7 @@ export default function Index({ products }) {
 
                                 <div className="mt-4 flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                 <ExportDropdown pdfRoute={route('products.export.pdf')} excelRoute={route('products.export.excel')} />
                                 <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
                                         {processing ? 'Menyimpan...' : 'Simpan'}

@@ -77,7 +77,7 @@ export default function UcApproval({ requests }) {
                             <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
                                 <FileCheck className="text-blue-500" /> Daftar Pengajuan UC
                             </h3>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                 <ExportDropdown pdfRoute={route('requests.uc.approval.export.pdf')} excelRoute={route('requests.uc.approval.export.excel')} />
                             </div>
                         </div>

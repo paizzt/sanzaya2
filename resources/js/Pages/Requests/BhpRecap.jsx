@@ -221,7 +221,7 @@ export default function BhpRecap({ requests }) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                                 <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
                                                     {req.user?.name ? req.user.name.charAt(0) : '?'}
                                                 </div>

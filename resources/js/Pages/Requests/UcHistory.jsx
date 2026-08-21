@@ -88,7 +88,7 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                         className="p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer flex justify-between items-center transition-colors"
                                         onClick={() => setExpandedActiveUc(expandedActiveUc === uc.id ? null : uc.id)}
                                     >
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                             <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
                                                 {uc.user?.name?.charAt(0) || '?'}
                                             </div>
@@ -138,7 +138,7 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                         <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
                             <FileCheck className="text-blue-600" /> Riwayat Pengajuan
                         </h3>
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                             <ExportDropdown pdfRoute={route('requests.uc.export.pdf')} excelRoute={route('requests.uc.export.excel')} />
                         </div>
                     </div>

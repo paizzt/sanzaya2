@@ -37,7 +37,7 @@ export default function Usages({ usages, vehicles, filters }) {
             <Head title="Log Armada" />
 
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
                     <div className="flex items-center gap-4">
                         <Link 
                             href={route('vehicles.index')}
@@ -53,7 +53,7 @@ export default function Usages({ usages, vehicles, filters }) {
                             </h3>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                         <div className="relative">
                             <Truck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                             <select 

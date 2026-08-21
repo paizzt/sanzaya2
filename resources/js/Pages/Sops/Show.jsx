@@ -327,7 +327,7 @@ export default function Show({ auth, division }) {
                                                             }}
                                                             />
                                                         
-                                                        <div className="flex items-center gap-3">
+                                                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                                             <label className="flex-1 cursor-pointer bg-white border border-gray-200 border-dashed rounded-lg p-2 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
                                                                 <input 
                                                                     type="file" 

@@ -383,12 +383,12 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 </div>
                             </form>
                             
-                            <div className="flex justify-between items-center mb-6">
+                            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
                                 <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
                                     <ClipboardList className="w-5 h-5 text-blue-500" />
                                     Data Laporan Logistik
                                 </h3>
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                 <ExportDropdown 
                                     pdfRoute={`${route('logistic-reports.export.pdf')}?${new URLSearchParams(Object.entries(filterData).filter(([_, v]) => v !== '')).toString()}`} 
                                     excelRoute={`${route('logistic-reports.export.excel')}?${new URLSearchParams(Object.entries(filterData).filter(([_, v]) => v !== '')).toString()}`} 

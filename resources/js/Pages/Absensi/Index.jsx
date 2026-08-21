@@ -69,7 +69,7 @@ export default function Index({ attendance, today, currentTime, isOvertime }) {
                     {/* Camera Section */}
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden relative">
-                            <div className="flex justify-between items-center mb-6">
+                            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
                                 <div>
                                     <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                                         <Camera className="text-blue-600" />
