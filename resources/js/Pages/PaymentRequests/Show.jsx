@@ -244,6 +244,46 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                     )}
                                 </div>
                             </div>
+
+                            {/* Riwayat Persetujuan */}
+                            <div className="bg-white p-6 rounded-lg shadow-sm">
+                                <h3 className="text-lg font-bold border-b pb-2 mb-4">Riwayat Persetujuan</h3>
+                                <div className="space-y-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-sm text-gray-500 font-semibold">Dibuat Oleh</span>
+                                        <span className="text-gray-800 font-medium">{paymentRequest.requester?.name || '-'}</span>
+                                        <span className="text-xs text-gray-500">
+                                            {paymentRequest.created_at ? new Date(paymentRequest.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '-'}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col border-t pt-4">
+                                        <span className="text-sm text-gray-500 font-semibold">Diperiksa (Manager)</span>
+                                        {paymentRequest.supervisor_approved_at ? (
+                                            <>
+                                                <span className="text-green-600 font-medium">Disetujui</span>
+                                                <span className="text-xs text-gray-500">
+                                                    {new Date(paymentRequest.supervisor_approved_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span className="text-gray-400 italic text-sm">Belum diperiksa</span>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col border-t pt-4">
+                                        <span className="text-sm text-gray-500 font-semibold">Disetujui (Finance)</span>
+                                        {paymentRequest.finance_verified_at ? (
+                                            <>
+                                                <span className="text-green-600 font-medium">Disetujui</span>
+                                                <span className="text-xs text-gray-500">
+                                                    {new Date(paymentRequest.finance_verified_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span className="text-gray-400 italic text-sm">Belum disetujui</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
