@@ -180,7 +180,7 @@ export default function Create({ auth, vendors, companies, user }) {
                             </div>
                             
                             <div className="mt-6 flex justify-end">
-                                <div className="w-1/2 md:w-1/3 space-y-3">
+                                <div className="w-full sm:w-2/3 md:w-1/2 lg:w-1/3 space-y-3">
                                     <div className="flex justify-between items-center text-sm font-medium">
                                         <span>Subtotal</span>
                                         <span>Rp {subtotal.toLocaleString('id-ID')}</span>
@@ -195,7 +195,7 @@ export default function Create({ auth, vendors, companies, user }) {
                                                 { value: 'Belum Termasuk', label: 'Belum Termasuk' },
                                                 { value: 'Sudah Termasuk', label: 'Sudah Termasuk' }
                                             ]} 
-                                            className="w-48"
+                                            className="w-[140px] sm:w-48"
                                         />
                                     </div>
                                     {data.vat_status === 'Belum Termasuk' && (
