@@ -591,7 +591,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     <div className="relative w-full lg:w-auto" ref={tabDropdownRef}>
                         <button
                             onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
-                            className="flex items-center justify-between w-full lg:w-56 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
+                            className="flex items-center justify-between w-full lg:w-44 xl:w-48 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
                         >
                             <div className="flex items-center gap-2">
                                 {tab === 'logistik' && <><Package className="w-4 h-4" /> Logistik</>}
@@ -604,7 +604,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         </button>
                         
                         {isTabDropdownOpen && (
-                            <div className="absolute left-0 mt-2 w-full lg:w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-40 overflow-hidden">
+                            <div className="absolute left-0 mt-2 w-full lg:w-44 xl:w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-40 overflow-hidden">
                                 <button 
                                     onClick={() => { handleTabChange('logistik'); setIsTabDropdownOpen(false); }} 
                                     className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='logistik' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
@@ -634,7 +634,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     </div>
                     
                     <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-wrap">
-                        <div className="w-full md:w-32 lg:w-40 z-20">
+                        <div className="w-full md:w-32 lg:w-32 xl:w-36 z-20">
                             <CustomSelect
                                 value={selectedMonth}
                                 onChange={(value) => {
@@ -659,7 +659,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         
                         {tab === 'logistik' && (
                             <>
-                                <div className="w-full md:w-36 lg:w-48 z-10">
+                                <div className="w-full md:w-36 lg:w-36 xl:w-40 z-10">
                                     <SearchableSelect
                                         value={selectedPt}
                                         onChange={(value) => {
@@ -667,13 +667,13 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                             router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: selectedSales, outlet_filter: selectedOutlet, pt_filter: value, month_filter: selectedMonth }, { preserveState: true });
                                         }}
                                         options={[
-                                            { value: '', label: 'Semua PT (Penanda)' },
+                                            { value: '', label: 'Semua PT' },
                                             ...(Array.isArray(ptNames) ? ptNames : Object.values(ptNames || {})).map(name => ({ value: name, label: name }))
                                         ]}
                                         icon={Package}
                                     />
                                 </div>
-                                <div className="w-full md:w-36 lg:w-48 z-10">
+                                <div className="w-full md:w-36 lg:w-36 xl:w-40 z-10">
                                     <SearchableSelect
                                         value={selectedSales}
                                         onChange={(value) => {
@@ -690,7 +690,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             </>
                         )}
                         {(tab === 'logistik' || tab === 'pesanan' || tab === 'piutang') && (
-                            <div className="w-full md:w-36 lg:w-48 z-10">
+                            <div className="w-full md:w-36 lg:w-36 xl:w-40 z-10">
                                 <SearchableSelect
                                     value={selectedOutlet}
                                     onChange={(value) => {
@@ -710,7 +710,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                 />
                             </div>
                         )}
-                        <div className={`relative transition-all duration-300 ease-in-out ${isSearchExpanded ? 'w-full md:w-40 lg:w-56' : 'w-10'} z-0`}>
+                        <div className={`relative transition-all duration-300 ease-in-out ${isSearchExpanded ? 'w-full md:w-40 lg:w-48 xl:w-56' : 'w-10'} z-0`}>
                             {isSearchExpanded ? (
                                 <>
                                     <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
