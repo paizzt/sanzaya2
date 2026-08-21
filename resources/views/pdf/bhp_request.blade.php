@@ -40,15 +40,33 @@
         <tr><td><strong>Spesifikasi & Jumlah</strong></td><td>{{ $bhp->specifications }}</td></tr>
     </table>
 
-    <div class="signature-box">
-        <p>Disetujui Oleh,</p>
-        @if($bhp->status == 'Disetujui')
-            <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="80" />
-            <p><strong>{{ $bhp->approver->name ?? 'Digital Signature' }}</strong><br><small>{{ \Carbon\Carbon::parse($bhp->updated_at)->format('d M Y') }}</small></p>
-        @else
-            <div style="height: 80px;"></div>
-            <p style="color: #999;"><strong>(Menunggu)</strong><br><small>-</small></p>
-        @endif
+    <div class="approval-section" style="margin-top: 40px;">
+        <table class="approval-table" style="width: 100%; border: none; text-align: center;">
+            <tr style="border: none;">
+                <td style="border: none; width: 33%;">
+                    Dibuat Oleh,<br>
+                    <div style="height: 80px;"></div>
+                    <b>{{ $bhp->user->name ?? 'Pemohon' }}</b>
+                </td>
+                <td style="border: none; width: 33%;">
+                    Diperiksa,<br>
+                    <div style="height: 80px;"></div>
+                    <b>Manager</b>
+                </td>
+                <td style="border: none; width: 33%;">
+                    Disetujui,<br>
+                    @if($bhp->status == 'Disetujui')
+                        <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="80" /><br>
+                        <b>{{ $bhp->approver->name ?? 'Finance' }}</b><br>
+                        <small>{{ \Carbon\Carbon::parse($bhp->updated_at)->format('d M Y') }}</small>
+                    @else
+                        <div style="height: 80px;"></div>
+                        <p style="color: #999; margin:0;"><strong>(Menunggu)</strong></p>
+                        <b>Finance</b>
+                    @endif
+                </td>
+            </tr>
+        </table>
     </div>
     <div class="clear"></div>
 </body>

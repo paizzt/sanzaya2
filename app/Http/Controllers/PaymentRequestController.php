@@ -51,7 +51,7 @@ class PaymentRequestController extends Controller
             'summary' => Inertia::defer(fn () => [
                 'total' => PaymentRequest::where('requester_id', $user->id)->count(),
                 'draft' => PaymentRequest::where('requester_id', $user->id)->where('workflow_status', 'draft')->count(),
-                'waiting_approval' => PaymentRequest::where('requester_id', $user->id)->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga', 'waiting_director'])->count(),
+                'waiting_approval' => PaymentRequest::where('requester_id', $user->id)->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga'])->count(),
                 'paid' => PaymentRequest::where('requester_id', $user->id)->where('workflow_status', 'paid')->count(),
             ]),
         ]);
@@ -73,7 +73,7 @@ class PaymentRequestController extends Controller
             $allowedStatuses[] = 'waiting_ga';
         }
         if ($user->hasRole('SUPERADMIN')) {
-            $allowedStatuses = ['waiting_supervisor', 'waiting_ga', 'waiting_director'];
+            $allowedStatuses = ['waiting_supervisor', 'waiting_ga'];
         }
 
         if (empty($allowedStatuses)) {
@@ -297,10 +297,7 @@ class PaymentRequestController extends Controller
         } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
             $canApprove = true;
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('SUPERADMIN')) {
-            $canApprove = true;
-            $canReject = true;
-        } elseif ($user->hasRole('SUPERADMIN') && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga', 'waiting_director'])) {
+        } elseif ($user->hasRole('SUPERADMIN') && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga'])) {
             $canApprove = true;
             $canReject = true;
         }
@@ -499,23 +496,16 @@ class PaymentRequestController extends Controller
             $approvedField = 'supervisor_approved_at';
         } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
             $canApprove = true;
-            $nextStatus = 'waiting_director';
-            $approvedField = 'finance_verified_at';
-        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('SUPERADMIN')) {
-            $canApprove = true;
             $nextStatus = 'approved';
-            $approvedField = 'approved_for_payment_at';
+            $approvedField = 'finance_verified_at';
         } elseif ($user->hasRole('SUPERADMIN')) {
             $canApprove = true;
             if ($paymentRequest->workflow_status === 'waiting_supervisor') {
                 $nextStatus = 'waiting_ga';
                 $approvedField = 'supervisor_approved_at';
             } elseif ($paymentRequest->workflow_status === 'waiting_ga') {
-                $nextStatus = 'waiting_director';
-                $approvedField = 'finance_verified_at';
-            } elseif ($paymentRequest->workflow_status === 'waiting_director') {
                 $nextStatus = 'approved';
-                $approvedField = 'approved_for_payment_at';
+                $approvedField = 'finance_verified_at';
             } else {
                 $canApprove = false;
             }
@@ -558,10 +548,8 @@ class PaymentRequestController extends Controller
             $canReject = true;
         } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_director' && $user->hasRole('SUPERADMIN')) {
-            $canReject = true;
         } elseif ($user->hasRole('SUPERADMIN')) {
-            $canReject = in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga', 'waiting_director']);
+            $canReject = in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga']);
         }
 
         if (!$canReject) {

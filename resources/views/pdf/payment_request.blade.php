@@ -147,14 +147,9 @@
                     <b>Manager</b>
                 </td>
                 <td>
-                    Verifikasi,<br>
-                    <div class="signature-box"></div>
-                    <b>Finance / GA</b>
-                </td>
-                <td>
                     Disetujui,<br>
                     <div class="signature-box"></div>
-                    <b>Direktur</b>
+                    <b>Finance</b>
                 </td>
             </tr>
         </table>
