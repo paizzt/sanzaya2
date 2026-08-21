@@ -127,8 +127,8 @@ export default function ActivityLog({ auth, logs, filters }) {
                                 </div>
                             </div>
 
-                            <form onSubmit={handleSearch} className="flex gap-2">
-                                <div className="relative">
+                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row w-full md:w-auto gap-2">
+                                <div className="relative w-full md:w-auto">
                                     <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                     <TextInput
                                         type="text"
@@ -137,7 +137,7 @@ export default function ActivityLog({ auth, logs, filters }) {
                                         className="pl-10 w-full md:w-64"
                                     />
                                 </div>
-                                <PrimaryButton type="submit">Cari</PrimaryButton>
+                                <PrimaryButton type="submit" className="justify-center">Cari</PrimaryButton>
                             </form>
                         </div>
 
@@ -249,7 +249,7 @@ export default function ActivityLog({ auth, logs, filters }) {
 
                     <div className="space-y-6">
                         {/* Info Pelaku */}
-                        <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
                             <div>
                                 <div className="text-xs text-gray-500 mb-1">Dilakukan Oleh</div>
                                 <div className="font-medium text-gray-900">{selectedLog?.user?.name || 'Sistem'}</div>
@@ -270,7 +270,7 @@ export default function ActivityLog({ auth, logs, filters }) {
 
                         {/* Komparasi Data */}
                         {selectedLog?.action === 'Updated' ? (
-                            <div className="grid grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <div className="font-semibold text-rose-600 mb-3 flex items-center gap-2">
                                         Data Lama
