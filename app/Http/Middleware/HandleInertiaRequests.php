@@ -32,12 +32,14 @@ class HandleInertiaRequests extends Middleware
         $setting = \App\Models\NotificationSetting::first();
         
         $active_features = [];
+        $active_feature_names = [];
         if ($request->user()) {
             $features = \App\Models\FeatureToggle::all();
             foreach ($features as $feature) {
                 $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
                 if (!in_array($request->user()->id, $disabledUsers)) {
                     $active_features[] = $feature->id;
+                    $active_feature_names[] = $feature->name;
                 }
             }
         }
@@ -51,6 +53,7 @@ class HandleInertiaRequests extends Middleware
                 'notifications' => $request->user() ? $request->user()->unreadNotifications()->take(5)->get() : [],
                 'unread_count' => $request->user() ? $request->user()->unreadNotifications()->count() : 0,
                 'active_features' => $active_features,
+                'active_feature_names' => $active_feature_names,
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),
