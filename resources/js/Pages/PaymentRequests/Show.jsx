@@ -85,11 +85,11 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Detail Pengajuan: {paymentRequest.reference_number}
                     </h2>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         <Link 
                             href={route('payment-requests.index')}
                             className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100"
