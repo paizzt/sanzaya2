@@ -242,16 +242,16 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_feature_names?.includes('Profil & Akun') },
             ]
         },
-        ...(auth.active_feature_names?.includes('Data Laporan Tersinkronisasi') || auth.active_features?.includes(1)
+        ...(auth.active_feature_names?.includes('Data Laporan Tersinkronisasi')
             ? [{
                 name: 'Spreadsheet', icon: FileCheck,
                 active: url.startsWith('/spreadsheet') || url.startsWith('/reports'),
                 children: [
                     { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: true },
-                    { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_feature_names?.includes('Menu Dashboard Laporan') || auth.active_features?.includes(7) },
+                    { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_feature_names?.includes('Dashboard Laporan') },
                 ]
             }] 
-            : (auth.active_feature_names?.includes('Menu Dashboard Laporan') || auth.active_features?.includes(7)) ? [{
+            : auth.active_feature_names?.includes('Dashboard Laporan') ? [{
                 name: 'Dashboard Laporan', href: route('reports.index'), icon: FileCheck,
                 active: url.startsWith('/reports'),
                 show: true
