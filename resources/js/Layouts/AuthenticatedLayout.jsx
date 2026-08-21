@@ -242,14 +242,21 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_features?.includes(14) },
             ]
         },
-        {
-            name: 'Spreadsheet', icon: FileCheck,
-            active: url.startsWith('/spreadsheet') || url.startsWith('/reports'),
-            children: [
-                { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(35) },
-                { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_features?.includes(7) },
-            ]
-        }
+        ...(hasPermission('manage spreadsheet sync') 
+            ? [{
+                name: 'Spreadsheet', icon: FileCheck,
+                active: url.startsWith('/spreadsheet') || url.startsWith('/reports'),
+                children: [
+                    { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(35) },
+                    { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_features?.includes(7) },
+                ]
+            }] 
+            : auth.active_features?.includes(7) ? [{
+                name: 'Dashboard Laporan', href: route('reports.index'), icon: FileCheck,
+                active: url.startsWith('/reports'),
+                show: true
+            }] : []
+        )
     ];
 
     const navItems = baseNavItems.map(item => {
