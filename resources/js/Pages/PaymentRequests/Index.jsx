@@ -4,6 +4,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
+import { Eye, FileText, Edit, Trash2 } from 'lucide-react';
 
 // Formatting helper local
 const formatCurrency = (value) => {
@@ -157,20 +158,20 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                         {pr.workflow_status.replace(/_/g, ' ').toUpperCase()}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3 text-center space-x-2">
-                                                    <Link href={route('payment-requests.show', pr.id)} className="text-indigo-600 hover:text-indigo-900 font-semibold">
-                                                        Detail
+                                                <td className="px-4 py-3 text-center space-x-3">
+                                                    <Link href={route('payment-requests.show', pr.id)} className="text-indigo-600 hover:text-indigo-900 inline-block" title="Detail">
+                                                        <Eye size={18} />
                                                     </Link>
-                                                    <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-900 font-semibold">
-                                                        PDF
+                                                    <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-900 inline-block" title="Unduh PDF">
+                                                        <FileText size={18} />
                                                     </a>
                                                     {isSuperAdmin && (
                                                         <>
-                                                            <Link href={route('payment-requests.edit', pr.id)} className="text-blue-600 hover:text-blue-900 font-semibold">
-                                                                Edit
+                                                            <Link href={route('payment-requests.edit', pr.id)} className="text-blue-600 hover:text-blue-900 inline-block" title="Edit">
+                                                                <Edit size={18} />
                                                             </Link>
-                                                            <button onClick={() => handleDelete(pr.id)} className="text-red-600 hover:text-red-900 font-semibold">
-                                                                Hapus
+                                                            <button onClick={() => handleDelete(pr.id)} className="text-red-600 hover:text-red-900 inline-block" title="Hapus">
+                                                                <Trash2 size={18} />
                                                             </button>
                                                         </>
                                                     )}
