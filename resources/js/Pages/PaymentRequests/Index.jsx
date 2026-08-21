@@ -52,7 +52,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
         >
             <Head title={pageTitle} />
 
-            <div className="py-12">
+            <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* Dashboard Summary Cards - Only show on Request View */}
                     {!isApprovalView ? (
