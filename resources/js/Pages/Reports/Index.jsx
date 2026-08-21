@@ -11,12 +11,13 @@ import SearchableSelect from '@/Components/SearchableSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
-export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, salesNames, outletNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
+export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, ptFilter, salesNames, outletNames, ptNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
+    const [selectedPt, setSelectedPt] = useState(ptFilter || '');
     const [isSearchExpanded, setIsSearchExpanded] = useState(!!search);
     const [isDownloadOpen, setIsDownloadOpen] = useState(false);
     const [isTabDropdownOpen, setIsTabDropdownOpen] = useState(false);
@@ -54,6 +55,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
         if (tab === 'logistik') {
             filters.sales_filter = selectedSales;
             filters.outlet_filter = selectedOutlet;
+            filters.pt_filter = selectedPt;
         } else if (tab === 'pesanan' || tab === 'piutang') {
             filters.outlet_filter = selectedOutlet;
         }
@@ -61,11 +63,12 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
     };
 
     const handleTabChange = (newTab) => {
-        router.get(route('reports.index'), { tab: newTab, search: '', sales_filter: '', outlet_filter: '', month_filter: '' }, { preserveState: true });
+        router.get(route('reports.index'), { tab: newTab, search: '', sales_filter: '', outlet_filter: '', month_filter: '', pt_filter: '' }, { preserveState: true });
         setSearchTerm('');
         setSelectedSales('');
         setSelectedOutlet('');
         setSelectedMonth('');
+        setSelectedPt('');
     };
 
     // Chart Renderers
@@ -640,6 +643,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     if (tab === 'logistik') {
                                         filters.sales_filter = selectedSales;
                                         filters.outlet_filter = selectedOutlet;
+                                        filters.pt_filter = selectedPt;
                                     } else if (tab === 'pesanan' || tab === 'piutang') {
                                         filters.outlet_filter = selectedOutlet;
                                     }
@@ -654,13 +658,28 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         </div>
                         
                         {tab === 'logistik' && (
-                            <div className="w-full md:w-36 lg:w-48 z-10">
-                                <SearchableSelect
-                                    value={selectedSales}
-                                    onChange={(value) => {
-                                        setSelectedSales(value);
-                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, month_filter: selectedMonth }, { preserveState: true });
-                                    }}
+                            <>
+                                <div className="w-full md:w-36 lg:w-48 z-10">
+                                    <SearchableSelect
+                                        value={selectedPt}
+                                        onChange={(value) => {
+                                            setSelectedPt(value);
+                                            router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: selectedSales, outlet_filter: selectedOutlet, pt_filter: value, month_filter: selectedMonth }, { preserveState: true });
+                                        }}
+                                        options={[
+                                            { value: '', label: 'Semua PT (Penanda)' },
+                                            ...(Array.isArray(ptNames) ? ptNames : Object.values(ptNames || {})).map(name => ({ value: name, label: name }))
+                                        ]}
+                                        icon={Package}
+                                    />
+                                </div>
+                                <div className="w-full md:w-36 lg:w-48 z-10">
+                                    <SearchableSelect
+                                        value={selectedSales}
+                                        onChange={(value) => {
+                                            setSelectedSales(value);
+                                            router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, pt_filter: selectedPt, month_filter: selectedMonth }, { preserveState: true });
+                                        }}
                                     options={[
                                         { value: '', label: 'Semua Sales' },
                                         ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
@@ -668,6 +687,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     icon={UserIcon}
                                 />
                             </div>
+                            </>
                         )}
                         {(tab === 'logistik' || tab === 'pesanan' || tab === 'piutang') && (
                             <div className="w-full md:w-36 lg:w-48 z-10">
@@ -676,7 +696,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     onChange={(value) => {
                                         setSelectedOutlet(value);
                                         const filters = { tab: tab, search: searchTerm, outlet_filter: value, month_filter: selectedMonth };
-                                        if (tab === 'logistik') filters.sales_filter = selectedSales;
+                                        if (tab === 'logistik') {
+                                            filters.sales_filter = selectedSales;
+                                            filters.pt_filter = selectedPt;
+                                        }
                                         router.get(route('reports.index'), filters, { preserveState: true });
                                     }}
                                     options={[

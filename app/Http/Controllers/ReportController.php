@@ -20,6 +20,7 @@ class ReportController extends Controller
         $salesFilter = $request->query('sales_filter', '');
         $outletFilter = $request->query('outlet_filter', '');
         $monthFilter = $request->query('month_filter', '');
+        $ptFilter = $request->query('pt_filter', '');
 
         $outletNamesToSearch = [];
         if ($outletFilter) {
@@ -32,12 +33,16 @@ class ReportController extends Controller
         }
 
         $salesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');
+        $ptNames = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->pluck('nama_pt');
         $outletNames = \App\Models\Outlet::pluck('name');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
         $data = [];
         if ($tab === 'logistik') {
             $query = SyncLogistikData::query();
+            if ($ptFilter) {
+                $query->where('nama_pt', $ptFilter);
+            }
             if ($salesFilter) {
                 $query->where('nama_sales', $salesFilter);
             }
@@ -104,8 +109,9 @@ class ReportController extends Controller
         }
 
         // Calculate Summaries using Inertia::defer
-        $summary = Inertia::defer(function () use ($salesFilter, $outletFilter, $monthFilter, $outletNamesToSearch) {
+        $summary = Inertia::defer(function () use ($salesFilter, $outletFilter, $monthFilter, $ptFilter, $outletNamesToSearch) {
             $summaryQuery = SyncLogistikData::query();
+            if ($ptFilter) $summaryQuery->where('nama_pt', $ptFilter);
             if ($salesFilter) $summaryQuery->where('nama_sales', $salesFilter);
             if ($outletFilter) {
                 $summaryQuery->where(function($q) use ($outletNamesToSearch) {
@@ -271,7 +277,9 @@ class ReportController extends Controller
             'search' => $search,
             'salesFilter' => $salesFilter,
             'outletFilter' => $outletFilter,
+            'ptFilter' => $ptFilter,
             'salesNames' => $salesNames,
+            'ptNames' => $ptNames,
             'outletNames' => $outletNames,
             'reportData' => $data,
             'summary' => $summary,
