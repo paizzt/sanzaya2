@@ -633,7 +633,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         )}
                     </div>
                     
-                    <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-nowrap">
+                    <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-wrap">
                         <div className="w-full md:w-32 lg:w-40 z-20">
                             <CustomSelect
                                 value={selectedMonth}
