@@ -634,7 +634,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     </div>
                     
                     <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-wrap">
-                        <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-36 xl:hover:w-40 transition-all duration-300 ease-in-out group z-20">
+                        <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-36 xl:hover:w-40 transition-all duration-300 ease-in-out group relative z-[50]">
                             <CustomSelect
                                 value={selectedMonth}
                                 onChange={(value) => {
@@ -660,7 +660,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         
                         {tab === 'logistik' && (
                             <>
-                                <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group z-10">
+                                <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[40]">
                                     <SearchableSelect
                                         value={selectedPt}
                                         onChange={(value) => {
@@ -675,7 +675,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         compact={true}
                                     />
                                 </div>
-                                <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group z-10">
+                                <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[30]">
                                     <SearchableSelect
                                         value={selectedSales}
                                         onChange={(value) => {
@@ -694,7 +694,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         )}
 
                         {['logistik', 'pesanan', 'piutang'].includes(tab) && (
-                            <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group z-10">
+                            <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[20]">
                                 <SearchableSelect
                                     value={selectedOutlet}
                                     onChange={(value) => {
