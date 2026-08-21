@@ -223,7 +223,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <td className="px-6 py-4 font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
                             <td className="px-6 py-4"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.pelanggan || '-'}</td>
                             <td className="px-6 py-4">{row.nama_produk || '-'}</td>
-                            <td className="px-6 py-4 text-right font-bold text-blue-600">{row.grand_total ? 'Rp ' + row.grand_total.toLocaleString('id-ID') : '-'}</td>
+                            <td className="px-6 py-4 text-right font-bold text-blue-600">{row.total ? 'Rp ' + Number(row.total).toLocaleString('id-ID') : '-'}</td>
                         </tr>
                     ))}
                     {reportData.data.length === 0 && <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Data laporan logistik kosong atau tidak ditemukan.</td></tr>}
