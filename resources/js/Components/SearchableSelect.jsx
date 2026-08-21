@@ -25,12 +25,12 @@ export default function SearchableSelect({ value, onChange, options, placeholder
                     <div className="relative mt-1">
                         <div className="relative w-full cursor-default overflow-hidden rounded-xl bg-white text-left border border-gray-300 shadow-sm focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500 sm:text-sm transition-all duration-200">
                             {Icon && (
-                                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <span className={`pointer-events-none absolute inset-y-0 flex items-center text-gray-400 z-20 transition-all duration-300 ${compact ? 'md:left-1/2 md:-translate-x-1/2 md:pl-0 md:group-hover:left-0 md:group-hover:translate-x-0 md:group-hover:pl-3 left-0 pl-3' : 'left-0 pl-3'}`}>
                                     <Icon className="h-4 w-4" />
                                 </span>
                             )}
                             <Combobox.Input
-                                className={`w-full border-none py-2.5 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 cursor-text ${Icon ? 'pl-10' : 'pl-4'} ${compact ? 'md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 bg-transparent relative z-10' : ''}`}
+                                className={`w-full border-none py-2.5 text-sm leading-5 text-gray-900 focus:ring-0 cursor-text ${compact ? 'md:px-0 md:group-hover:pl-10 md:group-hover:pr-10 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 bg-transparent relative z-10' : ''} ${Icon ? (compact ? 'pl-10 pr-10' : 'pl-10 pr-10') : 'pl-4 pr-10'}`}
                                 displayValue={(val) => {
                                     const opt = options.find(o => String(o.value) === String(val));
                                     return opt ? opt.label : '';

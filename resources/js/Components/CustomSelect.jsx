@@ -9,9 +9,9 @@ export default function CustomSelect({ value, onChange, options, placeholder = "
         <div className={`relative ${className}`}>
             <Listbox value={value} onChange={onChange}>
                 <div className="relative mt-1">
-                    <Listbox.Button className="relative w-full cursor-pointer rounded-xl bg-white py-2.5 pl-4 pr-10 text-left border border-gray-300 shadow-sm hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200">
+                    <Listbox.Button className={`relative w-full cursor-pointer rounded-xl bg-white py-2.5 text-left border border-gray-300 shadow-sm hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200 ${compact ? 'md:pl-0 md:pr-0 md:group-hover:pl-4 md:group-hover:pr-10 pl-4 pr-10' : 'pl-4 pr-10'}`}>
                         {Icon && (
-                            <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <span className={`pointer-events-none absolute inset-y-0 flex items-center text-gray-400 transition-all duration-300 ${compact ? 'md:left-1/2 md:-translate-x-1/2 md:pl-0 md:group-hover:left-0 md:group-hover:translate-x-0 md:group-hover:pl-3 left-0 pl-3' : 'left-0 pl-3'}`}>
                                 <Icon className="h-4 w-4" />
                             </span>
                         )}
