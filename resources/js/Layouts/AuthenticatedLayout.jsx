@@ -242,12 +242,12 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_features?.includes(14) },
             ]
         },
-        ...(hasPermission('manage spreadsheet sync') 
+        ...(auth.active_features?.includes(1) 
             ? [{
                 name: 'Spreadsheet', icon: FileCheck,
                 active: url.startsWith('/spreadsheet') || url.startsWith('/reports'),
                 children: [
-                    { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_features?.includes(35) },
+                    { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: true },
                     { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_features?.includes(7) },
                 ]
             }] 
@@ -401,7 +401,7 @@ export default function Authenticated({ user, header, children }) {
                                 <div className="flex items-center gap-3 cursor-pointer group">
                                     <div className="text-right hidden md:block">
                                         <p className="text-sm font-semibold text-gray-700">{user.name}</p>
-                                        <p className="text-xs text-gray-500">Superadmin</p>
+                                        <p className="text-xs text-gray-500">{user.roles?.length > 0 ? user.roles[0].name : 'Pengguna'}</p>
                                     </div>
                                     <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center border-2 border-white shadow-sm font-bold">
                                         {user.name.charAt(0)}
