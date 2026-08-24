@@ -49,7 +49,7 @@ class ReportController extends Controller
             if ($outletFilter) {
                 $query->where(function($q) use ($outletNamesToSearch) {
                     foreach ($outletNamesToSearch as $name) {
-                        $q->orWhere('nama_outlet', 'like', $name);
+                        $q->orWhere('pelanggan', 'like', $name);
                     }
                 });
             }
@@ -58,7 +58,7 @@ class ReportController extends Controller
             }
             if ($search) {
                 $query->where(function($q) use ($search) {
-                    $q->where('nama_outlet', 'like', "%{$search}%")
+                    $q->where('pelanggan', 'like', "%{$search}%")
                       ->orWhere('nama_sales', 'like', "%{$search}%")
                       ->orWhere('nama_produk', 'like', "%{$search}%");
                 });

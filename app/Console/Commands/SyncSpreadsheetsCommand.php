@@ -26,17 +26,25 @@ class SyncSpreadsheetsCommand extends Command
     public function handle()
     {
         $types = ['logistik', 'pesanan', 'piutang', 'hutang'];
-        $this->info('Memulai sinkronisasi otomatis spreadsheet...');
+        $messageStart = 'Memulai sinkronisasi otomatis spreadsheet...';
+        $this->info($messageStart);
+        \Illuminate\Support\Facades\Log::info("Cron: " . $messageStart);
 
         foreach ($types as $type) {
             try {
                 $rowsAdded = \App\Services\SpreadsheetSyncService::syncType($type);
-                $this->info("Sinkronisasi {$type} berhasil. ({$rowsAdded} baris ditarik)");
+                $msgSuccess = "Sinkronisasi {$type} berhasil. ({$rowsAdded} baris ditarik)";
+                $this->info($msgSuccess);
+                \Illuminate\Support\Facades\Log::info("Cron: " . $msgSuccess);
             } catch (\Exception $e) {
-                $this->error("Sinkronisasi {$type} gagal: " . $e->getMessage());
+                $msgError = "Sinkronisasi {$type} gagal: " . $e->getMessage();
+                $this->error($msgError);
+                \Illuminate\Support\Facades\Log::error("Cron: " . $msgError);
             }
         }
         
-        $this->info('Sinkronisasi otomatis selesai.');
+        $messageEnd = 'Sinkronisasi otomatis selesai.';
+        $this->info($messageEnd);
+        \Illuminate\Support\Facades\Log::info("Cron: " . $messageEnd);
     }
 }
