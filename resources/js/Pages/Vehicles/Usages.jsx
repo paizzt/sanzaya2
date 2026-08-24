@@ -112,9 +112,17 @@ export default function Usages({ usages, vehicles, filters }) {
                                                     </a>
                                                 )}
                                                 {usage.receipt_photo && (
-                                                    <a href={`/storage/${usage.receipt_photo}`} target="_blank" className="p-2 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg tooltip transition-colors" title="Lihat Nota Bensin">
-                                                        <FileText className="w-4 h-4" />
-                                                    </a>
+                                                    Array.isArray(usage.receipt_photo) ? (
+                                                        usage.receipt_photo.map((photo, idx) => (
+                                                            <a key={idx} href={`/storage/${photo}`} target="_blank" className="p-2 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg tooltip transition-colors" title={`Lihat Nota Bensin ${idx + 1}`}>
+                                                                <FileText className="w-4 h-4" />
+                                                            </a>
+                                                        ))
+                                                    ) : (
+                                                        <a href={`/storage/${usage.receipt_photo}`} target="_blank" className="p-2 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg tooltip transition-colors" title="Lihat Nota Bensin">
+                                                            <FileText className="w-4 h-4" />
+                                                        </a>
+                                                    )
                                                 )}
                                                 {!usage.usage_photo && !usage.receipt_photo && (
                                                     <span className="text-xs text-gray-400">-</span>

@@ -35,7 +35,8 @@ class VehicleUsageController extends Controller
             'destination' => 'nullable|string|max:255',
             'gas_expense' => 'nullable|numeric|min:0',
             'usage_photo' => 'nullable|image|max:5120', // 5MB max
-            'receipt_photo' => 'nullable|image|max:5120',
+            'receipt_photo' => 'nullable|array',
+            'receipt_photo.*' => 'image|max:5120',
         ]);
 
         $data = $request->except(['usage_photo', 'receipt_photo']);
@@ -46,7 +47,11 @@ class VehicleUsageController extends Controller
         }
 
         if ($request->hasFile('receipt_photo')) {
-            $data['receipt_photo'] = $request->file('receipt_photo')->store('vehicle_usages', 'public');
+            $receiptPhotos = [];
+            foreach ($request->file('receipt_photo') as $photo) {
+                $receiptPhotos[] = $photo->store('vehicle_usages', 'public');
+            }
+            $data['receipt_photo'] = $receiptPhotos;
         }
 
         VehicleUsage::create($data);
@@ -61,7 +66,13 @@ class VehicleUsageController extends Controller
         if ($usage->usage_photo) {
             Storage::disk('public')->delete($usage->usage_photo);
         }
-        if ($usage->receipt_photo) {
+        
+        if ($usage->receipt_photo && is_array($usage->receipt_photo)) {
+            foreach ($usage->receipt_photo as $photo) {
+                Storage::disk('public')->delete($photo);
+            }
+        } elseif ($usage->receipt_photo) {
+            // Fallback if it was stored as a single string previously
             Storage::disk('public')->delete($usage->receipt_photo);
         }
         

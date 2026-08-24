@@ -19,6 +19,10 @@ class VehicleUsage extends Model
         'gas_expense',
     ];
 
+    protected $casts = [
+        'receipt_photo' => 'array',
+    ];
+
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);

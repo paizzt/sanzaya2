@@ -17,7 +17,7 @@ export default function Index({ vehicles }) {
         destination: '',
         gas_expense: '',
         usage_photo: null,
-        receipt_photo: null,
+        receipt_photo: [],
         vehicle_id: null
     });
 
@@ -487,9 +487,17 @@ export default function Index({ vehicles }) {
                                                                         </a>
                                                                     )}
                                                                     {usage.receipt_photo && (
-                                                                        <a href={`/storage/${usage.receipt_photo}`} target="_blank" className="text-orange-500 hover:text-orange-700 tooltip" title="Nota Bensin">
-                                                                            <FileText className="w-4 h-4" />
-                                                                        </a>
+                                                                        Array.isArray(usage.receipt_photo) ? (
+                                                                            usage.receipt_photo.map((photo, idx) => (
+                                                                                <a key={idx} href={`/storage/${photo}`} target="_blank" className="text-orange-500 hover:text-orange-700 tooltip" title={`Nota Bensin ${idx + 1}`}>
+                                                                                    <FileText className="w-4 h-4" />
+                                                                                </a>
+                                                                            ))
+                                                                        ) : (
+                                                                            <a href={`/storage/${usage.receipt_photo}`} target="_blank" className="text-orange-500 hover:text-orange-700 tooltip" title="Nota Bensin">
+                                                                                <FileText className="w-4 h-4" />
+                                                                            </a>
+                                                                        )
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -568,8 +576,9 @@ export default function Index({ vehicles }) {
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Foto Nota Bensin</label>
                                     <input 
                                         type="file" 
+                                        multiple
                                         accept="image/*"
-                                        onChange={e => setData('receipt_photo', e.target.files[0])}
+                                        onChange={e => setData('receipt_photo', Array.from(e.target.files))}
                                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
                                     />
                                     {errors.receipt_photo && <p className="text-red-500 text-xs mt-1">{errors.receipt_photo}</p>}
