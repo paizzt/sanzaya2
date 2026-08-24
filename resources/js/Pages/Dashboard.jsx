@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, Link } from '@inertiajs/react';
-import { Users, CreditCard, Building, FileText, ClipboardList, Package, Archive } from 'lucide-react';
+import { Users, CreditCard, Building, FileText, ClipboardList, Package, Archive, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const StatCard = ({ title, value, icon: Icon, color, delay }) => {
@@ -78,7 +78,9 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                         )}
                         {!isAdmin && (
                             <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full flex flex-col items-center justify-center text-center">
-                                <img src="https://illustrations.popsy.co/amber/success.svg" alt="Success" className="w-48 h-48 opacity-80" />
+                                <div className="w-48 h-48 flex items-center justify-center rounded-full bg-blue-50 mb-4">
+                                    <Sparkles className="w-24 h-24 text-blue-500 opacity-80" />
+                                </div>
                                 <h3 className="text-xl font-bold text-gray-700 mt-4">Semangat Bekerja!</h3>
                                 <p className="text-gray-500">Pastikan untuk selalu melaporkan kunjungan dan kehadiran tepat waktu.</p>
                             </div>
