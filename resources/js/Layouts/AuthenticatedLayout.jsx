@@ -453,7 +453,7 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 )}
 
-                <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 lg:pt-4 pb-4 sm:pb-6 lg:pb-8 transition-all duration-300">
+                <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 lg:pt-4 pb-24 lg:pb-8 transition-all duration-300">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>
