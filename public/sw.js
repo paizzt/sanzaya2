@@ -7,7 +7,16 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(STATIC_ASSETS);
+            return Promise.all(
+                STATIC_ASSETS.map(url => {
+                    return fetch(url).then(response => {
+                        if (!response.ok) throw new Error('Response not ok');
+                        return cache.put(url, response);
+                    }).catch(err => {
+                        console.warn('Service Worker: Gagal menyimpan cache untuk', url);
+                    });
+                })
+            );
         })
     );
     self.skipWaiting();
