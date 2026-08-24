@@ -799,6 +799,26 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                 </div>
                             ) : (
                                 <div className="space-y-3">
+                                    {(() => {
+                                        let totalValue = null;
+                                        if (detailModal.type === 'penjualan') totalValue = summary?.total_penjualan;
+                                        else if (detailModal.type === 'pesanan') totalValue = summary?.total_pesanan;
+                                        else if (detailModal.type === 'faktur') totalValue = summaryPesanan?.total_faktur;
+                                        else if (detailModal.type === 'gabungan') totalValue = summaryPiutang?.total_gabungan;
+                                        else if (detailModal.type === 'sanzaya') totalValue = summaryPiutang?.total_sanzaya;
+                                        else if (detailModal.type === 'ruma') totalValue = summaryPiutang?.total_ruma;
+                                        else if (detailModal.type === 'hutang') totalValue = summaryHutang?.total_nominal;
+
+                                        if (totalValue) {
+                                            return (
+                                                <div className="flex justify-between items-center p-4 mb-2 bg-blue-50/80 rounded-xl border border-blue-100">
+                                                    <span className="font-bold text-blue-900">Total Keseluruhan</span>
+                                                    <span className="font-bold text-blue-700 text-lg">{totalValue}</span>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
                                     <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
                                         <span>{detailModal.type === 'penjualan' || detailModal.type === 'pesanan' ? 'Nama Sales' : (detailModal.type === 'outlet' ? 'Nama Outlet' : 'Nama Produk')}</span>
                                         <span>{detailModal.type === 'penjualan' ? 'Total (Rp)' : 'Jumlah'}</span>

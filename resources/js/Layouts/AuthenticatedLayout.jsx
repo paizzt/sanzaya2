@@ -456,7 +456,7 @@ export default function Authenticated({ user, header, children }) {
                 </header>
 
                 {/* Mobile Menu */}
-                <div className={`lg:hidden fixed inset-0 z-50 transform transition-transform duration-300 ${showingNavigationDropdown ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className={`lg:hidden fixed inset-0 z-[60] transform transition-transform duration-300 ${showingNavigationDropdown ? 'translate-x-0' : '-translate-x-full'}`}>
                     <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onClick={() => setShowingNavigationDropdown(false)}></div>
                     <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl flex flex-col">
                         <div className="p-6 flex items-center border-b border-gray-100 relative h-24">
