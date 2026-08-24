@@ -3,7 +3,7 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building, BookOpen } from 'lucide-react';
+import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building, BookOpen, Download } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -68,6 +68,8 @@ const SidebarItem = ({ item, sidebarCollapsed, setSidebarCollapsed }) => {
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [isInstallable, setIsInstallable] = useState(false);
     const { url } = usePage();
     const { auth, flash } = usePage().props;
     const notifications = auth?.notifications || [];
@@ -96,6 +98,35 @@ export default function Authenticated({ user, header, children }) {
             });
         }
     }, [flash]);
+
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+            setIsInstallable(true);
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+        window.addEventListener('appinstalled', () => {
+            setIsInstallable(false);
+            setDeferredPrompt(null);
+        });
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        };
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setIsInstallable(false);
+        }
+        setDeferredPrompt(null);
+    };
 
     const markAsRead = (id) => {
         router.post(route('notifications.markRead', id), {}, { preserveScroll: true, preserveState: true });
@@ -332,6 +363,15 @@ export default function Authenticated({ user, header, children }) {
                             </div>
 
                             <div className="flex items-center ml-auto gap-4">
+                                {isInstallable && (
+                                    <button
+                                        onClick={handleInstallClick}
+                                        className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
+                                        title="Install Aplikasi"
+                                    >
+                                        <Download className="w-5 h-5" />
+                                    </button>
+                                )}
                                 <Link
                                     href={route('sops.index')}
                                     className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
