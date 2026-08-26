@@ -106,7 +106,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                 {!imgSrc ? (
                                     <button
                                         onClick={capture}
-                                        className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
+                                        className="flex-1 bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
                                     >
                                         <Camera className="w-5 h-5" /> Ambil Foto
                                     </button>
