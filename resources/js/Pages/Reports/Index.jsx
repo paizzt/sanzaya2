@@ -206,7 +206,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
             </div>
         );
     };
-    };
 
     const getKeteranganBadge = (keterangan) => {
         if (!keterangan) return null;
