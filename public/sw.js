@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sanzaya-cache-v3';
+const CACHE_NAME = 'sanzaya-cache-v4';
 const STATIC_ASSETS = [
     '/favicon.ico',
     '/logo.png',
@@ -51,7 +51,14 @@ self.addEventListener('fetch', (event) => {
                     caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
                     return response;
                 })
-                .catch(() => caches.match(request))
+                .catch(async () => {
+                    const cached = await caches.match(request);
+                    if (cached) return cached;
+                    if (request.headers.get('accept').includes('text/html')) {
+                        // Optional: return caches.match('/offline.html') if you have one
+                    }
+                    return new Response("Network error and no cache available.", { status: 503, statusText: "Service Unavailable" });
+                })
         );
         return;
     }
