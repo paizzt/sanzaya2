@@ -188,17 +188,17 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                 
                 {/* Tab Navigation */}
                 <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full pb-2">
-                    <button onClick={() => setActiveTab('laporan')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='laporan'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                        <ClipboardList className="w-4 h-4"/> Form Laporan Harian
+                    <button onClick={() => setActiveTab('laporan')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='laporan'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:text-blue-600 hover:bg-blue-50 shadow-sm border border-gray-100'}`}>
+                        <ClipboardList className="w-4 h-4"/> Laporan
                     </button>
-                    <button onClick={() => setActiveTab('target')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='target'?'bg-emerald-600 text-white shadow-md shadow-emerald-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                        <Target className="w-4 h-4"/> Form Target Mingguan
+                    <button onClick={() => setActiveTab('target')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='target'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:text-blue-600 hover:bg-blue-50 shadow-sm border border-gray-100'}`}>
+                        <Target className="w-4 h-4"/> Target
                     </button>
-                    <button onClick={() => setActiveTab('rekap_laporan')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='rekap_laporan'?'bg-indigo-600 text-white shadow-md shadow-indigo-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                        <TrendingUp className="w-4 h-4"/> Rekap Laporan Harian
+                    <button onClick={() => setActiveTab('rekap_laporan')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='rekap_laporan'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:text-blue-600 hover:bg-blue-50 shadow-sm border border-gray-100'}`}>
+                        <TrendingUp className="w-4 h-4"/> Rekap Laporan
                     </button>
-                    <button onClick={() => setActiveTab('rekap_target')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='rekap_target'?'bg-teal-600 text-white shadow-md shadow-teal-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                        <CalendarDays className="w-4 h-4"/> Rekap Target Mingguan
+                    <button onClick={() => setActiveTab('rekap_target')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='rekap_target'?'bg-blue-600 text-white shadow-md shadow-blue-500/30':'bg-white text-gray-500 hover:text-blue-600 hover:bg-blue-50 shadow-sm border border-gray-100'}`}>
+                        <CalendarDays className="w-4 h-4"/> Rekap Target
                     </button>
                 </div>
 
@@ -208,8 +208,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     {activeTab === 'laporan' && (
                     <div className="lg:col-span-2 min-w-0">
                         <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                            <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
-                                <TrendingUp className="text-blue-600 w-5 h-5" />
+                            <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4">
                                 Form Laporan Harian
                             </h3>
 
@@ -400,7 +399,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                 </div>
 
                                 <div className="pt-4 border-t border-gray-100 flex justify-end">
-                                    <PrimaryButton disabled={processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2">
+                                    <PrimaryButton disabled={processing} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm whitespace-nowrap shrink-0">
                                         {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>
@@ -415,8 +414,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     {activeTab === 'target' && (
                         <div className="lg:col-span-2 min-w-0">
                             <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                <h3 className="font-bold text-lg text-gray-800 mb-2 flex items-center gap-2">
-                                    <Target className="text-blue-600 w-5 h-5" />
+                                <h3 className="font-bold text-lg text-gray-800 mb-2">
                                     Target Mingguan Sales
                                 </h3>
                                 <p className="text-gray-500 text-sm mb-6 pb-4 border-b border-gray-50">
@@ -533,8 +531,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     </div>
 
                                     <div className="pt-6 border-t border-gray-100 flex justify-end">
-                                        <PrimaryButton disabled={targetProcessing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/30">
-                                            <CheckSquare className="w-4 h-4" /> Tetapkan Target
+                                        <PrimaryButton disabled={targetProcessing} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm whitespace-nowrap shrink-0">
+                                            {targetProcessing ? 'Menyimpan...' : 'Simpan'}
                                         </PrimaryButton>
                                     </div>
                                 </form>
@@ -546,9 +544,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     {activeTab === 'rekap_laporan' && (
                         <div className="lg:col-span-2 min-w-0">
                             <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center justify-between border-b border-gray-50 pb-4">
-                                    <div className="flex items-center gap-2">
-                                        <ClipboardList className="text-indigo-600 w-5 h-5" />
+                                <h3 className="font-bold text-lg text-gray-800 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-gray-50 pb-4">
+                                    <div>
                                         Rekap Laporan Harian
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
@@ -611,9 +608,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     {activeTab === 'rekap_target' && (
                         <div className="lg:col-span-2 min-w-0">
                             <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center justify-between border-b border-gray-50 pb-4">
-                                    <div className="flex items-center gap-2">
-                                        <CalendarDays className="text-teal-600 w-5 h-5" />
+                                <h3 className="font-bold text-lg text-gray-800 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-gray-50 pb-4">
+                                    <div>
                                         Rekap Target Mingguan
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export_target.pdf')} trigger={
@@ -663,8 +659,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     {/* Riwayat Kunjungan */}
                     <div className="lg:col-span-1 min-w-0">
                         <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
-                            <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4 flex items-center gap-2">
-                                <Building className="text-gray-400 w-5 h-5" /> Riwayat Kunjungan
+                            <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4">
+                                Riwayat Kunjungan
                             </h3>
                             
                             {reports.length === 0 ? (
