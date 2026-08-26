@@ -182,13 +182,13 @@ export default function BhpRecap({ requests }) {
                                     />
                             </div>
                         </div>
-                        <div className="flex flex-row items-center gap-3">
-                            <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm w-full md:w-auto text-center">
-                                Total Data: <span className="text-gray-900 font-bold">{filteredRequests.length}</span>
+                        <div className="flex flex-row items-center gap-2">
+                            <div className="text-sm font-medium text-gray-500 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm whitespace-nowrap shrink-0">
+                                Total: <span className="text-gray-900 font-bold">{filteredRequests.length}</span>
                             </div>
                             <ExportDropdown pdfRoute={exportUrl} trigger={
-                                        <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-sm font-bold hover:bg-rose-100 transition-all shadow-sm whitespace-nowrap">
-                                            <Download className="w-5 h-5 text-rose-600" /> Unduh PDF
+                                        <button className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-sm font-bold hover:bg-rose-100 transition-all shadow-sm whitespace-nowrap shrink-0">
+                                            <Download className="w-4 h-4 text-rose-600" /> Unduh
                                         </button>
                                     } />
                         </div>
@@ -313,8 +313,8 @@ export default function BhpRecap({ requests }) {
 
                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-3">
                             <ExportDropdown pdfRoute={route('requests.bhp.pdf', selectedRequest.id)} trigger={
-                                <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-sm font-bold hover:bg-rose-100 transition-all shadow-sm w-full sm:w-auto">
-                                    <Download className="w-5 h-5 text-rose-600" /> Unduh PDF Form Ini
+                                <button className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-sm font-bold hover:bg-rose-100 transition-all shadow-sm w-full sm:w-auto whitespace-nowrap shrink-0">
+                                    <Download className="w-4 h-4 text-rose-600" /> Unduh
                                 </button>
                             } />
                             

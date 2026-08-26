@@ -396,8 +396,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 />
                                 <PrimaryButton onClick={() => openModal()}>
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Tambah Data
-                                </PrimaryButton>
+                                    Tambah</PrimaryButton>
                             </div>
                             </div>
 
@@ -493,7 +492,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
             <Modal show={isModalOpen} onClose={closeModal} maxWidth="4xl">
                 <form onSubmit={submit} className="p-6">
                     <h2 className="text-lg font-medium text-gray-900 mb-6">
-                        {editingItem ? 'Edit Data Logistik' : 'Tambah Data Logistik'}
+                        {editingItem ? 'Edit Data Logistik' : 'Tambah Logistik'}
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -626,3 +625,4 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
         </AuthenticatedLayout>
     );
 }
+

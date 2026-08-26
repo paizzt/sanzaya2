@@ -164,8 +164,8 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     <Link href={route('payment-requests.show', pr.id)} className="text-indigo-600 hover:text-indigo-900 inline-block" title="Detail">
                                                         <Eye size={18} />
                                                     </Link>
-                                                    <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-lg text-xs font-bold transition-all shadow-sm" title="Unduh PDF">
-                                                        <FileText className="w-4 h-4 text-rose-600" /> Unduh PDF
+                                                    <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-900 inline-block" title="Unduh PDF">
+                                                        <FileText size={18} />
                                                     </a>
                                                     {isSuperAdmin && (
                                                         <>

@@ -356,10 +356,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setIsDownloadOpen(!isDownloadOpen)}
-                            className="flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200 px-4 py-2.5 rounded-xl font-bold hover:bg-rose-100 transition-all shadow-sm text-sm"
+                            className="flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200 px-3 py-2 rounded-lg font-bold hover:bg-rose-100 transition-all shadow-sm text-sm whitespace-nowrap shrink-0"
                         >
-                            <Download className="w-5 h-5 text-rose-600" />
-                            Unduh Laporan
+                            <Download className="w-4 h-4 text-rose-600" />
+                            Unduh
                             <ChevronDown className={`w-4 h-4 text-rose-500 transition-transform duration-200 ${isDownloadOpen ? 'rotate-180' : ''}`} />
                         </button>
                         

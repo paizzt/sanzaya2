@@ -295,9 +295,9 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
 
                         <button 
                             onClick={() => openModal()}
-                            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/30 text-sm whitespace-nowrap"
+                            className="flex items-center gap-2 bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/20 text-sm whitespace-nowrap shrink-0"
                         >
-                            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Tambah Data</span>
+                            <Plus className="w-4 h-4" /> Tambah
                         </button>
                     </div>
                 </div>
@@ -800,3 +800,4 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
         </AuthenticatedLayout>
     );
 }
+

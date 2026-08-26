@@ -204,9 +204,9 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} />
                                 <button 
                         onClick={openCreateModal}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-500/30 w-full sm:w-auto whitespace-nowrap shrink-0"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-500/20 w-full sm:w-auto whitespace-nowrap shrink-0"
                     >
-                        <Plus className="w-5 h-5" /> Tambah Pengguna
+                        <Plus className="w-4 h-4" /> Tambah
                     </button>
                             </div>
                 </div>

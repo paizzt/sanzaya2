@@ -552,8 +552,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         Rekap Laporan Harian
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
-                                        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-xl text-sm font-bold transition-all shadow-sm">
-                                            <Download className="w-5 h-5 text-emerald-600" /> Unduh Data
+                                        <button className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-sm font-bold transition-all shadow-sm whitespace-nowrap shrink-0">
+                                            <Download className="w-4 h-4 text-emerald-600" /> Unduh
                                         </button>
                                     } />
                                 </h3>
@@ -617,8 +617,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         Rekap Target Mingguan
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export_target.pdf')} trigger={
-                                        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-xl text-sm font-bold transition-all shadow-sm">
-                                            <Download className="w-5 h-5 text-emerald-600" /> Unduh Data
+                                        <button className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-sm font-bold transition-all shadow-sm whitespace-nowrap shrink-0">
+                                            <Download className="w-4 h-4 text-emerald-600" /> Unduh
                                         </button>
                                     } />
                                 </h3>

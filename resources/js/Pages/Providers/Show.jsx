@@ -266,12 +266,12 @@ export default function Show({ provider, products, filters }) {
                                         className="pl-10 w-full md:w-64 rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                                     />
                                 </div>
-                                <button 
+                                <button
                                     onClick={openAddModal}
-                                    className="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm"
+                                    className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center whitespace-nowrap shrink-0 shadow-sm"
                                 >
-                                    <Plus className="w-4 h-4 mr-2" />
-                                    Tambah Barang
+                                    <Plus className="w-4 h-4 mr-1.5" />
+                                    Tambah
                                 </button>
                             </div>
                         </div>

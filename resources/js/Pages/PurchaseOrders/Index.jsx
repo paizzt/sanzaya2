@@ -241,8 +241,7 @@ export default function Index({ auth, items, outlets, summary }) {
                                 <ExportDropdown pdfRoute={route('purchase-orders.export.pdf')} excelRoute={route('purchase-orders.export.excel')} />
                                 <PrimaryButton onClick={() => openModal()}>
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Tambah Data
-                                </PrimaryButton>
+                                    Tambah</PrimaryButton>
                             </div>
                             </div>
 
@@ -296,7 +295,7 @@ export default function Index({ auth, items, outlets, summary }) {
             <Modal show={isModalOpen} onClose={closeModal}>
                 <form onSubmit={submit} className="p-6">
                     <h2 className="text-lg font-medium text-gray-900 mb-6">
-                        {editingItem ? 'Edit Data Surat Pesanan' : 'Tambah Data Surat Pesanan'}
+                        {editingItem ? 'Edit Data Surat Pesanan' : 'Tambah Pesanan'}
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-96 overflow-y-auto pr-2">
@@ -380,3 +379,4 @@ export default function Index({ auth, items, outlets, summary }) {
         </AuthenticatedLayout>
     );
 }
+

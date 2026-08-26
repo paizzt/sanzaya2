@@ -171,8 +171,8 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                             )}
                                             {req.status === 'Selesai / Result Dikirim' && (
                                                 <ExportDropdown pdfRoute={route('requests.uc.pdf', req.id)} trigger={
-                                                <button className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 rounded-lg text-xs font-bold transition-all shadow-sm">
-                                                    <Download className="w-4 h-4 text-rose-600" /> Unduh PDF
+                                                <button className="text-rose-600 hover:text-rose-900 inline-block transition-colors" title="Unduh PDF">
+                                                    <FileText size={18} />
                                                 </button>
                                             } />
                                             )}
