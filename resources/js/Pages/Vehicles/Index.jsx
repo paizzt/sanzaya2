@@ -1,7 +1,7 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
-import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench, Activity, Image as ImageIcon } from 'lucide-react';
+import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench, History, Image as ImageIcon } from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
@@ -100,21 +100,23 @@ export default function Index({ vehicles }) {
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">Kelola data kendaraan, legalitas, dan jadwal perawatan rutin.</p>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                                <Link 
-                                    href={route('vehicle-usages.index')}
-                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-sm border border-gray-200"
-                                >
-                                    <Activity className="w-5 h-5" /> Log Armada
-                                </Link>
-                                <ExportDropdown pdfRoute={route('vehicles.export.pdf')} excelRoute={route('vehicles.export.excel')} />
-                                <Link 
-                        href={route('vehicles.create')}
-                        className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
-                    >
-                        <Plus className="w-5 h-5 mr-2" /> Tambah Armada
-                    </Link>
-                            </div>
+                    <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
+                        <Link 
+                            href={route('vehicle-usages.index')}
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-sm border border-blue-200 w-full"
+                        >
+                            <History className="w-5 h-5" /> Riwayat Jalan
+                        </Link>
+                        <div className="w-full">
+                            <ExportDropdown pdfRoute={route('vehicles.export.pdf')} excelRoute={route('vehicles.export.excel')} className="w-full justify-center" />
+                        </div>
+                        <Link 
+                            href={route('vehicles.create')}
+                            className="col-span-2 inline-flex items-center justify-center rounded-xl border border-transparent bg-gray-800 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 w-full sm:w-auto"
+                        >
+                            <Plus className="w-5 h-5 mr-2" /> Tambah Armada
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
