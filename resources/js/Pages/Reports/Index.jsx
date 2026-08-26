@@ -492,7 +492,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Persentase barang yang berhasil terkirim</p>
                         </div>
 
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Belum Terkirim', type: 'belum_terkirim', data: summaryPesanan.belum_terkirim_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Belum Terkirim</p>
@@ -505,7 +505,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Persentase barang yang belum terkirim</p>
                         </div>
 
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Surat', type: 'total_surat', data: summaryPesanan.pesanan_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Surat</p>
@@ -858,6 +858,9 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         if (detailModal.type === 'penjualan') totalValue = summary?.total_penjualan;
                                         else if (detailModal.type === 'pesanan') totalValue = summary?.total_pesanan;
                                         else if (detailModal.type === 'faktur') totalValue = summaryPesanan?.total_faktur;
+                                        else if (detailModal.type === 'terkirim') totalValue = summaryPesanan?.total_terkirim;
+                                        else if (detailModal.type === 'belum_terkirim') totalValue = summaryPesanan?.total_belum_terkirim;
+                                        else if (detailModal.type === 'total_surat') totalValue = summaryPesanan?.total_pesanan;
                                         else if (detailModal.type === 'gabungan') totalValue = summaryPiutang?.total_gabungan;
                                         else if (detailModal.type === 'sanzaya') totalValue = summaryPiutang?.total_sanzaya;
                                         else if (detailModal.type === 'ruma') totalValue = summaryPiutang?.total_ruma;
@@ -901,8 +904,8 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan Sales</h4>
                                         )}
                                         <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                            <span>{detailModal.type === 'penjualan' || detailModal.type === 'pesanan' ? 'Nama Sales' : (detailModal.type === 'outlet' ? 'Nama Outlet' : 'Nama Produk')}</span>
-                                            <span>{detailModal.type === 'penjualan' ? 'Total (Rp)' : 'Jumlah'}</span>
+                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (detailModal.type === 'penjualan' ? 'Nama Sales' : 'Nama')}</span>
+                                            <span>{['penjualan', 'faktur'].includes(detailModal.type) ? 'Total (Rp)' : 'Nilai'}</span>
                                         </div>
                                         <div className="space-y-3 mt-3">
                                             {Object.entries(detailModal.data).map(([key, value], idx) => (

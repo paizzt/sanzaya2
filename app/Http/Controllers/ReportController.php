@@ -177,7 +177,7 @@ class ReportController extends Controller
             
             $pesananAll = $summaryPesananQuery->select('total_faktur', 'terkirim', 'belum_terkirim', 'nama_outlet', 'nama_produk')->get();
             $totalFaktur = 0; $totalTerkirim = 0; $totalBelumTerkirim = 0;
-            $fakturOutlet = []; $terkirimOutlet = [];
+            $fakturOutlet = []; $terkirimOutlet = []; $belumTerkirimOutlet = []; $pesananOutlet = [];
             foreach ($pesananAll as $row) {
                 $f = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_faktur);
                 $totalFaktur += $f;
@@ -189,15 +189,23 @@ class ReportController extends Controller
                 if ($row->nama_outlet) {
                     $fakturOutlet[$row->nama_outlet] = ($fakturOutlet[$row->nama_outlet] ?? 0) + $f;
                     $terkirimOutlet[$row->nama_outlet] = ($terkirimOutlet[$row->nama_outlet] ?? 0) + $t;
+                    $belumTerkirimOutlet[$row->nama_outlet] = ($belumTerkirimOutlet[$row->nama_outlet] ?? 0) + $bt;
+                    $pesananOutlet[$row->nama_outlet] = ($pesananOutlet[$row->nama_outlet] ?? 0) + 1;
                 }
             }
-            arsort($fakturOutlet); arsort($terkirimOutlet);
+            arsort($fakturOutlet); arsort($terkirimOutlet); arsort($belumTerkirimOutlet); arsort($pesananOutlet);
             
             $fakturOutletFormatted = [];
             foreach($fakturOutlet as $o => $v) $fakturOutletFormatted[$o] = 'Rp ' . number_format($v, 0, ',', '.');
             
             $terkirimOutletFormatted = [];
             foreach($terkirimOutlet as $o => $v) $terkirimOutletFormatted[$o] = number_format($v, 0, ',', '.') . ' Terkirim';
+
+            $belumTerkirimOutletFormatted = [];
+            foreach($belumTerkirimOutlet as $o => $v) $belumTerkirimOutletFormatted[$o] = number_format($v, 0, ',', '.') . ' Belum Terkirim';
+
+            $pesananOutletFormatted = [];
+            foreach($pesananOutlet as $o => $v) $pesananOutletFormatted[$o] = number_format($v, 0, ',', '.') . ' Surat';
 
             $totalItems = $totalTerkirim + $totalBelumTerkirim;
             return [
@@ -206,7 +214,9 @@ class ReportController extends Controller
                 'total_belum_terkirim' => ($totalItems > 0 ? round(($totalBelumTerkirim / $totalItems) * 100, 1) : 0) . '%',
                 'total_pesanan' => $pesananAll->count(),
                 'faktur_detail' => array_slice($fakturOutletFormatted, 0, 10, true),
-                'terkirim_detail' => array_slice($terkirimOutletFormatted, 0, 10, true)
+                'terkirim_detail' => array_slice($terkirimOutletFormatted, 0, 10, true),
+                'belum_terkirim_detail' => array_slice($belumTerkirimOutletFormatted, 0, 10, true),
+                'pesanan_detail' => array_slice($pesananOutletFormatted, 0, 10, true)
             ];
         });
 
