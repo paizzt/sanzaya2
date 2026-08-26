@@ -21,7 +21,8 @@ class ProviderProductController extends Controller
             'qty' => 'nullable|integer|min:0',
             'unit' => 'nullable|string|max:50',
             'tkdn' => 'nullable|numeric|min:0|max:100',
-            'hna' => 'nullable|numeric|min:0'
+            'hna' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0'
         ]);
 
         \App\Models\ProviderProduct::create($validated);
@@ -43,7 +44,8 @@ class ProviderProductController extends Controller
             'qty' => 'nullable|integer|min:0',
             'unit' => 'nullable|string|max:50',
             'tkdn' => 'nullable|numeric|min:0|max:100',
-            'hna' => 'nullable|numeric|min:0'
+            'hna' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0'
         ]);
 
         $providerProduct->update($validated);

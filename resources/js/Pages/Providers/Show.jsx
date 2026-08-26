@@ -32,6 +32,7 @@ export default function Show({ provider, products, filters }) {
         unit: '',
         tkdn: '',
         hna: '',
+        selling_price: '',
     });
 
     const handleSearch = (e) => {
@@ -71,6 +72,7 @@ export default function Show({ provider, products, filters }) {
             unit: product.unit || '',
             tkdn: product.tkdn || '',
             hna: product.hna || '',
+            selling_price: product.selling_price || '',
         });
         setIsModalOpen(true);
     };
@@ -282,6 +284,7 @@ export default function Show({ provider, products, filters }) {
                                         <th className="px-6 py-4 font-semibold">No. Registrasi</th>
                                         <th className="px-6 py-4 font-semibold text-center">TKDN</th>
                                         <th className="px-6 py-4 font-semibold text-center">Jumlah & Satuan</th>
+                                        <th className="px-6 py-4 font-semibold text-right">Harga Jual</th>
                                         <th className="px-6 py-4 font-semibold text-right">Harga + PPN</th>
                                         <th className="px-6 py-4 font-semibold text-center">Status</th>
                                         <th className="px-6 py-4 font-semibold text-center">Aksi</th>
@@ -309,7 +312,12 @@ export default function Show({ provider, products, filters }) {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <p className="font-bold text-gray-900">
-                                                    Rp {new Intl.NumberFormat('id-ID').format(product.price)}
+                                                    Rp {new Intl.NumberFormat('id-ID').format(product.selling_price || 0)}
+                                                </p>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <p className="font-bold text-gray-900">
+                                                    Rp {new Intl.NumberFormat('id-ID').format(product.price || 0)}
                                                 </p>
                                             </td>
                                             <td className="px-6 py-4 text-center">
@@ -466,6 +474,19 @@ export default function Show({ provider, products, filters }) {
                                                 onChange={(e) => setData('hna', e.target.value)}
                                             />
                                             <InputError message={errors.hna} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="selling_price" value="Harga Jual" />
+                                            <TextInput
+                                                id="selling_price"
+                                                type="number"
+                                                name="selling_price"
+                                                value={data.selling_price}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('selling_price', e.target.value)}
+                                            />
+                                            <InputError message={errors.selling_price} className="mt-2" />
                                         </div>
 
                                         <div>
