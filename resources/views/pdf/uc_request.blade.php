@@ -9,7 +9,7 @@
         }
     
         @page {
-            margin: 30px 40px 60px 40px; /* Added more bottom margin for footer */
+            margin: 30px 40px 90px 40px; /* Increased bottom margin to prevent footer overlap */
         }
         body {
             font-family: Arial, sans-serif;
@@ -120,7 +120,7 @@
         
         .footer {
             position: fixed;
-            bottom: -60px;
+            bottom: -90px;
             left: -40px;
             right: -40px;
             height: 30px;
