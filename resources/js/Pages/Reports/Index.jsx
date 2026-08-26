@@ -233,36 +233,47 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
     const renderPesananTable = () => (
         <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-500">
+            <table className="w-full text-sm text-left text-gray-500 whitespace-nowrap">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                     <tr>
-                        <th className="px-6 py-4">Tanggal</th>
-                        <th className="px-6 py-4">Outlet</th>
-                        <th className="px-6 py-4">Produk</th>
-                        <th className="px-6 py-4 text-right">Jml</th>
-                        <th className="px-6 py-4">Satuan</th>
-                        <th className="px-6 py-4 text-right">T.Faktur</th>
-                        <th className="px-6 py-4">Status Pengiriman</th>
+                        <th className="px-6 py-4">TANGGAL</th>
+                        <th className="px-6 py-4">NOMOR KLIKKAN</th>
+                        <th className="px-6 py-4">NAMA PELANGGAN</th>
+                        <th className="px-6 py-4">NAMA PRODUK</th>
+                        <th className="px-6 py-4 text-right">JUMLAH</th>
+                        <th className="px-6 py-4">SATUAN</th>
+                        <th className="px-6 py-4 text-right">HARGA FAKTUR</th>
+                        <th className="px-6 py-4 text-right">TOTAL FAKTUR</th>
+                        <th className="px-6 py-4 text-center">TERKIRIM</th>
+                        <th className="px-6 py-4 text-center">BELUM KIRIM</th>
+                        <th className="px-6 py-4 text-right">NOMINAL SDH KIRIM</th>
+                        <th className="px-6 py-4 text-right">NOMINAL BLM KIRIM</th>
+                        <th className="px-6 py-4 text-center">% TERPENUHI</th>
+                        <th className="px-6 py-4 text-center">%BELUM TERPENUHI</th>
+                        <th className="px-6 py-4">KETERANGAN</th>
                     </tr>
                 </thead>
                 <tbody>
                     {reportData.data.map((row) => (
                         <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
+                            <td className="px-6 py-4"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
+                            <td className="px-6 py-4">{row.nomor_klikkan}</td>
                             <td className="px-6 py-4 font-semibold text-gray-900"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
                             <td className="px-6 py-4">{row.nama_produk}</td>
                             <td className="px-6 py-4 text-right">{row.jumlah}</td>
                             <td className="px-6 py-4">{row.satuan}</td>
+                            <td className="px-6 py-4 text-right">{row.harga_faktur}</td>
                             <td className="px-6 py-4 text-right font-bold text-emerald-600">{row.total_faktur}</td>
-                            <td className="px-6 py-4">
-                                <div className="flex flex-col gap-1 text-xs">
-                                    <span className="text-emerald-600">Terkirim: {row.terkirim} ({row.persen_terpenuhi})</span>
-                                    <span className="text-red-500">Belum: {row.belum_terkirim} ({row.persen_belum_terpenuhi})</span>
-                                </div>
-                            </td>
+                            <td className="px-6 py-4 text-center">{row.terkirim}</td>
+                            <td className="px-6 py-4 text-center">{row.belum_terkirim}</td>
+                            <td className="px-6 py-4 text-right">{row.nominal_sdh_kirim}</td>
+                            <td className="px-6 py-4 text-right">{row.nominal_blm_kirim}</td>
+                            <td className="px-6 py-4 text-center text-emerald-600">{row.persen_terpenuhi}</td>
+                            <td className="px-6 py-4 text-center text-red-500">{row.persen_belum_terpenuhi}</td>
+                            <td className="px-6 py-4">{row.keterangan}</td>
                         </tr>
                     ))}
-                    {reportData.data.length === 0 && <tr><td colSpan="7" className="px-6 py-8 text-center text-gray-500">Data surat pesanan kosong atau tidak ditemukan.</td></tr>}
+                    {reportData.data.length === 0 && <tr><td colSpan="15" className="px-6 py-8 text-center text-gray-500">Data surat pesanan kosong atau tidak ditemukan.</td></tr>}
                 </tbody>
             </table>
         </div>

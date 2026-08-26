@@ -171,37 +171,50 @@
     @if(in_array('pesanan', $datasets ?? []))
     <!-- SURAT PESANAN -->
     <h3 class="section-title">2. Data Surat Pesanan</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Tanggal</th>
-                <th>Outlet</th>
-                <th>Produk</th>
-                <th class="text-right">Jml</th>
-                <th>Satuan</th>
-                <th class="text-right">T.Faktur</th>
-                <th>Status Pengiriman</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($pesanan as $row)
-                <tr>
-                    <td>{{ $row->tanggal }}</td>
-                    <td>{{ $row->nama_outlet }}</td>
-                    <td>{{ $row->nama_produk }}</td>
-                    <td class="text-right">{{ $row->jumlah }}</td>
-                    <td>{{ $row->satuan }}</td>
-                    <td class="text-right">{{ $row->total_faktur }}</td>
-                    <td>
-                        Terkirim: {{ $row->terkirim }} ({{ $row->persen_terpenuhi }})<br>
-                        Belum: {{ $row->belum_terkirim }} ({{ $row->persen_belum_terpenuhi }})
-                    </td>
-                </tr>
-            @empty
-                <tr><td colspan="7" class="text-center">Tidak ada data surat pesanan untuk periode ini</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+      <table>
+          <thead>
+              <tr>
+                  <th>TANGGAL</th>
+                  <th>NOMOR KLIKKAN</th>
+                  <th>NAMA PELANGGAN</th>
+                  <th>NAMA PRODUK</th>
+                  <th class="text-right">JUMLAH</th>
+                  <th>SATUAN</th>
+                  <th class="text-right">HARGA FAKTUR</th>
+                  <th class="text-right">TOTAL FAKTUR</th>
+                  <th class="text-center">TERKIRIM</th>
+                  <th class="text-center">BELUM KIRIM</th>
+                  <th class="text-right">NOMINAL SDH KIRIM</th>
+                  <th class="text-right">NOMINAL BLM KIRIM</th>
+                  <th class="text-center">% TERPENUHI</th>
+                  <th class="text-center">%BELUM TERPENUHI</th>
+                  <th>KETERANGAN</th>
+              </tr>
+          </thead>
+          <tbody>
+              @forelse($pesanan as $row)
+                  <tr>
+                      <td>{{ $row->tanggal }}</td>
+                      <td>{{ $row->nomor_klikkan }}</td>
+                      <td>{{ $row->nama_outlet }}</td>
+                      <td>{{ $row->nama_produk }}</td>
+                      <td class="text-right">{{ $row->jumlah }}</td>
+                      <td>{{ $row->satuan }}</td>
+                      <td class="text-right">{{ $row->harga_faktur }}</td>
+                      <td class="text-right">{{ $row->total_faktur }}</td>
+                      <td class="text-center">{{ $row->terkirim }}</td>
+                      <td class="text-center">{{ $row->belum_terkirim }}</td>
+                      <td class="text-right">{{ $row->nominal_sdh_kirim }}</td>
+                      <td class="text-right">{{ $row->nominal_blm_kirim }}</td>
+                      <td class="text-center" style="color: #059669">{{ $row->persen_terpenuhi }}</td>
+                      <td class="text-center" style="color: #ef4444">{{ $row->persen_belum_terpenuhi }}</td>
+                      <td>{{ $row->keterangan }}</td>
+                  </tr>
+              @empty
+                  <tr><td colspan="15" class="text-center">Tidak ada data surat pesanan untuk periode ini</td></tr>
+              @endforelse
+          </tbody>
+      </table>
     @endif
 
     @if(in_array('piutang', $datasets ?? []))
