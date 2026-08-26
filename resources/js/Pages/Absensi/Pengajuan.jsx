@@ -133,7 +133,7 @@ export default function Pengajuan({ requests }) {
                                     <InputError message={errors.attachment} className="mt-2" />
                                 </div>
 
-                                <div className="pt-2">
+                                <div className="pt-4 flex justify-center">
                                     <PrimaryButton disabled={processing} className="">
                                         Kirim
                                     </PrimaryButton>
