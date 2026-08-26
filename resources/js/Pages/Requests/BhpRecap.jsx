@@ -187,8 +187,8 @@ export default function BhpRecap({ requests }) {
                                 Total Data: <span className="text-gray-900 font-bold">{filteredRequests.length}</span>
                             </div>
                             <ExportDropdown pdfRoute={exportUrl} trigger={
-                                        <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition-colors shadow-sm whitespace-nowrap">
-                                            <FileBarChart className="w-4 h-4" /> Unduh PDF
+                                        <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-sm font-bold hover:bg-rose-100 transition-all shadow-sm whitespace-nowrap">
+                                            <Download className="w-5 h-5 text-rose-600" /> Unduh PDF
                                         </button>
                                     } />
                         </div>
@@ -313,8 +313,8 @@ export default function BhpRecap({ requests }) {
 
                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-3">
                             <ExportDropdown pdfRoute={route('requests.bhp.pdf', selectedRequest.id)} trigger={
-                                <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-teal-600 transition-colors shadow-sm w-full sm:w-auto">
-                                    <Download className="w-4 h-4" /> Unduh PDF Form Ini
+                                <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-sm font-bold hover:bg-rose-100 transition-all shadow-sm w-full sm:w-auto">
+                                    <Download className="w-5 h-5 text-rose-600" /> Unduh PDF Form Ini
                                 </button>
                             } />
                             
