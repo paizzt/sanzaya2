@@ -358,7 +358,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             onClick={() => setIsDownloadOpen(!isDownloadOpen)}
                             className="flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200 px-3 py-2 rounded-lg font-bold hover:bg-rose-100 transition-all shadow-sm text-sm whitespace-nowrap shrink-0"
                         >
-                            <Download className="w-4 h-4 text-rose-600" />
+                            <Download className="w-4 h-4 mr-2" />
                             Unduh
                             <ChevronDown className={`w-4 h-4 text-rose-500 transition-transform duration-200 ${isDownloadOpen ? 'rotate-180' : ''}`} />
                         </button>
@@ -818,23 +818,8 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         }
                                         return null;
                                     })()}
-                                    <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                        <span>{detailModal.type === 'penjualan' || detailModal.type === 'pesanan' ? 'Nama Sales' : (detailModal.type === 'outlet' ? 'Nama Outlet' : 'Nama Produk')}</span>
-                                        <span>{detailModal.type === 'penjualan' ? 'Total (Rp)' : 'Jumlah'}</span>
-                                    </div>
-                                    {Object.entries(detailModal.data).map(([key, value], idx) => (
-                                        <div key={idx} className="flex justify-between items-center p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">
-                                            <div className="flex items-center gap-3 min-w-0 pr-4">
-                                                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                                    {idx + 1}
-                                                </div>
-                                                <div className="text-sm font-medium text-gray-700 truncate" title={key}>{key}</div>
-                                            </div>
-                                            <span className="text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap">{value}</span>
-                                        </div>
-                                    ))}
                                     {detailModal.type === 'penjualan' && summary?.pt_penjualan_detail && Object.keys(summary.pt_penjualan_detail).length > 0 && (
-                                        <div className="mt-8 pt-4 border-t-2 border-dashed border-gray-200">
+                                        <div className="mb-4 pb-4 border-b-2 border-dashed border-gray-200">
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan PT</h4>
                                             <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
                                                 <span>Nama PT</span>
@@ -855,6 +840,29 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                             </div>
                                         </div>
                                     )}
+
+                                    <div>
+                                        {detailModal.type === 'penjualan' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan Sales</h4>
+                                        )}
+                                        <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
+                                            <span>{detailModal.type === 'penjualan' || detailModal.type === 'pesanan' ? 'Nama Sales' : (detailModal.type === 'outlet' ? 'Nama Outlet' : 'Nama Produk')}</span>
+                                            <span>{detailModal.type === 'penjualan' ? 'Total (Rp)' : 'Jumlah'}</span>
+                                        </div>
+                                        <div className="space-y-3 mt-3">
+                                            {Object.entries(detailModal.data).map(([key, value], idx) => (
+                                                <div key={idx} className="flex justify-between items-center p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">
+                                                    <div className="flex items-center gap-3 min-w-0 pr-4">
+                                                        <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                                                            {idx + 1}
+                                                        </div>
+                                                        <div className="text-sm font-medium text-gray-700 truncate" title={key}>{key}</div>
+                                                    </div>
+                                                    <span className="text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap">{value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>

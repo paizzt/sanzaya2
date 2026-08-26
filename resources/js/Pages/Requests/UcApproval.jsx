@@ -256,7 +256,7 @@ export default function UcApproval({ requests }) {
                                 <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors">
                                     Batal
                                 </button>
-                                <PrimaryButton disabled={processing} className="rounded-xl flex items-center gap-2 transition-all duration-200">
+                                <PrimaryButton disabled={processing} className="">
                                     {processing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                     {processing ? 'Menyimpan...' : 'Simpan'}
                                 </PrimaryButton>

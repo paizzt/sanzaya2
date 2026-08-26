@@ -130,7 +130,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         </div>
                     )}
                     <div className="w-full md:w-auto flex gap-2">
-                        <PrimaryButton onClick={handleFilter} className="h-[42px] px-6 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center justify-center gap-2">
+                        <PrimaryButton onClick={handleFilter} className="">
                             <Search className="w-4 h-4" /> Tampilkan
                         </PrimaryButton>
                     </div>

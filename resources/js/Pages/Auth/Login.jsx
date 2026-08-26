@@ -130,7 +130,7 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="pt-5">
-                    <PrimaryButton className="w-full justify-center py-3.5 rounded-xl text-[15px] font-semibold tracking-wide bg-blue-500 hover:bg-blue-600 active:scale-[0.98] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(59,130,246,0.4)] hover:shadow-[0_10px_25px_-6px_rgba(59,130,246,0.5)] border-0" disabled={processing}>
+                    <PrimaryButton className="" disabled={processing}>
                         {processing ? (
                             <span className="flex items-center gap-2">
                                 <Loader2 className="w-5 h-5 animate-spin" />

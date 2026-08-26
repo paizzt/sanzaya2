@@ -268,9 +268,9 @@ export default function Show({ provider, products, filters }) {
                                 </div>
                                 <button
                                     onClick={openAddModal}
-                                    className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center whitespace-nowrap shrink-0 shadow-sm"
+                                    className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
                                 >
-                                    <Plus className="w-4 h-4 mr-1.5" />
+                                    <Plus className="w-4 h-4 mr-1.5 mr-2" />
                                     Tambah
                                 </button>
                             </div>
@@ -387,7 +387,7 @@ export default function Show({ provider, products, filters }) {
                             <div className="flex justify-between items-center p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
                                 <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                     <div className={`p-2 rounded-xl ${isEditMode ? 'bg-blue-50 text-blue-600' : 'bg-indigo-50 text-indigo-600'}`}>
-                                        {isEditMode ? <Edit className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}
+                                        {isEditMode ? <Edit className="w-5 h-5"/> : <Plus className="w-5 h-5 mr-2"/>}
                                     </div>
                                     {isEditMode ? 'Edit Data Barang' : 'Tambah Data Barang Baru'}
                                 </h3>
@@ -533,7 +533,7 @@ export default function Show({ provider, products, filters }) {
 
                                 <div className="p-6 border-t border-gray-100 bg-gray-50/50 sticky bottom-0 z-10 rounded-b-3xl flex justify-end gap-3">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
-                                    <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
+                                    <PrimaryButton disabled={processing} className="">
                                         {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>

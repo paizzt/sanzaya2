@@ -9,7 +9,7 @@
         }
     
         @page {
-            margin: 30px 40px 90px 40px; /* Increased bottom margin to prevent footer overlap */
+            margin: 25px 35px 50px 35px;
         }
         body {
             font-family: Arial, sans-serif;
@@ -77,12 +77,12 @@
         .date-right {
             text-align: right;
             font-weight: bold;
-            margin-top: 10px;
-            margin-bottom: 20px;
+            margin-top: 5px;
+            margin-bottom: 10px;
         }
         .intro-text {
-            margin-bottom: 20px;
-            line-height: 1.5;
+            margin-bottom: 10px;
+            line-height: 1.4;
         }
         
         .form-list {
@@ -115,14 +115,14 @@
         }
         
         .closing-text {
-            margin-top: 40px;
+            margin-top: 20px;
         }
         
         .footer {
             position: fixed;
-            bottom: -90px;
-            left: -40px;
-            right: -40px;
+            bottom: -30px;
+            left: -35px;
+            right: -35px;
             height: 30px;
             background-color: #799fbb;
             color: white;

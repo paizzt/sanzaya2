@@ -187,8 +187,8 @@ export default function BhpRecap({ requests }) {
                                 Total: <span className="text-gray-900 font-bold">{filteredRequests.length}</span>
                             </div>
                             <ExportDropdown pdfRoute={exportUrl} trigger={
-                                        <button className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-sm font-bold hover:bg-rose-100 transition-all shadow-sm whitespace-nowrap shrink-0">
-                                            <Download className="w-4 h-4 text-rose-600" /> Unduh
+                                        <button className="inline-flex items-center rounded-md border border-emerald-400 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition duration-150 hover:bg-emerald-100 shrink-0">
+                                            <Download className="w-4 h-4 mr-2" /> Unduh
                                         </button>
                                     } />
                         </div>
@@ -313,8 +313,8 @@ export default function BhpRecap({ requests }) {
 
                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-3">
                             <ExportDropdown pdfRoute={route('requests.bhp.pdf', selectedRequest.id)} trigger={
-                                <button className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-sm font-bold hover:bg-rose-100 transition-all shadow-sm w-full sm:w-auto whitespace-nowrap shrink-0">
-                                    <Download className="w-4 h-4 text-rose-600" /> Unduh
+                                <button className="inline-flex items-center rounded-md border border-emerald-400 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition duration-150 hover:bg-emerald-100 shrink-0">
+                                    <Download className="w-4 h-4 mr-2" /> Unduh
                                 </button>
                             } />
                             

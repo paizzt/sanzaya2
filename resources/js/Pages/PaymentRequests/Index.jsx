@@ -109,12 +109,12 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                         options={statusOptions}
                                     />
                                 </div>
-                                <PrimaryButton type="submit" className="justify-center">Filter</PrimaryButton>
+                                <PrimaryButton type="submit" className="">Filter</PrimaryButton>
                             </form>
 
                             {!isApprovalView && (
                                 <Link href={route('payment-requests.create')} className="w-full md:w-auto">
-                                    <PrimaryButton className="w-full justify-center">Buat Baru</PrimaryButton>
+                                    <PrimaryButton className="">Buat Baru</PrimaryButton>
                                 </Link>
                             )}
                         </div>

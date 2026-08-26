@@ -117,7 +117,7 @@ export default function BHP({ requests, today }) {
                                 </div>
 
                                 <div className="pt-4 flex justify-end">
-                                    <PrimaryButton disabled={processing} className="py-3 px-8 bg-orange-500 hover:bg-orange-600 rounded-xl flex items-center gap-2 text-sm">
+                                    <PrimaryButton disabled={processing} className="">
                                         Ajukan
                                     </PrimaryButton>
                                 </div>

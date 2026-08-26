@@ -204,9 +204,9 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} />
                                 <button 
                         onClick={openCreateModal}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-500/20 w-full sm:w-auto whitespace-nowrap shrink-0"
+                        className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
                     >
-                        <Plus className="w-4 h-4" /> Tambah
+                        <Plus className="w-4 h-4 mr-2" /> Tambah
                     </button>
                             </div>
                 </div>
@@ -322,7 +322,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                         <div className="bg-white rounded-3xl max-w-5xl w-full shadow-2xl transform transition-all my-auto">
                             <div className="flex justify-between items-center p-6 border-b border-gray-100">
                                 <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                    {isEditMode ? <Edit className="w-5 h-5 text-blue-600"/> : <Plus className="w-5 h-5 text-blue-600"/>}
+                                    {isEditMode ? <Edit className="w-5 h-5 text-blue-600"/> : <Plus className="w-5 h-5 text-blue-600 mr-2"/>}
                                     {isEditMode ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}
                                 </h3>
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
@@ -679,7 +679,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
 
                                 <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
-                                    <PrimaryButton disabled={processing} className="rounded-xl px-6 py-3 bg-blue-600 hover:bg-blue-700">
+                                    <PrimaryButton disabled={processing} className="">
                                         {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>

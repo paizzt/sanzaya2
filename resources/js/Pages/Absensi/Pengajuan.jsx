@@ -134,7 +134,7 @@ export default function Pengajuan({ requests }) {
                                 </div>
 
                                 <div className="pt-2">
-                                    <PrimaryButton disabled={processing} className="w-full justify-center py-3 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2">
+                                    <PrimaryButton disabled={processing} className="">
                                         Kirim
                                     </PrimaryButton>
                                 </div>

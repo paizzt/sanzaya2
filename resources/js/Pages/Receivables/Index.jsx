@@ -515,7 +515,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                             <div className="flex justify-between items-center mb-2">
                                 <h4 className="font-semibold text-gray-700">Daftar Piutang per Tahun</h4>
                                 <button type="button" onClick={() => setData('details', [...data.details, { year: new Date().getFullYear().toString(), amount: '' }])} className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 flex items-center gap-1">
-                                    <Plus className="w-3 h-3" /> Tambah Tahun
+                                    <Plus className="w-3 h-3 mr-2" /> Tambah Tahun
                                 </button>
                             </div>
 

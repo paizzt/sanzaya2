@@ -112,7 +112,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </div>
 
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-50">
-                    <PrimaryButton disabled={processing} className="h-11 px-8 rounded-xl bg-orange-500 hover:bg-orange-600 focus:ring-orange-500">
+                    <PrimaryButton disabled={processing} className="">
                         Perbarui Sandi
                     </PrimaryButton>
 

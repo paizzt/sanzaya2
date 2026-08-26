@@ -158,7 +158,7 @@ export default function Notifications({ setting }) {
                         </div>
 
                         <div className="pt-4 flex justify-end">
-                            <PrimaryButton disabled={processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-2 text-sm">
+                            <PrimaryButton disabled={processing} className="">
                                 Simpan
                             </PrimaryButton>
                         </div>

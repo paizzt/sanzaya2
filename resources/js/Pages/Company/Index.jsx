@@ -120,7 +120,7 @@ export default function Index({ auth, companies }) {
                         onClick={() => openModal()}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-sm text-white tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 gap-2 shadow-sm"
                     >
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-5 h-5 mr-2" />
                         Tambah Perusahaan
                     </button>
                             </div>
@@ -294,7 +294,7 @@ export default function Index({ auth, companies }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="inline-flex items-center px-6 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-sm text-white tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 gap-2 disabled:opacity-50"
+                                className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
                             >
                                 <Save className="w-4 h-4" />
                                 {processing ? 'Menyimpan...' : 'Simpan'}

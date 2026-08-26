@@ -110,9 +110,9 @@ export default function Index({ vehicles }) {
                                 <ExportDropdown pdfRoute={route('vehicles.export.pdf')} excelRoute={route('vehicles.export.excel')} />
                                 <Link 
                         href={route('vehicles.create')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30"
+                        className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
                     >
-                        <Plus className="w-5 h-5" /> Tambah Armada
+                        <Plus className="w-5 h-5 mr-2" /> Tambah Armada
                     </Link>
                             </div>
                 </div>
@@ -464,7 +464,7 @@ export default function Index({ vehicles }) {
                                                 }}
                                                 className="bg-green-50 hover:bg-green-100 text-green-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1"
                                             >
-                                                <Plus className="w-4 h-4" /> Catat
+                                                <Plus className="w-4 h-4 mr-2" /> Catat
                                             </button>
                                         </div>
                                         <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">

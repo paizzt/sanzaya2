@@ -137,7 +137,7 @@ export default function ActivityLog({ auth, logs, filters }) {
                                         className="pl-10 w-full md:w-64"
                                     />
                                 </div>
-                                <PrimaryButton type="submit" className="justify-center">Cari</PrimaryButton>
+                                <PrimaryButton type="submit" className="">Cari</PrimaryButton>
                             </form>
                         </div>
 

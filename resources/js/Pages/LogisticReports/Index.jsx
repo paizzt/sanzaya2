@@ -374,10 +374,10 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         />
                                 </div>
                                 <div className="w-full md:w-auto flex items-center gap-2 h-11">
-                                    <PrimaryButton type="submit" className="w-full md:w-auto justify-center h-full">
+                                    <PrimaryButton type="submit" className="">
                                         <Filter className="w-4 h-4 mr-2" /> Filter
                                     </PrimaryButton>
-                                    <SecondaryButton type="button" onClick={resetFilter} className="px-3 h-full" title="Reset">
+                                    <SecondaryButton type="button" onClick={resetFilter} className="">
                                         <RefreshCw className="w-4 h-4" />
                                     </SecondaryButton>
                                 </div>

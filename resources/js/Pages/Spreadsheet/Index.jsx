@@ -101,7 +101,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Logistik</h4>
-                    <button type="button" onClick={() => addSheet(logistikForm, {sheet_name:'', col_nama_pt:'', col_pelanggan:'', col_jenis_pelanggan:'', col_tanggal:'', col_nama_sales:'', col_no_faktur:'', col_id_paket:'', col_brand:'', col_nama_produk:'', col_qty:'', col_satuan:'', col_hna:'', col_subtotal:'', col_ppn:'', col_total:'', col_grand_total:'', col_jenis_barang:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
+                    <button type="button" onClick={() => addSheet(logistikForm, {sheet_name:'', col_nama_pt:'', col_pelanggan:'', col_jenis_pelanggan:'', col_tanggal:'', col_nama_sales:'', col_no_faktur:'', col_id_paket:'', col_brand:'', col_nama_produk:'', col_qty:'', col_satuan:'', col_hna:'', col_subtotal:'', col_ppn:'', col_total:'', col_grand_total:'', col_jenis_barang:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
                 </div>
                 {logistikForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
@@ -138,7 +138,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} className="py-3 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl">Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} className="">Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -151,7 +151,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Surat Pesanan</h4>
-                    <button type="button" onClick={() => addSheet(pesananForm, {sheet_name:'', col_tanggal:'', col_nama_outlet:'', col_nama_produk:'', col_jumlah:'', col_satuan:'', col_total_faktur:'', col_terkirim:'', col_belum_terkirim:'', col_persen_terpenuhi:'', col_persen_belum_terpenuhi:'', col_keterangan:''})} className="text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
+                    <button type="button" onClick={() => addSheet(pesananForm, {sheet_name:'', col_tanggal:'', col_nama_outlet:'', col_nama_produk:'', col_jumlah:'', col_satuan:'', col_total_faktur:'', col_terkirim:'', col_belum_terkirim:'', col_persen_terpenuhi:'', col_persen_belum_terpenuhi:'', col_keterangan:''})} className="text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
                 </div>
                 {pesananForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
@@ -173,7 +173,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} className="py-3 px-8 bg-emerald-600 hover:bg-emerald-700 rounded-xl">Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} className="">Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -186,7 +186,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Piutang</h4>
-                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-purple-600 hover:text-purple-700 bg-purple-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
+                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-purple-600 hover:text-purple-700 bg-purple-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
                 </div>
                 {piutangForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
@@ -207,7 +207,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} className="py-3 px-8 bg-purple-600 hover:bg-purple-700 rounded-xl">Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} className="">Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -220,7 +220,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Hutang</h4>
-                    <button type="button" onClick={() => addSheet(hutangForm, {sheet_name:'', col_no:'', col_nama_penyedia:'', col_nominal:''})} className="text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4"/> Tambah</button>
+                    <button type="button" onClick={() => addSheet(hutangForm, {sheet_name:'', col_no:'', col_nama_penyedia:'', col_nominal:''})} className="text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
                 </div>
                 {hutangForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
@@ -234,7 +234,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} className="py-3 px-8 bg-orange-600 hover:bg-orange-700 rounded-xl">Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} className="">Simpan</PrimaryButton></div>
         </form>
     );
 

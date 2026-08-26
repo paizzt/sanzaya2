@@ -87,7 +87,7 @@ export default function Index({ auth, divisions }) {
                         onClick={() => setShowModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
                     >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-4 h-4 mr-2" />
                         Tambah Devisi
                     </button>
                     )}
@@ -107,7 +107,7 @@ export default function Index({ auth, divisions }) {
                             onClick={() => setShowModal(true)}
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition-colors"
                         >
-                            <Plus className="w-5 h-5" />
+                            <Plus className="w-5 h-5 mr-2" />
                             Tambah Devisi Pertama
                         </button>
                         )}

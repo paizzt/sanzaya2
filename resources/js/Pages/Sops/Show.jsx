@@ -161,7 +161,7 @@ export default function Show({ auth, division }) {
                         onClick={() => setShowAddModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
                     >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-4 h-4 mr-2" />
                         Tambah Pekerjaan
                     </button>
                     )}
@@ -181,7 +181,7 @@ export default function Show({ auth, division }) {
                             onClick={() => setShowAddModal(true)}
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition-colors"
                         >
-                            <Plus className="w-5 h-5" />
+                            <Plus className="w-5 h-5 mr-2" />
                             Tambah Pekerjaan
                         </button>
                         )}
@@ -287,7 +287,7 @@ export default function Show({ auth, division }) {
                                         </button>
                                         <button
                                             onClick={submitEdit}
-                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                            className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
                                             disabled={processingEdit}
                                         >
                                             <Check className="w-4 h-4" />
@@ -386,7 +386,7 @@ export default function Show({ auth, division }) {
                                             }}
                                             className="mt-4 text-blue-600 font-medium text-sm flex items-center gap-1.5 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors w-fit"
                                         >
-                                            <Plus className="w-4 h-4" /> Tambah Tahap
+                                            <Plus className="w-4 h-4 mr-2" /> Tambah Tahap
                                         </button>
                                         <InputError message={editErrors.step_texts} className="mt-2" />
                                         <InputError message={editErrors.step_images} className="mt-2" />
