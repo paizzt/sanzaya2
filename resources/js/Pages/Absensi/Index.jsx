@@ -1,11 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Camera, CheckCircle2, Clock, MapPinOff, RefreshCcw } from 'lucide-react';
+import { Camera, CheckCircle2, Clock, MapPinOff, RefreshCcw, CalendarDays } from 'lucide-react';
 import React, { useRef, useState, useCallback, useEffect, Suspense } from 'react';
 const Webcam = React.lazy(() => import('react-webcam'));
 import Swal from 'sweetalert2';
 
-export default function Index({ attendance, today, currentTime, isOvertime }) {
+export default function Index({ attendance, today, currentTime, isOvertime, history = [] }) {
     const webcamRef = useRef(null);
     const [imgSrc, setImgSrc] = useState(null);
     const { data, setData, post, processing } = useForm({
@@ -194,7 +194,64 @@ export default function Index({ attendance, today, currentTime, isOvertime }) {
                             </div>
                         </div>
                     </div>
+                </div>
 
+                {/* Riwayat Absensi 1 Bulan */}
+                <div className="mt-8 bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                            <CalendarDays className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg text-gray-800">Riwayat Absensi Bulan Ini</h3>
+                            <p className="text-sm text-gray-500">Rekapan kehadiran Anda selama bulan ini</p>
+                        </div>
+                    </div>
+                    
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="text-xs text-gray-500 uppercase bg-gray-50/50">
+                                <tr>
+                                    <th className="px-4 py-3 font-medium rounded-l-xl">Tanggal</th>
+                                    <th className="px-4 py-3 font-medium">Jam Masuk</th>
+                                    <th className="px-4 py-3 font-medium">Jam Keluar</th>
+                                    <th className="px-4 py-3 font-medium rounded-r-xl">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {history.length > 0 ? history.map((item, index) => (
+                                    <tr key={item.id || index} className="hover:bg-gray-50/50 transition-colors">
+                                        <td className="px-4 py-3 font-medium text-gray-900">{new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td>
+                                        <td className="px-4 py-3 text-gray-600">
+                                            {item.check_in_time ? (
+                                                <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500"/> {item.check_in_time}</span>
+                                            ) : '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-600">
+                                            {item.check_out_time ? (
+                                                <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-green-500"/> {item.check_out_time}</span>
+                                            ) : '-'}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                                item.status === 'Hadir' ? 'bg-green-100 text-green-700' :
+                                                item.status === 'Izin' ? 'bg-yellow-100 text-yellow-700' :
+                                                item.status === 'Sakit' ? 'bg-orange-100 text-orange-700' :
+                                                item.status === 'Terlambat' ? 'bg-red-100 text-red-700' :
+                                                'bg-gray-100 text-gray-700'
+                                            }`}>
+                                                {item.status || 'Hadir'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan="4" className="px-4 py-8 text-center text-gray-500">Belum ada riwayat absensi bulan ini.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>
