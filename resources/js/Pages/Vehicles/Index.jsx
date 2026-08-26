@@ -1,7 +1,7 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
-import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench, History, Image as ImageIcon } from 'lucide-react';
+import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench, History, Activity, Image as ImageIcon } from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
