@@ -96,7 +96,6 @@ export default function Products({ auth, products, filters }) {
                                         <th className="px-6 py-4 font-semibold">Kategori</th>
                                         <th className="px-6 py-4 font-semibold">NIE / Reg. No</th>
                                         <th className="px-6 py-4 font-semibold">Kemasan</th>
-                                        <th className="px-6 py-4 font-semibold text-right">Harga</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
@@ -121,16 +120,13 @@ export default function Products({ auth, products, filters }) {
                                                     <td className="px-6 py-4 font-medium text-gray-700">
                                                         {product.registration_no || '-'}
                                                     </td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-6 py-4 text-gray-500 text-sm">
                                                         {product.unit || '-'}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-right font-semibold text-indigo-600">
-                                                        Rp {Number(product.price || 0).toLocaleString('id-ID')}
                                                     </td>
                                                 </tr>
                                             )) : (
                                                 <tr>
-                                                    <td colSpan="5" className="px-6 py-12 text-center">
+                                                    <td colSpan="4" className="px-6 py-12 text-center">
                                                         <div className="flex flex-col items-center justify-center text-gray-500">
                                                             <Package className="w-12 h-12 mb-3 text-gray-300" />
                                                             <p className="text-base font-medium text-gray-900">Tidak ada produk ditemukan</p>
