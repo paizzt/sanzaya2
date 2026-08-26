@@ -122,8 +122,8 @@ class ReportController extends Controller
             }
             if ($monthFilter) $summaryQuery->where('tanggal', 'like', "%{$monthFilter}%");
             
-            $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales')->get();
-            $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = [];
+            $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt')->get();
+            $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = [];
             foreach ($logistikAll as $row) {
                 $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
                 $totalPenjualan += $val;
@@ -133,11 +133,17 @@ class ReportController extends Controller
                     $salesBreakdown[$row->nama_sales] = ($salesBreakdown[$row->nama_sales] ?? 0) + $val;
                     $pesananSales[$row->nama_sales] = ($pesananSales[$row->nama_sales] ?? 0) + 1;
                 }
+                if ($row->nama_pt) {
+                    $ptBreakdown[$row->nama_pt] = ($ptBreakdown[$row->nama_pt] ?? 0) + $val;
+                }
             }
-            arsort($outletCounts); arsort($produkCounts); arsort($salesBreakdown); arsort($pesananSales);
+            arsort($outletCounts); arsort($produkCounts); arsort($salesBreakdown); arsort($pesananSales); arsort($ptBreakdown);
             
             $salesBreakdownFormatted = [];
             foreach($salesBreakdown as $s => $v) $salesBreakdownFormatted[$s] = 'Rp ' . number_format($v, 0, ',', '.');
+            
+            $ptBreakdownFormatted = [];
+            foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
 
             return [
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
@@ -145,6 +151,7 @@ class ReportController extends Controller
                 'top_produk' => key($produkCounts) ?: '-',
                 'total_pesanan' => $logistikAll->count(),
                 'penjualan_detail' => array_slice($salesBreakdownFormatted, 0, 10, true),
+                'pt_penjualan_detail' => $ptBreakdownFormatted,
                 'outlet_detail' => array_slice($outletCounts, 0, 10, true),
                 'produk_detail' => array_slice($produkCounts, 0, 10, true),
                 'pesanan_detail' => array_slice($pesananSales, 0, 10, true)

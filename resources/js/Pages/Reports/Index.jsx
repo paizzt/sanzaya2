@@ -833,6 +833,28 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                             <span className="text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap">{value}</span>
                                         </div>
                                     ))}
+                                    {detailModal.type === 'penjualan' && summary?.pt_penjualan_detail && Object.keys(summary.pt_penjualan_detail).length > 0 && (
+                                        <div className="mt-8 pt-4 border-t-2 border-dashed border-gray-200">
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan PT</h4>
+                                            <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
+                                                <span>Nama PT</span>
+                                                <span>Total (Rp)</span>
+                                            </div>
+                                            <div className="space-y-3 mt-3">
+                                                {Object.entries(summary.pt_penjualan_detail).map(([key, value], idx) => (
+                                                    <div key={idx} className="flex justify-between items-center p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors">
+                                                        <div className="flex items-center gap-3 min-w-0 pr-4">
+                                                            <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0">
+                                                                {idx + 1}
+                                                            </div>
+                                                            <div className="text-sm font-medium text-gray-700 truncate" title={key}>{key}</div>
+                                                        </div>
+                                                        <span className="text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap">{value}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
