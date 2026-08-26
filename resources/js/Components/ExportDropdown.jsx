@@ -19,7 +19,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     });
     
     // Dataset Selection State
-    const [selectedDatasets, setSelectedDatasets] = useState(['logistik', 'pesanan', 'piutang', 'hutang']);
+    const [selectedDatasets, setSelectedDatasets] = useState(['logistik']);
     
     // Month Filter State
     const [selectedMonths, setSelectedMonths] = useState([]);
@@ -37,11 +37,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     };
 
     const toggleDataset = (ds) => {
-        setSelectedDatasets(prev => 
-            prev.includes(ds) 
-                ? prev.filter(d => d !== ds) 
-                : [...prev, ds]
-        );
+        setSelectedDatasets([ds]);
     };
 
     const toggleMonth = (m) => {
@@ -127,10 +123,11 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                                     ].map((ds) => (
                                                         <label key={ds.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
                                                             <input 
-                                                                type="checkbox" 
+                                                                type="radio" 
+                                                                name="dataset_selection"
                                                                 checked={selectedDatasets.includes(ds.id)}
                                                                 onChange={() => toggleDataset(ds.id)}
-                                                                className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                                className="border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
                                                             />
                                                             {ds.label}
                                                         </label>
