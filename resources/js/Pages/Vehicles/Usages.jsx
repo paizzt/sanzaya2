@@ -161,7 +161,12 @@ export default function Usages({ usages, vehicles, filters }) {
                                 <Link
                                     key={k}
                                     href={link.url || '#'}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0" __html: link.label }}
+                                    className={`px-3 py-1 text-sm rounded-lg border font-medium ${
+                                        link.active 
+                                            ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30 border-blue-500' 
+                                            : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-blue-600 border-gray-200'
+                                    }`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
                                 />
                             ))}
                         </div>
