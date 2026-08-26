@@ -21,6 +21,7 @@ class ReportController extends Controller
         $outletFilter = $request->query('outlet_filter', '');
         $monthFilter = $request->query('month_filter', '');
         $ptFilter = $request->query('pt_filter', '');
+        $keteranganFilter = $request->query('keterangan_filter', '');
 
         $outletNamesToSearch = [];
         if ($outletFilter) {
@@ -35,6 +36,7 @@ class ReportController extends Controller
         $salesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');
         $ptNames = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->pluck('nama_pt');
         $outletNames = \App\Models\Outlet::pluck('name');
+        $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
         $data = [];
@@ -66,6 +68,9 @@ class ReportController extends Controller
             $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
         } elseif ($tab === 'pesanan') {
             $query = SyncPesananData::query();
+            if ($keteranganFilter) {
+                $query->where('keterangan', $keteranganFilter);
+            }
             if ($outletFilter) {
                 $query->where(function($q) use ($outletNamesToSearch) {
                     foreach ($outletNamesToSearch as $name) {
@@ -158,8 +163,9 @@ class ReportController extends Controller
             ];
         });
 
-        $summaryPesanan = Inertia::defer(function () use ($outletFilter, $monthFilter, $outletNamesToSearch) {
+        $summaryPesanan = Inertia::defer(function () use ($outletFilter, $monthFilter, $keteranganFilter, $outletNamesToSearch) {
             $summaryPesananQuery = SyncPesananData::query();
+            if ($keteranganFilter) $summaryPesananQuery->where('keterangan', $keteranganFilter);
             if ($outletFilter) {
                 $summaryPesananQuery->where(function($q) use ($outletNamesToSearch) {
                     foreach ($outletNamesToSearch as $name) {
@@ -285,9 +291,11 @@ class ReportController extends Controller
             'salesFilter' => $salesFilter,
             'outletFilter' => $outletFilter,
             'ptFilter' => $ptFilter,
+            'keteranganFilter' => $keteranganFilter,
             'salesNames' => $salesNames,
             'ptNames' => $ptNames,
             'outletNames' => $outletNames,
+            'keteranganNames' => $keteranganNames,
             'reportData' => $data,
             'summary' => $summary,
             'summaryPesanan' => $summaryPesanan,

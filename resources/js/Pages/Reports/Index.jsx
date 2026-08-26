@@ -10,13 +10,14 @@ import CustomSelect from '@/Components/CustomSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
-export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, ptFilter, salesNames, outletNames, ptNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
+export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames, outletNames, ptNames, keteranganNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
     const [selectedPt, setSelectedPt] = useState(ptFilter || '');
+    const [selectedKeterangan, setSelectedKeterangan] = useState(keteranganFilter || '');
     const [isSearchExpanded, setIsSearchExpanded] = useState(!!search);
     const [isDownloadOpen, setIsDownloadOpen] = useState(false);
     const [isTabDropdownOpen, setIsTabDropdownOpen] = useState(false);
@@ -55,19 +56,23 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
             filters.sales_filter = selectedSales;
             filters.outlet_filter = selectedOutlet;
             filters.pt_filter = selectedPt;
-        } else if (tab === 'pesanan' || tab === 'piutang') {
+        } else if (tab === 'pesanan') {
+            filters.outlet_filter = selectedOutlet;
+            filters.keterangan_filter = selectedKeterangan;
+        } else if (tab === 'piutang') {
             filters.outlet_filter = selectedOutlet;
         }
         router.get(route('reports.index'), filters, { preserveState: true });
     };
 
     const handleTabChange = (newTab) => {
-        router.get(route('reports.index'), { tab: newTab, search: '', sales_filter: '', outlet_filter: '', month_filter: '', pt_filter: '' }, { preserveState: true });
+        router.get(route('reports.index'), { tab: newTab, search: '', sales_filter: '', outlet_filter: '', month_filter: '', pt_filter: '', keterangan_filter: '' }, { preserveState: true });
         setSearchTerm('');
         setSelectedSales('');
         setSelectedOutlet('');
         setSelectedMonth('');
         setSelectedPt('');
+        setSelectedKeterangan('');
     };
 
     // Chart Renderers
@@ -201,6 +206,23 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
             </div>
         );
     };
+    };
+
+    const getKeteranganBadge = (keterangan) => {
+        if (!keterangan) return null;
+        const ket = keterangan.toUpperCase().trim();
+        let colorClass = "bg-gray-100 text-gray-800";
+        if (ket === 'COMPLITE') colorClass = "bg-green-100 text-green-800";
+        else if (ket === 'BELUM LENGKAP') colorClass = "bg-red-100 text-red-800";
+        else if (ket === 'BELUM READY') colorClass = "bg-red-700 text-white font-bold";
+        else if (ket === 'CANCEL') colorClass = "bg-gray-200 text-gray-700";
+        else if (ket === 'PROSES PENGIRIMAN') colorClass = "bg-yellow-100 text-yellow-800";
+        else if (ket === 'ID PAKET BELUM TERBIT') colorClass = "bg-purple-100 text-purple-800";
+        else if (ket === 'TUNGGU PI') colorClass = "bg-blue-100 text-blue-800";
+        else if (ket === 'TERKIRIM SEBAGIAN') colorClass = "bg-teal-100 text-teal-800";
+        
+        return <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${colorClass}`}>{keterangan}</span>;
+    };
 
     // ... renderLogistikTable ...
     const renderLogistikTable = () => (
@@ -270,7 +292,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <td className="px-6 py-4 text-right">{row.nominal_blm_kirim}</td>
                             <td className="px-6 py-4 text-center text-emerald-600">{row.persen_terpenuhi}</td>
                             <td className="px-6 py-4 text-center text-red-500">{row.persen_belum_terpenuhi}</td>
-                            <td className="px-6 py-4">{row.keterangan}</td>
+                            <td className="px-6 py-4">{getKeteranganBadge(row.keterangan)}</td>
                         </tr>
                     ))}
                     {reportData.data.length === 0 && <tr><td colSpan="15" className="px-6 py-8 text-center text-gray-500">Data surat pesanan kosong atau tidak ditemukan.</td></tr>}
@@ -654,7 +676,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         filters.sales_filter = selectedSales;
                                         filters.outlet_filter = selectedOutlet;
                                         filters.pt_filter = selectedPt;
-                                    } else if (tab === 'pesanan' || tab === 'piutang') {
+                                    } else if (tab === 'pesanan') {
+                                        filters.outlet_filter = selectedOutlet;
+                                        filters.keterangan_filter = selectedKeterangan;
+                                    } else if (tab === 'piutang') {
                                         filters.outlet_filter = selectedOutlet;
                                     }
                                     router.get(route('reports.index'), filters, { preserveState: true });
@@ -713,6 +738,8 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         if (tab === 'logistik') {
                                             filters.sales_filter = selectedSales;
                                             filters.pt_filter = selectedPt;
+                                        } else if (tab === 'pesanan') {
+                                            filters.keterangan_filter = selectedKeterangan;
                                         }
                                         router.get(route('reports.index'), filters, { preserveState: true });
                                     }}
@@ -721,6 +748,23 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
                                     icon={MapPin}
+                                    compact={true}
+                                />
+                            </div>
+                        )}
+                        {tab === 'pesanan' && (
+                            <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[15]">
+                                <CustomSelect
+                                    value={selectedKeterangan}
+                                    onChange={(value) => {
+                                        setSelectedKeterangan(value);
+                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, outlet_filter: selectedOutlet, month_filter: selectedMonth, keterangan_filter: value }, { preserveState: true });
+                                    }}
+                                    options={[
+                                        { value: '', label: 'Semua Keterangan' },
+                                        ...(Array.isArray(keteranganNames) ? keteranganNames : Object.values(keteranganNames || {})).map(name => ({ value: name, label: name }))
+                                    ]}
+                                    icon={Store}
                                     compact={true}
                                 />
                             </div>
