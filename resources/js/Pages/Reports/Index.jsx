@@ -750,6 +750,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     compact={true}
                                 />
                             </div>
+                        )}
                         {tab === 'pesanan' && (
                             <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[15]">
                                 <CustomSelect
