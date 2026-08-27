@@ -57,7 +57,7 @@ export default function Login({ status, canResetPassword }) {
                 </div>
                 <h1 className="text-[28px] font-extrabold text-gray-900 mb-2 tracking-tight">Satu Sanzaya</h1>
                 <p className="text-[14px] text-gray-500 leading-relaxed px-4">
-                    Masukan email dan password yang telah diberikan. Silakan hubungi HR jika belum memiliki akses.
+                    Masukan email dan password yang telah diberikan. Silakan hubungi <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors">HR</a> jika belum memiliki akses.
                 </p>
             </div>
 
