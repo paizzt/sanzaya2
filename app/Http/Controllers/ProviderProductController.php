@@ -68,7 +68,7 @@ class ProviderProductController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['name', 'code', 'jenis', 'registration_no', 'unit', 'tkdn', 'price', 'selling_price', 'qty'];
+            $allowed = ['name', 'code', 'jenis', 'registration_no', 'unit', 'tkdn', 'price', 'hna', 'qty'];
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
@@ -76,7 +76,7 @@ class ProviderProductController extends Controller
                 $row = [$key + 1];
                 foreach ($allowed as $col) {
                     $val = $item->$col;
-                    if (in_array($col, ['price', 'selling_price'])) {
+                    if (in_array($col, ['price', 'hna'])) {
                         $val = 'Rp ' . number_format((float)$val, 0, ',', '.');
                     }
                     $row[] = $val;
@@ -85,7 +85,7 @@ class ProviderProductController extends Controller
             });
         }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.generic', [
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.generic_table', [
             'title' => 'Data Barang - ' . $provider->name,
             'headings' => $headings,
             'rows' => $rows
@@ -102,7 +102,7 @@ class ProviderProductController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['name', 'code', 'jenis', 'registration_no', 'unit', 'tkdn', 'price', 'selling_price', 'qty'];
+            $allowed = ['name', 'code', 'jenis', 'registration_no', 'unit', 'tkdn', 'price', 'hna', 'qty'];
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
