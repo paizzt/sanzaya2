@@ -750,6 +750,22 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     compact={true}
                                 />
                             </div>
+                        {tab === 'pesanan' && (
+                            <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[15]">
+                                <CustomSelect
+                                    value={selectedKeterangan}
+                                    onChange={(value) => {
+                                        setSelectedKeterangan(value);
+                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, outlet_filter: selectedOutlet, month_filter: selectedMonth, keterangan_filter: value }, { preserveState: true });
+                                    }}
+                                    options={[
+                                        { value: '', label: 'Semua Keterangan' },
+                                        ...(Array.isArray(keteranganNames) ? keteranganNames : Object.values(keteranganNames || {})).map(name => ({ value: name, label: name }))
+                                    ]}
+                                    icon={Store}
+                                    compact={true}
+                                />
+                            </div>
                         )}
                         <div className={`relative transition-all duration-300 ease-in-out ${isSearchExpanded ? 'w-full md:w-40 lg:w-48 xl:w-56' : 'w-10'} z-0`}>
                             {isSearchExpanded ? (
@@ -779,33 +795,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         <button type="submit" className="hidden"></button>
                     </form>
                 </div>
-
-                {tab === 'pesanan' && keteranganNames && (
-                    <div className="bg-white p-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-x-auto custom-scrollbar flex gap-2 items-center mb-6">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2 shrink-0">Filter Keterangan:</span>
-                        <button 
-                            onClick={() => {
-                                setSelectedKeterangan('');
-                                router.get(route('reports.index'), { tab: tab, search: searchTerm, outlet_filter: selectedOutlet, month_filter: selectedMonth, keterangan_filter: '' }, { preserveState: true });
-                            }}
-                            className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors shrink-0 ${selectedKeterangan === '' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                        >
-                            Semua Keterangan
-                        </button>
-                        {(Array.isArray(keteranganNames) ? keteranganNames : Object.values(keteranganNames || {})).map((name, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => {
-                                    setSelectedKeterangan(name);
-                                    router.get(route('reports.index'), { tab: tab, search: searchTerm, outlet_filter: selectedOutlet, month_filter: selectedMonth, keterangan_filter: name }, { preserveState: true });
-                                }}
-                                className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-colors shrink-0 ${selectedKeterangan === name ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                            >
-                                {name}
-                            </button>
-                        ))}
-                    </div>
-                )}
 
                 {/* Charts Area */}
                 {tab === 'logistik' && renderLogistikChart()}

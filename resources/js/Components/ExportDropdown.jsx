@@ -37,7 +37,9 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     };
 
     const toggleDataset = (ds) => {
-        setSelectedDatasets([ds]);
+        setSelectedDatasets(prev => 
+            prev.includes(ds) ? prev.filter(item => item !== ds) : [...prev, ds]
+        );
     };
 
     const toggleMonth = (m) => {
@@ -123,11 +125,10 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                                     ].map((ds) => (
                                                         <label key={ds.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
                                                             <input 
-                                                                type="radio" 
-                                                                name="dataset_selection"
+                                                                type="checkbox" 
                                                                 checked={selectedDatasets.includes(ds.id)}
                                                                 onChange={() => toggleDataset(ds.id)}
-                                                                className="border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                                className="border-gray-300 rounded text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
                                                             />
                                                             {ds.label}
                                                         </label>
