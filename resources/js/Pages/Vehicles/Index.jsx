@@ -8,7 +8,9 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 export default function Index({ vehicles }) {
-    const { flash } = usePage().props;
+    const { flash, auth } = usePage().props;
+    const userRoles = auth.user?.roles?.map(r => r.name) || [];
+    const canManage = userRoles.includes('superadmin') || userRoles.includes('manajemen');
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUsageFormOpen, setIsUsageFormOpen] = useState(false);
@@ -110,12 +112,14 @@ export default function Index({ vehicles }) {
                         <div className="w-full">
                             <ExportDropdown pdfRoute={route('vehicles.export.pdf')} excelRoute={route('vehicles.export.excel')} className="w-full justify-center" />
                         </div>
-                        <Link 
-                            href={route('vehicles.create')}
-                            className="col-span-2 inline-flex items-center justify-center rounded-xl border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 w-full sm:w-auto h-[42px] whitespace-nowrap"
-                        >
-                            <Plus className="w-4 h-4 mr-2" /> Tambah Armada
-                        </Link>
+                        {canManage && (
+                            <Link 
+                                href={route('vehicles.create')}
+                                className="col-span-2 inline-flex items-center justify-center rounded-xl border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 w-full sm:w-auto h-[42px] whitespace-nowrap"
+                            >
+                                <Plus className="w-4 h-4 mr-2" /> Tambah Armada
+                            </Link>
+                        )}
                     </div>
                 </div>
 
@@ -183,27 +187,31 @@ export default function Index({ vehicles }) {
                                                 >
                                                     <ClipboardEdit className="w-4 h-4" />
                                                 </button>
-                                                <button 
-                                                    onClick={() => { setSelectedVehicle(vehicle); setIsModalOpen(true); }}
-                                                    className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors tooltip"
-                                                    title="Lihat Detail"
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                                <Link 
-                                                    href={route('vehicles.edit', vehicle.id)}
-                                                    className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors tooltip"
-                                                    title="Edit Data"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </Link>
-                                                <button 
-                                                    onClick={() => handleDelete(vehicle.id)}
-                                                    className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors tooltip"
-                                                    title="Hapus"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                {canManage && (
+                                                    <>
+                                                        <button 
+                                                            onClick={() => { setSelectedVehicle(vehicle); setIsModalOpen(true); }}
+                                                            className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors tooltip"
+                                                            title="Lihat Detail"
+                                                        >
+                                                            <Eye className="w-4 h-4" />
+                                                        </button>
+                                                        <Link 
+                                                            href={route('vehicles.edit', vehicle.id)}
+                                                            className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors tooltip"
+                                                            title="Edit Data"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </Link>
+                                                        <button 
+                                                            onClick={() => handleDelete(vehicle.id)}
+                                                            className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors tooltip"
+                                                            title="Hapus"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
