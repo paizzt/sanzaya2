@@ -61,7 +61,7 @@ class UserController extends Controller
             'email' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role' => 'required|string',
-            'division_id' => 'nullable|exists:divisions,id',
+            'division_name' => 'nullable|string|max:255',
             'position_id' => 'nullable|exists:positions,id',
             'marketing_areas' => 'nullable|array',
             'marketing_areas.*' => 'exists:marketing_areas,id',
@@ -85,11 +85,16 @@ class UserController extends Controller
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
         ]);
 
+        $division = null;
+        if ($request->filled('division_name')) {
+            $division = Division::firstOrCreate(['name' => $request->division_name]);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password,
-            'division_id' => $request->division_id,
+            'password' => Hash::make($request->password),
+            'division_id' => $division ? $division->id : null,
             'position_id' => $request->position_id,
             'company_id' => $request->company_id,
             'spreadsheet_sales_name' => $request->spreadsheet_sales_name,
@@ -127,7 +132,7 @@ class UserController extends Controller
             'email' => 'required|string|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
             'role' => 'required|string',
-            'division_id' => 'nullable|exists:divisions,id',
+            'division_name' => 'nullable|string|max:255',
             'position_id' => 'nullable|exists:positions,id',
             'marketing_areas' => 'nullable|array',
             'marketing_areas.*' => 'exists:marketing_areas,id',
@@ -153,7 +158,14 @@ class UserController extends Controller
 
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->division_id = $request->division_id;
+        
+        if ($request->filled('division_name')) {
+            $division = \App\Models\Division::firstOrCreate(['name' => $request->division_name]);
+            $user->division_id = $division->id;
+        } else {
+            $user->division_id = null;
+        }
+
         $user->position_id = $request->position_id;
         $user->company_id = $request->company_id;
         $user->spreadsheet_sales_name = $request->spreadsheet_sales_name;

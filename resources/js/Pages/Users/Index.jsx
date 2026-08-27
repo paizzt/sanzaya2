@@ -31,7 +31,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
         email: '',
         password: '',
         role: '',
-        division_id: '',
+        division_name: '',
         position_id: '',
         marketing_areas: [],
         company_id: '',
@@ -91,7 +91,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
             email: user.email,
             password: '',
             role: user.roles && user.roles.length > 0 ? user.roles[0].name : '',
-            division_id: user.division_id || '',
+            division_name: user.division?.name || '',
             position_id: user.position_id || '',
             marketing_areas: user.marketing_areas ? user.marketing_areas.map(a => a.id) : [],
             company_id: user.company_id || '',
@@ -429,12 +429,13 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     </div>
                                                     <div>
                                                         <InputLabel value="Divisi" />
-                                                        <CustomSelect 
-                                                            value={data.division_id}
-                                                            onChange={val => setData('division_id', val)}
-                                                            options={divisions.map(d => ({ value: d.id, label: d.name }))}
-                                                            />
-                                                        <InputError message={errors.division_id} className="mt-1" />
+                                                        <TextInput 
+                                                            className="mt-1 block w-full"
+                                                            value={data.division_name}
+                                                            onChange={e => setData('division_name', e.target.value)}
+                                                            placeholder="Ketik nama divisi..."
+                                                        />
+                                                        <InputError message={errors.division_name} className="mt-1" />
                                                     </div>
                                                 </>
                                                 </div>
