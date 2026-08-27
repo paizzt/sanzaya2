@@ -288,7 +288,7 @@
         <p>Mengetahui,</p>
         <br><br><br>
         <p style="text-decoration: underline; font-weight: bold; margin-bottom: 2px;">{{ auth()->user()->name ?? '..........................................' }}</p>
-        <p style="margin-top: 0; font-size: 11px; color: #4b5563;">Admin Logistik / Keuangan</p>
+        <p style="margin-top: 0; font-size: 11px; color: #4b5563;">{{ optional(auth()->user()->division)->name ?? 'Admin' }}</p>
     </div>
     <div style="clear: both;"></div>
 </body>
