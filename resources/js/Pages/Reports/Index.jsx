@@ -884,15 +884,15 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                             </div>
                                             <div className="space-y-3 mt-3">
                                                 {Object.entries(summary.pt_penjualan_detail).map(([key, value], idx) => (
-                                                    <div key={idx} className="flex justify-between items-center p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors">
-                                                        <div className="flex items-center gap-3 min-w-0 pr-4">
-                                                            <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                                                {idx + 1}
-                                                            </div>
-                                                            <div className="text-sm font-medium text-gray-700 truncate" title={key}>{key}</div>
-                                                        </div>
-                                                        <span className="text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap">{value}</span>
-                                                    </div>
+                                                      <div key={idx} className="flex justify-between items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors">
+                                                          <div className="flex items-start gap-3 min-w-0 pr-2 flex-1">
+                                                              <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                                                  {idx + 1}
+                                                              </div>
+                                                              <div className="text-xs sm:text-sm font-medium text-gray-700 break-words whitespace-normal" title={key}>{key}</div>
+                                                          </div>
+                                                          <span className="text-xs sm:text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap ml-2 mt-0.5">{value}</span>
+                                                      </div>
                                                 ))}
                                             </div>
                                         </div>
@@ -908,15 +908,15 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         </div>
                                         <div className="space-y-3 mt-3">
                                             {Object.entries(detailModal.data).map(([key, value], idx) => (
-                                                <div key={idx} className="flex justify-between items-center p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">
-                                                    <div className="flex items-center gap-3 min-w-0 pr-4">
-                                                        <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                                            {idx + 1}
-                                                        </div>
-                                                        <div className="text-sm font-medium text-gray-700 truncate" title={key}>{key}</div>
-                                                    </div>
-                                                    <span className="text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap">{value}</span>
-                                                </div>
+                                                  <div key={idx} className="flex justify-between items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">
+                                                      <div className="flex items-start gap-3 min-w-0 pr-2 flex-1">
+                                                          <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                                              {idx + 1}
+                                                          </div>
+                                                          <div className="text-xs sm:text-sm font-medium text-gray-700 break-words whitespace-normal" title={key}>{key}</div>
+                                                      </div>
+                                                      <span className="text-xs sm:text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap ml-2 mt-0.5">{value}</span>
+                                                  </div>
                                             ))}
                                         </div>
                                     </div>

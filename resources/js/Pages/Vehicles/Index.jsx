@@ -1,7 +1,7 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
-import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench, History, Activity, Image as ImageIcon } from 'lucide-react';
+import { Truck, Plus, Edit, Trash2, Calendar, FileText, AlertTriangle, X, Eye, ShieldCheck, Wrench, History, ClipboardEdit, Image as ImageIcon } from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
@@ -181,7 +181,7 @@ export default function Index({ vehicles }) {
                                                     className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors tooltip"
                                                     title="Catat Penggunaan"
                                                 >
-                                                    <Activity className="w-4 h-4" />
+                                                    <ClipboardEdit className="w-4 h-4" />
                                                 </button>
                                                 <button 
                                                     onClick={() => { setSelectedVehicle(vehicle); setIsModalOpen(true); }}
@@ -456,7 +456,7 @@ export default function Index({ vehicles }) {
                                     <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mt-6">
                                         <div className="flex justify-between items-center mb-4 border-b pb-3">
                                             <h4 className="text-base font-bold text-gray-800 flex items-center gap-2">
-                                                <Activity className="w-5 h-5 text-green-600" />
+                                                <ClipboardEdit className="w-5 h-5 text-green-600" />
                                                 Riwayat Penggunaan
                                             </h4>
                                             <button 
@@ -524,7 +524,7 @@ export default function Index({ vehicles }) {
                         <form onSubmit={handleUsageSubmit}>
                             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
                                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                    <Activity className="w-6 h-6 text-green-600" />
+                                    <ClipboardEdit className="w-6 h-6 text-green-600" />
                                     Catat Penggunaan Kendaraan
                                 </h3>
                                 <button 

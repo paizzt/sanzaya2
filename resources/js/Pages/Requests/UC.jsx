@@ -139,18 +139,14 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                             </div>
                             <div>
                                 <InputLabel value="Nama Pegawai" />
-                                {isAdmin ? (
-                                    <div className="mt-1">
-                                        <SearchableSelect
-                                            value={data.user_id}
-                                            onChange={(val) => setData('user_id', val)}
-                                            options={users.map(u => ({ value: u.id, label: u.name }))}
-                                            />
-                                        <InputError message={errors.user_id} className="mt-2" />
-                                    </div>
-                                ) : (
-                                    <TextInput className="mt-1 block w-full bg-gray-100 cursor-not-allowed" value={user.name} disabled />
-                                )}
+                                <div className="mt-1">
+                                    <SearchableSelect
+                                        value={data.user_id}
+                                        onChange={(val) => setData('user_id', val)}
+                                        options={users.map(u => ({ value: u.id, label: u.name }))}
+                                    />
+                                    <InputError message={errors.user_id} className="mt-2" />
+                                </div>
                             </div>
                             <div>
                                 <InputLabel value="Jabatan / Divisi *" />

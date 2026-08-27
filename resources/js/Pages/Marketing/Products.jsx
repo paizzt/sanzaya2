@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { Search, Package, Filter, Box } from 'lucide-react';
 import ClientPagination from '@/Components/ClientPagination';
+import CustomSelect from '@/Components/CustomSelect';
 
 export default function Products({ auth, products, filters }) {
     const [search, setSearch] = useState(filters.search || '');
@@ -57,31 +58,33 @@ export default function Products({ auth, products, filters }) {
                             </div>
                         </form>
                         
-                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto z-20">
                             <div className="relative w-full sm:w-auto">
-                                <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                <select
+                                <CustomSelect
                                     value={source}
-                                    onChange={(e) => handleFilterChange('source', e.target.value)}
-                                    className="pl-9 pr-10 py-2.5 border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white w-full sm:min-w-[160px]"
-                                >
-                                    <option value="">Semua Sumber</option>
-                                    <option value="Distributor">Produk Distributor</option>
-                                    <option value="Internal">Produk Internal</option>
-                                </select>
+                                    onChange={(val) => handleFilterChange('source', val)}
+                                    options={[
+                                        { value: '', label: 'Semua Sumber' },
+                                        { value: 'Distributor', label: 'Produk Distributor' },
+                                        { value: 'Internal', label: 'Produk Internal' },
+                                    ]}
+                                    icon={Filter}
+                                    className="w-full sm:min-w-[200px]"
+                                />
                             </div>
 
                             <div className="relative w-full sm:w-auto">
-                                <Box className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                <select
+                                <CustomSelect
                                     value={type}
-                                    onChange={(e) => handleFilterChange('type', e.target.value)}
-                                    className="pl-9 pr-10 py-2.5 border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white w-full sm:min-w-[160px]"
-                                >
-                                    <option value="">Semua Kategori</option>
-                                    <option value="BMHP">BMHP</option>
-                                    <option value="Alat">Alat Kesehatan</option>
-                                </select>
+                                    onChange={(val) => handleFilterChange('type', val)}
+                                    options={[
+                                        { value: '', label: 'Semua Kategori' },
+                                        { value: 'BMHP', label: 'BMHP' },
+                                        { value: 'Alat', label: 'Alat Kesehatan' },
+                                    ]}
+                                    icon={Box}
+                                    className="w-full sm:min-w-[200px]"
+                                />
                             </div>
                         </div>
                     </div>

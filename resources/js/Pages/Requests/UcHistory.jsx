@@ -134,12 +134,14 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                 
                 {/* Daftar & Upload Result UC */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                    <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 border-b border-gray-50 pb-4">
                         <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
                             <FileCheck className="text-blue-600" /> Riwayat Pengajuan
                         </h3>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                            <ExportDropdown pdfRoute={route('requests.uc.export.pdf')} excelRoute={route('requests.uc.export.excel')} />
+                            <div className="w-full">
+                                <ExportDropdown pdfRoute={route('requests.uc.export.pdf')} excelRoute={route('requests.uc.export.excel')} className="w-full justify-center" />
+                            </div>
                         </div>
                     </div>
 

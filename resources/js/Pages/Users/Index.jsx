@@ -201,14 +201,17 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm px-4 py-2.5 w-full sm:w-64"
                             />
                         </div>
-                        <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} />
-                                <button 
-                        onClick={openCreateModal}
-                        className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
-                    >
-                        <Plus className="w-4 h-4 mr-2" /> Tambah
-                    </button>
+                        <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full sm:w-auto">
+                            <div className="w-full">
+                                <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} className="w-full justify-center" />
                             </div>
+                            <button 
+                                onClick={openCreateModal}
+                                className="inline-flex justify-center items-center rounded-xl border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 w-full sm:w-auto h-[42px] whitespace-nowrap"
+                            >
+                                <Plus className="w-4 h-4 mr-2" /> Tambah
+                            </button>
+                        </div>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
