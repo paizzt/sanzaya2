@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 
 export default function Index({ vehicles }) {
     const { flash, auth } = usePage().props;
-    const userRoles = auth.user?.roles?.map(r => r.name) || [];
+    const userRoles = auth.user?.roles?.map(r => r.name?.toLowerCase()) || [];
     const canManage = userRoles.includes('superadmin') || userRoles.includes('manajemen');
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
