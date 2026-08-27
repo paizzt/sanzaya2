@@ -5,6 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
 import { Eye, FileText, Edit, Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 // Formatting helper local
 const formatCurrency = (value) => {
@@ -22,9 +23,21 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const isSuperAdmin = auth.user?.roles?.some(r => r.name === 'SUPERADMIN');
 
     const handleDelete = (id) => {
-        if (confirm('Apakah Anda yakin ingin menghapus pengajuan ini?')) {
-            router.delete(route('payment-requests.destroy', id));
-        }
+        Swal.fire({
+            title: 'Hapus Pengajuan?',
+            text: "Apakah Anda yakin ingin menghapus pengajuan ini?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route('payment-requests.destroy', id));
+            }
+        });
     };
     
     const pageTitle = isApprovalView ? "Persetujuan Pembayaran" : "Pengajuan Pembayaran";
