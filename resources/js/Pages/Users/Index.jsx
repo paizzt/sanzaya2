@@ -209,7 +209,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                             </div>
                             <button 
                                 onClick={openCreateModal}
-                                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg w-full sm:w-auto h-[42px] whitespace-nowrap"
+                                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg w-full sm:w-auto whitespace-nowrap"
                             >
                                 <Plus className="w-4 h-4" /> Tambah
                             </button>
@@ -293,9 +293,9 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                                        <button onClick={() => openEditModal(user)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
+                                                        <button onClick={() => openEditModal(user)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
                                                         {usePage().props.auth.user.id !== user.id && (
-                                                            <button onClick={() => handleDelete(user.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
+                                                            <button onClick={() => handleDelete(user.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
                                                         )}
                                                     </div>
                                                 </td>

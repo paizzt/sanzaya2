@@ -379,8 +379,8 @@ export default function Index({ outlets, areas }) {
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center gap-2">
-                                                <button onClick={() => openEditModal(outlet)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Edit Outlet"><Edit className="w-4 h-4" /></button>
-                                                <button onClick={() => handleDelete(outlet.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Hapus Outlet"><Trash2 className="w-4 h-4" /></button>
+                                                <button onClick={() => openEditModal(outlet)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Outlet"><Edit className="w-4 h-4" /></button>
+                                                <button onClick={() => handleDelete(outlet.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Outlet"><Trash2 className="w-4 h-4" /></button>
                                             </div>
                                         </td>
                                     </tr>

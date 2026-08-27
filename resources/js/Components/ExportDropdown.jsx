@@ -86,7 +86,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                 <button 
                     type="button"
                     onClick={handleOpen}
-                    className={`inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-sm font-bold transition-all shadow-sm whitespace-nowrap shrink-0 ${className}`}
+                    className={`inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 text-gray-700 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-gray-100 hover:text-blue-600 transition-colors gap-2 whitespace-nowrap shrink-0 ${className}`}
                 >
                     <Download className="w-4 h-4 text-emerald-600" />
                     Unduh

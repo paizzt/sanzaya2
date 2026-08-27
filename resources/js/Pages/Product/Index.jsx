@@ -252,14 +252,14 @@ export default function Index({ products }) {
                                             <div className="flex justify-center gap-2">
                                                 <button 
                                                     onClick={() => openEditModal(product)} 
-                                                    className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" 
+                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
                                                     title="Edit"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(product.id)} 
-                                                    className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" 
+                                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" 
                                                     title="Hapus"
                                                 >
                                                     <Trash2 className="w-4 h-4" />

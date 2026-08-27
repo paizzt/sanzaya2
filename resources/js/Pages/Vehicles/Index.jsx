@@ -107,7 +107,7 @@ export default function Index({ vehicles }) {
                     <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
                         <Link 
                             href={route('vehicle-usages.index')}
-                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-sm border border-blue-200 w-full h-[42px] whitespace-nowrap text-sm"
+                            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 text-gray-700 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-gray-100 hover:text-blue-600 transition-colors gap-2 whitespace-nowrap"
                         >
                             <History className="w-4 h-4" /> Riwayat Jalan
                         </Link>
@@ -117,7 +117,7 @@ export default function Index({ vehicles }) {
                         {canManage && (
                             <Link 
                                 href={route('vehicles.create')}
-                                className="col-span-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg w-full sm:w-auto h-[42px] whitespace-nowrap"
+                                className="col-span-2 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg w-full sm:w-auto whitespace-nowrap"
                             >
                                 <Plus className="w-4 h-4" /> Tambah Armada
                             </Link>
@@ -184,7 +184,7 @@ export default function Index({ vehicles }) {
                                             <div className="flex justify-center items-center gap-2">
                                                 <button 
                                                     onClick={() => { setSelectedVehicle(vehicle); setData('vehicle_id', vehicle.id); setIsUsageFormOpen(true); }}
-                                                    className="px-3 py-2 text-green-700 bg-green-100 hover:bg-green-200 rounded-xl transition-colors tooltip flex items-center justify-center gap-1.5 font-semibold text-xs whitespace-nowrap border border-green-200 shadow-sm"
+                                                    className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors tooltip flex items-center justify-center gap-1.5 font-semibold text-xs whitespace-nowrap"
                                                     title="Catat Penggunaan"
                                                 >
                                                     <ClipboardEdit className="w-4 h-4" />
@@ -194,21 +194,21 @@ export default function Index({ vehicles }) {
                                                     <>
                                                         <button 
                                                             onClick={() => { setSelectedVehicle(vehicle); setIsModalOpen(true); }}
-                                                            className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors tooltip"
+                                                            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors tooltip"
                                                             title="Lihat Detail"
                                                         >
                                                             <Eye className="w-4 h-4" />
                                                         </button>
                                                         <Link 
                                                             href={route('vehicles.edit', vehicle.id)}
-                                                            className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors tooltip"
+                                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors tooltip"
                                                             title="Edit Data"
                                                         >
                                                             <Edit className="w-4 h-4" />
                                                         </Link>
                                                         <button 
                                                             onClick={() => handleDelete(vehicle.id)}
-                                                            className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors tooltip"
+                                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors tooltip"
                                                             title="Hapus"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
