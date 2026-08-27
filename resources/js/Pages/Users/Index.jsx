@@ -212,6 +212,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 <Plus className="w-4 h-4 mr-2" /> Tambah
                             </button>
                         </div>
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
