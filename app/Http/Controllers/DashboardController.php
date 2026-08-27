@@ -46,6 +46,10 @@ class DashboardController extends Controller
                 'marketing_visits_today' => $marketingQuery->count(),
                 'uc_pending' => $ucQuery->count(),
                 'bhp_pending' => $bhpQuery->count(),
+                'attendance_list' => $attendanceQuery->with('user:id,name')->get(['id', 'user_id', 'created_at', 'status']),
+                'marketing_list' => $marketingQuery->with('user:id,name')->get(['id', 'user_id', 'visit_date', 'store_name']),
+                'uc_list' => $ucQuery->with('user:id,name')->get(['id', 'user_id', 'date', 'total_amount']),
+                'bhp_list' => $bhpQuery->with('user:id,name')->get(['id', 'user_id', 'date', 'status'])
             ];
 
             if ($isAdmin) {

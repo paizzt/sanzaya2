@@ -1,11 +1,15 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, Link } from '@inertiajs/react';
-import { Users, CreditCard, Building, FileText, ClipboardList, Package, Archive, Sparkles } from 'lucide-react';
+import { Users, CreditCard, Building, FileText, ClipboardList, Package, Archive, Sparkles, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import Modal from '@/Components/Modal';
 
-const StatCard = ({ title, value, icon: Icon, color, delay }) => {
+const StatCard = ({ title, value, icon: Icon, color, delay, onClick }) => {
     return (
-        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center gap-4 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+        <div 
+            onClick={onClick}
+            className={`bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center gap-4 transition-all duration-300 ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-gray-200' : ''}`}
+        >
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${color}-50 text-${color}-500 shadow-inner`}>
                 <Icon className="w-6 h-6" />
             </div>
@@ -19,6 +23,7 @@ const StatCard = ({ title, value, icon: Icon, color, delay }) => {
 };
 
 export default function Dashboard({ auth, stats, isAdmin }) {
+    const [activeModal, setActiveModal] = useState(null);
     
     // Auto-refresh (Realtime Polling) every 15 seconds
     useEffect(() => {
@@ -43,10 +48,10 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                 
                 {/* Main Metrics (Today/Pending) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard title="Absen (Hari Ini)" value={stats.attendance_today} icon={Users} color="blue" />
-                    <StatCard title="Kunjungan Sales" value={stats.marketing_visits_today} icon={Building} color="purple" />
-                    <StatCard title="Pengajuan UC (Pending)" value={stats.uc_pending} icon={CreditCard} color="emerald" />
-                    <StatCard title="Pengajuan BHP (Pending)" value={stats.bhp_pending} icon={ClipboardList} color="orange" />
+                    <StatCard title="Absen (Hari Ini)" value={stats.attendance_today} icon={Users} color="blue" onClick={() => setActiveModal('attendance')} />
+                    <StatCard title="Kunjungan Sales" value={stats.marketing_visits_today} icon={Building} color="purple" onClick={() => setActiveModal('marketing')} />
+                    <StatCard title="Pengajuan UC (Pending)" value={stats.uc_pending} icon={CreditCard} color="emerald" onClick={() => setActiveModal('uc')} />
+                    <StatCard title="Pengajuan BHP (Pending)" value={stats.bhp_pending} icon={ClipboardList} color="orange" onClick={() => setActiveModal('bhp')} />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -103,6 +108,102 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                     </div>
                 </div>
             </div>
+
+            {/* Modal for Details */}
+            <Modal show={activeModal !== null} onClose={() => setActiveModal(null)} maxWidth="lg">
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-gray-800">
+                            {activeModal === 'attendance' && 'Daftar Absen (Hari Ini)'}
+                            {activeModal === 'marketing' && 'Daftar Kunjungan Sales (Hari Ini)'}
+                            {activeModal === 'uc' && 'Daftar Pengajuan UC (Pending)'}
+                            {activeModal === 'bhp' && 'Daftar Pengajuan BHP (Pending)'}
+                        </h2>
+                        <button onClick={() => setActiveModal(null)} className="p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-full transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                    
+                    <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                        {activeModal === 'attendance' && (
+                            <div className="space-y-3">
+                                {stats.attendance_list?.length > 0 ? stats.attendance_list.map((item, idx) => (
+                                    <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center hover:border-blue-200 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                                                {item.user?.name?.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <span className="font-bold text-gray-800 block">{item.user?.name}</span>
+                                                <span className="text-xs text-gray-500">{new Date(item.created_at).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}</span>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-semibold px-3 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-100">{item.status || 'Hadir'}</span>
+                                    </div>
+                                )) : <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">Belum ada data hari ini.</div>}
+                            </div>
+                        )}
+
+                        {activeModal === 'marketing' && (
+                            <div className="space-y-3">
+                                {stats.marketing_list?.length > 0 ? stats.marketing_list.map((item, idx) => (
+                                    <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2 hover:border-purple-200 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            <Building className="w-4 h-4 text-purple-500" />
+                                            <span className="font-bold text-gray-800">{item.store_name}</span>
+                                        </div>
+                                        <div className="text-sm text-gray-600 flex items-center gap-2">
+                                            <Users className="w-3.5 h-3.5 text-gray-400" /> {item.user?.name}
+                                        </div>
+                                    </div>
+                                )) : <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">Belum ada data hari ini.</div>}
+                            </div>
+                        )}
+
+                        {activeModal === 'uc' && (
+                            <div className="space-y-3">
+                                {stats.uc_list?.length > 0 ? stats.uc_list.map((item, idx) => (
+                                    <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center hover:border-emerald-200 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                                <CreditCard className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <span className="font-bold text-gray-800 block">{item.user?.name}</span>
+                                                <span className="text-xs text-gray-500">Menunggu Persetujuan</span>
+                                            </div>
+                                        </div>
+                                        <span className="text-sm font-black text-gray-700 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                            Rp {new Intl.NumberFormat('id-ID').format(item.total_amount || 0)}
+                                        </span>
+                                    </div>
+                                )) : <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">Tidak ada pengajuan pending.</div>}
+                            </div>
+                        )}
+
+                        {activeModal === 'bhp' && (
+                            <div className="space-y-3">
+                                {stats.bhp_list?.length > 0 ? stats.bhp_list.map((item, idx) => (
+                                    <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center hover:border-orange-200 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
+                                                <ClipboardList className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <span className="font-bold text-gray-800 block">{item.user?.name}</span>
+                                                <span className="text-xs text-gray-500">Menunggu Persetujuan</span>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-semibold px-3 py-1 bg-orange-50 text-orange-700 rounded-lg border border-orange-100">
+                                            {item.status}
+                                        </span>
+                                    </div>
+                                )) : <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">Tidak ada pengajuan pending.</div>}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
