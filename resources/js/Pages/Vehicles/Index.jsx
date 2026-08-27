@@ -182,10 +182,11 @@ export default function Index({ vehicles }) {
                                             <div className="flex justify-center items-center gap-2">
                                                 <button 
                                                     onClick={() => { setSelectedVehicle(vehicle); setData('vehicle_id', vehicle.id); setIsUsageFormOpen(true); }}
-                                                    className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors tooltip"
+                                                    className="px-3 py-2 text-green-700 bg-green-100 hover:bg-green-200 rounded-xl transition-colors tooltip flex items-center justify-center gap-1.5 font-semibold text-xs whitespace-nowrap border border-green-200 shadow-sm"
                                                     title="Catat Penggunaan"
                                                 >
                                                     <ClipboardEdit className="w-4 h-4" />
+                                                    <span>Catat</span>
                                                 </button>
                                                 {canManage && (
                                                     <>
