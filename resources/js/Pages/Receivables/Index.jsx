@@ -305,16 +305,6 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 </div>
                             </div>
                             
-                            {items.length > 0 && (
-                                <div className="mb-4">
-                                    <ClientPagination 
-                                        total={items.length} 
-                                        itemsPerPage={itemsPerPage} 
-                                        currentPage={currentPage} 
-                                        onPageChange={setCurrentPage} 
-                                    />
-                                </div>
-                            )}
 
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
