@@ -162,22 +162,29 @@ export default function Dashboard({ auth, stats, isAdmin }) {
 
                         {activeModal === 'uc' && (
                             <div className="space-y-3">
-                                {stats.uc_list?.length > 0 ? stats.uc_list.map((item, idx) => (
-                                    <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center hover:border-emerald-200 transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                                <CreditCard className="w-5 h-5" />
+                                {stats.uc_list?.length > 0 ? stats.uc_list.map((item, idx) => {
+                                    const totalAmount = (Number(item.estimated_gas_cost) || 0) + 
+                                                        (Number(item.estimated_meals_cost) || 0) + 
+                                                        (Number(item.estimated_accommodation_cost) || 0) + 
+                                                        (Number(item.flight_ticket_cost) || 0) + 
+                                                        (Number(item.ship_ticket_cost) || 0);
+                                    return (
+                                        <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center hover:border-emerald-200 transition-colors">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                                    <CreditCard className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <span className="font-bold text-gray-800 block">{item.user?.name}</span>
+                                                    <span className="text-xs text-gray-500">Menunggu Persetujuan</span>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <span className="font-bold text-gray-800 block">{item.user?.name}</span>
-                                                <span className="text-xs text-gray-500">Menunggu Persetujuan</span>
-                                            </div>
+                                            <span className="text-sm font-black text-gray-700 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                                Rp {new Intl.NumberFormat('id-ID').format(totalAmount)}
+                                            </span>
                                         </div>
-                                        <span className="text-sm font-black text-gray-700 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                                            Rp {new Intl.NumberFormat('id-ID').format(item.total_amount || 0)}
-                                        </span>
-                                    </div>
-                                )) : <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">Tidak ada pengajuan pending.</div>}
+                                    );
+                                }) : <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">Tidak ada pengajuan pending.</div>}
                             </div>
                         )}
 
