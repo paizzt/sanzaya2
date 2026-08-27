@@ -112,7 +112,7 @@ export default function ActivityLog({ auth, logs, filters }) {
         >
             <Head title="Riwayat Perubahan" />
 
-            <div className="py-6">
+            <div className="py-2">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
                         {/* Header & Filter */}
