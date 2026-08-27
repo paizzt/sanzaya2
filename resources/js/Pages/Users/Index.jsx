@@ -203,7 +203,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm px-4 py-2.5 w-full sm:w-64"
                             />
                         </div>
-                        <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full sm:w-auto">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                             <div className="w-full">
                                 <ExportDropdown pdfRoute={route('users.export.pdf')} excelRoute={route('users.export.excel')} className="w-full justify-center" />
                             </div>

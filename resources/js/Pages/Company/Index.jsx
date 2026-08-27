@@ -115,7 +115,7 @@ export default function Index({ auth, companies }) {
             header={
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">Data Perusahaan</h2>
-                    <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                         <div className="w-full">
                             <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
                         </div>

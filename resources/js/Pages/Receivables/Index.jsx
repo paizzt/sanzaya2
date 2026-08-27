@@ -217,7 +217,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     <Wallet className="w-5 h-5 text-blue-500" />
                                     Data Piutang
                                 </h3>
-                                <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                                     <div className="w-full">
                                         <ExportDropdown pdfRoute={route('receivables.export.pdf')} excelRoute={route('receivables.export.excel')} className="w-full justify-center" />
                                     </div>

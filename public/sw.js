@@ -42,6 +42,11 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // Hindari skema yang tidak didukung oleh Cache API (seperti chrome-extension://)
+    if (!request.url.startsWith('http')) {
+        return;
+    }
+
     // Network First strategy untuk halaman HTML/Inertia dan API
     if (request.headers.get('accept').includes('text/html') || url.pathname.startsWith('/api') || request.headers.get('X-Inertia')) {
         event.respondWith(

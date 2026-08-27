@@ -301,7 +301,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <tbody className="text-sm text-gray-700">
                                 {filteredRecapList.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="py-8 text-center text-gray-500">
+                                        <td colSpan="8" className="py-8 text-center text-gray-500">
                                             Tidak ada riwayat absensi yang cocok dengan pencarian.
                                         </td>
                                     </tr>

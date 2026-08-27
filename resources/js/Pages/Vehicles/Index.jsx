@@ -104,7 +104,7 @@ export default function Index({ vehicles }) {
                             Kelola data kendaraan, legalitas, dan jadwal perawatan rutin.
                         </p>
                     </div>
-                    <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                         <Link 
                             href={route('vehicle-usages.index')}
                             className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 text-gray-700 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-gray-100 hover:text-blue-600 transition-colors gap-2 whitespace-nowrap"

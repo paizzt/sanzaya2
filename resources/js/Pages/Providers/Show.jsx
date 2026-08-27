@@ -267,7 +267,7 @@ export default function Show({ provider, products, filters }) {
                                         className="pl-10 w-full md:w-64 rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                                     />
                                 </div>
-                                <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full sm:w-auto">
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                                     <div className="w-full">
                                     <ExportDropdown 
                                         pdfRoute={route('provider-products.export.pdf', provider.id)} 
