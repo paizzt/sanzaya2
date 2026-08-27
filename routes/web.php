@@ -46,6 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/vehicles-export-excel', [\App\Http\Controllers\VehicleController::class, 'exportExcel'])->name('vehicles.export.excel');
     Route::get('/providers-export-pdf', [\App\Http\Controllers\ProviderController::class, 'exportPdf'])->name('providers.export.pdf');
     Route::get('/providers-export-excel', [\App\Http\Controllers\ProviderController::class, 'exportExcel'])->name('providers.export.excel');
+    Route::get('/provider-products-export-pdf/{provider}', [\App\Http\Controllers\ProviderProductController::class, 'exportPdf'])->name('provider-products.export.pdf');
+    Route::get('/provider-products-export-excel/{provider}', [\App\Http\Controllers\ProviderProductController::class, 'exportExcel'])->name('provider-products.export.excel');
     Route::get('/products-export-pdf', [\App\Http\Controllers\ProductController::class, 'exportPdf'])->name('products.export.pdf');
     Route::get('/products-export-excel', [\App\Http\Controllers\ProductController::class, 'exportExcel'])->name('products.export.excel');
     Route::get('/users-export-pdf', [\App\Http\Controllers\UserController::class, 'exportPdf'])->name('users.export.pdf');

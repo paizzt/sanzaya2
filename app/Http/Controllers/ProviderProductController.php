@@ -59,4 +59,62 @@ class ProviderProductController extends Controller
 
         return redirect()->back()->with('success', 'Produk penyedia berhasil dihapus.');
     }
+
+    public function exportPdf($provider)
+    {
+        $provider = \App\Models\Provider::findOrFail($provider);
+        $items = \App\Models\ProviderProduct::where('provider_id', $provider->id)->orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $allowed = ['name', 'code', 'jenis', 'registration_no', 'unit', 'tkdn', 'price', 'selling_price', 'qty'];
+            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
+            array_unshift($headings, 'No');
+
+            $rows = $items->map(function($item, $key) use ($allowed) {
+                $row = [$key + 1];
+                foreach ($allowed as $col) {
+                    $val = $item->$col;
+                    if (in_array($col, ['price', 'selling_price'])) {
+                        $val = 'Rp ' . number_format((float)$val, 0, ',', '.');
+                    }
+                    $row[] = $val;
+                }
+                return $row;
+            });
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.generic', [
+            'title' => 'Data Barang - ' . $provider->name,
+            'headings' => $headings,
+            'rows' => $rows
+        ])->setPaper('a4', 'landscape');
+
+        return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Data Barang ' . $provider->name) . '.pdf') : $pdf->download(str_replace(' ', '_', 'Data Barang ' . $provider->name) . '.pdf');
+    }
+
+    public function exportExcel($provider)
+    {
+        $provider = \App\Models\Provider::findOrFail($provider);
+        $items = \App\Models\ProviderProduct::where('provider_id', $provider->id)->orderBy('id', 'desc')->get();
+        if ($items->isEmpty()) {
+            $headings = [];
+            $rows = collect([]);
+        } else {
+            $allowed = ['name', 'code', 'jenis', 'registration_no', 'unit', 'tkdn', 'price', 'selling_price', 'qty'];
+            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
+            array_unshift($headings, 'No');
+
+            $rows = $items->map(function($item, $key) use ($allowed) {
+                $row = [$key + 1];
+                foreach ($allowed as $col) {
+                    $row[] = $item->$col;
+                }
+                return $row;
+            });
+        }
+        
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new \App\Exports\GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($rows, $headings), str_replace(' ', '_', 'Data Barang ' . $provider->name) . '.xlsx');
+    }
 }
