@@ -63,7 +63,19 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
         >
             <Head title="Absensi" />
 
-            <div className="pb-6 pt-0">
+            <div className="pb-6 pt-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 mt-2">
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
+                            <Clock className="w-8 h-8 text-blue-600" />
+                            Presensi Harian
+                        </h1>
+                        <p className="mt-2 text-sm text-gray-500 max-w-2xl">
+                            Catat kehadiran Anda setiap hari dengan mengambil foto secara langsung.
+                        </p>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                     {/* Camera Section */}

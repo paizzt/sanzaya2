@@ -248,21 +248,23 @@ export default function Index({ providers, filters }) {
                     </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <Store className="w-6 h-6 text-blue-600" />
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
+                            <Store className="w-8 h-8 text-blue-600" />
                             Daftar Penyedia
-                        </h3>
-                        <p className="text-sm text-gray-500 mt-1">Kelola data penyedia BMHP, Alat, Distributor, dan Non Distributor.</p>
+                        </h1>
+                        <p className="mt-2 text-sm text-gray-500 max-w-2xl">
+                            Kelola data penyedia BMHP, Alat, Distributor, dan Non Distributor.
+                        </p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                         <ExportDropdown pdfRoute={route('providers.export.pdf')} excelRoute={route('providers.export.excel')} />
                         <button 
                             onClick={openCreateModal}
-                            className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 shrink-0"
+                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg shrink-0"
                         >
-                            <Plus className="w-5 h-5 mr-2" /> Tambah Penyedia
+                            <Plus className="w-4 h-4" /> Tambah Penyedia
                         </button>
                     </div>
                 </div>

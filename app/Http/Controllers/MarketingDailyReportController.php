@@ -38,7 +38,9 @@ class MarketingDailyReportController extends Controller
             ->get();
 
         if ($user->isAdminUser()) {
-            $realizedVisits = MarketingDailyReport::whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count();
+            $realizedVisits = MarketingDailyReport::whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                ->where('activity_type', 'Kunjungan')
+                ->count();
             $realizedTransactions = MarketingDailyReport::whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->sum('actual_value');
             $target = MarketingWeeklyTarget::where('week_number', $weekNumber)
                 ->selectRaw('SUM(target_visits) as target_visits, SUM(target_new_outlets) as target_new_outlets, SUM(target_transactions) as target_transactions')
@@ -46,6 +48,7 @@ class MarketingDailyReportController extends Controller
         } else {
             $realizedVisits = MarketingDailyReport::where('user_id', $userId)
                 ->whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                ->where('activity_type', 'Kunjungan')
                 ->count();
                 
             $realizedTransactions = MarketingDailyReport::where('user_id', $userId)

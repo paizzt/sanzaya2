@@ -94,13 +94,15 @@ export default function Index({ vehicles }) {
 
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <Truck className="w-6 h-6 text-blue-600" />
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
+                            <Truck className="w-8 h-8 text-blue-600" />
                             Daftar Kendaraan Operasional
-                        </h3>
-                        <p className="text-sm text-gray-500 mt-1">Kelola data kendaraan, legalitas, dan jadwal perawatan rutin.</p>
+                        </h1>
+                        <p className="mt-2 text-sm text-gray-500 max-w-2xl">
+                            Kelola data kendaraan, legalitas, dan jadwal perawatan rutin.
+                        </p>
                     </div>
                     <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
                         <Link 
@@ -115,9 +117,9 @@ export default function Index({ vehicles }) {
                         {canManage && (
                             <Link 
                                 href={route('vehicles.create')}
-                                className="col-span-2 inline-flex items-center justify-center rounded-xl border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 w-full sm:w-auto h-[42px] whitespace-nowrap"
+                                className="col-span-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg w-full sm:w-auto h-[42px] whitespace-nowrap"
                             >
-                                <Plus className="w-4 h-4 mr-2" /> Tambah Armada
+                                <Plus className="w-4 h-4" /> Tambah Armada
                             </Link>
                         )}
                     </div>

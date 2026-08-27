@@ -104,8 +104,20 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         >
             <Head title="Marketing" />
 
-            <div className="pb-6 pt-0 space-y-8">
+            <div className="pb-6 pt-0 space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 mt-2">
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
+                            <Target className="w-8 h-8 text-blue-600" />
+                            Modul Marketing
+                        </h1>
+                        <p className="mt-2 text-sm text-gray-500 max-w-2xl">
+                            Pantau target mingguan, realisasi penjualan, dan catat aktivitas harian.
+                        </p>
+                    </div>
+                </div>
+
                 {/* Target vs Realization */}
                 <div>
                     <h3 className="font-bold text-xl text-gray-800 mb-4 flex items-center gap-2">
