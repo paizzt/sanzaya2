@@ -128,10 +128,10 @@ export default function Index({ vehicles }) {
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    <th className="px-6 py-4">Kendaraan</th>
-                                    <th className="px-6 py-4">Status Legalitas</th>
-                                    <th className="px-6 py-4">Perawatan Terakhir</th>
-                                    <th className="px-6 py-4 text-center">Aksi</th>
+                                    <th className="px-4 sm:px-6 py-4">Kendaraan</th>
+                                    <th className="px-6 py-4 hidden md:table-cell">Status Legalitas</th>
+                                    <th className="px-6 py-4 hidden md:table-cell">Perawatan Terakhir</th>
+                                    <th className="px-4 sm:px-6 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -141,7 +141,7 @@ export default function Index({ vehicles }) {
                                         onClick={() => { setSelectedVehicle(vehicle); setIsModalOpen(true); }}
                                         className="bg-white border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer"
                                     >
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 sm:px-6 py-4">
                                             <div className="flex items-center gap-4">
                                                 {vehicle.photo ? (
                                                     <img src={`/storage/${vehicle.photo}`} alt={vehicle.license_plate} className="w-16 h-12 object-cover rounded-lg border border-gray-200" />
@@ -159,14 +159,14 @@ export default function Index({ vehicles }) {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 hidden md:table-cell">
                                             <div className="flex flex-col gap-1.5">
                                                 <StatusBadge date={vehicle.annual_tax_date} label="Pajak 1 Thn" />
                                                 <StatusBadge date={vehicle.stnk_expiry_date} label="STNK" />
                                                 <StatusBadge date={vehicle.kir_expiry_date} label="KIR" />
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 hidden md:table-cell">
                                             <div className="flex flex-col gap-1 text-xs">
                                                 <div className="flex items-center gap-1.5 text-gray-600">
                                                     <Calendar className="w-3.5 h-3.5" /> 
@@ -178,7 +178,7 @@ export default function Index({ vehicles }) {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                                        <td className="px-4 sm:px-6 py-4" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex justify-center items-center gap-2">
                                                 <button 
                                                     onClick={() => { setSelectedVehicle(vehicle); setData('vehicle_id', vehicle.id); setIsUsageFormOpen(true); }}
