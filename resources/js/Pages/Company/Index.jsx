@@ -6,6 +6,7 @@ import { Building, Upload, Save, Building2, MapPin, Plus, Edit, Trash2, X } from
 import Swal from 'sweetalert2';
 import InputError from '@/Components/InputError';
 import Modal from '@/Components/Modal';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function Index({ auth, companies }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -112,18 +113,17 @@ export default function Index({ auth, companies }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">Data Perusahaan</h2>
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                                <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} />
-                                <button
-                        onClick={() => openModal()}
-                        className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-sm text-white tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 gap-2 shadow-sm"
-                    >
-                        <Plus className="w-5 h-5 mr-2" />
-                        Tambah Perusahaan
-                    </button>
-                            </div>
+                    <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
+                        <div className="w-full">
+                            <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
+                        </div>
+                        <PrimaryButton onClick={() => openModal()} className="w-full justify-center h-[42px] whitespace-nowrap">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Tambah
+                        </PrimaryButton>
+                    </div>
                 </div>
             }
         >
