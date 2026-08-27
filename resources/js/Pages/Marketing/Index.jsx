@@ -16,7 +16,7 @@ import SignaturePad from '@/Components/SignaturePad';
 
 export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        activity_type: 'Kunjungan Lapangan (Ke Outlet/RS/Klinik)',
+        activity_type: 'Kunjungan',
         visit_date: new Date().toISOString().split('T')[0],
         visit_time: new Date().toTimeString().split(' ')[0].substring(0, 5),
         outlet_type: '',
@@ -254,14 +254,14 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         value={data.activity_type}
                                         onChange={(val) => setData('activity_type', val)}
                                         options={[
-                                            { value: 'Kunjungan Lapangan (Ke Outlet/RS/Klinik)', label: 'Kunjungan Lapangan (Ke Outlet/RS/Klinik)' },
-                                            { value: 'Non-Kunjungan (Kantor / Administrasi / Rapat)', label: 'Non-Kunjungan (Kantor / Administrasi / Rapat)' },
+                                            { value: 'Kunjungan', label: 'Kunjungan' },
+                                            { value: 'Non-Kunjungan', label: 'Non-Kunjungan' },
                                         ]}
                                     />
                                     <InputError message={errors.activity_type} className="mt-2" />
                                 </div>
 
-                                {data.activity_type === 'Kunjungan Lapangan (Ke Outlet/RS/Klinik)' && (
+                                {data.activity_type === 'Kunjungan' && (
                                     <div className="p-5 bg-blue-50/50 rounded-2xl border border-blue-100 space-y-6 mt-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
@@ -369,7 +369,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                                 <div>
                                     <InputLabel 
-                                        value={data.activity_type === 'Non-Kunjungan (Kantor / Administrasi / Rapat)' 
+                                        value={data.activity_type === 'Non-Kunjungan' 
                                             ? "Keterangan / Detail Aktivitas" 
                                             : "Hasil Kunjungan / Laporan Aktivitas"} 
                                     />
