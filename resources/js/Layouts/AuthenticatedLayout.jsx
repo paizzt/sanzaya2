@@ -398,7 +398,7 @@ export default function Authenticated({ user, header, children }) {
                                         leaveFrom="opacity-100 scale-100"
                                         leaveTo="opacity-0 scale-95"
                                     >
-                                        <Menu.Items className="absolute right-0 z-50 mt-2 w-[280px] sm:w-80 origin-top-right rounded-2xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden">
+                                        <Menu.Items className="absolute -right-16 sm:right-0 z-50 mt-2 w-[280px] sm:w-80 origin-top-right rounded-2xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden">
                                             <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                                                 <h3 className="text-sm font-bold text-gray-800">Notifikasi ({unreadCount})</h3>
                                                 {unreadCount > 0 && (
