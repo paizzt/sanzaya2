@@ -183,7 +183,7 @@ export default function UcPreview({ data, user }) {
                     </tbody>
                 </table>
 
-                <div className="mt-8">
+                <div className="mt-3 mb-10">
                     Demikian surat tugas ini kami buat. Atas perhatiannya kami ucapkan terima kasih.
                 </div>
             </PageContainer>
