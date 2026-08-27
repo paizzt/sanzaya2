@@ -67,4 +67,22 @@ class AttendanceRequestController extends Controller
 
         return redirect()->back()->with('success', 'Status pengajuan berhasil diperbarui.');
     }
+
+    public function destroy($id)
+    {
+        $attendanceRequest = AttendanceRequest::findOrFail($id);
+        
+        $user = Auth::user();
+        if (!$user->isAdminUser() && $attendanceRequest->user_id !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($attendanceRequest->attachment) {
+            Storage::disk('public')->delete($attendanceRequest->attachment);
+        }
+        
+        $attendanceRequest->delete();
+
+        return redirect()->back()->with('success', 'Data pengajuan absensi berhasil dihapus.');
+    }
 }

@@ -69,11 +69,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/absensi/rekap', [AttendanceRecapController::class, 'index'])->name('absensi.rekap');
         Route::get('/absensi/rekap/export-pdf', [AttendanceRecapController::class, 'exportPdf'])->name('absensi.rekap.export-pdf');
         Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
+        Route::delete('/absensi/{id}', [AttendanceController::class, 'destroy'])->name('absensi.destroy');
 
         // Pengajuan Izin/Sakit
         Route::get('/absensi/pengajuan', [AttendanceRequestController::class, 'index'])->name('absensi.pengajuan');
         Route::post('/absensi/pengajuan', [AttendanceRequestController::class, 'store'])->name('absensi.pengajuan.store');
         Route::put('/absensi/pengajuan/{id}/status', [AttendanceRequestController::class, 'updateStatus'])->name('absensi.pengajuan.status');
+        Route::delete('/absensi/pengajuan/{id}', [AttendanceRequestController::class, 'destroy'])->name('absensi.pengajuan.destroy');
     });
 
     // Modul Marketing

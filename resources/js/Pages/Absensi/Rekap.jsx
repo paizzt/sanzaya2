@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -57,6 +57,37 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                     preserveScroll: true,
                     onSuccess: () => Swal.fire('Berhasil!', 'Status berhasil diperbarui.', 'success'),
                     onError: () => Swal.fire('Gagal!', 'Terjadi kesalahan.', 'error')
+                });
+            }
+        });
+    };
+
+    const handleDeleteAbsensi = (id) => {
+        let routeName = 'absensi.destroy';
+        let realId = id;
+        
+        if (id.startsWith('req_')) {
+            routeName = 'absensi.pengajuan.destroy';
+            realId = id.replace('req_', '');
+        } else if (id.startsWith('att_')) {
+            routeName = 'absensi.destroy';
+            realId = id.replace('att_', '');
+        }
+
+        Swal.fire({
+            title: 'Hapus Data?',
+            text: "Data ini akan dihapus secara permanen beserta fotonya (jika ada)!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Ya, Hapus!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route(routeName, realId), {
+                    preserveScroll: true,
+                    onSuccess: () => Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success'),
+                    onError: () => Swal.fire('Gagal!', 'Terjadi kesalahan atau Anda tidak memiliki akses.', 'error')
                 });
             }
         });
@@ -264,6 +295,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     <th className="py-4 px-6 font-semibold text-center">Jam Keluar</th>
                                     <th className="py-4 px-6 font-semibold text-center">Foto</th>
                                     <th className="py-4 px-6 font-semibold">Status</th>
+                                    <th className="py-4 px-6 font-semibold text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
@@ -348,6 +380,17 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                         </div>
                                                     )}
                                                 </div>
+                                            </td>
+                                            <td className="py-4 px-6 text-right">
+                                                {isAdmin && (
+                                                    <button 
+                                                        onClick={() => handleDeleteAbsensi(item.id)}
+                                                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                        title="Hapus Data"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))

@@ -151,4 +151,25 @@ class AttendanceController extends Controller
         $message = $request->type === 'check_in' ? 'Berhasil Absen Masuk!' : 'Berhasil Absen Pulang!';
         return redirect()->back()->with('success', $message);
     }
+
+    public function destroy($id)
+    {
+        $attendance = Attendance::findOrFail($id);
+        
+        $user = Auth::user();
+        if (!$user->isAdminUser() && $attendance->user_id !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($attendance->check_in_photo) {
+            Storage::disk('public')->delete($attendance->check_in_photo);
+        }
+        if ($attendance->check_out_photo) {
+            Storage::disk('public')->delete($attendance->check_out_photo);
+        }
+        
+        $attendance->delete();
+
+        return redirect()->back()->with('success', 'Data absensi berhasil dihapus.');
+    }
 }
