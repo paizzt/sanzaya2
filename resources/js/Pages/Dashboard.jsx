@@ -87,7 +87,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                                     <Sparkles className="w-24 h-24 text-blue-500 opacity-80" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-700 mt-4">Semangat Bekerja!</h3>
-                                <p className="text-gray-500">Pastikan untuk selalu melaporkan kunjungan dan kehadiran tepat waktu.</p>
+                                <p className="text-gray-500">karena Anda Kami Ada</p>
                             </div>
                         )}
                     </div>
