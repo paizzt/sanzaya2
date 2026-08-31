@@ -38,13 +38,18 @@ class ReceivableController extends Controller
         $dailyReports = \App\Models\ReceivableDailyReport::with(['user', 'outlet'])->orderBy('billing_date', 'desc')->get();
         $users = \App\Models\User::orderBy('name')->get();
 
+        $totalAll = $items->sum('total');
+        $lastUpdated = \App\Models\Receivable::max('updated_at');
+
         return Inertia::render('Receivables/Index', [
             'items' => $items,
             'outlets' => $outlets,
             'companies' => $companies,
             'dailyReports' => $dailyReports,
             'users' => $users,
-            'filters' => $request->only(['search', 'pt', 'year'])
+            'filters' => $request->only(['search', 'pt', 'year']),
+            'totalAll' => $totalAll,
+            'lastUpdated' => $lastUpdated,
         ]);
     }
 

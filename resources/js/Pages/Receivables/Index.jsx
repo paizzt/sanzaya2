@@ -13,7 +13,7 @@ import SearchableSelect from '@/Components/SearchableSelect';
 import ClientPagination from '@/Components/ClientPagination';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items, outlets, companies, filters, dailyReports = [], users = [] }) {
+export default function Index({ auth, items, outlets, companies, filters, dailyReports = [], users = [], totalAll, lastUpdated }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [activeTab, setActiveTab] = useState('data');
@@ -66,6 +66,14 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
 
     const formatRupiah = (number) => {
         return new Intl.NumberFormat('id-ID').format(number);
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
+        return new Date(dateString).toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        }) + ' WIB';
     };
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -232,7 +240,10 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                                 <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center">
                                     <h4 className="text-sm font-semibold text-amber-800 mb-2">Total Semua Piutang</h4>
-                                    <span className="text-xl xl:text-2xl font-extrabold text-amber-600 whitespace-nowrap">Rp {formatRupiah(totalPiutangKeseluruhan)}</span>
+                                    <span className="text-xl xl:text-2xl font-extrabold text-amber-600 whitespace-nowrap">Rp {formatRupiah(totalAll || totalPiutangKeseluruhan)}</span>
+                                    <span className="text-xs text-amber-700/70 mt-2 text-center">
+                                        Terakhir diupdate pada tanggal {formatDate(lastUpdated)}
+                                    </span>
                                 </div>
 
                                 <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
