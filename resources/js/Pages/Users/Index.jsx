@@ -403,7 +403,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     <p className="text-xs text-gray-500 mt-1">Pilih nama ini untuk mengaitkan akun dengan data logistik di spreadsheet.</p>
                                                 </div>
 
-                                                {data.role && data.role.toLowerCase() === 'sales' && (
+                                                {data.role && (data.role.toLowerCase() === 'sales' || data.role.toLowerCase() === 'marketing') && (
                                                     <div>
                                                         <InputLabel value="Target Bulanan (Rp) (Opsional)" />
                                                         <div className="relative">
