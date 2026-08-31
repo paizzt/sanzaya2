@@ -332,7 +332,9 @@
     <div style="margin-top: 40px; float: right; text-align: center; width: 250px;">
         <p>Makassar, {{ \Carbon\Carbon::now()->format('d M Y') }}</p>
         <p>Mengetahui,</p>
-        <br><br><br>
+        <div style="margin: 10px 0;">
+            <img src="data:image/svg+xml;base64,{{ base64_encode(QrCode::format('svg')->size(70)->generate('Ditandatangani secara digital oleh: ' . (auth()->user()->name ?? 'Admin') . ' pada ' . \Carbon\Carbon::now()->format('d M Y H:i:s'))) }}" alt="QR Code" width="70" height="70">
+        </div>
         <p style="text-decoration: underline; font-weight: bold; margin-bottom: 2px;">{{ auth()->user()->name ?? '..........................................' }}</p>
         <p style="margin-top: 0; font-size: 11px; color: #4b5563;">{{ optional(auth()->user()->division)->name ?? 'Admin' }}</p>
     </div>
