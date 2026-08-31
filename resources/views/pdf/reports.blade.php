@@ -132,8 +132,8 @@
                     <table style="width: 95%;">
                         @foreach($chunk as $nama => $total)
                         <tr>
-                            <th style="background:#e0f2fe; width:50%; font-size: 9px;">{{ Str::limit($nama, 25) }}</th>
-                            <td class="text-right font-bold" style="font-size: 9px;">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                            <th style="background:#e0f2fe; width:60%; font-size: 9px; word-wrap: break-word;">{{ $nama }}</th>
+                            <td class="text-right font-bold" style="font-size: 9px; width:40%;">Rp {{ number_format($total, 0, ',', '.') }}</td>
                         </tr>
                         @endforeach
                     </table>
