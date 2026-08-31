@@ -39,7 +39,11 @@ class ReportController extends Controller
 
         $salesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');
         $ptNames = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->pluck('nama_pt');
-        $outletNames = \App\Models\Outlet::pluck('name');
+        if ($salesFilter) {
+            $outletNames = SyncLogistikData::where('nama_sales', $salesFilter)->distinct()->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->pluck('pelanggan')->sort()->values();
+        } else {
+            $outletNames = \App\Models\Outlet::orderBy('name')->pluck('name');
+        }
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
