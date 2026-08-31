@@ -42,7 +42,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
     const parseRpToNumber = (str) => {
         if (!str) return 0;
-        return parseInt(str.toString().replace(/[^0-9]/g, ''), 10) || 0;
+        if (typeof str === 'number') return str;
+        let s = str.toString().trim();
+        if (/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+        return parseFloat(s.replace(/Rp/gi, '').replace(/\./g, '').replace(/,/g, '.').replace(/ /g, '')) || 0;
     };
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#a4de6c', '#d0ed57', '#8dd1e1'];
@@ -243,7 +246,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <td className="px-6 py-4 font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
                             <td className="px-6 py-4"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.pelanggan || '-'}</td>
                             <td className="px-6 py-4">{row.nama_produk || '-'}</td>
-                            <td className="px-6 py-4 text-right font-bold text-blue-600">{row.total ? 'Rp ' + parseRpToNumber(row.total).toLocaleString('id-ID') : '-'}</td>
+                            <td className="px-6 py-4 text-right font-bold text-blue-600">{row.total ? 'Rp ' + parseRpToNumber(row.total).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</td>
                         </tr>
                     ))}
                     {reportData.data.length === 0 && <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Data laporan logistik kosong atau tidak ditemukan.</td></tr>}
