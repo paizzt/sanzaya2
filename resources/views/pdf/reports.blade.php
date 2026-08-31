@@ -49,6 +49,12 @@
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Penjualan</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
                 </td>
+                @if(!empty($summary['pareto_outlets']))
+                <td style="background-color: #1d4ed8; border-radius: 6px; padding: 10px; color: #fff; width: 16%;">
+                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total (Potongan Pareto)</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['pareto_total_penjualan'], 0, ',', '.') }}</p>
+                </td>
+                @endif
                 @if(isset($summary['target_bulanan']) && $summary['target_bulanan'] > 0)
                 <td style="background-color: #8b5cf6; border-radius: 6px; padding: 10px; color: #fff; width: 16%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Target Bulanan</p>
@@ -147,6 +153,34 @@
                 @endforeach
             </tr>
         </table>
+        @if(!empty($summary['pareto_outlets']) && isset($summary['pareto_outlet_penjualan']))
+        <h4 style="margin-bottom: 5px; margin-top: 15px; font-size: 11px; color: #4b5563;">Ringkasan Penjualan per Outlet (Setelah Potongan Pareto)</h4>
+        <table style="width: 100%; border: none;">
+            <tr>
+                @php
+                    $isFiltered = request()->query('sales_filter') || request()->query('pt_filter') || request()->query('outlet_filter');
+                    $limitPareto = $isFiltered ? count($summary['pareto_outlet_penjualan']) : 16;
+                    $outletsPareto = array_slice($summary['pareto_outlet_penjualan'], 0, $limitPareto, true);
+                    $chunkSizePareto = max(1, ceil(count($outletsPareto) / 2));
+                @endphp
+                @foreach(array_chunk($outletsPareto, $chunkSizePareto, true) as $chunk)
+                <td style="width: 50%; vertical-align: top; border: none; padding: 0;">
+                    <table style="width: 95%;">
+                        @foreach($chunk as $nama => $total)
+                        <tr>
+                            <th style="background:#e0f2fe; width:60%; font-size: 9px; word-wrap: break-word;">
+                                {{ $nama }}
+                                @if(in_array($nama, $summary['pareto_outlets'])) <span style="color:#dc2626;">(Pareto 50%)</span> @endif
+                            </th>
+                            <td class="text-right font-bold" style="font-size: 9px; width:40%;">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </table>
+                </td>
+                @endforeach
+            </tr>
+        </table>
+        @endif
         @endif
     </div>
     @endif

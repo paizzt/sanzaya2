@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Download, FileText, Sheet, X, Settings2 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 
-export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null, availableColumns = [], isReportDashboard = false }) {
+export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null, availableColumns = [], isReportDashboard = false, outletNames = [] }) {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(pdfRoute ? 'pdf' : 'excel');
 
@@ -23,6 +23,9 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     
     // Month Filter State
     const [selectedMonths, setSelectedMonths] = useState([]);
+    
+    // Pareto Outlet State
+    const [selectedParetoOutlets, setSelectedParetoOutlets] = useState([]);
 
     const handleOpen = () => setIsOpen(true);
     const handleClose = () => setIsOpen(false);
@@ -50,6 +53,14 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
         );
     };
 
+    const toggleParetoOutlet = (outlet) => {
+        setSelectedParetoOutlets(prev => 
+            prev.includes(outlet) 
+                ? prev.filter(x => x !== outlet) 
+                : [...prev, outlet]
+        );
+    };
+
     const buildUrlParams = (url, isPreview = false) => {
         if (!url) return '';
         let resultUrl = url;
@@ -71,6 +82,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             params.append('size', fontSize);
             selectedDatasets.forEach(ds => params.append('datasets[]', ds));
             selectedMonths.forEach(m => params.append('months[]', m));
+            selectedParetoOutlets.forEach(po => params.append('pareto_outlets[]', po));
         }
         
         return `${resultUrl}${separator}${params.toString()}`;
@@ -135,6 +147,26 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                                     ))}
                                                 </div>
                                             </div>
+
+                                            {/* Pareto Outlets Ditampilkan */}
+                                            {outletNames && outletNames.length > 0 && (
+                                            <div className="mb-4">
+                                                <label className="block text-xs font-medium text-gray-700 mb-2">Status Pareto (Potongan 50%)</label>
+                                                <div className="space-y-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
+                                                    {outletNames.map((outlet) => (
+                                                        <label key={outlet} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={selectedParetoOutlets.includes(outlet)}
+                                                                onChange={() => toggleParetoOutlet(outlet)}
+                                                                className="border-gray-300 rounded text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                            />
+                                                            {outlet}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            )}
 
                                             {/* Bulan Ditampilkan */}
                                             <div className="mb-4">

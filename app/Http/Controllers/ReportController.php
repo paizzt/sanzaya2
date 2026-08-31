@@ -352,6 +352,9 @@ class ReportController extends Controller
         $selectedMonths = $request->query('months', []);
         if (!is_array($selectedMonths)) $selectedMonths = [$selectedMonths];
 
+        $paretoOutlets = $request->query('pareto_outlets', []);
+        if (!is_array($paretoOutlets)) $paretoOutlets = [$paretoOutlets];
+
         $salesFilter = $request->query('sales_filter', '');
         if (auth()->user() && auth()->user()->spreadsheet_sales_name) {
             $salesFilter = auth()->user()->spreadsheet_sales_name;
@@ -507,6 +510,19 @@ class ReportController extends Controller
             $targetBulanan = \App\Models\User::sum('monthly_target');
         }
 
+        $paretoTotalPenjualan = $totalPenjualan;
+        $paretoOutletPenjualan = $outletPenjualan;
+        if (!empty($paretoOutlets)) {
+            foreach ($paretoOutlets as $paretoOutlet) {
+                if (isset($paretoOutletPenjualan[$paretoOutlet])) {
+                    $cut = $paretoOutletPenjualan[$paretoOutlet] * 0.5;
+                    $paretoOutletPenjualan[$paretoOutlet] -= $cut;
+                    $paretoTotalPenjualan -= $cut;
+                }
+            }
+            arsort($paretoOutletPenjualan);
+        }
+
         $summary = [
             'total_penjualan' => $totalPenjualan,
             'total_piutang' => $totalPiutang,
@@ -516,6 +532,9 @@ class ReportController extends Controller
             'sales_penjualan' => $salesPenjualan,
             'outlet_penjualan' => $outletPenjualan,
             'target_bulanan' => $targetBulanan,
+            'pareto_outlets' => $paretoOutlets,
+            'pareto_total_penjualan' => $paretoTotalPenjualan,
+            'pareto_outlet_penjualan' => $paretoOutletPenjualan,
         ];
 
         // --- BUAT GRAFIK (QUICKCHART.IO) ---
