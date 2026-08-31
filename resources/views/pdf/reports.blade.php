@@ -60,6 +60,10 @@
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Target Bulanan</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['target_bulanan'], 0, ',', '.') }}</p>
                 </td>
+                <td style="background-color: #ec4899; border-radius: 6px; padding: 10px; color: #fff; width: 12%;">
+                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Capaian Target</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format(($summary['total_penjualan'] / $summary['target_bulanan']) * 100, 1, ',', '.') }}%</p>
+                </td>
                 @endif
                 @endif
                 @if(in_array('piutang', $datasets ?? []))
