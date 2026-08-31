@@ -117,7 +117,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
         >
             <Head title={`Detail Pengajuan - ${paymentRequest.reference_number}`} />
 
-            <div className="py-12">
+            <div className="py-2">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     
                     {/* Status Kelengkapan */}

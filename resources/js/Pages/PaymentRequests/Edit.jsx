@@ -77,7 +77,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
         >
             <Head title={`Edit Pengajuan - ${paymentRequest.reference_number}`} />
 
-            <div className="py-12">
+            <div className="py-2">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <form onSubmit={submit} noValidate className="bg-white p-6 shadow sm:rounded-lg space-y-6">
                         
