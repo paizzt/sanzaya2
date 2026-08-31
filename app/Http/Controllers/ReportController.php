@@ -18,6 +18,10 @@ class ReportController extends Controller
         $tab = $request->query('tab', 'logistik');
         $search = $request->query('search', '');
         $salesFilter = $request->query('sales_filter', '');
+        if (auth()->user() && auth()->user()->spreadsheet_sales_name) {
+            $salesFilter = auth()->user()->spreadsheet_sales_name;
+        }
+
         $outletFilter = $request->query('outlet_filter', '');
         $monthFilter = $request->query('month_filter', '');
         $ptFilter = $request->query('pt_filter', '');
@@ -338,6 +342,9 @@ class ReportController extends Controller
         if (!is_array($selectedMonths)) $selectedMonths = [$selectedMonths];
 
         $salesFilter = $request->query('sales_filter', '');
+        if (auth()->user() && auth()->user()->spreadsheet_sales_name) {
+            $salesFilter = auth()->user()->spreadsheet_sales_name;
+        }
         $outletFilter = $request->query('outlet_filter', '');
         $ptFilter = $request->query('pt_filter', '');
         $keteranganFilter = $request->query('keterangan_filter', '');

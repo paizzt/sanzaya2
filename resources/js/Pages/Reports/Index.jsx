@@ -12,6 +12,8 @@ import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames, outletNames, ptNames, keteranganNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
+    const authUser = usePage().props.auth.user;
+    const isSalesLocked = !!authUser.spreadsheet_sales_name;
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
@@ -723,21 +725,23 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         compact={true}
                                     />
                                 </div>
-                                <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[30]">
-                                    <CustomSelect
-                                        value={selectedSales}
-                                        onChange={(value) => {
-                                            setSelectedSales(value);
-                                            router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, pt_filter: selectedPt, month_filter: selectedMonth }, { preserveState: true });
-                                        }}
-                                        options={[
-                                            { value: '', label: 'Semua Sales' },
-                                            ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
-                                        ]}
-                                        icon={UserIcon}
-                                        compact={true}
-                                    />
-                                </div>
+                                {!isSalesLocked && (
+                                    <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[30]">
+                                        <CustomSelect
+                                            value={selectedSales}
+                                            onChange={(value) => {
+                                                setSelectedSales(value);
+                                                router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, pt_filter: selectedPt, month_filter: selectedMonth }, { preserveState: true });
+                                            }}
+                                            options={[
+                                                { value: '', label: 'Semua Sales' },
+                                                ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
+                                            ]}
+                                            icon={UserIcon}
+                                            compact={true}
+                                        />
+                                    </div>
+                                )}
                             </>
                         )}
 
