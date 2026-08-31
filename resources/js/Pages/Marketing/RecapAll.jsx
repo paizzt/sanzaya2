@@ -292,14 +292,13 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
             </div>
 
             <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl">
-                <div className="p-6 overflow-y-auto max-h-[85vh]">
-                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4 sticky top-0 bg-white z-10">
-                        <h2 className="text-xl font-bold text-gray-800">Detail Laporan Harian</h2>
-                        <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
-                            <X className="w-6 h-6" />
-                        </button>
-                    </div>
-
+                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-white rounded-t-lg">
+                    <h2 className="text-xl font-bold text-gray-800">Detail Laporan Harian</h2>
+                    <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
+                        <X className="w-6 h-6" />
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto max-h-[75vh]">
                     {selectedReport && (
                         <div className="space-y-6">
                             <div className="grid grid-cols-2 gap-4">
