@@ -79,6 +79,16 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
         setSelectedKeterangan('');
     };
 
+    const getPdfRouteArgs = (period) => {
+        const args = { tab: tab, period: period };
+        if (selectedSales) args.sales_filter = selectedSales;
+        if (selectedOutlet) args.outlet_filter = selectedOutlet;
+        if (selectedMonth) args.month_filter = selectedMonth;
+        if (selectedPt) args.pt_filter = selectedPt;
+        if (selectedKeterangan) args.keterangan_filter = selectedKeterangan;
+        return args;
+    };
+
     // Chart Renderers
     const renderLogistikChart = () => {
         if (!summary?.penjualan_detail || Object.keys(summary.penjualan_detail).length === 0) return null;
@@ -401,10 +411,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         
                         {isDownloadOpen && (
                             <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 overflow-hidden">
-                                <ExportDropdown isReportDashboard={true} pdfRoute={route('reports.pdf', { tab: tab, period: '1_hari' })} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Hari</a>} />
-                                <ExportDropdown isReportDashboard={true} pdfRoute={route('reports.pdf', { tab: tab, period: '1_minggu' })} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Minggu</a>} />
-                                <ExportDropdown isReportDashboard={true} pdfRoute={route('reports.pdf', { tab: tab, period: '1_bulan' })} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Bulan</a>} />
-                                <ExportDropdown isReportDashboard={true} pdfRoute={route('reports.pdf', { tab: tab, period: '1_tahun' })} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">1 Tahun</a>} />
+                                <ExportDropdown isReportDashboard={true} pdfRoute={route('reports.pdf', getPdfRouteArgs('1_hari'))} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Hari</a>} />
+                                <ExportDropdown isReportDashboard={true} pdfRoute={route('reports.pdf', getPdfRouteArgs('1_minggu'))} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Minggu</a>} />
+                                <ExportDropdown isReportDashboard={true} pdfRoute={route('reports.pdf', getPdfRouteArgs('1_bulan'))} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Bulan</a>} />
+                                <ExportDropdown isReportDashboard={true} pdfRoute={route('reports.pdf', getPdfRouteArgs('1_tahun'))} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">1 Tahun</a>} />
                             </div>
                         )}
                     </div>

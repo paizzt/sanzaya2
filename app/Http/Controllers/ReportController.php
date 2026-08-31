@@ -337,6 +337,21 @@ class ReportController extends Controller
         $selectedMonths = $request->query('months', []);
         if (!is_array($selectedMonths)) $selectedMonths = [$selectedMonths];
 
+        $salesFilter = $request->query('sales_filter', '');
+        $outletFilter = $request->query('outlet_filter', '');
+        $ptFilter = $request->query('pt_filter', '');
+        $keteranganFilter = $request->query('keterangan_filter', '');
+
+        $outletNamesToSearch = [];
+        if ($outletFilter) {
+            $outletNamesToSearch[] = $outletFilter;
+            $outletMaster = \App\Models\Outlet::where('name', $outletFilter)->first();
+            if ($outletMaster) {
+                $mappedNames = \App\Models\OutletMapping::where('outlet_id', $outletMaster->id)->pluck('raw_name')->toArray();
+                $outletNamesToSearch = array_merge($outletNamesToSearch, $mappedNames);
+            }
+        }
+
         $monthsNameMap = [
             '1' => 'Januari', '2' => 'Februari', '3' => 'Maret', '4' => 'April',
             '5' => 'Mei', '6' => 'Juni', '7' => 'Juli', '8' => 'Agustus',
@@ -347,31 +362,31 @@ class ReportController extends Controller
             $currentYear = \Carbon\Carbon::now()->year;
             $title = "Laporan Rekapitulasi (Bulan Pilihan Tahun $currentYear)";
             
-            $logistik = SyncLogistikData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
+            $logistikQuery = SyncLogistikData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
                 foreach($selectedMonths as $m) {
                     $q->orWhere('tanggal', 'LIKE', '%' . $monthsNameMap[$m] . ' ' . $currentYear . '%');
                 }
-            })->get();
+            });
             
-            $pesanan = SyncPesananData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
+            $pesananQuery = SyncPesananData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
                 foreach($selectedMonths as $m) {
                     $q->orWhere('tanggal', 'LIKE', '%' . $monthsNameMap[$m] . ' ' . $currentYear . '%');
                 }
-            })->get();
+            });
             
-            $piutang = SyncPiutangData::whereYear('created_at', $currentYear)
+            $piutangQuery = SyncPiutangData::whereYear('created_at', $currentYear)
                 ->where(function($q) use ($selectedMonths) {
                     foreach($selectedMonths as $m) {
                         $q->orWhereMonth('created_at', $m);
                     }
-                })->get();
+                });
                 
-            $hutang = SyncHutangData::whereYear('created_at', $currentYear)
+            $hutangQuery = SyncHutangData::whereYear('created_at', $currentYear)
                 ->where(function($q) use ($selectedMonths) {
                     foreach($selectedMonths as $m) {
                         $q->orWhereMonth('created_at', $m);
                     }
-                })->get();
+                });
         } else {
             $dateStrings = [];
             $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -387,11 +402,43 @@ class ReportController extends Controller
 
             $title = "Laporan Rekapitulasi (" . ucwords(str_replace('_', ' ', $period)) . ")";
 
-            $logistik = SyncLogistikData::whereIn('tanggal', $dateStrings)->get();
-            $pesanan = SyncPesananData::whereIn('tanggal', $dateStrings)->get();
-            $piutang = SyncPiutangData::where('created_at', '>=', $startDate)->get();
-            $hutang = SyncHutangData::where('created_at', '>=', $startDate)->get();
+            $logistikQuery = SyncLogistikData::whereIn('tanggal', $dateStrings);
+            $pesananQuery = SyncPesananData::whereIn('tanggal', $dateStrings);
+            $piutangQuery = SyncPiutangData::where('created_at', '>=', $startDate);
+            $hutangQuery = SyncHutangData::where('created_at', '>=', $startDate);
         }
+
+        if ($ptFilter) $logistikQuery->where('nama_pt', $ptFilter);
+        if ($salesFilter) $logistikQuery->where('nama_sales', $salesFilter);
+        if ($outletFilter) {
+            $logistikQuery->where(function($q) use ($outletNamesToSearch) {
+                foreach ($outletNamesToSearch as $name) {
+                    $q->orWhere('pelanggan', 'like', $name);
+                }
+            });
+        }
+        $logistik = $logistikQuery->get();
+
+        if ($keteranganFilter) $pesananQuery->where('keterangan', $keteranganFilter);
+        if ($outletFilter) {
+            $pesananQuery->where(function($q) use ($outletNamesToSearch) {
+                foreach ($outletNamesToSearch as $name) {
+                    $q->orWhere('nama_outlet', 'like', $name);
+                }
+            });
+        }
+        $pesanan = $pesananQuery->get();
+
+        if ($outletFilter) {
+            $piutangQuery->where(function($q) use ($outletNamesToSearch) {
+                foreach ($outletNamesToSearch as $name) {
+                    $q->orWhere('nama_outlet', 'like', $name);
+                }
+            });
+        }
+        $piutang = $piutangQuery->get();
+
+        $hutang = $hutangQuery->get();
 
         // --- HITUNG RINGKASAN ---
         $totalPenjualan = 0;

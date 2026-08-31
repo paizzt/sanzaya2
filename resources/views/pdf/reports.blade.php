@@ -118,10 +118,16 @@
         </table>
 
         @if(in_array('logistik', $datasets ?? []) && isset($summary['outlet_penjualan']) && count($summary['outlet_penjualan']) > 0)
-        <h4 style="margin-bottom: 5px; margin-top: 10px; font-size: 11px; color: #4b5563;">Top 8 Penjualan per Outlet</h4>
+        <h4 style="margin-bottom: 5px; margin-top: 10px; font-size: 11px; color: #4b5563;">Ringkasan Penjualan per Outlet</h4>
         <table style="width: 100%; border: none;">
             <tr>
-                @foreach(array_chunk(array_slice($summary['outlet_penjualan'], 0, 8, true), 4, true) as $chunk)
+                @php
+                    $isFiltered = request()->query('sales_filter') || request()->query('pt_filter') || request()->query('outlet_filter');
+                    $limit = $isFiltered ? count($summary['outlet_penjualan']) : 16;
+                    $outlets = array_slice($summary['outlet_penjualan'], 0, $limit, true);
+                    $chunkSize = max(1, ceil(count($outlets) / 2));
+                @endphp
+                @foreach(array_chunk($outlets, $chunkSize, true) as $chunk)
                 <td style="width: 50%; vertical-align: top; border: none; padding: 0;">
                     <table style="width: 95%;">
                         @foreach($chunk as $nama => $total)
