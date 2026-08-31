@@ -25,7 +25,7 @@
             </p>
 
             <div class="flex justify-center">
-                <a href="{{ url()->previous() !== url()->current() ? url()->previous() : url('/') }}" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
+                <a href="/" onclick="window.top.location.href = '/'; return false;" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
                     Kembali
                 </a>
             </div>
