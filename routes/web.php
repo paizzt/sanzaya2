@@ -220,12 +220,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Payment Requests
     Route::middleware(['can:payment-request.view-own'])->group(function() {
-        Route::get('payment-approvals', [\App\Http\Controllers\PaymentRequestController::class, 'approvals'])->name('payment-approvals.index');
         Route::post('payment-requests/{payment_request}/submit', [\App\Http\Controllers\PaymentRequestController::class, 'submit'])->name('payment-requests.submit');
+        Route::resource('payment-requests', \App\Http\Controllers\PaymentRequestController::class);
+    });
+
+    // Payment Request PDF (Can be downloaded by both requester and approver)
+    Route::middleware('auth')->group(function() {
+        Route::get('payment-requests/{payment_request}/pdf', [\App\Http\Controllers\PaymentRequestController::class, 'downloadPdf'])->name('payment-requests.pdf');
+    });
+
+    // Payment Approvals
+    Route::middleware(['can:payment-request.review'])->group(function() {
+        Route::get('payment-approvals', [\App\Http\Controllers\PaymentRequestController::class, 'approvals'])->name('payment-approvals.index');
         Route::post('payment-requests/{payment_request}/approve', [\App\Http\Controllers\PaymentRequestController::class, 'approve'])->name('payment-requests.approve');
         Route::post('payment-requests/{payment_request}/reject', [\App\Http\Controllers\PaymentRequestController::class, 'reject'])->name('payment-requests.reject');
-        Route::get('payment-requests/{payment_request}/pdf', [\App\Http\Controllers\PaymentRequestController::class, 'downloadPdf'])->name('payment-requests.pdf');
-        Route::resource('payment-requests', \App\Http\Controllers\PaymentRequestController::class);
     });
 });
 
