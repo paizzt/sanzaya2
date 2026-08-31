@@ -254,10 +254,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     {reportData.data.map((row) => (
                         <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
-                            <td className="px-6 py-4 font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
-                            <td className="px-6 py-4"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.pelanggan || '-'}</td>
-                            <td className="px-6 py-4">{row.nama_produk || '-'}</td>
-                            <td className="px-6 py-4 text-right font-bold text-blue-600">{row.total ? 'Rp ' + parseRpToNumber(row.total).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
+                            <td className="px-6 py-4 whitespace-nowrap"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.pelanggan || '-'}</td>
+                            <td className="px-6 py-4 min-w-[300px]">{row.nama_produk || '-'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right font-bold text-blue-600">{row.total ? 'Rp ' + parseRpToNumber(row.total).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</td>
                         </tr>
                     ))}
                     {reportData.data.length === 0 && <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Data laporan logistik kosong atau tidak ditemukan.</td></tr>}
