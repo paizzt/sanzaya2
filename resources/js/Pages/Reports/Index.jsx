@@ -7,6 +7,7 @@ import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store,
 import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
+import SearchableSelect from '@/Components/SearchableSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
@@ -732,7 +733,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                         {['logistik', 'pesanan', 'piutang'].includes(tab) && (
                             <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[20]">
-                                <CustomSelect
+                                <SearchableSelect
                                     value={selectedOutlet}
                                     onChange={(value) => {
                                         setSelectedOutlet(value);
