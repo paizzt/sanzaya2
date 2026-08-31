@@ -32,6 +32,36 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         }).format(number || 0);
     };
 
+    const renderPhotos = (photosData) => {
+        if (!photosData) return <div className="text-sm text-gray-500 italic">Tidak ada foto terlampir.</div>;
+        let photos = [];
+        if (typeof photosData === 'string') {
+            try {
+                photos = JSON.parse(photosData);
+            } catch (e) {
+                return <div className="text-sm text-gray-500 italic">Tidak ada foto terlampir.</div>;
+            }
+        } else if (Array.isArray(photosData)) {
+            photos = photosData;
+        }
+        
+        if (photos.length === 0) return <div className="text-sm text-gray-500 italic">Tidak ada foto terlampir.</div>;
+
+        return (
+            <div className="flex flex-wrap gap-4 mt-2">
+                {photos.map((photo, idx) => (
+                    <a key={idx} href={photo.startsWith('http') ? photo : `/storage/${photo}`} target="_blank" rel="noreferrer">
+                        <img 
+                            src={photo.startsWith('http') ? photo : `/storage/${photo}`} 
+                            alt={`Lampiran ${idx+1}`} 
+                            className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-80 transition-opacity"
+                        />
+                    </a>
+                ))}
+            </div>
+        );
+    };
+
     const handleFilterChange = (key, value) => {
         const newFilters = { ...filters, [key]: value };
         router.get(route('marketing.recap.index'), newFilters, {
@@ -295,6 +325,14 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                     {!selectedReport.activity_type?.includes('Non-Kunjungan') && (
                                         <>
                                             <div>
+                                                <div className="text-xs text-gray-500">Tujuan Kunjungan</div>
+                                                <div className="font-medium text-gray-800 mt-1">{selectedReport.visit_type || '-'}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-gray-500">Status Outlet</div>
+                                                <div className="font-medium text-gray-800 mt-1">{selectedReport.outlet_status || '-'}</div>
+                                            </div>
+                                            <div>
                                                 <div className="text-xs text-gray-500">Outlet/Instansi</div>
                                                 <div className="font-medium text-gray-800 mt-1">{selectedReport.outlet?.name || selectedReport.outlet_id || '-'}</div>
                                             </div>
@@ -308,7 +346,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             </div>
                                             <div>
                                                 <div className="text-xs text-gray-500">Kontak PIC</div>
-                                                <div className="font-medium text-gray-800 mt-1">{selectedReport.pic_contact || '-'}</div>
+                                                <div className="font-medium text-gray-800 mt-1">{selectedReport.pic_phone || '-'}</div>
                                             </div>
                                         </>
                                     )}
@@ -324,6 +362,14 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             {selectedReport.visit_result || 'Tidak ada catatan hasil kunjungan.'}
                                         </div>
                                     </div>
+                                    {selectedReport.competitor_notes && (
+                                        <div>
+                                            <div className="text-xs text-gray-500 mb-1">Info Kompetitor</div>
+                                            <div className="text-sm text-gray-800 bg-blue-50 p-3 rounded-lg border border-blue-100 whitespace-pre-wrap">
+                                                {selectedReport.competitor_notes}
+                                            </div>
+                                        </div>
+                                    )}
                                     {selectedReport.issue_type && selectedReport.issue_type !== 'Tidak Ada Kendala' && (
                                         <div>
                                             <div className="text-xs text-gray-500 mb-1">Kendala yang Dihadapi</div>
@@ -334,6 +380,11 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                            
+                            <div className="border border-gray-100 rounded-xl p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-700 mb-4 border-b border-gray-50 pb-2">Foto Kunjungan / Lampiran</h4>
+                                {renderPhotos(selectedReport.photos)}
                             </div>
                         </div>
                     )}
