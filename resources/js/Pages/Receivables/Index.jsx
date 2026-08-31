@@ -302,13 +302,16 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 </div>
                                 <div className="w-full md:w-1/4">
                                     <InputLabel value="Filter Tahun" />
-                                    <div className="mt-1">
-                                        <SearchableSelect 
-                                            options={yearOptions}
-                                            value={filterYear}
-                                            onChange={val => setFilterYear(val)}
-                                            />
-                                    </div>
+                                    <select
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                        value={filterYear}
+                                        onChange={(e) => setFilterYear(e.target.value)}
+                                    >
+                                        <option value="">Semua Tahun</option>
+                                        {yearOptions.map(opt => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="flex gap-2">
                                     <PrimaryButton onClick={applyFilter} type="button">Filter</PrimaryButton>
