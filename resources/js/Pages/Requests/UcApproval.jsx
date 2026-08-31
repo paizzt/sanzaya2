@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { FileCheck, Edit3, X, Check, Loader2 } from 'lucide-react';
+import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
+import { FileCheck, Edit3, X, Check, Loader2, Trash2, Edit } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -10,7 +10,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
 import CurrencyInput from '@/Components/CurrencyInput';
 
-export default function UcApproval({ requests }) {
+export default function UcApproval({ requests, isAdmin }) {
     const user = usePage().props.auth.user;
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +60,28 @@ export default function UcApproval({ requests }) {
 
     const formatRupiah = (number) => {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number || 0);
+    };
+
+    const deleteRequest = (id) => {
+        Swal.fire({
+            title: 'Hapus Pengajuan UC?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route('uc-requests.destroy', id), {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire('Terhapus!', 'Pengajuan UC berhasil dihapus.', 'success');
+                    }
+                });
+            }
+        });
     };
 
     return (
@@ -127,12 +149,30 @@ export default function UcApproval({ requests }) {
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <button 
-                                                        onClick={() => openModal(req)}
-                                                        className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
-                                                    >
-                                                        <Edit3 className="w-4 h-4" /> Review
-                                                    </button>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <button 
+                                                            onClick={() => openModal(req)}
+                                                            className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                                                        >
+                                                            <Edit3 className="w-4 h-4" /> Review
+                                                        </button>
+                                                        {isAdmin && (
+                                                            <>
+                                                                <Link 
+                                                                    href={route('uc-requests.edit', req.id)}
+                                                                    className="text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                                                                >
+                                                                    <Edit className="w-4 h-4" /> Edit
+                                                                </Link>
+                                                                <button 
+                                                                    onClick={() => deleteRequest(req.id)}
+                                                                    className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" /> Delete
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}

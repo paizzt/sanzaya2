@@ -132,6 +132,88 @@ class UcRequestController extends Controller
         return redirect()->back()->with('success', 'Result UC dan Nota berhasil dikirim!');
     }
 
+    public function edit($id)
+    {
+        $uc = UcRequest::with('items')->findOrFail($id);
+        
+        if (!Auth::user()->hasRole('SUPERADMIN')) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $users = \App\Models\User::select('id', 'name')->orderBy('name')->get();
+        $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
+
+        return Inertia::render('Requests/UcEdit', [
+            'ucRequest' => $uc,
+            'users' => $users,
+            'vehicles' => $vehicles
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (!Auth::user()->hasRole('SUPERADMIN')) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'entity' => 'required|string',
+            'department' => 'required|string',
+            'destination_city' => 'required|string',
+            'departure_date' => 'required|date',
+            'return_date' => 'required|date|after_or_equal:departure_date',
+            'estimated_days' => 'required|integer',
+            'companions' => 'nullable|array',
+            'transportation_type' => 'required|string',
+            'vehicle_number' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.item_name' => 'required|string',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.estimated_cost' => 'required|numeric|min:0',
+            'payment_option' => 'required|string|in:PANJAR BIAYA 50%,BAYAR FULL',
+        ]);
+
+        $uc = UcRequest::findOrFail($id);
+
+        $uc->update([
+            'entity' => $request->entity,
+            'department' => $request->department,
+            'destination_city' => $request->destination_city,
+            'departure_date' => $request->departure_date,
+            'return_date' => $request->return_date,
+            'estimated_days' => $request->estimated_days,
+            'companions' => $request->companions,
+            'transport_type' => $request->transportation_type,
+            'vehicle_number' => $request->vehicle_number,
+            'payment_option' => $request->payment_option,
+        ]);
+
+        $uc->items()->delete();
+        foreach ($request->items as $item) {
+            $uc->items()->create([
+                'item_name' => $item['item_name'],
+                'quantity' => $item['quantity'],
+                'estimated_cost' => $item['estimated_cost'],
+                'total_cost' => $item['quantity'] * $item['estimated_cost']
+            ]);
+        }
+
+        return redirect()->route('requests.uc.approval.index')->with('success', 'Form Pengajuan UC berhasil diperbarui!');
+    }
+
+    public function destroy($id)
+    {
+        if (!Auth::user()->hasRole('SUPERADMIN')) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $uc = UcRequest::findOrFail($id);
+        $uc->items()->delete();
+        $uc->delete();
+
+        return redirect()->back()->with('success', 'Pengajuan UC berhasil dihapus!');
+    }
+
     public function exportPdf()
     {
         $items = \App\Models\UcRequest::with('user')->orderBy('id', 'desc')->get();

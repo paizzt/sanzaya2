@@ -242,6 +242,11 @@ class UserController extends Controller
             26 => ['payment-request.view-all', 'payment-request.review'],
             27 => ['view activity log'],
             28 => ['manage master data'],
+            29 => ['view marketing'],
+            30 => ['view absensi'],
+            31 => ['view absensi'],
+            33 => ['view uc requests'],
+            34 => ['view absensi'],
         ];
 
         // We will collect all permissions that should be granted directly to the user via features

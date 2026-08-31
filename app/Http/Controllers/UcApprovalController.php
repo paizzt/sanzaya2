@@ -19,7 +19,8 @@ class UcApprovalController extends Controller
         $requests = UcRequest::with('user')->orderBy('created_at', 'desc')->get();
         
         return Inertia::render('Requests/UcApproval', [
-            'requests' => $requests
+            'requests' => $requests,
+            'isAdmin' => Auth::user()->hasRole('SUPERADMIN')
         ]);
     }
 
