@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { ClipboardList, CalendarDays, Filter, Download } from 'lucide-react';
+import Modal from '@/Components/Modal';
+import { ClipboardList, CalendarDays, Filter, Download, X } from 'lucide-react';
 import CustomSelect from '@/Components/CustomSelect';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -10,6 +11,18 @@ import Pagination from '@/Components/Pagination';
 
 export default function RecapAll({ reports, allTargets, sales_users, filters, auth }) {
     const [activeTab, setActiveTab] = useState('laporan');
+    const [selectedReport, setSelectedReport] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const openModal = (report) => {
+        setSelectedReport(report);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setTimeout(() => setSelectedReport(null), 300); // clear after animation
+    };
 
     const formatRupiah = (number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -145,13 +158,12 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             <th className="px-4 py-3">Tanggal & Waktu</th>
                                             <th className="px-4 py-3">Aktivitas</th>
                                             <th className="px-4 py-3">Outlet / PIC</th>
-                                            <th className="px-4 py-3">Kendala / Hasil</th>
-                                            <th className="px-4 py-3 text-right rounded-r-xl">Estimasi/Aktual</th>
+                                            <th className="px-4 py-3 rounded-r-xl">Kendala / Hasil</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
                                         {reports?.data?.length > 0 ? reports.data.map((r, i) => (
-                                            <tr key={r.id} className="hover:bg-gray-50/50">
+                                            <tr key={r.id} onClick={() => openModal(r)} className="hover:bg-gray-50/50 cursor-pointer transition-colors">
                                                 <td className="px-4 py-3 text-center text-gray-500 font-medium">
                                                     {(reports.current_page - 1) * reports.per_page + i + 1}
                                                 </td>
@@ -176,10 +188,6 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                                 <td className="px-4 py-3">
                                                     <div className="text-xs text-orange-600 font-medium">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
                                                     <div className="text-gray-600 line-clamp-2" title={r.visit_result}>{r.visit_result}</div>
-                                                </td>
-                                                <td className="px-4 py-3 text-right">
-                                                    <div className="text-gray-500 text-xs">Est: {formatRupiah(r.estimated_value)}</div>
-                                                    <div className="font-medium text-emerald-600">Akt: {formatRupiah(r.actual_value)}</div>
                                                 </td>
                                             </tr>
                                         )) : (
@@ -252,6 +260,88 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                     )}
                 </div>
             </div>
+
+            <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl">
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                        <h2 className="text-xl font-bold text-gray-800">Detail Laporan Harian</h2>
+                        <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    {selectedReport && (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <div className="text-sm text-gray-500 mb-1">Nama Sales</div>
+                                    <div className="font-bold text-gray-800">{selectedReport.user?.name || '-'}</div>
+                                </div>
+                                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <div className="text-sm text-gray-500 mb-1">Waktu Kunjungan</div>
+                                    <div className="font-bold text-gray-800">
+                                        {new Date(selectedReport.visit_date).toLocaleDateString('id-ID')} - {selectedReport.visit_time}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border border-gray-100 rounded-xl p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-700 mb-4 border-b border-gray-50 pb-2">Informasi Kunjungan</h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+                                    <div>
+                                        <div className="text-xs text-gray-500">Jenis Aktivitas</div>
+                                        <div className="font-medium text-gray-800 mt-1">{selectedReport.activity_type}</div>
+                                    </div>
+                                    {!selectedReport.activity_type?.includes('Non-Kunjungan') && (
+                                        <>
+                                            <div>
+                                                <div className="text-xs text-gray-500">Outlet/Instansi</div>
+                                                <div className="font-medium text-gray-800 mt-1">{selectedReport.outlet?.name || selectedReport.outlet_id || '-'}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-gray-500">PIC Ditemui</div>
+                                                <div className="font-medium text-gray-800 mt-1">{selectedReport.pic_name || '-'}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-gray-500">Jabatan PIC</div>
+                                                <div className="font-medium text-gray-800 mt-1">{selectedReport.pic_position || '-'}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-gray-500">Kontak PIC</div>
+                                                <div className="font-medium text-gray-800 mt-1">{selectedReport.pic_contact || '-'}</div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="border border-gray-100 rounded-xl p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-700 mb-4 border-b border-gray-50 pb-2">Hasil Kunjungan</h4>
+                                <div className="space-y-4">
+                                    <div>
+                                        <div className="text-xs text-gray-500 mb-1">Hasil / Catatan</div>
+                                        <div className="text-sm text-gray-800 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap">
+                                            {selectedReport.visit_result || 'Tidak ada catatan hasil kunjungan.'}
+                                        </div>
+                                    </div>
+                                    {selectedReport.issue_type && selectedReport.issue_type !== 'Tidak Ada Kendala' && (
+                                        <div>
+                                            <div className="text-xs text-gray-500 mb-1">Kendala yang Dihadapi</div>
+                                            <div className="text-sm text-orange-700 bg-orange-50 p-3 rounded-lg border border-orange-100">
+                                                <span className="font-semibold block mb-1">{selectedReport.issue_type}</span>
+                                                {selectedReport.issue_description}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <div className="mt-8 flex justify-end">
+                        <PrimaryButton onClick={closeModal}>Tutup Detail</PrimaryButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
