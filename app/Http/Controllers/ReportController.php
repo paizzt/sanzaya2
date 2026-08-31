@@ -154,8 +154,19 @@ class ReportController extends Controller
             $ptBreakdownFormatted = [];
             foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
 
+            $targetBulanan = 0;
+            if ($salesFilter) {
+                $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
+                if ($userWithTarget && $userWithTarget->monthly_target) {
+                    $targetBulanan = $userWithTarget->monthly_target;
+                }
+            } else {
+                $targetBulanan = \App\Models\User::sum('monthly_target');
+            }
+
             return [
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
+                'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
                 'top_outlet' => key($outletCounts) ?: '-',
                 'top_produk' => key($produkCounts) ?: '-',
                 'total_pesanan' => $logistikAll->count(),
@@ -486,6 +497,16 @@ class ReportController extends Controller
             }
         }
 
+        $targetBulanan = 0;
+        if ($salesFilter) {
+            $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
+            if ($userWithTarget && $userWithTarget->monthly_target) {
+                $targetBulanan = $userWithTarget->monthly_target;
+            }
+        } else {
+            $targetBulanan = \App\Models\User::sum('monthly_target');
+        }
+
         $summary = [
             'total_penjualan' => $totalPenjualan,
             'total_piutang' => $totalPiutang,
@@ -494,6 +515,7 @@ class ReportController extends Controller
             'pesanan_belum' => $pesananBelum,
             'sales_penjualan' => $salesPenjualan,
             'outlet_penjualan' => $outletPenjualan,
+            'target_bulanan' => $targetBulanan,
         ];
 
         // --- BUAT GRAFIK (QUICKCHART.IO) ---

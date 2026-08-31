@@ -437,6 +437,21 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             </div>
                             <p className="text-xs text-gray-400">Total akumulasi dari kolom Total (Rp)</p>
                         </div>
+
+                        {summary.target_bulanan && (
+                            <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-purple-100">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="min-w-0 flex-1 pr-4">
+                                        <p className="text-sm font-semibold text-gray-500 truncate">Target Bulanan</p>
+                                        <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.target_bulanan}>{summary.target_bulanan}</h4>
+                                    </div>
+                                    <div className="p-3 bg-purple-50 rounded-2xl">
+                                        <Activity className="w-6 h-6 text-purple-600" />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400">Target penjualan bulanan</p>
+                            </div>
+                        )}
                         
                         <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Pesanan', type: 'pesanan', data: summary.pesanan_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">

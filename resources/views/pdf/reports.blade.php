@@ -45,10 +45,16 @@
         <table style="width: 100%; border-collapse: separate; border-spacing: 5px; margin-bottom: 10px; margin-left: -5px;">
             <tr>
                 @if(in_array('logistik', $datasets ?? []))
-                <td style="background-color: #3b82f6; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                <td style="background-color: #3b82f6; border-radius: 6px; padding: 10px; color: #fff; width: 16%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Penjualan</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
                 </td>
+                @if(isset($summary['target_bulanan']) && $summary['target_bulanan'] > 0)
+                <td style="background-color: #8b5cf6; border-radius: 6px; padding: 10px; color: #fff; width: 16%;">
+                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Target Bulanan</p>
+                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['target_bulanan'], 0, ',', '.') }}</p>
+                </td>
+                @endif
                 @endif
                 @if(in_array('piutang', $datasets ?? []))
                 <td style="background-color: #14b8a6; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
