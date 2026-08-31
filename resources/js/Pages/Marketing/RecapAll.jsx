@@ -48,16 +48,46 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         if (photos.length === 0) return <div className="text-sm text-gray-500 italic">Tidak ada foto terlampir.</div>;
 
         return (
-            <div className="flex flex-wrap gap-4 mt-2">
-                {photos.map((photo, idx) => (
-                    <a key={idx} href={photo.startsWith('http') ? photo : `/storage/${photo}`} target="_blank" rel="noreferrer">
-                        <img 
-                            src={photo.startsWith('http') ? photo : `/storage/${photo}`} 
-                            alt={`Lampiran ${idx+1}`} 
-                            className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-80 transition-opacity"
-                        />
-                    </a>
-                ))}
+            <div className="flex flex-wrap gap-4 mt-2 pb-4">
+                {photos.map((photo, idx) => {
+                    const isHttp = photo.startsWith('http');
+                    const src = isHttp ? photo : `/storage/${photo}`;
+                    
+                    // Ekstrak ID Google Drive dari nama file jika ada
+                    let driveId = null;
+                    if (!isHttp && photo.includes('marketing_import_')) {
+                        const match = photo.match(/marketing_import_(.*?)\.jpg/);
+                        if (match && match[1]) {
+                            driveId = match[1];
+                        }
+                    }
+
+                    return (
+                        <div key={idx} className="relative group mb-4">
+                            <a href={driveId ? `https://drive.google.com/file/d/${driveId}/view` : src} target="_blank" rel="noreferrer">
+                                <img 
+                                    src={src} 
+                                    alt={`Lampiran ${idx+1}`} 
+                                    className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-80 transition-opacity"
+                                    onError={(e) => {
+                                        e.target.onerror = null; 
+                                        e.target.src = 'https://placehold.co/100x100/e2e8f0/64748b?text=Foto+Gagal+Muat';
+                                    }}
+                                />
+                            </a>
+                            {driveId && (
+                                <a 
+                                    href={`https://drive.google.com/file/d/${driveId}/view`} 
+                                    target="_blank" 
+                                    rel="noreferrer" 
+                                    className="absolute -bottom-5 left-0 text-[11px] text-blue-600 hover:underline w-max"
+                                >
+                                    Buka G-Drive &nearr;
+                                </a>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         );
     };
