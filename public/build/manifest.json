@@ -78,6 +78,13 @@
       "_vendor-DMBOcxFX.js"
     ]
   },
+  "_Pagination-Bf96q2VP.js": {
+    "file": "assets/Pagination-Bf96q2VP.js",
+    "name": "Pagination",
+    "imports": [
+      "_vendor-DMBOcxFX.js"
+    ]
+  },
   "_PrimaryButton-uxalw2_t.js": {
     "file": "assets/PrimaryButton-uxalw2_t.js",
     "name": "PrimaryButton",
@@ -119,7 +126,7 @@
     "isDynamicEntry": true
   },
   "resources/js/Pages/Absensi/Index.jsx": {
-    "file": "assets/Index-C8eYGaaJ.js",
+    "file": "assets/Index-CjSD_yGb.js",
     "name": "Index",
     "src": "resources/js/Pages/Absensi/Index.jsx",
     "isDynamicEntry": true,
@@ -361,7 +368,7 @@
     ]
   },
   "resources/js/Pages/Marketing/RecapAll.jsx": {
-    "file": "assets/RecapAll-CFedHaW0.js",
+    "file": "assets/RecapAll-CXzGVxww.js",
     "name": "RecapAll",
     "src": "resources/js/Pages/Marketing/RecapAll.jsx",
     "isDynamicEntry": true,
@@ -371,6 +378,7 @@
       "_CustomSelect-BGNh_JvO.js",
       "_TextInput-DJVEfYCG.js",
       "_ExportDropdown-DDn1nK0C.js",
+      "_Pagination-Bf96q2VP.js",
       "_ApplicationLogo-BRXDCvUZ.js",
       "_Modal-CN9yQ4J6.js"
     ]
@@ -588,13 +596,14 @@
     ]
   },
   "resources/js/Pages/Providers/Show.jsx": {
-    "file": "assets/Show-DYb4igJk.js",
+    "file": "assets/Show-BuV6KVBV.js",
     "name": "Show",
     "src": "resources/js/Pages/Providers/Show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_vendor-DMBOcxFX.js",
       "_AuthenticatedLayout-BJLtSnOc.js",
+      "_Pagination-Bf96q2VP.js",
       "_PrimaryButton-uxalw2_t.js",
       "_SecondaryButton-gCqltiRz.js",
       "_TextInput-DJVEfYCG.js",
@@ -789,7 +798,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-JNSsu222.js",
+    "file": "assets/Index-DOvRaCxj.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -810,7 +819,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-KjAKq1h-.js",
+    "file": "assets/Show-DFCLi_r8.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -930,7 +939,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-CMjv0_LD.js",
+    "file": "assets/app-Cut8U56h.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,

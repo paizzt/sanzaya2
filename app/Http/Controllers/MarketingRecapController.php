@@ -33,7 +33,7 @@ class MarketingRecapController extends Controller
         if ($endDate) {
             $reportsQuery->where('visit_date', '<=', $endDate);
         }
-        $reports = $reportsQuery->get();
+        $reports = $reportsQuery->paginate(50)->withQueryString();
 
         // Query Targets
         $targetsQuery = MarketingWeeklyTarget::with('user')->orderBy('start_date', 'desc');
@@ -46,7 +46,7 @@ class MarketingRecapController extends Controller
         if ($endDate) {
             $targetsQuery->where('end_date', '<=', $endDate);
         }
-        $allTargets = $targetsQuery->get();
+        $allTargets = $targetsQuery->paginate(50)->withQueryString();
 
         // Get all active sales users for the filter dropdown
         $salesUsers = User::where('is_active', true)

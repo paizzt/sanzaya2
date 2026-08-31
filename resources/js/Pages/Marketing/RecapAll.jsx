@@ -6,6 +6,7 @@ import CustomSelect from '@/Components/CustomSelect';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ExportDropdown from '@/Components/ExportDropdown';
+import Pagination from '@/Components/Pagination';
 
 export default function RecapAll({ reports, allTargets, sales_users, filters, auth }) {
     const [activeTab, setActiveTab] = useState('laporan');
@@ -139,7 +140,8 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                 <table className="w-full text-sm text-left">
                                     <thead className="bg-gray-50 text-gray-600 font-medium">
                                         <tr>
-                                            <th className="px-4 py-3 rounded-l-xl">Nama Sales</th>
+                                            <th className="px-4 py-3 rounded-l-xl w-12 text-center">No</th>
+                                            <th className="px-4 py-3">Nama Sales</th>
                                             <th className="px-4 py-3">Tanggal & Waktu</th>
                                             <th className="px-4 py-3">Aktivitas</th>
                                             <th className="px-4 py-3">Outlet / PIC</th>
@@ -148,8 +150,11 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {reports.length > 0 ? reports.map(r => (
+                                        {reports?.data?.length > 0 ? reports.data.map((r, i) => (
                                             <tr key={r.id} className="hover:bg-gray-50/50">
+                                                <td className="px-4 py-3 text-center text-gray-500 font-medium">
+                                                    {(reports.current_page - 1) * reports.per_page + i + 1}
+                                                </td>
                                                 <td className="px-4 py-3">
                                                     <div className="font-bold text-gray-800">{r.user?.name || '-'}</div>
                                                 </td>
@@ -179,11 +184,14 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan="6" className="px-4 py-8 text-center text-gray-400">Belum ada data laporan harian.</td>
+                                                <td colSpan="7" className="px-4 py-8 text-center text-gray-400">Belum ada data laporan harian.</td>
                                             </tr>
                                         )}
                                     </tbody>
                                 </table>
+                            </div>
+                            <div className="mt-4">
+                                <Pagination links={reports.links} from={reports.from} to={reports.to} total={reports.total} />
                             </div>
                         </div>
                     )}
@@ -199,7 +207,8 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                 <table className="w-full text-sm text-left">
                                     <thead className="bg-gray-50 text-gray-600 font-medium">
                                         <tr>
-                                            <th className="px-4 py-3 rounded-l-xl">Nama Sales</th>
+                                            <th className="px-4 py-3 rounded-l-xl w-12 text-center">No</th>
+                                            <th className="px-4 py-3">Nama Sales</th>
                                             <th className="px-4 py-3">Tahun/Minggu</th>
                                             <th className="px-4 py-3">Tanggal Periode</th>
                                             <th className="px-4 py-3 text-center">Target Kunjungan</th>
@@ -207,8 +216,11 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {allTargets && allTargets.length > 0 ? allTargets.map(t => (
+                                        {allTargets?.data?.length > 0 ? allTargets.data.map((t, i) => (
                                             <tr key={t.id} className="hover:bg-gray-50/50">
+                                                <td className="px-4 py-3 text-center text-gray-500 font-medium">
+                                                    {(allTargets.current_page - 1) * allTargets.per_page + i + 1}
+                                                </td>
                                                 <td className="px-4 py-3">
                                                     <div className="font-bold text-gray-800">{t.user?.name || '-'}</div>
                                                 </td>
@@ -227,11 +239,14 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan="5" className="px-4 py-8 text-center text-gray-400">Belum ada data target mingguan.</td>
+                                                <td colSpan="6" className="px-4 py-8 text-center text-gray-400">Belum ada data target mingguan.</td>
                                             </tr>
                                         )}
                                     </tbody>
                                 </table>
+                            </div>
+                            <div className="mt-4">
+                                <Pagination links={allTargets.links} from={allTargets.from} to={allTargets.to} total={allTargets.total} />
                             </div>
                         </div>
                     )}
