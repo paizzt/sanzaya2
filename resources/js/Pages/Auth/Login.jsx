@@ -55,7 +55,7 @@ export default function Login({ status, canResetPassword }) {
                         <ApplicationLogo className="w-20 h-auto" />
                     </div>
                 </div>
-                <h1 className="text-[28px] font-extrabold text-gray-900 mb-2 tracking-tight">Satu Sanzaya</h1>
+
                 <p className="text-sm font-medium text-blue-600 mb-4 italic">"Karena Anda Kami Ada"</p>
                 <p className="text-[14px] text-gray-500 leading-relaxed px-4">
                     Masukan email dan password yang telah diberikan. Silakan hubungi <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors">HR</a> jika belum memiliki akses.
