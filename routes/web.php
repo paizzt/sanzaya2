@@ -27,7 +27,11 @@ Route::get('/', function () {
 // Public Share Routes
 Route::get('/shared/kebutuhan-barang', [\App\Http\Controllers\ItemRequirementController::class, 'publicIndex'])->name('item-requirements.public');
 
+// Public Signature Verification
+Route::get('/verify-signature/{id}/{hash}', [\App\Http\Controllers\UserController::class, 'verifySignature'])->name('verify.signature');
+
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/users/{user}/download-barcode', [\App\Http\Controllers\UserController::class, 'downloadBarcode'])->name('users.download-barcode');
 
     // Added Export Routes
     Route::get('/logistic-reports-export-pdf', [\App\Http\Controllers\LogisticReportController::class, 'exportPdf'])->name('logistic-reports.export.pdf');

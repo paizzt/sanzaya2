@@ -333,4 +333,28 @@ class UserController extends Controller
         
         return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Pengguna') . '.xlsx');
     }
+
+    public function downloadBarcode(User $user)
+    {
+        $hash = substr(md5($user->id . $user->created_at), 0, 10);
+        $url = route('verify.signature', ['id' => $user->id, 'hash' => $hash]);
+        
+        $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(300)->generate($url);
+        
+        return response($qrCode)
+               ->header('Content-Type', 'image/svg+xml')
+               ->header('Content-Disposition', 'attachment; filename="barcode-'.$user->name.'.svg"');
+    }
+
+    public function verifySignature($id, $hash)
+    {
+        $user = User::findOrFail($id);
+        $expectedHash = substr(md5($user->id . $user->created_at), 0, 10);
+        
+        if ($hash !== $expectedHash) {
+            abort(404, 'Tanda tangan digital tidak valid atau tidak ditemukan.');
+        }
+        
+        return view('verify-signature', compact('user'));
+    }
 }

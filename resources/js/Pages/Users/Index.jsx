@@ -2,7 +2,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import ClientPagination from '@/Components/ClientPagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight } from 'lucide-react';
+import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight, QrCode } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -293,6 +293,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                                        <a href={`/users/${user.id}/download-barcode`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Unduh Barcode (Tanda Tangan)"><QrCode className="w-4 h-4" /></a>
                                                         <button onClick={() => openEditModal(user)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
                                                         {usePage().props.auth.user.id !== user.id && (
                                                             <button onClick={() => handleDelete(user.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
