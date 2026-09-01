@@ -898,13 +898,13 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 <p className="text-sm text-gray-600 text-center mb-6">Pilih format file untuk mengunduh QR Code Tanda Tangan Digital:</p>
                                 
                                 <div className="grid grid-cols-1 gap-3 w-full">
-                                    <button type="button" onClick={() => downloadImage('svg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 rounded-xl font-semibold transition-colors">
+                                    <button type="button" onClick={() => downloadImage('svg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gray-800 text-white hover:bg-gray-700 rounded-xl font-semibold transition-colors">
                                         Unduh format SVG
                                     </button>
-                                    <button type="button" onClick={() => downloadImage('png')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-xl font-semibold transition-colors">
+                                    <button type="button" onClick={() => downloadImage('png')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gray-800 text-white hover:bg-gray-700 rounded-xl font-semibold transition-colors">
                                         Unduh format PNG
                                     </button>
-                                    <button type="button" onClick={() => downloadImage('jpg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 rounded-xl font-semibold transition-colors">
+                                    <button type="button" onClick={() => downloadImage('jpg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gray-800 text-white hover:bg-gray-700 rounded-xl font-semibold transition-colors">
                                         Unduh format JPG
                                     </button>
                                 </div>

@@ -38,10 +38,10 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
 
                 {/* Download Barcode Section */}
                 <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative">
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500"></div>
                     <div className="p-6 md:p-8">
                         <div className="flex items-center gap-3 mb-6 border-b border-gray-50 pb-4">
-                            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
                                 <QrCode className="w-6 h-6" />
                             </div>
                             <div>
