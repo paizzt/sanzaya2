@@ -3,7 +3,8 @@ import { Head } from '@inertiajs/react';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import DeleteUserForm from './Partials/DeleteUserForm';
-import { User, Lock, UserMinus } from 'lucide-react';
+import DownloadBarcodeForm from './Partials/DownloadBarcodeForm';
+import { User, Lock, UserMinus, QrCode } from 'lucide-react';
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
     return (
@@ -35,6 +36,23 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                     </div>
                 </div>
 
+                {/* Download Barcode Section */}
+                <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                    <div className="p-6 md:p-8">
+                        <div className="flex items-center gap-3 mb-6 border-b border-gray-50 pb-4">
+                            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                <QrCode className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-800">Barcode Tanda Tangan</h3>
+                                <p className="text-sm text-gray-500">Unduh Barcode (QR Code) unik Anda untuk tanda tangan digital.</p>
+                            </div>
+                        </div>
+                        <DownloadBarcodeForm user={auth.user} />
+                    </div>
+                </div>
+
                 {/* Update Password Section */}
                 <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-orange-500"></div>
@@ -61,10 +79,11 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 <UserMinus className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-red-600">Hapus Akun</h3>
+                                <h3 className="text-xl font-bold text-gray-800">Hapus Akun</h3>
+                                <p className="text-sm text-gray-500">Setelah akun Anda dihapus, semua data akan hilang permanen.</p>
                             </div>
                         </div>
-                        <DeleteUserForm />
+                        <DeleteUserForm className="max-w-xl" />
                     </div>
                 </div>
 
