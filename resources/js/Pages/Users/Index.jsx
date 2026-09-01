@@ -128,6 +128,51 @@ export default function Index({ users, divisions, positions, areas, roles, compa
         setBarcodeModalOpen(true);
     };
 
+    const downloadImage = (format) => {
+        if (!barcodeUser) return;
+        
+        const svgUrl = `/users/${barcodeUser.id}/download-barcode`;
+        
+        if (format === 'svg') {
+            const a = document.createElement('a');
+            a.href = svgUrl;
+            a.download = `barcode-${barcodeUser.name}.svg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            return;
+        }
+
+        // For PNG and JPG, we fetch the SVG, draw it to canvas, and export
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            // Adding margin
+            const padding = 20;
+            canvas.width = img.width + (padding * 2);
+            canvas.height = img.height + (padding * 2);
+            const ctx = canvas.getContext('2d');
+            
+            // White background for JPG or PNG
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.drawImage(img, padding, padding);
+            
+            const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
+            const dataUrl = canvas.toDataURL(mimeType, 1.0);
+            
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `barcode-${barcodeUser.name}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
+        img.src = svgUrl;
+    };
+
     const handleDelete = (id) => {
         Swal.fire({
             title: 'Hapus Pengguna?',
@@ -853,15 +898,15 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                 <p className="text-sm text-gray-600 text-center mb-6">Pilih format file untuk mengunduh QR Code Tanda Tangan Digital:</p>
                                 
                                 <div className="grid grid-cols-1 gap-3 w-full">
-                                    <a href={`/users/${barcodeUser.id}/download-barcode?format=svg`} download className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 rounded-xl font-semibold transition-colors">
+                                    <button type="button" onClick={() => downloadImage('svg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 rounded-xl font-semibold transition-colors">
                                         Unduh format SVG
-                                    </a>
-                                    <a href={`/users/${barcodeUser.id}/download-barcode?format=png`} download className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-xl font-semibold transition-colors">
+                                    </button>
+                                    <button type="button" onClick={() => downloadImage('png')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-xl font-semibold transition-colors">
                                         Unduh format PNG
-                                    </a>
-                                    <a href={`/users/${barcodeUser.id}/download-barcode?format=jpg`} download className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 rounded-xl font-semibold transition-colors">
+                                    </button>
+                                    <button type="button" onClick={() => downloadImage('jpg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 rounded-xl font-semibold transition-colors">
                                         Unduh format JPG
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
