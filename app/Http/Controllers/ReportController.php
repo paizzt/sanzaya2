@@ -159,18 +159,25 @@ class ReportController extends Controller
             foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
 
             $targetBulanan = 0;
+            $targetDetail = [];
             if ($salesFilter) {
                 $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
                 if ($userWithTarget && $userWithTarget->monthly_target) {
                     $targetBulanan = $userWithTarget->monthly_target;
+                    $targetDetail[$userWithTarget->name] = 'Rp ' . number_format($targetBulanan, 0, ',', '.');
                 }
             } else {
-                $targetBulanan = \App\Models\User::sum('monthly_target');
+                $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
+                $targetBulanan = $usersWithTarget->sum('monthly_target');
+                foreach ($usersWithTarget as $u) {
+                    $targetDetail[$u->name] = 'Rp ' . number_format($u->monthly_target, 0, ',', '.');
+                }
             }
 
             return [
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
+                'target_detail' => $targetDetail,
                 'top_outlet' => key($outletCounts) ?: '-',
                 'top_produk' => key($produkCounts) ?: '-',
                 'total_pesanan' => $logistikAll->count(),
@@ -178,7 +185,7 @@ class ReportController extends Controller
                 'pt_penjualan_detail' => $ptBreakdownFormatted,
                 'outlet_detail' => array_slice($outletCounts, 0, 10, true),
                 'produk_detail' => array_slice($produkCounts, 0, 10, true),
-                'pesanan_detail' => array_slice($pesananSales, 0, 10, true)
+                'pesanan_sales' => array_slice($pesananSales, 0, 10, true)
             ];
         });
 

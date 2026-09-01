@@ -440,7 +440,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
 
                         {summary.target_bulanan && (
                             <>
-                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-purple-100">
+                                <div 
+                                    onClick={() => summary.target_detail && Object.keys(summary.target_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail })} 
+                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-purple-100 ${summary.target_detail && Object.keys(summary.target_detail).length > 0 ? 'cursor-pointer' : ''}`}
+                                >
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="min-w-0 flex-1 pr-4">
                                             <p className="text-sm font-semibold text-gray-500 truncate">Target Bulanan</p>
@@ -953,9 +956,12 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         {detailModal.type === 'penjualan' && (
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan Sales</h4>
                                         )}
+                                        {detailModal.type === 'target' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Rincian Target Sales</h4>
+                                        )}
                                         <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (detailModal.type === 'penjualan' ? 'Nama Sales' : 'Nama')}</span>
-                                            <span>{['penjualan', 'faktur'].includes(detailModal.type) ? 'Total (Rp)' : 'Nilai'}</span>
+                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : 'Nama')}</span>
+                                            <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : 'Nilai'}</span>
                                         </div>
                                         <div className="space-y-3 mt-3">
                                             {Object.entries(detailModal.data).map(([key, value], idx) => (
