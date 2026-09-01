@@ -339,8 +339,26 @@ class UserController extends Controller
         $hash = substr(md5($user->id . $user->created_at), 0, 10);
         $url = route('verify.signature', ['id' => $user->id, 'hash' => $hash]);
         
-        $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(300)->margin(1)->generate($url);
+        $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+            ->size(300)
+            ->margin(1)
+            ->errorCorrection('H') // H = 30% error correction, required when using logo
+            ->generate($url);
         
+        $logoPath = public_path('img/logo.png');
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoSize = 70; 
+            $x = (300 - $logoSize) / 2;
+            $y = (300 - $logoSize) / 2;
+            
+            // Tambahkan background putih dengan rounded corner agar QR Code tidak menumpuk dengan logo
+            $bgTag = '<rect x="'.($x-4).'" y="'.($y-4).'" width="'.($logoSize+8).'" height="'.($logoSize+8).'" fill="#ffffff" rx="10" ry="10" />';
+            $imageTag = '<image x="'.$x.'" y="'.$y.'" width="'.$logoSize.'" height="'.$logoSize.'" href="data:image/png;base64,'.$logoData.'" preserveAspectRatio="xMidYMid meet" />';
+            
+            $qrCode = str_replace('</svg>', $bgTag . $imageTag . '</svg>', $qrCode);
+        }
+
         return response($qrCode)
                ->header('Content-Type', 'image/svg+xml')
                ->header('Content-Disposition', 'attachment; filename="barcode-'.$user->name.'.svg"');
