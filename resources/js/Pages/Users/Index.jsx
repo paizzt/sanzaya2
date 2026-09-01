@@ -21,6 +21,8 @@ export default function Index({ users, divisions, positions, areas, roles, compa
     const [editingUser, setEditingUser] = useState(null);
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const [previewUser, setPreviewUser] = useState(null);
+    const [barcodeModalOpen, setBarcodeModalOpen] = useState(false);
+    const [barcodeUser, setBarcodeUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchUserTerm, setSearchUserTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -119,6 +121,11 @@ export default function Index({ users, divisions, positions, areas, roles, compa
     const openPreviewModal = (user) => {
         setPreviewUser(user);
         setIsPreviewModalOpen(true);
+    };
+
+    const openBarcodeModal = (user) => {
+        setBarcodeUser(user);
+        setBarcodeModalOpen(true);
     };
 
     const handleDelete = (id) => {
@@ -293,7 +300,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                                        <a href={`/users/${user.id}/download-barcode`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Unduh Barcode (Tanda Tangan)"><QrCode className="w-4 h-4" /></a>
+                                                        <button type="button" onClick={() => openBarcodeModal(user)} className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Unduh Barcode (Tanda Tangan)"><QrCode className="w-4 h-4" /></button>
                                                         <button onClick={() => openEditModal(user)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
                                                         {usePage().props.auth.user.id !== user.id && (
                                                             <button onClick={() => handleDelete(user.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
@@ -821,6 +828,40 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* MODAL BARCODE */}
+                {barcodeModalOpen && barcodeUser && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+                        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]">
+                            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 sticky top-0 z-10">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Unduh Barcode</h3>
+                                    <p className="text-xs text-gray-500">{barcodeUser.name}</p>
+                                </div>
+                                <button type="button" onClick={() => setBarcodeModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                            </div>
+                            <div className="p-6 overflow-y-auto flex flex-col items-center">
+                                <div className="bg-gray-50 p-4 rounded-2xl mb-6 shadow-inner border border-gray-100">
+                                    <img src={`/users/${barcodeUser.id}/download-barcode?format=svg`} alt="QR Code" className="w-48 h-48 mx-auto" />
+                                </div>
+                                
+                                <p className="text-sm text-gray-600 text-center mb-6">Pilih format file untuk mengunduh QR Code Tanda Tangan Digital:</p>
+                                
+                                <div className="grid grid-cols-1 gap-3 w-full">
+                                    <a href={`/users/${barcodeUser.id}/download-barcode?format=svg`} download className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 rounded-xl font-semibold transition-colors">
+                                        Unduh format SVG
+                                    </a>
+                                    <a href={`/users/${barcodeUser.id}/download-barcode?format=png`} download className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-xl font-semibold transition-colors">
+                                        Unduh format PNG
+                                    </a>
+                                    <a href={`/users/${barcodeUser.id}/download-barcode?format=jpg`} download className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 rounded-xl font-semibold transition-colors">
+                                        Unduh format JPG
+                                    </a>
                                 </div>
                             </div>
                         </div>

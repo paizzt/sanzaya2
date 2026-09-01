@@ -334,16 +334,43 @@ class UserController extends Controller
         return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Pengguna') . '.xlsx');
     }
 
-    public function downloadBarcode(User $user)
+    public function downloadBarcode(Request $request, User $user)
     {
         $hash = substr(md5($user->id . $user->created_at), 0, 10);
         $url = route('verify.signature', ['id' => $user->id, 'hash' => $hash]);
         
-        $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(300)->generate($url);
-        
-        return response($qrCode)
-               ->header('Content-Type', 'image/svg+xml')
-               ->header('Content-Disposition', 'attachment; filename="barcode-'.$user->name.'.svg"');
+        $format = $request->query('format', 'svg'); // svg, png
+
+        if ($format === 'png') {
+            $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(300)->generate($url);
+            return response($qrCode)
+                   ->header('Content-Type', 'image/png')
+                   ->header('Content-Disposition', 'attachment; filename="barcode-'.$user->name.'.png"');
+        } elseif ($format === 'jpg') {
+            // Since jpg isn't directly supported by default without imagick, we generate PNG and convert to JPG if needed,
+            // or we just fallback to png but name it png. Wait, QrCode might support jpg if imagick is present.
+            // Let's try to just output png as jpg if requested, or convert using GD.
+            $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(300)->margin(2)->generate($url);
+            $image = imagecreatefromstring($qrCode);
+            $bg = imagecreatetruecolor(imagesx($image), imagesy($image));
+            imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
+            imagealphablending($bg, TRUE);
+            imagecopy($bg, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+            ob_start();
+            imagejpeg($bg, null, 100);
+            $jpgCode = ob_get_clean();
+            imagedestroy($image);
+            imagedestroy($bg);
+
+            return response($jpgCode)
+                   ->header('Content-Type', 'image/jpeg')
+                   ->header('Content-Disposition', 'attachment; filename="barcode-'.$user->name.'.jpg"');
+        } else {
+            $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(300)->generate($url);
+            return response($qrCode)
+                   ->header('Content-Type', 'image/svg+xml')
+                   ->header('Content-Disposition', 'attachment; filename="barcode-'.$user->name.'.svg"');
+        }
     }
 
     public function verifySignature($id, $hash)
