@@ -2,7 +2,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import ClientPagination from '@/Components/ClientPagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight, QrCode } from 'lucide-react';
+import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight, QrCode, Sliders } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -54,6 +54,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
         emergency_contact: '',
         bpjs_kesehatan: '',
         bpjs_ketenagakerjaan: '',
+        preferences: { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] },
     });
 
     useEffect(() => {
@@ -71,7 +72,11 @@ export default function Index({ users, divisions, positions, areas, roles, compa
         setIsEditMode(false);
         setEditingUser(null);
         reset();
-        setData('feature_toggles', featureToggles.map(f => f.id));
+        setData(data => ({
+            ...data,
+            feature_toggles: featureToggles.map(f => f.id),
+            preferences: { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] }
+        }));
         setSearchTerm('');
         setIsModalOpen(true);
     };
@@ -114,6 +119,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
             emergency_contact: user.emergency_contact || '',
             bpjs_kesehatan: user.bpjs_kesehatan || '',
             bpjs_ketenagakerjaan: user.bpjs_ketenagakerjaan || '',
+            preferences: user.preferences || { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] },
         });
         setIsModalOpen(true);
     };
@@ -585,6 +591,63 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 </div>
                                             </div>
                                             
+                                            {/* Preferensi Tampilan */}
+                                            <div className="space-y-6 pt-6 border-t border-gray-100">
+                                                <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><Sliders className="w-5 h-5 text-indigo-500"/> Preferensi Tampilan</h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div>
+                                                        <InputLabel value="Navigasi Bawah (Mobile)" />
+                                                        <div className="mt-2 space-y-2">
+                                                            {[
+                                                                { key: 'dashboard', label: 'Dashboard' },
+                                                                { key: 'absensi', label: 'Absensi' },
+                                                                { key: 'marketing', label: 'Marketing' },
+                                                                { key: 'izin', label: 'Izin/Sakit' },
+                                                            ].map(opt => (
+                                                                <label key={opt.key} className="flex items-center">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        className="rounded border-gray-300 text-blue-600 shadow-sm mr-2"
+                                                                        checked={data.preferences?.bottom_nav?.includes(opt.key)}
+                                                                        onChange={(e) => {
+                                                                            const current = data.preferences?.bottom_nav || [];
+                                                                            const updated = e.target.checked ? [...current, opt.key] : current.filter(k => k !== opt.key);
+                                                                            setData('preferences', { ...data.preferences, bottom_nav: updated });
+                                                                        }}
+                                                                    />
+                                                                    <span className="text-sm text-gray-700">{opt.label}</span>
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <InputLabel value="Widget Dashboard" />
+                                                        <div className="mt-2 space-y-2">
+                                                            {[
+                                                                { key: 'attendance', label: 'Absen (Hari Ini)' },
+                                                                { key: 'marketing', label: 'Kunjungan Sales' },
+                                                                { key: 'uc', label: 'Pengajuan UC' },
+                                                                { key: 'bhp', label: 'Pengajuan BHP' },
+                                                            ].map(opt => (
+                                                                <label key={opt.key} className="flex items-center">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        className="rounded border-gray-300 text-blue-600 shadow-sm mr-2"
+                                                                        checked={data.preferences?.dashboard?.includes(opt.key)}
+                                                                        onChange={(e) => {
+                                                                            const current = data.preferences?.dashboard || [];
+                                                                            const updated = e.target.checked ? [...current, opt.key] : current.filter(k => k !== opt.key);
+                                                                            setData('preferences', { ...data.preferences, dashboard: updated });
+                                                                        }}
+                                                                    />
+                                                                    <span className="text-sm text-gray-700">{opt.label}</span>
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         {/* Saklar Fitur (Toggles) */}
                                         <div className="space-y-6 pt-6 border-t border-gray-100">
                                             <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><ToggleRight className="w-5 h-5 text-indigo-500"/> Manajemen Akses Fitur</h4>

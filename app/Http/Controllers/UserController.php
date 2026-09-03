@@ -83,6 +83,7 @@ class UserController extends Controller
             'emergency_contact' => 'nullable|string|max:255',
             'bpjs_kesehatan' => 'nullable|string|max:255',
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
+            'preferences' => 'nullable|array',
         ]);
 
         $division = null;
@@ -112,6 +113,7 @@ class UserController extends Controller
             'emergency_contact' => $request->emergency_contact,
             'bpjs_kesehatan' => $request->bpjs_kesehatan,
             'bpjs_ketenagakerjaan' => $request->bpjs_ketenagakerjaan,
+            'preferences' => $request->preferences,
         ]);
 
         $user->assignRole($request->role);
@@ -154,11 +156,16 @@ class UserController extends Controller
             'emergency_contact' => 'nullable|string|max:255',
             'bpjs_kesehatan' => 'nullable|string|max:255',
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
+            'preferences' => 'nullable|array',
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
         
+        if ($request->has('preferences')) {
+            $user->preferences = $request->preferences;
+        }
+
         if ($request->filled('division_name')) {
             $division = \App\Models\Division::firstOrCreate(['name' => $request->division_name]);
             $user->division_id = $division->id;
