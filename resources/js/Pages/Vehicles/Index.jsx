@@ -559,6 +559,9 @@ export default function Index({ vehicles }) {
                                                                 {usage.gas_expense > 0 && (
                                                                     <p className="text-xs font-bold text-red-600">Bensin: Rp {Number(usage.gas_expense).toLocaleString('id-ID')}</p>
                                                                 )}
+                                                                {usage.final_odometer && usage.last_odometer && (
+                                                                    <p className="text-xs font-bold text-blue-600 mt-0.5">Jarak: {(usage.final_odometer - usage.last_odometer).toLocaleString('id-ID')} km</p>
+                                                                )}
                                                                 <div className="flex gap-2 mt-1 justify-end">
                                                                     {usage.usage_photo && (
                                                                         <a href={`/storage/${usage.usage_photo}`} target="_blank" className="text-blue-500 hover:text-blue-700 tooltip" title="Foto Kendaraan">
