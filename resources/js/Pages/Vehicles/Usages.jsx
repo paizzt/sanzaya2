@@ -77,8 +77,9 @@ export default function Usages({ usages, vehicles, filters }) {
                                 <tr>
                                     <th className="px-6 py-4">Tanggal & User</th>
                                     <th className="px-6 py-4">Kendaraan</th>
+                                    <th className="px-6 py-4">Status</th>
                                     <th className="px-6 py-4">Tujuan</th>
-                                    <th className="px-6 py-4">Odo Terakhir</th>
+                                    <th className="px-6 py-4">Odometer</th>
                                     <th className="px-6 py-4">Biaya Bensin</th>
                                     <th className="px-6 py-4 text-center">Bukti Foto</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
@@ -95,11 +96,25 @@ export default function Usages({ usages, vehicles, filters }) {
                                             <div className="font-bold text-gray-900 uppercase">{usage.vehicle?.license_plate}</div>
                                             <div className="text-xs text-gray-500">{usage.vehicle?.brand_type}</div>
                                         </td>
+                                        <td className="px-6 py-4">
+                                            {usage.status === 'in_use' ? (
+                                                <span className="bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">Sedang Dipakai</span>
+                                            ) : (
+                                                <span className="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">Selesai</span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4 font-medium text-gray-800">
                                             {usage.destination || '-'}
                                         </td>
                                         <td className="px-6 py-4 font-semibold text-gray-700">
-                                            {usage.last_odometer ? `${usage.last_odometer.toLocaleString('id-ID')} KM` : '-'}
+                                            <div className="text-xs">
+                                                <span className="text-gray-500 block">Pergi:</span> 
+                                                {usage.last_odometer ? `${usage.last_odometer.toLocaleString('id-ID')} KM` : '-'}
+                                            </div>
+                                            <div className="text-xs mt-1">
+                                                <span className="text-gray-500 block">Pulang:</span> 
+                                                {usage.final_odometer ? `${usage.final_odometer.toLocaleString('id-ID')} KM` : '-'}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             {usage.gas_expense > 0 ? (

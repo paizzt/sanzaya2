@@ -14,10 +14,12 @@ class VehicleUsage extends Model
         'vehicle_id',
         'user_id',
         'last_odometer',
+        'final_odometer',
         'destination',
         'usage_photo',
         'receipt_photo',
         'gas_expense',
+        'status',
     ];
 
     protected $casts = [

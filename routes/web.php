@@ -198,6 +198,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Vehicle Usages (Open to all authenticated users)
     Route::get('vehicle-usages', [\App\Http\Controllers\VehicleUsageController::class, 'index'])->name('vehicle-usages.index');
     Route::post('vehicle-usages', [\App\Http\Controllers\VehicleUsageController::class, 'store'])->name('vehicle-usages.store');
+    Route::put('vehicle-usages/{id}', [\App\Http\Controllers\VehicleUsageController::class, 'update'])->name('vehicle-usages.update');
     Route::delete('vehicle-usages/{id}', [\App\Http\Controllers\VehicleUsageController::class, 'destroy'])->name('vehicle-usages.destroy');
 
     Route::middleware(['can:view receivables'])->group(function() {

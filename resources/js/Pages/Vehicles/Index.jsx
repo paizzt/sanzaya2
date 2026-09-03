@@ -14,6 +14,8 @@ export default function Index({ vehicles }) {
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUsageFormOpen, setIsUsageFormOpen] = useState(false);
+    const [usageType, setUsageType] = useState('pergi');
+    const [currentUsageId, setCurrentUsageId] = useState(null);
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         destination: '',
@@ -21,17 +23,21 @@ export default function Index({ vehicles }) {
         usage_photo: null,
         receipt_photo: [],
         vehicle_id: null,
-        last_odometer: ''
+        last_odometer: '',
+        final_odometer: '',
+        _method: 'post'
     });
 
     const handleUsageSubmit = (e) => {
         e.preventDefault();
-        post(route('vehicle-usages.store'), {
+        const routeName = usageType === 'pergi' ? route('vehicle-usages.store') : route('vehicle-usages.update', currentUsageId);
+        
+        post(routeName, {
             onSuccess: () => {
                 setIsUsageFormOpen(false);
                 reset();
                 clearErrors();
-                setIsModalOpen(false); // Reload happens, close modal or just fetch updated data
+                setIsModalOpen(false);
             }
         });
     };
@@ -199,14 +205,36 @@ export default function Index({ vehicles }) {
                                         </td>
                                         <td className="px-4 sm:px-6 py-4" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex justify-center items-center gap-2">
-                                                <button 
-                                                    onClick={() => { setSelectedVehicle(vehicle); setData('vehicle_id', vehicle.id); setIsUsageFormOpen(true); }}
-                                                    className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors tooltip flex items-center justify-center gap-1.5 font-semibold text-xs whitespace-nowrap"
-                                                    title="Catat Penggunaan"
-                                                >
-                                                    <ClipboardEdit className="w-4 h-4" />
-                                                    <span>Catat</span>
-                                                </button>
+                                                {(() => {
+                                                    const latestUsage = vehicle.vehicle_usages?.[0];
+                                                    const isInUse = latestUsage?.status === 'in_use';
+                                                    return (
+                                                        <button 
+                                                            onClick={() => { 
+                                                                setSelectedVehicle(vehicle);
+                                                                setData({
+                                                                    ...data,
+                                                                    vehicle_id: vehicle.id,
+                                                                    last_odometer: vehicle.current_odometer || '',
+                                                                    final_odometer: '',
+                                                                    destination: '',
+                                                                    gas_expense: '',
+                                                                    usage_photo: null,
+                                                                    receipt_photo: [],
+                                                                    _method: isInUse ? 'put' : 'post'
+                                                                });
+                                                                setUsageType(isInUse ? 'pulang' : 'pergi');
+                                                                if (isInUse) setCurrentUsageId(latestUsage.id);
+                                                                setIsUsageFormOpen(true); 
+                                                            }}
+                                                            className={`p-2 rounded-lg transition-colors tooltip flex items-center justify-center gap-1.5 font-semibold text-xs whitespace-nowrap ${isInUse ? 'text-orange-500 hover:bg-orange-50' : 'text-gray-400 hover:text-green-600 hover:bg-green-50'}`}
+                                                            title={isInUse ? "Catat Pulang" : "Catat Pergi"}
+                                                        >
+                                                            <ClipboardEdit className="w-4 h-4" />
+                                                            <span>{isInUse ? "Pulang" : "Pergi"}</span>
+                                                        </button>
+                                                    );
+                                                })()}
                                                 {canManage && (
                                                     <>
                                                         <button 
@@ -490,15 +518,33 @@ export default function Index({ vehicles }) {
                                                 <ClipboardEdit className="w-5 h-5 text-green-600" />
                                                 Riwayat Penggunaan
                                             </h4>
-                                            <button 
-                                                onClick={() => {
-                                                    setData('vehicle_id', selectedVehicle.id);
-                                                    setIsUsageFormOpen(true);
-                                                }}
-                                                className="bg-green-50 hover:bg-green-100 text-green-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1"
-                                            >
-                                                <Plus className="w-4 h-4 mr-2" /> Catat
-                                            </button>
+                                            {(() => {
+                                                const latestUsage = selectedVehicle.vehicle_usages?.[0];
+                                                const isInUse = latestUsage?.status === 'in_use';
+                                                return (
+                                                    <button 
+                                                        onClick={() => {
+                                                            setData({
+                                                                ...data,
+                                                                vehicle_id: selectedVehicle.id,
+                                                                last_odometer: selectedVehicle.current_odometer || '',
+                                                                final_odometer: '',
+                                                                destination: '',
+                                                                gas_expense: '',
+                                                                usage_photo: null,
+                                                                receipt_photo: [],
+                                                                _method: isInUse ? 'put' : 'post'
+                                                            });
+                                                            setUsageType(isInUse ? 'pulang' : 'pergi');
+                                                            if (isInUse) setCurrentUsageId(latestUsage.id);
+                                                            setIsUsageFormOpen(true);
+                                                        }}
+                                                        className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1 ${isInUse ? 'bg-orange-50 hover:bg-orange-100 text-orange-600' : 'bg-green-50 hover:bg-green-100 text-green-600'}`}
+                                                    >
+                                                        <Plus className="w-4 h-4 mr-2" /> Catat {isInUse ? "Pulang" : "Pergi"}
+                                                    </button>
+                                                );
+                                            })()}
                                         </div>
                                         <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
                                             {selectedVehicle.vehicle_usages && selectedVehicle.vehicle_usages.length > 0 ? (
@@ -555,8 +601,8 @@ export default function Index({ vehicles }) {
                         <form onSubmit={handleUsageSubmit}>
                             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
                                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                    <ClipboardEdit className="w-6 h-6 text-green-600" />
-                                    Catat Penggunaan Kendaraan
+                                    <ClipboardEdit className={`w-6 h-6 ${usageType === 'pergi' ? 'text-green-600' : 'text-orange-600'}`} />
+                                    Catat {usageType === 'pergi' ? 'Keberangkatan' : 'Kepulangan'} Armada
                                 </h3>
                                 <button 
                                     type="button"
@@ -571,62 +617,80 @@ export default function Index({ vehicles }) {
                                 </button>
                             </div>
                             <div className="p-6 overflow-y-auto space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Odo Terakhir (KM)</label>
-                                    <input 
-                                        type="number" 
-                                        value={data.last_odometer}
-                                        onChange={e => setData('last_odometer', e.target.value)}
-                                        className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
-                                        required
-                                        />
-                                    {errors.last_odometer && <p className="text-red-500 text-xs mt-1">{errors.last_odometer}</p>}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Tujuan Penggunaan</label>
-                                    <input 
-                                        type="text" 
-                                        value={data.destination}
-                                        onChange={e => setData('destination', e.target.value)}
-                                        className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
-                                        />
-                                    {errors.destination && <p className="text-red-500 text-xs mt-1">{errors.destination}</p>}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Biaya Bensin</label>
-                                    <NumericFormat
-                                        value={data.gas_expense}
-                                        onValueChange={(values) => {
-                                            setData('gas_expense', values.value);
-                                        }}
-                                        thousandSeparator="."
-                                        decimalSeparator=","
-                                        prefix="Rp "
-                                        className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
-                                        />
-                                    {errors.gas_expense && <p className="text-red-500 text-xs mt-1">{errors.gas_expense}</p>}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto Penggunaan</label>
-                                    <input 
-                                        type="file" 
-                                        accept="image/*"
-                                        onChange={e => setData('usage_photo', e.target.files[0])}
-                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-                                    />
-                                    {errors.usage_photo && <p className="text-red-500 text-xs mt-1">{errors.usage_photo}</p>}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Foto Nota Bensin</label>
-                                    <input 
-                                        type="file" 
-                                        multiple
-                                        accept="image/*"
-                                        onChange={e => setData('receipt_photo', Array.from(e.target.files))}
-                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-                                    />
-                                    {errors.receipt_photo && <p className="text-red-500 text-xs mt-1">{errors.receipt_photo}</p>}
-                                </div>
+                                {usageType === 'pergi' && (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Odo Pertama (KM)</label>
+                                            <input 
+                                                type="number" 
+                                                value={data.last_odometer}
+                                                onChange={e => setData('last_odometer', e.target.value)}
+                                                className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
+                                                required
+                                            />
+                                            {errors.last_odometer && <p className="text-red-500 text-xs mt-1">{errors.last_odometer}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Tujuan Penggunaan</label>
+                                            <input 
+                                                type="text" 
+                                                value={data.destination}
+                                                onChange={e => setData('destination', e.target.value)}
+                                                className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
+                                            />
+                                            {errors.destination && <p className="text-red-500 text-xs mt-1">{errors.destination}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Foto Kendaraan (Opsional)</label>
+                                            <input 
+                                                type="file" 
+                                                accept="image/*"
+                                                onChange={e => setData('usage_photo', e.target.files[0])}
+                                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                                            />
+                                            {errors.usage_photo && <p className="text-red-500 text-xs mt-1">{errors.usage_photo}</p>}
+                                        </div>
+                                    </>
+                                )}
+
+                                {usageType === 'pulang' && (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Odo Terakhir (KM)</label>
+                                            <input 
+                                                type="number" 
+                                                value={data.final_odometer}
+                                                onChange={e => setData('final_odometer', e.target.value)}
+                                                className="w-full border-gray-300 focus:border-orange-500 focus:ring-orange-500 rounded-xl shadow-sm"
+                                                required
+                                            />
+                                            {errors.final_odometer && <p className="text-red-500 text-xs mt-1">{errors.final_odometer}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Biaya Bensin (Opsional)</label>
+                                            <NumericFormat
+                                                value={data.gas_expense}
+                                                onValueChange={(values) => setData('gas_expense', values.value)}
+                                                thousandSeparator="."
+                                                decimalSeparator=","
+                                                prefix="Rp "
+                                                className="w-full border-gray-300 focus:border-orange-500 focus:ring-orange-500 rounded-xl shadow-sm"
+                                            />
+                                            {errors.gas_expense && <p className="text-red-500 text-xs mt-1">{errors.gas_expense}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Foto Nota Bensin (Opsional)</label>
+                                            <input 
+                                                type="file" 
+                                                multiple
+                                                accept="image/*"
+                                                onChange={e => setData('receipt_photo', Array.from(e.target.files))}
+                                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                                            />
+                                            {errors.receipt_photo && <p className="text-red-500 text-xs mt-1">{errors.receipt_photo}</p>}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 rounded-b-3xl">
                                 <button 
@@ -643,7 +707,7 @@ export default function Index({ vehicles }) {
                                 <button 
                                     type="submit" 
                                     disabled={processing}
-                                    className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 font-medium transition-colors disabled:opacity-50"
+                                    className={`px-4 py-2 text-white rounded-xl font-medium transition-colors disabled:opacity-50 ${usageType === 'pergi' ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700'}`}
                                 >
                                     {processing ? 'Menyimpan...' : 'Simpan'}
                                 </button>
