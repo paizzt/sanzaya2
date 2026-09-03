@@ -169,17 +169,40 @@ class ReportController extends Controller
 
             $targetBulanan = 0;
             $targetDetail = [];
+            $capaianDetail = [];
             if ($salesFilter) {
                 $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
                 if ($userWithTarget && $userWithTarget->monthly_target) {
                     $targetBulanan = $userWithTarget->monthly_target;
                     $targetDetail[$userWithTarget->name] = 'Rp ' . number_format($targetBulanan, 0, ',', '.');
+                    
+                    $salesKey = $userWithTarget->spreadsheet_sales_name ?: $userWithTarget->name;
+                    $userPenjualan = 0;
+                    foreach ($salesBreakdown as $key => $val) {
+                        if (strcasecmp(trim($key), trim($salesKey)) == 0) {
+                            $userPenjualan = $val;
+                            break;
+                        }
+                    }
+                    $capPercent = ($targetBulanan > 0) ? ($userPenjualan / $targetBulanan) * 100 : 0;
+                    $capaianDetail[$userWithTarget->name] = number_format($capPercent, 1, ',', '.') . '%';
                 }
             } else {
                 $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
                 $targetBulanan = $usersWithTarget->sum('monthly_target');
                 foreach ($usersWithTarget as $u) {
                     $targetDetail[$u->name] = 'Rp ' . number_format($u->monthly_target, 0, ',', '.');
+                    
+                    $salesKey = $u->spreadsheet_sales_name ?: $u->name;
+                    $userPenjualan = 0;
+                    foreach ($salesBreakdown as $key => $val) {
+                        if (strcasecmp(trim($key), trim($salesKey)) == 0) {
+                            $userPenjualan = $val;
+                            break;
+                        }
+                    }
+                    $capPercent = ($u->monthly_target > 0) ? ($userPenjualan / $u->monthly_target) * 100 : 0;
+                    $capaianDetail[$u->name] = number_format($capPercent, 1, ',', '.') . '%';
                 }
             }
 
@@ -187,6 +210,7 @@ class ReportController extends Controller
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
                 'target_detail' => $targetDetail,
+                'capaian_detail' => $capaianDetail,
                 'top_outlet' => key($outletCounts) ?: '-',
                 'top_produk' => key($produkCounts) ?: '-',
                 'total_pesanan' => $logistikAll->count(),
