@@ -40,10 +40,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
         const updated = current.includes(key) 
             ? current.filter(k => k !== key)
             : [...current, key];
-        setData('preferences', { ...data.preferences, dashboard: updated });
-    };
-
-    const bottomNavOptions = [
+    const ALL_MENUS = [
         { key: 'Dashboard', label: 'Dashboard' },
         { key: 'Ambil Absensi', label: 'Ambil Absensi' },
         { key: 'Izin/Sakit', label: 'Izin/Sakit' },
@@ -76,13 +73,6 @@ export default function UpdatePreferencesForm({ className = '' }) {
         { key: 'Profil & Akun', label: 'Profil & Akun' },
     ];
 
-    const dashboardOptions = [
-        { key: 'attendance', label: 'Absen (Hari Ini)' },
-        { key: 'marketing', label: 'Kunjungan Sales' },
-        { key: 'uc', label: 'Pengajuan UC' },
-        { key: 'bhp', label: 'Pengajuan BHP' },
-    ];
-
     return (
         <section className={className}>
             <form onSubmit={submit} className="space-y-6">
@@ -92,9 +82,8 @@ export default function UpdatePreferencesForm({ className = '' }) {
                     </h4>
                     <p className="text-sm text-gray-500 mb-4">Pilih menu apa saja yang ingin ditampilkan sebagai pintasan cepat di bagian bawah layar HP Anda (Maksimal 4 Menu).</p>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {bottomNavOptions.map(opt => {
-                            // Support migrated keys just for the UI state
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-64 overflow-y-auto pr-2 custom-scrollbar">
+                        {ALL_MENUS.map(opt => {
                             const isChecked = data.preferences.bottom_nav.includes(opt.key) || 
                                 (opt.key === 'Dashboard' && data.preferences.bottom_nav.includes('dashboard')) ||
                                 (opt.key === 'Ambil Absensi' && data.preferences.bottom_nav.includes('absensi')) ||
@@ -107,12 +96,11 @@ export default function UpdatePreferencesForm({ className = '' }) {
                                 <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-50' : 'border-gray-200 cursor-pointer hover:bg-gray-50'}`}>
                                     <input 
                                         type="checkbox" 
-                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50"
+                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50 shrink-0"
                                         checked={isChecked}
                                         disabled={isDisabled}
                                         onChange={(e) => {
                                             const current = data.preferences.bottom_nav;
-                                            // Ensure we remove old keys as well if they exist
                                             const currentClean = current.filter(k => !['dashboard', 'absensi', 'marketing', 'izin'].includes(k) || (k === 'dashboard' && opt.key !== 'Dashboard') || (k === 'absensi' && opt.key !== 'Ambil Absensi') || (k === 'marketing' && opt.key !== 'Form Marketing') || (k === 'izin' && opt.key !== 'Izin/Sakit'));
                                             
                                             const updated = e.target.checked 
@@ -121,7 +109,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
                                             setData('preferences', { ...data.preferences, bottom_nav: updated });
                                         }}
                                     />
-                                    <span className="text-sm font-medium text-gray-700">{opt.label}</span>
+                                    <span className="text-sm font-medium text-gray-700 leading-tight">{opt.label}</span>
                                 </label>
                             );
                         })}
@@ -132,20 +120,39 @@ export default function UpdatePreferencesForm({ className = '' }) {
                     <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
                         <LayoutDashboard className="w-5 h-5 text-blue-500" /> Widget Dashboard Beranda
                     </h4>
-                    <p className="text-sm text-gray-500 mb-4">Pilih kotak informasi (widget) yang ingin ditampilkan di bagian atas halaman beranda.</p>
+                    <p className="text-sm text-gray-500 mb-4">Pilih kotak informasi atau pintasan yang ingin ditampilkan di bagian atas halaman beranda (Maksimal 4 Menu).</p>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {dashboardOptions.map(opt => (
-                            <label key={opt.key} className="flex items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                                <input 
-                                    type="checkbox" 
-                                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3"
-                                    checked={data.preferences.dashboard.includes(opt.key)}
-                                    onChange={() => toggleDashboard(opt.key)}
-                                />
-                                <span className="text-sm font-medium text-gray-700">{opt.label}</span>
-                            </label>
-                        ))}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-64 overflow-y-auto pr-2 custom-scrollbar">
+                        {ALL_MENUS.map(opt => {
+                            const isChecked = data.preferences.dashboard.includes(opt.key) || 
+                                (opt.key === 'Ambil Absensi' && data.preferences.dashboard.includes('attendance')) ||
+                                (opt.key === 'Form Marketing' && data.preferences.dashboard.includes('marketing')) ||
+                                (opt.key === 'Form UC' && data.preferences.dashboard.includes('uc')) ||
+                                (opt.key === 'Input BHP' && data.preferences.dashboard.includes('bhp'));
+                            
+                            const isDisabled = !isChecked && (data.preferences.dashboard.length >= 4);
+
+                            return (
+                                <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-50' : 'border-gray-200 cursor-pointer hover:bg-gray-50'}`}>
+                                    <input 
+                                        type="checkbox" 
+                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50 shrink-0"
+                                        checked={isChecked}
+                                        disabled={isDisabled}
+                                        onChange={(e) => {
+                                            const current = data.preferences.dashboard;
+                                            const currentClean = current.filter(k => !['attendance', 'marketing', 'uc', 'bhp'].includes(k) || (k === 'attendance' && opt.key !== 'Ambil Absensi') || (k === 'marketing' && opt.key !== 'Form Marketing') || (k === 'uc' && opt.key !== 'Form UC') || (k === 'bhp' && opt.key !== 'Input BHP'));
+                                            
+                                            const updated = e.target.checked 
+                                                ? [...currentClean, opt.key] 
+                                                : currentClean.filter(k => k !== opt.key);
+                                            setData('preferences', { ...data.preferences, dashboard: updated });
+                                        }}
+                                    />
+                                    <span className="text-sm font-medium text-gray-700 leading-tight">{opt.label}</span>
+                                </label>
+                            );
+                        })}
                     </div>
                 </div>
 

@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, Link } from '@inertiajs/react';
-import { Users, CreditCard, Building, FileText, ClipboardList, Package, Archive, Sparkles, X } from 'lucide-react';
+import { Users, CreditCard, Building, FileText, ClipboardList, Package, Archive, Sparkles, X, LayoutDashboard, Camera, Briefcase, Search, FileSignature, CheckCircle, FileSpreadsheet, Box, Map, Truck, ShieldCheck, FileClock, Bell, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 
@@ -10,13 +10,13 @@ const StatCard = ({ title, value, icon: Icon, color, delay, onClick }) => {
             onClick={onClick}
             className={`bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center gap-4 transition-all duration-300 ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-gray-200' : ''}`}
         >
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${color}-50 text-${color}-500 shadow-inner`}>
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${color}-50 text-${color}-500 shadow-inner flex-shrink-0`}>
                 <Icon className="w-6 h-6" />
             </div>
             
-            <div>
-                <p className="text-sm font-semibold text-gray-500">{title}</p>
-                <h3 className="text-2xl font-black text-gray-800">{value}</h3>
+            <div className="overflow-hidden">
+                <p className="text-sm font-semibold text-gray-500 truncate">{title}</p>
+                <h3 className={`font-black text-gray-800 truncate ${typeof value === 'string' && value.length > 8 ? 'text-xl' : 'text-2xl'}`}>{value}</h3>
             </div>
         </div>
     );
@@ -33,6 +33,51 @@ export default function Dashboard({ auth, stats, isAdmin }) {
         return () => clearInterval(interval);
     }, []);
 
+    const getWidgetConfig = (key) => {
+        const configs = {
+            'attendance': { title: 'Absen (Hari Ini)', value: stats.attendance_today, icon: Users, color: 'blue', action: () => setActiveModal('attendance') },
+            'marketing': { title: 'Kunjungan Sales', value: stats.marketing_visits_today, icon: Building, color: 'blue', action: () => setActiveModal('marketing') },
+            'uc': { title: 'Pengajuan UC (Pending)', value: stats.uc_pending, icon: CreditCard, color: 'emerald', action: () => setActiveModal('uc') },
+            'bhp': { title: 'Pengajuan BHP (Pending)', value: stats.bhp_pending, icon: ClipboardList, color: 'orange', action: () => setActiveModal('bhp') },
+            
+            // Map the menu names to shortcut widgets
+            'Dashboard': { title: 'Pintasan Menu', value: 'Dashboard', icon: LayoutDashboard, color: 'gray', action: () => router.visit(route('dashboard')) },
+            'Ambil Absensi': { title: 'Pintasan Menu', value: 'Ambil Absen', icon: Camera, color: 'blue', action: () => router.visit(route('absensi.index')) },
+            'Izin/Sakit': { title: 'Pintasan Menu', value: 'Izin/Sakit', icon: FileText, color: 'rose', action: () => router.visit(route('absensi.pengajuan')) },
+            'Form Marketing': { title: 'Pintasan Menu', value: 'Form Sales', icon: Briefcase, color: 'blue', action: () => router.visit(route('marketing.index')) },
+            'Rekap Marketing': { title: 'Pintasan Menu', value: 'Rekap Sales', icon: FileSpreadsheet, color: 'indigo', action: () => router.visit(route('marketing.recap.index')) },
+            'Cari Produk': { title: 'Pintasan Menu', value: 'Cari Produk', icon: Search, color: 'teal', action: () => router.visit(route('marketing.products.index')) },
+            'Form UC': { title: 'Pintasan Menu', value: 'Form UC', icon: CreditCard, color: 'emerald', action: () => router.visit(route('requests.uc.index')) },
+            'Riwayat UC': { title: 'Pintasan Menu', value: 'Riwayat UC', icon: FileClock, color: 'emerald', action: () => router.visit(route('requests.uc.history')) },
+            'Persetujuan UC': { title: 'Pintasan Menu', value: 'Persetujuan UC', icon: CheckCircle, color: 'emerald', action: () => router.visit(route('requests.uc.approval.index')) },
+            'Input BHP': { title: 'Pintasan Menu', value: 'Input BHP', icon: ClipboardList, color: 'orange', action: () => router.visit(route('requests.bhp.index')) },
+            'Rekap BHP': { title: 'Pintasan Menu', value: 'Rekap BHP', icon: FileSpreadsheet, color: 'orange', action: () => router.visit(route('requests.bhp.recap.index')) },
+            'Pengajuan Pembayaran': { title: 'Pintasan Menu', value: 'Buat Tagihan', icon: FileSignature, color: 'red', action: () => router.visit(route('payment-requests.index')) },
+            'Data Hutang': { title: 'Pintasan Menu', value: 'Data Hutang', icon: FileText, color: 'red', action: () => router.visit(route('payables.index')) },
+            'Data Piutang': { title: 'Pintasan Menu', value: 'Data Piutang', icon: FileText, color: 'cyan', action: () => router.visit(route('receivables.index')) },
+            'Persetujuan Pembayaran': { title: 'Pintasan Menu', value: 'Persetujuan Tagihan', icon: CheckCircle, color: 'red', action: () => router.visit(route('payment-approvals.index')) },
+            'Laporan Logistik': { title: 'Pintasan Menu', value: 'Lap Logistik', icon: Archive, color: 'yellow', action: () => router.visit(route('logistic-reports.index')) },
+            'Surat Pesanan': { title: 'Pintasan Menu', value: 'Surat Pesanan', icon: FileText, color: 'lime', action: () => router.visit(route('purchase-orders.index')) },
+            'Data Penyedia': { title: 'Pintasan Menu', value: 'Data Penyedia', icon: Building, color: 'sky', action: () => router.visit(route('providers.index')) },
+            'Data Produk': { title: 'Pintasan Menu', value: 'Data Produk', icon: Package, color: 'teal', action: () => router.visit(route('products.index')) },
+            'Kebutuhan Barang': { title: 'Pintasan Menu', value: 'Kebutuhan Brg', icon: Box, color: 'amber', action: () => router.visit(route('item-requirements.index')) },
+            'Data Outlet': { title: 'Pintasan Menu', value: 'Data Outlet', icon: Building, color: 'indigo', action: () => router.visit(route('outlets.index')) },
+            'Pemetaan Outlet': { title: 'Pintasan Menu', value: 'Pemetaan', icon: Map, color: 'indigo', action: () => router.visit(route('outlet-mappings.index')) },
+            'Data Armada': { title: 'Pintasan Menu', value: 'Data Armada', icon: Truck, color: 'slate', action: () => router.visit(route('vehicles.index')) },
+            'Data Perusahaan': { title: 'Pintasan Menu', value: 'Perusahaan', icon: Building, color: 'fuchsia', action: () => router.visit(route('company.index')) },
+            'Data Pengguna': { title: 'Pintasan Menu', value: 'Pengguna', icon: Users, color: 'blue', action: () => router.visit(route('users.index')) },
+            'Manajemen SOP': { title: 'Pintasan Menu', value: 'SOP', icon: ShieldCheck, color: 'indigo', action: () => router.visit(route('sops.index')) },
+            'Rekap Absensi': { title: 'Pintasan Menu', value: 'Rekap Absensi', icon: FileSpreadsheet, color: 'blue', action: () => router.visit(route('absensi.rekap')) },
+            'Riwayat Perubahan': { title: 'Pintasan Menu', value: 'Riwayat Log', icon: FileClock, color: 'gray', action: () => router.visit(route('system.activity-logs')) },
+            'Notifikasi': { title: 'Pintasan Menu', value: 'Notifikasi', icon: Bell, color: 'indigo', action: () => router.visit(route('notifications.index')) },
+            'Profil & Akun': { title: 'Pintasan Menu', value: 'Profil Akun', icon: User, color: 'gray', action: () => router.visit(route('profile.edit')) },
+        };
+        
+        return configs[key];
+    };
+
+    const dashboardPrefs = auth.user?.preferences?.dashboard || ['attendance', 'marketing', 'uc', 'bhp'];
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -48,18 +93,20 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                 
                 {/* Main Metrics (Today/Pending) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {(!auth.user?.preferences?.dashboard || auth.user.preferences.dashboard.includes('attendance')) && (
-                        <StatCard title="Absen (Hari Ini)" value={stats.attendance_today} icon={Users} color="blue" onClick={() => setActiveModal('attendance')} />
-                    )}
-                    {(!auth.user?.preferences?.dashboard || auth.user.preferences.dashboard.includes('marketing')) && (
-                        <StatCard title="Kunjungan Sales" value={stats.marketing_visits_today} icon={Building} color="purple" onClick={() => setActiveModal('marketing')} />
-                    )}
-                    {(!auth.user?.preferences?.dashboard || auth.user.preferences.dashboard.includes('uc')) && (
-                        <StatCard title="Pengajuan UC (Pending)" value={stats.uc_pending} icon={CreditCard} color="emerald" onClick={() => setActiveModal('uc')} />
-                    )}
-                    {(!auth.user?.preferences?.dashboard || auth.user.preferences.dashboard.includes('bhp')) && (
-                        <StatCard title="Pengajuan BHP (Pending)" value={stats.bhp_pending} icon={ClipboardList} color="orange" onClick={() => setActiveModal('bhp')} />
-                    )}
+                    {dashboardPrefs.slice(0, 4).map((prefKey, idx) => {
+                        const config = getWidgetConfig(prefKey);
+                        if (!config) return null;
+                        return (
+                            <StatCard 
+                                key={idx}
+                                title={config.title} 
+                                value={config.value} 
+                                icon={config.icon} 
+                                color={config.color} 
+                                onClick={config.action} 
+                            />
+                        );
+                    })}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -662,27 +662,67 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     </div>
                                                     <div>
                                                         <InputLabel value="Widget Dashboard" />
-                                                        <div className="mt-2 space-y-2">
+                                                        <div className="mt-2 space-y-2 h-64 overflow-y-auto pr-2 border p-3 rounded-xl bg-gray-50/50">
                                                             {[
-                                                                { key: 'attendance', label: 'Absen (Hari Ini)' },
-                                                                { key: 'marketing', label: 'Kunjungan Sales' },
-                                                                { key: 'uc', label: 'Pengajuan UC' },
-                                                                { key: 'bhp', label: 'Pengajuan BHP' },
-                                                            ].map(opt => (
-                                                                <label key={opt.key} className="flex items-center">
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        className="rounded border-gray-300 text-blue-600 shadow-sm mr-2"
-                                                                        checked={data.preferences?.dashboard?.includes(opt.key)}
-                                                                        onChange={(e) => {
-                                                                            const current = data.preferences?.dashboard || [];
-                                                                            const updated = e.target.checked ? [...current, opt.key] : current.filter(k => k !== opt.key);
-                                                                            setData('preferences', { ...data.preferences, dashboard: updated });
-                                                                        }}
-                                                                    />
-                                                                    <span className="text-sm text-gray-700">{opt.label}</span>
-                                                                </label>
-                                                            ))}
+                                                                { key: 'Dashboard', label: 'Dashboard' },
+                                                                { key: 'Ambil Absensi', label: 'Ambil Absensi' },
+                                                                { key: 'Izin/Sakit', label: 'Izin/Sakit' },
+                                                                { key: 'Form Marketing', label: 'Form Marketing' },
+                                                                { key: 'Rekap Marketing', label: 'Rekap Marketing' },
+                                                                { key: 'Cari Produk', label: 'Cari Produk' },
+                                                                { key: 'Form UC', label: 'Form UC' },
+                                                                { key: 'Riwayat UC', label: 'Riwayat UC' },
+                                                                { key: 'Persetujuan UC', label: 'Persetujuan UC' },
+                                                                { key: 'Input BHP', label: 'Input BHP' },
+                                                                { key: 'Rekap BHP', label: 'Rekap BHP' },
+                                                                { key: 'Pengajuan Pembayaran', label: 'Pengajuan Pembayaran' },
+                                                                { key: 'Data Hutang', label: 'Data Hutang' },
+                                                                { key: 'Data Piutang', label: 'Data Piutang' },
+                                                                { key: 'Persetujuan Pembayaran', label: 'Persetujuan Pembayaran' },
+                                                                { key: 'Laporan Logistik', label: 'Laporan Logistik' },
+                                                                { key: 'Surat Pesanan', label: 'Surat Pesanan' },
+                                                                { key: 'Data Penyedia', label: 'Data Penyedia' },
+                                                                { key: 'Data Produk', label: 'Data Produk' },
+                                                                { key: 'Kebutuhan Barang', label: 'Kebutuhan Barang' },
+                                                                { key: 'Data Outlet', label: 'Data Outlet' },
+                                                                { key: 'Pemetaan Outlet', label: 'Pemetaan Outlet' },
+                                                                { key: 'Data Armada', label: 'Data Armada' },
+                                                                { key: 'Data Perusahaan', label: 'Data Perusahaan' },
+                                                                { key: 'Data Pengguna', label: 'Data Pengguna' },
+                                                                { key: 'Manajemen SOP', label: 'Manajemen SOP' },
+                                                                { key: 'Rekap Absensi', label: 'Rekap Absensi' },
+                                                                { key: 'Riwayat Perubahan', label: 'Riwayat Perubahan' },
+                                                                { key: 'Notifikasi', label: 'Notifikasi' },
+                                                                { key: 'Profil & Akun', label: 'Profil & Akun' },
+                                                            ].map(opt => {
+                                                                const isChecked = data.preferences?.dashboard?.includes(opt.key) || 
+                                                                    (opt.key === 'Ambil Absensi' && data.preferences?.dashboard?.includes('attendance')) ||
+                                                                    (opt.key === 'Form Marketing' && data.preferences?.dashboard?.includes('marketing')) ||
+                                                                    (opt.key === 'Form UC' && data.preferences?.dashboard?.includes('uc')) ||
+                                                                    (opt.key === 'Input BHP' && data.preferences?.dashboard?.includes('bhp'));
+                                                                
+                                                                const currentCount = data.preferences?.dashboard?.length || 0;
+                                                                const isDisabled = !isChecked && (currentCount >= 4);
+
+                                                                return (
+                                                                    <label key={opt.key} className={`flex items-center ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                                                                        <input 
+                                                                            type="checkbox" 
+                                                                            className="rounded border-gray-300 text-blue-600 shadow-sm mr-2 disabled:opacity-50"
+                                                                            checked={isChecked}
+                                                                            disabled={isDisabled}
+                                                                            onChange={(e) => {
+                                                                                const current = data.preferences?.dashboard || [];
+                                                                                const currentClean = current.filter(k => !['attendance', 'marketing', 'uc', 'bhp'].includes(k) || (k === 'attendance' && opt.key !== 'Ambil Absensi') || (k === 'marketing' && opt.key !== 'Form Marketing') || (k === 'uc' && opt.key !== 'Form UC') || (k === 'bhp' && opt.key !== 'Input BHP'));
+                                                                                
+                                                                                const updated = e.target.checked ? [...currentClean, opt.key] : currentClean.filter(k => k !== opt.key);
+                                                                                setData('preferences', { ...data.preferences, dashboard: updated });
+                                                                            }}
+                                                                        />
+                                                                        <span className="text-sm text-gray-700">{opt.label}</span>
+                                                                    </label>
+                                                                );
+                                                            })}
                                                         </div>
                                                     </div>
                                                 </div>
