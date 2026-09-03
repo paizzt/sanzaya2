@@ -32,6 +32,7 @@ class User extends Authenticatable
             'start_date' => 'date',
             'is_active' => 'boolean',
             'require_password_change' => 'boolean',
+            'preferences' => 'array',
         ];
     }
 

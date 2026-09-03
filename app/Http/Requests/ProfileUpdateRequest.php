@@ -26,6 +26,9 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'preferences' => ['nullable', 'array'],
+            'preferences.bottom_nav' => ['nullable', 'array'],
+            'preferences.dashboard' => ['nullable', 'array'],
         ];
     }
 }

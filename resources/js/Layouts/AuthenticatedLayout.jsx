@@ -503,11 +503,15 @@ export default function Authenticated({ user, header, children }) {
             {/* Bottom Navigation for Mobile */}
             <div className="lg:hidden fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe z-50 flex justify-around p-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 {[
-                    { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, active: url === '/dashboard', show: auth.active_feature_names?.includes('Dashboard') },
-                    { name: 'Absensi', href: route('absensi.index'), icon: Camera, active: url === '/absensi', show: auth.active_feature_names?.includes('Ambil Absensi') },
-                    { name: 'Marketing', href: route('marketing.index'), icon: Briefcase, active: url.startsWith('/marketing'), show: auth.active_feature_names?.includes('Form Marketing') },
-                    { name: 'Izin/Sakit', href: route('absensi.pengajuan'), icon: FileText, active: url.startsWith('/absensi/pengajuan'), show: auth.active_feature_names?.includes('Izin / Sakit') },
-                ].filter(item => item.show).map((item) => (
+                    { id: 'dashboard', name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, active: url === '/dashboard', show: auth.active_feature_names?.includes('Dashboard') },
+                    { id: 'absensi', name: 'Absensi', href: route('absensi.index'), icon: Camera, active: url === '/absensi', show: auth.active_feature_names?.includes('Ambil Absensi') },
+                    { id: 'marketing', name: 'Marketing', href: route('marketing.index'), icon: Briefcase, active: url.startsWith('/marketing'), show: auth.active_feature_names?.includes('Form Marketing') },
+                    { id: 'izin', name: 'Izin/Sakit', href: route('absensi.pengajuan'), icon: FileText, active: url.startsWith('/absensi/pengajuan'), show: auth.active_feature_names?.includes('Izin / Sakit') },
+                ].filter(item => {
+                    const defaultPrefs = ['dashboard', 'absensi', 'marketing', 'izin'];
+                    const prefs = auth.user?.preferences?.bottom_nav || defaultPrefs;
+                    return item.show && prefs.includes(item.id);
+                }).map((item) => (
                     <Link key={item.name} href={item.href} className={`flex flex-col items-center p-2 rounded-xl ${item.active ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}>
                         <item.icon className={`w-6 h-6 mb-1 ${item.active ? 'animate-bounce' : ''}`} />
                         <span className="text-[10px] font-medium">{item.name}</span>

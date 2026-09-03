@@ -4,7 +4,8 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import DownloadBarcodeForm from './Partials/DownloadBarcodeForm';
-import { User, Lock, UserMinus, QrCode } from 'lucide-react';
+import UpdatePreferencesForm from './Partials/UpdatePreferencesForm';
+import { User, Lock, UserMinus, QrCode, Sliders } from 'lucide-react';
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
     return (
@@ -50,6 +51,23 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             </div>
                         </div>
                         <DownloadBarcodeForm user={auth.user} />
+                    </div>
+                </div>
+
+                {/* Preferences Section */}
+                <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                    <div className="p-6 md:p-8">
+                        <div className="flex items-center gap-3 mb-6 border-b border-gray-50 pb-4">
+                            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                <Sliders className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-800">Preferensi Tampilan</h3>
+                                <p className="text-sm text-gray-500">Atur widget dan pintasan yang muncul di Beranda dan Navigasi Bawah.</p>
+                            </div>
+                        </div>
+                        <UpdatePreferencesForm />
                     </div>
                 </div>
 
