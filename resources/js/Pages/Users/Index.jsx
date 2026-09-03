@@ -597,27 +597,67 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     <div>
                                                         <InputLabel value="Navigasi Bawah (Mobile)" />
-                                                        <div className="mt-2 space-y-2">
+                                                        <div className="mt-2 space-y-2 h-64 overflow-y-auto pr-2 border p-3 rounded-xl bg-gray-50/50">
                                                             {[
-                                                                { key: 'dashboard', label: 'Dashboard' },
-                                                                { key: 'absensi', label: 'Absensi' },
-                                                                { key: 'marketing', label: 'Marketing' },
-                                                                { key: 'izin', label: 'Izin/Sakit' },
-                                                            ].map(opt => (
-                                                                <label key={opt.key} className="flex items-center">
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        className="rounded border-gray-300 text-blue-600 shadow-sm mr-2"
-                                                                        checked={data.preferences?.bottom_nav?.includes(opt.key)}
-                                                                        onChange={(e) => {
-                                                                            const current = data.preferences?.bottom_nav || [];
-                                                                            const updated = e.target.checked ? [...current, opt.key] : current.filter(k => k !== opt.key);
-                                                                            setData('preferences', { ...data.preferences, bottom_nav: updated });
-                                                                        }}
-                                                                    />
-                                                                    <span className="text-sm text-gray-700">{opt.label}</span>
-                                                                </label>
-                                                            ))}
+                                                                { key: 'Dashboard', label: 'Dashboard' },
+                                                                { key: 'Ambil Absensi', label: 'Ambil Absensi' },
+                                                                { key: 'Izin/Sakit', label: 'Izin/Sakit' },
+                                                                { key: 'Form Marketing', label: 'Form Marketing' },
+                                                                { key: 'Rekap Marketing', label: 'Rekap Marketing' },
+                                                                { key: 'Cari Produk', label: 'Cari Produk' },
+                                                                { key: 'Form UC', label: 'Form UC' },
+                                                                { key: 'Riwayat UC', label: 'Riwayat UC' },
+                                                                { key: 'Persetujuan UC', label: 'Persetujuan UC' },
+                                                                { key: 'Input BHP', label: 'Input BHP' },
+                                                                { key: 'Rekap BHP', label: 'Rekap BHP' },
+                                                                { key: 'Pengajuan Pembayaran', label: 'Pengajuan Pembayaran' },
+                                                                { key: 'Data Hutang', label: 'Data Hutang' },
+                                                                { key: 'Data Piutang', label: 'Data Piutang' },
+                                                                { key: 'Persetujuan Pembayaran', label: 'Persetujuan Pembayaran' },
+                                                                { key: 'Laporan Logistik', label: 'Laporan Logistik' },
+                                                                { key: 'Surat Pesanan', label: 'Surat Pesanan' },
+                                                                { key: 'Data Penyedia', label: 'Data Penyedia' },
+                                                                { key: 'Data Produk', label: 'Data Produk' },
+                                                                { key: 'Kebutuhan Barang', label: 'Kebutuhan Barang' },
+                                                                { key: 'Data Outlet', label: 'Data Outlet' },
+                                                                { key: 'Pemetaan Outlet', label: 'Pemetaan Outlet' },
+                                                                { key: 'Data Armada', label: 'Data Armada' },
+                                                                { key: 'Data Perusahaan', label: 'Data Perusahaan' },
+                                                                { key: 'Data Pengguna', label: 'Data Pengguna' },
+                                                                { key: 'Manajemen SOP', label: 'Manajemen SOP' },
+                                                                { key: 'Rekap Absensi', label: 'Rekap Absensi' },
+                                                                { key: 'Riwayat Perubahan', label: 'Riwayat Perubahan' },
+                                                                { key: 'Notifikasi', label: 'Notifikasi' },
+                                                                { key: 'Profil & Akun', label: 'Profil & Akun' },
+                                                            ].map(opt => {
+                                                                const isChecked = data.preferences?.bottom_nav?.includes(opt.key) || 
+                                                                    (opt.key === 'Dashboard' && data.preferences?.bottom_nav?.includes('dashboard')) ||
+                                                                    (opt.key === 'Ambil Absensi' && data.preferences?.bottom_nav?.includes('absensi')) ||
+                                                                    (opt.key === 'Form Marketing' && data.preferences?.bottom_nav?.includes('marketing')) ||
+                                                                    (opt.key === 'Izin/Sakit' && data.preferences?.bottom_nav?.includes('izin'));
+                                                                
+                                                                const currentCount = data.preferences?.bottom_nav?.length || 0;
+                                                                const isDisabled = !isChecked && (currentCount >= 4);
+
+                                                                return (
+                                                                    <label key={opt.key} className={`flex items-center ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                                                                        <input 
+                                                                            type="checkbox" 
+                                                                            className="rounded border-gray-300 text-blue-600 shadow-sm mr-2 disabled:opacity-50"
+                                                                            checked={isChecked}
+                                                                            disabled={isDisabled}
+                                                                            onChange={(e) => {
+                                                                                const current = data.preferences?.bottom_nav || [];
+                                                                                const currentClean = current.filter(k => !['dashboard', 'absensi', 'marketing', 'izin'].includes(k) || (k === 'dashboard' && opt.key !== 'Dashboard') || (k === 'absensi' && opt.key !== 'Ambil Absensi') || (k === 'marketing' && opt.key !== 'Form Marketing') || (k === 'izin' && opt.key !== 'Izin/Sakit'));
+                                                                                
+                                                                                const updated = e.target.checked ? [...currentClean, opt.key] : currentClean.filter(k => k !== opt.key);
+                                                                                setData('preferences', { ...data.preferences, bottom_nav: updated });
+                                                                            }}
+                                                                        />
+                                                                        <span className="text-sm text-gray-700">{opt.label}</span>
+                                                                    </label>
+                                                                );
+                                                            })}
                                                         </div>
                                                     </div>
                                                     <div>

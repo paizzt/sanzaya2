@@ -502,21 +502,52 @@ export default function Authenticated({ user, header, children }) {
             
             {/* Bottom Navigation for Mobile */}
             <div className="lg:hidden fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe z-50 flex justify-around p-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-                {[
-                    { id: 'dashboard', name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard, active: url === '/dashboard', show: auth.active_feature_names?.includes('Dashboard') },
-                    { id: 'absensi', name: 'Absensi', href: route('absensi.index'), icon: Camera, active: url === '/absensi', show: auth.active_feature_names?.includes('Ambil Absensi') },
-                    { id: 'marketing', name: 'Marketing', href: route('marketing.index'), icon: Briefcase, active: url.startsWith('/marketing'), show: auth.active_feature_names?.includes('Form Marketing') },
-                    { id: 'izin', name: 'Izin/Sakit', href: route('absensi.pengajuan'), icon: FileText, active: url.startsWith('/absensi/pengajuan'), show: auth.active_feature_names?.includes('Izin / Sakit') },
-                ].filter(item => {
-                    const defaultPrefs = ['dashboard', 'absensi', 'marketing', 'izin'];
-                    const prefs = auth.user?.preferences?.bottom_nav || defaultPrefs;
-                    return item.show && prefs.includes(item.id);
-                }).map((item) => (
-                    <Link key={item.name} href={item.href} className={`flex flex-col items-center p-2 rounded-xl ${item.active ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}>
-                        <item.icon className={`w-6 h-6 mb-1 ${item.active ? 'animate-bounce' : ''}`} />
-                        <span className="text-[10px] font-medium">{item.name}</span>
-                    </Link>
-                ))}
+                {(() => {
+                    const allItems = [];
+                    baseNavItems.forEach(parent => {
+                        if (parent.children) {
+                            parent.children.forEach(child => {
+                                allItems.push({
+                                    id: child.name, // Using name as ID
+                                    name: child.name,
+                                    href: child.href,
+                                    icon: child.icon || parent.icon, // Fallback to parent icon if child has none
+                                    active: child.active,
+                                    show: child.show
+                                });
+                            });
+                        } else {
+                            allItems.push({
+                                id: parent.name,
+                                name: parent.name,
+                                href: parent.href,
+                                icon: parent.icon,
+                                active: parent.active,
+                                show: parent.show
+                            });
+                        }
+                    });
+                    
+                    const defaultPrefs = ['Dashboard', 'Ambil Absensi', 'Form Marketing', 'Izin/Sakit'];
+                    let prefs = auth.user?.preferences?.bottom_nav || defaultPrefs;
+                    // Migrate old keys if they were saved previously
+                    const keyMap = {
+                        'dashboard': 'Dashboard',
+                        'absensi': 'Ambil Absensi',
+                        'marketing': 'Form Marketing',
+                        'izin': 'Izin/Sakit'
+                    };
+                    prefs = prefs.map(p => keyMap[p] || p);
+                    
+                    return allItems.filter(item => {
+                        return item.show && prefs.includes(item.id);
+                    }).slice(0, 4).map((item) => (
+                        <Link key={item.name} href={item.href} className={`flex flex-col items-center p-2 rounded-xl ${item.active ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'} w-1/4`}>
+                            <item.icon className={`w-6 h-6 mb-1 flex-shrink-0 ${item.active ? 'animate-bounce' : ''}`} />
+                            <span className="text-[10px] font-medium text-center leading-tight line-clamp-1">{item.name}</span>
+                        </Link>
+                    ));
+                })()}
             </div>
         </div>
     );
