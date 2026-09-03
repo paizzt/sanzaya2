@@ -88,7 +88,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
             <form onSubmit={submit} className="space-y-6">
                 <div>
                     <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-                        <PanelBottom className="w-5 h-5 text-indigo-500" /> Pintasan Navigasi Bawah (Mobile)
+                        <PanelBottom className="w-5 h-5 text-blue-500" /> Pintasan Navigasi Bawah (Mobile)
                     </h4>
                     <p className="text-sm text-gray-500 mb-4">Pilih menu apa saja yang ingin ditampilkan sebagai pintasan cepat di bagian bawah layar HP Anda (Maksimal 4 Menu).</p>
                     
@@ -130,7 +130,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
 
                 <div className="pt-4 border-t border-gray-100">
                     <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-                        <LayoutDashboard className="w-5 h-5 text-indigo-500" /> Widget Dashboard Beranda
+                        <LayoutDashboard className="w-5 h-5 text-blue-500" /> Widget Dashboard Beranda
                     </h4>
                     <p className="text-sm text-gray-500 mb-4">Pilih kotak informasi (widget) yang ingin ditampilkan di bagian atas halaman beranda.</p>
                     
