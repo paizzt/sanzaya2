@@ -142,7 +142,17 @@ class ReportController extends Controller
                 $totalPenjualan += $val;
                 if ($row->pelanggan) $outletCounts[$row->pelanggan] = ($outletCounts[$row->pelanggan] ?? 0) + 1;
                 if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
-                $namaSales = trim($row->nama_sales) ?: 'Kantor';
+                $ptNameForSales = trim($row->nama_pt);
+                $namaSales = trim($row->nama_sales);
+                if (!$namaSales) {
+                    if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
+                        $namaSales = 'Kantor MSI';
+                    } elseif (stripos($ptNameForSales, 'SANZAYA') !== false) {
+                        $namaSales = 'Kantor Sanzaya';
+                    } else {
+                        $namaSales = 'Kantor ' . ($ptNameForSales ?: 'Pusat');
+                    }
+                }
                 $salesBreakdown[$namaSales] = ($salesBreakdown[$namaSales] ?? 0) + $val;
                 $pesananSales[$namaSales] = ($pesananSales[$namaSales] ?? 0) + 1;
                 if ($row->nama_pt) {
@@ -479,7 +489,17 @@ class ReportController extends Controller
             $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
             $totalPenjualan += $val;
             
-            $salesName = trim($row->nama_sales) ?: 'Kantor';
+            $ptNameForSales = trim($row->nama_pt);
+            $salesName = trim($row->nama_sales);
+            if (!$salesName) {
+                if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
+                    $salesName = 'Kantor MSI';
+                } elseif (stripos($ptNameForSales, 'SANZAYA') !== false) {
+                    $salesName = 'Kantor Sanzaya';
+                } else {
+                    $salesName = 'Kantor ' . ($ptNameForSales ?: 'Pusat');
+                }
+            }
             $salesPenjualan[$salesName] = ($salesPenjualan[$salesName] ?? 0) + $val;
 
             $outletName = $row->pelanggan ?? '-';
