@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('vehicle_usages', function (Blueprint $table) {
-            $table->integer('last_odometer')->nullable()->after('vehicle_id');
+            if (!Schema::hasColumn('vehicle_usages', 'last_odometer')) {
+                $table->integer('last_odometer')->nullable()->after('vehicle_id');
+            }
         });
     }
 
