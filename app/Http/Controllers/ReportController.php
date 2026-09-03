@@ -142,10 +142,9 @@ class ReportController extends Controller
                 $totalPenjualan += $val;
                 if ($row->pelanggan) $outletCounts[$row->pelanggan] = ($outletCounts[$row->pelanggan] ?? 0) + 1;
                 if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
-                if ($row->nama_sales) {
-                    $salesBreakdown[$row->nama_sales] = ($salesBreakdown[$row->nama_sales] ?? 0) + $val;
-                    $pesananSales[$row->nama_sales] = ($pesananSales[$row->nama_sales] ?? 0) + 1;
-                }
+                $namaSales = trim($row->nama_sales) ?: 'Kantor';
+                $salesBreakdown[$namaSales] = ($salesBreakdown[$namaSales] ?? 0) + $val;
+                $pesananSales[$namaSales] = ($pesananSales[$namaSales] ?? 0) + 1;
                 if ($row->nama_pt) {
                     $ptBreakdown[$row->nama_pt] = ($ptBreakdown[$row->nama_pt] ?? 0) + $val;
                 }
@@ -480,7 +479,7 @@ class ReportController extends Controller
             $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
             $totalPenjualan += $val;
             
-            $salesName = $row->nama_sales ?? '-';
+            $salesName = trim($row->nama_sales) ?: 'Kantor';
             $salesPenjualan[$salesName] = ($salesPenjualan[$salesName] ?? 0) + $val;
 
             $outletName = $row->pelanggan ?? '-';
