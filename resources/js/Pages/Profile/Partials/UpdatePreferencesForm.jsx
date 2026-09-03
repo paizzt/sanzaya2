@@ -27,19 +27,6 @@ export default function UpdatePreferencesForm({ className = '' }) {
         });
     };
 
-    const toggleBottomNav = (key) => {
-        const current = data.preferences.bottom_nav;
-        const updated = current.includes(key) 
-            ? current.filter(k => k !== key)
-            : [...current, key];
-        setData('preferences', { ...data.preferences, bottom_nav: updated });
-    };
-
-    const toggleDashboard = (key) => {
-        const current = data.preferences.dashboard;
-        const updated = current.includes(key) 
-            ? current.filter(k => k !== key)
-            : [...current, key];
     const ALL_MENUS = [
         { key: 'Dashboard', label: 'Dashboard' },
         { key: 'Ambil Absensi', label: 'Ambil Absensi' },
