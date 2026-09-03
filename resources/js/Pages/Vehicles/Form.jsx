@@ -320,7 +320,7 @@ export default function Form({ vehicle }) {
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="last_odometer" value="Kilometer Terakhir (Odometer)" />
+                                <InputLabel htmlFor="last_odometer" value="Odo Pertama" />
                                 <div className="flex items-center mt-1">
                                     <TextInput
                                         id="last_odometer"
@@ -336,7 +336,7 @@ export default function Form({ vehicle }) {
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="current_odometer" value="Odometer Sekarang" />
+                                <InputLabel htmlFor="current_odometer" value="Odo Terakhir" />
                                 <div className="flex items-center mt-1">
                                     <TextInput
                                         id="current_odometer"

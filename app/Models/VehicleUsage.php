@@ -13,6 +13,7 @@ class VehicleUsage extends Model
     protected $fillable = [
         'vehicle_id',
         'user_id',
+        'last_odometer',
         'destination',
         'usage_photo',
         'receipt_photo',

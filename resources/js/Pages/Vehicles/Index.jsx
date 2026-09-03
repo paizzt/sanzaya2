@@ -20,7 +20,8 @@ export default function Index({ vehicles }) {
         gas_expense: '',
         usage_photo: null,
         receipt_photo: [],
-        vehicle_id: null
+        vehicle_id: null,
+        last_odometer: ''
     });
 
     const handleUsageSubmit = (e) => {
@@ -83,6 +84,19 @@ export default function Index({ vehicles }) {
             return <span className="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full border border-orange-200 w-max flex items-center gap-1 font-medium"><AlertTriangle className="w-3 h-3" /> {label} H-30</span>;
         }
         return <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-200 w-max font-medium">{label} Aman</span>;
+    };
+
+    const OdoServiceBadge = ({ initialOdo, currentOdo }) => {
+        if (initialOdo == null || currentOdo == null) return null;
+        const diff = currentOdo - initialOdo;
+        
+        if (diff >= 10000) {
+            return <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200 w-max flex items-center gap-1 font-medium"><AlertTriangle className="w-3 h-3" /> Service Segera</span>;
+        }
+        if (diff >= 8000) {
+            return <span className="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full border border-yellow-200 w-max flex items-center gap-1 font-medium"><AlertTriangle className="w-3 h-3" /> Mendekati Service</span>;
+        }
+        return <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-200 w-max font-medium">Aman</span>;
     };
 
     return (
@@ -174,9 +188,12 @@ export default function Index({ vehicles }) {
                                                     <Calendar className="w-3.5 h-3.5" /> 
                                                     Service: {vehicle.scheduled_service_date ? dayjs(vehicle.scheduled_service_date).format('DD MMM YYYY') : '-'}
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-gray-600">
-                                                    <FileText className="w-3.5 h-3.5" /> 
-                                                    Odo: {vehicle.last_odometer ? `${vehicle.last_odometer.toLocaleString('id-ID')} km` : '-'}
+                                                <div className="flex flex-col gap-1 text-gray-600 mt-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <FileText className="w-3.5 h-3.5" /> 
+                                                        Odo: {vehicle.current_odometer ? `${vehicle.current_odometer.toLocaleString('id-ID')} km` : '-'}
+                                                    </div>
+                                                    <OdoServiceBadge initialOdo={vehicle.last_odometer} currentOdo={vehicle.current_odometer} />
                                                 </div>
                                             </div>
                                         </td>
@@ -366,16 +383,19 @@ export default function Index({ vehicles }) {
                                                 </p>
                                             </div>
                                             <div className="col-span-1">
-                                                <p className="text-xs text-gray-500 font-medium">Odometer Terakhir</p>
+                                                <p className="text-xs text-gray-500 font-medium">Odo Pertama</p>
                                                 <p className="font-semibold text-gray-800">
                                                     {selectedVehicle.last_odometer ? `${selectedVehicle.last_odometer.toLocaleString('id-ID')} KM` : '-'}
                                                 </p>
                                             </div>
                                             <div className="col-span-1">
-                                                <p className="text-xs text-gray-500 font-medium">Odometer Sekarang</p>
-                                                <p className="font-semibold text-gray-800">
-                                                    {selectedVehicle.current_odometer ? `${selectedVehicle.current_odometer.toLocaleString('id-ID')} KM` : '-'}
-                                                </p>
+                                                <p className="text-xs text-gray-500 font-medium mb-1">Odo Terakhir</p>
+                                                <div className="flex flex-col gap-1">
+                                                    <p className="font-semibold text-gray-800">
+                                                        {selectedVehicle.current_odometer ? `${selectedVehicle.current_odometer.toLocaleString('id-ID')} KM` : '-'}
+                                                    </p>
+                                                    <OdoServiceBadge initialOdo={selectedVehicle.last_odometer} currentOdo={selectedVehicle.current_odometer} />
+                                                </div>
                                             </div>
                                             <div className="col-span-2">
                                                 <p className="text-xs text-gray-500 font-medium">Riwayat Perbaikan</p>
@@ -551,6 +571,17 @@ export default function Index({ vehicles }) {
                                 </button>
                             </div>
                             <div className="p-6 overflow-y-auto space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Odo Terakhir (KM)</label>
+                                    <input 
+                                        type="number" 
+                                        value={data.last_odometer}
+                                        onChange={e => setData('last_odometer', e.target.value)}
+                                        className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-xl shadow-sm"
+                                        required
+                                        />
+                                    {errors.last_odometer && <p className="text-red-500 text-xs mt-1">{errors.last_odometer}</p>}
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Tujuan Penggunaan</label>
                                     <input 

@@ -78,6 +78,7 @@ export default function Usages({ usages, vehicles, filters }) {
                                     <th className="px-6 py-4">Tanggal & User</th>
                                     <th className="px-6 py-4">Kendaraan</th>
                                     <th className="px-6 py-4">Tujuan</th>
+                                    <th className="px-6 py-4">Odo Terakhir</th>
                                     <th className="px-6 py-4">Biaya Bensin</th>
                                     <th className="px-6 py-4 text-center">Bukti Foto</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
@@ -96,6 +97,9 @@ export default function Usages({ usages, vehicles, filters }) {
                                         </td>
                                         <td className="px-6 py-4 font-medium text-gray-800">
                                             {usage.destination || '-'}
+                                        </td>
+                                        <td className="px-6 py-4 font-semibold text-gray-700">
+                                            {usage.last_odometer ? `${usage.last_odometer.toLocaleString('id-ID')} KM` : '-'}
                                         </td>
                                         <td className="px-6 py-4">
                                             {usage.gas_expense > 0 ? (
@@ -143,7 +147,7 @@ export default function Usages({ usages, vehicles, filters }) {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                                             Belum ada data log penggunaan.
                                         </td>
                                     </tr>

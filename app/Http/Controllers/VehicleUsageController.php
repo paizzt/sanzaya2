@@ -32,6 +32,7 @@ class VehicleUsageController extends Controller
     {
         $request->validate([
             'vehicle_id' => 'required|exists:vehicles,id',
+            'last_odometer' => 'required|numeric|min:0',
             'destination' => 'nullable|string|max:255',
             'gas_expense' => 'nullable|numeric|min:0',
             'usage_photo' => 'nullable|image|max:5120', // 5MB max
@@ -55,6 +56,12 @@ class VehicleUsageController extends Controller
         }
 
         VehicleUsage::create($data);
+
+        // Update vehicle's current odometer (Odo Terakhir)
+        $vehicle = Vehicle::find($request->vehicle_id);
+        if ($vehicle) {
+            $vehicle->update(['current_odometer' => $request->last_odometer]);
+        }
 
         return redirect()->back()->with('success', 'Catatan penggunaan kendaraan berhasil ditambahkan.');
     }
