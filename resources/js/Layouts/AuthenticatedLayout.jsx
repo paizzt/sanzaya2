@@ -186,7 +186,6 @@ export default function Authenticated({ user, header, children }) {
         Swal.fire({
             title: 'Keluar Aplikasi?',
             text: "Apakah Anda yakin ingin mengakhiri sesi ini?",
-            icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#3b82f6',
             cancelButtonColor: '#ef4444',
