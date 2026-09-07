@@ -57,9 +57,7 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <p className="text-sm font-medium text-blue-600 mb-4 italic">"Karena Anda Kami Ada"</p>
-                <p className="text-[14px] text-gray-500 leading-relaxed px-4">
-                    Masukan email dan password yang telah diberikan. Silakan hubungi <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors">HR</a> jika belum memiliki akses.
-                </p>
+
             </div>
 
             <form onSubmit={submit} className="space-y-5">
