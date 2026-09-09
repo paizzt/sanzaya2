@@ -24,6 +24,12 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Route to fix storage link on shared hosting
+Route::get('/linkstorage', function () {
+    \Illuminate\Support\Facades\Artisan::call('storage:link');
+    return 'Storage Link Berhasil Dibuat!';
+});
+
 // Public Share Routes
 Route::get('/shared/kebutuhan-barang', [\App\Http\Controllers\ItemRequirementController::class, 'publicIndex'])->name('item-requirements.public');
 
