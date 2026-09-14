@@ -720,7 +720,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                     </div>
                     
                     <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-wrap">
-                        <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-36 xl:hover:w-40 transition-all duration-300 ease-in-out group relative z-[50]">
+                        <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[50]">
                             <CustomSelect
                                 value={selectedMonth}
                                 onChange={(value) => {
@@ -743,13 +743,12 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     ...months.map(m => ({ value: m, label: m }))
                                 ]}
                                 icon={Calendar}
-                                compact={true}
                             />
                         </div>
                         
                         {tab === 'logistik' && (
                             <>
-                                <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[40]">
+                                <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[40]">
                                     <CustomSelect
                                         value={selectedPt}
                                         onChange={(value) => {
@@ -761,11 +760,10 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                             ...(Array.isArray(ptNames) ? ptNames : Object.values(ptNames || {})).map(name => ({ value: name, label: name }))
                                         ]}
                                         icon={Package}
-                                        compact={true}
                                     />
                                 </div>
                                 {!isSalesLocked && (
-                                    <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[30]">
+                                    <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[30]">
                                         <CustomSelect
                                             value={selectedSales}
                                             onChange={(value) => {
@@ -777,7 +775,6 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                                 ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
                                             ]}
                                             icon={UserIcon}
-                                            compact={true}
                                         />
                                     </div>
                                 )}
@@ -785,7 +782,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                         )}
 
                         {['logistik', 'pesanan', 'piutang'].includes(tab) && (
-                            <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[20]">
+                            <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[20]">
                                 <SearchableSelect
                                     value={selectedOutlet}
                                     onChange={(value) => {
@@ -804,12 +801,11 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
                                     icon={MapPin}
-                                    compact={true}
                                 />
                             </div>
                         )}
                         {tab === 'pesanan' && (
-                            <div className="w-full md:w-11 lg:w-11 md:hover:w-36 lg:hover:w-40 xl:hover:w-44 transition-all duration-300 ease-in-out group relative z-[15]">
+                            <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[15]">
                                 <CustomSelect
                                     value={selectedKeterangan}
                                     onChange={(value) => {
@@ -821,34 +817,17 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                         ...(Array.isArray(keteranganNames) ? keteranganNames : Object.values(keteranganNames || {})).map(name => ({ value: name, label: name }))
                                     ]}
                                     icon={Store}
-                                    compact={true}
                                 />
                             </div>
                         )}
-                        <div className={`relative transition-all duration-300 ease-in-out ${isSearchExpanded ? 'w-full md:w-40 lg:w-48 xl:w-56' : 'w-10'} z-0`}>
-                            {isSearchExpanded ? (
-                                <>
-                                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                    <TextInput 
-                                        type="text" 
-                                        className="w-full pl-10 rounded-xl" 
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        onBlur={() => {
-                                            if (!searchTerm) setIsSearchExpanded(false);
-                                        }}
-                                        autoFocus
-                                    />
-                                </>
-                            ) : (
-                                <button 
-                                    type="button" 
-                                    onClick={() => setIsSearchExpanded(true)}
-                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 border border-gray-200 transition-colors"
-                                >
-                                    <Search className="w-4 h-4" />
-                                </button>
-                            )}
+                        <div className={`relative transition-all duration-300 ease-in-out w-full md:w-40 lg:w-48 xl:w-56 z-0`}>
+                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <TextInput 
+                                type="text" 
+                                className="w-full pl-10 rounded-xl" 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
                         <button type="submit" className="hidden"></button>
                     </form>
