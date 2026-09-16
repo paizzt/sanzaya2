@@ -32,6 +32,7 @@ Route::get('/linkstorage', function () {
 
 // Public Share Routes
 Route::get('/shared/kebutuhan-barang', [\App\Http\Controllers\ItemRequirementController::class, 'publicIndex'])->name('item-requirements.public');
+Route::get('/shared/stok-gudang', [\App\Http\Controllers\WarehouseStockController::class, 'publicIndex'])->name('warehouse-stocks.public');
 
 // Public Signature Verification
 Route::get('/verify-signature/{id}/{hash}', [\App\Http\Controllers\UserController::class, 'verifySignature'])->name('verify.signature');
@@ -40,6 +41,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/users/{user}/download-barcode', [\App\Http\Controllers\UserController::class, 'downloadBarcode'])->name('users.download-barcode');
 
     // Added Export Routes
+    Route::get('/warehouse-stocks-export-pdf', [\App\Http\Controllers\WarehouseStockController::class, 'exportPdf'])->name('warehouse-stocks.export.pdf');
+    Route::get('/warehouse-stocks-export-excel', [\App\Http\Controllers\WarehouseStockController::class, 'exportExcel'])->name('warehouse-stocks.export.excel');
     Route::get('/logistic-reports-export-pdf', [\App\Http\Controllers\LogisticReportController::class, 'exportPdf'])->name('logistic-reports.export.pdf');
     Route::get('/logistic-reports-export-excel', [\App\Http\Controllers\LogisticReportController::class, 'exportExcel'])->name('logistic-reports.export.excel');
     Route::get('/purchase-orders-export-pdf', [\App\Http\Controllers\PurchaseOrderController::class, 'exportPdf'])->name('purchase-orders.export.pdf');
@@ -180,6 +183,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('item-requirements/export/pdf', [\App\Http\Controllers\ItemRequirementController::class, 'exportPdf'])->name('item-requirements.export.pdf');
         Route::get('item-requirements/export/excel', [\App\Http\Controllers\ItemRequirementController::class, 'exportExcel'])->name('item-requirements.export.excel');
         Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class);
+
+        // Warehouse Stocks
+        Route::post('warehouse-stocks/toggle-share', [\App\Http\Controllers\WarehouseStockController::class, 'toggleShare'])->name('warehouse-stocks.toggleShare');
+        Route::resource('warehouse-stocks', \App\Http\Controllers\WarehouseStockController::class)->except(['show', 'create', 'edit']);
 
         // Pemetaan Outlet
         Route::get('/outlet-mappings', [\App\Http\Controllers\OutletMappingController::class, 'index'])->name('outlet-mappings.index');

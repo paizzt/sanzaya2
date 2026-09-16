@@ -241,7 +241,7 @@ export default function Authenticated({ user, header, children }) {
         },
         {
             name: 'Logistik', icon: Truck,
-            active: url.startsWith('/logistic-reports') || url.startsWith('/purchase-orders') || url.startsWith('/providers') || url.startsWith('/products') || url.startsWith('/item-requirements') || url.startsWith('/outlets') || url.startsWith('/outlet-mappings'),
+            active: url.startsWith('/logistic-reports') || url.startsWith('/purchase-orders') || url.startsWith('/providers') || url.startsWith('/products') || url.startsWith('/item-requirements') || url.startsWith('/outlets') || url.startsWith('/outlet-mappings') || url.startsWith('/warehouse-stocks'),
             children: [
                 { name: 'Laporan Logistik', href: route('logistic-reports.index'), active: url.startsWith('/logistic-reports'), show: auth.active_feature_names?.includes('Laporan Logistik') },
                 { name: 'Surat Pesanan', href: route('purchase-orders.index'), active: url.startsWith('/purchase-orders'), show: auth.active_feature_names?.includes('Surat Pesanan') },
@@ -250,6 +250,7 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements'), show: auth.active_feature_names?.includes('Kebutuhan Barang') },
                 { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_feature_names?.includes('Data Outlet') },
                 { name: 'Pemetaan Outlet', href: route('outlet-mappings.index'), active: url.startsWith('/outlet-mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') },
+                { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: auth.active_feature_names?.includes('Stok Gudang') ?? true },
             ]
         },
         {
