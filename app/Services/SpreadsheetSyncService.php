@@ -96,9 +96,10 @@ class SpreadsheetSyncService
     }
 
     private static function isRowEmptyOrInvalid($data) {
+        $ignoreKeys = ['sheet_name', 'nama_pt'];
         foreach ($data as $key => $value) {
-            if ($key !== 'sheet_name' && !self::isInvalidValue($value)) {
-                return false; // Found at least one valid value
+            if (!in_array($key, $ignoreKeys) && !self::isInvalidValue($value)) {
+                return false; // Found at least one valid value from spreadsheet
             }
         }
         return true;
