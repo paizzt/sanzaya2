@@ -94,7 +94,14 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             selectedDatasets.forEach(ds => params.append('datasets[]', ds));
             selectedMonths.forEach(m => params.append('months[]', m));
             selectedParetoOutlets.forEach(po => params.append('pareto_outlets[]', po));
-            selectedOutlets.forEach(o => params.append('selected_outlets[]', o));
+            
+            if (outletNames && selectedOutlets.length === outletNames.length) {
+                // Skip appending to keep URL short, backend defaults to all
+            } else if (selectedOutlets.length === 0) {
+                params.append('selected_outlets[]', '_NONE_');
+            } else {
+                selectedOutlets.forEach(o => params.append('selected_outlets[]', o));
+            }
         }
         
         return `${resultUrl}${separator}${params.toString()}`;
