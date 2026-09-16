@@ -39,54 +39,50 @@ class ReportController extends Controller
 
         $salesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');
         $ptNames = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->pluck('nama_pt');
-        if ($salesFilter) {
-            $outletNames = SyncLogistikData::where('nama_sales', $salesFilter)->distinct()->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->pluck('pelanggan')->sort()->values();
-        } else {
-            $outletNames = \App\Models\Outlet::orderBy('name')->pluck('name');
-        }
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
+        $logistikBaseQuery = SyncLogistikData::query();
+        if ($ptFilter) $logistikBaseQuery->where('nama_pt', $ptFilter);
+        if ($salesFilter) $logistikBaseQuery->where('nama_sales', $salesFilter);
+        if ($outletFilter) {
+            $logistikBaseQuery->where(function($q) use ($outletNamesToSearch) {
+                foreach ($outletNamesToSearch as $name) {
+                    $q->orWhere('pelanggan', 'like', $name);
+                }
+            });
+        }
+        if ($monthFilter) {
+            $monthNum = array_search($monthFilter, $months) + 1;
+            $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+            $shortMonth = substr($monthFilter, 0, 3);
+            $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+            
+            $logistikBaseQuery->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
+                $q->where('tanggal', 'like', "%{$monthFilter}%")
+                  ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                  ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                  ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                  ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                  ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                  ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                  ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+            });
+        }
+        if ($search) {
+            $logistikBaseQuery->where(function($q) use ($search) {
+                $q->where('pelanggan', 'like', "%{$search}%")
+                  ->orWhere('nama_sales', 'like', "%{$search}%")
+                  ->orWhere('nama_produk', 'like', "%{$search}%");
+            });
+        }
+
+        // Get dynamic outlet names based on the filtered logistik data
+        $outletNames = (clone $logistikBaseQuery)->distinct()->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->pluck('pelanggan')->sort()->values();
+
         $data = [];
         if ($tab === 'logistik') {
-            $query = SyncLogistikData::query();
-            if ($ptFilter) {
-                $query->where('nama_pt', $ptFilter);
-            }
-            if ($salesFilter) {
-                $query->where('nama_sales', $salesFilter);
-            }
-            if ($outletFilter) {
-                $query->where(function($q) use ($outletNamesToSearch) {
-                    foreach ($outletNamesToSearch as $name) {
-                        $q->orWhere('pelanggan', 'like', $name);
-                    }
-                });
-            }
-            if ($monthFilter) {
-                $monthNum = array_search($monthFilter, $months) + 1;
-                $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
-                $shortMonth = substr($monthFilter, 0, 3);
-                $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
-                
-                $query->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
-                    $q->where('tanggal', 'like', "%{$monthFilter}%")
-                      ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
-                      ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
-                      ->orWhere('tanggal', 'like', "%{$monthNum}/%")
-                      ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
-                      ->orWhere('tanggal', 'like', "% {$shortMonth}%")
-                      ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
-                      ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
-                });
-            }
-            if ($search) {
-                $query->where(function($q) use ($search) {
-                    $q->where('pelanggan', 'like', "%{$search}%")
-                      ->orWhere('nama_sales', 'like', "%{$search}%")
-                      ->orWhere('nama_produk', 'like', "%{$search}%");
-                });
-            }
+            $query = $logistikBaseQuery;
             $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
         } elseif ($tab === 'pesanan') {
             $query = SyncPesananData::query();
