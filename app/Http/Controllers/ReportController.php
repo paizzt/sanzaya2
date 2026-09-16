@@ -508,13 +508,43 @@ class ReportController extends Controller
             
             $logistikQuery = SyncLogistikData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
                 foreach($selectedMonths as $m) {
-                    $q->orWhere('tanggal', 'LIKE', '%' . $monthsNameMap[$m] . ' ' . $currentYear . '%');
+                    $monthName = $monthsNameMap[$m];
+                    $monthNum = (int)$m;
+                    $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                    $shortMonth = substr($monthName, 0, 3);
+                    $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+                    
+                    $q->orWhere(function($subQ) use ($monthName, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
+                        $subQ->where('tanggal', 'like', "%{$monthName}%")
+                          ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                          ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                          ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                          ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                          ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                          ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                          ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                    });
                 }
             });
             
             $pesananQuery = SyncPesananData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
                 foreach($selectedMonths as $m) {
-                    $q->orWhere('tanggal', 'LIKE', '%' . $monthsNameMap[$m] . ' ' . $currentYear . '%');
+                    $monthName = $monthsNameMap[$m];
+                    $monthNum = (int)$m;
+                    $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                    $shortMonth = substr($monthName, 0, 3);
+                    $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+                    
+                    $q->orWhere(function($subQ) use ($monthName, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
+                        $subQ->where('tanggal', 'like', "%{$monthName}%")
+                          ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                          ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                          ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                          ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                          ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                          ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                          ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                    });
                 }
             });
             
@@ -535,10 +565,24 @@ class ReportController extends Controller
             $dateStrings = [];
             $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             for ($i = 0; $i < $days; $i++) {
-                $d = Carbon::today()->subDays($i);
+                $d = \Carbon\Carbon::today()->subDays($i);
                 $m = $months[$d->month - 1];
+                $shortEng = $d->format('M');
+                $shortId = substr($m, 0, 3);
+                
                 $dateStrings[] = $d->format('j') . ' ' . $m . ' ' . $d->format('Y');
                 $dateStrings[] = $d->format('d') . ' ' . $m . ' ' . $d->format('Y');
+                $dateStrings[] = $d->format('d-M-y'); // 03-Sep-26
+                $dateStrings[] = $d->format('d-M-Y'); // 03-Sep-2026
+                $dateStrings[] = $d->format('d/m/Y'); // 03/09/2026
+                $dateStrings[] = $d->format('j/n/Y'); // 3/9/2026
+                $dateStrings[] = $d->format('Y-m-d'); // 2026-09-03
+                $dateStrings[] = $d->format('d-m-Y'); // 03-09-2026
+                
+                if ($shortEng !== $shortId) {
+                    $dateStrings[] = $d->format('d') . '-' . $shortId . '-' . $d->format('y');
+                    $dateStrings[] = $d->format('d') . '-' . $shortId . '-' . $d->format('Y');
+                }
             }
             $dateStrings = array_unique($dateStrings);
 
