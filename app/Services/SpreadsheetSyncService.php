@@ -53,17 +53,13 @@ class SpreadsheetSyncService
 
                     foreach ($values as $row) {
                         if ($type == 'logistik') {
-                            self::insertLogistik($row, $sheetName, $sheet);
-                            $rowsAdded++;
+                            if (self::insertLogistik($row, $sheetName, $sheet)) $rowsAdded++;
                         } elseif ($type == 'pesanan') {
-                            self::insertPesanan($row, $sheetName, $sheet);
-                            $rowsAdded++;
+                            if (self::insertPesanan($row, $sheetName, $sheet)) $rowsAdded++;
                         } elseif ($type == 'piutang') {
-                            self::insertPiutang($row, $sheetName, $sheet);
-                            $rowsAdded++;
+                            if (self::insertPiutang($row, $sheetName, $sheet)) $rowsAdded++;
                         } elseif ($type == 'hutang') {
-                            self::insertHutang($row, $sheetName, $sheet);
-                            $rowsAdded++;
+                            if (self::insertHutang($row, $sheetName, $sheet)) $rowsAdded++;
                         }
                     }
                 } catch (\Exception $e) {
@@ -92,8 +88,24 @@ class SpreadsheetSyncService
         return isset($row[$colIndex]) ? trim($row[$colIndex]) : null;
     }
 
+    private static function isInvalidValue($val) {
+        if ($val === null || trim($val) === '') return true;
+        $val = trim($val);
+        $invalidStrings = ['#N/A', '#REF!', 'SELECT * WHERE Col3 IS NOT NULL', '-', '0'];
+        return in_array($val, $invalidStrings);
+    }
+
+    private static function isRowEmptyOrInvalid($data) {
+        foreach ($data as $key => $value) {
+            if ($key !== 'sheet_name' && !self::isInvalidValue($value)) {
+                return false; // Found at least one valid value
+            }
+        }
+        return true;
+    }
+
     private static function insertLogistik($row, $sheetName, $config) {
-        \App\Models\SyncLogistikData::create([
+        $data = [
             'sheet_name' => $sheetName,
             'nama_pt' => $config['col_nama_pt'] ?? null,
             'pelanggan' => self::getColValue($row, $config['col_pelanggan'] ?? null),
@@ -112,13 +124,18 @@ class SpreadsheetSyncService
             'total' => self::getColValue($row, $config['col_total'] ?? null),
             'grand_total' => self::getColValue($row, $config['col_grand_total'] ?? null),
             'jenis_barang' => self::getColValue($row, $config['col_jenis_barang'] ?? null),
-        ]);
+        ];
+
+        if (self::isRowEmptyOrInvalid($data)) return false;
+
+        \App\Models\SyncLogistikData::create($data);
+        return true;
     }
 
     private static function insertPesanan($row, $sheetName, $config) {
         $namaOutlet = self::getColValue($row, $config['col_nama_outlet'] ?? null);
 
-        \App\Models\SyncPesananData::create([
+        $data = [
             'sheet_name' => $sheetName,
             'tanggal' => self::getColValue($row, $config['col_tanggal'] ?? null),
             'nomor_klikkan' => self::getColValue($row, $config['col_nomor_klikkan'] ?? null),
@@ -135,13 +152,18 @@ class SpreadsheetSyncService
             'persen_terpenuhi' => self::getColValue($row, $config['col_persen_terpenuhi'] ?? null),
             'persen_belum_terpenuhi' => self::getColValue($row, $config['col_persen_belum_terpenuhi'] ?? null),
             'keterangan' => self::getColValue($row, $config['col_keterangan'] ?? null),
-        ]);
+        ];
+
+        if (self::isRowEmptyOrInvalid($data)) return false;
+
+        \App\Models\SyncPesananData::create($data);
+        return true;
     }
 
     private static function insertPiutang($row, $sheetName, $config) {
         $namaOutlet = self::getColValue($row, $config['col_nama_outlet'] ?? null);
 
-        \App\Models\SyncPiutangData::create([
+        $data = [
             'sheet_name' => $sheetName,
             'nama_outlet' => $namaOutlet,
             'tahun_1' => self::getColValue($row, $config['col_tahun_1'] ?? null),
@@ -154,15 +176,25 @@ class SpreadsheetSyncService
             'ruma_3' => self::getColValue($row, $config['col_ruma_3'] ?? null),
             'total_ruma' => self::getColValue($row, $config['col_total_ruma'] ?? null),
             'total_gabungan' => self::getColValue($row, $config['col_total_gabungan'] ?? null),
-        ]);
+        ];
+
+        if (self::isRowEmptyOrInvalid($data)) return false;
+
+        \App\Models\SyncPiutangData::create($data);
+        return true;
     }
 
     private static function insertHutang($row, $sheetName, $config) {
-        \App\Models\SyncHutangData::create([
+        $data = [
             'sheet_name' => $sheetName,
             'no' => self::getColValue($row, $config['col_no'] ?? null),
             'nama_penyedia' => self::getColValue($row, $config['col_nama_penyedia'] ?? null),
             'nominal' => self::getColValue($row, $config['col_nominal'] ?? null),
-        ]);
+        ];
+
+        if (self::isRowEmptyOrInvalid($data)) return false;
+
+        \App\Models\SyncHutangData::create($data);
+        return true;
     }
 }
