@@ -250,7 +250,7 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements'), show: auth.active_feature_names?.includes('Kebutuhan Barang') },
                 { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_feature_names?.includes('Data Outlet') },
                 { name: 'Pemetaan Outlet', href: route('outlet-mappings.index'), active: url.startsWith('/outlet-mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') },
-                { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: auth.active_feature_names?.includes('Stok Gudang') ?? true },
+                { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: true },
             ]
         },
         {
