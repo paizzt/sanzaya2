@@ -150,7 +150,7 @@ class ReportController extends Controller
         }
 
         // Calculate Summaries using Inertia::defer
-        $summary = Inertia::defer(function () use ($salesFilter, $outletFilter, $monthFilter, $ptFilter, $outletNamesToSearch) {
+        $summary = Inertia::defer(function () use ($search, $salesFilter, $outletFilter, $monthFilter, $ptFilter, $outletNamesToSearch) {
             $summaryQuery = SyncLogistikData::query();
             if ($ptFilter) $summaryQuery->where('nama_pt', $ptFilter);
             if ($salesFilter) $summaryQuery->where('nama_sales', $salesFilter);
@@ -177,6 +177,13 @@ class ReportController extends Controller
                       ->orWhere('tanggal', 'like', "% {$shortMonth}%")
                       ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
                       ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                });
+            }
+            if ($search) {
+                $summaryQuery->where(function($q) use ($search) {
+                    $q->where('pelanggan', 'like', "%{$search}%")
+                      ->orWhere('nama_sales', 'like', "%{$search}%")
+                      ->orWhere('nama_produk', 'like', "%{$search}%");
                 });
             }
             
@@ -267,7 +274,7 @@ class ReportController extends Controller
             ];
         });
 
-        $summaryPesanan = Inertia::defer(function () use ($outletFilter, $monthFilter, $keteranganFilter, $outletNamesToSearch) {
+        $summaryPesanan = Inertia::defer(function () use ($search, $outletFilter, $monthFilter, $keteranganFilter, $outletNamesToSearch) {
             $summaryPesananQuery = SyncPesananData::query();
             if ($keteranganFilter) $summaryPesananQuery->where('keterangan', $keteranganFilter);
             if ($outletFilter) {
@@ -293,6 +300,12 @@ class ReportController extends Controller
                       ->orWhere('tanggal', 'like', "% {$shortMonth}%")
                       ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
                       ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                });
+            }
+            if ($search) {
+                $summaryPesananQuery->where(function($q) use ($search) {
+                    $q->where('nama_outlet', 'like', "%{$search}%")
+                      ->orWhere('nama_produk', 'like', "%{$search}%");
                 });
             }
             
@@ -341,7 +354,7 @@ class ReportController extends Controller
             ];
         });
 
-        $summaryPiutang = Inertia::defer(function () use ($outletFilter, $monthFilter, $outletNamesToSearch, $months) {
+        $summaryPiutang = Inertia::defer(function () use ($search, $outletFilter, $monthFilter, $outletNamesToSearch, $months) {
             $summaryPiutangQuery = SyncPiutangData::query();
             if ($outletFilter) {
                 $summaryPiutangQuery->where(function($q) use ($outletNamesToSearch) {
@@ -353,6 +366,9 @@ class ReportController extends Controller
             if ($monthFilter) {
                 $monthNum = array_search($monthFilter, $months) + 1;
                 $summaryPiutangQuery->whereMonth('created_at', $monthNum);
+            }
+            if ($search) {
+                $summaryPiutangQuery->where('nama_outlet', 'like', "%{$search}%");
             }
             $piutangAll = $summaryPiutangQuery->select('total_sanzaya', 'total_ruma', 'total_gabungan', 'nama_outlet')->get();
             $totalSanzaya = 0; $totalRuma = 0; $totalGabungan = 0;
