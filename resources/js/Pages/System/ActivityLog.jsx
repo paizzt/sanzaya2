@@ -290,8 +290,27 @@ export default function ActivityLog({ auth, logs, filters }) {
                             </div>
                         ) : (
                             <div>
-                                <div className={`font-semibold mb-3 ${selectedLog?.action === 'Deleted' ? 'text-rose-600' : 'text-emerald-600'}`}>
-                                    {selectedLog?.action === 'Deleted' ? 'Data Dihapus' : 'Data Ditambahkan'}
+                                <div className={`font-semibold mb-3 flex items-center justify-between ${selectedLog?.action === 'Deleted' ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                    <span>{selectedLog?.action === 'Deleted' ? 'Data Dihapus' : 'Data Ditambahkan'}</span>
+                                    {selectedLog?.action === 'Deleted' && (
+                                        <button 
+                                            type="button"
+                                            onClick={() => {
+                                                if (confirm('Anda yakin ingin memulihkan data ini? ID akan terbuat ulang secara otomatis sehingga mungkin berbeda dengan data sebelumnya.')) {
+                                                    router.post(route('system.activity-logs.restore', selectedLog.id), {}, {
+                                                        preserveScroll: true,
+                                                        onSuccess: () => {
+                                                            setIsModalOpen(false);
+                                                        }
+                                                    });
+                                                }
+                                            }}
+                                            className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"
+                                        >
+                                            <History className="w-3.5 h-3.5" />
+                                            Pulihkan Data
+                                        </button>
+                                    )}
                                 </div>
                                 <div className={`p-4 rounded-xl border text-sm overflow-x-auto ${selectedLog?.action === 'Deleted' ? 'bg-rose-50/50 border-rose-100' : 'bg-emerald-50/50 border-emerald-100'}`}>
                                     {renderJsonData(selectedLog?.action === 'Deleted' ? selectedLog?.old_values : selectedLog?.new_values)}

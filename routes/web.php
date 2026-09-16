@@ -263,6 +263,7 @@ Route::middleware('auth')->group(function () {
     // System Activity Logs
     Route::middleware(['can:view activity log'])->group(function() {
         Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('system.activity-logs');
+        Route::post('/activity-logs/{id}/restore', [\App\Http\Controllers\ActivityLogController::class, 'restore'])->name('system.activity-logs.restore');
     });
 });
 
