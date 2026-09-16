@@ -64,7 +64,21 @@ class ReportController extends Controller
                 });
             }
             if ($monthFilter) {
-                $query->where('tanggal', 'like', "%{$monthFilter}%");
+                $monthNum = array_search($monthFilter, $months) + 1;
+                $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                $shortMonth = substr($monthFilter, 0, 3);
+                $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+                
+                $query->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
+                    $q->where('tanggal', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                      ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                });
             }
             if ($search) {
                 $query->where(function($q) use ($search) {
@@ -87,7 +101,21 @@ class ReportController extends Controller
                 });
             }
             if ($monthFilter) {
-                $query->where('tanggal', 'like', "%{$monthFilter}%");
+                $monthNum = array_search($monthFilter, $months) + 1;
+                $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                $shortMonth = substr($monthFilter, 0, 3);
+                $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+                
+                $query->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
+                    $q->where('tanggal', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                      ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                });
             }
             if ($search) {
                 $query->where(function($q) use ($search) {
@@ -133,7 +161,24 @@ class ReportController extends Controller
                     }
                 });
             }
-            if ($monthFilter) $summaryQuery->where('tanggal', 'like', "%{$monthFilter}%");
+            if ($monthFilter) {
+                $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                $monthNum = array_search($monthFilter, $months) + 1;
+                $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                $shortMonth = substr($monthFilter, 0, 3);
+                $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+                
+                $summaryQuery->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
+                    $q->where('tanggal', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                      ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                });
+            }
             
             $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = [];
@@ -232,7 +277,24 @@ class ReportController extends Controller
                     }
                 });
             }
-            if ($monthFilter) $summaryPesananQuery->where('tanggal', 'like', "%{$monthFilter}%");
+            if ($monthFilter) {
+                $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                $monthNum = array_search($monthFilter, $months) + 1;
+                $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                $shortMonth = substr($monthFilter, 0, 3);
+                $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+                
+                $summaryPesananQuery->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
+                    $q->where('tanggal', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                      ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                });
+            }
             
             $pesananAll = $summaryPesananQuery->select('total_faktur', 'terkirim', 'belum_terkirim', 'nama_outlet', 'nama_produk')->get();
             $totalFaktur = 0; $totalTerkirim = 0; $totalBelumTerkirim = 0;
