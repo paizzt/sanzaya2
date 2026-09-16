@@ -16,6 +16,7 @@ use App\Models\SyncLogistikData;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -192,7 +193,7 @@ class UserController extends Controller
         $user->bpjs_ketenagakerjaan = $request->bpjs_ketenagakerjaan;
         
         if ($request->filled('password')) {
-            $user->password = $request->password;
+            $user->password = Hash::make($request->password);
         }
         
         $user->save();
