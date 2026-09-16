@@ -781,29 +781,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             </>
                         )}
 
-                        {['logistik', 'pesanan', 'piutang'].includes(tab) && (
-                            <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[20]">
-                                <SearchableSelect
-                                    value={selectedOutlet}
-                                    onChange={(value) => {
-                                        setSelectedOutlet(value);
-                                        const filters = { tab: tab, search: searchTerm, outlet_filter: value, month_filter: selectedMonth };
-                                        if (tab === 'logistik') {
-                                            filters.sales_filter = selectedSales;
-                                            filters.pt_filter = selectedPt;
-                                        } else if (tab === 'pesanan') {
-                                            filters.keterangan_filter = selectedKeterangan;
-                                        }
-                                        router.get(route('reports.index'), filters, { preserveState: true });
-                                    }}
-                                    options={[
-                                        { value: '', label: 'Semua Outlet' },
-                                        ...(Array.isArray(outletNames) ? outletNames : Object.values(outletNames || {})).map(name => ({ value: name, label: name }))
-                                    ]}
-                                    icon={MapPin}
-                                />
-                            </div>
-                        )}
+
                         {tab === 'pesanan' && (
                             <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[15]">
                                 <CustomSelect
