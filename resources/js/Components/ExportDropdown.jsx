@@ -24,6 +24,9 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     // Month Filter State
     const [selectedMonths, setSelectedMonths] = useState([]);
     
+    // Outlet Filter State
+    const [selectedOutlets, setSelectedOutlets] = useState(() => outletNames || []);
+
     // Pareto Outlet State
     const [selectedParetoOutlets, setSelectedParetoOutlets] = useState([]);
 
@@ -61,6 +64,14 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
         );
     };
 
+    const toggleOutlet = (outlet) => {
+        setSelectedOutlets(prev => 
+            prev.includes(outlet) 
+                ? prev.filter(x => x !== outlet) 
+                : [...prev, outlet]
+        );
+    };
+
     const buildUrlParams = (url, isPreview = false) => {
         if (!url) return '';
         let resultUrl = url;
@@ -83,6 +94,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             selectedDatasets.forEach(ds => params.append('datasets[]', ds));
             selectedMonths.forEach(m => params.append('months[]', m));
             selectedParetoOutlets.forEach(po => params.append('pareto_outlets[]', po));
+            selectedOutlets.forEach(o => params.append('selected_outlets[]', o));
         }
         
         return `${resultUrl}${separator}${params.toString()}`;
@@ -159,6 +171,31 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                                                 type="checkbox" 
                                                                 checked={selectedParetoOutlets.includes(outlet)}
                                                                 onChange={() => toggleParetoOutlet(outlet)}
+                                                                className="border-gray-300 rounded text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
+                                                            />
+                                                            {outlet}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            )}
+
+                                            {/* Outlet Ditampilkan */}
+                                            {outletNames && outletNames.length > 0 && (
+                                            <div className="mb-4">
+                                                <label className="block text-xs font-medium text-gray-700 mb-2 flex justify-between items-center">
+                                                    <span>Outlet Ditampilkan</span>
+                                                    <button type="button" onClick={() => setSelectedOutlets(selectedOutlets.length === outletNames.length ? [] : [...outletNames])} className="text-[10px] text-blue-600 hover:underline">
+                                                        {selectedOutlets.length === outletNames.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
+                                                    </button>
+                                                </label>
+                                                <div className="space-y-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
+                                                    {outletNames.map((outlet) => (
+                                                        <label key={`out-${outlet}`} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={selectedOutlets.includes(outlet)}
+                                                                onChange={() => toggleOutlet(outlet)}
                                                                 className="border-gray-300 rounded text-blue-600 shadow-sm focus:ring-blue-500 w-3.5 h-3.5"
                                                             />
                                                             {outlet}

@@ -477,6 +477,11 @@ class ReportController extends Controller
         $paretoOutlets = $request->query('pareto_outlets', []);
         if (!is_array($paretoOutlets)) $paretoOutlets = [$paretoOutlets];
 
+        $selectedOutlets = $request->query('selected_outlets', null);
+        if ($selectedOutlets !== null && !is_array($selectedOutlets)) {
+            $selectedOutlets = [$selectedOutlets];
+        }
+
         $salesFilter = $request->query('sales_filter', '');
         if (auth()->user() && auth()->user()->spreadsheet_sales_name) {
             $salesFilter = auth()->user()->spreadsheet_sales_name;
@@ -560,6 +565,13 @@ class ReportController extends Controller
                 }
             });
         }
+        if ($selectedOutlets !== null) {
+            if (empty($selectedOutlets)) {
+                $logistikQuery->whereRaw('1 = 0');
+            } else {
+                $logistikQuery->whereIn('pelanggan', $selectedOutlets);
+            }
+        }
         $logistik = $logistikQuery->get();
 
         if ($keteranganFilter) $pesananQuery->where('keterangan', $keteranganFilter);
@@ -570,6 +582,13 @@ class ReportController extends Controller
                 }
             });
         }
+        if ($selectedOutlets !== null) {
+            if (empty($selectedOutlets)) {
+                $pesananQuery->whereRaw('1 = 0');
+            } else {
+                $pesananQuery->whereIn('nama_outlet', $selectedOutlets);
+            }
+        }
         $pesanan = $pesananQuery->get();
 
         if ($outletFilter) {
@@ -578,6 +597,13 @@ class ReportController extends Controller
                     $q->orWhere('nama_outlet', 'like', $name);
                 }
             });
+        }
+        if ($selectedOutlets !== null) {
+            if (empty($selectedOutlets)) {
+                $piutangQuery->whereRaw('1 = 0');
+            } else {
+                $piutangQuery->whereIn('nama_outlet', $selectedOutlets);
+            }
         }
         $piutang = $piutangQuery->get();
 
