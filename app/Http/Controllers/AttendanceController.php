@@ -93,9 +93,12 @@ class AttendanceController extends Controller
         $distance = $earthRadius * $c;
         $maxRadius = $company->radius ?? 300;
 
-        if ($distance > $maxRadius) {
-            $formattedDistance = number_format($distance, 0, ',', '.');
-            return redirect()->back()->with('error', "Anda berada di luar jangkauan area absen PT. Jarak Anda: {$formattedDistance} meter (Maksimal: {$maxRadius} meter).");
+        // Bypass validasi radius untuk role Marketing karena kerja di lapangan
+        if (!$user->hasRole(['Marketing', 'marketing'])) {
+            if ($distance > $maxRadius) {
+                $formattedDistance = number_format($distance, 0, ',', '.');
+                return redirect()->back()->with('error', "Anda berada di luar jangkauan area absen PT. Jarak Anda: {$formattedDistance} meter (Maksimal: {$maxRadius} meter).");
+            }
         }
 
         $today = Carbon::today()->format('Y-m-d');
