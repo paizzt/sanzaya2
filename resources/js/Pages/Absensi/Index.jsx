@@ -111,7 +111,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                                 disabled={isLocating}
                                                 className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
                                             >
-                                                {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <><MapPin className="w-4 h-4" /> Kirim Absen Masuk</>}
+                                                {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Masuk</>}
                                             </button>
                                         )}
                                     </div>
@@ -149,7 +149,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                                     disabled={isLocating || (isOvertime && !data.notes.trim())}
                                                     className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-purple-700 transition-all disabled:opacity-50 shadow-lg shadow-purple-500/30"
                                                 >
-                                                    {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <><MapPin className="w-4 h-4" /> Kirim Absen Pulang</>}
+                                                    {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Keluar</>}
                                                 </button>
                                             </div>
                                         )}
