@@ -30,6 +30,16 @@ Route::get('/linkstorage', function () {
     return 'Storage Link Berhasil Dibuat!';
 });
 
+// Route to run database migrations on shared hosting
+Route::get('/migrate-db', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return 'Migrasi Database Berhasil Dijalankan!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
 // Public Share Routes
 Route::get('/shared/kebutuhan-barang', [\App\Http\Controllers\ItemRequirementController::class, 'publicIndex'])->name('item-requirements.public');
 Route::get('/shared/stok-gudang', [\App\Http\Controllers\WarehouseStockController::class, 'publicIndex'])->name('warehouse-stocks.public');
