@@ -262,9 +262,21 @@ class ReportController extends Controller
                 }
             }
 
+            $targetTahunan = null;
+            $capaianTahunan = null;
+            $customAnnualSetting = \App\Models\Setting::where('key', 'global_annual_target')->first();
+            if ($customAnnualSetting && $customAnnualSetting->value > 0) {
+                $targetTahunanVal = (float)$customAnnualSetting->value;
+                $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
+                $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualan / $targetTahunanVal) * 100 : 0;
+                $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
+            }
+
             return [
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
+                'target_tahunan' => $targetTahunan,
+                'capaian_tahunan' => $capaianTahunan,
                 'target_detail' => $targetDetail,
                 'capaian_detail' => $capaianDetail,
                 'top_outlet' => key($outletCounts) ?: '-',
@@ -440,6 +452,7 @@ class ReportController extends Controller
             'tab' => $tab,
             'is_super_admin' => auth()->check() && auth()->user()->hasRole(['Super Admin', 'super_admin', 'super-admin']),
             'global_target_value' => \App\Models\Setting::where('key', 'global_monthly_target')->value('value'),
+            'global_annual_target_value' => \App\Models\Setting::where('key', 'global_annual_target')->value('value'),
             'search' => $search,
             'salesFilter' => $salesFilter,
             'outletFilter' => $outletFilter,
@@ -822,14 +835,24 @@ class ReportController extends Controller
         }
 
         $request->validate([
-            'global_monthly_target' => 'required|numeric|min:0'
+            'global_monthly_target' => 'nullable|numeric|min:0',
+            'global_annual_target' => 'nullable|numeric|min:0'
         ]);
 
-        \App\Models\Setting::updateOrCreate(
-            ['key' => 'global_monthly_target'],
-            ['value' => $request->global_monthly_target]
-        );
+        if ($request->filled('global_monthly_target')) {
+            \App\Models\Setting::updateOrCreate(
+                ['key' => 'global_monthly_target'],
+                ['value' => $request->global_monthly_target]
+            );
+        }
 
-        return back()->with('success', 'Target Bulanan Keseluruhan berhasil diperbarui.');
+        if ($request->filled('global_annual_target')) {
+            \App\Models\Setting::updateOrCreate(
+                ['key' => 'global_annual_target'],
+                ['value' => $request->global_annual_target]
+            );
+        }
+
+        return back()->with('success', 'Target berhasil diperbarui.');
     }
 }
