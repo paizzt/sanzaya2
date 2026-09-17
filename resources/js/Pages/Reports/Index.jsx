@@ -1,21 +1,39 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import Modal from '@/Components/Modal';
-import { Head, usePage, router, Link } from '@inertiajs/react';
+import { Head, usePage, router, Link, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
+import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
 import SearchableSelect from '@/Components/SearchableSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
-export default function Index({ tab, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames, outletNames, ptNames, keteranganNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
+export default function Index({ tab, is_super_admin, global_target_value, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames, outletNames, ptNames, keteranganNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const authUser = usePage().props.auth.user;
     const isSalesLocked = !!authUser.spreadsheet_sales_name;
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
+    const [targetModalOpen, setTargetModalOpen] = useState(false);
+    const { data: targetData, setData: setTargetData, post: postTarget, processing: targetProcessing, errors: targetErrors } = useForm({
+        global_monthly_target: global_target_value || ''
+    });
+
+    const submitTarget = (e) => {
+        e.preventDefault();
+        postTarget(route('reports.target.update'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setTargetModalOpen(false);
+                Swal.fire({ title: 'Berhasil!', text: 'Target berhasil diperbarui.', icon: 'success', customClass: { popup: 'rounded-2xl' } });
+            }
+        });
+    };
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
@@ -438,7 +456,7 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             <p className="text-xs text-gray-400">Total akumulasi dari kolom Total (Rp)</p>
                         </div>
 
-                        {summary.target_bulanan && (
+                        {(summary.target_bulanan || is_super_admin) && (
                             <>
                                 <div 
                                     onClick={() => summary.target_detail && Object.keys(summary.target_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail })} 
@@ -447,10 +465,17 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="min-w-0 flex-1 pr-4">
                                             <p className="text-sm font-semibold text-gray-500 truncate">Target Bulanan</p>
-                                            <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.target_bulanan}>{summary.target_bulanan}</h4>
+                                            <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
                                         </div>
-                                        <div className="p-3 bg-purple-50 rounded-2xl">
-                                            <Activity className="w-6 h-6 text-purple-600" />
+                                        <div className="flex flex-col gap-2 items-center">
+                                            <div className="p-3 bg-purple-50 rounded-2xl">
+                                                <Activity className="w-6 h-6 text-purple-600" />
+                                            </div>
+                                            {is_super_admin && (
+                                                <button onClick={(e) => { e.stopPropagation(); setTargetModalOpen(true); }} className="text-xs text-purple-700 hover:text-purple-900 font-bold bg-purple-100 hover:bg-purple-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+                                                    Set Target
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                     <p className="text-xs text-gray-400">Target penjualan bulanan</p>
@@ -949,6 +974,36 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                             )}
                         </div>
                     </div>
+                </Modal>
+                
+                {/* Target Edit Modal */}
+                <Modal show={targetModalOpen} onClose={() => setTargetModalOpen(false)} maxWidth="sm">
+                    <form onSubmit={submitTarget} className="p-6">
+                        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                            <h3 className="text-xl font-bold text-gray-800">Set Target Keseluruhan</h3>
+                            <button type="button" onClick={() => setTargetModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                            Masukkan target penjualan keseluruhan per bulan. Jika nilai ini diisi lebih dari 0, ini akan <strong className="text-gray-700">menimpa total akumulasi target</strong> dari masing-masing sales pada ringkasan dashboard.
+                        </p>
+                        <div className="mb-6">
+                            <InputLabel value="Target Bulanan (Rp)" className="mb-2" />
+                            <TextInput 
+                                type="number" 
+                                className="block w-full rounded-xl bg-gray-50 border-gray-200" 
+                                value={targetData.global_monthly_target} 
+                                onChange={e => setTargetData('global_monthly_target', e.target.value)}
+                                placeholder="Contoh: 1000000000"
+                            />
+                            <InputError message={targetErrors.global_monthly_target} className="mt-2" />
+                        </div>
+                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                            <button type="button" onClick={() => setTargetModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors text-sm">Batal</button>
+                            <PrimaryButton disabled={targetProcessing} className="px-6 py-2.5 rounded-xl text-sm shadow-sm">Simpan Target</PrimaryButton>
+                        </div>
+                    </form>
                 </Modal>
             </AuthenticatedLayout>
         </ErrorBoundary>

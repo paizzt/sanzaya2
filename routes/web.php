@@ -147,6 +147,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Reports (Spreadsheet Data Dashboard)
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
+        Route::post('/reports/target', [ReportController::class, 'updateTarget'])->name('reports.target.update');
     });
 
     // Notifications (Open to all auth)

@@ -236,21 +236,29 @@ class ReportController extends Controller
                     $capaianDetail[$userWithTarget->name] = number_format($capPercent, 1, ',', '.') . '%';
                 }
             } else {
-                $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
-                $targetBulanan = $usersWithTarget->sum('monthly_target');
-                foreach ($usersWithTarget as $u) {
-                    $targetDetail[$u->name] = 'Rp ' . number_format($u->monthly_target, 0, ',', '.');
-                    
-                    $salesKey = $u->spreadsheet_sales_name ?: $u->name;
-                    $userPenjualan = 0;
-                    foreach ($salesBreakdown as $key => $val) {
-                        if (strcasecmp(trim($key), trim($salesKey)) == 0) {
-                            $userPenjualan = $val;
-                            break;
+                $customTargetSetting = \App\Models\Setting::where('key', 'global_monthly_target')->first();
+                if ($customTargetSetting && $customTargetSetting->value > 0) {
+                    $targetBulanan = (float)$customTargetSetting->value;
+                    $targetDetail['Target Custom (Global)'] = 'Rp ' . number_format($targetBulanan, 0, ',', '.');
+                    $capPercent = ($targetBulanan > 0) ? ($totalPenjualan / $targetBulanan) * 100 : 0;
+                    $capaianDetail['Target Keseluruhan'] = number_format($capPercent, 1, ',', '.') . '%';
+                } else {
+                    $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
+                    $targetBulanan = $usersWithTarget->sum('monthly_target');
+                    foreach ($usersWithTarget as $u) {
+                        $targetDetail[$u->name] = 'Rp ' . number_format($u->monthly_target, 0, ',', '.');
+                        
+                        $salesKey = $u->spreadsheet_sales_name ?: $u->name;
+                        $userPenjualan = 0;
+                        foreach ($salesBreakdown as $key => $val) {
+                            if (strcasecmp(trim($key), trim($salesKey)) == 0) {
+                                $userPenjualan = $val;
+                                break;
+                            }
                         }
+                        $capPercent = ($u->monthly_target > 0) ? ($userPenjualan / $u->monthly_target) * 100 : 0;
+                        $capaianDetail[$u->name] = number_format($capPercent, 1, ',', '.') . '%';
                     }
-                    $capPercent = ($u->monthly_target > 0) ? ($userPenjualan / $u->monthly_target) * 100 : 0;
-                    $capaianDetail[$u->name] = number_format($capPercent, 1, ',', '.') . '%';
                 }
             }
 
@@ -430,6 +438,8 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/Index', [
             'tab' => $tab,
+            'is_super_admin' => auth()->check() && auth()->user()->hasRole(['Super Admin', 'super_admin', 'super-admin']),
+            'global_target_value' => \App\Models\Setting::where('key', 'global_monthly_target')->value('value'),
             'search' => $search,
             'salesFilter' => $salesFilter,
             'outletFilter' => $outletFilter,
@@ -803,5 +813,23 @@ class ReportController extends Controller
             \Illuminate\Support\Facades\Log::error("PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
             throw $e;
         }
+    }
+
+    public function updateTarget(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->hasRole(['Super Admin', 'super_admin', 'super-admin'])) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'global_monthly_target' => 'required|numeric|min:0'
+        ]);
+
+        \App\Models\Setting::updateOrCreate(
+            ['key' => 'global_monthly_target'],
+            ['value' => $request->global_monthly_target]
+        );
+
+        return back()->with('success', 'Target Bulanan Keseluruhan berhasil diperbarui.');
     }
 }
