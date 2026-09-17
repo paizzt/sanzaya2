@@ -1,17 +1,16 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { Camera, CheckCircle2, Clock, MapPinOff, RefreshCcw, CalendarDays } from 'lucide-react';
-import React, { useRef, useState, useCallback, useEffect, Suspense } from 'react';
-const Webcam = React.lazy(() => import('react-webcam'));
+import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { CheckCircle2, Clock, MapPin, MapPinOff, CalendarDays, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 
 export default function Index({ attendance, today, currentTime, isOvertime, history = [] }) {
-    const webcamRef = useRef(null);
-    const [imgSrc, setImgSrc] = useState(null);
+    const [isLocating, setIsLocating] = useState(false);
     const { data, setData, post, processing } = useForm({
-        photo: '',
         type: '',
         notes: '',
+        latitude: '',
+        longitude: '',
     });
 
     const { flash } = usePage().props;
@@ -25,7 +24,6 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                 confirmButtonColor: '#3b82f6',
                 customClass: { popup: 'rounded-2xl' }
             });
-            setImgSrc(null);
         } else if (flash.error) {
             Swal.fire({
                 title: 'Gagal!',
@@ -34,23 +32,43 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                 confirmButtonColor: '#ef4444',
                 customClass: { popup: 'rounded-2xl' }
             });
-            setImgSrc(null);
         }
     }, [flash]);
 
-    const capture = useCallback(() => {
-        const imageSrc = webcamRef.current.getScreenshot();
-        setImgSrc(imageSrc);
-        setData('photo', imageSrc);
-    }, [webcamRef, setData]);
-
     const submitAttendance = (type) => {
-        setData('type', type);
-        setTimeout(() => {
-            post(route('absensi.store'), {
-                preserveScroll: true,
-            });
-        }, 100);
+        setIsLocating(true);
+        if (!navigator.geolocation) {
+            setIsLocating(false);
+            Swal.fire('Error', 'GPS/Geolocation tidak didukung oleh browser atau perangkat ini.', 'error');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                
+                router.post(route('absensi.store'), {
+                    type: type,
+                    latitude: latitude,
+                    longitude: longitude,
+                    notes: data.notes
+                }, {
+                    preserveScroll: true,
+                    onFinish: () => setIsLocating(false)
+                });
+            },
+            (error) => {
+                setIsLocating(false);
+                let msg = 'Gagal mendapatkan lokasi GPS. Pastikan GPS Anda aktif.';
+                if (error.code === 1) msg = 'Akses lokasi ditolak. Silakan izinkan akses lokasi GPS pada browser Anda untuk absensi.';
+                Swal.fire('Error Lokasi', msg, 'error');
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            }
+        );
     };
 
     const hasCheckedIn = attendance?.check_in_time != null;
@@ -65,108 +83,51 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
 
             <div className="pb-6 pt-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
-
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    {/* Camera Section */}
-                    <div className="lg:col-span-2">
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden relative">
-                            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-                                <div>
-                                    <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                                        <Camera className="text-blue-600" />
-                                        Kamera Utama
-                                    </h3>
-                                </div>
-                            </div>
-
-                            <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex items-center justify-center">
-                                {!imgSrc ? (
-                                    <Suspense fallback={<div className="text-white animate-pulse">Memuat Kamera...</div>}>
-                                        <Webcam
-                                            audio={false}
-                                            ref={webcamRef}
-                                            screenshotFormat="image/jpeg"
-                                            screenshotQuality={0.7}
-                                            className="w-full h-full object-cover"
-                                            videoConstraints={{ facingMode: "user", width: 720, height: 480 }}
-                                            mirrored={true}
-                                        />
-                                    </Suspense>
-                                ) : (
-                                    <img src={imgSrc} alt="Captured" className="w-full h-full object-cover" />
-                                )}
-
-                                {!imgSrc && (
-                                    <div className="absolute inset-0 border-4 border-white/20 rounded-2xl pointer-events-none">
-                                        <div className="absolute top-1/4 left-1/4 right-1/4 bottom-1/4 border-2 border-dashed border-white/50 rounded-full animate-pulse"></div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="mt-6 flex gap-4">
-                                {!imgSrc ? (
-                                    <button
-                                        onClick={capture}
-                                        className="flex-1 bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
-                                    >
-                                        <Camera className="w-5 h-5" /> Ambil Foto
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={() => setImgSrc(null)}
-                                        className="flex-1 bg-gray-100 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <RefreshCcw className="w-5 h-5" /> Ulangi Foto
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
                     {/* Status Section */}
-                    <div className="space-y-6">
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20">
-                            <p className="text-blue-100 text-sm font-medium">{today}</p>
-                            <h2 className="text-5xl font-black mt-2 tracking-tighter">{currentTime}</h2>
+                    <div className="lg:col-span-3 space-y-6">
+                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl shadow-blue-500/20 text-center">
+                            <p className="text-blue-100 text-lg font-medium">{today}</p>
+                            <h2 className="text-6xl font-black mt-2 tracking-tighter">{currentTime}</h2>
+                            <p className="text-blue-200 mt-4 max-w-xl mx-auto text-sm">Pastikan Anda berada di lokasi kantor (PT) saat melakukan absensi masuk maupun pulang.</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                            <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4">Status Absensi Anda</h3>
+                        <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                            <h3 className="font-bold text-xl text-gray-800 mb-6 border-b border-gray-50 pb-4">Aksi Absensi Anda</h3>
 
-                            <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Check In Status */}
-                                <div className="flex gap-4 items-start">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${hasCheckedIn ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400'}`}>
-                                        {hasCheckedIn ? <CheckCircle2 className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                                <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
+                                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${hasCheckedIn ? 'bg-green-100 text-green-600' : 'bg-white shadow-sm border border-gray-200 text-gray-400'}`}>
+                                        {hasCheckedIn ? <CheckCircle2 className="w-7 h-7" /> : <Clock className="w-7 h-7" />}
                                     </div>
                                     <div className="flex-1">
-                                        <p className="font-semibold text-gray-800">Absen Masuk</p>
-                                        <p className="text-sm text-gray-500 mt-1">{hasCheckedIn ? attendance.check_in_time : 'Belum Absen'}</p>
+                                        <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
+                                        <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedIn ? `Berhasil: ${attendance.check_in_time}` : 'Belum Absen'}</p>
 
-                                        {!hasCheckedIn && imgSrc && (
+                                        {!hasCheckedIn && (
                                             <button
                                                 onClick={() => submitAttendance('check_in')}
-                                                disabled={processing}
-                                                className="mt-3 w-full bg-blue-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
+                                                disabled={isLocating}
+                                                className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
                                             >
-                                                Kirim Absen Masuk
+                                                {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <><MapPin className="w-4 h-4" /> Kirim Absen Masuk</>}
                                             </button>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Check Out Status */}
-                                <div className="flex gap-4 items-start">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${hasCheckedOut ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400'}`}>
-                                        {hasCheckedOut ? <CheckCircle2 className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                                <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
+                                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${hasCheckedOut ? 'bg-green-100 text-green-600' : 'bg-white shadow-sm border border-gray-200 text-gray-400'}`}>
+                                        {hasCheckedOut ? <CheckCircle2 className="w-7 h-7" /> : <Clock className="w-7 h-7" />}
                                     </div>
                                     <div className="flex-1">
-                                        <p className="font-semibold text-gray-800">Absen Pulang</p>
-                                        <p className="text-sm text-gray-500 mt-1">{hasCheckedOut ? attendance.check_out_time : 'Belum Absen'}</p>
+                                        <p className="font-bold text-lg text-gray-800">Absen Pulang</p>
+                                        <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedOut ? `Berhasil: ${attendance.check_out_time}` : 'Belum Absen'}</p>
 
-                                        {hasCheckedIn && !hasCheckedOut && imgSrc && (
-                                            <div className="mt-4 space-y-3">
+                                        {hasCheckedIn && !hasCheckedOut && (
+                                            <div className="mt-4 space-y-4">
                                                 {isOvertime && (
                                                     <div>
                                                         <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -177,6 +138,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                                             rows="2"
                                                             value={data.notes}
                                                             onChange={(e) => setData('notes', e.target.value)}
+                                                            placeholder="Jelaskan alasan lembur..."
                                                             required
                                                         ></textarea>
                                                         <p className="text-xs text-red-500 mt-1">Wajib diisi karena absen di atas jam 20:00</p>
@@ -184,10 +146,10 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                                 )}
                                                 <button
                                                     onClick={() => submitAttendance('check_out')}
-                                                    disabled={processing || (isOvertime && !data.notes.trim())}
-                                                    className="w-full bg-purple-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-purple-700 transition-all disabled:opacity-50"
+                                                    disabled={isLocating || (isOvertime && !data.notes.trim())}
+                                                    className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-purple-700 transition-all disabled:opacity-50 shadow-lg shadow-purple-500/30"
                                                 >
-                                                    Kirim Absen Pulang
+                                                    {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <><MapPin className="w-4 h-4" /> Kirim Absen Pulang</>}
                                                 </button>
                                             </div>
                                         )}
@@ -259,3 +221,4 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
         </AuthenticatedLayout>
     );
 }
+

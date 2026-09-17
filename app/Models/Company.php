@@ -14,5 +14,8 @@ class Company extends Model
         'name',
         'logo',
         'address',
+        'latitude',
+        'longitude',
+        'radius',
     ];
 }

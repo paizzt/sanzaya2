@@ -18,6 +18,9 @@ export default function Index({ auth, companies }) {
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
         address: '',
+        latitude: '',
+        longitude: '',
+        radius: 300,
         logo: null,
     });
 
@@ -28,6 +31,9 @@ export default function Index({ auth, companies }) {
             setData({
                 name: company.name,
                 address: company.address || '',
+                latitude: company.latitude || '',
+                longitude: company.longitude || '',
+                radius: company.radius || 300,
                 logo: null,
             });
             setLogoPreview(company.logo ? `/storage/${company.logo}` : null);
@@ -147,9 +153,15 @@ export default function Index({ auth, companies }) {
                                                     )}
                                                 </div>
                                                 <h3 className="text-lg font-bold text-gray-800 mb-1">{company.name}</h3>
-                                                <p className="text-sm text-gray-500 line-clamp-2">
+                                                <p className="text-sm text-gray-500 line-clamp-2 mb-2">
                                                     {company.address || <span className="italic text-gray-400">Belum ada alamat</span>}
                                                 </p>
+                                                {company.latitude && company.longitude && (
+                                                    <div className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                                                        <MapPin className="w-3 h-3" />
+                                                        <span>Radius: {company.radius || 300}m</span>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="bg-gray-50 px-6 py-3 border-t flex justify-between">
                                                 <button
@@ -281,6 +293,52 @@ export default function Index({ auth, companies }) {
                                     />
                             </div>
                             <InputError message={errors.address} className="mt-2" />
+                        </div>
+
+                        {/* Lokasi */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label htmlFor="latitude" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Latitude
+                                </label>
+                                <input
+                                    id="latitude"
+                                    type="text"
+                                    value={data.latitude}
+                                    onChange={(e) => setData('latitude', e.target.value)}
+                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="Contoh: -6.200000"
+                                />
+                                <InputError message={errors.latitude} className="mt-2" />
+                            </div>
+                            <div>
+                                <label htmlFor="longitude" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Longitude
+                                </label>
+                                <input
+                                    id="longitude"
+                                    type="text"
+                                    value={data.longitude}
+                                    onChange={(e) => setData('longitude', e.target.value)}
+                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="Contoh: 106.816666"
+                                />
+                                <InputError message={errors.longitude} className="mt-2" />
+                            </div>
+                            <div>
+                                <label htmlFor="radius" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Radius (Meter)
+                                </label>
+                                <input
+                                    id="radius"
+                                    type="number"
+                                    min="1"
+                                    value={data.radius}
+                                    onChange={(e) => setData('radius', e.target.value)}
+                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                />
+                                <InputError message={errors.radius} className="mt-2" />
+                            </div>
                         </div>
 
                         <div className="pt-4 flex justify-end gap-3">

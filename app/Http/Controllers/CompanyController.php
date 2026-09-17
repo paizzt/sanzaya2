@@ -28,11 +28,17 @@ class CompanyController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'radius' => 'nullable|integer|min:1',
         ]);
 
         $company = new Company();
         $company->name = $request->name;
         $company->address = $request->address;
+        $company->latitude = $request->latitude;
+        $company->longitude = $request->longitude;
+        $company->radius = $request->radius ?? 300;
 
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('company', 'public');
@@ -50,11 +56,17 @@ class CompanyController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'radius' => 'nullable|integer|min:1',
         ]);
 
         $company = Company::findOrFail($id);
         $company->name = $request->name;
         $company->address = $request->address;
+        $company->latitude = $request->latitude;
+        $company->longitude = $request->longitude;
+        $company->radius = $request->radius ?? 300;
 
         if ($request->hasFile('logo')) {
             if ($company->logo && Storage::disk('public')->exists($company->logo)) {

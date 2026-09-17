@@ -67,30 +67,39 @@ class AttendanceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'photo' => 'required|string',
-            'type' => 'required|in:check_in,check_out'
+            'type' => 'required|in:check_in,check_out',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
 
         $user = Auth::user();
-        $today = Carbon::today()->format('Y-m-d');
-        $currentTime = Carbon::now()->format('H:i:s');
-
-        // Decode Base64 Image
-        $image = $request->photo;
-        $imageParts = explode(";base64,", $image);
-        $imageTypeAux = explode("image/", $imageParts[0]);
-        $imageType = $imageTypeAux[1] ?? 'png';
         
-        // Secure file extension
-        $allowedExtensions = ['jpeg', 'png', 'jpg'];
-        if (!in_array(strtolower($imageType), $allowedExtensions)) {
-            $imageType = 'png'; // Fallback to png
+        $company = $user->company;
+        if (!$company || !$company->latitude || !$company->longitude) {
+            return redirect()->back()->with('error', 'PT Anda belum memiliki pengaturan lokasi. Silakan hubungi admin.');
         }
 
-        $imageBase64 = base64_decode($imageParts[1]);
-        
-        $fileName = 'attendances/' . $user->id . '_' . time() . '.' . $imageType;
-        Storage::disk('public')->put($fileName, $imageBase64);
+        $userLat = $request->latitude;
+        $userLon = $request->longitude;
+        $compLat = $company->latitude;
+        $compLon = $company->longitude;
+
+        // Haversine formula
+        $earthRadius = 6371000; // Radius bumi dalam meter
+        $dLat = deg2rad($compLat - $userLat);
+        $dLon = deg2rad($compLon - $userLon);
+        $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($userLat)) * cos(deg2rad($compLat)) * sin($dLon/2) * sin($dLon/2);
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        $distance = $earthRadius * $c;
+        $maxRadius = $company->radius ?? 300;
+
+        if ($distance > $maxRadius) {
+            $formattedDistance = number_format($distance, 0, ',', '.');
+            return redirect()->back()->with('error', "Anda berada di luar jangkauan area absen PT. Jarak Anda: {$formattedDistance} meter (Maksimal: {$maxRadius} meter).");
+        }
+
+        $today = Carbon::today()->format('Y-m-d');
+        $currentTime = Carbon::now()->format('H:i:s');
 
         if ($request->type === 'check_in') {
             $attendance = Attendance::firstOrCreate(
@@ -102,7 +111,8 @@ class AttendanceController extends Controller
                 return redirect()->back()->with('error', 'Anda sudah melakukan absensi masuk hari ini.');
             }
             $attendance->check_in_time = $currentTime;
-            $attendance->check_in_photo = $fileName;
+            $attendance->latitude = $userLat;
+            $attendance->longitude = $userLon;
             $attendance->save();
         } else {
             // Find the active uncompleted attendance
@@ -139,7 +149,8 @@ class AttendanceController extends Controller
                 $attendance->check_out_time = $now->format('H:i:s');
             }
             
-            $attendance->check_out_photo = $fileName;
+            $attendance->latitude = $userLat;
+            $attendance->longitude = $userLon;
             
             if ($isOvertime) {
                 $attendance->notes = $request->notes;
