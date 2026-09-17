@@ -14,6 +14,18 @@ import SearchableSelect from '@/Components/SearchableSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
+const formatCurrencyInput = (value) => {
+    if (!value && value !== 0) return '';
+    let valStr = value.toString().replace(/[^0-9]/g, '');
+    if (!valStr) return '';
+    return 'Rp ' + parseInt(valStr, 10).toLocaleString('id-ID');
+};
+
+const parseCurrencyInput = (value) => {
+    if (!value) return '';
+    return value.toString().replace(/[^0-9]/g, '');
+};
+
 export default function Index({ tab, is_super_admin, global_target_value, global_annual_target_value, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames, outletNames, ptNames, keteranganNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const authUser = usePage().props.auth.user;
     const isSalesLocked = !!authUser.spreadsheet_sales_name;
@@ -1028,24 +1040,24 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             Masukkan target penjualan keseluruhan per bulan dan per tahun. Jika nilai ini diisi, nilai ini akan <strong className="text-gray-700">menimpa total akumulasi target</strong> dari masing-masing sales pada ringkasan dashboard. Biarkan kosong untuk menggunakan akumulasi target individual.
                         </p>
                         <div className="mb-4">
-                            <InputLabel value="Target Bulanan (Rp)" className="mb-2" />
+                            <InputLabel value="Target Bulanan" className="mb-2" />
                             <TextInput 
-                                type="number" 
+                                type="text" 
                                 className="block w-full rounded-xl bg-gray-50 border-gray-200" 
-                                value={targetData.global_monthly_target} 
-                                onChange={e => setTargetData('global_monthly_target', e.target.value)}
+                                value={formatCurrencyInput(targetData.global_monthly_target)} 
+                                onChange={e => setTargetData('global_monthly_target', parseCurrencyInput(e.target.value))}
                                 placeholder="Kosongkan jika menggunakan target individual"
                             />
                             <InputError message={targetErrors.global_monthly_target} className="mt-2" />
                         </div>
                         <div className="mb-6">
-                            <InputLabel value="Target Tahunan (Rp)" className="mb-2" />
+                            <InputLabel value="Target Tahunan" className="mb-2" />
                             <TextInput 
-                                type="number" 
+                                type="text" 
                                 className="block w-full rounded-xl bg-gray-50 border-gray-200" 
-                                value={targetData.global_annual_target} 
-                                onChange={e => setTargetData('global_annual_target', e.target.value)}
-                                placeholder="Contoh: 12000000000"
+                                value={formatCurrencyInput(targetData.global_annual_target)} 
+                                onChange={e => setTargetData('global_annual_target', parseCurrencyInput(e.target.value))}
+                                placeholder="Contoh: Rp 12.000.000.000"
                             />
                             <InputError message={targetErrors.global_annual_target} className="mt-2" />
                         </div>
