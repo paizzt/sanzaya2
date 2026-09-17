@@ -798,16 +798,21 @@ export default function Index({ tab, search, salesFilter, outletFilter, monthFil
                                 />
                             </div>
                         )}
-                        <div className={`relative transition-all duration-300 ease-in-out w-full md:w-40 lg:w-48 xl:w-56 z-0`}>
-                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                            <TextInput 
-                                type="text" 
-                                className="w-full pl-10 rounded-xl" 
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <div className={`flex items-center gap-2 w-full md:w-auto transition-all duration-300 ease-in-out z-0`}>
+                            <div className="relative w-full md:w-40 lg:w-48 xl:w-56">
+                                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <TextInput 
+                                    type="text" 
+                                    className="w-full pl-10 rounded-xl" 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Pencarian..."
+                                />
+                            </div>
+                            <button type="submit" className="bg-blue-600 text-white px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center font-bold text-sm shrink-0">
+                                Cari
+                            </button>
                         </div>
-                        <button type="submit" className="hidden"></button>
                     </form>
                 </div>
 
