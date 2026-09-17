@@ -450,7 +450,7 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/Index', [
             'tab' => $tab,
-            'is_super_admin' => auth()->check() && auth()->user()->hasRole(['Super Admin', 'super_admin', 'super-admin']),
+            'is_super_admin' => auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin']),
             'global_target_value' => \App\Models\Setting::where('key', 'global_monthly_target')->value('value'),
             'global_annual_target_value' => \App\Models\Setting::where('key', 'global_annual_target')->value('value'),
             'search' => $search,
@@ -830,7 +830,7 @@ class ReportController extends Controller
 
     public function updateTarget(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->hasRole(['Super Admin', 'super_admin', 'super-admin'])) {
+        if (!auth()->check() || !auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin'])) {
             abort(403, 'Unauthorized action.');
         }
 
