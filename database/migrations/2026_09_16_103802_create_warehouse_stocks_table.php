@@ -11,19 +11,28 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('warehouse_stocks', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('code')->nullable();
-            $table->string('category')->nullable();
-            $table->integer('quantity')->default(0);
-            $table->string('unit')->nullable();
-            $table->integer('minimum_stock')->default(0);
-            $table->string('location')->nullable();
-            $table->text('notes')->nullable();
-            $table->string('link')->nullable(); // Ditambahkan berdasarkan permintaan user
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('warehouse_stocks')) {
+            Schema::create('warehouse_stocks', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('code')->nullable();
+                $table->string('category')->nullable();
+                $table->integer('quantity')->default(0);
+                $table->string('unit')->nullable();
+                $table->integer('minimum_stock')->default(0);
+                $table->string('location')->nullable();
+                $table->text('notes')->nullable();
+                $table->string('link')->nullable(); // Ditambahkan berdasarkan permintaan user
+                $table->timestamps();
+            });
+        } else {
+            // Jika tabel sudah ada, pastikan kolom link ditambahkan jika belum ada
+            if (!Schema::hasColumn('warehouse_stocks', 'link')) {
+                Schema::table('warehouse_stocks', function (Blueprint $table) {
+                    $table->string('link')->nullable();
+                });
+            }
+        }
     }
 
     /**
