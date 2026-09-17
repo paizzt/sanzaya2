@@ -43,7 +43,7 @@ export default function Index({ items, isShared }) {
             'name', 
             'code',
             'category',
-            'location'
+            'link'
         ],
         threshold: 0.3,
         ignoreLocation: true
@@ -80,7 +80,6 @@ export default function Index({ items, isShared }) {
             quantity: item.quantity || '',
             unit: item.unit || '',
             minimum_stock: item.minimum_stock || '',
-            location: item.location || '',
             notes: item.notes || '',
             link: item.link || '',
         });
@@ -226,7 +225,7 @@ export default function Index({ items, isShared }) {
                             <input
                                 type="text"
                                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
-                                placeholder="Cari nama, kode, lokasi..."
+                                placeholder="Cari nama, kode, link..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -256,7 +255,7 @@ export default function Index({ items, isShared }) {
                                     <th className="px-6 py-4">Kategori</th>
                                     <th className="px-6 py-4">Stok</th>
                                     <th className="px-6 py-4">Satuan</th>
-                                    <th className="px-6 py-4">Lokasi</th>
+                                    <th className="px-6 py-4">Link E-Katalog</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -271,9 +270,6 @@ export default function Index({ items, isShared }) {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="font-bold text-gray-900">{item.name}</div>
-                                            {item.link && (
-                                                <a href={item.link} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">Link Produk</a>
-                                            )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-gray-600">{item.category || '-'}</span>
@@ -287,7 +283,11 @@ export default function Index({ items, isShared }) {
                                             <span className="text-gray-600">{item.unit || '-'}</span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-gray-600">{item.location || '-'}</span>
+                                            {item.link ? (
+                                                <a href={item.link} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Buka E-Katalog</a>
+                                            ) : (
+                                                <span className="text-gray-600">-</span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center gap-2">
@@ -420,20 +420,10 @@ export default function Index({ items, isShared }) {
                                             <InputError message={errors.minimum_stock} className="mt-2" />
                                         </div>
 
-                                        <div>
-                                            <InputLabel htmlFor="location" value="Lokasi Penyimpanan" />
-                                            <TextInput
-                                                id="location"
-                                                type="text"
-                                                value={data.location}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('location', e.target.value)}
-                                            />
-                                            <InputError message={errors.location} className="mt-2" />
-                                        </div>
+
 
                                         <div className="md:col-span-2">
-                                            <InputLabel htmlFor="link" value="Link (Opsional)" />
+                                            <InputLabel htmlFor="link" value="Link E-Katalog (Opsional)" />
                                             <TextInput
                                                 id="link"
                                                 type="url"

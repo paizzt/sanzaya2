@@ -20,7 +20,7 @@ class WarehouseStockController extends Controller
             $query->where('name', 'like', "%{$request->search}%")
                   ->orWhere('code', 'like', "%{$request->search}%")
                   ->orWhere('category', 'like', "%{$request->search}%")
-                  ->orWhere('location', 'like', "%{$request->search}%");
+                  ->orWhere('link', 'like', "%{$request->search}%");
         }
 
         $items = $query->orderBy('name')->get();
@@ -92,8 +92,8 @@ class WarehouseStockController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['name', 'code', 'category', 'quantity', 'unit', 'location'];
-            $headings = ['Nama Barang', 'Kode', 'Kategori', 'Stok', 'Satuan', 'Lokasi'];
+            $allowed = ['name', 'code', 'category', 'quantity', 'unit', 'link'];
+            $headings = ['Nama Barang', 'Kode', 'Kategori', 'Stok', 'Satuan', 'Link E-Katalog'];
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) use ($allowed) {
@@ -118,8 +118,8 @@ class WarehouseStockController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['name', 'code', 'category', 'quantity', 'unit', 'location'];
-            $headings = ['Nama Barang', 'Kode', 'Kategori', 'Stok', 'Satuan', 'Lokasi'];
+            $allowed = ['name', 'code', 'category', 'quantity', 'unit', 'link'];
+            $headings = ['Nama Barang', 'Kode', 'Kategori', 'Stok', 'Satuan', 'Link E-Katalog'];
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) use ($allowed) {
@@ -164,7 +164,7 @@ class WarehouseStockController extends Controller
             $query->where('name', 'like', "%{$request->search}%")
                   ->orWhere('code', 'like', "%{$request->search}%")
                   ->orWhere('category', 'like', "%{$request->search}%")
-                  ->orWhere('location', 'like', "%{$request->search}%");
+                  ->orWhere('link', 'like', "%{$request->search}%");
         }
 
         $items = $query->orderBy('name')->get();

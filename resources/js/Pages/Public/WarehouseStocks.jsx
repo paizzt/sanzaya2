@@ -11,7 +11,7 @@ export default function WarehouseStocksPublic({ items, filters }) {
             'name', 
             'code',
             'category',
-            'location'
+            'link'
         ],
         threshold: 0.3,
         ignoreLocation: true
@@ -59,7 +59,7 @@ export default function WarehouseStocksPublic({ items, filters }) {
                                     <th scope="col" className="px-6 py-4">Kategori</th>
                                     <th scope="col" className="px-6 py-4">Stok</th>
                                     <th scope="col" className="px-6 py-4">Satuan</th>
-                                    <th scope="col" className="px-6 py-4">Lokasi</th>
+                                    <th scope="col" className="px-6 py-4">Link E-Katalog</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -78,9 +78,6 @@ export default function WarehouseStocksPublic({ items, filters }) {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-gray-900">{item.name}</div>
-                                                {item.link && (
-                                                    <a href={item.link} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">Link Produk</a>
-                                                )}
                                             </td>
                                             <td className="px-6 py-4">
                                                 {item.category || '-'}
@@ -98,7 +95,11 @@ export default function WarehouseStocksPublic({ items, filters }) {
                                                 {item.unit || '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {item.location || '-'}
+                                                {item.link ? (
+                                                    <a href={item.link} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Buka E-Katalog</a>
+                                                ) : (
+                                                    <span className="text-gray-600">-</span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))
