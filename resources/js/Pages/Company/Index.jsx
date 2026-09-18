@@ -12,7 +12,11 @@ import InputLabel from '@/Components/InputLabel';
 
 const formatCurrencyInput = (value) => {
     if (!value && value !== 0) return '';
-    let valStr = value.toString().replace(/[^0-9]/g, '');
+    
+    // Convert to string and take only the integer part if it has decimals (like "1000.00" from DB)
+    let stringValue = value.toString().split('.')[0];
+    
+    let valStr = stringValue.replace(/[^0-9]/g, '');
     if (!valStr) return '';
     return 'Rp ' + parseInt(valStr, 10).toLocaleString('id-ID');
 };
