@@ -550,6 +550,7 @@ class ReportController extends Controller
         $outletFilter = $request->query('outlet_filter', '');
         $ptFilter = $request->query('pt_filter', '');
         $keteranganFilter = $request->query('keterangan_filter', '');
+        $search = $request->query('search', '');
 
         $outletNamesToSearch = [];
         if ($outletFilter) {
@@ -677,6 +678,12 @@ class ReportController extends Controller
                 $logistikQuery->whereIn('pelanggan', $selectedOutlets);
             }
         }
+        if ($search) {
+            $logistikQuery->where(function($q) use ($search) {
+                $q->where('pelanggan', 'like', "%{$search}%")
+                  ->orWhere('nama_produk', 'like', "%{$search}%");
+            });
+        }
         $logistik = $logistikQuery->get();
 
         if ($keteranganFilter) $pesananQuery->where('keterangan', $keteranganFilter);
@@ -694,6 +701,12 @@ class ReportController extends Controller
                 $pesananQuery->whereIn('nama_outlet', $selectedOutlets);
             }
         }
+        if ($search) {
+            $pesananQuery->where(function($q) use ($search) {
+                $q->where('nama_outlet', 'like', "%{$search}%")
+                  ->orWhere('nama_produk', 'like', "%{$search}%");
+            });
+        }
         $pesanan = $pesananQuery->get();
 
         if ($outletFilter) {
@@ -710,8 +723,14 @@ class ReportController extends Controller
                 $piutangQuery->whereIn('nama_outlet', $selectedOutlets);
             }
         }
+        if ($search) {
+            $piutangQuery->where('nama_outlet', 'like', "%{$search}%");
+        }
         $piutang = $piutangQuery->get();
 
+        if ($search) {
+            $hutangQuery->where('nama_penyedia', 'like', "%{$search}%");
+        }
         $hutang = $hutangQuery->get();
 
         // --- HITUNG RINGKASAN ---

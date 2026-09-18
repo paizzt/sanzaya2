@@ -91,6 +91,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         if (selectedMonth) args.month_filter = selectedMonth;
         if (selectedPt) args.pt_filter = selectedPt;
         if (selectedKeterangan) args.keterangan_filter = selectedKeterangan;
+        if (searchTerm) args.search = searchTerm;
         return args;
     };
 
