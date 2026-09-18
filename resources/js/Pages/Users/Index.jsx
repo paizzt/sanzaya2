@@ -631,6 +631,8 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 { key: 'Profil & Akun', label: 'Profil & Akun' },
                                                                 { key: 'Stok Gudang', label: 'Stok Gudang' },
                                                                 { key: 'Penggunaan Kendaraan', label: 'Penggunaan Kendaraan' },
+                                                                { key: 'Dashboard Laporan', label: 'Dashboard Laporan' },
+                                                                { key: 'Data Laporan Tersinkronisasi', label: 'Data Laporan Tersinkronisasi' },
                                                             ].map(opt => {
                                                                 const isChecked = data.preferences?.bottom_nav?.includes(opt.key) || 
                                                                     (opt.key === 'Dashboard' && data.preferences?.bottom_nav?.includes('dashboard')) ||
@@ -698,6 +700,8 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 { key: 'Profil & Akun', label: 'Profil & Akun' },
                                                                 { key: 'Stok Gudang', label: 'Stok Gudang' },
                                                                 { key: 'Penggunaan Kendaraan', label: 'Penggunaan Kendaraan' },
+                                                                { key: 'Dashboard Laporan', label: 'Dashboard Laporan' },
+                                                                { key: 'Data Laporan Tersinkronisasi', label: 'Data Laporan Tersinkronisasi' },
                                                             ].map(opt => {
                                                                 const isChecked = data.preferences?.dashboard?.includes(opt.key) || 
                                                                     (opt.key === 'Ambil Absensi' && data.preferences?.dashboard?.includes('attendance')) ||
