@@ -158,7 +158,7 @@ export default function Pengajuan({ requests }) {
                                         <div key={req.id} className="p-4 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow flex items-start justify-between">
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${req.type === 'Sakit' ? 'bg-red-100 text-red-600' : 'bg-purple-100 text-purple-600'}`}>
+                                                    <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${req.type === 'Sakit' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
                                                         {req.type}
                                                     </span>
                                                     <span className="text-sm font-semibold text-gray-700">

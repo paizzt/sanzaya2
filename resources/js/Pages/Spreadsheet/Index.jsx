@@ -190,7 +190,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             <div className="pt-4 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h4 className="font-bold text-gray-700">Pemetaan Kolom Piutang</h4>
-                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-purple-600 hover:text-purple-700 bg-purple-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
+                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
                 </div>
                 {piutangForm.data.sheets_config.map((sheet, index) => (
                     <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
@@ -297,7 +297,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                                 <div className="flex items-center gap-2">
                                     {activeTab === 'logistik' && <><Package className="w-4 h-4 text-blue-600"/> Laporan Logistik</>}
                                     {activeTab === 'pesanan' && <><ShoppingCart className="w-4 h-4 text-emerald-600"/> Surat Pesanan</>}
-                                    {activeTab === 'piutang' && <><CreditCard className="w-4 h-4 text-purple-600"/> Data Piutang</>}
+                                    {activeTab === 'piutang' && <><CreditCard className="w-4 h-4 text-blue-600"/> Data Piutang</>}
                                     {activeTab === 'hutang' && <><CreditCard className="w-4 h-4 text-orange-600"/> Data Hutang</>}
                                 </div>
                                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
@@ -320,7 +320,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                                         </button>
                                         <button 
                                             onClick={() => { setActiveTab('piutang'); setIsTabDropdownOpen(false); }} 
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='piutang'?'bg-purple-50 text-purple-700':'text-gray-500 hover:bg-gray-50'}`}
+                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='piutang'?'bg-blue-50 text-blue-700':'text-gray-500 hover:bg-gray-50'}`}
                                         >
                                             <CreditCard className="w-4 h-4"/> Data Piutang
                                         </button>

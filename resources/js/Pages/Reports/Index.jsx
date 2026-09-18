@@ -236,7 +236,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         else if (ket === 'BELUM READY') colorClass = "bg-red-700 text-white font-bold";
         else if (ket === 'CANCEL') colorClass = "bg-gray-200 text-gray-700";
         else if (ket === 'PROSES PENGIRIMAN') colorClass = "bg-yellow-100 text-yellow-800";
-        else if (ket === 'ID PAKET BELUM TERBIT') colorClass = "bg-purple-100 text-purple-800";
+        else if (ket === 'ID PAKET BELUM TERBIT') colorClass = "bg-blue-100 text-blue-800";
         else if (ket === 'TUNGGU PI') colorClass = "bg-blue-100 text-blue-800";
         else if (ket === 'TERKIRIM SEBAGIAN') colorClass = "bg-teal-100 text-teal-800";
         
@@ -327,7 +327,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     <tr>
                         <th className="px-6 py-4" rowSpan="2">Outlet</th>
                         <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Sanzaya</th>
-                        <th className="px-6 py-3 text-center border-b border-gray-100 bg-purple-50/50" colSpan="4">Ruma</th>
+                        <th className="px-6 py-3 text-center border-b border-gray-100 bg-blue-50/50" colSpan="4">Ruma</th>
                         <th className="px-6 py-4 text-right font-bold" rowSpan="2">Total Gabungan</th>
                     </tr>
                     <tr>
@@ -335,10 +335,10 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                         <th className="px-4 py-2 bg-blue-50/50">Tahun 2</th>
                         <th className="px-4 py-2 bg-blue-50/50">Tahun 3</th>
                         <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total</th>
-                        <th className="px-4 py-2 bg-purple-50/50">Ruma 1</th>
-                        <th className="px-4 py-2 bg-purple-50/50">Ruma 2</th>
-                        <th className="px-4 py-2 bg-purple-50/50">Ruma 3</th>
-                        <th className="px-4 py-2 text-right bg-purple-100/50 font-bold">Total Ruma</th>
+                        <th className="px-4 py-2 bg-blue-50/50">Ruma 1</th>
+                        <th className="px-4 py-2 bg-blue-50/50">Ruma 2</th>
+                        <th className="px-4 py-2 bg-blue-50/50">Ruma 3</th>
+                        <th className="px-4 py-2 text-right bg-blue-100/50 font-bold">Total Ruma</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -352,7 +352,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <td className="px-4 py-3">{row.ruma_1}</td>
                             <td className="px-4 py-3">{row.ruma_2}</td>
                             <td className="px-4 py-3">{row.ruma_3}</td>
-                            <td className="px-4 py-3 text-right font-bold text-purple-700 bg-purple-50/30">{row.total_ruma}</td>
+                            <td className="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/30">{row.total_ruma}</td>
                             <td className="px-6 py-4 text-right font-bold text-gray-900 bg-gray-50">{row.total_gabungan}</td>
                         </tr>
                     ))}
@@ -445,7 +445,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <>
                                 <div 
                                     onClick={() => summary.target_detail && Object.keys(summary.target_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail })} 
-                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-purple-100 ${summary.target_detail && Object.keys(summary.target_detail).length > 0 ? 'cursor-pointer' : ''}`}
+                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-blue-100 ${summary.target_detail && Object.keys(summary.target_detail).length > 0 ? 'cursor-pointer' : ''}`}
                                 >
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="min-w-0 flex-1 pr-4">
@@ -453,8 +453,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
                                         </div>
                                         <div className="flex flex-col gap-2 items-center">
-                                            <div className="p-3 bg-purple-50 rounded-2xl">
-                                                <Activity className="w-6 h-6 text-purple-600" />
+                                            <div className="p-3 bg-blue-50 rounded-2xl">
+                                                <Activity className="w-6 h-6 text-blue-600" />
                                             </div>
                                         </div>
                                     </div>
@@ -538,8 +538,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     <p className="text-sm font-semibold text-gray-500 truncate">Top Outlet</p>
                                     <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.top_outlet}>{summary.top_outlet}</h4>
                                 </div>
-                                <div className="p-3 bg-purple-50 rounded-2xl">
-                                    <Store className="w-6 h-6 text-purple-600" />
+                                <div className="p-3 bg-blue-50 rounded-2xl">
+                                    <Store className="w-6 h-6 text-blue-600" />
                                 </div>
                             </div>
                             <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
@@ -648,10 +648,10 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Piutang Ruma</p>
-                                    <h4 className="text-xl font-bold text-purple-700 mt-1 truncate" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
+                                    <h4 className="text-xl font-bold text-blue-700 mt-1 truncate" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
                                 </div>
-                                <div className="p-3 bg-purple-50 rounded-2xl">
-                                    <TrendingUp className="w-6 h-6 text-purple-600" />
+                                <div className="p-3 bg-blue-50 rounded-2xl">
+                                    <TrendingUp className="w-6 h-6 text-blue-600" />
                                 </div>
                             </div>
                             <p className="text-xs text-gray-400">Total piutang bagian Ruma</p>
@@ -747,7 +747,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                 </button>
                                 <button 
                                     onClick={() => { handleTabChange('piutang'); setIsTabDropdownOpen(false); }} 
-                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='piutang' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'}`}
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='piutang' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
                                 >
                                     <CreditCard className="w-4 h-4" /> Data Piutang
                                 </button>

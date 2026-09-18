@@ -206,7 +206,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
                             <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
                         </div>
                         {is_super_admin && (
-                            <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full justify-center h-[42px] whitespace-nowrap bg-purple-600 hover:bg-purple-700">
+                            <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full justify-center h-[42px] whitespace-nowrap bg-blue-600 hover:bg-blue-700">
                                 <Target className="w-4 h-4 mr-2" />
                                 Atur Target Perusahaan
                             </PrimaryButton>
@@ -464,7 +464,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
                         <>
                             <div className="flex justify-between items-center mb-4">
                                 <h4 className="font-semibold text-gray-700">Daftar Grup Target</h4>
-                                <PrimaryButton onClick={() => openTargetModal({})} className="bg-purple-600 hover:bg-purple-700">
+                                <PrimaryButton onClick={() => openTargetModal({})} className="bg-blue-600 hover:bg-blue-700">
                                     <Plus className="w-4 h-4 mr-2" />
                                     Buat Target Baru
                                 </PrimaryButton>
@@ -552,7 +552,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
                                             <label key={company.id} className="flex items-center space-x-3 bg-white p-2 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                                                 <input
                                                     type="checkbox"
-                                                    className="rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500"
+                                                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
                                                     checked={targetData.company_ids.includes(company.id)}
                                                     onChange={(e) => {
                                                         const newIds = e.target.checked 
@@ -573,7 +573,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
                                 <button type="button" onClick={() => setIsEditingTarget(false)} className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                                     Batal
                                 </button>
-                                <PrimaryButton type="submit" disabled={targetProcessing} className="bg-purple-600 hover:bg-purple-700">
+                                <PrimaryButton type="submit" disabled={targetProcessing} className="bg-blue-600 hover:bg-blue-700">
                                     <Save className="w-4 h-4 mr-2" />
                                     {targetProcessing ? 'Menyimpan...' : 'Simpan'}
                                 </PrimaryButton>

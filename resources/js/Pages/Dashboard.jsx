@@ -206,9 +206,9 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                         {activeModal === 'marketing' && (
                             <div className="space-y-3">
                                 {stats.marketing_list?.length > 0 ? stats.marketing_list.map((item, idx) => (
-                                    <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2 hover:border-purple-200 transition-colors">
+                                    <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2 hover:border-blue-200 transition-colors">
                                         <div className="flex items-center gap-2">
-                                            <Building className="w-4 h-4 text-purple-500" />
+                                            <Building className="w-4 h-4 text-blue-500" />
                                             <span className="font-bold text-gray-800">{item.pic_name || 'Kunjungan'}</span>
                                         </div>
                                         <div className="text-sm text-gray-600 flex items-center gap-2">

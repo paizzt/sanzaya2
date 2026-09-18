@@ -147,7 +147,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                         <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-purple-50 text-purple-500 shadow-inner">
+                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-50 text-blue-500 shadow-inner">
                                         <TrendingUp className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -175,7 +175,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                             </div>
                             <div className="w-full bg-gray-100 rounded-full h-2">
                                 <div 
-                                    className="bg-purple-500 h-2 rounded-full transition-all duration-1000" 
+                                    className="bg-blue-500 h-2 rounded-full transition-all duration-1000" 
                                     style={{ 
                                         width: `${spreadsheet?.monthly_target > 0 
                                             ? Math.min(100, ((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
@@ -486,7 +486,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                             end_date: end.toISOString().split('T')[0]
                                                         }));
                                                     }}
-                                                    className="text-xs bg-purple-50 text-purple-600 hover:bg-purple-100 px-3 py-1.5 rounded-lg border border-purple-200 transition-colors font-medium"
+                                                    className="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-colors font-medium"
                                                 >
                                                     1 Bulan ke Depan
                                                 </button>

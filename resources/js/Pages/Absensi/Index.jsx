@@ -134,7 +134,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                                             Catatan Lembur <span className="text-red-500">*</span>
                                                         </label>
                                                         <textarea
-                                                            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-purple-500 focus:border-purple-500"
+                                                            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
                                                             rows="2"
                                                             value={data.notes}
                                                             onChange={(e) => setData('notes', e.target.value)}
@@ -147,7 +147,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                                 <button
                                                     onClick={() => submitAttendance('check_out')}
                                                     disabled={isLocating || (isOvertime && !data.notes.trim())}
-                                                    className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-purple-700 transition-all disabled:opacity-50 shadow-lg shadow-purple-500/30"
+                                                    className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
                                                 >
                                                     {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Keluar</>}
                                                 </button>
@@ -163,7 +163,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                 {/* Riwayat Absensi 1 Bulan */}
                 <div className="mt-8 bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                             <CalendarDays className="w-5 h-5" />
                         </div>
                         <div>
