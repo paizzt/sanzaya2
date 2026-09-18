@@ -204,7 +204,11 @@ class ReportController extends Controller
                 $salesBreakdown[$namaSales] = ($salesBreakdown[$namaSales] ?? 0) + $val;
                 $pesananSales[$namaSales] = ($pesananSales[$namaSales] ?? 0) + 1;
                 if ($row->nama_pt) {
-                    $ptBreakdown[$row->nama_pt] = ($ptBreakdown[$row->nama_pt] ?? 0) + $val;
+                    $nPt = trim($row->nama_pt);
+                    if (stripos($nPt, 'sanzaya') !== false) $nPt = 'PT Sanzaya';
+                    elseif (stripos($nPt, 'msi') !== false || stripos($nPt, 'multi sentosa') !== false) $nPt = 'PT MSI';
+                    elseif (stripos($nPt, 'ruma') !== false) $nPt = 'PT Ruma';
+                    $ptBreakdown[$nPt] = ($ptBreakdown[$nPt] ?? 0) + $val;
                 }
             }
             arsort($outletCounts); arsort($produkCounts); arsort($salesBreakdown); arsort($pesananSales); arsort($ptBreakdown);
@@ -285,13 +289,50 @@ class ReportController extends Controller
             $targetTahunanDetail = [];
             $capaianTahunanDetail = [];
             
+            // Hitung total tahunan (Year-To-Date) secara terpisah tanpa filter bulan
+            $annualQuery = SyncLogistikData::query();
+            $currentYear = date('Y');
+            $annualQuery->where('tanggal', 'like', "%{$currentYear}%");
+            if ($ptFilter) $annualQuery->where('nama_pt', $ptFilter);
+            if ($salesFilter) $annualQuery->where('nama_sales', $salesFilter);
+            if ($search) {
+                $annualQuery->where(function($q) use ($search) {
+                    $q->where('pelanggan', 'like', "%{$search}%")
+                      ->orWhere('nama_sales', 'like', "%{$search}%")
+                      ->orWhere('nama_produk', 'like', "%{$search}%");
+                });
+            }
+            if ($outletFilter) {
+                $annualQuery->where(function($q) use ($outletNamesToSearch) {
+                    foreach ($outletNamesToSearch as $name) {
+                        $q->orWhere('pelanggan', 'like', $name);
+                    }
+                });
+            }
+            
+            $logistikAnnual = $annualQuery->select('grand_total', 'nama_pt', 'nama_sales')->get();
+            $totalPenjualanAnnual = 0;
+            $ptBreakdownAnnual = [];
+            
+            foreach ($logistikAnnual as $row) {
+                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
+                $totalPenjualanAnnual += $val;
+                if ($row->nama_pt) {
+                    $nPt = trim($row->nama_pt);
+                    if (stripos($nPt, 'sanzaya') !== false) $nPt = 'PT Sanzaya';
+                    elseif (stripos($nPt, 'msi') !== false || stripos($nPt, 'multi sentosa') !== false) $nPt = 'PT MSI';
+                    elseif (stripos($nPt, 'ruma') !== false) $nPt = 'PT Ruma';
+                    $ptBreakdownAnnual[$nPt] = ($ptBreakdownAnnual[$nPt] ?? 0) + $val;
+                }
+            }
+            
             if ($ptFilter) {
                 $company = \App\Models\Company::where('name', $ptFilter)->first();
                 if ($company && $company->annual_target > 0) {
                     $targetTahunanVal = (float)$company->annual_target;
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
                     $targetTahunanDetail[$company->name] = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
-                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualan / $targetTahunanVal) * 100 : 0;
+                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualanAnnual / $targetTahunanVal) * 100 : 0;
                     $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
                     $capaianTahunanDetail[$company->name] = $capaianTahunan;
                 }
@@ -302,14 +343,14 @@ class ReportController extends Controller
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
                     foreach ($companiesWithAnnualTarget as $c) {
                         $targetTahunanDetail[$c->name] = 'Rp ' . number_format($c->annual_target, 0, ',', '.');
-                        $ptPenjualan = 0;
-                        if (isset($ptBreakdown[$c->name])) {
-                            $ptPenjualan = $ptBreakdown[$c->name];
+                        $ptPenjualanAnn = 0;
+                        if (isset($ptBreakdownAnnual[$c->name])) {
+                            $ptPenjualanAnn = $ptBreakdownAnnual[$c->name];
                         }
-                        $capPercent = ($c->annual_target > 0) ? ($ptPenjualan / $c->annual_target) * 100 : 0;
+                        $capPercent = ($c->annual_target > 0) ? ($ptPenjualanAnn / $c->annual_target) * 100 : 0;
                         $capaianTahunanDetail[$c->name] = number_format($capPercent, 1, ',', '.') . '%';
                     }
-                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualan / $targetTahunanVal) * 100 : 0;
+                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualanAnnual / $targetTahunanVal) * 100 : 0;
                     $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
                 }
             }
