@@ -208,14 +208,38 @@ class ReportController extends Controller
                     }
                     
                     if ($row->tanggal) {
-                        $time = strtotime(str_replace('/', '-', $row->tanggal));
-                        if ($time) {
-                            $m = date('n', $time);
-                            $mName = $monthsIndo[$m];
-                            $outletDetailsMap[$pel]['bulan'][$mName] = ($outletDetailsMap[$pel]['bulan'][$mName] ?? 0) + $val;
-                        } else {
-                            $outletDetailsMap[$pel]['bulan']['Lainnya'] = ($outletDetailsMap[$pel]['bulan']['Lainnya'] ?? 0) + $val;
+                        $mName = 'Lainnya';
+                        $tgl = strtolower($row->tanggal);
+                        $found = false;
+                        
+                        $indoMonthsList = [
+                            1 => ['januari', 'jan'], 2 => ['februari', 'feb'], 3 => ['maret', 'mar'],
+                            4 => ['april', 'apr'], 5 => ['mei', 'may'], 6 => ['juni', 'jun'],
+                            7 => ['juli', 'jul'], 8 => ['agustus', 'agt', 'agu', 'aug'], 9 => ['september', 'sep'],
+                            10 => ['oktober', 'okt', 'oct'], 11 => ['november', 'nov'], 12 => ['desember', 'des', 'dec']
+                        ];
+                        
+                        foreach ($indoMonthsList as $num => $names) {
+                            foreach ($names as $name) {
+                                if (strpos($tgl, $name) !== false && !preg_match('/\d{4}-\d{2}-\d{2}/', $tgl) && !preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $tgl)) {
+                                    $mName = $monthsIndo[$num];
+                                    $found = true;
+                                    break 2;
+                                }
+                            }
                         }
+                        
+                        if (!$found) {
+                            $time = strtotime(str_replace('/', '-', $row->tanggal));
+                            if ($time) {
+                                $m = date('n', $time);
+                                $mName = $monthsIndo[$m];
+                            } elseif (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $row->tanggal, $matches) || preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/', $row->tanggal, $matches)) {
+                                $m = (int)$matches[2];
+                                if (isset($monthsIndo[$m])) $mName = $monthsIndo[$m];
+                            }
+                        }
+                        $outletDetailsMap[$pel]['bulan'][$mName] = ($outletDetailsMap[$pel]['bulan'][$mName] ?? 0) + $val;
                     }
                 }
                 if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
