@@ -185,10 +185,39 @@ class ReportController extends Controller
             
             $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = [];
+            $outletDetailsMap = [];
+            $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
             foreach ($logistikAll as $row) {
                 $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
                 $totalPenjualan += $val;
-                if ($row->pelanggan) $outletCounts[$row->pelanggan] = ($outletCounts[$row->pelanggan] ?? 0) + 1;
+                if ($row->pelanggan) {
+                    $pel = $row->pelanggan;
+                    $outletCounts[$pel] = ($outletCounts[$pel] ?? 0) + 1;
+                    
+                    if (!isset($outletDetailsMap[$pel])) {
+                        $outletDetailsMap[$pel] = ['total' => 0, 'pt' => [], 'bulan' => []];
+                    }
+                    $outletDetailsMap[$pel]['total'] += $val;
+                    
+                    if ($row->nama_pt) {
+                        $nPt = trim($row->nama_pt);
+                        if (stripos($nPt, 'sanzaya') !== false) $nPt = 'PT Sanzaya';
+                        elseif (stripos($nPt, 'msi') !== false || stripos($nPt, 'multi sentosa') !== false) $nPt = 'PT MSI';
+                        elseif (stripos($nPt, 'ruma') !== false) $nPt = 'PT Ruma';
+                        $outletDetailsMap[$pel]['pt'][$nPt] = ($outletDetailsMap[$pel]['pt'][$nPt] ?? 0) + $val;
+                    }
+                    
+                    if ($row->tanggal) {
+                        $time = strtotime(str_replace('/', '-', $row->tanggal));
+                        if ($time) {
+                            $m = date('n', $time);
+                            $mName = $monthsIndo[$m];
+                            $outletDetailsMap[$pel]['bulan'][$mName] = ($outletDetailsMap[$pel]['bulan'][$mName] ?? 0) + $val;
+                        } else {
+                            $outletDetailsMap[$pel]['bulan']['Lainnya'] = ($outletDetailsMap[$pel]['bulan']['Lainnya'] ?? 0) + $val;
+                        }
+                    }
+                }
                 if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
                 $ptNameForSales = trim($row->nama_pt);
                 $namaSales = trim($row->nama_sales);
@@ -212,6 +241,31 @@ class ReportController extends Controller
                 }
             }
             arsort($outletCounts); arsort($produkCounts); arsort($salesBreakdown); arsort($pesananSales); arsort($ptBreakdown);
+            
+            // Sort outletDetailsMap by total sales descending
+            uasort($outletDetailsMap, function($a, $b) {
+                return $b['total'] <=> $a['total'];
+            });
+            
+            // Format top 10 outlets
+            $top10Outlets = array_slice($outletDetailsMap, 0, 10, true);
+            $outletDetailFormatted = [];
+            foreach ($top10Outlets as $outlet => $data) {
+                $ptFormatted = [];
+                arsort($data['pt']);
+                foreach ($data['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
+                
+                $bulanFormatted = [];
+                // Sort months chronologically or by value? Let's sort by value descending
+                arsort($data['bulan']);
+                foreach ($data['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
+                
+                $outletDetailFormatted[$outlet] = [
+                    'total_formatted' => 'Rp ' . number_format($data['total'], 0, ',', '.'),
+                    'pt' => $ptFormatted,
+                    'bulan' => $bulanFormatted
+                ];
+            }
             
             $salesBreakdownFormatted = [];
             foreach($salesBreakdown as $s => $v) $salesBreakdownFormatted[$s] = 'Rp ' . number_format($v, 0, ',', '.');
@@ -429,7 +483,7 @@ class ReportController extends Controller
                 'total_pesanan' => $logistikAll->count(),
                 'penjualan_detail' => array_slice($salesBreakdownFormatted, 0, 10, true),
                 'pt_penjualan_detail' => $ptBreakdownFormatted,
-                'outlet_detail' => array_slice($outletCounts, 0, 10, true),
+                'outlet_detail' => $outletDetailFormatted,
                 'produk_detail' => array_slice($produkCounts, 0, 10, true),
                 'pesanan_sales' => array_slice($pesananSales, 0, 10, true)
             ];

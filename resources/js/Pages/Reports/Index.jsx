@@ -984,17 +984,55 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : (detailModal.type === 'capaian' ? 'Capaian' : 'Nilai')}</span>
                                         </div>
                                         <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-                                            {Object.entries(detailModal.data).map(([key, value], idx) => (
-                                                  <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
-                                                      <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
-                                                          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
-                                                              {idx + 1}
+                                            {detailModal.type === 'outlet' ? (
+                                                Object.entries(detailModal.data).map(([key, value], idx) => (
+                                                    <div key={idx} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm mb-3">
+                                                        <div className="flex justify-between items-center border-b pb-3 mb-3">
+                                                           <div className="flex items-center gap-2">
+                                                               <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">{idx + 1}</div>
+                                                               <h5 className="font-bold text-gray-800 text-sm">{key}</h5>
+                                                           </div>
+                                                           <span className="font-bold text-gray-900 text-sm">{value.total_formatted}</span>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan PT</p>
+                                                                <div className="space-y-1">
+                                                                    {Object.entries(value.pt).map(([pt, val]) => (
+                                                                        <div key={pt} className="flex justify-between text-[11px] sm:text-xs">
+                                                                            <span className="text-gray-600">{pt}</span>
+                                                                            <span className="font-semibold text-gray-800">{val}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan Bulan</p>
+                                                                <div className="space-y-1">
+                                                                    {Object.entries(value.bulan).map(([bln, val]) => (
+                                                                        <div key={bln} className="flex justify-between text-[11px] sm:text-xs">
+                                                                            <span className="text-gray-600">{bln}</span>
+                                                                            <span className="font-semibold text-gray-800">{val}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                Object.entries(detailModal.data).map(([key, value], idx) => (
+                                                      <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
+                                                          <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                                                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
+                                                                  {idx + 1}
+                                                              </div>
+                                                              <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
                                                           </div>
-                                                          <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
+                                                          <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
                                                       </div>
-                                                      <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
-                                                  </div>
-                                            ))}
+                                                ))
+                                            )}
                                         </div>
                                     </div>
                                 </div>
