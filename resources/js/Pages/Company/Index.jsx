@@ -68,7 +68,10 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
     const submitTarget = (e) => {
         e.preventDefault();
         const routeName = isEditingTarget ? route('company-targets.update', currentTargetId) : route('company-targets.store');
-        postTarget(routeName, {
+        
+        const submitFn = isEditingTarget ? putTarget : postTarget;
+        
+        submitFn(routeName, {
             preserveScroll: true,
             onSuccess: () => {
                 resetTarget();
