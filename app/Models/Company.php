@@ -17,5 +17,7 @@ class Company extends Model
         'latitude',
         'longitude',
         'radius',
+        'monthly_target',
+        'annual_target',
     ];
 }

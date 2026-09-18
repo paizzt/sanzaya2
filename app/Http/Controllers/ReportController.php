@@ -218,10 +218,18 @@ class ReportController extends Controller
             $targetBulanan = 0;
             $targetDetail = [];
             $capaianDetail = [];
-            if ($salesFilter) {
+            if ($ptFilter) {
+                $company = \App\Models\Company::where('name', $ptFilter)->first();
+                if ($company && $company->monthly_target > 0) {
+                    $targetBulanan = (float)$company->monthly_target;
+                    $targetDetail[$company->name] = 'Rp ' . number_format($targetBulanan, 0, ',', '.');
+                    $capPercent = ($targetBulanan > 0) ? ($totalPenjualan / $targetBulanan) * 100 : 0;
+                    $capaianDetail[$company->name] = number_format($capPercent, 1, ',', '.') . '%';
+                }
+            } elseif ($salesFilter) {
                 $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
-                if ($userWithTarget && $userWithTarget->monthly_target) {
-                    $targetBulanan = $userWithTarget->monthly_target;
+                if ($userWithTarget && $userWithTarget->monthly_target > 0) {
+                    $targetBulanan = (float)$userWithTarget->monthly_target;
                     $targetDetail[$userWithTarget->name] = 'Rp ' . number_format($targetBulanan, 0, ',', '.');
                     
                     $salesKey = $userWithTarget->spreadsheet_sales_name ?: $userWithTarget->name;
@@ -236,12 +244,22 @@ class ReportController extends Controller
                     $capaianDetail[$userWithTarget->name] = number_format($capPercent, 1, ',', '.') . '%';
                 }
             } else {
-                $customTargetSetting = \App\Models\Setting::where('key', 'global_monthly_target')->first();
-                if ($customTargetSetting && $customTargetSetting->value > 0) {
-                    $targetBulanan = (float)$customTargetSetting->value;
-                    $targetDetail['Target Custom (Global)'] = 'Rp ' . number_format($targetBulanan, 0, ',', '.');
-                    $capPercent = ($targetBulanan > 0) ? ($totalPenjualan / $targetBulanan) * 100 : 0;
-                    $capaianDetail['Target Keseluruhan'] = number_format($capPercent, 1, ',', '.') . '%';
+                $companiesWithTarget = \App\Models\Company::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
+                $targetBulananPTs = $companiesWithTarget->sum('monthly_target');
+                
+                if ($targetBulananPTs > 0) {
+                    $targetBulanan = (float)$targetBulananPTs;
+                    foreach ($companiesWithTarget as $c) {
+                        $targetDetail[$c->name] = 'Rp ' . number_format($c->monthly_target, 0, ',', '.');
+                        
+                        $ptPenjualan = 0;
+                        if (isset($ptBreakdown[$c->name])) {
+                            $ptPenjualan = $ptBreakdown[$c->name];
+                        }
+                        
+                        $capPercent = ($c->monthly_target > 0) ? ($ptPenjualan / $c->monthly_target) * 100 : 0;
+                        $capaianDetail[$c->name] = number_format($capPercent, 1, ',', '.') . '%';
+                    }
                 } else {
                     $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
                     $targetBulanan = $usersWithTarget->sum('monthly_target');
@@ -264,12 +282,23 @@ class ReportController extends Controller
 
             $targetTahunan = null;
             $capaianTahunan = null;
-            $customAnnualSetting = \App\Models\Setting::where('key', 'global_annual_target')->first();
-            if ($customAnnualSetting && $customAnnualSetting->value > 0) {
-                $targetTahunanVal = (float)$customAnnualSetting->value;
-                $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
-                $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualan / $targetTahunanVal) * 100 : 0;
-                $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
+            
+            if ($ptFilter) {
+                $company = \App\Models\Company::where('name', $ptFilter)->first();
+                if ($company && $company->annual_target > 0) {
+                    $targetTahunanVal = (float)$company->annual_target;
+                    $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
+                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualan / $targetTahunanVal) * 100 : 0;
+                    $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
+                }
+            } else {
+                $companiesWithAnnualTarget = \App\Models\Company::whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
+                $targetTahunanVal = $companiesWithAnnualTarget->sum('annual_target');
+                if ($targetTahunanVal > 0) {
+                    $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
+                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualan / $targetTahunanVal) * 100 : 0;
+                    $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
+                }
             }
 
             return [
@@ -451,8 +480,6 @@ class ReportController extends Controller
         return Inertia::render('Reports/Index', [
             'tab' => $tab,
             'is_super_admin' => auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']),
-            'global_target_value' => \App\Models\Setting::where('key', 'global_monthly_target')->value('value'),
-            'global_annual_target_value' => \App\Models\Setting::where('key', 'global_annual_target')->value('value'),
             'search' => $search,
             'salesFilter' => $salesFilter,
             'outletFilter' => $outletFilter,
@@ -722,13 +749,24 @@ class ReportController extends Controller
         }
 
         $targetBulanan = 0;
-        if ($salesFilter) {
+        if ($ptFilter) {
+            $company = \App\Models\Company::where('name', $ptFilter)->first();
+            if ($company && $company->monthly_target > 0) {
+                $targetBulanan = (float)$company->monthly_target;
+            }
+        } elseif ($salesFilter) {
             $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
-            if ($userWithTarget && $userWithTarget->monthly_target) {
-                $targetBulanan = $userWithTarget->monthly_target;
+            if ($userWithTarget && $userWithTarget->monthly_target > 0) {
+                $targetBulanan = (float)$userWithTarget->monthly_target;
             }
         } else {
-            $targetBulanan = \App\Models\User::sum('monthly_target');
+            $companiesWithTarget = \App\Models\Company::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
+            $targetBulananPTs = $companiesWithTarget->sum('monthly_target');
+            if ($targetBulananPTs > 0) {
+                $targetBulanan = (float)$targetBulananPTs;
+            } else {
+                $targetBulanan = \App\Models\User::sum('monthly_target');
+            }
         }
 
         $paretoTotalPenjualan = $totalPenjualan;

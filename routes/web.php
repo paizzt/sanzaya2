@@ -20,6 +20,17 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/migrate-db', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return 'Migration successful: ' . Artisan::output();
+    } catch (\Exception $e) {
+        return 'Migration failed: ' . $e->getMessage();
+    }
+});
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -181,6 +192,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
         Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
         Route::post('/company/{id}', [CompanyController::class, 'update'])->name('company.update');
+        Route::post('/company/{id}/target', [CompanyController::class, 'updateTarget'])->name('company.target.update');
         Route::delete('/company/{id}', [CompanyController::class, 'destroy'])->name('company.destroy');
     });
     
