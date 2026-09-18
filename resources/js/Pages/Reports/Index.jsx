@@ -946,7 +946,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                                 <span>Nama PT</span>
                                                 <span>Total (Rp)</span>
                                             </div>
-                                            <div className="space-y-3 mt-3">
+                                            <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
                                                 {Object.entries(summary.pt_penjualan_detail).map(([key, value], idx) => (
                                                       <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors gap-2">
                                                           <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
@@ -976,7 +976,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan', 'capaian'].includes(detailModal.type) ? 'Nama Sales' : 'Nama')}</span>
                                             <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : (detailModal.type === 'capaian' ? 'Capaian' : 'Nilai')}</span>
                                         </div>
-                                        <div className="space-y-3 mt-3">
+                                        <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
                                             {Object.entries(detailModal.data).map(([key, value], idx) => (
                                                   <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
                                                       <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
