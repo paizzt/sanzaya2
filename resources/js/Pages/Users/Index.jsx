@@ -284,7 +284,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                     <th className="px-6 py-4">Kontak / Akun</th>
                                     <th className="px-6 py-4">Perusahaan & Role</th>
                                     <th className="px-6 py-4">Jabatan & Divisi</th>
-                                    <th className="px-6 py-4">Area Marketing</th>
+
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -338,17 +338,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         <span className="text-xs text-gray-500 italic">Semua Akses</span>
                                                     )}
                                                 </td>
-                                                <td className="px-6 py-4 max-w-xs">
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {user.marketing_areas && user.marketing_areas.length > 0 ? (
-                                                            user.marketing_areas.map(area => (
-                                                                <span key={area.id} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md border border-gray-200">
-                                                                    {area.name}
-                                                                </span>
-                                                            ))
-                                                        ) : '-'}
-                                                    </div>
-                                                </td>
+
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                         <button type="button" onClick={() => openBarcodeModal(user)} className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Unduh Barcode (Tanda Tangan)"><QrCode className="w-4 h-4" /></button>
@@ -362,7 +352,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                         ))}
                                         {filteredUsers.length === 0 && (
                                             <tr>
-                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                                                <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                                                     Belum ada pengguna terdaftar.
                                                 </td>
                                             </tr>
