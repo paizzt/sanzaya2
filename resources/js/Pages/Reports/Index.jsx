@@ -468,9 +468,17 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         <div className="min-w-0 flex-1 pr-4">
                                             <p className="text-sm font-semibold text-gray-500 truncate">Capaian Target</p>
                                             <h4 className="text-xl font-bold text-gray-900 mt-1 truncate">
-                                                {parseRpToNumber(summary.target_bulanan) > 0 
-                                                    ? ((parseRpToNumber(summary.total_penjualan) / parseRpToNumber(summary.target_bulanan)) * 100).toFixed(1) + '%' 
-                                                    : '0%'}
+                                                {(() => {
+                                                    const capaianValues = summary.capaian_detail ? Object.values(summary.capaian_detail) : [];
+                                                    if (capaianValues.length > 0) {
+                                                        const totalPercent = capaianValues.reduce((acc, val) => {
+                                                            const num = parseFloat(val.toString().replace('.', '').replace(',', '.').replace('%', ''));
+                                                            return acc + (isNaN(num) ? 0 : num);
+                                                        }, 0);
+                                                        return (totalPercent / capaianValues.length).toFixed(1).replace('.', ',') + '%';
+                                                    }
+                                                    return '0%';
+                                                })()}
                                             </h4>
                                         </div>
                                         <div className="p-3 bg-pink-50 rounded-2xl">
