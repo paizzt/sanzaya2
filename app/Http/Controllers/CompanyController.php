@@ -16,9 +16,15 @@ class CompanyController extends Controller
     public function index()
     {
         $companies = Company::all();
+        $global_monthly_target = \App\Models\Setting::where('key', 'global_monthly_target')->value('value');
+        $global_annual_target = \App\Models\Setting::where('key', 'global_annual_target')->value('value');
+        $is_super_admin = auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']);
 
         return Inertia::render('Company/Index', [
-            'companies' => $companies
+            'companies' => $companies,
+            'global_monthly_target' => $global_monthly_target,
+            'global_annual_target' => $global_annual_target,
+            'is_super_admin' => $is_super_admin
         ]);
     }
 

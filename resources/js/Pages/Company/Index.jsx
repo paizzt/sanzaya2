@@ -2,13 +2,27 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Building, Upload, Save, Building2, MapPin, Plus, Edit, Trash2, X } from 'lucide-react';
+import { Building, Upload, Save, Building2, MapPin, Plus, Edit, Trash2, X, Target } from 'lucide-react';
 import Swal from 'sweetalert2';
 import InputError from '@/Components/InputError';
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
 
-export default function Index({ auth, companies }) {
+const formatCurrencyInput = (value) => {
+    if (!value && value !== 0) return '';
+    let valStr = value.toString().replace(/[^0-9]/g, '');
+    if (!valStr) return '';
+    return 'Rp ' + parseInt(valStr, 10).toLocaleString('id-ID');
+};
+
+const parseCurrencyInput = (value) => {
+    if (!value) return '';
+    return value.toString().replace(/[^0-9]/g, '');
+};
+
+export default function Index({ auth, companies, global_monthly_target, global_annual_target, is_super_admin }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [currentId, setCurrentId] = useState(null);
@@ -23,6 +37,23 @@ export default function Index({ auth, companies }) {
         radius: 300,
         logo: null,
     });
+
+    const [targetModalOpen, setTargetModalOpen] = useState(false);
+    const { data: targetData, setData: setTargetData, post: postTarget, processing: targetProcessing, errors: targetErrors } = useForm({
+        global_monthly_target: global_monthly_target || '',
+        global_annual_target: global_annual_target || ''
+    });
+
+    const submitTarget = (e) => {
+        e.preventDefault();
+        postTarget(route('reports.target.update'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setTargetModalOpen(false);
+                Swal.fire({ title: 'Berhasil!', text: 'Target berhasil diperbarui.', icon: 'success', customClass: { popup: 'rounded-2xl' } });
+            }
+        });
+    };
 
     const openModal = (company = null) => {
         if (company) {
@@ -136,7 +167,28 @@ export default function Index({ auth, companies }) {
             <Head title="Data Perusahaan" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    {is_super_admin && (
+                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div className="p-6 text-gray-900">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center shrink-0">
+                                            <Target className="w-6 h-6 text-indigo-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-gray-900">Target Penjualan Global</h3>
+                                            <p className="text-sm text-gray-500">Atur target penjualan keseluruhan per bulan dan per tahun. Nilai ini menimpa total akumulasi target individu dari masing-masing sales.</p>
+                                        </div>
+                                    </div>
+                                    <PrimaryButton onClick={() => setTargetModalOpen(true)} className="whitespace-nowrap h-[42px] shrink-0">
+                                        Atur Target
+                                    </PrimaryButton>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             
@@ -360,6 +412,47 @@ export default function Index({ auth, companies }) {
                         </div>
                     </form>
                 </div>
+            </Modal>
+
+            {/* Target Edit Modal */}
+            <Modal show={targetModalOpen} onClose={() => setTargetModalOpen(false)} maxWidth="sm">
+                <form onSubmit={submitTarget} className="p-6">
+                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                        <h3 className="text-xl font-bold text-gray-800">Set Target Keseluruhan</h3>
+                        <button type="button" onClick={() => setTargetModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                        Masukkan target penjualan keseluruhan per bulan dan per tahun. Jika nilai ini diisi, nilai ini akan <strong className="text-gray-700">menimpa total akumulasi target</strong> dari masing-masing sales pada ringkasan dashboard. Biarkan kosong untuk menggunakan akumulasi target individual.
+                    </p>
+                    <div className="mb-4">
+                        <InputLabel value="Target Bulanan" className="mb-2" />
+                        <TextInput 
+                            type="text" 
+                            className="block w-full rounded-xl bg-gray-50 border-gray-200" 
+                            value={formatCurrencyInput(targetData.global_monthly_target)} 
+                            onChange={e => setTargetData('global_monthly_target', parseCurrencyInput(e.target.value))}
+                            placeholder="Kosongkan jika menggunakan target individual"
+                        />
+                        <InputError message={targetErrors.global_monthly_target} className="mt-2" />
+                    </div>
+                    <div className="mb-6">
+                        <InputLabel value="Target Tahunan" className="mb-2" />
+                        <TextInput 
+                            type="text" 
+                            className="block w-full rounded-xl bg-gray-50 border-gray-200" 
+                            value={formatCurrencyInput(targetData.global_annual_target)} 
+                            onChange={e => setTargetData('global_annual_target', parseCurrencyInput(e.target.value))}
+                            placeholder="Contoh: Rp 12.000.000.000"
+                        />
+                        <InputError message={targetErrors.global_annual_target} className="mt-2" />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                        <button type="button" onClick={() => setTargetModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors text-sm">Batal</button>
+                        <PrimaryButton disabled={targetProcessing} className="px-6 py-2.5 rounded-xl text-sm shadow-sm">Simpan Target</PrimaryButton>
+                    </div>
+                </form>
             </Modal>
         </AuthenticatedLayout>
     );

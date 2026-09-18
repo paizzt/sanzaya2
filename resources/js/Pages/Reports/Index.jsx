@@ -14,39 +14,11 @@ import SearchableSelect from '@/Components/SearchableSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
-const formatCurrencyInput = (value) => {
-    if (!value && value !== 0) return '';
-    let valStr = value.toString().replace(/[^0-9]/g, '');
-    if (!valStr) return '';
-    return 'Rp ' + parseInt(valStr, 10).toLocaleString('id-ID');
-};
-
-const parseCurrencyInput = (value) => {
-    if (!value) return '';
-    return value.toString().replace(/[^0-9]/g, '');
-};
-
 export default function Index({ tab, is_super_admin, global_target_value, global_annual_target_value, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames, outletNames, ptNames, keteranganNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const authUser = usePage().props.auth.user;
     const isSalesLocked = !!authUser.spreadsheet_sales_name;
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
-    const [targetModalOpen, setTargetModalOpen] = useState(false);
-    const { data: targetData, setData: setTargetData, post: postTarget, processing: targetProcessing, errors: targetErrors } = useForm({
-        global_monthly_target: global_target_value || '',
-        global_annual_target: global_annual_target_value || ''
-    });
-
-    const submitTarget = (e) => {
-        e.preventDefault();
-        postTarget(route('reports.target.update'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                setTargetModalOpen(false);
-                Swal.fire({ title: 'Berhasil!', text: 'Target berhasil diperbarui.', icon: 'success', customClass: { popup: 'rounded-2xl' } });
-            }
-        });
-    };
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
@@ -484,11 +456,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <div className="p-3 bg-purple-50 rounded-2xl">
                                                 <Activity className="w-6 h-6 text-purple-600" />
                                             </div>
-                                            {is_super_admin && (
-                                                <button onClick={(e) => { e.stopPropagation(); setTargetModalOpen(true); }} className="text-xs text-purple-700 hover:text-purple-900 font-bold bg-purple-100 hover:bg-purple-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
-                                                    Set Target
-                                                </button>
-                                            )}
                                         </div>
                                     </div>
                                     <p className="text-xs text-gray-400">Target penjualan bulanan</p>
@@ -527,11 +494,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <div className="p-3 bg-indigo-50 rounded-2xl">
                                                 <svg className="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                             </div>
-                                            {is_super_admin && (
-                                                <button onClick={(e) => { e.stopPropagation(); setTargetModalOpen(true); }} className="text-xs text-indigo-700 hover:text-indigo-900 font-bold bg-indigo-100 hover:bg-indigo-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
-                                                    Set Target
-                                                </button>
-                                            )}
                                         </div>
                                     </div>
                                     <p className="text-xs text-gray-400">Target penjualan tahunan global</p>
@@ -1025,47 +987,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             )}
                         </div>
                     </div>
-                </Modal>
-                
-                {/* Target Edit Modal */}
-                <Modal show={targetModalOpen} onClose={() => setTargetModalOpen(false)} maxWidth="sm">
-                    <form onSubmit={submitTarget} className="p-6">
-                        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                            <h3 className="text-xl font-bold text-gray-800">Set Target Keseluruhan</h3>
-                            <button type="button" onClick={() => setTargetModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                        </div>
-                        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                            Masukkan target penjualan keseluruhan per bulan dan per tahun. Jika nilai ini diisi, nilai ini akan <strong className="text-gray-700">menimpa total akumulasi target</strong> dari masing-masing sales pada ringkasan dashboard. Biarkan kosong untuk menggunakan akumulasi target individual.
-                        </p>
-                        <div className="mb-4">
-                            <InputLabel value="Target Bulanan" className="mb-2" />
-                            <TextInput 
-                                type="text" 
-                                className="block w-full rounded-xl bg-gray-50 border-gray-200" 
-                                value={formatCurrencyInput(targetData.global_monthly_target)} 
-                                onChange={e => setTargetData('global_monthly_target', parseCurrencyInput(e.target.value))}
-                                placeholder="Kosongkan jika menggunakan target individual"
-                            />
-                            <InputError message={targetErrors.global_monthly_target} className="mt-2" />
-                        </div>
-                        <div className="mb-6">
-                            <InputLabel value="Target Tahunan" className="mb-2" />
-                            <TextInput 
-                                type="text" 
-                                className="block w-full rounded-xl bg-gray-50 border-gray-200" 
-                                value={formatCurrencyInput(targetData.global_annual_target)} 
-                                onChange={e => setTargetData('global_annual_target', parseCurrencyInput(e.target.value))}
-                                placeholder="Contoh: Rp 12.000.000.000"
-                            />
-                            <InputError message={targetErrors.global_annual_target} className="mt-2" />
-                        </div>
-                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                            <button type="button" onClick={() => setTargetModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors text-sm">Batal</button>
-                            <PrimaryButton disabled={targetProcessing} className="px-6 py-2.5 rounded-xl text-sm shadow-sm">Simpan Target</PrimaryButton>
-                        </div>
-                    </form>
                 </Modal>
             </AuthenticatedLayout>
         </ErrorBoundary>
