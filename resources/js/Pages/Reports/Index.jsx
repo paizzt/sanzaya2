@@ -931,9 +931,9 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                                         if (totalValue) {
                                             return (
-                                                <div className="flex justify-between items-center p-4 mb-2 bg-blue-50/80 rounded-xl border border-blue-100">
-                                                    <span className="font-bold text-blue-900">Total Keseluruhan</span>
-                                                    <span className="font-bold text-blue-700 text-lg">{totalValue}</span>
+                                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 mb-2 bg-blue-50/80 rounded-xl border border-blue-100 gap-1 sm:gap-0">
+                                                    <span className="font-bold text-blue-900 text-sm sm:text-base">Total Keseluruhan</span>
+                                                    <span className="font-bold text-blue-700 text-base sm:text-lg break-all sm:break-normal max-w-full">{totalValue}</span>
                                                 </div>
                                             );
                                         }
@@ -948,14 +948,14 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             </div>
                                             <div className="space-y-3 mt-3">
                                                 {Object.entries(summary.pt_penjualan_detail).map(([key, value], idx) => (
-                                                      <div key={idx} className="flex justify-between items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors">
-                                                          <div className="flex items-start gap-3 min-w-0 pr-2 flex-1">
-                                                              <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                                      <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors gap-2">
+                                                          <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                                                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
                                                                   {idx + 1}
                                                               </div>
-                                                              <div className="text-xs sm:text-sm font-medium text-gray-700 break-words whitespace-normal" title={key}>{key}</div>
+                                                              <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
                                                           </div>
-                                                          <span className="text-xs sm:text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap ml-2 mt-0.5">{value}</span>
+                                                          <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
                                                       </div>
                                                 ))}
                                             </div>
@@ -978,14 +978,14 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         </div>
                                         <div className="space-y-3 mt-3">
                                             {Object.entries(detailModal.data).map(([key, value], idx) => (
-                                                  <div key={idx} className="flex justify-between items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">
-                                                      <div className="flex items-start gap-3 min-w-0 pr-2 flex-1">
-                                                          <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                                  <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
+                                                      <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                                                          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
                                                               {idx + 1}
                                                           </div>
-                                                          <div className="text-xs sm:text-sm font-medium text-gray-700 break-words whitespace-normal" title={key}>{key}</div>
+                                                          <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
                                                       </div>
-                                                      <span className="text-xs sm:text-sm font-bold text-gray-900 shrink-0 whitespace-nowrap ml-2 mt-0.5">{value}</span>
+                                                      <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
                                                   </div>
                                             ))}
                                         </div>
