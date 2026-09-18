@@ -931,9 +931,9 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                                         if (totalValue) {
                                             return (
-                                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 mb-2 bg-blue-50/80 rounded-xl border border-blue-100 gap-1 sm:gap-0">
-                                                    <span className="font-bold text-blue-900 text-sm sm:text-base">Total Keseluruhan</span>
-                                                    <span className="font-bold text-blue-700 text-base sm:text-lg break-all sm:break-normal max-w-full">{totalValue}</span>
+                                                <div className="flex justify-between items-center p-4 mb-2 bg-blue-50/80 rounded-xl border border-blue-100 gap-2">
+                                                    <span className="font-bold text-blue-900 text-sm sm:text-base shrink-0">Total Keseluruhan</span>
+                                                    <span className="font-bold text-blue-700 text-sm sm:text-lg text-right break-words">{totalValue}</span>
                                                 </div>
                                             );
                                         }
