@@ -471,7 +471,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
                                 <h4 className="font-semibold text-gray-700">Daftar Grup Target</h4>
                                 <PrimaryButton onClick={() => openTargetModal({})} className="bg-blue-600 hover:bg-blue-700">
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Buat Target Baru
+                                    Tambah
                                 </PrimaryButton>
                             </div>
                             
