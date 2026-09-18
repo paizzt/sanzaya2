@@ -718,7 +718,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 )}
 
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="relative w-full lg:w-auto z-[60]" ref={tabDropdownRef}>
+                    <div className="relative w-full lg:w-auto z-40" ref={tabDropdownRef}>
                         <button
                             onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
                             className="flex items-center justify-between w-full lg:w-44 xl:w-48 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
@@ -764,7 +764,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </div>
                     
                     <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-wrap">
-                        <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[50]">
+                        <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-30">
                             <CustomSelect
                                 value={selectedMonth}
                                 onChange={(value) => {
@@ -792,7 +792,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                         
                         {tab === 'logistik' && (
                             <>
-                                <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[40]">
+                                <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-20">
                                     <CustomSelect
                                         value={selectedPt}
                                         onChange={(value) => {
@@ -807,7 +807,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     />
                                 </div>
                                 {!isSalesLocked && (
-                                    <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[30]">
+                                    <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-10">
                                         <CustomSelect
                                             value={selectedSales}
                                             onChange={(value) => {
@@ -827,7 +827,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
 
                         {tab === 'pesanan' && (
-                            <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-[15]">
+                            <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-10">
                                 <CustomSelect
                                     value={selectedKeterangan}
                                     onChange={(value) => {
