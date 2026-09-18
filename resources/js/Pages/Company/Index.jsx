@@ -63,7 +63,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
                 company_ids: target.companies ? target.companies.map(c => c.id) : []
             });
         } else {
-            setIsEditingTarget(false);
+            setIsEditingTarget(true); // Must be true to show the form
             setCurrentTargetId(null);
             resetTarget();
         }
@@ -71,7 +71,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
 
     const submitTarget = (e) => {
         e.preventDefault();
-        const routeName = isEditingTarget ? route('company-targets.update', currentTargetId) : route('company-targets.store');
+        const routeName = currentTargetId ? route('company-targets.update', currentTargetId) : route('company-targets.store');
         
         postTarget(routeName, {
             preserveScroll: true,
