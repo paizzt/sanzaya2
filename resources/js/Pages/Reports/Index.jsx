@@ -985,14 +985,14 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         </div>
                                         <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
                                             {Object.entries(detailModal.data).map(([key, value], idx) => (
-                                                  <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2 sm:gap-3">
-                                                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 w-full sm:w-auto flex-1">
+                                                  <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
+                                                      <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
                                                           <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
                                                               {idx + 1}
                                                           </div>
                                                           <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
                                                       </div>
-                                                      <div className="text-[11px] sm:text-sm font-bold text-gray-900 sm:shrink-0 sm:text-right w-full sm:w-auto text-left pl-7 sm:pl-0 mt-1 sm:mt-0">{value}</div>
+                                                      <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
                                                   </div>
                                             ))}
                                         </div>
