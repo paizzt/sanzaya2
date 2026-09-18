@@ -104,7 +104,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         }));
 
         return (
-            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+            <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
                 <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -141,7 +141,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
         return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
+                <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
                     <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
                     <div className="h-64 w-full">
                         <ResponsiveContainer width="100%" height="100%">
@@ -157,7 +157,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                         </ResponsiveContainer>
                     </div>
                 </div>
-                <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2">
+                <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2">
                     <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</h4>
                     <div className="h-64 w-full">
                         <ResponsiveContainer width="100%" height="100%">
@@ -184,7 +184,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         }));
 
         return (
-            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+            <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Top 10 Total Piutang Outlet</h4>
                 <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -210,7 +210,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         }));
 
         return (
-            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+            <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</h4>
                 <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -429,7 +429,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 {/* Summary Cards */}
                 {tab === 'logistik' && summary && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Penjualan', type: 'penjualan', data: summary.penjualan_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Penjualan', type: 'penjualan', data: summary.penjualan_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Penjualan</p>
@@ -522,7 +522,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             </>
                         )}
                         
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Pesanan', type: 'pesanan', data: summary.pesanan_sales })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Pesanan', type: 'pesanan', data: summary.pesanan_sales })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Pesanan</p>
@@ -535,7 +535,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Jumlah baris transaksi tercatat</p>
                         </div>
 
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Outlet', type: 'outlet', data: summary.outlet_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Outlet', type: 'outlet', data: summary.outlet_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Top Outlet</p>
@@ -548,7 +548,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
                         </div>
 
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Produk', type: 'produk', data: summary.produk_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Produk', type: 'produk', data: summary.produk_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Top Produk</p>
@@ -565,7 +565,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                 {tab === 'pesanan' && summaryPesanan && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Faktur', type: 'faktur', data: summaryPesanan.faktur_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Faktur', type: 'faktur', data: summaryPesanan.faktur_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Faktur</p>
@@ -578,7 +578,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Total akumulasi dari Total Faktur</p>
                         </div>
                         
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Barang Terkirim', type: 'terkirim', data: summaryPesanan.terkirim_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Barang Terkirim', type: 'terkirim', data: summaryPesanan.terkirim_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Barang Terkirim</p>
@@ -591,7 +591,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Persentase barang yang berhasil terkirim</p>
                         </div>
 
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Belum Terkirim', type: 'belum_terkirim', data: summaryPesanan.belum_terkirim_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Belum Terkirim', type: 'belum_terkirim', data: summaryPesanan.belum_terkirim_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Belum Terkirim</p>
@@ -604,7 +604,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Persentase barang yang belum terkirim</p>
                         </div>
 
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Surat', type: 'total_surat', data: summaryPesanan.pesanan_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Surat', type: 'total_surat', data: summaryPesanan.pesanan_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Surat</p>
@@ -621,7 +621,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                 {tab === 'piutang' && summaryPiutang && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Piutang (Gabungan)', type: 'gabungan', data: summaryPiutang.gabungan_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Piutang (Gabungan)', type: 'gabungan', data: summaryPiutang.gabungan_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Piutang (Gabungan)</p>
@@ -634,7 +634,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Total keseluruhan piutang</p>
                         </div>
                         
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Piutang Sanzaya', type: 'sanzaya', data: summaryPiutang.sanzaya_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Piutang Sanzaya', type: 'sanzaya', data: summaryPiutang.sanzaya_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Piutang Sanzaya</p>
@@ -647,7 +647,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Total piutang bagian Sanzaya</p>
                         </div>
 
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Piutang Ruma', type: 'ruma', data: summaryPiutang.ruma_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Piutang Ruma', type: 'ruma', data: summaryPiutang.ruma_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Piutang Ruma</p>
@@ -660,7 +660,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Total piutang bagian Ruma</p>
                         </div>
 
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Data Piutang</p>
@@ -677,7 +677,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                 {tab === 'hutang' && summaryHutang && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Nominal', type: 'hutang', data: summaryHutang.hutang_detail })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Nominal', type: 'hutang', data: summaryHutang.hutang_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Nominal</p>
@@ -690,7 +690,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Total akumulasi nominal hutang</p>
                         </div>
                         
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Penyedia</p>
@@ -703,7 +703,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <p className="text-xs text-gray-400">Jumlah penyedia berbeda</p>
                         </div>
 
-                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                        <div onClick={() => document.getElementById('data-table-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="min-w-0 flex-1 pr-4">
                                     <p className="text-sm font-semibold text-gray-500 truncate">Total Data</p>
@@ -877,7 +877,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     
                     {/* Pagination */}
                     {reportData.links && reportData.links.length > 3 && (
-                        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                        <div className="px-4 sm:px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <span className="text-sm text-gray-500">
                                 Menampilkan <span className="font-medium text-gray-900">{reportData.from || 0}</span> - <span className="font-medium text-gray-900">{reportData.to || 0}</span> dari <span className="font-medium text-gray-900">{reportData.total}</span> data
                             </span>
@@ -901,7 +901,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 </div>
                             {/* Detail Modal */}
                 <Modal show={detailModal.isOpen} onClose={() => setDetailModal({ ...detailModal, isOpen: false })} maxWidth="md">
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6">
                         <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
                             <h3 className="text-xl font-bold text-gray-800">Detail {detailModal.title}</h3>
                             <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">

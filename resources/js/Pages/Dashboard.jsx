@@ -8,7 +8,7 @@ const StatCard = ({ title, value, icon: Icon, color, delay, onClick }) => {
     return (
         <div 
             onClick={onClick}
-            className={`bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center gap-4 transition-all duration-300 ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-gray-200' : ''}`}
+            className={`bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center gap-4 transition-all duration-300 ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-gray-200' : ''}`}
         >
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${color}-50 text-${color}-500 shadow-inner flex-shrink-0`}>
                 <Icon className="w-6 h-6" />
@@ -117,7 +117,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                     {/* Admin Specific Metrics */}
                     <div className="lg:col-span-2">
                         {isAdmin && (
-                            <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
+                            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
                                 <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
                                     <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                                         <Archive className="text-indigo-500 w-5 h-5"/>
@@ -141,7 +141,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                             </div>
                         )}
                         {!isAdmin && (
-                            <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full flex flex-col items-center justify-center text-center">
+                            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full flex flex-col items-center justify-center text-center">
                                 <div className="w-48 h-48 flex items-center justify-center rounded-full bg-blue-50 mb-4">
                                     <Sparkles className="w-24 h-24 text-blue-500 opacity-80" />
                                 </div>
@@ -152,7 +152,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                     </div>
 
                     {/* Greeting Card */}
-                    <div className="bg-blue-500 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden flex flex-col justify-between">
+                    <div className="bg-blue-500 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden flex flex-col justify-between">
                         <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white/10 blur-2xl"></div>
                         <div>
                             <h3 className="font-bold text-lg mb-2 relative z-10">Selamat Datang,</h3>
@@ -170,7 +170,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
 
             {/* Modal for Details */}
             <Modal show={activeModal !== null} onClose={() => setActiveModal(null)} maxWidth="lg">
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-gray-800">
                             {activeModal === 'attendance' && 'Daftar Absen (Hari Ini)'}
