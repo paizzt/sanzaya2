@@ -71,6 +71,10 @@ export default function Dashboard({ auth, stats, isAdmin }) {
             'Riwayat Perubahan': { title: 'Pintasan Menu', value: 'Riwayat Log', icon: FileClock, color: 'gray', action: () => router.visit(route('system.activity-logs')) },
             'Notifikasi': { title: 'Pintasan Menu', value: 'Notifikasi', icon: Bell, color: 'indigo', action: () => router.visit(route('notifications.index')) },
             'Profil & Akun': { title: 'Pintasan Menu', value: 'Profil Akun', icon: User, color: 'gray', action: () => router.visit(route('profile.edit')) },
+            'Stok Gudang': { title: 'Pintasan Menu', value: 'Stok Gudang', icon: Box, color: 'amber', action: () => router.visit(route('warehouse-stocks.index')) },
+            'Penggunaan Kendaraan': { title: 'Pintasan Menu', value: 'Penggunaan Kdrn', icon: Truck, color: 'slate', action: () => router.visit(route('vehicle-usages.index')) },
+            'Dashboard Laporan': { title: 'Pintasan Menu', value: 'Dash Laporan', icon: LayoutDashboard, color: 'emerald', action: () => router.visit(route('reports.index')) },
+            'Data Laporan Tersinkronisasi': { title: 'Pintasan Menu', value: 'Data Laporan', icon: FileSpreadsheet, color: 'emerald', action: () => router.visit(route('spreadsheet.index')) },
         };
         
         return configs[key];
