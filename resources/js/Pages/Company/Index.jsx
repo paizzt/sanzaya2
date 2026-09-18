@@ -54,8 +54,8 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
             setCurrentTargetId(target.id);
             setTargetData({
                 name: target.name,
-                monthly_target: target.monthly_target || '',
-                annual_target: target.annual_target || '',
+                monthly_target: target.monthly_target ? parseInt(target.monthly_target, 10).toString() : '',
+                annual_target: target.annual_target ? parseInt(target.annual_target, 10).toString() : '',
                 company_ids: target.companies ? target.companies.map(c => c.id) : []
             });
         } else {
