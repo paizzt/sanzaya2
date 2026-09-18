@@ -284,8 +284,8 @@ class ReportController extends Controller
                 if ($target <= 0) return '0%';
                 $deficit = $sales - $target;
                 $deficitStr = $deficit < 0 
-                    ? ' (Minus Rp ' . number_format(abs($deficit), 0, ',', '.') . ')' 
-                    : ' (Surplus Rp ' . number_format($deficit, 0, ',', '.') . ')';
+                    ? ' (-Rp ' . number_format(abs($deficit), 0, ',', '.') . ')' 
+                    : ' (+Rp ' . number_format($deficit, 0, ',', '.') . ')';
                 return 'Rp ' . number_format($sales, 0, ',', '.') . $deficitStr;
             };
 
