@@ -107,7 +107,8 @@ class ReportController extends Controller
                       ->orWhere('tanggal', 'like', "%{$monthFilter}%")
                       ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
                       ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
-                      ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
                       ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
                       ->orWhere('tanggal', 'like', "% {$shortMonth}%")
                       ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
@@ -170,7 +171,8 @@ class ReportController extends Controller
                       ->orWhere('tanggal', 'like', "%{$monthFilter}%")
                       ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
                       ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
-                      ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
                       ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
                       ->orWhere('tanggal', 'like', "% {$shortMonth}%")
                       ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
@@ -203,9 +205,6 @@ class ReportController extends Controller
                     
                     if ($row->nama_pt) {
                         $nPt = trim($row->nama_pt);
-                        if (stripos($nPt, 'sanzaya') !== false) $nPt = 'PT Sanzaya';
-                        elseif (stripos($nPt, 'msi') !== false || stripos($nPt, 'multi sentosa') !== false) $nPt = 'PT MSI';
-                        elseif (stripos($nPt, 'ruma') !== false) $nPt = 'PT Ruma';
                         $outletDetailsMap[$pel]['pt'][$nPt] = ($outletDetailsMap[$pel]['pt'][$nPt] ?? 0) + $val;
                     }
                     
@@ -260,9 +259,8 @@ class ReportController extends Controller
                 $pesananSales[$namaSales] = ($pesananSales[$namaSales] ?? 0) + 1;
                 if ($row->nama_pt) {
                     $nPt = trim($row->nama_pt);
-                    if (stripos($nPt, 'sanzaya') !== false) $nPt = 'PT Sanzaya';
-                    elseif (stripos($nPt, 'msi') !== false || stripos($nPt, 'multi sentosa') !== false) $nPt = 'PT MSI';
-                    elseif (stripos($nPt, 'ruma') !== false) $nPt = 'PT Ruma';
+                    // No merging, use raw names for exact matching with dropdown
+
                     $ptBreakdown[$nPt] = ($ptBreakdown[$nPt] ?? 0) + $val;
                 }
             }
