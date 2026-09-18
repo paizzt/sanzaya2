@@ -282,20 +282,33 @@ class ReportController extends Controller
 
             $targetTahunan = null;
             $capaianTahunan = null;
+            $targetTahunanDetail = [];
+            $capaianTahunanDetail = [];
             
             if ($ptFilter) {
                 $company = \App\Models\Company::where('name', $ptFilter)->first();
                 if ($company && $company->annual_target > 0) {
                     $targetTahunanVal = (float)$company->annual_target;
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
+                    $targetTahunanDetail[$company->name] = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
                     $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualan / $targetTahunanVal) * 100 : 0;
                     $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
+                    $capaianTahunanDetail[$company->name] = $capaianTahunan;
                 }
             } else {
                 $companiesWithAnnualTarget = \App\Models\Company::whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
                 $targetTahunanVal = $companiesWithAnnualTarget->sum('annual_target');
                 if ($targetTahunanVal > 0) {
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
+                    foreach ($companiesWithAnnualTarget as $c) {
+                        $targetTahunanDetail[$c->name] = 'Rp ' . number_format($c->annual_target, 0, ',', '.');
+                        $ptPenjualan = 0;
+                        if (isset($ptBreakdown[$c->name])) {
+                            $ptPenjualan = $ptBreakdown[$c->name];
+                        }
+                        $capPercent = ($c->annual_target > 0) ? ($ptPenjualan / $c->annual_target) * 100 : 0;
+                        $capaianTahunanDetail[$c->name] = number_format($capPercent, 1, ',', '.') . '%';
+                    }
                     $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualan / $targetTahunanVal) * 100 : 0;
                     $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
                 }
@@ -306,6 +319,8 @@ class ReportController extends Controller
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
                 'target_tahunan' => $targetTahunan,
                 'capaian_tahunan' => $capaianTahunan,
+                'target_tahunan_detail' => $targetTahunanDetail,
+                'capaian_tahunan_detail' => $capaianTahunanDetail,
                 'target_detail' => $targetDetail,
                 'capaian_detail' => $capaianDetail,
                 'top_outlet' => key($outletCounts) ?: '-',

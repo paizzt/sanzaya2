@@ -484,7 +484,10 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                         {(summary.target_tahunan || is_super_admin) && (
                             <>
-                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-indigo-100">
+                                <div 
+                                    onClick={() => summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Tahunan', type: 'target', data: summary.target_tahunan_detail })}
+                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-indigo-100 ${summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0 ? 'cursor-pointer' : ''}`}
+                                >
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="min-w-0 flex-1 pr-4">
                                             <p className="text-sm font-semibold text-gray-500 truncate">Target Tahunan</p>
@@ -498,7 +501,10 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     </div>
                                     <p className="text-xs text-gray-400">Target penjualan tahunan global</p>
                                 </div>
-                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-orange-100">
+                                <div 
+                                    onClick={() => summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Tahunan', type: 'capaian', data: summary.capaian_tahunan_detail })}
+                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-orange-100 ${summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 ? 'cursor-pointer' : ''}`}
+                                >
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="min-w-0 flex-1 pr-4">
                                             <p className="text-sm font-semibold text-gray-500 truncate">Capaian Tahunan</p>
