@@ -51,6 +51,27 @@ Route::get('/migrate-db', function () {
     }
 });
 
+// Route to seed new features
+Route::get('/seed-features', function () {
+    try {
+        $features = [
+            'Stok Gudang',
+            'Penggunaan Kendaraan',
+            'Kebutuhan Barang',
+            'Data Armada',
+            'Data Piutang',
+            'Data Hutang',
+            'Manajemen SOP'
+        ];
+        foreach ($features as $name) {
+            \App\Models\FeatureToggle::firstOrCreate(['name' => $name]);
+        }
+        return 'Data Fitur Berhasil Ditambahkan!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
 // Public Share Routes
 Route::get('/shared/kebutuhan-barang', [\App\Http\Controllers\ItemRequirementController::class, 'publicIndex'])->name('item-requirements.public');
 Route::get('/shared/stok-gudang', [\App\Http\Controllers\WarehouseStockController::class, 'publicIndex'])->name('warehouse-stocks.public');

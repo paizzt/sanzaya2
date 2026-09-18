@@ -629,6 +629,8 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 { key: 'Riwayat Perubahan', label: 'Riwayat Perubahan' },
                                                                 { key: 'Notifikasi', label: 'Notifikasi' },
                                                                 { key: 'Profil & Akun', label: 'Profil & Akun' },
+                                                                { key: 'Stok Gudang', label: 'Stok Gudang' },
+                                                                { key: 'Penggunaan Kendaraan', label: 'Penggunaan Kendaraan' },
                                                             ].map(opt => {
                                                                 const isChecked = data.preferences?.bottom_nav?.includes(opt.key) || 
                                                                     (opt.key === 'Dashboard' && data.preferences?.bottom_nav?.includes('dashboard')) ||
@@ -694,6 +696,8 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 { key: 'Riwayat Perubahan', label: 'Riwayat Perubahan' },
                                                                 { key: 'Notifikasi', label: 'Notifikasi' },
                                                                 { key: 'Profil & Akun', label: 'Profil & Akun' },
+                                                                { key: 'Stok Gudang', label: 'Stok Gudang' },
+                                                                { key: 'Penggunaan Kendaraan', label: 'Penggunaan Kendaraan' },
                                                             ].map(opt => {
                                                                 const isChecked = data.preferences?.dashboard?.includes(opt.key) || 
                                                                     (opt.key === 'Ambil Absensi' && data.preferences?.dashboard?.includes('attendance')) ||
@@ -763,11 +767,13 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         { label: "Data Penyedia", db: "Data Penyedia" },
                                                         { label: "Data Produk", db: "Data Produk" },
                                                         { label: "Kebutuhan Barang", db: "Kebutuhan Barang" },
+                                                        { label: "Stok Gudang", db: "Stok Gudang" },
                                                         { label: "Data Outlet", db: "Data Outlet" },
                                                         { label: "Pemetaan Outlet", db: "Pemetaan Outlet" }
                                                     ],
                                                     "Manajemen": [
                                                         { label: "Data Armada", db: "Data Armada" },
+                                                        { label: "Penggunaan Kendaraan", db: "Penggunaan Kendaraan" },
                                                         { label: "Data Perusahaan", db: "Data Perusahaan" },
                                                         { label: "Data Pengguna", db: "Data Pengguna" },
                                                         { label: "Manajemen SOP", db: "Manajemen SOP" },
