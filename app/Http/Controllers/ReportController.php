@@ -391,8 +391,12 @@ class ReportController extends Controller
                         
                         $ptPenjualan = 0;
                         foreach ($ct->companies as $companyModel) {
-                            if (isset($refPtBreakdown[$companyModel->name])) {
-                                $ptPenjualan += $refPtBreakdown[$companyModel->name];
+                            $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
+                            foreach ($refPtBreakdown as $nPt => $val) {
+                                $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
+                                if (stripos($companyNameNormalized, $nPtNormalized) !== false || stripos($nPtNormalized, $companyNameNormalized) !== false) {
+                                    $ptPenjualan += $val;
+                                }
                             }
                         }
                         $totalTargetedPenjualan += $ptPenjualan;
@@ -482,8 +486,12 @@ class ReportController extends Controller
                         $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ct->annual_target, 0, ',', '.');
                         $ptPenjualanAnn = 0;
                         foreach ($ct->companies as $companyModel) {
-                            if (isset($ptBreakdownAnnual[$companyModel->name])) {
-                                $ptPenjualanAnn += $ptBreakdownAnnual[$companyModel->name];
+                            $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
+                            foreach ($ptBreakdownAnnual as $nPt => $val) {
+                                $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
+                                if (stripos($companyNameNormalized, $nPtNormalized) !== false || stripos($nPtNormalized, $companyNameNormalized) !== false) {
+                                    $ptPenjualanAnn += $val;
+                                }
                             }
                         }
                         $totalTargetedPenjualanAnn += $ptPenjualanAnn;
