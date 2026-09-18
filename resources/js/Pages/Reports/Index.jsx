@@ -719,7 +719,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 )}
 
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="relative w-full lg:w-auto" ref={tabDropdownRef}>
+                    <div className="relative w-full lg:w-auto z-[60]" ref={tabDropdownRef}>
                         <button
                             onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
                             className="flex items-center justify-between w-full lg:w-44 xl:w-48 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
