@@ -183,7 +183,7 @@ class ReportController extends Controller
                 });
             }
             
-            $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt')->get();
+            $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = [];
             foreach ($logistikAll as $row) {
                 $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
@@ -219,16 +219,82 @@ class ReportController extends Controller
             $ptBreakdownFormatted = [];
             foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
 
+            // Hitung penjualan spesifik bulan ini jika tidak ada filter bulan
+            $refSalesBreakdown = [];
+            $refPtBreakdown = [];
+            $refTotalPenjualan = 0;
+            
+            if (empty($monthFilter)) {
+                $currentMonthNumStr = date('m');
+                $currentMonthNum = date('n');
+                $shortMonthEng = date('M');
+                $monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                $monthIndo = $monthsIndo[$currentMonthNum - 1];
+                $shortMonthIndo = substr($monthIndo, 0, 3);
+                
+                foreach ($logistikAll as $row) {
+                    $tanggal = $row->tanggal ?? '';
+                    if (
+                        stripos($tanggal, $monthIndo) !== false ||
+                        strpos($tanggal, "-{$currentMonthNumStr}-") !== false ||
+                        strpos($tanggal, "/{$currentMonthNumStr}/") !== false ||
+                        strpos($tanggal, "{$currentMonthNum}/") !== false ||
+                        strpos($tanggal, "-{$shortMonthIndo}") !== false ||
+                        strpos($tanggal, " {$shortMonthIndo}") !== false ||
+                        strpos($tanggal, "-{$shortMonthEng}") !== false ||
+                        strpos($tanggal, " {$shortMonthEng}") !== false
+                    ) {
+                        $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
+                        $refTotalPenjualan += $val;
+                        
+                        $ptNameForSales = trim($row->nama_pt);
+                        $namaSales = trim($row->nama_sales);
+                        if (!$namaSales) {
+                            if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
+                                $namaSales = 'Kantor MSI';
+                            } elseif (stripos($ptNameForSales, 'SANZAYA') !== false) {
+                                $namaSales = 'Kantor Sanzaya';
+                            } else {
+                                $namaSales = 'Kantor ' . ($ptNameForSales ?: 'Pusat');
+                            }
+                        }
+                        $refSalesBreakdown[$namaSales] = ($refSalesBreakdown[$namaSales] ?? 0) + $val;
+                        
+                        if ($row->nama_pt) {
+                            $nPt = trim($row->nama_pt);
+                            if (stripos($nPt, 'sanzaya') !== false) $nPt = 'PT Sanzaya';
+                            elseif (stripos($nPt, 'msi') !== false || stripos($nPt, 'multi sentosa') !== false) $nPt = 'PT MSI';
+                            elseif (stripos($nPt, 'ruma') !== false) $nPt = 'PT Ruma';
+                            $refPtBreakdown[$nPt] = ($refPtBreakdown[$nPt] ?? 0) + $val;
+                        }
+                    }
+                }
+            } else {
+                $refSalesBreakdown = $salesBreakdown;
+                $refPtBreakdown = $ptBreakdown;
+                $refTotalPenjualan = $totalPenjualan;
+            }
+
             $targetBulanan = 0;
             $targetDetail = [];
             $capaianDetail = [];
+            
+            // Format function
+            $formatCapaian = function($sales, $target) {
+                if ($target <= 0) return '0%';
+                $deficit = $sales - $target;
+                $deficitStr = $deficit < 0 
+                    ? ' (Minus Rp ' . number_format(abs($deficit), 0, ',', '.') . ')' 
+                    : ' (Surplus Rp ' . number_format($deficit, 0, ',', '.') . ')';
+                return 'Rp ' . number_format($sales, 0, ',', '.') . $deficitStr;
+            };
+
             if ($ptFilter) {
                 $company = \App\Models\Company::where('name', $ptFilter)->first();
                 if ($company && $company->monthly_target > 0) {
                     $targetBulanan = (float)$company->monthly_target;
                     $targetDetail[$company->name] = 'Rp ' . number_format($targetBulanan, 0, ',', '.');
-                    $capPercent = ($targetBulanan > 0) ? ($totalPenjualan / $targetBulanan) * 100 : 0;
-                    $capaianDetail[$company->name] = number_format($capPercent, 1, ',', '.') . '%';
+                    $capaianDetail[$company->name] = $formatCapaian($refTotalPenjualan, $targetBulanan);
                 }
             } elseif ($salesFilter) {
                 $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
@@ -238,14 +304,13 @@ class ReportController extends Controller
                     
                     $salesKey = $userWithTarget->spreadsheet_sales_name ?: $userWithTarget->name;
                     $userPenjualan = 0;
-                    foreach ($salesBreakdown as $key => $val) {
+                    foreach ($refSalesBreakdown as $key => $val) {
                         if (strcasecmp(trim($key), trim($salesKey)) == 0) {
                             $userPenjualan = $val;
                             break;
                         }
                     }
-                    $capPercent = ($targetBulanan > 0) ? ($userPenjualan / $targetBulanan) * 100 : 0;
-                    $capaianDetail[$userWithTarget->name] = number_format($capPercent, 1, ',', '.') . '%';
+                    $capaianDetail[$userWithTarget->name] = $formatCapaian($userPenjualan, $targetBulanan);
                 }
             } else {
                 $companiesWithTarget = \App\Models\Company::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
@@ -257,12 +322,11 @@ class ReportController extends Controller
                         $targetDetail[$c->name] = 'Rp ' . number_format($c->monthly_target, 0, ',', '.');
                         
                         $ptPenjualan = 0;
-                        if (isset($ptBreakdown[$c->name])) {
-                            $ptPenjualan = $ptBreakdown[$c->name];
+                        if (isset($refPtBreakdown[$c->name])) {
+                            $ptPenjualan = $refPtBreakdown[$c->name];
                         }
                         
-                        $capPercent = ($c->monthly_target > 0) ? ($ptPenjualan / $c->monthly_target) * 100 : 0;
-                        $capaianDetail[$c->name] = number_format($capPercent, 1, ',', '.') . '%';
+                        $capaianDetail[$c->name] = $formatCapaian($ptPenjualan, $c->monthly_target);
                     }
                 } else {
                     $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
@@ -272,14 +336,13 @@ class ReportController extends Controller
                         
                         $salesKey = $u->spreadsheet_sales_name ?: $u->name;
                         $userPenjualan = 0;
-                        foreach ($salesBreakdown as $key => $val) {
+                        foreach ($refSalesBreakdown as $key => $val) {
                             if (strcasecmp(trim($key), trim($salesKey)) == 0) {
                                 $userPenjualan = $val;
                                 break;
                             }
                         }
-                        $capPercent = ($u->monthly_target > 0) ? ($userPenjualan / $u->monthly_target) * 100 : 0;
-                        $capaianDetail[$u->name] = number_format($capPercent, 1, ',', '.') . '%';
+                        $capaianDetail[$u->name] = $formatCapaian($userPenjualan, $u->monthly_target);
                     }
                 }
             }
