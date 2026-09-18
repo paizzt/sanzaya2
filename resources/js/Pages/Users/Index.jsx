@@ -306,16 +306,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col gap-1">
                                                         <span className="text-gray-900 font-medium">{user.email}</span>
-                                                        {user.spreadsheet_sales_name && (
-                                                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200 w-max">
-                                                                Sales: {user.spreadsheet_sales_name}
-                                                            </span>
-                                                        )}
-                                                        {user.monthly_target && (
-                                                            <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200 w-max font-medium mt-1">
-                                                                Target: Rp {new Intl.NumberFormat('id-ID').format(user.monthly_target)}
-                                                            </span>
-                                                        )}
+
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
