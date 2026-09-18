@@ -42,8 +42,23 @@ class ReportController extends Controller
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
+        $targetPtNamesToSearch = [];
+        if ($ptFilter) {
+            $companyTarget = \App\Models\CompanyTarget::with('companies')->where('name', $ptFilter)->first();
+            if (!$companyTarget) {
+                $companyTarget = \App\Models\CompanyTarget::with('companies')->whereHas('companies', function($q) use ($ptFilter) {
+                    $q->where('name', $ptFilter);
+                })->first();
+            }
+            if ($companyTarget) {
+                $targetPtNamesToSearch = $companyTarget->companies->pluck('name')->toArray();
+            } else {
+                $targetPtNamesToSearch = [$ptFilter];
+            }
+        }
+
         $logistikBaseQuery = SyncLogistikData::query();
-        if ($ptFilter) $logistikBaseQuery->where('nama_pt', $ptFilter);
+        if ($ptFilter) $logistikBaseQuery->whereIn('nama_pt', $targetPtNamesToSearch);
         if ($salesFilter) $logistikBaseQuery->where('nama_sales', $salesFilter);
         if ($outletFilter) {
             $logistikBaseQuery->where(function($q) use ($outletNamesToSearch) {
@@ -118,9 +133,9 @@ class ReportController extends Controller
         }
 
         // Calculate Summaries using Inertia::defer
-        $summary = Inertia::defer(function () use ($search, $salesFilter, $outletFilter, $monthFilter, $ptFilter, $outletNamesToSearch) {
+        $summary = Inertia::defer(function () use ($search, $salesFilter, $outletFilter, $monthFilter, $ptFilter, $outletNamesToSearch, $targetPtNamesToSearch) {
             $summaryQuery = SyncLogistikData::query();
-            if ($ptFilter) $summaryQuery->where('nama_pt', $ptFilter);
+            if ($ptFilter) $summaryQuery->whereIn('nama_pt', $targetPtNamesToSearch);
             if ($salesFilter) $summaryQuery->where('nama_sales', $salesFilter);
             if ($outletFilter) {
                 $summaryQuery->where(function($q) use ($outletNamesToSearch) {
@@ -368,10 +383,9 @@ class ReportController extends Controller
                 }
             } else {
                 $companyTargets = \App\Models\CompanyTarget::with('companies')->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
-                $targetBulananPTs = $companyTargets->sum('monthly_target');
-                
-                if ($targetBulananPTs > 0) {
-                    $targetBulanan = (float)$targetBulananPTs;
+                if ($companyTargets->count() > 0) {
+                    $targetBulanan = $companyTargets->sum('monthly_target');
+                    $totalTargetedPenjualan = 0;
                     foreach ($companyTargets as $ct) {
                         $targetDetail[$ct->name] = 'Rp ' . number_format($ct->monthly_target, 0, ',', '.');
                         
@@ -381,9 +395,11 @@ class ReportController extends Controller
                                 $ptPenjualan += $refPtBreakdown[$companyModel->name];
                             }
                         }
+                        $totalTargetedPenjualan += $ptPenjualan;
                         
                         $capaianDetail[$ct->name] = $formatCapaian($ptPenjualan, $ct->monthly_target);
                     }
+                    $refTotalPenjualan = $totalTargetedPenjualan;
                 } else {
                     $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
                     $targetBulanan = $usersWithTarget->sum('monthly_target');
@@ -412,7 +428,7 @@ class ReportController extends Controller
             $annualQuery = SyncLogistikData::query();
             $currentYear = date('Y');
             $annualQuery->where('tanggal', 'like', "%{$currentYear}%");
-            if ($ptFilter) $annualQuery->where('nama_pt', $ptFilter);
+            if ($ptFilter) $annualQuery->whereIn('nama_pt', $targetPtNamesToSearch);
             if ($salesFilter) $annualQuery->where('nama_sales', $salesFilter);
             if ($search) {
                 $annualQuery->where(function($q) use ($search) {
@@ -463,6 +479,7 @@ class ReportController extends Controller
                 $targetTahunanVal = $companyTargetsAnn->sum('annual_target');
                 if ($targetTahunanVal > 0) {
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
+                    $totalTargetedPenjualanAnn = 0;
                     foreach ($companyTargetsAnn as $ct) {
                         $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ct->annual_target, 0, ',', '.');
                         $ptPenjualanAnn = 0;
@@ -471,10 +488,11 @@ class ReportController extends Controller
                                 $ptPenjualanAnn += $ptBreakdownAnnual[$companyModel->name];
                             }
                         }
+                        $totalTargetedPenjualanAnn += $ptPenjualanAnn;
                         $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
                         $capaianTahunanDetail[$ct->name] = number_format($capPercent, 1, ',', '.') . '%';
                     }
-                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualanAnnual / $targetTahunanVal) * 100 : 0;
+                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalTargetedPenjualanAnn / $targetTahunanVal) * 100 : 0;
                     $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
                 }
             }
