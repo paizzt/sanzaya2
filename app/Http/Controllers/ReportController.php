@@ -282,11 +282,8 @@ class ReportController extends Controller
             // Format function
             $formatCapaian = function($sales, $target) {
                 if ($target <= 0) return '0%';
-                $deficit = $sales - $target;
-                $deficitStr = $deficit < 0 
-                    ? ' (-Rp ' . number_format(abs($deficit), 0, ',', '.') . ')' 
-                    : ' (+Rp ' . number_format($deficit, 0, ',', '.') . ')';
-                return 'Rp ' . number_format($sales, 0, ',', '.') . $deficitStr;
+                $capPercent = ($sales / $target) * 100;
+                return number_format($capPercent, 1, ',', '.') . '%';
             };
 
             if ($ptFilter) {
