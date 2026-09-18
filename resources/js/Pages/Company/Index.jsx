@@ -22,7 +22,7 @@ const parseCurrencyInput = (value) => {
     return value.toString().replace(/[^0-9]/g, '');
 };
 
-export default function Index({ auth, companies, is_super_admin }) {
+export default function Index({ auth, companies, companyTargets = [], is_super_admin }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [currentId, setCurrentId] = useState(null);
@@ -40,28 +40,66 @@ export default function Index({ auth, companies, is_super_admin }) {
 
     const [targetModalOpen, setTargetModalOpen] = useState(false);
     const [currentTargetId, setCurrentTargetId] = useState(null);
-    const { data: targetData, setData: setTargetData, post: postTarget, processing: targetProcessing, errors: targetErrors, reset: resetTarget } = useForm({
+    const [isEditingTarget, setIsEditingTarget] = useState(false);
+    const { data: targetData, setData: setTargetData, post: postTarget, put: putTarget, delete: destroyTarget, processing: targetProcessing, errors: targetErrors, reset: resetTarget } = useForm({
+        name: '',
         monthly_target: '',
-        annual_target: ''
+        annual_target: '',
+        company_ids: []
     });
 
-    const openTargetModal = (company) => {
-        setCurrentTargetId(company.id);
-        setTargetData({
-            monthly_target: company.monthly_target || '',
-            annual_target: company.annual_target || ''
-        });
-        setTargetModalOpen(true);
+    const openTargetModal = (target = null) => {
+        if (target) {
+            setIsEditingTarget(true);
+            setCurrentTargetId(target.id);
+            setTargetData({
+                name: target.name,
+                monthly_target: target.monthly_target || '',
+                annual_target: target.annual_target || '',
+                company_ids: target.companies ? target.companies.map(c => c.id) : []
+            });
+        } else {
+            setIsEditingTarget(false);
+            setCurrentTargetId(null);
+            resetTarget();
+        }
     };
 
     const submitTarget = (e) => {
         e.preventDefault();
-        postTarget(route('company.target.update', currentTargetId), {
+        const routeName = isEditingTarget ? route('company-targets.update', currentTargetId) : route('company-targets.store');
+        postTarget(routeName, {
             preserveScroll: true,
             onSuccess: () => {
-                setTargetModalOpen(false);
                 resetTarget();
-                Swal.fire({ title: 'Berhasil!', text: 'Target berhasil diperbarui.', icon: 'success', customClass: { popup: 'rounded-2xl' } });
+                setIsEditingTarget(false);
+                setCurrentTargetId(null);
+                Swal.fire({ title: 'Berhasil!', text: 'Target grup berhasil disimpan.', icon: 'success', customClass: { popup: 'rounded-2xl' } });
+            }
+        });
+    };
+
+    const handleDeleteTarget = (id) => {
+        Swal.fire({
+            title: 'Hapus Grup Target?',
+            text: 'Data target ini akan dihapus.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Ya, Hapus!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                destroyTarget(route('company-targets.destroy', id), {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire('Terhapus!', 'Target berhasil dihapus.', 'success');
+                        if (currentTargetId === id) {
+                            resetTarget();
+                            setIsEditingTarget(false);
+                            setCurrentTargetId(null);
+                        }
+                    }
+                });
             }
         });
     };
@@ -167,6 +205,12 @@ export default function Index({ auth, companies, is_super_admin }) {
                         <div className="w-full">
                             <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
                         </div>
+                        {is_super_admin && (
+                            <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full justify-center h-[42px] whitespace-nowrap bg-purple-600 hover:bg-purple-700">
+                                <Target className="w-4 h-4 mr-2" />
+                                Atur Target Perusahaan
+                            </PrimaryButton>
+                        )}
                         <PrimaryButton onClick={() => openModal()} className="w-full justify-center h-[42px] whitespace-nowrap">
                             <Plus className="w-4 h-4 mr-2" />
                             Tambah
@@ -205,16 +249,8 @@ export default function Index({ auth, companies, is_super_admin }) {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="bg-gray-50 px-6 py-3 border-t flex justify-between gap-2">
-                                                {is_super_admin && (
-                                                    <button
-                                                        onClick={() => openTargetModal(company)}
-                                                        className="inline-flex items-center text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors gap-1"
-                                                    >
-                                                        <Target className="w-4 h-4" /> Target
-                                                    </button>
-                                                )}
-                                                <div className="flex gap-4 ml-auto">
+                                            <div className="bg-gray-50 px-6 py-3 border-t flex justify-end gap-2">
+                                                <div className="flex gap-4">
                                                     <button
                                                         onClick={() => openModal(company)}
                                                         className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors gap-1"
@@ -415,44 +451,136 @@ export default function Index({ auth, companies, is_super_admin }) {
             </Modal>
 
             {/* Target Edit Modal */}
-            <Modal show={targetModalOpen} onClose={() => setTargetModalOpen(false)} maxWidth="sm">
-                <form onSubmit={submitTarget} className="p-6">
+            <Modal show={targetModalOpen} onClose={() => setTargetModalOpen(false)} maxWidth="2xl">
+                <div className="p-6">
                     <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                        <h3 className="text-xl font-bold text-gray-800">Set Target PT</h3>
+                        <h3 className="text-xl font-bold text-gray-800">Atur Target Perusahaan</h3>
                         <button type="button" onClick={() => setTargetModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
-                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                        Masukkan target penjualan per bulan dan per tahun untuk perusahaan ini. Jika diisi, laporan penjualan akan membandingkan hasil dengan target ini. Biarkan kosong untuk mengakumulasi target dari masing-masing sales.
-                    </p>
-                    <div className="mb-4">
-                        <InputLabel value="Target Bulanan" className="mb-2" />
-                        <TextInput 
-                            type="text" 
-                            className="block w-full rounded-xl bg-gray-50 border-gray-200" 
-                            value={formatCurrencyInput(targetData.monthly_target)} 
-                            onChange={e => setTargetData('monthly_target', parseCurrencyInput(e.target.value))}
-                            placeholder="Kosongkan jika menggunakan target individual"
-                        />
-                        <InputError message={targetErrors.monthly_target} className="mt-2" />
-                    </div>
-                    <div className="mb-6">
-                        <InputLabel value="Target Tahunan" className="mb-2" />
-                        <TextInput 
-                            type="text" 
-                            className="block w-full rounded-xl bg-gray-50 border-gray-200" 
-                            value={formatCurrencyInput(targetData.annual_target)} 
-                            onChange={e => setTargetData('annual_target', parseCurrencyInput(e.target.value))}
-                            placeholder="Contoh: Rp 12.000.000.000"
-                        />
-                        <InputError message={targetErrors.annual_target} className="mt-2" />
-                    </div>
-                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                        <button type="button" onClick={() => setTargetModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors text-sm">Batal</button>
-                        <PrimaryButton disabled={targetProcessing} className="px-6 py-2.5 rounded-xl text-sm shadow-sm">Simpan Target</PrimaryButton>
-                    </div>
-                </form>
+
+                    {!isEditingTarget ? (
+                        <>
+                            <div className="flex justify-between items-center mb-4">
+                                <h4 className="font-semibold text-gray-700">Daftar Grup Target</h4>
+                                <PrimaryButton onClick={() => openTargetModal({})} className="bg-purple-600 hover:bg-purple-700">
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Buat Target Baru
+                                </PrimaryButton>
+                            </div>
+                            
+                            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                                {companyTargets.length === 0 ? (
+                                    <p className="text-gray-500 text-center py-8">Belum ada grup target perusahaan. Buat target baru untuk mengelompokkan PT.</p>
+                                ) : (
+                                    companyTargets.map(target => (
+                                        <div key={target.id} className="border rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gray-50">
+                                            <div>
+                                                <h5 className="font-bold text-lg text-gray-900">{target.name}</h5>
+                                                <div className="text-sm text-gray-600 mt-1 space-y-1">
+                                                    <p>Bulanan: <span className="font-medium text-gray-800">{formatCurrencyInput(target.monthly_target)}</span></p>
+                                                    <p>Tahunan: <span className="font-medium text-gray-800">{formatCurrencyInput(target.annual_target)}</span></p>
+                                                    <div className="mt-2 text-xs">
+                                                        <span className="font-semibold">PT Gabungan: </span> 
+                                                        {target.companies && target.companies.length > 0 ? (
+                                                            target.companies.map(c => c.name).join(', ')
+                                                        ) : (
+                                                            <span className="italic text-gray-400">Belum ada PT tergabung</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => openTargetModal(target)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors">
+                                                    <Edit className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => handleDeleteTarget(target.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </>
+                    ) : (
+                        <form onSubmit={submitTarget}>
+                            <h4 className="font-semibold text-gray-700 mb-4">{currentTargetId ? 'Edit Target' : 'Buat Target Baru'}</h4>
+                            <div className="space-y-4">
+                                <div>
+                                    <InputLabel value="Nama Grup Target" className="mb-2" />
+                                    <TextInput 
+                                        type="text" 
+                                        className="block w-full rounded-xl bg-gray-50 border-gray-200" 
+                                        value={targetData.name} 
+                                        onChange={e => setTargetData('name', e.target.value)}
+                                        placeholder="Misal: Grup Sanzaya"
+                                        required
+                                    />
+                                    <InputError message={targetErrors.name} className="mt-2" />
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <InputLabel value="Target Bulanan" className="mb-2" />
+                                        <TextInput 
+                                            type="text" 
+                                            className="block w-full rounded-xl bg-gray-50 border-gray-200" 
+                                            value={formatCurrencyInput(targetData.monthly_target)} 
+                                            onChange={e => setTargetData('monthly_target', parseCurrencyInput(e.target.value))}
+                                            placeholder="Rp 0"
+                                        />
+                                        <InputError message={targetErrors.monthly_target} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Target Tahunan" className="mb-2" />
+                                        <TextInput 
+                                            type="text" 
+                                            className="block w-full rounded-xl bg-gray-50 border-gray-200" 
+                                            value={formatCurrencyInput(targetData.annual_target)} 
+                                            onChange={e => setTargetData('annual_target', parseCurrencyInput(e.target.value))}
+                                            placeholder="Rp 0"
+                                        />
+                                        <InputError message={targetErrors.annual_target} className="mt-2" />
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <InputLabel value="Pilih PT yang Digabungkan (Bisa lebih dari 1)" className="mb-2" />
+                                    <div className="border border-gray-200 rounded-xl p-3 bg-gray-50 max-h-48 overflow-y-auto space-y-2">
+                                        {companies.map(company => (
+                                            <label key={company.id} className="flex items-center space-x-3 bg-white p-2 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                                <input
+                                                    type="checkbox"
+                                                    className="rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500"
+                                                    checked={targetData.company_ids.includes(company.id)}
+                                                    onChange={(e) => {
+                                                        const newIds = e.target.checked 
+                                                            ? [...targetData.company_ids, company.id]
+                                                            : targetData.company_ids.filter(id => id !== company.id);
+                                                        setTargetData('company_ids', newIds);
+                                                    }}
+                                                />
+                                                <span className="text-gray-700 font-medium">{company.name}</span>
+                                            </label>
+                                        ))}
+                                        {companies.length === 0 && <p className="text-sm text-gray-500 italic">Belum ada data perusahaan.</p>}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-6 flex justify-end gap-3 pt-4 border-t">
+                                <button type="button" onClick={() => setIsEditingTarget(false)} className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                                    Batal
+                                </button>
+                                <PrimaryButton type="submit" disabled={targetProcessing} className="bg-purple-600 hover:bg-purple-700">
+                                    <Save className="w-4 h-4 mr-2" />
+                                    {targetProcessing ? 'Menyimpan...' : 'Simpan'}
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    )}
+                </div>
             </Modal>
         </AuthenticatedLayout>
     );

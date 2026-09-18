@@ -213,8 +213,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
         Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
         Route::post('/company/{id}', [CompanyController::class, 'update'])->name('company.update');
-        Route::post('/company/{id}/target', [CompanyController::class, 'updateTarget'])->name('company.target.update');
         Route::delete('/company/{id}', [CompanyController::class, 'destroy'])->name('company.destroy');
+        
+        // Target Perusahaan
+        Route::post('/company-targets', [\App\Http\Controllers\CompanyTargetController::class, 'store'])->name('company-targets.store');
+        Route::post('/company-targets/{id}', [\App\Http\Controllers\CompanyTargetController::class, 'update'])->name('company-targets.update');
+        Route::delete('/company-targets/{id}', [\App\Http\Controllers\CompanyTargetController::class, 'destroy'])->name('company-targets.destroy');
     });
     
     Route::middleware(['can:manage master data'])->group(function() {

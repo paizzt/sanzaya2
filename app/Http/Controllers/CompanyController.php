@@ -16,10 +16,12 @@ class CompanyController extends Controller
     public function index()
     {
         $companies = Company::all();
+        $companyTargets = \App\Models\CompanyTarget::with('companies')->get();
         $is_super_admin = auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']);
 
         return Inertia::render('Company/Index', [
             'companies' => $companies,
+            'companyTargets' => $companyTargets,
             'is_super_admin' => $is_super_admin
         ]);
     }
@@ -96,20 +98,6 @@ class CompanyController extends Controller
         return redirect()->back()->with('success', 'Data perusahaan berhasil dihapus.');
     }
 
-    public function updateTarget(Request $request, $id)
-    {
-        $request->validate([
-            'monthly_target' => 'nullable|string',
-            'annual_target' => 'nullable|string',
-        ]);
-
-        $company = Company::findOrFail($id);
-        $company->monthly_target = $request->monthly_target;
-        $company->annual_target = $request->annual_target;
-        $company->save();
-
-        return redirect()->back()->with('success', 'Target penjualan PT berhasil diperbarui.');
-    }
 
     public function exportPdf()
     {

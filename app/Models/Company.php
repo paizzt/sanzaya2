@@ -17,7 +17,11 @@ class Company extends Model
         'latitude',
         'longitude',
         'radius',
-        'monthly_target',
-        'annual_target',
+        'company_target_id',
     ];
+
+    public function target()
+    {
+        return $this->belongsTo(CompanyTarget::class, 'company_target_id');
+    }
 }

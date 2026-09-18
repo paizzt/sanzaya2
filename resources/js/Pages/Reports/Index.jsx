@@ -468,17 +468,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         <div className="min-w-0 flex-1 pr-4">
                                             <p className="text-sm font-semibold text-gray-500 truncate">Capaian Target</p>
                                             <h4 className="text-xl font-bold text-gray-900 mt-1 truncate">
-                                                {(() => {
-                                                    const capaianValues = summary.capaian_detail ? Object.values(summary.capaian_detail) : [];
-                                                    if (capaianValues.length > 0) {
-                                                        const totalPercent = capaianValues.reduce((acc, val) => {
-                                                            const num = parseFloat(val.toString().replace('.', '').replace(',', '.').replace('%', ''));
-                                                            return acc + (isNaN(num) ? 0 : num);
-                                                        }, 0);
-                                                        return (totalPercent / capaianValues.length).toFixed(1).replace('.', ',') + '%';
-                                                    }
-                                                    return '0%';
-                                                })()}
+                                                {summary.capaian_target || '0%'}
                                             </h4>
                                         </div>
                                         <div className="p-3 bg-pink-50 rounded-2xl">
@@ -977,13 +967,13 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Rincian Target Sales</h4>
                                         )}
                                         {detailModal.type === 'capaian' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per Sales</h4>
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
                                         )}
                                         {detailModal.type === 'capaian_tahunan' && (
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
                                         )}
                                         <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan', 'capaian'].includes(detailModal.type) ? 'Nama Sales' : (detailModal.type === 'capaian_tahunan' ? 'Nama PT' : 'Nama'))}</span>
+                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama'))}</span>
                                             <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai')}</span>
                                         </div>
                                         <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
