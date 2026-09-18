@@ -250,8 +250,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             header={
                 <div>
                     <h2 className="font-bold text-2xl text-gray-800 leading-tight">Data Laporan Tersinkronisasi</h2>
-                    <p className="text-sm text-gray-500 mt-1">Menampilkan data yang telah ditarik dari Google Spreadsheet</p>
-                </div>
+                    </div>
             }
         >
             <Head title="Data Laporan Tersinkronisasi" />

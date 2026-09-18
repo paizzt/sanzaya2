@@ -402,7 +402,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <BarChart2 className="w-6 h-6 text-blue-600" />
                             Data Laporan Tersinkronisasi
                         </h3>
-                        <p className="text-sm text-gray-500 mt-1">Menampilkan data yang telah ditarik dari Google Spreadsheet.</p>
                     </div>
                     
                     <div className="relative" ref={dropdownRef}>
