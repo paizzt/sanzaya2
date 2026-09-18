@@ -426,8 +426,6 @@ class ReportController extends Controller
             
             // Hitung total tahunan (Year-To-Date) secara terpisah tanpa filter bulan
             $annualQuery = SyncLogistikData::query();
-            $currentYear = date('Y');
-            $annualQuery->where('tanggal', 'like', "%{$currentYear}%");
             if ($ptFilter) $annualQuery->whereIn('nama_pt', $targetPtNamesToSearch);
             if ($salesFilter) $annualQuery->where('nama_sales', $salesFilter);
             if ($search) {
