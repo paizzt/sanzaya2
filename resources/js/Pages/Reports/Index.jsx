@@ -510,7 +510,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     <p className="text-xs text-gray-400">Target penjualan tahunan global</p>
                                 </div>
                                 <div 
-                                    onClick={() => summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Tahunan', type: 'capaian', data: summary.capaian_tahunan_detail })}
+                                    onClick={() => summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Tahunan', type: 'capaian_tahunan', data: summary.capaian_tahunan_detail })}
                                     className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-orange-100 ${summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 ? 'cursor-pointer' : ''}`}
                                 >
                                     <div className="flex justify-between items-start mb-4">
@@ -979,9 +979,12 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         {detailModal.type === 'capaian' && (
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per Sales</h4>
                                         )}
+                                        {detailModal.type === 'capaian_tahunan' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
+                                        )}
                                         <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan', 'capaian'].includes(detailModal.type) ? 'Nama Sales' : 'Nama')}</span>
-                                            <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : (detailModal.type === 'capaian' ? 'Capaian' : 'Nilai')}</span>
+                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan', 'capaian'].includes(detailModal.type) ? 'Nama Sales' : (detailModal.type === 'capaian_tahunan' ? 'Nama PT' : 'Nama'))}</span>
+                                            <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai')}</span>
                                         </div>
                                         <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
                                             {detailModal.type === 'outlet' ? (
