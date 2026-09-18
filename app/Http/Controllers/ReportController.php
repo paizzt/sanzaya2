@@ -485,7 +485,6 @@ class ReportController extends Controller
                 $targetTahunanVal = $companiesWithAnnualTarget->sum('annual_target');
                 if ($targetTahunanVal > 0) {
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
-                    $totalPercentTahunan = 0;
                     foreach ($companiesWithAnnualTarget as $c) {
                         $targetTahunanDetail[$c->name] = 'Rp ' . number_format($c->annual_target, 0, ',', '.');
                         $ptPenjualanAnn = 0;
@@ -494,9 +493,9 @@ class ReportController extends Controller
                         }
                         $capPercent = ($c->annual_target > 0) ? ($ptPenjualanAnn / $c->annual_target) * 100 : 0;
                         $capaianTahunanDetail[$c->name] = number_format($capPercent, 1, ',', '.') . '%';
-                        $totalPercentTahunan += $capPercent;
                     }
-                    $capaianTahunan = number_format($totalPercentTahunan, 1, ',', '.') . '%';
+                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualanAnnual / $targetTahunanVal) * 100 : 0;
+                    $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
                 }
             }
 
