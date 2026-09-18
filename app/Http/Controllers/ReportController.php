@@ -103,7 +103,8 @@ class ReportController extends Controller
                 $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
                 
                 $query->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
-                    $q->where('tanggal', 'like', "%{$monthFilter}%")
+                    $q->where('sheet_name', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%{$monthFilter}%")
                       ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
                       ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
                       ->orWhere('tanggal', 'like', "%{$monthNum}/%")
@@ -165,7 +166,8 @@ class ReportController extends Controller
                 $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
                 
                 $summaryQuery->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
-                    $q->where('tanggal', 'like', "%{$monthFilter}%")
+                    $q->where('sheet_name', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%{$monthFilter}%")
                       ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
                       ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
                       ->orWhere('tanggal', 'like', "%{$monthNum}/%")
