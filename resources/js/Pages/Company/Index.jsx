@@ -69,9 +69,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
         e.preventDefault();
         const routeName = isEditingTarget ? route('company-targets.update', currentTargetId) : route('company-targets.store');
         
-        const submitFn = isEditingTarget ? putTarget : postTarget;
-        
-        submitFn(routeName, {
+        postTarget(routeName, {
             preserveScroll: true,
             onSuccess: () => {
                 resetTarget();
@@ -211,7 +209,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
                         {is_super_admin && (
                             <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full justify-center h-[42px] whitespace-nowrap bg-blue-600 hover:bg-blue-700">
                                 <Target className="w-4 h-4 mr-2" />
-                                Atur Target Perusahaan
+                                Target
                             </PrimaryButton>
                         )}
                         <PrimaryButton onClick={() => openModal()} className="w-full justify-center h-[42px] whitespace-nowrap">
