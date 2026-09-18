@@ -256,8 +256,14 @@ class ReportController extends Controller
                 foreach ($data['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $bulanFormatted = [];
-                // Sort months chronologically or by value? Let's sort by value descending
-                arsort($data['bulan']);
+                $monthOrder = ['Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4, 'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8, 'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12, 'Lainnya' => 13];
+                
+                uksort($data['bulan'], function($a, $b) use ($monthOrder) {
+                    $orderA = $monthOrder[$a] ?? 99;
+                    $orderB = $monthOrder[$b] ?? 99;
+                    return $orderA <=> $orderB;
+                });
+                
                 foreach ($data['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $outletDetailFormatted[$outlet] = [
