@@ -5,6 +5,10 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
 import Swal from 'sweetalert2';
+import dayjs from 'dayjs';
+import 'dayjs/locale/id';
+
+dayjs.locale('id');
 
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', {
@@ -158,7 +162,9 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                     </div>
                                     <div>
                                         <span className="text-gray-500 block text-xs">Batas Waktu Bayar</span>
-                                        <span className="font-semibold text-red-600">{paymentRequest.payment_deadline}</span>
+                                        <span className="font-semibold text-red-600">
+                                            {paymentRequest.payment_deadline ? dayjs(paymentRequest.payment_deadline).format('DD MMMM YYYY') : '-'}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
