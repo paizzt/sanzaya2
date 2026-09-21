@@ -503,11 +503,17 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-96 overflow-y-auto pr-2">
                         <div className="md:col-span-2">
                             <InputLabel htmlFor="company_id" value="Nama PT (Perusahaan)" />
-                            <SearchableSelect
-                                options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
-                                value={data.company_id ? data.company_id.toString() : ''}
-                                onChange={val => setData('company_id', val)}
-                                />
+                            <select
+                                id="company_id"
+                                className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                value={data.company_id}
+                                onChange={(e) => setData('company_id', e.target.value)}
+                            >
+                                <option value="">-- Pilih PT --</option>
+                                {companies && companies.map(c => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
                             <InputError message={errors.company_id} className="mt-2" />
                         </div>
 
