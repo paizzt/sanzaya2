@@ -12,45 +12,76 @@ use Inertia\Inertia;
 
 class PayableController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = Payable::with('provider')->orderBy('id', 'desc')->get();
+        $query = Payable::with(['provider', 'company'])->orderBy('id', 'desc');
+
+        if ($request->search) {
+            $query->whereHas('provider', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->pt) {
+            $query->where('company_id', $request->pt);
+        }
+
+        if ($request->year) {
+            $query->whereJsonContains('details', ['year' => $request->year]);
+        }
+
+        $items = $query->get();
+        
         $providers = \App\Models\Provider::orderBy('name')->get();
+        $companies = \App\Models\Company::orderBy('name')->get();
+        
+        $users = \App\Models\User::orderBy('name')->get();
 
-        $summary = [
-            'total_nominal' => $items->sum('nominal'),
-            'total_penyedia' => $items->pluck('provider_id')->unique()->count(),
-            'total_data' => $items->count(),
-        ];
-
-        $summary['hutang_detail'] = $items->groupBy(function($item) {
-            return $item->provider ? $item->provider->name : 'Lainnya';
-        })->map(function($group) {
-            return $group->sum('nominal');
-        })->sortDesc()->take(10)->toArray();
+        $totalAll = $items->sum('total');
+        $lastUpdated = \App\Models\Payable::max('updated_at');
 
         return Inertia::render('Payables/Index', [
             'items' => $items,
             'providers' => $providers,
-            'summary' => $summary
+            'companies' => $companies,
+            'users' => $users,
+            'filters' => $request->only(['search', 'pt', 'year']),
+            'totalAll' => $totalAll,
+            'lastUpdated' => $lastUpdated,
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'company_id' => 'nullable|exists:companies,id',
             'provider_id' => 'nullable|exists:providers,id',
-            'nominal' => 'nullable|numeric',
-            'tanggal_terima_invoice' => 'nullable|date',
-            'nomor_transaksi' => 'nullable|string|max:255',
-            'memo' => 'nullable|string',
-            'jatuh_tempo_hari' => 'nullable|integer|in:14,30',
+            'details' => 'nullable|array',
+            'details.*.year' => 'nullable|string',
+            'details.*.amount' => 'nullable|numeric'
         ]);
+
+        // Calculate total
+        $total = 0;
+        if (!empty($validated['details'])) {
+            foreach ($validated['details'] as $detail) {
+                if (!empty($detail['amount'])) {
+                    $total += (float) $detail['amount'];
+                }
+            }
+        }
+        
+        $dataToSave = [
+            'company_id' => $validated['company_id'] ?? null,
+            'provider_id' => $validated['provider_id'] ?? null,
+            'details' => $validated['details'] ?? [],
+            'total' => $total,
+        ];
         
         if ($request->id) {
-            Payable::findOrFail($request->id)->update($validated);
+            Payable::findOrFail($request->id)->update($dataToSave);
         } else {
-            Payable::create($validated);
+            Payable::create($dataToSave);
         }
         
         return redirect()->back()->with('success', 'Data berhasil disimpan.');
@@ -64,24 +95,20 @@ class PayableController extends Controller
 
     public function exportPdf()
     {
-        $items = \App\Models\Payable::with('provider')->orderBy('id', 'desc')->get();
+        $items = \App\Models\Payable::with(['provider', 'company'])->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['tanggal_terima_invoice', 'nomor_transaksi', 'nama_penyedia', 'memo', 'jatuh_tempo_hari', 'nominal', 'umur_hutang'];
+            $allowed = ['nama_penyedia', 'nama_pt', 'total'];
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
-                $row[] = $item->tanggal_terima_invoice ? $item->tanggal_terima_invoice->format('d/m/Y') : '-';
-                $row[] = $item->nomor_transaksi ?: '-';
                 $row[] = $item->provider ? $item->provider->name : '-';
-                $row[] = $item->memo ?: '-';
-                $row[] = $item->jatuh_tempo_hari ? $item->jatuh_tempo_hari . ' Hari' : '-';
-                $row[] = $item->nominal;
-                $row[] = $item->umur_hutang > 0 ? $item->umur_hutang . ' Hari Terlambat' : 'Belum Jatuh Tempo';
+                $row[] = $item->company ? $item->company->name : '-';
+                $row[] = $item->total;
                 return $row;
             });
         }
@@ -92,24 +119,20 @@ class PayableController extends Controller
 
     public function exportExcel()
     {
-        $items = \App\Models\Payable::with('provider')->orderBy('id', 'desc')->get();
+        $items = \App\Models\Payable::with(['provider', 'company'])->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['tanggal_terima_invoice', 'nomor_transaksi', 'nama_penyedia', 'memo', 'jatuh_tempo_hari', 'nominal', 'umur_hutang'];
+            $allowed = ['nama_penyedia', 'nama_pt', 'total'];
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) {
                 $row = [$key + 1];
-                $row[] = $item->tanggal_terima_invoice ? $item->tanggal_terima_invoice->format('d/m/Y') : '-';
-                $row[] = $item->nomor_transaksi ?: '-';
                 $row[] = $item->provider ? $item->provider->name : '-';
-                $row[] = $item->memo ?: '-';
-                $row[] = $item->jatuh_tempo_hari ? $item->jatuh_tempo_hari . ' Hari' : '-';
-                $row[] = $item->nominal;
-                $row[] = $item->umur_hutang > 0 ? $item->umur_hutang . ' Hari Terlambat' : 'Belum Jatuh Tempo';
+                $row[] = $item->company ? $item->company->name : '-';
+                $row[] = $item->total;
                 return $row;
             });
         }

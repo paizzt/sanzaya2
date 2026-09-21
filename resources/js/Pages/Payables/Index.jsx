@@ -2,8 +2,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { CreditCard, Plus, Edit, Trash2, TrendingUp, User as UserIcon, Database, Activity } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { Wallet, Plus, Edit, Trash2, ClipboardList } from 'lucide-react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Modal from '@/Components/Modal';
@@ -11,21 +10,75 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import SearchableSelect from '@/Components/SearchableSelect';
-import CustomSelect from '@/Components/CustomSelect';
+import ClientPagination from '@/Components/ClientPagination';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items, providers, summary }) {
+export default function Index({ auth, items, providers, companies, filters, dailyReports = [], users = [], totalAll, lastUpdated }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
+
+    const [filterSearch, setFilterSearch] = useState(filters?.search || '');
+    const [filterPt, setFilterPt] = useState(filters?.pt || '');
+    const [filterYear, setFilterYear] = useState(filters?.year || '');
+
+    const applyFilter = () => {
+        router.get(route('payables.index'), {
+            search: filterSearch,
+            pt: filterPt,
+            year: filterYear
+        }, { preserveState: true, replace: true });
+    };
+
+    const resetFilter = () => {
+        setFilterSearch('');
+        setFilterPt('');
+        setFilterYear('');
+        router.get(route('payables.index'), {}, { preserveState: true, replace: true });
+    };
+
+    const summaryByYear = items.reduce((acc, item) => {
+        if (item.details) {
+            item.details.forEach(d => {
+                if (d.year && d.year !== 'Total') {
+                    acc[d.year] = (acc[d.year] || 0) + Number(d.amount || 0);
+                }
+            });
+        }
+        return acc;
+    }, {});
+
+    const summaryByPT = items.reduce((acc, item) => {
+        const companyName = item.company ? item.company.name : '-';
+        if (companyName) {
+            acc[companyName] = (acc[companyName] || 0) + Number(item.total || 0);
+        }
+        return acc;
+    }, {});
+
+    const totalPenyedias = new Set(items.map(item => item.provider ? item.provider.name : '').filter(Boolean)).size;
+
+    const totalHutangKeseluruhan = items.reduce((sum, item) => sum + Number(item.total || 0), 0);
+
+    const formatRupiah = (number) => {
+        return new Intl.NumberFormat('id-ID').format(number);
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
+        return new Date(dateString).toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        }) + ' WIB';
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
+        company_id: '',
         provider_id: '',
-        tanggal_terima_invoice: '',
-        nomor_transaksi: '',
-        memo: '',
-        jatuh_tempo_hari: '',
-        nominal: ''
+        details: [{ year: new Date().getFullYear().toString(), amount: '' }]
     });
 
     const openModal = (item = null) => {
@@ -33,16 +86,14 @@ export default function Index({ auth, items, providers, summary }) {
             setEditingItem(item);
             setData({
                 id: item.id,
+                company_id: item.company_id || '',
                 provider_id: item.provider_id || '',
-                tanggal_terima_invoice: item.tanggal_terima_invoice ? item.tanggal_terima_invoice.substring(0, 10) : '',
-                nomor_transaksi: item.nomor_transaksi || '',
-                memo: item.memo || '',
-                jatuh_tempo_hari: item.jatuh_tempo_hari || '',
-                nominal: item.nominal || ''
+                details: item.details && item.details.length > 0 ? item.details : [{ year: new Date().getFullYear().toString(), amount: '' }]
             });
         } else {
             setEditingItem(null);
             reset();
+            setData('details', [{ year: new Date().getFullYear().toString(), amount: '' }]);
         }
         setIsModalOpen(true);
     };
@@ -101,10 +152,37 @@ export default function Index({ auth, items, providers, summary }) {
         });
     };
 
-    const chartData = Object.entries(summary?.hutang_detail || {}).map(([name, val]) => ({
-        name: name,
-        TotalHutang: val
-    }));
+    const dailyForm = useForm({
+        billing_date: new Date().toISOString().split('T')[0],
+        user_id: auth.user.id.toString(),
+        provider_id: '',
+        result: ''
+    });
+
+    const submitDaily = (e) => {
+        e.preventDefault();
+        dailyForm.post(route('payables.dailyReport.store'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                dailyForm.reset('provider_id', 'result');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Laporan harian berhasil disimpan',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        });
+    };
+
+    // Generate year options from 2020 to 2030
+    const yearOptions = Array.from({ length: 11 }, (_, i) => {
+        const y = (2020 + i).toString();
+        return { value: y, label: y };
+    });
 
     return (
         <AuthenticatedLayout
@@ -116,78 +194,12 @@ export default function Index({ auth, items, providers, summary }) {
             <div className="pb-12 pt-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     
-                    {summary && (
-                        <>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="min-w-0 flex-1 pr-4">
-                                            <p className="text-sm font-semibold text-gray-500 truncate">Total Nominal</p>
-                                            <h4 className="text-xl font-bold text-orange-700 mt-1 truncate" title={summary.total_nominal}>
-                                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(summary.total_nominal)}
-                                            </h4>
-                                        </div>
-                                        <div className="p-3 bg-orange-50 rounded-2xl">
-                                            <TrendingUp className="w-6 h-6 text-orange-600" />
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gray-400">Total akumulasi nominal hutang</p>
-                                </div>
-                                
-                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="min-w-0 flex-1 pr-4">
-                                            <p className="text-sm font-semibold text-gray-500 truncate">Total Penyedia</p>
-                                            <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.total_penyedia}>
-                                                {summary.total_penyedia}
-                                            </h4>
-                                        </div>
-                                        <div className="p-3 bg-blue-50 rounded-2xl">
-                                            <UserIcon className="w-6 h-6 text-blue-600" />
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gray-400">Jumlah penyedia berbeda</p>
-                                </div>
-
-                                <div className="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between transition-all">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="min-w-0 flex-1 pr-4">
-                                            <p className="text-sm font-semibold text-gray-500 truncate">Total Data</p>
-                                            <h4 className="text-xl font-bold text-gray-900 mt-1 truncate" title={summary.total_data}>
-                                                {summary.total_data}
-                                            </h4>
-                                        </div>
-                                        <div className="p-3 bg-green-50 rounded-2xl">
-                                            <Database className="w-6 h-6 text-green-600" />
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gray-400">Jumlah baris data hutang tercatat</p>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
-                                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</h4>
-                                <div className="h-72 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 30, left: 100, bottom: 5 }}>
-                                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-                                            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
-                                            <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} />
-                                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                                            <Bar dataKey="TotalHutang" fill="#f97316" radius={[0, 4, 4, 0]} barSize={20} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-                        </>
-                    )}
-
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
                             
                             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
                                 <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-                                    <CreditCard className="w-5 h-5 text-blue-500" />
+                                    <Wallet className="w-5 h-5 text-blue-500" />
                                     Data Hutang
                                 </h3>
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
@@ -201,37 +213,126 @@ export default function Index({ auth, items, providers, summary }) {
                                 </div>
                             </div>
 
+                            {/* Summary Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center">
+                                    <h4 className="text-sm font-semibold text-amber-800 mb-2">Total Semua Hutang</h4>
+                                    <span className="text-xl xl:text-2xl font-extrabold text-amber-600 whitespace-nowrap">Rp {formatRupiah(totalAll || totalHutangKeseluruhan)}</span>
+                                    <span className="text-xs text-amber-700/70 mt-2 text-center">
+                                        Terakhir diupdate pada tanggal {formatDate(lastUpdated)}
+                                    </span>
+                                </div>
+
+                                <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
+                                    <h4 className="text-sm font-semibold text-blue-800 mb-2">Hutang Berdasarkan Tahun</h4>
+                                    <div className="space-y-1">
+                                        {Object.entries(summaryByYear).sort(([a], [b]) => b - a).map(([year, amount]) => (
+                                            <div key={year} className="flex justify-between items-start text-sm gap-2">
+                                                <span className="text-blue-700">{year}</span>
+                                                <span className="font-bold text-blue-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
+                                            </div>
+                                        ))}
+                                        {Object.keys(summaryByYear).length === 0 && <div className="text-sm text-blue-600/70">Tidak ada data</div>}
+                                    </div>
+                                </div>
+                                
+                                <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl shadow-sm">
+                                    <h4 className="text-sm font-semibold text-indigo-800 mb-2">Hutang Berdasarkan PT</h4>
+                                    <div className="space-y-1">
+                                        {Object.entries(summaryByPT).map(([pt, amount]) => (
+                                            <div key={pt} className="flex justify-between items-start text-sm gap-2 mt-1">
+                                                <span className="text-indigo-700 leading-tight">{pt}</span>
+                                                <span className="font-bold text-indigo-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
+                                            </div>
+                                        ))}
+                                        {Object.keys(summaryByPT).length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
+                                    </div>
+                                </div>
+
+                                <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center">
+                                    <h4 className="text-sm font-semibold text-emerald-800 mb-2">Total Penyedia yang Punya Hutang</h4>
+                                    <span className="text-4xl font-extrabold text-emerald-600">{totalPenyedias}</span>
+                                    <span className="text-emerald-700 text-sm mt-1">Penyedia</span>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-50 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4 items-end">
+                                <div className="w-full md:w-1/3">
+                                    <InputLabel value="Cari Penyedia" />
+                                    <TextInput 
+                                        type="text" 
+                                        className="w-full mt-1" 
+                                        value={filterSearch} 
+                                        onChange={e => setFilterSearch(e.target.value)} 
+                                        onKeyPress={e => e.key === 'Enter' && applyFilter()}
+                                    />
+                                </div>
+                                <div className="w-full md:w-1/4">
+                                    <InputLabel value="Filter PT" />
+                                    <select
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                        value={filterPt}
+                                        onChange={(e) => setFilterPt(e.target.value)}
+                                    >
+                                        <option value="">Semua PT</option>
+                                        {companies && companies.map(c => (
+                                            <option key={c.id} value={c.id.toString()}>{c.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="w-full md:w-1/4">
+                                    <InputLabel value="Filter Tahun" />
+                                    <select
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                        value={filterYear}
+                                        onChange={(e) => setFilterYear(e.target.value)}
+                                    >
+                                        <option value="">Semua Tahun</option>
+                                        {yearOptions.map(opt => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="flex gap-2">
+                                    <PrimaryButton onClick={applyFilter} type="button">Filter</PrimaryButton>
+                                    <SecondaryButton onClick={resetFilter} type="button">Reset</SecondaryButton>
+                                </div>
+                            </div>
+                            
+
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Terima Invoice</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Transaksi</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama PT</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Penyedia</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jatuh Tempo</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Umur Hutang</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal Hutang</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Hutang</th>
                                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {items.length > 0 ? items.map((item) => (
+                                        {items.length > 0 ? items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                                             <tr key={item.id}>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                    {item.tanggal_terima_invoice ? new Date(item.tanggal_terima_invoice).toLocaleDateString('id-ID') : '-'}
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.company ? item.company.name : '-'}</td>
+                                                <td className="px-6 py-4 whitespace-normal break-words max-w-xs md:max-w-md">{item.provider ? item.provider.name : '-'}</td>
+                                                <td className="px-6 py-4">
+                                                    {item.details && item.details.map((d, i) => (
+                                                        <div key={i} className="text-sm font-semibold mb-1">
+                                                            {d.year}
+                                                        </div>
+                                                    ))}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">{item.nomor_transaksi || '-'}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm">{item.provider ? item.provider.name : '-'}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.jatuh_tempo_hari ? `${item.jatuh_tempo_hari} Hari` : '-'}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap font-bold text-red-600">
-                                                    Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((parseFloat(item.nominal) || 0) / 100)}
+                                                <td className="px-6 py-4">
+                                                    {item.details && item.details.map((d, i) => (
+                                                        <div key={i} className="text-sm mb-1 whitespace-nowrap">
+                                                            Rp {formatRupiah(d.amount || 0)}
+                                                        </div>
+                                                    ))}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                    {item.umur_hutang > 0 ? (
-                                                        <span className="text-red-600 font-bold">{item.umur_hutang} Hari Terlambat</span>
-                                                    ) : (
-                                                        <span className="text-green-600 font-medium">Belum Jatuh Tempo</span>
-                                                    )}
+                                                <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">
+                                                    Rp {formatRupiah(item.total || 0)}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
@@ -244,7 +345,7 @@ export default function Index({ auth, items, providers, summary }) {
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
+                                                <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
                                                     Belum ada data hutang.
                                                 </td>
                                             </tr>
@@ -252,101 +353,111 @@ export default function Index({ auth, items, providers, summary }) {
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            {items.length > 0 && (
+                                <div className="mt-4 border-t">
+                                    <ClientPagination 
+                                        total={items.length} 
+                                        itemsPerPage={itemsPerPage} 
+                                        currentPage={currentPage} 
+                                        onPageChange={setCurrentPage} 
+                                    />
+                                </div>
+                            )}
 
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl">
+            <Modal show={isModalOpen} onClose={closeModal}>
                 <form onSubmit={submit} className="p-6">
                     <h2 className="text-lg font-medium text-gray-900 mb-6">
                         {editingItem ? 'Edit Data Hutang' : 'Tambah Hutang'}
                     </h2>
 
-                    <div className="grid grid-cols-1 gap-4">
-                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel htmlFor="tanggal_terima_invoice" value="Tanggal Terima Invoice" />
-                                <TextInput
-                                    id="tanggal_terima_invoice"
-                                    type="date"
-                                    className="mt-1 block w-full"
-                                    value={data.tanggal_terima_invoice}
-                                    onChange={e => setData('tanggal_terima_invoice', e.target.value)}
-                                />
-                                <InputError message={errors.tanggal_terima_invoice} className="mt-2" />
-                            </div>
-
-                            <div>
-                                <InputLabel htmlFor="nomor_transaksi" value="Nomor Transaksi" />
-                                <TextInput
-                                    id="nomor_transaksi"
-                                    type="text"
-                                    className="mt-1 block w-full"
-                                    value={data.nomor_transaksi}
-                                    onChange={e => setData('nomor_transaksi', e.target.value)}
-                                    />
-                                <InputError message={errors.nomor_transaksi} className="mt-2" />
-                            </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-96 overflow-y-auto pr-2">
+                        <div className="md:col-span-2">
+                            <InputLabel htmlFor="company_id" value="Nama PT (Perusahaan)" />
+                            <select
+                                id="company_id"
+                                className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                value={data.company_id}
+                                onChange={(e) => setData('company_id', e.target.value)}
+                            >
+                                <option value="">-- Pilih PT --</option>
+                                {companies && companies.map(c => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
+                            <InputError message={errors.company_id} className="mt-2" />
                         </div>
 
-                        <div>
+                        <div className="md:col-span-2">
                             <InputLabel htmlFor="provider_id" value="Nama Penyedia" />
-                            <div className="mt-1">
-                                <SearchableSelect
-                                    options={providers ? providers.map(p => ({ value: p.id.toString(), label: p.name })) : []}
-                                    value={data.provider_id ? data.provider_id.toString() : ''}
-                                    onChange={val => setData('provider_id', val)}
-                                    />
-                            </div>
+                            <SearchableSelect
+                                options={providers ? providers.map(o => ({ value: o.id.toString(), label: o.name })) : []}
+                                value={data.provider_id ? data.provider_id.toString() : ''}
+                                onChange={val => setData('provider_id', val)}
+                                />
                             <InputError message={errors.provider_id} className="mt-2" />
                         </div>
-                        
-                        <div>
-                            <InputLabel htmlFor="memo" value="Memo" />
-                            <TextInput
-                                id="memo"
-                                type="text"
-                                className="mt-1 block w-full"
-                                value={data.memo}
-                                onChange={e => setData('memo', e.target.value)}
-                                />
-                            <InputError message={errors.memo} className="mt-2" />
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel htmlFor="jatuh_tempo_hari" value="Jatuh Tempo" />
-                                <CustomSelect
-                                    value={data.jatuh_tempo_hari ? data.jatuh_tempo_hari.toString() : ''}
-                                    onChange={val => setData('jatuh_tempo_hari', val)}
-                                    options={[
-                                        { value: '14', label: '14 Hari' },
-                                        { value: '30', label: '30 Hari' }
-                                    ]}
-                                    />
-                                <InputError message={errors.jatuh_tempo_hari} className="mt-2" />
+                        <div className="md:col-span-2 mt-4">
+                            <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-semibold text-gray-700">Daftar Hutang per Tahun</h4>
+                                <button type="button" onClick={() => setData('details', [...data.details, { year: new Date().getFullYear().toString(), amount: '' }])} className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 flex items-center gap-1">
+                                    <Plus className="w-3 h-3 mr-2" /> Tambah Tahun
+                                </button>
                             </div>
 
-                            <div>
-                                <InputLabel htmlFor="nominal" value="Nominal" />
-                                <div className="relative mt-1">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span className="text-gray-500 sm:text-sm">Rp</span>
+                            {data.details.map((detail, index) => (
+                                <div key={index} className="flex items-center gap-4 mb-3">
+                                    <div className="w-1/3">
+                                        <TextInput
+                                            type="number"
+                                            className="w-full"
+                                            value={detail.year}
+                                            onChange={e => {
+                                                const newDetails = [...data.details];
+                                                newDetails[index].year = e.target.value;
+                                                setData('details', newDetails);
+                                            }}
+                                        />
                                     </div>
-                                    <TextInput 
-                                        id="nominal" 
-                                        type="text" 
-                                        className="block w-full pl-9 font-mono text-right" 
-                                        value={data.nominal ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(data.nominal) / 100) : ''} 
-                                        onChange={e => {
-                                            const rawValue = e.target.value.replace(/\D/g, '');
-                                            setData('nominal', rawValue);
-                                        }} 
-                                    />
+                                    <div className="w-full flex-1">
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span className="text-gray-500 sm:text-sm">Rp</span>
+                                            </div>
+                                            <TextInput
+                                                type="text"
+                                                className="w-full pl-9 font-mono text-right"
+                                                value={detail.amount ? formatRupiah(detail.amount) : ''}
+                                                onChange={e => {
+                                                    const rawValue = e.target.value.replace(/\D/g, '');
+                                                    const newDetails = [...data.details];
+                                                    newDetails[index].amount = rawValue;
+                                                    setData('details', newDetails);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <button type="button" onClick={() => {
+                                        const newDetails = data.details.filter((_, i) => i !== index);
+                                        setData('details', newDetails);
+                                    }} className="text-red-500 hover:text-red-700 p-2">
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
                                 </div>
-                                <InputError message={errors.nominal} className="mt-2" />
+                            ))}
+
+                            <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-100 flex justify-between items-center">
+                                <span className="font-semibold text-gray-700">Total Hutang:</span>
+                                <span className="text-xl font-bold text-green-700">
+                                    Rp {formatRupiah(data.details.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0))}
+                                </span>
                             </div>
                         </div>
                     </div>
