@@ -6,6 +6,10 @@ import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
 import { Eye, FileText, Edit, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import dayjs from 'dayjs';
+import 'dayjs/locale/id';
+
+dayjs.locale('id');
 
 // Formatting helper local
 const formatCurrency = (value) => {
@@ -153,7 +157,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     {pr.reference_number}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {pr.submission_date || '-'}
+                                                    {pr.submission_date ? dayjs(pr.submission_date).format('DD MMMM YYYY') : '-'}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div>{pr.requester?.name}</div>
