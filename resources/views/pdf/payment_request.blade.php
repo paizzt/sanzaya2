@@ -43,12 +43,12 @@
         <tr>
             <td class="label">Penerima Dana</td><td class="colon">:</td>
             <td>{{ $paymentRequest->recipient_name }}</td>
-            <td class="label">Kategori</td><td class="colon">:</td>
-            <td>{{ $paymentRequest->purpose }}</td>
+            <td class="label">Kategori / Tujuan</td><td class="colon">:</td>
+            <td>{{ $paymentRequest->category }} / {{ $paymentRequest->purpose }}</td>
         </tr>
         <tr>
             <td class="label">Bank & Rekening</td><td class="colon">:</td>
-            <td colspan="4">{{ $paymentRequest->recipient_bank ?? '-' }} - {{ $paymentRequest->recipient_account_number ?? '-' }}</td>
+            <td colspan="4">{{ $paymentRequest->bank_or_wallet ?? '-' }} - {{ $paymentRequest->account_number ?? '-' }}</td>
         </tr>
     </table>
 
@@ -66,7 +66,7 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $item->description }}</td>
-                    <td class="text-right">Rp {{ number_format($item->total_price ?? ($item->quantity * $item->unit_price), 0, ',', '.') }}</td>
+                    <td class="text-right">Rp {{ number_format($item->amount ?? ($item->quantity * $item->unit_price), 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
             @else
