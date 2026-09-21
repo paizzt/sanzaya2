@@ -292,13 +292,16 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 </div>
                                 <div className="w-full md:w-1/4">
                                     <InputLabel value="Filter PT" />
-                                    <div className="mt-1">
-                                        <SearchableSelect 
-                                            options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
-                                            value={filterPt}
-                                            onChange={val => setFilterPt(val)}
-                                            />
-                                    </div>
+                                    <select
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                        value={filterPt}
+                                        onChange={(e) => setFilterPt(e.target.value)}
+                                    >
+                                        <option value="">Semua PT</option>
+                                        {companies && companies.map(c => (
+                                            <option key={c.id} value={c.id.toString()}>{c.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="w-full md:w-1/4">
                                     <InputLabel value="Filter Tahun" />
