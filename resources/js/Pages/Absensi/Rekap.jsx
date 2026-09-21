@@ -293,7 +293,6 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     <th className="py-4 px-6 font-semibold">Tipe Absen</th>
                                     <th className="py-4 px-6 font-semibold text-center">Jam Masuk</th>
                                     <th className="py-4 px-6 font-semibold text-center">Jam Keluar</th>
-                                    <th className="py-4 px-6 font-semibold text-center">Foto</th>
                                     <th className="py-4 px-6 font-semibold">Status</th>
                                     <th className="py-4 px-6 font-semibold text-right">Aksi</th>
                                 </tr>
@@ -327,34 +326,6 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6 text-center font-medium">{item.check_out || '-'}</td>
-                                            <td className="py-4 px-6 text-center">
-                                                {item.type === 'Hadir' ? (
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <button 
-                                                            onClick={() => handleShowPhoto(item.check_in_photo, 'Masuk')}
-                                                            className={`p-1.5 rounded-lg border transition-colors ${item.check_in_photo ? 'border-blue-200 text-blue-600 hover:bg-blue-50' : 'border-gray-200 text-gray-300 cursor-not-allowed'}`}
-                                                            title="Foto Masuk"
-                                                        >
-                                                            <div className="flex items-center gap-1">
-                                                                <Camera className="w-4 h-4" />
-                                                                <span className="text-[10px] font-bold">Masuk</span>
-                                                            </div>
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => handleShowPhoto(item.check_out_photo, 'Pulang')}
-                                                            className={`p-1.5 rounded-lg border transition-colors ${item.check_out_photo ? 'border-blue-200 text-blue-600 hover:bg-blue-50' : 'border-gray-200 text-gray-300 cursor-not-allowed'}`}
-                                                            title="Foto Pulang"
-                                                        >
-                                                            <div className="flex items-center gap-1">
-                                                                <Camera className="w-4 h-4" />
-                                                                <span className="text-[10px] font-bold">Pulang</span>
-                                                            </div>
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    '-'
-                                                )}
-                                            </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col gap-2 items-start">
                                                     <span className={`px-2 py-1 rounded text-xs font-semibold ${
