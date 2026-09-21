@@ -10,14 +10,25 @@ import Modal from '@/Components/Modal';
 
 dayjs.locale('id');
 
-export default function ActivityLog({ auth, logs, filters }) {
+export default function ActivityLog({ auth, logs, filters, modules = [] }) {
     const [search, setSearch] = useState(filters.search || '');
+    const [moduleFilter, setModuleFilter] = useState(filters.module || '');
     const [selectedLog, setSelectedLog] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleSearch = (e) => {
         e.preventDefault();
-        router.get(route('system.activity-logs'), { search }, {
+        router.get(route('system.activity-logs'), { search, module: moduleFilter }, {
+            preserveState: true,
+            preserveScroll: true
+        });
+    };
+
+    // Apabila filter module dropdown berubah, otomatis trigger pencarian
+    const handleModuleChange = (e) => {
+        const val = e.target.value;
+        setModuleFilter(val);
+        router.get(route('system.activity-logs'), { search, module: val }, {
             preserveState: true,
             preserveScroll: true
         });
@@ -127,17 +138,32 @@ export default function ActivityLog({ auth, logs, filters }) {
                                 </div>
                             </div>
 
-                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row w-full md:w-auto gap-2">
+                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
                                 <div className="relative w-full md:w-auto">
-                                    <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                    <TextInput
-                                        type="text"
-                                        value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                        className="pl-10 w-full md:w-64"
-                                    />
+                                    <select
+                                        value={moduleFilter}
+                                        onChange={handleModuleChange}
+                                        className="w-full md:w-48 border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-gray-700"
+                                    >
+                                        <option value="">Semua Menu (Modul)</option>
+                                        {modules.map(mod => (
+                                            <option key={mod} value={mod}>{mod}</option>
+                                        ))}
+                                    </select>
                                 </div>
-                                <PrimaryButton type="submit" className="">Cari</PrimaryButton>
+                                <div className="relative w-full md:w-auto flex">
+                                    <div className="relative w-full">
+                                        <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        <TextInput
+                                            type="text"
+                                            value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            placeholder="Cari..."
+                                            className="pl-10 w-full md:w-56 rounded-r-none"
+                                        />
+                                    </div>
+                                    <PrimaryButton type="submit" className="rounded-l-none shrink-0">Cari</PrimaryButton>
+                                </div>
                             </form>
                         </div>
 

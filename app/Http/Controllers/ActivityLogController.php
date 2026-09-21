@@ -22,11 +22,18 @@ class ActivityLogController extends Controller
             });
         }
 
+        if ($request->has('module') && $request->module != '') {
+            $query->where('module', $request->module);
+        }
+
         $logs = $query->paginate(20)->withQueryString();
+        
+        $modules = ActivityLog::select('module')->distinct()->whereNotNull('module')->orderBy('module')->pluck('module');
 
         return Inertia::render('System/ActivityLog', [
             'logs' => $logs,
-            'filters' => $request->only(['search'])
+            'modules' => $modules,
+            'filters' => $request->only(['search', 'module'])
         ]);
     }
 
