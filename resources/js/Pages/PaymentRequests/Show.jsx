@@ -140,6 +140,60 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                         {/* Kolom Kiri: Informasi */}
                         <div className="md:col-span-2 space-y-6">
                             
+                            {/* Informasi Pengajuan */}
+                            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                <h3 className="text-lg font-bold border-b pb-2 mb-4 text-gray-800">Informasi Pengajuan</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500 block text-xs">Perusahaan / PT</span>
+                                        <span className="font-semibold text-gray-900">{paymentRequest.company_name}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500 block text-xs">Kategori</span>
+                                        <span className="font-semibold text-gray-900">{paymentRequest.category}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500 block text-xs">Tujuan Pembayaran</span>
+                                        <span className="font-semibold text-gray-900">{paymentRequest.purpose}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500 block text-xs">Batas Waktu Bayar</span>
+                                        <span className="font-semibold text-red-600">{paymentRequest.payment_deadline}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Informasi Rekening Pembayaran */}
+                            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                <h3 className="text-lg font-bold border-b pb-2 mb-4 text-gray-800">Metode & Rekening Pembayaran</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500 block text-xs">Metode Pembayaran</span>
+                                        <span className="font-semibold text-gray-900">{paymentRequest.payment_method}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500 block text-xs">Penerima Pembayaran</span>
+                                        <span className="font-semibold text-gray-900">{paymentRequest.recipient_name}</span>
+                                    </div>
+                                    {paymentRequest.payment_method !== 'Tunai' && (
+                                        <>
+                                            <div>
+                                                <span className="text-gray-500 block text-xs">Bank / E-Wallet</span>
+                                                <span className="font-semibold text-gray-900">{paymentRequest.bank_or_wallet || '-'}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500 block text-xs">Nomor Rekening / QRIS</span>
+                                                <span className="font-bold text-indigo-600 text-base">{paymentRequest.account_number || '-'}</span>
+                                            </div>
+                                            <div className="sm:col-span-2">
+                                                <span className="text-gray-500 block text-xs">Atas Nama Rekening</span>
+                                                <span className="font-semibold text-gray-900">{paymentRequest.account_name || '-'}</span>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            
                             {/* Rincian Anggaran */}
                             <div className="bg-white p-6 rounded-lg shadow-sm">
                                 <h3 className="text-lg font-bold border-b pb-2 mb-4">Rincian Anggaran</h3>

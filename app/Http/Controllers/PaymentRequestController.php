@@ -320,8 +320,8 @@ class PaymentRequestController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
-        $vendors = Provider::where('status', 'Aktif')->get();
-        $companies = \App\Models\Company::all();
+        $vendors = Provider::select('id', 'name')->get();
+        $companies = \App\Models\Company::select('id', 'name')->get();
 
         return Inertia::render('PaymentRequests/Edit', [
             'paymentRequest' => $paymentRequest,
