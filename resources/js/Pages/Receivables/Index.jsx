@@ -346,7 +346,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {item.details && item.details.map((d, i) => (
-                                                        <div key={i} className="text-sm mb-1">
+                                                        <div key={i} className="text-sm mb-1 whitespace-nowrap">
                                                             Rp {formatRupiah(d.amount || 0)}
                                                         </div>
                                                     ))}
