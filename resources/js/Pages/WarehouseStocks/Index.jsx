@@ -21,6 +21,14 @@ export default function Index({ items, isShared }) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [copied, setCopied] = useState(false);
+    const [selectedColumns, setSelectedColumns] = useState({
+        code: true,
+        name: true,
+        category: true,
+        quantity: true,
+        unit: true,
+        link: true
+    });
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -149,7 +157,12 @@ export default function Index({ items, isShared }) {
     };
 
     const copyToClipboard = () => {
-        const publicUrl = window.location.origin + '/shared/stok-gudang';
+        const activeCols = Object.entries(selectedColumns)
+            .filter(([_, isActive]) => isActive)
+            .map(([col]) => col)
+            .join(',');
+        const queryParams = activeCols ? `?cols=${activeCols}` : '';
+        const publicUrl = window.location.origin + '/shared/stok-gudang' + queryParams;
         navigator.clipboard.writeText(publicUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -185,35 +198,62 @@ export default function Index({ items, isShared }) {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className={`p-3 rounded-xl ${isShared ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
-                            <Share2 className="w-6 h-6" />
+                <div className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col gap-4">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className={`p-3 rounded-xl ${isShared ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                                <Share2 className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-900">Berbagi Link Publik</h3>
+                                <p className="text-sm text-gray-500">
+                                    {isShared ? 'Link publik aktif dan dapat diakses oleh siapa saja.' : 'Link publik saat ini non-aktif.'}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="font-bold text-gray-900">Berbagi Link Publik</h3>
-                            <p className="text-sm text-gray-500">
-                                {isShared ? 'Link publik aktif dan dapat diakses oleh siapa saja.' : 'Link publik saat ini non-aktif.'}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                        {isShared && (
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                            {isShared && (
+                                <button 
+                                    onClick={copyToClipboard}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-colors w-full sm:w-auto justify-center"
+                                >
+                                    {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                                    {copied ? 'Tersalin!' : 'Salin Link'}
+                                </button>
+                            )}
                             <button 
-                                onClick={copyToClipboard}
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-colors w-full sm:w-auto justify-center"
+                                onClick={handleToggleShare}
+                                className={`px-6 py-2 rounded-xl text-sm font-bold shadow-sm transition-colors w-full sm:w-auto ${isShared ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
                             >
-                                {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                {copied ? 'Tersalin!' : 'Salin Link'}
+                                {isShared ? 'Matikan Link' : 'Aktifkan Link'}
                             </button>
-                        )}
-                        <button 
-                            onClick={handleToggleShare}
-                            className={`px-6 py-2 rounded-xl text-sm font-bold shadow-sm transition-colors w-full sm:w-auto ${isShared ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-                        >
-                            {isShared ? 'Matikan Link' : 'Aktifkan Link'}
-                        </button>
+                        </div>
                     </div>
+                    {isShared && (
+                        <div className="pt-4 border-t border-gray-100 mt-2">
+                            <p className="text-sm font-semibold text-gray-700 mb-3">Pilih kolom yang akan ditampilkan pada link publik:</p>
+                            <div className="flex flex-wrap gap-4">
+                                {Object.keys(selectedColumns).map(col => (
+                                    <label key={col} className="flex items-center gap-2 cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+                                            checked={selectedColumns[col]}
+                                            onChange={(e) => setSelectedColumns({...selectedColumns, [col]: e.target.checked})}
+                                        />
+                                        <span className="text-sm text-gray-600 capitalize">{
+                                            col === 'code' ? 'Kode/SKU' :
+                                            col === 'name' ? 'Nama Barang' :
+                                            col === 'category' ? 'Kategori' :
+                                            col === 'quantity' ? 'Stok' :
+                                            col === 'unit' ? 'Satuan' :
+                                            col === 'link' ? 'Link E-Katalog' : col
+                                        }</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">

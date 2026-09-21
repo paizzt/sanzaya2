@@ -5,6 +5,13 @@ import Fuse from 'fuse.js';
 
 export default function WarehouseStocksPublic({ items, filters }) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
+    
+    // Parse URL for active columns, default to all if not specified
+    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const colsParam = urlParams.get('cols');
+    const activeCols = colsParam ? colsParam.split(',') : ['code', 'name', 'category', 'quantity', 'unit', 'link'];
+
+    const showCol = (col) => activeCols.includes(col);
 
     const fuse = useMemo(() => new Fuse(items, {
         keys: [
@@ -54,18 +61,18 @@ export default function WarehouseStocksPublic({ items, filters }) {
                         <table className="w-full text-sm text-left text-gray-600">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    <th scope="col" className="px-6 py-4">Kode/SKU</th>
-                                    <th scope="col" className="px-6 py-4">Nama Barang</th>
-                                    <th scope="col" className="px-6 py-4">Kategori</th>
-                                    <th scope="col" className="px-6 py-4">Stok</th>
-                                    <th scope="col" className="px-6 py-4">Satuan</th>
-                                    <th scope="col" className="px-6 py-4">Link E-Katalog</th>
+                                    {showCol('code') && <th scope="col" className="px-6 py-4">Kode/SKU</th>}
+                                    {showCol('name') && <th scope="col" className="px-6 py-4">Nama Barang</th>}
+                                    {showCol('category') && <th scope="col" className="px-6 py-4">Kategori</th>}
+                                    {showCol('quantity') && <th scope="col" className="px-6 py-4">Stok</th>}
+                                    {showCol('unit') && <th scope="col" className="px-6 py-4">Satuan</th>}
+                                    {showCol('link') && <th scope="col" className="px-6 py-4">Link E-Katalog</th>}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {filteredItems.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-12 text-center">
+                                        <td colSpan={activeCols.length || 1} className="px-6 py-12 text-center">
                                             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                                             <p className="text-gray-500 font-medium">Tidak ada data stok gudang yang ditemukan.</p>
                                         </td>
@@ -73,34 +80,46 @@ export default function WarehouseStocksPublic({ items, filters }) {
                                 ) : (
                                     filteredItems.map((item) => (
                                         <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-600">
-                                                {item.code || '-'}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="font-bold text-gray-900">{item.name}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {item.category || '-'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2.5 py-0.5 rounded-full font-medium ${
-                                                    item.quantity <= item.minimum_stock 
-                                                        ? 'bg-red-50 text-red-700' 
-                                                        : 'bg-green-50 text-green-700'
-                                                }`}>
-                                                    {item.quantity}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {item.unit || '-'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {item.link ? (
-                                                    <a href={item.link} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Buka E-Katalog</a>
-                                                ) : (
-                                                    <span className="text-gray-600">-</span>
-                                                )}
-                                            </td>
+                                            {showCol('code') && (
+                                                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-600">
+                                                    {item.code || '-'}
+                                                </td>
+                                            )}
+                                            {showCol('name') && (
+                                                <td className="px-6 py-4">
+                                                    <div className="font-bold text-gray-900">{item.name}</div>
+                                                </td>
+                                            )}
+                                            {showCol('category') && (
+                                                <td className="px-6 py-4">
+                                                    {item.category || '-'}
+                                                </td>
+                                            )}
+                                            {showCol('quantity') && (
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`px-2.5 py-0.5 rounded-full font-medium ${
+                                                        item.quantity <= item.minimum_stock 
+                                                            ? 'bg-red-50 text-red-700' 
+                                                            : 'bg-green-50 text-green-700'
+                                                    }`}>
+                                                        {item.quantity}
+                                                    </span>
+                                                </td>
+                                            )}
+                                            {showCol('unit') && (
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {item.unit || '-'}
+                                                </td>
+                                            )}
+                                            {showCol('link') && (
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {item.link ? (
+                                                        <a href={item.link} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Buka E-Katalog</a>
+                                                    ) : (
+                                                        <span className="text-gray-600">-</span>
+                                                    )}
+                                                </td>
+                                            )}
                                         </tr>
                                     ))
                                 )}
