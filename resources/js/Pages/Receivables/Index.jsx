@@ -347,12 +347,12 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                                 <td className="px-6 py-4">
                                                     {item.details && item.details.map((d, i) => (
                                                         <div key={i} className="text-sm mb-1">
-                                                            Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((parseFloat(d.amount) || 0) / 100)}
+                                                            Rp {formatRupiah(d.amount || 0)}
                                                         </div>
                                                     ))}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">
-                                                    Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((parseFloat(item.total) || 0) / 100)}
+                                                    Rp {formatRupiah(item.total || 0)}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
@@ -548,7 +548,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                             <TextInput
                                                 type="text"
                                                 className="w-full pl-9 font-mono text-right"
-                                                value={detail.amount ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseInt(detail.amount) / 100) : ''}
+                                                value={detail.amount ? formatRupiah(detail.amount) : ''}
                                                 onChange={e => {
                                                     const rawValue = e.target.value.replace(/\D/g, '');
                                                     const newDetails = [...data.details];
@@ -570,7 +570,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                             <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-100 flex justify-between items-center">
                                 <span className="font-semibold text-gray-700">Total Piutang:</span>
                                 <span className="text-xl font-bold text-green-700">
-                                    Rp {new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format((data.details.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0)) / 100)}
+                                    Rp {formatRupiah(data.details.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0))}
                                 </span>
                             </div>
                         </div>
