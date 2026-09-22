@@ -590,6 +590,8 @@ class PaymentRequestController extends Controller
         } elseif ($user->hasRole('MANAJEMEN') || $user->hasRole('FINANCE')) {
             // Approvers can view
             $canView = true;
+        } elseif ($paymentRequest->approvals()->where('approver_id', $user->id)->exists()) {
+            $canView = true;
         }
 
         if (!$canView) {

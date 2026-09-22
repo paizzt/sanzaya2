@@ -42,20 +42,7 @@ class ReportController extends Controller
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-        $targetPtNamesToSearch = [];
-        if ($ptFilter) {
-            $companyTarget = \App\Models\CompanyTarget::with('companies')->where('name', $ptFilter)->first();
-            if (!$companyTarget) {
-                $companyTarget = \App\Models\CompanyTarget::with('companies')->whereHas('companies', function($q) use ($ptFilter) {
-                    $q->where('name', $ptFilter);
-                })->first();
-            }
-            if ($companyTarget) {
-                $targetPtNamesToSearch = $companyTarget->companies->pluck('name')->toArray();
-            } else {
-                $targetPtNamesToSearch = [$ptFilter];
-            }
-        }
+        $targetPtNamesToSearch = $ptFilter ? [$ptFilter] : [];
 
         $logistikBaseQuery = SyncLogistikData::query();
         if ($ptFilter) $logistikBaseQuery->whereIn('nama_pt', $targetPtNamesToSearch);
@@ -711,8 +698,8 @@ class ReportController extends Controller
     public function exportPdf(Request $request)
     {
         try {
-            ini_set('memory_limit', '2G');
-            set_time_limit(300);
+            ini_set('memory_limit', '-1');
+            set_time_limit(600);
 
             $tab = $request->query('tab', 'logistik');
             $period = $request->query('period', '1_bulan'); 
@@ -858,7 +845,9 @@ class ReportController extends Controller
             $hutangQuery = SyncHutangData::where('created_at', '>=', $startDate);
         }
 
-        if ($ptFilter) $logistikQuery->where('nama_pt', $ptFilter);
+        $targetPtNamesToSearch = $ptFilter ? [$ptFilter] : [];
+
+        if ($ptFilter) $logistikQuery->whereIn('nama_pt', $targetPtNamesToSearch);
         if ($salesFilter) $logistikQuery->where('nama_sales', $salesFilter);
         if ($outletFilter) {
             $logistikQuery->where(function($q) use ($outletNamesToSearch) {
