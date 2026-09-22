@@ -969,9 +969,14 @@ class ReportController extends Controller
 
         $targetBulanan = 0;
         if ($ptFilter) {
-            $company = \App\Models\Company::where('name', $ptFilter)->first();
-            if ($company && $company->monthly_target > 0) {
-                $targetBulanan = (float)$company->monthly_target;
+            $companyTarget = \App\Models\CompanyTarget::with('companies')->where('name', $ptFilter)->first();
+            if (!$companyTarget) {
+                $companyTarget = \App\Models\CompanyTarget::with('companies')->whereHas('companies', function($q) use ($ptFilter) {
+                    $q->where('name', $ptFilter);
+                })->first();
+            }
+            if ($companyTarget && $companyTarget->monthly_target > 0) {
+                $targetBulanan = (float)$companyTarget->monthly_target;
             }
         } elseif ($salesFilter) {
             $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
@@ -979,8 +984,8 @@ class ReportController extends Controller
                 $targetBulanan = (float)$userWithTarget->monthly_target;
             }
         } else {
-            $companiesWithTarget = \App\Models\Company::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
-            $targetBulananPTs = $companiesWithTarget->sum('monthly_target');
+            $companyTargets = \App\Models\CompanyTarget::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
+            $targetBulananPTs = $companyTargets->sum('monthly_target');
             if ($targetBulananPTs > 0) {
                 $targetBulanan = (float)$targetBulananPTs;
             } else {
