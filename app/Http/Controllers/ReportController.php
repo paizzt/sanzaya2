@@ -698,8 +698,8 @@ class ReportController extends Controller
     public function exportPdf(Request $request)
     {
         try {
-            ini_set('memory_limit', '-1');
-            set_time_limit(600);
+            @ini_set('memory_limit', '-1');
+            @set_time_limit(600);
 
             $tab = $request->query('tab', 'logistik');
             $period = $request->query('period', '1_bulan'); 
