@@ -1081,7 +1081,7 @@ class ReportController extends Controller
         return request()->has('preview') ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
-            throw $e;
+            return response("Terjadi kesalahan saat membuat PDF: " . $e->getMessage() . " (Baris " . $e->getLine() . ")", 500);
         }
     }
 
