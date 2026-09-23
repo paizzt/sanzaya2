@@ -363,9 +363,23 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     {item.is_late && (
                                                         <span className="text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">Terlambat</span>
                                                     )}
+                                                    {item.check_in_photo && (
+                                                        <button onClick={() => handleShowPhoto(item.check_in_photo, 'Masuk')} className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1">
+                                                            <Camera className="w-3 h-3"/> Foto
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-6 text-center font-medium">{item.check_out || '-'}</td>
+                                            <td className="py-4 px-6 text-center font-medium">
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <span>{item.check_out || '-'}</span>
+                                                    {item.check_out_photo && (
+                                                        <button onClick={() => handleShowPhoto(item.check_out_photo, 'Keluar')} className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1">
+                                                            <Camera className="w-3 h-3"/> Foto
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col gap-2 items-start">
                                                     <span className={`px-2 py-1 rounded text-xs font-semibold ${

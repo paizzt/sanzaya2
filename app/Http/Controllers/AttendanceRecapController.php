@@ -196,8 +196,8 @@ class AttendanceRecapController extends Controller
                 'type' => 'Hadir',
                 'check_in' => $att->check_in_time,
                 'check_out' => $att->check_out_time,
-                'check_in_photo' => $att->check_in_photo ? asset('storage/' . $att->check_in_photo) : null,
-                'check_out_photo' => $att->check_out_photo ? asset('storage/' . $att->check_out_photo) : null,
+                'check_in_photo' => $att->check_in_photo ? (str_starts_with($att->check_in_photo, 'http') ? $att->check_in_photo : asset('storage/' . $att->check_in_photo)) : null,
+                'check_out_photo' => $att->check_out_photo ? (str_starts_with($att->check_out_photo, 'http') ? $att->check_out_photo : asset('storage/' . $att->check_out_photo)) : null,
                 'is_late' => $att->is_late ?? false,
                 'status' => 'Selesai'
             ];
