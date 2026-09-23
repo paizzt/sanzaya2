@@ -109,10 +109,19 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             Penjualan: parseRpToNumber(val)
         })) : [];
 
-        if (dataSales.length === 0 && dataBulan.length === 0) return null;
+        const dataBrand = summary.brand_detail && Object.keys(summary.brand_detail).length > 0 ? Object.entries(summary.brand_detail).map(([name, val], index) => {
+            const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'];
+            return {
+                name: name,
+                Penjualan: parseRpToNumber(val),
+                color: COLORS[index % COLORS.length]
+            };
+        }) : [];
+
+        if (dataSales.length === 0 && dataBulan.length === 0 && dataBrand.length === 0) return null;
 
         return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
                 {dataSales.length > 0 && (
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                         <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
@@ -142,6 +151,34 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     <RechartsTooltip cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
                                     <Line type="monotone" dataKey="Penjualan" stroke="#4f46e5" strokeWidth={3} dot={{ fill: '#4f46e5', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
                                 </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                )}
+
+                {dataBrand.length > 0 && (
+                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Penjualan per Brand</h4>
+                        <div className="h-72 w-full flex items-center justify-center">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={dataBrand}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={90}
+                                        paddingAngle={5}
+                                        dataKey="Penjualan"
+                                        nameKey="name"
+                                    >
+                                        {dataBrand.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <RechartsTooltip formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                                    <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '11px', maxHeight: '100%', overflowY: 'auto' }} />
+                                </PieChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
