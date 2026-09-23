@@ -9,7 +9,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
 export default function Rekap({ auth, recapList, summary, userSummaries, filters, users, isAdmin }) {
-    
+    const isSuperAdmin = auth?.user?.role === 'superadmin';
     // Setup Filter Form
     const { data, setData } = useForm({
         month: filters.month.toString(),
@@ -294,13 +294,13 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     <th className="py-4 px-6 font-semibold text-center">Jam Masuk</th>
                                     <th className="py-4 px-6 font-semibold text-center">Jam Keluar</th>
                                     <th className="py-4 px-6 font-semibold">Status</th>
-                                    <th className="py-4 px-6 font-semibold text-right">Aksi</th>
+                                    {isSuperAdmin && <th className="py-4 px-6 font-semibold text-right">Aksi</th>}
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
                                 {filteredRecapList.length === 0 ? (
                                     <tr>
-                                        <td colSpan="8" className="py-8 text-center text-gray-500">
+                                        <td colSpan={isSuperAdmin ? "7" : "6"} className="py-8 text-center text-gray-500">
                                             Tidak ada riwayat absensi yang cocok dengan pencarian.
                                         </td>
                                     </tr>
@@ -352,8 +352,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-6 text-right">
-                                                {isAdmin && (
+                                            {isSuperAdmin && (
+                                                <td className="py-4 px-6 text-right">
                                                     <button 
                                                         onClick={() => handleDeleteAbsensi(item.id)}
                                                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
@@ -361,8 +361,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
-                                                )}
-                                            </td>
+                                                </td>
+                                            )}
                                         </tr>
                                     ))
                                 )}
