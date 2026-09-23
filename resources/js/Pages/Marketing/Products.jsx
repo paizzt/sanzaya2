@@ -45,15 +45,16 @@ export default function Products({ auth, products, filters }) {
                     </div>
 
                     {/* Filters & Search */}
-                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4">
+                    <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row gap-4">
                         <form onSubmit={handleSearch} className="flex-1">
                             <div className="relative">
-                                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                                 <input
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 border-gray-300 rounded-xl text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                    placeholder="Cari nama produk..."
+                                    className="w-full pl-12 pr-4 py-3 border-gray-200 rounded-2xl text-sm focus:ring-indigo-500 focus:border-indigo-500 shadow-sm min-h-[44px]"
                                 />
                             </div>
                         </form>
@@ -90,50 +91,61 @@ export default function Products({ auth, products, filters }) {
                     </div>
 
                     {/* Table Data */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left text-gray-600">
-                                <thead className="text-xs text-gray-700 uppercase bg-gray-50/80 border-b border-gray-100">
+                    <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden hide-scrollbar">
+                        <div className="overflow-x-auto hide-scrollbar">
+                            <table className="block md:table w-full text-sm text-left text-gray-600">
+                                <thead className="hidden md:table-header-group text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100 font-bold">
                                     <tr>
-                                        <th className="px-6 py-4 font-semibold">Nama Produk & Sumber</th>
-                                        <th className="px-6 py-4 font-semibold">Kategori</th>
-                                        <th className="px-6 py-4 font-semibold">NIE / Reg. No</th>
-                                        <th className="px-6 py-4 font-semibold">Kemasan</th>
+                                        <th className="px-6 py-4">Nama Produk & Sumber</th>
+                                        <th className="px-6 py-4">Kategori</th>
+                                        <th className="px-6 py-4">NIE / Reg. No</th>
+                                        <th className="px-6 py-4">Kemasan</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-50">
+                                <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50 bg-gray-50/30 md:bg-white p-4 md:p-0">
                                     {products.length > 0 ? products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((product) => (
-                                                <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
-                                                    <td className="px-6 py-4">
-                                                        <div className="font-semibold text-gray-900">{product.name}</div>
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${product.source_type === 'Internal' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'}`}>
+                                                <tr key={product.id} className="block md:table-row hover:bg-indigo-50/30 transition-colors mb-4 md:mb-0 bg-white md:bg-transparent border border-gray-100 md:border-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0">
+                                                    <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                        <div className="font-bold text-gray-900 text-base md:text-sm">{product.name}</div>
+                                                        <div className="flex items-center gap-2 mt-2 md:mt-1">
+                                                            <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${product.source_type === 'Internal' ? 'bg-indigo-50 text-indigo-700' : 'bg-orange-50 text-orange-700'}`}>
                                                                 {product.source_type}
                                                             </span>
-                                                            <span className="text-xs text-gray-500">
+                                                            <span className="text-xs font-medium text-gray-500">
                                                                 {product.provider_name}
                                                             </span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4">
-                                                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                                                            {product.jenis || '-'}
-                                                        </span>
+                                                    <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                        <div className="flex justify-between md:block items-center">
+                                                            <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Kategori</span>
+                                                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+                                                                {product.jenis || '-'}
+                                                            </span>
+                                                        </div>
                                                     </td>
-                                                    <td className="px-6 py-4 font-medium text-gray-700">
-                                                        {product.registration_no || '-'}
+                                                    <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 font-medium text-gray-700 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                        <div className="flex justify-between md:block items-center">
+                                                            <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">NIE/Reg No</span>
+                                                            <span>{product.registration_no || '-'}</span>
+                                                        </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-gray-500 text-sm">
-                                                        {product.unit || '-'}
+                                                    <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 text-gray-500 text-sm">
+                                                        <div className="flex justify-between md:block items-center">
+                                                            <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Kemasan</span>
+                                                            <span>{product.unit || '-'}</span>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             )) : (
-                                                <tr>
-                                                    <td colSpan="4" className="px-6 py-12 text-center">
-                                                        <div className="flex flex-col items-center justify-center text-gray-500">
-                                                            <Package className="w-12 h-12 mb-3 text-gray-300" />
-                                                            <p className="text-base font-medium text-gray-900">Tidak ada produk ditemukan</p>
-                                                            <p className="text-sm mt-1">Coba ubah kata kunci pencarian atau filter.</p>
+                                                <tr className="block md:table-row">
+                                                    <td colSpan="4" className="block md:table-cell px-6 py-16 text-center">
+                                                        <div className="flex flex-col items-center justify-center text-gray-400">
+                                                            <div className="bg-gray-50 p-4 rounded-full mb-4">
+                                                                <Package className="w-12 h-12 text-gray-300" />
+                                                            </div>
+                                                            <p className="text-lg font-bold text-gray-700">Tidak ada produk ditemukan</p>
+                                                            <p className="text-sm mt-1 text-gray-500">Coba ubah kata kunci pencarian atau sesuaikan filter.</p>
                                                         </div>
                                                     </td>
                                                 </tr>

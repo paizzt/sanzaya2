@@ -188,66 +188,100 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                 </div>
 
                 {/* Tab Navigation & Export */}
-                <div className="flex flex-wrap items-center justify-between gap-4 w-full pb-2">
-                    <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full sm:w-auto pb-2">
-                        <button onClick={() => setActiveTab('laporan')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='laporan'?'bg-indigo-600 text-white shadow-md shadow-indigo-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                            <ClipboardList className="w-4 h-4"/> Rekap Laporan Harian
+                {/* Tab Navigation & Export */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full pb-2">
+                    <div className="flex overflow-x-auto gap-3 w-full md:w-auto pb-4 md:pb-0 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <button onClick={() => setActiveTab('laporan')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'laporan' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-600 ring-offset-2' : 'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
+                            <ClipboardList className="w-5 h-5"/> Rekap Laporan Harian
                         </button>
-                        <button onClick={() => setActiveTab('target')} className={`flex items-center justify-center sm:justify-start gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap w-full sm:w-auto ${activeTab==='target'?'bg-teal-600 text-white shadow-md shadow-teal-500/30':'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                            <CalendarDays className="w-4 h-4"/> Rekap Target Mingguan
+                        <button onClick={() => setActiveTab('target')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'target' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-600 ring-offset-2' : 'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
+                            <CalendarDays className="w-5 h-5"/> Rekap Target Mingguan
                         </button>
                     </div>
                     
-                    <ExportDropdown pdfRoute={getExportUrl('pdf')} excelRoute={getExportUrl('excel')} />
+                    <div className="w-full md:w-auto mt-2 md:mt-0">
+                        <ExportDropdown 
+                            pdfRoute={getExportUrl('pdf')} 
+                            excelRoute={getExportUrl('excel')} 
+                            trigger={
+                                <button className="flex w-full min-h-[44px] items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-3.5 text-sm font-semibold text-emerald-700 transition-all duration-200 hover:bg-emerald-100 hover:border-emerald-300 shadow-sm">
+                                    <Download className="w-4 h-4 mr-2" /> Unduh PDF/Excel
+                                </button>
+                            } 
+                        />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
                     {/* Rekap Laporan Harian */}
                     {activeTab === 'laporan' && (
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                            <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
-                                <ClipboardList className="text-indigo-600 w-5 h-5" />
-                                Rekap Laporan Harian
-                            </h3>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm text-left">
-                                    <thead className="bg-gray-50 text-gray-600 font-medium">
+                        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden hide-scrollbar">
+                            <div className="p-6 border-b border-gray-50">
+                                <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <ClipboardList className="text-indigo-600 w-5 h-5" />
+                                    Rekap Laporan Harian
+                                </h3>
+                            </div>
+                            <div className="overflow-x-auto hide-scrollbar">
+                                <table className="block md:table w-full text-sm text-left">
+                                    <thead className="hidden md:table-header-group bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider">
                                         <tr>
-                                            <th className="px-4 py-3 rounded-l-xl w-12 text-center">No</th>
-                                            <th className="px-4 py-3">Nama Sales</th>
-                                            <th className="px-4 py-3">Tanggal & Waktu</th>
-                                            <th className="px-4 py-3">Aktivitas</th>
-                                            <th className="px-4 py-3">Outlet / PIC</th>
-                                            <th className="px-4 py-3 rounded-r-xl">Kendala / Hasil</th>
+                                            <th className="px-6 py-4 w-12 text-center">No</th>
+                                            <th className="px-6 py-4">Nama Sales</th>
+                                            <th className="px-6 py-4">Tanggal & Waktu</th>
+                                            <th className="px-6 py-4">Aktivitas</th>
+                                            <th className="px-6 py-4">Outlet / PIC</th>
+                                            <th className="px-6 py-4">Kendala / Hasil</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-50">
+                                    <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50 bg-gray-50/30 md:bg-white p-4 md:p-0">
                                         {reports?.data?.length > 0 ? reports.data.map((r, i) => (
-                                            <tr key={r.id} onClick={() => openModal(r)} className="hover:bg-gray-50/50 cursor-pointer transition-colors">
-                                                <td className="px-4 py-3 text-center text-gray-500 font-medium">
+                                            <tr key={r.id} onClick={() => openModal(r)} className="block md:table-row hover:bg-indigo-50/30 cursor-pointer transition-colors mb-4 md:mb-0 bg-white md:bg-transparent border border-gray-100 md:border-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0">
+                                                <td className="hidden md:table-cell px-6 py-4 text-center text-gray-500 font-medium">
                                                     {(reports.current_page - 1) * reports.per_page + i + 1}
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="font-bold text-gray-800">{r.user?.name || '-'}</div>
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                    <div className="flex justify-between md:block items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Sales</span>
+                                                        <div className="font-bold text-gray-800 text-base md:text-sm">{r.user?.name || '-'}</div>
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="font-medium text-gray-800">{new Date(r.visit_date).toLocaleDateString('id-ID')}</div>
-                                                    <div className="text-xs text-gray-500">{r.visit_time}</div>
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                    <div className="flex justify-between md:block items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Waktu</span>
+                                                        <div className="text-right md:text-left">
+                                                            <div className="font-medium text-gray-800">{new Date(r.visit_date).toLocaleDateString('id-ID')}</div>
+                                                            <div className="text-xs text-gray-500">{r.visit_time}</div>
+                                                        </div>
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs font-medium">{r.activity_type}</span>
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                    <div className="flex justify-between md:block items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Aktivitas</span>
+                                                        <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md text-xs font-semibold">{r.activity_type}</span>
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    {r.activity_type?.includes('Non-Kunjungan') ? '-' : (
-                                                        <>
-                                                            <div className="font-medium text-gray-800">{r.outlet?.name || r.outlet_id || '-'}</div>
-                                                            <div className="text-xs text-gray-500">{r.pic_name ? `PIC: ${r.pic_name}` : ''}</div>
-                                                        </>
-                                                    )}
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                    <div className="flex justify-between md:block items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Outlet</span>
+                                                        <div className="text-right md:text-left">
+                                                            {r.activity_type?.includes('Non-Kunjungan') ? '-' : (
+                                                                <>
+                                                                    <div className="font-medium text-gray-800">{r.outlet?.name || r.outlet_id || '-'}</div>
+                                                                    <div className="text-xs text-gray-500">{r.pic_name ? `PIC: ${r.pic_name}` : ''}</div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="text-xs text-orange-600 font-medium">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
-                                                    <div className="text-gray-600 line-clamp-2" title={r.visit_result}>{r.visit_result}</div>
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4">
+                                                    <div className="flex justify-between md:block items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Hasil</span>
+                                                        <div className="text-right md:text-left">
+                                                            <div className="text-xs text-orange-600 font-medium">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
+                                                            <div className="text-gray-600 line-clamp-2 text-sm mt-1" title={r.visit_result}>{r.visit_result}</div>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )) : (
@@ -266,48 +300,65 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
 
                     {/* Rekap Target Mingguan */}
                     {activeTab === 'target' && (
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                            <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-50 pb-4">
-                                <CalendarDays className="text-teal-600 w-5 h-5" />
-                                Rekap Target Mingguan
-                            </h3>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm text-left">
-                                    <thead className="bg-gray-50 text-gray-600 font-medium">
+                        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden hide-scrollbar">
+                            <div className="p-6 border-b border-gray-50">
+                                <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <CalendarDays className="text-teal-600 w-5 h-5" />
+                                    Rekap Target Mingguan
+                                </h3>
+                            </div>
+                            <div className="overflow-x-auto hide-scrollbar">
+                                <table className="block md:table w-full text-sm text-left">
+                                    <thead className="hidden md:table-header-group bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider">
                                         <tr>
-                                            <th className="px-4 py-3 rounded-l-xl w-12 text-center">No</th>
-                                            <th className="px-4 py-3">Nama Sales</th>
-                                            <th className="px-4 py-3">Tahun/Minggu</th>
-                                            <th className="px-4 py-3">Tanggal Periode</th>
-                                            <th className="px-4 py-3 text-center">Target Kunjungan</th>
-                                            <th className="px-4 py-3 text-right rounded-r-xl">Target Transaksi</th>
+                                            <th className="px-6 py-4 w-12 text-center">No</th>
+                                            <th className="px-6 py-4">Nama Sales</th>
+                                            <th className="px-6 py-4">Tahun/Minggu</th>
+                                            <th className="px-6 py-4">Tanggal Periode</th>
+                                            <th className="px-6 py-4 text-center">Target Kunjungan</th>
+                                            <th className="px-6 py-4 text-right">Target Transaksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-50">
+                                    <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50 bg-gray-50/30 md:bg-white p-4 md:p-0">
                                         {allTargets?.data?.length > 0 ? allTargets.data.map((t, i) => (
-                                            <tr key={t.id} className="hover:bg-gray-50/50">
-                                                <td className="px-4 py-3 text-center text-gray-500 font-medium">
+                                            <tr key={t.id} className="block md:table-row hover:bg-teal-50/30 transition-colors mb-4 md:mb-0 bg-white md:bg-transparent border border-gray-100 md:border-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0">
+                                                <td className="hidden md:table-cell px-6 py-4 text-center text-gray-500 font-medium">
                                                     {(allTargets.current_page - 1) * allTargets.per_page + i + 1}
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="font-bold text-gray-800">{t.user?.name || '-'}</div>
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                    <div className="flex justify-between md:block items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Sales</span>
+                                                        <div className="font-bold text-gray-800 text-base md:text-sm">{t.user?.name || '-'}</div>
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3 font-medium text-gray-800">
-                                                    Tahun {t.year} - M{t.week_number}
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0 font-medium text-gray-800">
+                                                    <div className="flex justify-between md:block items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Tahun/Minggu</span>
+                                                        <span>Tahun {t.year} - M{t.week_number}</span>
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-gray-600">
-                                                    {new Date(t.start_date).toLocaleDateString('id-ID')} s/d {new Date(t.end_date).toLocaleDateString('id-ID')}
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0 text-gray-600">
+                                                    <div className="flex flex-col md:block items-start md:items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider mb-1">Periode</span>
+                                                        <span>{new Date(t.start_date).toLocaleDateString('id-ID')} s/d {new Date(t.end_date).toLocaleDateString('id-ID')}</span>
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-center">
-                                                    <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{t.target_visits} Outlet</span>
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                    <div className="flex justify-between md:justify-center items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Kunjungan</span>
+                                                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{t.target_visits} Outlet</span>
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-right font-medium text-emerald-600">
-                                                    {formatRupiah(t.target_transactions)}
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4">
+                                                    <div className="flex justify-between md:justify-end items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Transaksi</span>
+                                                        <span className="font-bold text-emerald-600 text-base md:text-sm">{formatRupiah(t.target_transactions)}</span>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )) : (
-                                            <tr>
-                                                <td colSpan="6" className="px-4 py-8 text-center text-gray-400">Belum ada data target mingguan.</td>
+                                            <tr className="block md:table-row">
+                                                <td colSpan="6" className="block md:table-cell px-6 py-12 text-center text-gray-400 font-medium">Belum ada data target mingguan.</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -322,10 +373,10 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
             </div>
 
             <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl">
-                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-white rounded-t-lg">
-                    <h2 className="text-xl font-bold text-gray-800">Detail Laporan Harian</h2>
-                    <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
-                        <X className="w-6 h-6" />
+                <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
+                    <h2 className="text-xl font-black text-gray-800">Detail Laporan Harian</h2>
+                    <button onClick={closeModal} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
                 <div className="p-6 overflow-y-auto max-h-[75vh]">

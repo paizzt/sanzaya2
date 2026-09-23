@@ -115,9 +115,9 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Card 1: Target Kunjungan Mingguan (Merged) */}
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                        <div className="bg-gradient-to-br from-white to-indigo-50/40 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-indigo-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-50 text-blue-500 shadow-inner">
+                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-indigo-100 text-indigo-600 shadow-inner">
                                     <Target className="w-6 h-6" />
                                 </div>
                                 <div>
@@ -129,25 +129,25 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                 </div>
                             </div>
                             
-                            <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
+                            <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
                                 <span>Realisasi Kunjungan</span>
                                 <span className="font-bold text-gray-700">
                                     {target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%
                                 </span>
                             </div>
-                            <div className="w-full bg-gray-100 rounded-full h-2">
+                            <div className="w-full bg-indigo-100/50 rounded-full h-2.5 overflow-hidden">
                                 <div 
-                                    className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+                                    className="bg-indigo-500 h-full rounded-full transition-all duration-500" 
                                     style={{ width: `${Math.min(100, target?.target_visits > 0 ? (realization.visits / target.target_visits) * 100 : 0)}%` }}
                                 ></div>
                             </div>
                         </div>
 
                         {/* Card ke-2: Total Penjualan Perbulan */}
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                        <div className="bg-gradient-to-br from-white to-emerald-50/40 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-50 text-blue-500 shadow-inner">
+                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-100 text-emerald-600 shadow-inner">
                                         <TrendingUp className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -158,14 +158,14 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     </div>
                                 </div>
                                 {spreadsheet?.monthly_target > 0 && (
-                                    <span className="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-1 rounded-lg">
+                                    <span className="text-xs font-semibold bg-emerald-100/50 text-emerald-700 px-2 py-1 rounded-lg whitespace-nowrap">
                                         Target: Rp {new Intl.NumberFormat('id-ID').format(spreadsheet.monthly_target)}
                                     </span>
                                 )}
                             </div>
                             
                             
-                            <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
+                            <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
                                 <span>Progres Pencapaian</span>
                                 <span className="font-bold text-gray-700">
                                     {spreadsheet?.monthly_target > 0 
@@ -173,9 +173,9 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         : 0}%
                                 </span>
                             </div>
-                            <div className="w-full bg-gray-100 rounded-full h-2">
+                            <div className="w-full bg-emerald-100/50 rounded-full h-2.5 overflow-hidden">
                                 <div 
-                                    className="bg-blue-500 h-2 rounded-full transition-all duration-1000" 
+                                    className="bg-emerald-500 h-full rounded-full transition-all duration-1000" 
                                     style={{ 
                                         width: `${spreadsheet?.monthly_target > 0 
                                             ? Math.min(100, ((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
@@ -551,14 +551,14 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         Rekap Laporan Harian
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
-                                        <button className="inline-flex items-center rounded-md border border-emerald-400 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition duration-150 hover:bg-emerald-100 shrink-0">
-                                            <Download className="w-4 h-4 mr-2" /> Unduh
+                                        <button className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-2.5 text-sm font-semibold text-emerald-700 transition duration-200 hover:bg-emerald-100 hover:border-emerald-300 shadow-sm shrink-0 w-full sm:w-auto">
+                                            <Download className="w-4 h-4 mr-2" /> Unduh PDF/Excel
                                         </button>
                                     } />
                                 </h3>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-sm text-left">
-                                        <thead className="bg-gray-50 text-gray-600 font-medium">
+                                <div className="overflow-x-auto hide-scrollbar">
+                                    <table className="block md:table w-full text-sm text-left">
+                                        <thead className="hidden md:table-header-group bg-gray-50 text-gray-600 font-medium">
                                             <tr>
                                                 <th className="px-4 py-3 rounded-l-xl">Tanggal & Waktu</th>
                                                 <th className="px-4 py-3">Aktivitas</th>
@@ -567,36 +567,61 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                 <th className="px-4 py-3 text-right rounded-r-xl">Estimasi/Aktual</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-50">
+                                        <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50">
                                             {reports.length > 0 ? reports.map(r => (
-                                                <tr key={r.id} className="hover:bg-gray-50/50">
-                                                    <td className="px-4 py-3">
-                                                        <div className="font-medium text-gray-800">{new Date(r.visit_date).toLocaleDateString('id-ID')}</div>
-                                                        <div className="text-xs text-gray-500">{r.visit_time}</div>
+                                                <tr key={r.id} className="block md:table-row hover:bg-gray-50/50 mb-4 md:mb-0 bg-white md:bg-transparent border border-gray-100 md:border-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 transition-colors">
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                        <div className="flex justify-between md:block items-center">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Tanggal & Waktu</span>
+                                                            <div className="text-right md:text-left">
+                                                                <div className="font-bold text-gray-800">{new Date(r.visit_date).toLocaleDateString('id-ID')}</div>
+                                                                <div className="text-xs text-gray-500">{r.visit_time}</div>
+                                                            </div>
+                                                        </div>
                                                     </td>
-                                                    <td className="px-4 py-3">
-                                                        <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs font-medium">{r.activity_type}</span>
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                        <div className="flex justify-between md:block items-center">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Aktivitas</span>
+                                                            <div className="text-right md:text-left">
+                                                                <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md text-xs font-semibold">{r.activity_type}</span>
+                                                            </div>
+                                                        </div>
                                                     </td>
-                                                    <td className="px-4 py-3">
-                                                        {r.activity_type?.includes('Non-Kunjungan') ? '-' : (
-                                                            <>
-                                                                <div className="font-medium text-gray-800">{r.outlet?.name || r.outlet_id || '-'}</div>
-                                                                <div className="text-xs text-gray-500">{r.pic_name ? `PIC: ${r.pic_name}` : ''}</div>
-                                                            </>
-                                                        )}
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                        <div className="flex justify-between md:block items-center">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Outlet / PIC</span>
+                                                            <div className="text-right md:text-left">
+                                                                {r.activity_type?.includes('Non-Kunjungan') ? '-' : (
+                                                                    <>
+                                                                        <div className="font-medium text-gray-800">{r.outlet?.name || r.outlet_id || '-'}</div>
+                                                                        <div className="text-xs text-gray-500">{r.pic_name ? `PIC: ${r.pic_name}` : ''}</div>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="text-xs text-orange-600 font-medium">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
-                                                        <div className="text-gray-600 line-clamp-2" title={r.visit_result}>{r.visit_result}</div>
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                        <div className="flex justify-between md:block items-center">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Kendala / Hasil</span>
+                                                            <div className="text-right md:text-left">
+                                                                <div className="text-xs text-orange-600 font-medium">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
+                                                                <div className="text-gray-600 line-clamp-2 text-sm mt-1" title={r.visit_result}>{r.visit_result}</div>
+                                                            </div>
+                                                        </div>
                                                     </td>
-                                                    <td className="px-4 py-3 text-right">
-                                                        <div className="text-gray-500 text-xs">Est: {formatRupiah(r.estimated_value)}</div>
-                                                        <div className="font-medium text-emerald-600">Akt: {formatRupiah(r.actual_value)}</div>
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3">
+                                                        <div className="flex justify-between md:justify-end items-center">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Estimasi/Aktual</span>
+                                                            <div className="text-right">
+                                                                <div className="text-gray-500 text-xs">Est: {formatRupiah(r.estimated_value)}</div>
+                                                                <div className="font-medium text-emerald-600">Akt: {formatRupiah(r.actual_value)}</div>
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             )) : (
-                                                <tr>
-                                                    <td colSpan="5" className="px-4 py-8 text-center text-gray-400">Belum ada data laporan harian.</td>
+                                                <tr className="block md:table-row">
+                                                    <td colSpan="5" className="block md:table-cell px-4 py-8 text-center text-gray-400">Belum ada data laporan harian.</td>
                                                 </tr>
                                             )}
                                         </tbody>
