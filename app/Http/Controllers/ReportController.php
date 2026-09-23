@@ -160,7 +160,7 @@ class ReportController extends Controller
             }
             
             $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal')->get();
-            $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = [];
+            $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = []; $monthBreakdown = [];
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
             foreach ($logistikAll as $row) {
@@ -213,6 +213,7 @@ class ReportController extends Controller
                             }
                         }
                         $outletDetailsMap[$pel]['bulan'][$mName] = ($outletDetailsMap[$pel]['bulan'][$mName] ?? 0) + $val;
+                        $monthBreakdown[$mName] = ($monthBreakdown[$mName] ?? 0) + $val;
                     }
                 }
                 if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
@@ -274,6 +275,12 @@ class ReportController extends Controller
             
             $ptBreakdownFormatted = [];
             foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
+
+            $monthBreakdownFormatted = [];
+            uksort($monthBreakdown, function($a, $b) use ($monthOrder) {
+                return ($monthOrder[$a] ?? 99) <=> ($monthOrder[$b] ?? 99);
+            });
+            foreach($monthBreakdown as $m => $v) $monthBreakdownFormatted[$m] = 'Rp ' . number_format($v, 0, ',', '.');
 
             // Hitung penjualan spesifik bulan ini jika tidak ada filter bulan
             $refSalesBreakdown = [];
@@ -511,6 +518,7 @@ class ReportController extends Controller
                 'total_pesanan' => $logistikAll->count(),
                 'penjualan_detail' => array_slice($salesBreakdownFormatted, 0, 10, true),
                 'pt_penjualan_detail' => $ptBreakdownFormatted,
+                'bulan_detail' => $monthBreakdownFormatted,
                 'outlet_detail' => $outletDetailFormatted,
                 'produk_detail' => array_slice($produkCounts, 0, 10, true),
                 'pesanan_sales' => array_slice($pesananSales, 0, 10, true)

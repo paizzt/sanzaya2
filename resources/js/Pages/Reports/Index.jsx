@@ -97,26 +97,55 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     // Chart Renderers
     const renderLogistikChart = () => {
-        if (!summary?.penjualan_detail || Object.keys(summary.penjualan_detail).length === 0) return null;
-        const data = Object.entries(summary.penjualan_detail).map(([name, val]) => ({
+        if (!summary) return null;
+        
+        const dataSales = summary.penjualan_detail && Object.keys(summary.penjualan_detail).length > 0 ? Object.entries(summary.penjualan_detail).map(([name, val]) => ({
             name: name,
             Penjualan: parseRpToNumber(val)
-        }));
+        })) : [];
+
+        const dataBulan = summary.bulan_detail && Object.keys(summary.bulan_detail).length > 0 ? Object.entries(summary.bulan_detail).map(([name, val]) => ({
+            name: name,
+            Penjualan: parseRpToNumber(val)
+        })) : [];
+
+        if (dataSales.length === 0 && dataBulan.length === 0) return null;
 
         return (
-            <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
-                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
-                <div className="h-72 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-45} textAnchor="end" />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
-                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                            <Bar dataKey="Penjualan" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {dataSales.length > 0 && (
+                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
+                        <div className="h-72 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={dataSales} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-45} textAnchor="end" />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
+                                    <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                                    <Bar dataKey="Penjualan" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                )}
+
+                {dataBulan.length > 0 && (
+                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Penjualan Per Bulan</h4>
+                        <div className="h-72 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={dataBulan} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-45} textAnchor="end" />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
+                                    <RechartsTooltip cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
+                                    <Line type="monotone" dataKey="Penjualan" stroke="#4f46e5" strokeWidth={3} dot={{ fill: '#4f46e5', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     };
