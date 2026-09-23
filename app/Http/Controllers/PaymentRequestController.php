@@ -603,13 +603,18 @@ class PaymentRequestController extends Controller
         $qrUrl = url('/payment-requests/' . $paymentRequest->id);
         $qrCode = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(100)->generate($qrUrl));
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.payment_request', [
-            'paymentRequest' => $paymentRequest,
-            'qrCode' => $qrCode
-        ]);
+        try {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.payment_request', [
+                'paymentRequest' => $paymentRequest,
+                'qrCode' => $qrCode
+            ]);
 
-        $filename = 'Pengajuan_Pembayaran_' . str_replace(['/', '\\'], '-', $paymentRequest->reference_number) . '.pdf';
-        return $pdf->download($filename);
+            $filename = 'Pengajuan_Pembayaran_' . str_replace(['/', '\\'], '-', $paymentRequest->reference_number) . '.pdf';
+            return $pdf->download($filename);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("PR PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+            return response("Terjadi kesalahan saat membuat PDF: " . $e->getMessage() . " (Baris " . $e->getLine() . ")", 500);
+        }
     }
 
     public function destroy($id)
