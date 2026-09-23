@@ -9,7 +9,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
 export default function Rekap({ auth, recapList, summary, userSummaries, filters, users, isAdmin }) {
-    const isSuperAdmin = auth?.user?.role === 'superadmin';
+    const isSuperAdmin = auth?.user?.roles?.some(r => r.name.toLowerCase() === 'superadmin') || false;
     // Setup Filter Form
     const { data, setData } = useForm({
         month: filters.month.toString(),

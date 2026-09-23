@@ -171,7 +171,7 @@ class AttendanceController extends Controller
         $attendance = Attendance::findOrFail($id);
         
         $user = Auth::user();
-        if ($user->role !== 'superadmin') {
+        if (!$user->hasRole('Superadmin')) {
             abort(403, 'Hanya superadmin yang dapat mengubah data absensi.');
         }
 
