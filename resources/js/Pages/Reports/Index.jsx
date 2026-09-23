@@ -165,9 +165,9 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     <Pie
                                         data={dataBrand}
                                         cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={90}
+                                        cy="45%"
+                                        innerRadius={50}
+                                        outerRadius={80}
                                         paddingAngle={5}
                                         dataKey="Penjualan"
                                         nameKey="name"
@@ -177,7 +177,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         ))}
                                     </Pie>
                                     <RechartsTooltip formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                                    <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '11px', maxHeight: '100%', overflowY: 'auto' }} />
+                                    <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
@@ -208,17 +208,17 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
-                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
                     <div className="h-64 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                <Pie data={pieData} cx="50%" cy="45%" innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">
                                     {pieData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
                                 <RechartsTooltip formatter={(val) => `${val}%`} />
-                                <Legend />
+                                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
