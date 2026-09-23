@@ -3,8 +3,9 @@ import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { CheckCircle2, Clock, MapPin, MapPinOff, CalendarDays, Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import imageCompression from 'browser-image-compression';
 
-export default function Index({ attendance, today, currentTime, isOvertime, history = [] }) {
+export default function Index({ attendance, today, currentTime, isOvertime, history = [], company, isMarketing }) {
     const [isLocating, setIsLocating] = useState(false);
     const { data, setData, post, processing } = useForm({
         type: '',
@@ -59,18 +60,89 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
         }
 
         navigator.geolocation.getCurrentPosition(
-            (position) => {
+            async (position) => {
                 const { latitude, longitude } = position.coords;
                 
-                router.post(route('absensi.store'), {
-                    type: type,
-                    latitude: latitude,
-                    longitude: longitude,
-                    notes: data.notes
-                }, {
-                    preserveScroll: true,
-                    onFinish: () => setIsLocating(false)
-                });
+                let isFar = false;
+                if (!isMarketing && company) {
+                    const compLat = company.latitude;
+                    const compLon = company.longitude;
+                    const maxRadius = company.radius || 300;
+                    
+                    const R = 6371e3;
+                    const phi1 = compLat * Math.PI/180;
+                    const phi2 = latitude * Math.PI/180;
+                    const dPhi = (latitude-compLat) * Math.PI/180;
+                    const dLam = (longitude-compLon) * Math.PI/180;
+
+                    const a = Math.sin(dPhi/2) * Math.sin(dPhi/2) +
+                            Math.cos(phi1) * Math.cos(phi2) *
+                            Math.sin(dLam/2) * Math.sin(dLam/2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+                    const distance = R * c;
+                    
+                    if (distance > maxRadius) {
+                        isFar = true;
+                    }
+                }
+
+                if (isFar) {
+                    setIsLocating(false);
+                    const { value: file } = await Swal.fire({
+                        title: 'Lokasi Anda Jauh',
+                        text: 'Sistem mendeteksi Anda di luar radius kantor PT. Silakan ambil foto bukti lokasi.',
+                        input: 'file',
+                        inputAttributes: {
+                            'accept': 'image/*',
+                            'aria-label': 'Upload your location photo',
+                            'capture': 'environment'
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'Unggah & Absen',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#3b82f6',
+                        cancelButtonColor: '#9ca3af'
+                    });
+
+                    if (!file) return;
+
+                    Swal.fire({
+                        title: 'Mengunggah...',
+                        text: 'Sedang memproses foto dan absensi',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    try {
+                        const options = {
+                            maxSizeMB: 1,
+                            maxWidthOrHeight: 1280,
+                            useWebWorker: true
+                        };
+                        const compressedFile = await imageCompression(file, options);
+                        
+                        const formData = new FormData();
+                        formData.append('image', compressedFile);
+                        
+                        const response = await fetch('https://api.imgbb.com/1/upload?key=5950b44b24860057ff810fe73f58868b', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const imgData = await response.json();
+                        
+                        if (imgData.success) {
+                            sendAttendancePost(type, latitude, longitude, imgData.data.url);
+                        } else {
+                            Swal.fire('Gagal!', 'Gagal mengunggah gambar.', 'error');
+                        }
+                    } catch (error) {
+                        Swal.fire('Gagal!', 'Terjadi kesalahan saat mengompres/mengunggah gambar.', 'error');
+                    }
+                } else {
+                    sendAttendancePost(type, latitude, longitude, null);
+                }
             },
             (error) => {
                 setIsLocating(false);
@@ -84,6 +156,19 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                 maximumAge: 0
             }
         );
+    };
+
+    const sendAttendancePost = (type, latitude, longitude, photoUrl) => {
+        router.post(route('absensi.store'), {
+            type: type,
+            latitude: latitude,
+            longitude: longitude,
+            notes: data.notes,
+            photo_url: photoUrl
+        }, {
+            preserveScroll: true,
+            onFinish: () => setIsLocating(false)
+        });
     };
 
     const hasCheckedIn = attendance?.check_in_time != null;

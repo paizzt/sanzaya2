@@ -61,6 +61,8 @@ class AttendanceController extends Controller
             'currentTime' => Carbon::now()->format('H:i'),
             'isOvertime' => $isOvertime,
             'history' => $history,
+            'company' => Auth::user()->company,
+            'isMarketing' => Auth::user()->hasRole(['Marketing', 'marketing']),
         ]);
     }
 
@@ -96,8 +98,10 @@ class AttendanceController extends Controller
         // Bypass validasi radius untuk role Marketing karena kerja di lapangan
         if (!$user->hasRole(['Marketing', 'marketing'])) {
             if ($distance > $maxRadius) {
-                $formattedDistance = number_format($distance, 0, ',', '.');
-                return redirect()->back()->with('error', "Anda berada di luar jangkauan area absen PT. Jarak Anda: {$formattedDistance} meter (Maksimal: {$maxRadius} meter).");
+                if (empty($request->photo_url)) {
+                    $formattedDistance = number_format($distance, 0, ',', '.');
+                    return redirect()->back()->with('error', "Anda berada di luar jangkauan area absen PT. Jarak Anda: {$formattedDistance} meter (Maksimal: {$maxRadius} meter). Wajib sertakan foto.");
+                }
             }
         }
 
@@ -116,6 +120,9 @@ class AttendanceController extends Controller
             $attendance->check_in_time = $currentTime;
             $attendance->latitude = $userLat;
             $attendance->longitude = $userLon;
+            if (!empty($request->photo_url)) {
+                $attendance->check_in_photo = $request->photo_url;
+            }
             $attendance->save();
         } else {
             // Find the active uncompleted attendance
@@ -158,6 +165,10 @@ class AttendanceController extends Controller
             if ($isOvertime) {
                 $attendance->notes = $request->notes;
             }
+
+            if (!empty($request->photo_url)) {
+                $attendance->check_out_photo = $request->photo_url;
+            }
             
             $attendance->save();
         }
@@ -196,12 +207,8 @@ class AttendanceController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        if ($attendance->check_in_photo) {
-            Storage::disk('public')->delete($attendance->check_in_photo);
-        }
-        if ($attendance->check_out_photo) {
-            Storage::disk('public')->delete($attendance->check_out_photo);
-        }
+        // We no longer delete files from storage because they are in ImgBB
+        // If we want, we can just delete the record directly.
         
         $attendance->delete();
 
