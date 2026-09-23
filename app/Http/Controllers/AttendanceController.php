@@ -166,6 +166,27 @@ class AttendanceController extends Controller
         return redirect()->back()->with('success', $message);
     }
 
+    public function update(Request $request, $id)
+    {
+        $attendance = Attendance::findOrFail($id);
+        
+        $user = Auth::user();
+        if ($user->role !== 'superadmin') {
+            abort(403, 'Hanya superadmin yang dapat mengubah data absensi.');
+        }
+
+        $request->validate([
+            'check_in_time' => 'nullable|date_format:H:i:s',
+            'check_out_time' => 'nullable|date_format:H:i:s',
+        ]);
+
+        $attendance->check_in_time = $request->check_in_time;
+        $attendance->check_out_time = $request->check_out_time;
+        $attendance->save();
+
+        return redirect()->back()->with('success', 'Data absensi berhasil diperbarui.');
+    }
+
     public function destroy($id)
     {
         $attendance = Attendance::findOrFail($id);

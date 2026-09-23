@@ -124,6 +124,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/absensi/rekap', [AttendanceRecapController::class, 'index'])->name('absensi.rekap');
         Route::get('/absensi/rekap/export-pdf', [AttendanceRecapController::class, 'exportPdf'])->name('absensi.rekap.export-pdf');
         Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
+        Route::put('/absensi/{id}', [AttendanceController::class, 'update'])->name('absensi.update');
         Route::delete('/absensi/{id}', [AttendanceController::class, 'destroy'])->name('absensi.destroy');
 
         // Pengajuan Izin/Sakit

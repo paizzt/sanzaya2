@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2 } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -88,6 +88,46 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                     preserveScroll: true,
                     onSuccess: () => Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success'),
                     onError: () => Swal.fire('Gagal!', 'Terjadi kesalahan atau Anda tidak memiliki akses.', 'error')
+                });
+            }
+        });
+    };
+
+    const handleEditAbsensi = (item) => {
+        if (item.id.toString().startsWith('req_')) {
+            Swal.fire('Error', 'Tidak bisa mengedit pengajuan dari sini.', 'error');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Edit Jam Absensi',
+            html: `
+                <div class="text-left mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jam Masuk (HH:MM:SS)</label>
+                    <input id="swal-input-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_in || ''}" placeholder="08:00:00">
+                </div>
+                <div class="text-left">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jam Keluar (HH:MM:SS)</label>
+                    <input id="swal-input-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_out || ''}" placeholder="17:00:00">
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#3b82f6',
+            preConfirm: () => {
+                return {
+                    check_in_time: document.getElementById('swal-input-in').value || null,
+                    check_out_time: document.getElementById('swal-input-out').value || null
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.put(route('absensi.update', item.id), result.value, {
+                    preserveScroll: true,
+                    onSuccess: () => Swal.fire('Tersimpan!', 'Data absensi berhasil diperbarui.', 'success'),
+                    onError: () => Swal.fire('Error!', 'Gagal memperbarui data. Pastikan format jam benar (HH:MM:SS).', 'error')
                 });
             }
         });
@@ -354,13 +394,22 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             </td>
                                             {isSuperAdmin && (
                                                 <td className="py-4 px-6 text-right">
-                                                    <button 
-                                                        onClick={() => handleDeleteAbsensi(item.id)}
-                                                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                        title="Hapus Data"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    <div className="flex justify-end gap-1">
+                                                        <button 
+                                                            onClick={() => handleEditAbsensi(item)}
+                                                            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Edit Data"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteAbsensi(item.id)}
+                                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Hapus Data"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             )}
                                         </tr>
