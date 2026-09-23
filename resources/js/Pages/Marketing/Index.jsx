@@ -188,8 +188,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                 </div>
 
                 
-                {/* Tab Navigation */}
-                <div className="flex overflow-x-auto gap-3 w-full pb-4 mb-2 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {/* Tab Navigation Horizontal Scroll (Mobile First) */}
+                <div className="flex overflow-x-auto gap-3 w-full p-2 pb-4 mb-2 -ml-2 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     <button onClick={() => setActiveTab('laporan')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'laporan' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-600 ring-offset-2' : 'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
                         <ClipboardList className="w-5 h-5"/> Laporan Harian
                     </button>
