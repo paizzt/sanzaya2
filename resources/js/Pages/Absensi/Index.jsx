@@ -13,6 +13,21 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
         longitude: '',
     });
 
+    const [liveTime, setLiveTime] = useState(currentTime + ':00');
+
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            setLiveTime(`${hours}:${minutes}:${seconds}`);
+        };
+        updateTime();
+        const interval = setInterval(updateTime, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
     const { flash } = usePage().props;
 
     useEffect(() => {
@@ -88,7 +103,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                     <div className="lg:col-span-3 space-y-6">
                         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl shadow-blue-500/20 text-center">
                             <p className="text-blue-100 text-lg font-medium">{today}</p>
-                            <h2 className="text-6xl font-black mt-2 tracking-tighter">{currentTime}</h2>
+                            <h2 className="text-6xl font-black mt-2 tracking-tighter tabular-nums">{liveTime}</h2>
                             <p className="text-blue-200 mt-4 max-w-xl mx-auto text-sm">Pastikan Anda berada di lokasi kantor (PT) saat melakukan absensi masuk maupun pulang.</p>
                         </div>
 
