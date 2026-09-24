@@ -605,7 +605,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                     </div>
 
                                     <div className="pt-4 border-t border-gray-100">
-                                        <h5 className="font-semibold text-gray-800 mb-4">Informasi Tambahan (Dapat Diedit)</h5>
+                                        <h5 className="font-semibold text-gray-800 mb-4">Informasi Tambahan</h5>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
                                                 <InputLabel htmlFor="incoming_date" value="Tanggal Barang Masuk" />
