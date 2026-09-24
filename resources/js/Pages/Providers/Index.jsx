@@ -23,7 +23,7 @@ export default function Index({ providers, filters }) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingProvider, setEditingProvider] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 50;
+    const [itemsPerPage, setItemsPerPage] = useState(50);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         name: '',
@@ -287,16 +287,7 @@ export default function Index({ providers, filters }) {
                         </div>
                     </div>
                     
-                    {filteredProviders.length > 0 && (
-                        <div className="mb-4 mt-2">
-                            <ClientPagination 
-                                total={filteredProviders.length} 
-                                itemsPerPage={itemsPerPage} 
-                                currentPage={currentPage} 
-                                onPageChange={setCurrentPage} 
-                            />
-                        </div>
-                    )}
+
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500">
@@ -409,7 +400,8 @@ export default function Index({ providers, filters }) {
                                 total={filteredProviders.length} 
                                 itemsPerPage={itemsPerPage} 
                                 currentPage={currentPage} 
-                                onPageChange={setCurrentPage} 
+                                onPageChange={setCurrentPage}
+                                onItemsPerPageChange={setItemsPerPage} 
                             />
                         </div>
                     )}

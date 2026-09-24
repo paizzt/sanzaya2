@@ -33,7 +33,7 @@ export default function Index({ items, isShared, providers = [] }) {
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 50;
+    const [itemsPerPage, setItemsPerPage] = useState(50);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         name: '',
@@ -303,16 +303,7 @@ export default function Index({ items, isShared, providers = [] }) {
                         </div>
                     </div>
                     
-                    {filteredItems.length > 0 && (
-                        <div className="mb-4 mt-2">
-                            <ClientPagination 
-                                total={filteredItems.length} 
-                                itemsPerPage={itemsPerPage} 
-                                currentPage={currentPage} 
-                                onPageChange={setCurrentPage} 
-                            />
-                        </div>
-                    )}
+
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500">
@@ -394,7 +385,8 @@ export default function Index({ items, isShared, providers = [] }) {
                                 total={filteredItems.length} 
                                 itemsPerPage={itemsPerPage} 
                                 currentPage={currentPage} 
-                                onPageChange={setCurrentPage} 
+                                onPageChange={setCurrentPage}
+                                onItemsPerPageChange={setItemsPerPage} 
                             />
                         </div>
                     )}

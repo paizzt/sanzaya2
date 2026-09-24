@@ -1,7 +1,7 @@
 import React from 'react';
 
-export default function ClientPagination({ total, itemsPerPage, currentPage, onPageChange }) {
-    if (total <= itemsPerPage) return null;
+export default function ClientPagination({ total, itemsPerPage, currentPage, onPageChange, onItemsPerPageChange, perPageOptions = [20, 50, 100] }) {
+    if (total <= itemsPerPage && !onItemsPerPageChange) return null;
 
     const totalPages = Math.ceil(total / itemsPerPage);
     const start = (currentPage - 1) * itemsPerPage + 1;
@@ -33,8 +33,24 @@ export default function ClientPagination({ total, itemsPerPage, currentPage, onP
 
     return (
         <div className="flex flex-col md:flex-row justify-between items-center px-6 py-4 bg-white border-t border-gray-100 gap-4">
-            <div className="text-sm text-gray-500">
-                Menampilkan <span className="font-medium text-gray-900">{start}</span> - <span className="font-medium text-gray-900">{end}</span> dari <span className="font-medium text-gray-900">{total}</span> data
+            <div className="flex items-center gap-4">
+                <div className="text-sm text-gray-500">
+                    Menampilkan <span className="font-medium text-gray-900">{start}</span> - <span className="font-medium text-gray-900">{end}</span> dari <span className="font-medium text-gray-900">{total}</span> data
+                </div>
+                {onItemsPerPageChange && (
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                            onItemsPerPageChange(Number(e.target.value));
+                            onPageChange(1);
+                        }}
+                        className="text-sm border-gray-300 rounded-md py-1 pr-8 pl-3 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-700"
+                    >
+                        {perPageOptions.map(opt => (
+                            <option key={opt} value={opt}>{opt} / baris</option>
+                        ))}
+                    </select>
+                )}
             </div>
             
             <div className="flex flex-wrap justify-center gap-1">
@@ -63,7 +79,7 @@ export default function ClientPagination({ total, itemsPerPage, currentPage, onP
 
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || totalPages === 0}
                     className="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Next &raquo;
