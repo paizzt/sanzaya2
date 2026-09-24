@@ -150,12 +150,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                    titleColor: '#F9FAFB',
-                    bodyColor: '#F3F4F6',
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false,
                     callbacks: {
                         label: function(context) {
                             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
@@ -164,51 +158,38 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 }
             },
             scales: {
-                x: { 
-                    grid: { display: false }, 
-                    ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#6B7280' },
-                    border: { display: false }
-                },
+                x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
                 y: {
-                    grid: { color: '#F3F4F6', drawBorder: false, borderDash: [5, 5] },
+                    grid: { color: '#f0f0f0', drawBorder: false },
                     border: { display: false },
                     ticks: {
-                        font: { family: "'Inter', sans-serif", size: 11 }, color: '#6B7280',
-                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; },
-                        padding: 10
+                        font: { size: 11 }, color: '#6b7280',
+                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
                     }
                 }
-            },
-            interaction: { mode: 'index', intersect: false }
+            }
         };
 
         const pieOptions = {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif", size: 11 }, padding: 16, usePointStyle: true, pointStyle: 'circle' } },
+                legend: { position: 'bottom', labels: { font: { size: 11 } } },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                    padding: 12,
-                    cornerRadius: 8,
                     callbacks: {
                         label: function(context) {
                             return ' ' + new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
                         }
                     }
                 }
-            },
-            cutout: '60%' // makes it a beautiful doughnut chart
+            }
         };
 
         return (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
                 {dataSales.length > 0 && (
-                    <div onClick={() => setDetailModal({ isOpen: true, title: 'Top 10 Penjualan per Sales', type: 'penjualan', data: summary.penjualan_detail })} className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 cursor-pointer hover:shadow-[0_8px_30px_rgb(59,130,246,0.12)] hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
-                            <span className="flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</span>
-                            <span className="text-xs text-blue-500 font-medium px-2.5 py-1 bg-blue-50 rounded-full border border-blue-100 hidden sm:block">Lihat Detail</span>
-                        </h4>
+                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
                         <div className="h-72 w-full">
                             <Bar 
                                 data={{
@@ -216,9 +197,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     datasets: [{
                                         data: dataSales.map(d => d.Penjualan),
                                         backgroundColor: '#3b82f6',
-                                        hoverBackgroundColor: '#2563eb',
-                                        borderRadius: 6,
-                                        barThickness: 32
+                                        borderRadius: 4,
+                                        barThickness: 40
                                     }]
                                 }} 
                                 options={chartOptions} 
@@ -228,11 +208,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 )}
 
                 {dataBulan.length > 0 && (
-                    <div onClick={() => setDetailModal({ isOpen: true, title: 'Penjualan Per Bulan', type: 'penjualan', data: summary.bulan_detail })} className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 cursor-pointer hover:shadow-[0_8px_30px_rgb(79,70,229,0.12)] hover:border-indigo-200 transition-all duration-300 transform hover:-translate-y-1">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
-                            <span className="flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Penjualan Per Bulan</span>
-                            <span className="text-xs text-indigo-500 font-medium px-2.5 py-1 bg-indigo-50 rounded-full border border-indigo-100 hidden sm:block">Lihat Detail</span>
-                        </h4>
+                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Penjualan Per Bulan</h4>
                         <div className="h-72 w-full">
                             <Line 
                                 data={{
@@ -240,15 +217,10 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     datasets: [{
                                         data: dataBulan.map(d => d.Penjualan),
                                         borderColor: '#4f46e5',
-                                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                        backgroundColor: '#4f46e5',
                                         borderWidth: 3,
                                         pointRadius: 4,
-                                        pointBackgroundColor: '#ffffff',
-                                        pointBorderColor: '#4f46e5',
-                                        pointBorderWidth: 2,
                                         pointHoverRadius: 6,
-                                        pointHoverBackgroundColor: '#4f46e5',
-                                        fill: true,
                                         tension: 0.4
                                     }]
                                 }} 
@@ -259,11 +231,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 )}
 
                 {dataBrand.length > 0 && (
-                    <div onClick={() => setDetailModal({ isOpen: true, title: 'Penjualan per Brand', type: 'penjualan', data: summary.brand_detail })} className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 cursor-pointer hover:shadow-[0_8px_30px_rgb(16,185,129,0.12)] hover:border-emerald-200 transition-all duration-300 transform hover:-translate-y-1">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
-                            <span className="flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Penjualan per Brand</span>
-                            <span className="text-xs text-emerald-500 font-medium px-2.5 py-1 bg-emerald-50 rounded-full border border-emerald-100 hidden sm:block">Lihat Detail</span>
-                        </h4>
+                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Penjualan per Brand</h4>
                         <div className="h-72 w-full flex items-center justify-center">
                             <Pie 
                                 data={{
@@ -271,9 +240,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     datasets: [{
                                         data: dataBrand.map(d => d.Penjualan),
                                         backgroundColor: dataBrand.map(d => d.color),
-                                        borderWidth: 2,
-                                        borderColor: '#ffffff',
-                                        hoverOffset: 6
+                                        borderWidth: 0,
+                                        hoverOffset: 4
                                     }]
                                 }} 
                                 options={pieOptions} 
@@ -307,19 +275,15 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif", size: 11 }, padding: 16, usePointStyle: true, pointStyle: 'circle' } },
+                legend: { position: 'bottom', labels: { font: { size: 11 } } },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                    padding: 12,
-                    cornerRadius: 8,
                     callbacks: {
                         label: function(context) {
                             return ' ' + context.raw + '%';
                         }
                     }
                 }
-            },
-            cutout: '60%'
+            }
         };
 
         const chartOptions = {
@@ -328,12 +292,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                    titleColor: '#F9FAFB',
-                    bodyColor: '#F3F4F6',
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false,
                     callbacks: {
                         label: function(context) {
                             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
@@ -342,31 +300,22 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 }
             },
             scales: {
-                x: { 
-                    grid: { display: false }, 
-                    ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#6B7280' },
-                    border: { display: false }
-                },
+                x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
                 y: {
-                    grid: { color: '#F3F4F6', drawBorder: false, borderDash: [5, 5] },
+                    grid: { color: '#f0f0f0', drawBorder: false },
                     border: { display: false },
                     ticks: {
-                        font: { family: "'Inter', sans-serif", size: 11 }, color: '#6B7280',
-                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; },
-                        padding: 10
+                        font: { size: 11 }, color: '#6b7280',
+                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
                     }
                 }
-            },
-            interaction: { mode: 'index', intersect: false }
+            }
         };
 
         return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div onClick={() => setDetailModal({ isOpen: true, title: 'Status Pengiriman', type: 'pengiriman', data: { 'Terkirim': terkirim + '%', 'Belum Terkirim': belum + '%' } })} className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 cursor-pointer hover:shadow-[0_8px_30px_rgb(16,185,129,0.12)] hover:border-emerald-200 transition-all duration-300 transform hover:-translate-y-1">
-                    <h4 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
-                        <span className="flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Status Pengiriman</span>
-                        <span className="text-xs text-emerald-500 font-medium px-2.5 py-1 bg-emerald-50 rounded-full border border-emerald-100 hidden sm:block">Lihat Detail</span>
-                    </h4>
+                <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
                     <div className="h-64 w-full">
                         <Pie 
                             data={{
@@ -374,20 +323,16 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                 datasets: [{
                                     data: pieData.map(d => d.value),
                                     backgroundColor: pieData.map(d => d.color),
-                                    borderWidth: 2,
-                                    borderColor: '#ffffff',
-                                    hoverOffset: 6
+                                    borderWidth: 0,
+                                    hoverOffset: 4
                                 }]
                             }} 
                             options={pieOptionsPerc} 
                         />
                     </div>
                 </div>
-                <div onClick={() => setDetailModal({ isOpen: true, title: 'Top 10 Faktur per Outlet', type: 'faktur', data: summaryPesanan.faktur_detail })} className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2 cursor-pointer hover:shadow-[0_8px_30px_rgb(14,165,233,0.12)] hover:border-sky-200 transition-all duration-300 transform hover:-translate-y-1">
-                    <h4 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
-                        <span className="flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</span>
-                        <span className="text-xs text-sky-500 font-medium px-2.5 py-1 bg-sky-50 rounded-full border border-sky-100 hidden sm:block">Lihat Detail</span>
-                    </h4>
+                <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2">
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</h4>
                     <div className="h-64 w-full">
                         <Bar 
                             data={{
@@ -395,9 +340,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                 datasets: [{
                                     data: barData.map(d => d.TotalFaktur),
                                     backgroundColor: '#0ea5e9',
-                                    hoverBackgroundColor: '#0284c7',
-                                    borderRadius: 6,
-                                    barThickness: 32
+                                    borderRadius: 4,
+                                    barThickness: 30
                                 }]
                             }} 
                             options={chartOptions} 
@@ -422,12 +366,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                    titleColor: '#F9FAFB',
-                    bodyColor: '#F3F4F6',
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false,
                     callbacks: {
                         label: function(context) {
                             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
@@ -436,30 +374,21 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 }
             },
             scales: {
-                x: { 
-                    grid: { display: false }, 
-                    ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#6B7280' },
-                    border: { display: false }
-                },
+                x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
                 y: {
-                    grid: { color: '#F3F4F6', drawBorder: false, borderDash: [5, 5] },
+                    grid: { color: '#f0f0f0', drawBorder: false },
                     border: { display: false },
                     ticks: {
-                        font: { family: "'Inter', sans-serif", size: 11 }, color: '#6B7280',
-                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; },
-                        padding: 10
+                        font: { size: 11 }, color: '#6b7280',
+                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
                     }
                 }
-            },
-            interaction: { mode: 'index', intersect: false }
+            }
         };
 
         return (
-            <div onClick={() => setDetailModal({ isOpen: true, title: 'Top 10 Total Piutang Outlet', type: 'piutang', data: summaryPiutang.gabungan_detail })} className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6 cursor-pointer hover:shadow-[0_8px_30px_rgb(99,102,241,0.12)] hover:border-indigo-200 transition-all duration-300 transform hover:-translate-y-1">
-                <h4 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
-                    <span className="flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Top 10 Total Piutang Outlet</span>
-                    <span className="text-xs text-indigo-500 font-medium px-2.5 py-1 bg-indigo-50 rounded-full border border-indigo-100 hidden sm:block">Lihat Detail</span>
-                </h4>
+            <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Top 10 Total Piutang Outlet</h4>
                 <div className="h-72 w-full">
                     <Bar 
                         data={{
@@ -467,9 +396,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             datasets: [{
                                 data: data.map(d => d.TotalPiutang),
                                 backgroundColor: '#6366f1',
-                                hoverBackgroundColor: '#4f46e5',
-                                borderRadius: 6,
-                                barThickness: 32
+                                borderRadius: 4,
+                                barThickness: 40
                             }]
                         }} 
                         options={chartOptions} 
@@ -494,12 +422,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                    titleColor: '#F9FAFB',
-                    bodyColor: '#F3F4F6',
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false,
                     callbacks: {
                         label: function(context) {
                             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
@@ -509,29 +431,20 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             },
             scales: {
                 x: {
-                    grid: { color: '#F3F4F6', drawBorder: false, borderDash: [5, 5] },
+                    grid: { color: '#f0f0f0', drawBorder: false },
                     border: { display: false },
                     ticks: {
-                        font: { family: "'Inter', sans-serif", size: 11 }, color: '#6B7280',
-                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; },
-                        padding: 10
+                        font: { size: 11 }, color: '#6b7280',
+                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
                     }
                 },
-                y: { 
-                    grid: { display: false }, 
-                    ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#6B7280' },
-                    border: { display: false }
-                }
-            },
-            interaction: { mode: 'index', intersect: false }
+                y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } }
+            }
         };
 
         return (
-            <div onClick={() => setDetailModal({ isOpen: true, title: 'Top 10 Hutang Penyedia', type: 'hutang', data: summaryHutang.hutang_detail })} className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6 cursor-pointer hover:shadow-[0_8px_30px_rgb(249,115,22,0.12)] hover:border-orange-200 transition-all duration-300 transform hover:-translate-y-1">
-                <h4 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
-                    <span className="flex items-center gap-2"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</span>
-                    <span className="text-xs text-orange-500 font-medium px-2.5 py-1 bg-orange-50 rounded-full border border-orange-100 hidden sm:block">Lihat Detail</span>
-                </h4>
+            <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
+                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</h4>
                 <div className="h-72 w-full">
                     <Bar 
                         data={{
@@ -539,9 +452,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             datasets: [{
                                 data: data.map(d => d.TotalHutang),
                                 backgroundColor: '#f97316',
-                                hoverBackgroundColor: '#ea580c',
-                                borderRadius: 6,
-                                barThickness: 24
+                                borderRadius: 4,
+                                barThickness: 20
                             }]
                         }} 
                         options={horizontalChartOptions} 
