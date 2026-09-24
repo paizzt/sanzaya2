@@ -12,15 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('payables', function (Blueprint $table) {
-            $table->dropColumn([
-                'tanggal_terima_invoice',
-                'nomor_transaksi',
-                'jatuh_tempo_hari',
-                'nominal'
-            ]);
-            $table->foreignId('company_id')->nullable()->constrained('companies')->nullOnDelete()->after('id');
-            $table->json('details')->nullable()->after('provider_id');
-            $table->bigInteger('total')->default(0)->after('details');
+            $columnsToDrop = [];
+            foreach (['tanggal_terima_invoice', 'nomor_transaksi', 'jatuh_tempo_hari', 'nominal'] as $col) {
+                if (Schema::hasColumn('payables', $col)) {
+                    $columnsToDrop[] = $col;
+                }
+            }
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
+            
+            if (!Schema::hasColumn('payables', 'company_id')) {
+                $table->foreignId('company_id')->nullable()->constrained('companies')->nullOnDelete()->after('id');
+            }
+            if (!Schema::hasColumn('payables', 'details')) {
+                $table->json('details')->nullable()->after('provider_id');
+            }
+            if (!Schema::hasColumn('payables', 'total')) {
+                $table->bigInteger('total')->default(0)->after('details');
+            }
         });
     }
 
