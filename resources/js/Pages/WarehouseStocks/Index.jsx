@@ -331,7 +331,8 @@ export default function Index({ items, isShared, providers = [] }) {
                                 {filteredItems.length > 0 ? filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                                     <tr 
                                         key={item.id} 
-                                        className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors"
+                                        onClick={() => openDetailModal(item)}
+                                        className="bg-white border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer"
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-gray-600 font-medium">{item.code || '-'}</span>
@@ -352,7 +353,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {item.link ? (
-                                                <a href={item.link} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Buka E-Katalog</a>
+                                                <a href={item.link} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-blue-600 hover:underline">Buka E-Katalog</a>
                                             ) : (
                                                 <span className="text-gray-600">-</span>
                                             )}
@@ -360,21 +361,14 @@ export default function Index({ items, isShared, providers = [] }) {
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center gap-2">
                                                 <button 
-                                                    onClick={() => openDetailModal(item)} 
-                                                    className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
-                                                    title="Detail"
-                                                >
-                                                    <Info className="w-4 h-4" />
-                                                </button>
-                                                <button 
-                                                    onClick={() => openEditModal(item)} 
+                                                    onClick={(e) => { e.stopPropagation(); openEditModal(item); }} 
                                                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
                                                     title="Edit"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleDelete(item.id)} 
+                                                    onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} 
                                                     className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" 
                                                     title="Hapus"
                                                 >
