@@ -5,7 +5,7 @@ import { Head, usePage, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Fuse from 'fuse.js';
 import { 
-    Plus, Search, Edit, Trash2, Box, X, Share2, Copy, CheckCircle
+    Plus, Search, Edit, Trash2, Box, X, Share2, Copy, CheckCircle, Info
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -14,12 +14,13 @@ import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 
-export default function Index({ items, isShared }) {
+export default function Index({ items, isShared, providers = [] }) {
     const { auth } = usePage().props;
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [copied, setCopied] = useState(false);
     const [selectedColumns, setSelectedColumns] = useState({
         code: true,
@@ -44,6 +45,9 @@ export default function Index({ items, isShared }) {
         location: '',
         notes: '',
         link: '',
+        incoming_date: '',
+        po_date: '',
+        provider_id: '',
     });
 
     const fuse = useMemo(() => new Fuse(items, {
@@ -90,8 +94,31 @@ export default function Index({ items, isShared }) {
             minimum_stock: item.minimum_stock || '',
             notes: item.notes || '',
             link: item.link || '',
+            incoming_date: item.incoming_date || '',
+            po_date: item.po_date || '',
+            provider_id: item.provider_id || '',
         });
         setIsModalOpen(true);
+    };
+
+    const openDetailModal = (item) => {
+        setIsEditMode(true);
+        setEditingItem(item);
+        clearErrors();
+        setData({
+            name: item.name || '',
+            code: item.code || '',
+            category: item.category || '',
+            quantity: item.quantity || '',
+            unit: item.unit || '',
+            minimum_stock: item.minimum_stock || '',
+            notes: item.notes || '',
+            link: item.link || '',
+            incoming_date: item.incoming_date || '',
+            po_date: item.po_date || '',
+            provider_id: item.provider_id || '',
+        });
+        setIsDetailModalOpen(true);
     };
 
     const handleDelete = (id) => {
@@ -130,10 +157,11 @@ export default function Index({ items, isShared }) {
             preserveScroll: true,
             onSuccess: () => {
                 setIsModalOpen(false);
+                setIsDetailModalOpen(false);
                 reset();
                 Swal.fire({
                     title: 'Berhasil!',
-                    text: isEditMode ? 'Data stok berhasil diperbarui.' : 'Data stok berhasil ditambahkan.',
+                    text: 'Data stok berhasil disimpan.',
                     icon: 'success',
                     confirmButtonColor: '#3b82f6',
                     customClass: { popup: 'rounded-2xl' }
@@ -332,6 +360,13 @@ export default function Index({ items, isShared }) {
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center gap-2">
                                                 <button 
+                                                    onClick={() => openDetailModal(item)} 
+                                                    className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
+                                                    title="Detail"
+                                                >
+                                                    <Info className="w-4 h-4" />
+                                                </button>
+                                                <button 
                                                     onClick={() => openEditModal(item)} 
                                                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
                                                     title="Edit"
@@ -493,6 +528,78 @@ export default function Index({ items, isShared }) {
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
                                     <PrimaryButton disabled={processing}>
                                         {processing ? 'Menyimpan...' : 'Simpan'}
+                                    </PrimaryButton>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* DETAIL MODAL */}
+                {isDetailModalOpen && (
+                    <div className="fixed inset-0 z-[100] overflow-y-auto flex justify-center items-start pt-10 pb-10 px-4 bg-gray-900/50 backdrop-blur-sm custom-scrollbar">
+                        <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl transform transition-all my-auto">
+                            <form onSubmit={handleSubmit}>
+                                <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-white rounded-t-3xl">
+                                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                        <Info className="w-6 h-6 text-green-600"/>
+                                        Detail & Update Info Tambahan
+                                    </h3>
+                                    <button type="button" onClick={() => setIsDetailModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                                </div>
+
+                                <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
+                                        <h4 className="font-bold text-blue-900 text-sm mb-1">{editingItem?.name}</h4>
+                                        <p className="text-blue-700 text-xs">SKU: {editingItem?.code || '-'}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <InputLabel htmlFor="incoming_date" value="Tanggal Barang Masuk" />
+                                            <TextInput
+                                                id="incoming_date"
+                                                type="date"
+                                                value={data.incoming_date}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('incoming_date', e.target.value)}
+                                            />
+                                            <InputError message={errors.incoming_date} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="po_date" value="Tanggal PO" />
+                                            <TextInput
+                                                id="po_date"
+                                                type="date"
+                                                value={data.po_date}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('po_date', e.target.value)}
+                                            />
+                                            <InputError message={errors.po_date} className="mt-2" />
+                                        </div>
+
+                                        <div className="md:col-span-2">
+                                            <InputLabel htmlFor="provider_id" value="Nama Penyedia" />
+                                            <select
+                                                id="provider_id"
+                                                value={data.provider_id}
+                                                onChange={(e) => setData('provider_id', e.target.value)}
+                                                className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm"
+                                            >
+                                                <option value="">Pilih Penyedia</option>
+                                                {providers.map(provider => (
+                                                    <option key={provider.id} value={provider.id}>{provider.name}</option>
+                                                ))}
+                                            </select>
+                                            <InputError message={errors.provider_id} className="mt-2" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
+                                    <SecondaryButton type="button" onClick={() => setIsDetailModalOpen(false)} className="rounded-xl px-6 py-3">Tutup</SecondaryButton>
+                                    <PrimaryButton disabled={processing} className="bg-green-600 hover:bg-green-700 focus:bg-green-700 active:bg-green-900">
+                                        {processing ? 'Menyimpan...' : 'Update Detail'}
                                     </PrimaryButton>
                                 </div>
                             </form>

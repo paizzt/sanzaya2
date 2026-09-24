@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\WarehouseStock;
+use App\Models\Provider;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Exports\GenericExport;
@@ -23,11 +24,13 @@ class WarehouseStockController extends Controller
                   ->orWhere('link', 'like', "%{$request->search}%");
         }
 
-        $items = $query->orderBy('name')->get();
+        $items = $query->with('provider')->orderBy('name')->get();
         $isShared = Cache::has('share_warehouse_stocks_active');
+        $providers = Provider::orderBy('name')->get();
 
         return Inertia::render('WarehouseStocks/Index', [
             'items' => $items,
+            'providers' => $providers,
             'filters' => $request->only('search'),
             'isShared' => $isShared
         ]);
@@ -44,7 +47,10 @@ class WarehouseStockController extends Controller
             'minimum_stock' => 'nullable|integer|min:0',
             'location' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
-            'link' => 'nullable|string'
+            'link' => 'nullable|string',
+            'incoming_date' => 'nullable|date',
+            'po_date' => 'nullable|date',
+            'provider_id' => 'nullable|exists:providers,id'
         ]);
 
         $validated['minimum_stock'] = $validated['minimum_stock'] ?? 0;
@@ -67,7 +73,10 @@ class WarehouseStockController extends Controller
             'minimum_stock' => 'nullable|integer|min:0',
             'location' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
-            'link' => 'nullable|string'
+            'link' => 'nullable|string',
+            'incoming_date' => 'nullable|date',
+            'po_date' => 'nullable|date',
+            'provider_id' => 'nullable|exists:providers,id'
         ]);
 
         $validated['minimum_stock'] = $validated['minimum_stock'] ?? 0;

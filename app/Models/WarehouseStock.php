@@ -19,11 +19,21 @@ class WarehouseStock extends Model
         'minimum_stock',
         'location',
         'notes',
-        'link'
+        'link',
+        'incoming_date',
+        'po_date',
+        'provider_id'
     ];
 
     protected $casts = [
         'quantity' => 'integer',
         'minimum_stock' => 'integer',
+        'incoming_date' => 'date',
+        'po_date' => 'date',
     ];
+
+    public function provider()
+    {
+        return $this->belongsTo(Provider::class);
+    }
 }
