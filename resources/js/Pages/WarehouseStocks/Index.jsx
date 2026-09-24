@@ -5,7 +5,7 @@ import { Head, usePage, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Fuse from 'fuse.js';
 import { 
-    Plus, Search, Edit, Trash2, Box, X, Share2, Copy, CheckCircle, Info
+    Plus, Search, Edit, Trash2, Box, X, Share2, Copy, CheckCircle, Info, DollarSign, Boxes
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -207,6 +207,37 @@ export default function Index({ items, isShared, providers = [] }) {
             <Head title="Stok Gudang" />
 
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
+                                <DollarSign className="w-6 h-6 text-green-600" />
+                            </div>
+                        </div>
+                        <p className="text-sm font-medium text-gray-500 mb-1">Total Nilai Gudang</p>
+                        <h3 className="text-3xl font-extrabold text-gray-900">
+                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(
+                                items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0)
+                            )}
+                        </h3>
+                    </div>
+
+                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center">
+                                <Boxes className="w-6 h-6 text-blue-600" />
+                            </div>
+                        </div>
+                        <p className="text-sm font-medium text-gray-500 mb-1">Total Stok Barang</p>
+                        <h3 className="text-3xl font-extrabold text-gray-900">
+                            {new Intl.NumberFormat('id-ID').format(
+                                items.reduce((sum, item) => sum + (item.quantity || 0), 0)
+                            )}
+                        </h3>
+                    </div>
+                </div>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
