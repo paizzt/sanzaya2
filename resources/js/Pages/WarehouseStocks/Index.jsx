@@ -209,7 +209,7 @@ export default function Index({ items, isShared, providers = [] }) {
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                     {/* Total Stok Barang */}
                     <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-blue-400 flex flex-col items-center justify-center text-center">
                         <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
@@ -603,7 +603,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                     
                                     <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
                                         <h5 className="font-semibold text-gray-800 border-b pb-2 mb-3">Informasi Utama</h5>
-                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                             <div>
                                                 <span className="block text-gray-500">Kategori</span>
                                                 <span className="font-medium text-gray-900">{editingItem?.category || '-'}</span>
