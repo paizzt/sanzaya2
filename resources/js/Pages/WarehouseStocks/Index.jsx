@@ -48,6 +48,7 @@ export default function Index({ items, isShared, providers = [] }) {
         incoming_date: '',
         po_date: '',
         provider_id: '',
+        price: '',
     });
 
     const fuse = useMemo(() => new Fuse(items, {
@@ -97,6 +98,7 @@ export default function Index({ items, isShared, providers = [] }) {
             incoming_date: item.incoming_date || '',
             po_date: item.po_date || '',
             provider_id: item.provider_id || '',
+            price: item.price || '',
         });
         setIsModalOpen(true);
     };
@@ -117,6 +119,7 @@ export default function Index({ items, isShared, providers = [] }) {
             incoming_date: item.incoming_date || '',
             po_date: item.po_date || '',
             provider_id: item.provider_id || '',
+            price: item.price || '',
         });
         setIsDetailModalOpen(true);
     };
@@ -312,6 +315,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                     <th className="px-6 py-4">Kode/SKU</th>
                                     <th className="px-6 py-4">Nama Barang</th>
                                     <th className="px-6 py-4">Kategori</th>
+                                    <th className="px-6 py-4">Harga</th>
                                     <th className="px-6 py-4">Stok</th>
                                     <th className="px-6 py-4">Satuan</th>
                                     <th className="px-6 py-4">Link E-Katalog</th>
@@ -333,6 +337,11 @@ export default function Index({ items, isShared, providers = [] }) {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-gray-600">{item.category || '-'}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="font-medium text-gray-900">
+                                                {item.price ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price) : '-'}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`font-bold ${item.quantity <= item.minimum_stock ? 'text-red-600' : 'text-gray-900'}`}>
@@ -445,6 +454,23 @@ export default function Index({ items, isShared, providers = [] }) {
                                         </div>
 
                                         <div>
+                                            <InputLabel htmlFor="price" value="Harga Barang" />
+                                            <div className="relative mt-1 rounded-md shadow-sm">
+                                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                    <span className="text-gray-500 sm:text-sm">Rp</span>
+                                                </div>
+                                                <TextInput
+                                                    id="price"
+                                                    type="number"
+                                                    value={data.price}
+                                                    className="block w-full pl-9"
+                                                    onChange={(e) => setData('price', e.target.value)}
+                                                />
+                                            </div>
+                                            <InputError message={errors.price} className="mt-2" />
+                                        </div>
+
+                                        <div>
                                             <InputLabel htmlFor="quantity" value="Jumlah Stok" required />
                                             <TextInput
                                                 id="quantity"
@@ -550,6 +576,12 @@ export default function Index({ items, isShared, providers = [] }) {
                                             <div>
                                                 <span className="block text-gray-500">Lokasi</span>
                                                 <span className="font-medium text-gray-900">{editingItem?.location || '-'}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-gray-500">Harga Barang</span>
+                                                <span className="font-medium text-gray-900">
+                                                    {editingItem?.price ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(editingItem.price) : '-'}
+                                                </span>
                                             </div>
                                             <div>
                                                 <span className="block text-gray-500">Jumlah Stok</span>

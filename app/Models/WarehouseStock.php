@@ -22,7 +22,8 @@ class WarehouseStock extends Model
         'link',
         'incoming_date',
         'po_date',
-        'provider_id'
+        'provider_id',
+        'price'
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class WarehouseStock extends Model
         'minimum_stock' => 'integer',
         'incoming_date' => 'date',
         'po_date' => 'date',
+        'price' => 'decimal:2'
     ];
 
     public function provider()

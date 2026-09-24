@@ -50,7 +50,8 @@ class WarehouseStockController extends Controller
             'link' => 'nullable|string',
             'incoming_date' => 'nullable|date',
             'po_date' => 'nullable|date',
-            'provider_id' => 'nullable|exists:providers,id'
+            'provider_id' => 'nullable|exists:providers,id',
+            'price' => 'nullable|numeric|min:0'
         ]);
 
         $validated['minimum_stock'] = $validated['minimum_stock'] ?? 0;
@@ -76,7 +77,8 @@ class WarehouseStockController extends Controller
             'link' => 'nullable|string',
             'incoming_date' => 'nullable|date',
             'po_date' => 'nullable|date',
-            'provider_id' => 'nullable|exists:providers,id'
+            'provider_id' => 'nullable|exists:providers,id',
+            'price' => 'nullable|numeric|min:0'
         ]);
 
         $validated['minimum_stock'] = $validated['minimum_stock'] ?? 0;
