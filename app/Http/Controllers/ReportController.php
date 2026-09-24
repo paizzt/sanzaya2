@@ -55,7 +55,23 @@ class ReportController extends Controller
             });
         }
         if ($monthFilter) {
-            $logistikBaseQuery->where('sheet_name', 'like', "%{$monthFilter}%");
+            $monthNum = array_search($monthFilter, $months) + 1;
+            $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+            $shortMonth = substr($monthFilter, 0, 3);
+            $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+            
+            $logistikBaseQuery->where(function($q) use ($monthFilter, $monthNumStr, $monthNum, $shortMonth, $shortMonthEng) {
+                $q->where('sheet_name', 'like', "%{$monthFilter}%")
+                  ->orWhere('tanggal', 'like', "%{$monthFilter}%")
+                  ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                  ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                  ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+                  ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
+                  ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                  ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                  ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                  ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+            });
         }
         if ($search) {
             $logistikBaseQuery->where(function($q) use ($search) {
@@ -85,7 +101,23 @@ class ReportController extends Controller
                 });
             }
             if ($monthFilter) {
-                $query->where('sheet_name', 'like', "%{$monthFilter}%");
+                $monthNum = array_search($monthFilter, $months) + 1;
+                $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                $shortMonth = substr($monthFilter, 0, 3);
+                $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+                
+                $query->where(function($q) use ($monthFilter, $monthNumStr, $monthNum, $shortMonth, $shortMonthEng) {
+                    $q->where('sheet_name', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                      ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                      ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                });
             }
             if ($search) {
                 $query->where(function($q) use ($search) {
