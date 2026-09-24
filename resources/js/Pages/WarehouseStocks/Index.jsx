@@ -209,31 +209,29 @@ export default function Index({ items, isShared, providers = [] }) {
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
-                                <DollarSign className="w-6 h-6 text-green-600" />
-                            </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
+                    {/* Total Stok Barang */}
+                    <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-blue-400 flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                            <Boxes className="w-5 h-5 text-blue-500" />
                         </div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">Total Nilai Gudang</p>
-                        <h3 className="text-3xl font-extrabold text-gray-900">
-                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(
-                                items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0)
+                        <p className="text-xs font-medium text-gray-500 mb-2">Total Stok Barang</p>
+                        <h3 className="text-2xl font-bold text-gray-800">
+                            {new Intl.NumberFormat('id-ID').format(
+                                items.reduce((sum, item) => sum + (item.quantity || 0), 0)
                             )}
                         </h3>
                     </div>
 
-                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center">
-                                <Boxes className="w-6 h-6 text-blue-600" />
-                            </div>
+                    {/* Total Nilai Gudang */}
+                    <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-green-500 flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-3">
+                            <span className="text-green-500 font-bold text-sm">Rp</span>
                         </div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">Total Stok Barang</p>
-                        <h3 className="text-3xl font-extrabold text-gray-900">
-                            {new Intl.NumberFormat('id-ID').format(
-                                items.reduce((sum, item) => sum + (item.quantity || 0), 0)
+                        <p className="text-xs font-medium text-gray-500 mb-2">Total Nilai Gudang</p>
+                        <h3 className="text-2xl font-bold text-gray-800">
+                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(
+                                items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0)
                             )}
                         </h3>
                     </div>
