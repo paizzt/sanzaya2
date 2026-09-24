@@ -318,6 +318,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                     <th className="px-6 py-4">Harga</th>
                                     <th className="px-6 py-4">Stok</th>
                                     <th className="px-6 py-4">Satuan</th>
+                                    <th className="px-6 py-4">Nilai</th>
                                     <th className="px-6 py-4">Link E-Katalog</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
@@ -352,6 +353,11 @@ export default function Index({ items, isShared, providers = [] }) {
                                             <span className="text-gray-600">{item.unit || '-'}</span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="font-medium text-gray-900">
+                                                {item.price && item.quantity ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price * item.quantity) : '-'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             {item.link ? (
                                                 <a href={item.link} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-blue-600 hover:underline">Buka E-Katalog</a>
                                             ) : (
@@ -379,7 +385,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                                             Tidak ada data stok yang ditemukan.
                                         </td>
                                     </tr>
@@ -586,6 +592,12 @@ export default function Index({ items, isShared, providers = [] }) {
                                             <div>
                                                 <span className="block text-gray-500">Jumlah Stok</span>
                                                 <span className="font-medium text-gray-900">{editingItem?.quantity} {editingItem?.unit}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-gray-500">Total Nilai</span>
+                                                <span className="font-bold text-green-700">
+                                                    {editingItem?.price && editingItem?.quantity ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(editingItem.price * editingItem.quantity) : '-'}
+                                                </span>
                                             </div>
                                             <div>
                                                 <span className="block text-gray-500">Stok Minimum</span>
