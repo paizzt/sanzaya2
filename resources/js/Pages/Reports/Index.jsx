@@ -12,7 +12,31 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
 import SearchableSelect from '@/Components/SearchableSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend as ChartLegend,
+  PointElement,
+  LineElement,
+  ArcElement
+} from 'chart.js';
+import { Bar, Line, Pie } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  ChartTooltip,
+  ChartLegend
+);
 
 export default function Index({ tab, is_super_admin, global_target_value, global_annual_target_value, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames, outletNames, ptNames, keteranganNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const authUser = usePage().props.auth.user;
@@ -120,21 +144,65 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
         if (dataSales.length === 0 && dataBulan.length === 0 && dataBrand.length === 0) return null;
 
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
+                y: {
+                    grid: { color: '#f0f0f0', drawBorder: false },
+                    border: { display: false },
+                    ticks: {
+                        font: { size: 11 }, color: '#6b7280',
+                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
+                    }
+                }
+            }
+        };
+
+        const pieOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 11 } } },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ' ' + new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                        }
+                    }
+                }
+            }
+        };
+
         return (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
                 {dataSales.length > 0 && (
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                         <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
                         <div className="h-72 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={dataSales} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-45} textAnchor="end" />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
-                                    <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                                    <Bar dataKey="Penjualan" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            <Bar 
+                                data={{
+                                    labels: dataSales.map(d => d.name),
+                                    datasets: [{
+                                        data: dataSales.map(d => d.Penjualan),
+                                        backgroundColor: '#3b82f6',
+                                        borderRadius: 4,
+                                        barThickness: 40
+                                    }]
+                                }} 
+                                options={chartOptions} 
+                            />
                         </div>
                     </div>
                 )}
@@ -143,15 +211,21 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                         <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Penjualan Per Bulan</h4>
                         <div className="h-72 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={dataBulan} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-45} textAnchor="end" />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
-                                    <RechartsTooltip cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                                    <Line type="monotone" dataKey="Penjualan" stroke="#4f46e5" strokeWidth={3} dot={{ fill: '#4f46e5', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                            <Line 
+                                data={{
+                                    labels: dataBulan.map(d => d.name),
+                                    datasets: [{
+                                        data: dataBulan.map(d => d.Penjualan),
+                                        borderColor: '#4f46e5',
+                                        backgroundColor: '#4f46e5',
+                                        borderWidth: 3,
+                                        pointRadius: 4,
+                                        pointHoverRadius: 6,
+                                        tension: 0.4
+                                    }]
+                                }} 
+                                options={chartOptions} 
+                            />
                         </div>
                     </div>
                 )}
@@ -160,26 +234,18 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                         <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Penjualan per Brand</h4>
                         <div className="h-72 w-full flex items-center justify-center">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={dataBrand}
-                                        cx="50%"
-                                        cy="45%"
-                                        innerRadius={50}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="Penjualan"
-                                        nameKey="name"
-                                    >
-                                        {dataBrand.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <RechartsTooltip formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                                    <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                            <Pie 
+                                data={{
+                                    labels: dataBrand.map(d => d.name),
+                                    datasets: [{
+                                        data: dataBrand.map(d => d.Penjualan),
+                                        backgroundColor: dataBrand.map(d => d.color),
+                                        borderWidth: 0,
+                                        hoverOffset: 4
+                                    }]
+                                }} 
+                                options={pieOptions} 
+                            />
                         </div>
                     </div>
                 )}
@@ -205,36 +271,81 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             TotalFaktur: parseRpToNumber(val)
         }));
 
+        const pieOptionsPerc = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 11 } } },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ' ' + context.raw + '%';
+                        }
+                    }
+                }
+            }
+        };
+
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
+                y: {
+                    grid: { color: '#f0f0f0', drawBorder: false },
+                    border: { display: false },
+                    ticks: {
+                        font: { size: 11 }, color: '#6b7280',
+                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
+                    }
+                }
+            }
+        };
+
         return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
                     <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
                     <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie data={pieData} cx="50%" cy="45%" innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">
-                                    {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                                <RechartsTooltip formatter={(val) => `${val}%`} />
-                                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                            </PieChart>
-                        </ResponsiveContainer>
+                        <Pie 
+                            data={{
+                                labels: pieData.map(d => d.name),
+                                datasets: [{
+                                    data: pieData.map(d => d.value),
+                                    backgroundColor: pieData.map(d => d.color),
+                                    borderWidth: 0,
+                                    hoverOffset: 4
+                                }]
+                            }} 
+                            options={pieOptionsPerc} 
+                        />
                     </div>
                 </div>
                 <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2">
                     <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</h4>
                     <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={barData} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-15} textAnchor="end" />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
-                                <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                                <Bar dataKey="TotalFaktur" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={30} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        <Bar 
+                            data={{
+                                labels: barData.map(d => d.name),
+                                datasets: [{
+                                    data: barData.map(d => d.TotalFaktur),
+                                    backgroundColor: '#0ea5e9',
+                                    borderRadius: 4,
+                                    barThickness: 30
+                                }]
+                            }} 
+                            options={chartOptions} 
+                        />
                     </div>
                 </div>
             </div>
@@ -249,19 +360,48 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             TotalPiutang: parseRpToNumber(val)
         }));
 
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
+                y: {
+                    grid: { color: '#f0f0f0', drawBorder: false },
+                    border: { display: false },
+                    ticks: {
+                        font: { size: 11 }, color: '#6b7280',
+                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
+                    }
+                }
+            }
+        };
+
         return (
             <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Top 10 Total Piutang Outlet</h4>
                 <div className="h-72 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-15} textAnchor="end" />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
-                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                            <Bar dataKey="TotalPiutang" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <Bar 
+                        data={{
+                            labels: data.map(d => d.name),
+                            datasets: [{
+                                data: data.map(d => d.TotalPiutang),
+                                backgroundColor: '#6366f1',
+                                borderRadius: 4,
+                                barThickness: 40
+                            }]
+                        }} 
+                        options={chartOptions} 
+                    />
                 </div>
             </div>
         );
@@ -275,19 +415,49 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             TotalHutang: parseRpToNumber(val)
         }));
 
+        const horizontalChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#f0f0f0', drawBorder: false },
+                    border: { display: false },
+                    ticks: {
+                        font: { size: 11 }, color: '#6b7280',
+                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
+                    }
+                },
+                y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } }
+            }
+        };
+
         return (
             <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</h4>
                 <div className="h-72 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data} layout="vertical" margin={{ top: 10, right: 30, left: 100, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-                            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
-                            <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} />
-                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                            <Bar dataKey="TotalHutang" fill="#f97316" radius={[0, 4, 4, 0]} barSize={20} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <Bar 
+                        data={{
+                            labels: data.map(d => d.name),
+                            datasets: [{
+                                data: data.map(d => d.TotalHutang),
+                                backgroundColor: '#f97316',
+                                borderRadius: 4,
+                                barThickness: 20
+                            }]
+                        }} 
+                        options={horizontalChartOptions} 
+                    />
                 </div>
             </div>
         );

@@ -3,7 +3,31 @@ import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { FileText, Plus, Edit, Trash2, TrendingUp, ShoppingCart, Activity, Store, BarChart2, PieChart as PieChartIcon } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend as ChartLegend,
+  PointElement,
+  LineElement,
+  ArcElement
+} from 'chart.js';
+import { Bar, Pie } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  ChartTooltip,
+  ChartLegend
+);
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Modal from '@/Components/Modal';
@@ -120,6 +144,47 @@ export default function Index({ auth, items, outlets, summary }) {
         TotalFaktur: val
     }));
 
+    const pieOptionsPerc = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 } } },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return ' ' + context.raw + '%';
+                    }
+                }
+            }
+        }
+    };
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                    }
+                }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
+            y: {
+                grid: { color: '#f0f0f0', drawBorder: false },
+                border: { display: false },
+                ticks: {
+                    font: { size: 11 }, color: '#6b7280',
+                    callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
+                }
+            }
+        }
+    };
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -199,31 +264,35 @@ export default function Index({ auth, items, outlets, summary }) {
                             <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
                                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChartIcon className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
                                 <div className="h-64 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                            <RechartsTooltip formatter={(val) => `${val}%`} />
-                                            <Legend />
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                    <Pie 
+                                        data={{
+                                            labels: pieData.map(d => d.name),
+                                            datasets: [{
+                                                data: pieData.map(d => d.value),
+                                                backgroundColor: pieData.map(d => d.color),
+                                                borderWidth: 0,
+                                                hoverOffset: 4
+                                            }]
+                                        }} 
+                                        options={pieOptionsPerc} 
+                                    />
                                 </div>
                             </div>
                             <div className="bg-white p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2">
                                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</h4>
                                 <div className="h-64 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={barData} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} interval={0} angle={-15} textAnchor="end" />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => `Rp ${val / 1000000}M`} />
-                                            <RechartsTooltip cursor={{ fill: '#f9fafb' }} formatter={(val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val)} />
-                                            <Bar dataKey="TotalFaktur" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={30} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
+                                    <Bar 
+                                        data={{
+                                            labels: barData.map(d => d.name),
+                                            datasets: [{
+                                                data: barData.map(d => d.TotalFaktur),
+                                                backgroundColor: '#0ea5e9',
+                                                borderRadius: 4,
+                                                barThickness: 30
+                                            }]
+                                        }} 
+                                        options={chartOptions} 
+                                    />
                                 </div>
                             </div>
                         </div>

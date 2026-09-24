@@ -15,7 +15,25 @@ import MultiSelect from '@/Components/MultiSelect';
 import NumberInput from '@/Components/NumberInput';
 import CurrencyInput from '@/Components/CurrencyInput';
 import Swal from 'sweetalert2';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend as ChartLegend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  ChartTooltip,
+  ChartLegend
+);
 
 export default function Index({ auth, items, sales, outlets, companies, filters, summary, chartData }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -303,16 +321,41 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                             <span className="font-bold text-green-500 text-lg px-1">Rp</span> Grafik Pendapatan
                         </h3>
                         <div className="h-72 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData || []} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="tanggal" />
-                                    <YAxis tickFormatter={(value) => new Intl.NumberFormat('id-ID', { notation: 'compact', compactDisplay: 'short' }).format(value)} />
-                                    <RechartsTooltip formatter={(value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value)} />
-                                    <Legend />
-                                    <Bar dataKey="total" name="Total Pendapatan" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            <Bar 
+                                data={{
+                                    labels: (chartData || []).map(d => d.tanggal),
+                                    datasets: [{
+                                        label: 'Total Pendapatan',
+                                        data: (chartData || []).map(d => d.total),
+                                        backgroundColor: '#4f46e5',
+                                        borderRadius: 4
+                                    }]
+                                }} 
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { display: true },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                                                }
+                                            }
+                                        }
+                                    },
+                                    scales: {
+                                        x: { grid: { display: false } },
+                                        y: {
+                                            ticks: {
+                                                callback: function(value) {
+                                                    return new Intl.NumberFormat('id-ID', { notation: 'compact', compactDisplay: 'short' }).format(value);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }} 
+                            />
                         </div>
                     </div>
 
