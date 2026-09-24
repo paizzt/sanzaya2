@@ -536,48 +536,84 @@ export default function Index({ items, isShared, providers = [] }) {
 
                                 <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
                                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
-                                        <h4 className="font-bold text-blue-900 text-sm mb-1">{editingItem?.name}</h4>
-                                        <p className="text-blue-700 text-xs">SKU: {editingItem?.code || '-'}</p>
+                                        <h4 className="font-bold text-blue-900 text-lg mb-1">{editingItem?.name}</h4>
+                                        <p className="text-blue-700 text-sm">SKU: {editingItem?.code || '-'}</p>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <InputLabel htmlFor="incoming_date" value="Tanggal Barang Masuk" />
-                                            <TextInput
-                                                id="incoming_date"
-                                                type="date"
-                                                value={data.incoming_date}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('incoming_date', e.target.value)}
-                                            />
-                                            <InputError message={errors.incoming_date} className="mt-2" />
+                                    
+                                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
+                                        <h5 className="font-semibold text-gray-800 border-b pb-2 mb-3">Informasi Utama</h5>
+                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <span className="block text-gray-500">Kategori</span>
+                                                <span className="font-medium text-gray-900">{editingItem?.category || '-'}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-gray-500">Lokasi</span>
+                                                <span className="font-medium text-gray-900">{editingItem?.location || '-'}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-gray-500">Jumlah Stok</span>
+                                                <span className="font-medium text-gray-900">{editingItem?.quantity} {editingItem?.unit}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-gray-500">Stok Minimum</span>
+                                                <span className="font-medium text-gray-900">{editingItem?.minimum_stock} {editingItem?.unit}</span>
+                                            </div>
+                                            <div className="col-span-2">
+                                                <span className="block text-gray-500">Keterangan / Catatan</span>
+                                                <span className="font-medium text-gray-900 whitespace-pre-wrap">{editingItem?.notes || '-'}</span>
+                                            </div>
+                                            {editingItem?.link && (
+                                                <div className="col-span-2">
+                                                    <span className="block text-gray-500">Link E-Katalog</span>
+                                                    <a href={editingItem.link} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">{editingItem.link}</a>
+                                                </div>
+                                            )}
                                         </div>
+                                    </div>
 
-                                        <div>
-                                            <InputLabel htmlFor="po_date" value="Tanggal PO" />
-                                            <TextInput
-                                                id="po_date"
-                                                type="date"
-                                                value={data.po_date}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('po_date', e.target.value)}
-                                            />
-                                            <InputError message={errors.po_date} className="mt-2" />
-                                        </div>
+                                    <div className="pt-4 border-t border-gray-100">
+                                        <h5 className="font-semibold text-gray-800 mb-4">Informasi Tambahan (Dapat Diedit)</h5>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <InputLabel htmlFor="incoming_date" value="Tanggal Barang Masuk" />
+                                                <TextInput
+                                                    id="incoming_date"
+                                                    type="date"
+                                                    value={data.incoming_date}
+                                                    className="mt-1 block w-full"
+                                                    onChange={(e) => setData('incoming_date', e.target.value)}
+                                                />
+                                                <InputError message={errors.incoming_date} className="mt-2" />
+                                            </div>
 
-                                        <div className="md:col-span-2">
-                                            <InputLabel htmlFor="provider_id" value="Nama Penyedia" />
-                                            <select
-                                                id="provider_id"
-                                                value={data.provider_id}
-                                                onChange={(e) => setData('provider_id', e.target.value)}
-                                                className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm"
-                                            >
-                                                <option value="">Pilih Penyedia</option>
-                                                {providers.map(provider => (
-                                                    <option key={provider.id} value={provider.id}>{provider.name}</option>
-                                                ))}
-                                            </select>
-                                            <InputError message={errors.provider_id} className="mt-2" />
+                                            <div>
+                                                <InputLabel htmlFor="po_date" value="Tanggal PO" />
+                                                <TextInput
+                                                    id="po_date"
+                                                    type="date"
+                                                    value={data.po_date}
+                                                    className="mt-1 block w-full"
+                                                    onChange={(e) => setData('po_date', e.target.value)}
+                                                />
+                                                <InputError message={errors.po_date} className="mt-2" />
+                                            </div>
+
+                                            <div className="md:col-span-2">
+                                                <InputLabel htmlFor="provider_id" value="Nama Penyedia" />
+                                                <select
+                                                    id="provider_id"
+                                                    value={data.provider_id}
+                                                    onChange={(e) => setData('provider_id', e.target.value)}
+                                                    className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm"
+                                                >
+                                                    <option value="">Pilih Penyedia</option>
+                                                    {providers.map(provider => (
+                                                        <option key={provider.id} value={provider.id}>{provider.name}</option>
+                                                    ))}
+                                                </select>
+                                                <InputError message={errors.provider_id} className="mt-2" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
