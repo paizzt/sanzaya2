@@ -24,12 +24,14 @@ export default function Index({ auth, items, providers, companies, filters, dail
     const [filterSearch, setFilterSearch] = useState(filters?.search || '');
     const [filterPt, setFilterPt] = useState(filters?.pt ? (Array.isArray(filters.pt) ? filters.pt : filters.pt.split(',')) : []);
     const [filterYear, setFilterYear] = useState(filters?.year ? (Array.isArray(filters.year) ? filters.year : filters.year.split(',')) : []);
+    const [filterSort, setFilterSort] = useState(filters?.sort || '');
 
     const applyFilter = () => {
         router.get(route('payables.index'), {
             search: filterSearch,
             pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt,
-            year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear
+            year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear,
+            sort: filterSort
         }, { preserveState: true, replace: true });
     };
 
@@ -37,6 +39,7 @@ export default function Index({ auth, items, providers, companies, filters, dail
         setFilterSearch('');
         setFilterPt([]);
         setFilterYear([]);
+        setFilterSort('');
         router.get(route('payables.index'), {}, { preserveState: true, replace: true });
     };
 
@@ -215,8 +218,8 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                                     <div className="w-full">
                                         <ExportDropdown 
-                                            pdfRoute={route('payables.export.pdf', { search: filterSearch, pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt, year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear })} 
-                                            excelRoute={route('payables.export.excel', { search: filterSearch, pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt, year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear })} 
+                                            pdfRoute={route('payables.export.pdf', { search: filterSearch, pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt, year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear, sort: filterSort })} 
+                                            excelRoute={route('payables.export.excel', { search: filterSearch, pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt, year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear, sort: filterSort })} 
                                             className="w-full justify-center" 
                                         />
                                     </div>
@@ -270,8 +273,8 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                 </div>
                             </div>
 
-                            <div className="bg-gray-50 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4 items-end">
-                                <div className="w-full md:w-1/3">
+                            <div className="bg-gray-50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end">
+                                <div>
                                     <InputLabel value="Cari Penyedia" />
                                     <TextInput 
                                         type="text" 
@@ -281,7 +284,7 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                         onKeyPress={e => e.key === 'Enter' && applyFilter()}
                                     />
                                 </div>
-                                <div className="w-full md:w-1/4">
+                                <div>
                                     <InputLabel value="Filter PT" />
                                     <div className="mt-1">
                                         <MultiSelect
@@ -292,7 +295,7 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                         />
                                     </div>
                                 </div>
-                                <div className="w-full md:w-1/4">
+                                <div>
                                     <InputLabel value="Filter Tahun" />
                                     <div className="mt-1">
                                         <MultiSelect
@@ -303,7 +306,19 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                         />
                                     </div>
                                 </div>
-                                <div className="flex gap-2">
+                                <div>
+                                    <InputLabel value="Urutkan Nominal" />
+                                    <select
+                                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm w-full mt-1"
+                                        value={filterSort}
+                                        onChange={e => setFilterSort(e.target.value)}
+                                    >
+                                        <option value="">Terbaru (Default)</option>
+                                        <option value="terbesar">Terbesar</option>
+                                        <option value="terkecil">Terkecil</option>
+                                    </select>
+                                </div>
+                                <div className="flex gap-2 w-full lg:col-auto md:col-span-4 justify-start">
                                     <PrimaryButton onClick={applyFilter} type="button">Filter</PrimaryButton>
                                     <SecondaryButton onClick={resetFilter} type="button">Reset</SecondaryButton>
                                 </div>
@@ -323,7 +338,14 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {items.length > 0 ? items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
+                                        {(() => {
+                                            let processedItems = [...items];
+                                            if (filterSort === 'terbesar') {
+                                                processedItems.sort((a, b) => getFilteredTotal(b.details) - getFilteredTotal(a.details));
+                                            } else if (filterSort === 'terkecil') {
+                                                processedItems.sort((a, b) => getFilteredTotal(a.details) - getFilteredTotal(b.details));
+                                            }
+                                            return processedItems.length > 0 ? processedItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                                             <tr key={item.id}>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.company ? item.company.name : '-'}</td>
                                                 <td className="px-6 py-4 whitespace-normal break-words max-w-xs md:max-w-md">{item.provider ? item.provider.name : '-'}</td>
@@ -353,13 +375,14 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                                     </button>
                                                 </td>
                                             </tr>
-                                        )) : (
+                                            )) : (
                                             <tr>
                                                 <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
                                                     Belum ada data hutang.
                                                 </td>
                                             </tr>
-                                        )}
+                                            );
+                                        })()}
                                     </tbody>
                                 </table>
                             </div>

@@ -144,11 +144,8 @@ class PayableController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($filteredYears, &$revenuePerPt, &$revenuePerYear, &$totalAll, &$uniqueProviders) {
-                $row = [$key + 1];
-                $row[] = $item->provider ? $item->provider->name : '-';
+            $mappedItems = $items->map(function($item) use ($filteredYears, &$revenuePerPt, &$revenuePerYear, &$totalAll, &$uniqueProviders) {
                 $ptName = $item->company ? $item->company->name : '-';
-                $row[] = $ptName;
                 
                 $itemTotal = 0;
                 $details = is_string($item->details) ? json_decode($item->details, true) : $item->details;
@@ -176,8 +173,26 @@ class PayableController extends Controller
                     $uniqueProviders[$providerName] = true;
                 }
 
-                $row[] = 'Rp ' . number_format($itemTotal, 0, ',', '.');
-                return $row;
+                return [
+                    'provider' => $item->provider ? $item->provider->name : '-',
+                    'company' => $ptName,
+                    'total' => $itemTotal
+                ];
+            });
+
+            if ($request->sort === 'terbesar') {
+                $mappedItems = $mappedItems->sortByDesc('total')->values();
+            } else if ($request->sort === 'terkecil') {
+                $mappedItems = $mappedItems->sortBy('total')->values();
+            }
+
+            $rows = $mappedItems->map(function($item, $key) {
+                return [
+                    $key + 1,
+                    $item['provider'],
+                    $item['company'],
+                    'Rp ' . number_format($item['total'], 0, ',', '.')
+                ];
             });
         }
         
@@ -214,11 +229,8 @@ class PayableController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($filteredYears) {
-                $row = [$key + 1];
-                $row[] = $item->provider ? $item->provider->name : '-';
-                $row[] = $item->company ? $item->company->name : '-';
-                
+            $mappedItems = $items->map(function($item) use ($filteredYears) {
+                $ptName = $item->company ? $item->company->name : '-';
                 $itemTotal = 0;
                 $details = is_string($item->details) ? json_decode($item->details, true) : $item->details;
                 if ($details) {
@@ -232,8 +244,26 @@ class PayableController extends Controller
                     }
                 }
                 
-                $row[] = 'Rp ' . number_format($itemTotal, 0, ',', '.');
-                return $row;
+                return [
+                    'provider' => $item->provider ? $item->provider->name : '-',
+                    'company' => $ptName,
+                    'total' => $itemTotal
+                ];
+            });
+
+            if ($request->sort === 'terbesar') {
+                $mappedItems = $mappedItems->sortByDesc('total')->values();
+            } else if ($request->sort === 'terkecil') {
+                $mappedItems = $mappedItems->sortBy('total')->values();
+            }
+
+            $rows = $mappedItems->map(function($item, $key) {
+                return [
+                    $key + 1,
+                    $item['provider'],
+                    $item['company'],
+                    'Rp ' . number_format($item['total'], 0, ',', '.')
+                ];
             });
         }
         
