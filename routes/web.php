@@ -348,3 +348,14 @@ Route::get('/import-providers', function () {
         return 'Error: ' . $e->getMessage();
     }
 });
+
+// Route untuk menjalankan migrasi database di server/hosting
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return "Migrasi database berhasil dijalankan: <br><pre>" . \Illuminate\Support\Facades\Artisan::output() . "</pre>";
+    } catch (\Exception $e) {
+        return "Terjadi kesalahan saat migrasi: <br>" . $e->getMessage();
+    }
+});
+
