@@ -384,3 +384,15 @@ Route::get('/fix-db-columns', function () {
     }
 });
 
+Route::get('/debug-logs', function () {
+    $path = storage_path('logs/laravel.log');
+    if (!file_exists($path)) {
+        return "No logs found.";
+    }
+    
+    // Read the last 1000 lines
+    $lines = file($path);
+    $lastLines = array_slice($lines, -1000);
+    return "<pre>" . implode("", $lastLines) . "</pre>";
+});
+
