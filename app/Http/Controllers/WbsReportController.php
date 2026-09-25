@@ -69,4 +69,18 @@ class WbsReportController extends Controller
 
         return Storage::disk('public')->download($report->file_path);
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:belum proses,di proses,selesai'
+        ]);
+
+        $report = WbsReport::findOrFail($id);
+        $report->update([
+            'status' => $request->status
+        ]);
+
+        return redirect()->back()->with('success', 'Status laporan berhasil diperbarui.');
+    }
 }

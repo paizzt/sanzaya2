@@ -318,6 +318,7 @@ Route::middleware('auth')->group(function () {
     // WBS Internal
     Route::get('/wbs-reports', [\App\Http\Controllers\WbsReportController::class, 'index'])->name('wbs-reports.index');
     Route::get('/wbs-reports/{id}/download', [\App\Http\Controllers\WbsReportController::class, 'download'])->name('wbs-reports.download');
+    Route::post('/wbs-reports/{id}/status', [\App\Http\Controllers\WbsReportController::class, 'updateStatus'])->name('wbs-reports.status');
 });
 
 // WBS Public Route

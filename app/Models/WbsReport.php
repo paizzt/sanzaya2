@@ -8,6 +8,7 @@ class WbsReport extends Model
 {
     protected $fillable = [
         'description',
-        'file_path'
+        'file_path',
+        'status'
     ];
 }

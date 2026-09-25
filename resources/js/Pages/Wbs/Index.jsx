@@ -1,12 +1,31 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { MessageSquareWarning, Download, FileText, Calendar, Clock } from 'lucide-react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
+import Swal from 'sweetalert2';
 
 dayjs.locale('id');
 
 export default function Index({ auth, reports }) {
+    const updateStatus = (id, newStatus) => {
+        router.post(route('wbs-reports.status', id), {
+            status: newStatus
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Status berhasil diperbarui',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        });
+    };
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -34,7 +53,8 @@ export default function Index({ auth, reports }) {
                                     <tr>
                                         <th scope="col" className="px-6 py-4 font-bold text-gray-900">Tanggal Lapor</th>
                                         <th scope="col" className="px-6 py-4 font-bold text-gray-900 min-w-[300px]">Isi Laporan</th>
-                                        <th scope="col" className="px-6 py-4 font-bold text-gray-900 text-center">Lampiran File</th>
+                                        <th scope="col" className="px-6 py-4 font-bold text-gray-900 text-center">Lampiran Foto</th>
+                                        <th scope="col" className="px-6 py-4 font-bold text-gray-900 text-center">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -73,11 +93,26 @@ export default function Index({ auth, reports }) {
                                                         </span>
                                                     )}
                                                 </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <select
+                                                        value={report.status || 'belum proses'}
+                                                        onChange={(e) => updateStatus(report.id, e.target.value)}
+                                                        className={`text-xs font-bold rounded-xl border focus:ring focus:ring-opacity-50 px-3 py-2 ${
+                                                            report.status === 'selesai' ? 'bg-green-100 text-green-700 border-green-200 focus:border-green-500 focus:ring-green-200' :
+                                                            report.status === 'di proses' ? 'bg-yellow-100 text-yellow-700 border-yellow-200 focus:border-yellow-500 focus:ring-yellow-200' :
+                                                            'bg-gray-100 text-gray-700 border-gray-200 focus:border-gray-500 focus:ring-gray-200'
+                                                        }`}
+                                                    >
+                                                        <option value="belum proses">Belum Proses</option>
+                                                        <option value="di proses">Di Proses</option>
+                                                        <option value="selesai">Selesai</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="3" className="px-6 py-12 text-center text-gray-500">
+                                            <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <MessageSquareWarning className="w-12 h-12 text-gray-300 mb-3" />
                                                     <p className="font-medium text-gray-600">Belum ada laporan WBS yang masuk.</p>
