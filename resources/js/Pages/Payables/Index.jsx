@@ -83,6 +83,9 @@ export default function Index({ auth, items, providers, companies, filters, dail
 
     const totalPenyedias = new Set(items.map(item => item.provider ? item.provider.name : '').filter(Boolean)).size;
 
+    const safeSummaryByYear = summaryByYear && typeof summaryByYear === 'object' ? summaryByYear : {};
+    const safeSummaryByPT = summaryByPT && typeof summaryByPT === 'object' ? summaryByPT : {};
+
     const totalHutangKeseluruhan = items.reduce((sum, item) => sum + getFilteredTotal(item.details), 0);
 
     const formatRupiah = (number) => {
@@ -253,7 +256,7 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                 <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
                                     <h4 className="text-sm font-semibold text-blue-800 mb-2">Hutang Berdasarkan Tahun</h4>
                                     <div className="space-y-1">
-                                        {Object.entries(summaryByYear || {}).sort(([a], [b]) => b - a).map(([year, amount]) => (
+                                        {Object.entries(safeSummaryByYear).sort(([a], [b]) => b - a).map(([year, amount]) => (
                                             <div key={year} className="flex justify-between items-start text-sm gap-2">
                                                 <span className="text-blue-700">{year}</span>
                                                 <span className="font-bold text-blue-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
@@ -514,4 +517,6 @@ export default function Index({ auth, items, providers, companies, filters, dail
         </AuthenticatedLayout>
     );
 }
+
+
 
