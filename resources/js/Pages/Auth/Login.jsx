@@ -218,7 +218,53 @@ export default function Login({ status, canResetPassword }) {
                                             id="file"
                                             accept="image/*"
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                            onChange={e => setWbsData('file', e.target.files[0])}
+                                            onChange={e => {
+                                                const file = e.target.files[0];
+                                                if (!file) return;
+                                                
+                                                if (!file.type.startsWith('image/') || file.size < 500 * 1024) {
+                                                    setWbsData('file', file);
+                                                    return;
+                                                }
+
+                                                const reader = new FileReader();
+                                                reader.readAsDataURL(file);
+                                                reader.onload = (event) => {
+                                                    const img = new Image();
+                                                    img.src = event.target.result;
+                                                    img.onload = () => {
+                                                        const canvas = document.createElement('canvas');
+                                                        const MAX_SIZE = 1200;
+                                                        let width = img.width;
+                                                        let height = img.height;
+
+                                                        if (width > height) {
+                                                            if (width > MAX_SIZE) {
+                                                                height = Math.round((height * MAX_SIZE) / width);
+                                                                width = MAX_SIZE;
+                                                            }
+                                                        } else {
+                                                            if (height > MAX_SIZE) {
+                                                                width = Math.round((width * MAX_SIZE) / height);
+                                                                height = MAX_SIZE;
+                                                            }
+                                                        }
+
+                                                        canvas.width = width;
+                                                        canvas.height = height;
+                                                        const ctx = canvas.getContext('2d');
+                                                        ctx.drawImage(img, 0, 0, width, height);
+                                                        
+                                                        canvas.toBlob((blob) => {
+                                                            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                                                                type: 'image/jpeg',
+                                                                lastModified: Date.now()
+                                                            });
+                                                            setWbsData('file', compressedFile);
+                                                        }, 'image/jpeg', 0.7);
+                                                    };
+                                                };
+                                            }}
                                         />
                                         <div className="pointer-events-none">
                                             <div className="text-gray-500 text-sm">
