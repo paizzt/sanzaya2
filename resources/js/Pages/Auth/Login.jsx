@@ -201,104 +201,63 @@ export default function Login({ status, canResetPassword }) {
         )}
 
         <Modal show={isWbsModalOpen} onClose={() => setIsWbsModalOpen(false)} maxWidth="2xl">
-            <div className="p-0 overflow-hidden bg-white rounded-2xl relative">
-                {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6 sm:p-8 text-white">
+            <form onSubmit={submitWbs} className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-medium text-gray-900">
+                        Lapor WBS
+                    </h2>
                     <button 
+                        type="button"
                         onClick={() => setIsWbsModalOpen(false)}
-                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
+                        className="text-gray-400 hover:text-gray-500"
                     >
-                        <X className="w-5 h-5 text-white" />
+                        <X className="w-5 h-5" />
                     </button>
-                    
-                    <div className="flex items-center gap-4 mb-3">
-                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-inner">
-                            <MessageCircle className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-bold">Lapor WBS</h2>
-                            <p className="text-blue-100 text-sm mt-1">Whistleblowing System</p>
-                        </div>
-                    </div>
                 </div>
 
-                <form onSubmit={submitWbs} className="p-6 sm:p-8 space-y-6">
+                <div className="space-y-6">
                     <div>
-                        <InputLabel htmlFor="description" value="Deskripsi Laporan" className="text-gray-700 font-semibold mb-2" />
-                        <div className="relative">
-                            <textarea
-                                id="description"
-                                className="w-full border-gray-200 focus:border-blue-500 focus:ring focus:ring-blue-500/20 rounded-xl shadow-sm min-h-[150px] p-4 text-gray-700 transition-all bg-gray-50/50 focus:bg-white"
-                                value={wbsForm.data.description}
-                                onChange={e => wbsForm.setData('description', e.target.value)}
-                                placeholder="Jelaskan secara detail indikasi pelanggaran yang Anda ketahui. Meliputi siapa, apa, kapan, di mana, dan bagaimana terjadinya."
-                                required
-                            />
-                        </div>
+                        <InputLabel htmlFor="description" value="Deskripsi Laporan" />
+                        <textarea
+                            id="description"
+                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            value={wbsForm.data.description}
+                            onChange={e => wbsForm.setData('description', e.target.value)}
+                            placeholder="Jelaskan secara detail indikasi pelanggaran..."
+                            rows="5"
+                            required
+                        />
                         <InputError message={wbsForm.errors.description} className="mt-2" />
                     </div>
 
                     <div>
-                        <InputLabel value="Bukti Pendukung (Opsional)" className="text-gray-700 font-semibold mb-2" />
-                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50/50 rounded-xl cursor-pointer transition-all group overflow-hidden relative">
-                            {wbsForm.data.file ? (
-                                <div className="absolute inset-0 bg-blue-50 flex flex-col items-center justify-center p-4 text-center">
-                                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2 text-blue-600">
-                                        <CheckCircle className="w-5 h-5" />
-                                    </div>
-                                    <span className="text-sm font-medium text-blue-900 truncate w-full px-4">{wbsForm.data.file.name}</span>
-                                    <span className="text-xs text-blue-600 mt-1">Klik untuk mengganti file</span>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <div className="w-12 h-12 bg-gray-50 group-hover:bg-blue-100 rounded-full flex items-center justify-center mb-3 transition-colors">
-                                        <Upload className="w-6 h-6 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                                    </div>
-                                    <p className="mb-1 text-sm text-gray-600 font-medium"><span className="text-blue-600">Klik untuk upload</span> gambar pendukung</p>
-                                    <p className="text-xs text-gray-400">PNG, JPG, JPEG (Max. 10MB)</p>
-                                </div>
-                            )}
-                            <input 
-                                type="file" 
-                                className="hidden" 
-                                accept="image/*"
-                                onChange={e => wbsForm.setData('file', e.target.files[0])}
-                            />
-                        </label>
+                        <InputLabel value="Bukti Pendukung (Opsional)" />
+                        <input 
+                            type="file" 
+                            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" 
+                            accept="image/*"
+                            onChange={e => wbsForm.setData('file', e.target.files[0])}
+                        />
                         <InputError message={wbsForm.errors.file} className="mt-2" />
                     </div>
 
-                    <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
+                    <div className="flex items-center justify-end">
                         <button
                             type="button"
                             onClick={() => {
                                 setIsWbsModalOpen(false);
                                 wbsForm.reset();
                             }}
-                            className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 font-medium transition-all"
+                            className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 mr-2"
                         >
                             Batal
                         </button>
-                        <PrimaryButton
-                            type="submit"
-                            className="!px-6 !py-2.5 !bg-blue-600 hover:!bg-blue-700 rounded-xl shadow-lg shadow-blue-600/20"
-                            disabled={wbsForm.processing}
-                        >
-                            {wbsForm.processing ? (
-                                <span className="flex items-center gap-2">
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    Mengirim...
-                                </span>
-                            ) : (
-                                <span className="flex items-center gap-2">
-                                    <Send className="w-4 h-4" />
-                                    Kirim Laporan
-                                </span>
-                            )}
+                        <PrimaryButton disabled={wbsForm.processing}>
+                            {wbsForm.processing ? 'Mengirim...' : 'Kirim Laporan'}
                         </PrimaryButton>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </Modal>
         </>
     );
