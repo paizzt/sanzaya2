@@ -23,10 +23,14 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 50;
 
-    const [filterSearch, setFilterSearch] = useState(filters?.search || '');
-    const [filterPt, setFilterPt] = useState(filters?.pt ? (Array.isArray(filters.pt) ? filters.pt : filters.pt.split(',')) : []);
-    const [filterYear, setFilterYear] = useState(filters?.year ? (Array.isArray(filters.year) ? filters.year : filters.year.split(',')) : []);
-    const [filterSort, setFilterSort] = useState(filters?.sort || '');
+    // PHP empty arrays `[]` from `$request->only()` can be passed here instead of `{}`.
+    // If filters is `[]`, `filters.sort` evaluates to `Array.prototype.sort`, crashing useState!
+    const safeFilters = (filters && typeof filters === 'object' && !Array.isArray(filters)) ? filters : {};
+
+    const [filterSearch, setFilterSearch] = useState(safeFilters.search || '');
+    const [filterPt, setFilterPt] = useState(safeFilters.pt ? (Array.isArray(safeFilters.pt) ? safeFilters.pt : safeFilters.pt.split(',')) : []);
+    const [filterYear, setFilterYear] = useState(safeFilters.year ? (Array.isArray(safeFilters.year) ? safeFilters.year : safeFilters.year.split(',')) : []);
+    const [filterSort, setFilterSort] = useState(typeof safeFilters.sort === 'string' ? safeFilters.sort : '');
 
     const applyFilter = () => {
         router.get(route('receivables.index'), {
