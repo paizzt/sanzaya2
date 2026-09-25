@@ -101,9 +101,9 @@
     </div>
     @endif
 
-    @if(isset($revenuePerPt) && $revenuePerPt->isNotEmpty())
+    @if(isset($revenuePerPt) && (is_array($revenuePerPt) || $revenuePerPt->isNotEmpty()))
     <div style="margin-bottom: 15px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px;">
-        <div style="font-size: 10px; font-weight: bold; margin-bottom: 8px; color: #475569; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Ringkasan Pendapatan per PT</div>
+        <div style="font-size: 10px; font-weight: bold; margin-bottom: 8px; color: #475569; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Ringkasan per PT</div>
         <table style="width: 100%; border-collapse: collapse;">
             @php $count = 0; @endphp
             @foreach($revenuePerPt as $ptName => $revenue)
@@ -116,6 +116,25 @@
                 @php $count++; @endphp
             @endforeach
             @if($count % 3 != 0) </tr> @endif
+        </table>
+    </div>
+    @endif
+
+    @if(isset($revenuePerYear) && count($revenuePerYear) > 0)
+    <div style="margin-bottom: 15px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px;">
+        <div style="font-size: 10px; font-weight: bold; margin-bottom: 8px; color: #475569; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Ringkasan per Tahun</div>
+        <table style="width: 100%; border-collapse: collapse;">
+            @php $count = 0; @endphp
+            @foreach($revenuePerYear as $year => $revenue)
+                @if($count % 4 == 0) <tr> @endif
+                <td style="width: 25%; padding: 4px; font-size: 8px; vertical-align: top;">
+                    <strong style="color: #0f172a;">{{ $year }}</strong><br>
+                    <span style="color: #3b82f6; font-weight: bold;">Rp {{ number_format($revenue, 0, ',', '.') }}</span>
+                </td>
+                @if($count % 4 == 3) </tr> @endif
+                @php $count++; @endphp
+            @endforeach
+            @if($count % 4 != 0) </tr> @endif
         </table>
     </div>
     @endif

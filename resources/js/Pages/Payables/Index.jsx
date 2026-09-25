@@ -214,7 +214,11 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                 </h3>
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                                     <div className="w-full">
-                                        <ExportDropdown pdfRoute={route('payables.export.pdf')} excelRoute={route('payables.export.excel')} className="w-full justify-center" />
+                                        <ExportDropdown 
+                                            pdfRoute={route('payables.export.pdf', { search: filterSearch, pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt, year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear })} 
+                                            excelRoute={route('payables.export.excel', { search: filterSearch, pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt, year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear })} 
+                                            className="w-full justify-center" 
+                                        />
                                     </div>
                                     <PrimaryButton onClick={() => openModal()} className="w-full justify-center h-[42px] whitespace-nowrap">
                                         <Plus className="w-4 h-4 mr-2" />
