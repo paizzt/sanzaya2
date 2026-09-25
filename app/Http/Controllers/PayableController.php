@@ -23,11 +23,17 @@ class PayableController extends Controller
         }
 
         if ($request->pt) {
-            $query->where('company_id', $request->pt);
+            $pts = is_array($request->pt) ? $request->pt : explode(',', $request->pt);
+            $query->whereIn('company_id', $pts);
         }
 
         if ($request->year) {
-            $query->whereJsonContains('details', ['year' => $request->year]);
+            $years = is_array($request->year) ? $request->year : explode(',', $request->year);
+            $query->where(function ($q) use ($years) {
+                foreach ($years as $year) {
+                    $q->orWhereJsonContains('details', ['year' => $year]);
+                }
+            });
         }
 
         $items = $query->get();

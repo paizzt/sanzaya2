@@ -11,6 +11,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import SearchableSelect from '@/Components/SearchableSelect';
 import ClientPagination from '@/Components/ClientPagination';
+import MultiSelect from '@/Components/MultiSelect';
 import Swal from 'sweetalert2';
 
 export default function Index({ auth, items, providers, companies, filters, dailyReports = [], users = [], totalAll, lastUpdated }) {
@@ -21,8 +22,8 @@ export default function Index({ auth, items, providers, companies, filters, dail
     const itemsPerPage = 50;
 
     const [filterSearch, setFilterSearch] = useState(filters?.search || '');
-    const [filterPt, setFilterPt] = useState(filters?.pt || '');
-    const [filterYear, setFilterYear] = useState(filters?.year || '');
+    const [filterPt, setFilterPt] = useState(filters?.pt ? (Array.isArray(filters.pt) ? filters.pt : [filters.pt]) : []);
+    const [filterYear, setFilterYear] = useState(filters?.year ? (Array.isArray(filters.year) ? filters.year : [filters.year]) : []);
 
     const applyFilter = () => {
         router.get(route('payables.index'), {
@@ -34,8 +35,8 @@ export default function Index({ auth, items, providers, companies, filters, dail
 
     const resetFilter = () => {
         setFilterSearch('');
-        setFilterPt('');
-        setFilterYear('');
+        setFilterPt([]);
+        setFilterYear([]);
         router.get(route('payables.index'), {}, { preserveState: true, replace: true });
     };
 
@@ -269,29 +270,25 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                 </div>
                                 <div className="w-full md:w-1/4">
                                     <InputLabel value="Filter PT" />
-                                    <select
-                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
-                                        value={filterPt}
-                                        onChange={(e) => setFilterPt(e.target.value)}
-                                    >
-                                        <option value="">Semua PT</option>
-                                        {companies && companies.map(c => (
-                                            <option key={c.id} value={c.id.toString()}>{c.name}</option>
-                                        ))}
-                                    </select>
+                                    <div className="mt-1">
+                                        <MultiSelect
+                                            options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
+                                            value={filterPt}
+                                            onChange={setFilterPt}
+                                            placeholder="Semua PT"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="w-full md:w-1/4">
                                     <InputLabel value="Filter Tahun" />
-                                    <select
-                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
-                                        value={filterYear}
-                                        onChange={(e) => setFilterYear(e.target.value)}
-                                    >
-                                        <option value="">Semua Tahun</option>
-                                        {yearOptions.map(opt => (
-                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                        ))}
-                                    </select>
+                                    <div className="mt-1">
+                                        <MultiSelect
+                                            options={yearOptions}
+                                            value={filterYear}
+                                            onChange={setFilterYear}
+                                            placeholder="Semua Tahun"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="flex gap-2">
                                     <PrimaryButton onClick={applyFilter} type="button">Filter</PrimaryButton>
