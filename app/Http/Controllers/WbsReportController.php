@@ -154,6 +154,14 @@ class WbsReportController extends Controller
             } catch (\Exception $e) {
                 // Ignore error if it fails
             }
+            // Auto-fix user_id manually just in case migrate failed
+            try {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'user_id')) {
+                    \Illuminate\Support\Facades\Schema::table('wbs_reports', function ($table) {
+                        $table->unsignedBigInteger('user_id')->nullable();
+                    });
+                }
+            } catch (\Exception $e) {}
         }
 
         $userId = $request->user()->id;
