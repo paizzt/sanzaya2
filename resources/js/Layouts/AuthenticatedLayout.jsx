@@ -255,8 +255,9 @@ export default function Authenticated({ user, header, children }) {
         },
         {
             name: 'Manajemen', icon: Database,
-            active: url.startsWith('/vehicles') || url.startsWith('/company') || url.startsWith('/users') || url.startsWith('/sops') || url.startsWith('/absensi/rekap'),
+            active: url.startsWith('/vehicles') || url.startsWith('/company') || url.startsWith('/users') || url.startsWith('/sops') || url.startsWith('/absensi/rekap') || url.startsWith('/wbs-reports'),
             children: [
+                { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url.startsWith('/wbs-reports'), show: true },
                 { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_feature_names?.includes('Data Armada') },
                 { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: auth.active_feature_names?.includes('Data Perusahaan') },
                 { name: 'Data Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_feature_names?.includes('Data Pengguna') },
@@ -266,9 +267,8 @@ export default function Authenticated({ user, header, children }) {
         },
         {
             name: 'Sistem', icon: Settings,
-            active: url.startsWith('/activity-logs') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/wbs-reports'),
+            active: url.startsWith('/activity-logs') || url.startsWith('/settings') || url.startsWith('/profile'),
             children: [
-                { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url.startsWith('/wbs-reports'), show: true },
                 { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.active_feature_names?.includes('Riwayat Perubahan') },
                 { name: 'Notifikasi', href: route('notifications.index'), active: url.startsWith('/settings/notifications'), show: auth.active_feature_names?.includes('Notifikasi') },
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_feature_names?.includes('Profil & Akun') },
