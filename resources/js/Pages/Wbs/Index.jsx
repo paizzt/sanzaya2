@@ -38,7 +38,7 @@ export default function Index({ auth, reports }) {
                     
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
                         <div className="p-6 bg-white border-b border-gray-100 flex items-center gap-3">
-                            <div className="p-3 bg-red-100 text-red-600 rounded-xl">
+                            <div className="p-3 bg-sky-100 text-sky-600 rounded-xl">
                                 <MessageSquareWarning className="w-6 h-6" />
                             </div>
                             <div>
@@ -60,7 +60,7 @@ export default function Index({ auth, reports }) {
                                 <tbody>
                                     {reports.data.length > 0 ? (
                                         reports.data.map((report) => (
-                                            <tr key={report.id} className="bg-white border-b border-gray-50 hover:bg-red-50/30 transition-colors">
+                                            <tr key={report.id} className="bg-white border-b border-gray-50 hover:bg-sky-50/30 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex flex-col">
                                                         <span className="font-semibold text-gray-800 flex items-center gap-2">
@@ -81,7 +81,7 @@ export default function Index({ auth, reports }) {
                                                         <a 
                                                             href={route('wbs-reports.download', report.id)} 
                                                             target="_blank"
-                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 font-semibold rounded-lg transition-colors border border-red-200 shadow-sm"
+                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-600 hover:bg-sky-100 font-semibold rounded-lg transition-colors border border-sky-200 shadow-sm"
                                                         >
                                                             <Download className="w-4 h-4" />
                                                             <span>{report.file_path.startsWith('http') ? 'Lihat Foto' : 'Unduh'}</span>
@@ -132,7 +132,7 @@ export default function Index({ auth, reports }) {
                                         <Link
                                             key={i}
                                             href={link.url}
-                                            className={`px-3 py-1 text-sm border rounded-lg ${link.active ? 'bg-red-50 text-red-600 border-red-200 font-bold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                                            className={`px-3 py-1 text-sm border rounded-lg ${link.active ? 'bg-sky-50 text-sky-600 border-sky-200 font-bold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
                                             dangerouslySetInnerHTML={{ __html: link.label }}
                                         />
                                     ))}

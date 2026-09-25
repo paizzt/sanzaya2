@@ -172,7 +172,7 @@ export default function Login({ status, canResetPassword }) {
                 <>
                     <button 
                         onClick={() => setWbsModal(true)}
-                        className="fixed bottom-6 right-6 w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(220,38,38,0.6)] hover:bg-red-700 hover:scale-105 transition-all z-50 focus:outline-none group"
+                        className="fixed bottom-6 right-6 w-14 h-14 bg-sky-500 text-white rounded-full flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(14,165,233,0.6)] hover:bg-sky-600 hover:scale-105 transition-all z-50 focus:outline-none group"
                         title="Whistleblowing System (Lapor WBS)"
                     >
                         <MessageSquareWarning className="w-6 h-6 group-hover:animate-bounce" />
@@ -181,8 +181,8 @@ export default function Login({ status, canResetPassword }) {
                     <Modal show={wbsModal} onClose={() => setWbsModal(false)} maxWidth="lg">
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-5 border-b pb-4">
-                                <div className="flex items-center gap-3 text-red-600">
-                                    <div className="p-2 bg-red-100 rounded-lg">
+                                <div className="flex items-center gap-3 text-sky-600">
+                                    <div className="p-2 bg-sky-100 rounded-lg">
                                         <MessageSquareWarning className="w-6 h-6" />
                                     </div>
                                     <h2 className="text-xl font-bold text-gray-800">Lapor WBS</h2>
@@ -192,7 +192,7 @@ export default function Login({ status, canResetPassword }) {
                                 </button>
                             </div>
                             
-                            <p className="text-sm text-gray-600 mb-6 bg-red-50 p-3 rounded-lg border border-red-100">
+                            <p className="text-sm text-gray-600 mb-6 bg-sky-50 p-3 rounded-lg border border-sky-100">
                                 Whistleblowing System (WBS) adalah fasilitas untuk melaporkan dugaan pelanggaran. Identitas Anda akan kami rahasiakan.
                             </p>
 
@@ -201,7 +201,7 @@ export default function Login({ status, canResetPassword }) {
                                     <InputLabel htmlFor="description" value="Isi Laporan / Keterangan" className="font-bold text-gray-700 mb-2" />
                                     <textarea
                                         id="description"
-                                        className="w-full rounded-xl border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition-colors shadow-sm text-sm p-3"
+                                        className="w-full rounded-xl border-gray-300 focus:border-sky-500 focus:ring focus:ring-sky-200 transition-colors shadow-sm text-sm p-3"
                                         rows="5"
                                         placeholder="Jelaskan detail laporan Anda secara rinci..."
                                         value={wbsData.description}
@@ -212,7 +212,7 @@ export default function Login({ status, canResetPassword }) {
                                 </div>
                                 <div>
                                     <InputLabel htmlFor="file" value="Upload Bukti Foto (Opsional)" className="font-bold text-gray-700 mb-2" />
-                                    <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-4 hover:border-red-400 transition-colors bg-gray-50 text-center">
+                                    <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-4 hover:border-sky-400 transition-colors bg-gray-50 text-center">
                                         <input
                                             type="file"
                                             id="file"
@@ -269,7 +269,7 @@ export default function Login({ status, canResetPassword }) {
                                         <div className="pointer-events-none">
                                             <div className="text-gray-500 text-sm">
                                                 {wbsData.file ? (
-                                                    <span className="font-semibold text-red-600">{wbsData.file.name}</span>
+                                                    <span className="font-semibold text-sky-600">{wbsData.file.name}</span>
                                                 ) : (
                                                     <span>Klik atau drop gambar di sini (Format JPG, PNG, dll, maks 10MB)</span>
                                                 )}
@@ -280,7 +280,7 @@ export default function Login({ status, canResetPassword }) {
                                 </div>
                                 <div className="pt-4 flex justify-end gap-3 border-t">
                                     <button type="button" onClick={() => setWbsModal(false)} className="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-xl transition-colors">Batal</button>
-                                    <button type="submit" disabled={wbsProcessing} className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors shadow-[0_4px_12px_rgba(220,38,38,0.3)] disabled:opacity-70 flex items-center gap-2">
+                                    <button type="submit" disabled={wbsProcessing} className="px-6 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl transition-colors shadow-[0_4px_12px_rgba(14,165,233,0.3)] disabled:opacity-70 flex items-center gap-2">
                                         {wbsProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                                         Kirim Laporan
                                     </button>
