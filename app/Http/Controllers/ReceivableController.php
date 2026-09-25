@@ -31,7 +31,8 @@ class ReceivableController extends Controller
             $years = is_array($request->year) ? $request->year : explode(',', $request->year);
             $query->where(function ($q) use ($years) {
                 foreach ($years as $year) {
-                    $q->orWhereJsonContains('details', ['year' => $year]);
+                    $q->orWhereJsonContains('details', ['year' => $year])
+                      ->orWhereJsonContains('details', ['year' => (int) $year]);
                 }
             });
         }
