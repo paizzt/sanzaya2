@@ -42,28 +42,37 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
         router.get(route('receivables.index'), {}, { preserveState: true, replace: true });
     };
 
+    const getFilteredDetails = (details) => {
+        if (!details) return [];
+        if (filterYear.length === 0) return details;
+        return details.filter(d => filterYear.includes(String(d.year)));
+    };
+
+    const getFilteredTotal = (details) => {
+        return getFilteredDetails(details).reduce((sum, d) => sum + Number(d.amount || 0), 0);
+    };
+
     const summaryByYear = items.reduce((acc, item) => {
-        if (item.details) {
-            item.details.forEach(d => {
-                if (d.year && d.year !== 'Total') {
-                    acc[d.year] = (acc[d.year] || 0) + Number(d.amount || 0);
-                }
-            });
-        }
+        const filteredDetails = getFilteredDetails(item.details);
+        filteredDetails.forEach(d => {
+            if (d.year && d.year !== 'Total') {
+                acc[d.year] = (acc[d.year] || 0) + Number(d.amount || 0);
+            }
+        });
         return acc;
     }, {});
 
     const summaryByPT = items.reduce((acc, item) => {
         const companyName = item.company ? item.company.name : '-';
         if (companyName) {
-            acc[companyName] = (acc[companyName] || 0) + Number(item.total || 0);
+            acc[companyName] = (acc[companyName] || 0) + getFilteredTotal(item.details);
         }
         return acc;
     }, {});
 
     const totalOutlets = new Set(items.map(item => item.outlet ? item.outlet.name : '').filter(Boolean)).size;
 
-    const totalPiutangKeseluruhan = items.reduce((sum, item) => sum + Number(item.total || 0), 0);
+    const totalPiutangKeseluruhan = items.reduce((sum, item) => sum + getFilteredTotal(item.details), 0);
 
     const formatRupiah = (number) => {
         return new Intl.NumberFormat('id-ID').format(number);
@@ -338,21 +347,21 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.company ? item.company.name : '-'}</td>
                                                 <td className="px-6 py-4 whitespace-normal break-words max-w-xs md:max-w-md">{item.outlet ? item.outlet.name : '-'}</td>
                                                 <td className="px-6 py-4">
-                                                    {item.details && item.details.map((d, i) => (
+                                                    {getFilteredDetails(item.details).map((d, i) => (
                                                         <div key={i} className="text-sm font-semibold mb-1">
                                                             {d.year}
                                                         </div>
                                                     ))}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    {item.details && item.details.map((d, i) => (
+                                                    {getFilteredDetails(item.details).map((d, i) => (
                                                         <div key={i} className="text-sm mb-1 whitespace-nowrap">
                                                             Rp {formatRupiah(d.amount || 0)}
                                                         </div>
                                                     ))}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap font-bold text-green-600">
-                                                    Rp {formatRupiah(item.total || 0)}
+                                                    Rp {formatRupiah(getFilteredTotal(item.details))}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
