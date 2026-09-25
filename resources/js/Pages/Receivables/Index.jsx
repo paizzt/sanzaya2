@@ -24,14 +24,14 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
     const itemsPerPage = 50;
 
     const [filterSearch, setFilterSearch] = useState(filters?.search || '');
-    const [filterPt, setFilterPt] = useState(filters?.pt ? (Array.isArray(filters.pt) ? filters.pt : [filters.pt]) : []);
-    const [filterYear, setFilterYear] = useState(filters?.year ? (Array.isArray(filters.year) ? filters.year : [filters.year]) : []);
+    const [filterPt, setFilterPt] = useState(filters?.pt ? (Array.isArray(filters.pt) ? filters.pt : filters.pt.split(',')) : []);
+    const [filterYear, setFilterYear] = useState(filters?.year ? (Array.isArray(filters.year) ? filters.year : filters.year.split(',')) : []);
 
     const applyFilter = () => {
         router.get(route('receivables.index'), {
             search: filterSearch,
-            pt: filterPt,
-            year: filterYear
+            pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt,
+            year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear
         }, { preserveState: true, replace: true });
     };
 
