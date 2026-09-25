@@ -14,7 +14,7 @@ import ClientPagination from '@/Components/ClientPagination';
 import MultiSelect from '@/Components/MultiSelect';
 import Swal from 'sweetalert2';
 
-export default function Index({ auth, items, outlets, companies, filters, dailyReports = [], users = [], totalAll, lastUpdated }) {
+export default function Index({ auth, items = [], outlets, companies, filters, dailyReports = [], users = [], totalAll, lastUpdated }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [activeTab, setActiveTab] = useState('data');
