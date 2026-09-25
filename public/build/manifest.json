@@ -428,7 +428,7 @@
     ]
   },
   "resources/js/Pages/Payables/Index.jsx": {
-    "file": "assets/Index-BxdqpCHJ.js",
+    "file": "assets/Index-CN1IEX3f.js",
     "name": "Index",
     "src": "resources/js/Pages/Payables/Index.jsx",
     "isDynamicEntry": true,
@@ -687,7 +687,7 @@
     ]
   },
   "resources/js/Pages/Receivables/Index.jsx": {
-    "file": "assets/Index-BJeKtEPM.js",
+    "file": "assets/Index-Bzk_R9WE.js",
     "name": "Index",
     "src": "resources/js/Pages/Receivables/Index.jsx",
     "isDynamicEntry": true,
@@ -842,7 +842,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-Dj3IJ5g2.js",
+    "file": "assets/Index-CN9fSNk3.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -863,7 +863,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-B37ZAEcC.js",
+    "file": "assets/Show-eNHLgV3e.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1040,7 +1040,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-Be3PlAB4.js",
+    "file": "assets/app-CFiWsKhN.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
