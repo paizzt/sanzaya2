@@ -14,7 +14,7 @@ export default function Index({ auth, reports }) {
         >
             <Head title="Laporan WBS" />
 
-            <div className="py-12">
+            <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
