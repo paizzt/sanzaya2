@@ -266,26 +266,26 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
                                     <h4 className="text-sm font-semibold text-blue-800 mb-2">Piutang Berdasarkan Tahun</h4>
                                     <div className="space-y-1">
-                                        {Object.entries(summaryByYear).sort(([a], [b]) => b - a).map(([year, amount]) => (
+                                        {Object.entries(summaryByYear || {}).sort(([a], [b]) => b - a).map(([year, amount]) => (
                                             <div key={year} className="flex justify-between items-start text-sm gap-2">
                                                 <span className="text-blue-700">{year}</span>
                                                 <span className="font-bold text-blue-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
                                             </div>
                                         ))}
-                                        {Object.keys(summaryByYear).length === 0 && <div className="text-sm text-blue-600/70">Tidak ada data</div>}
+                                        {Object.keys(summaryByYear || {}).length === 0 && <div className="text-sm text-blue-600/70">Tidak ada data</div>}
                                     </div>
                                 </div>
                                 
                                 <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl shadow-sm">
                                     <h4 className="text-sm font-semibold text-indigo-800 mb-2">Piutang Berdasarkan PT</h4>
                                     <div className="space-y-1">
-                                        {Object.entries(summaryByPT).map(([pt, amount]) => (
+                                        {Object.entries(summaryByPT || {}).map(([pt, amount]) => (
                                             <div key={pt} className="flex justify-between items-start text-sm gap-2 mt-1">
                                                 <span className="text-indigo-700 leading-tight">{pt}</span>
                                                 <span className="font-bold text-indigo-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
                                             </div>
                                         ))}
-                                        {Object.keys(summaryByPT).length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
+                                        {Object.keys(summaryByPT || {}).length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
                                     </div>
                                 </div>
 
