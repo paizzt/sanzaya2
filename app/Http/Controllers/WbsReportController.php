@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\WbsReport;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class WbsReportController extends Controller
 {
@@ -21,12 +22,23 @@ class WbsReportController extends Controller
     {
         $request->validate([
             'description' => 'required|string',
-            'file' => 'nullable|file|max:10240', // 10MB max
+            'file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240', // 10MB max, images only
         ]);
 
         $filePath = null;
         if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('wbs_reports', 'public');
+            // Upload to ImgBB
+            $response = Http::attach(
+                'image', 
+                file_get_contents($request->file('file')->getRealPath()), 
+                $request->file('file')->getClientOriginalName()
+            )->post('https://api.imgbb.com/1/upload', [
+                'key' => '5950b44b24860057ff810fe73f58868b'
+            ]);
+
+            if ($response->successful()) {
+                $filePath = $response->json('data.url');
+            }
         }
 
         WbsReport::create([
@@ -41,7 +53,17 @@ class WbsReportController extends Controller
     {
         $report = WbsReport::findOrFail($id);
         
-        if (!$report->file_path || !Storage::disk('public')->exists($report->file_path)) {
+        if (!$report->file_path) {
+            return back()->with('error', 'File tidak ditemukan.');
+        }
+
+        // Jika url dari imgbb (http), redirect saja ke gambar tersebut
+        if (str_starts_with($report->file_path, 'http')) {
+            return redirect($report->file_path);
+        }
+
+        // Fallback untuk file lama yang tersimpan di lokal
+        if (!Storage::disk('public')->exists($report->file_path)) {
             return back()->with('error', 'File tidak ditemukan.');
         }
 

@@ -59,16 +59,17 @@ export default function Index({ auth, reports }) {
                                                 <td className="px-6 py-4 text-center">
                                                     {report.file_path ? (
                                                         <a 
-                                                            href={route('wbs-reports.download', report.id)} 
+                                                            href={report.file_path.startsWith('http') ? report.file_path : route('wbs-reports.download', report.id)} 
+                                                            target={report.file_path.startsWith('http') ? '_blank' : '_self'}
                                                             className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 font-semibold rounded-lg transition-colors border border-red-200 shadow-sm"
                                                         >
                                                             <Download className="w-4 h-4" />
-                                                            <span>Unduh</span>
+                                                            <span>{report.file_path.startsWith('http') ? 'Lihat Foto' : 'Unduh'}</span>
                                                         </a>
                                                     ) : (
                                                         <span className="inline-flex items-center gap-2 px-3 py-1 bg-gray-50 text-gray-500 rounded-lg text-xs italic border border-gray-100">
                                                             <FileText className="w-3 h-3" />
-                                                            Tidak ada file
+                                                            Tidak ada foto
                                                         </span>
                                                     )}
                                                 </td>
