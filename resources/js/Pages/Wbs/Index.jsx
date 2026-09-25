@@ -157,18 +157,20 @@ export default function Index({ auth, reports }) {
                                                             <option value="selesai">Selesai</option>
                                                         </select>
                                                         
-                                                        <button
-                                                            onClick={() => openChat(report)}
-                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 text-white hover:bg-sky-700 font-semibold rounded-lg transition-colors text-xs w-full justify-center"
-                                                        >
-                                                            <MessageSquare className="w-3.5 h-3.5" />
-                                                            Live Chat
-                                                            {report.messages && report.messages.length > 0 && (
-                                                                <span className="bg-white text-sky-600 px-1.5 py-0.5 rounded-full text-[10px] ml-1">
-                                                                    {report.messages.length}
-                                                                </span>
-                                                            )}
-                                                        </button>
+                                                        {report.user_id && (
+                                                            <button
+                                                                onClick={() => openChat(report)}
+                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 text-white hover:bg-sky-700 font-semibold rounded-lg transition-colors text-xs w-full justify-center"
+                                                            >
+                                                                <MessageSquare className="w-3.5 h-3.5" />
+                                                                Live Chat
+                                                                {report.messages && report.messages.length > 0 && (
+                                                                    <span className="bg-white text-sky-600 px-1.5 py-0.5 rounded-full text-[10px] ml-1">
+                                                                        {report.messages.length}
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
