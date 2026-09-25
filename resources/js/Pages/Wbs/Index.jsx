@@ -79,8 +79,8 @@ export default function Index({ auth, reports }) {
                                                 <td className="px-6 py-4 text-center">
                                                     {report.file_path ? (
                                                         <a 
-                                                            href={report.file_path.startsWith('http') ? report.file_path : route('wbs-reports.download', report.id)} 
-                                                            target={report.file_path.startsWith('http') ? '_blank' : '_self'}
+                                                            href={route('wbs-reports.download', report.id)} 
+                                                            target="_blank"
                                                             className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 font-semibold rounded-lg transition-colors border border-red-200 shadow-sm"
                                                         >
                                                             <Download className="w-4 h-4" />

@@ -57,8 +57,19 @@ class WbsReportController extends Controller
             return back()->with('error', 'File tidak ditemukan.');
         }
 
-        // Jika url dari imgbb (http), redirect saja ke gambar tersebut
         if (str_starts_with($report->file_path, 'http')) {
+            try {
+                $response = Http::get($report->file_path);
+                if ($response->successful()) {
+                    $contentType = $response->header('Content-Type');
+                    return response($response->body(), 200, [
+                        'Content-Type' => $contentType ?: 'image/jpeg',
+                        'Content-Disposition' => 'inline; filename="Laporan-WBS-'.$id.'.jpg"'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Ignore and redirect
+            }
             return redirect($report->file_path);
         }
 
