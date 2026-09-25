@@ -5,12 +5,12 @@
     <style>
         @page { margin: 15px; } /* Maximize paper space */
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; color: #374151; margin: 0; padding: 0; }
-        .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #4f46e5; padding-bottom: 10px; }
+        .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
         .header h2 { margin: 0; padding: 0; font-size: 18px; color: #111827; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         .header p { margin: 5px 0 0 0; font-size: 9px; color: #6b7280; }
         
         .active-filters { text-align: center; margin-bottom: 15px; font-size: 8px; color: #475569; }
-        .filter-badge { display: inline-block; background-color: #e0e7ff; color: #3730a3; padding: 3px 6px; border-radius: 4px; margin: 0 4px; border: 1px solid #c7d2fe; }
+        .filter-badge { display: inline-block; background-color: #eff6ff; color: #1e3a8a; padding: 3px 6px; border-radius: 4px; margin: 0 4px; border: 1px solid #bfdbfe; }
 
         .summary-container { width: 100%; margin-bottom: 15px; }
         .summary-table { width: 100%; border: none; border-collapse: separate; border-spacing: 10px 0; }
@@ -31,9 +31,8 @@
         .summary-box.orange { border-top: 3px solid #f97316; }
 
         table.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; }
-        .data-table th, .data-table td { border: 1px solid #cbd5e1; padding: 2px; text-align: left; vertical-align: middle; word-wrap: break-word; }
         .data-table th { 
-            background-color: #4f46e5; 
+            background-color: #3b82f6; 
             color: #ffffff; 
             font-weight: bold; 
             text-transform: uppercase; 
@@ -150,7 +149,7 @@
     <div class="signature">
         <p>Makassar, {{ \Carbon\Carbon::now()->format('d M Y') }}</p>
         <p style="margin-bottom: 60px;">Mengetahui,</p>
-        <p><strong>Admin / Manager</strong></p>
+        <p><strong>{{ auth()->user() ? auth()->user()->name : 'Admin / Manager' }}</strong></p>
     </div>
     <div style="clear: both;"></div>
 

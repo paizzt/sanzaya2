@@ -114,7 +114,7 @@ class PayableController extends Controller
                 $row = [$key + 1];
                 $row[] = $item->provider ? $item->provider->name : '-';
                 $row[] = $item->company ? $item->company->name : '-';
-                $row[] = $item->total;
+                $row[] = 'Rp ' . number_format((float)$item->total, 0, ',', '.');
                 return $row;
             });
         }
@@ -138,7 +138,7 @@ class PayableController extends Controller
                 $row = [$key + 1];
                 $row[] = $item->provider ? $item->provider->name : '-';
                 $row[] = $item->company ? $item->company->name : '-';
-                $row[] = $item->total;
+                $row[] = 'Rp ' . number_format((float)$item->total, 0, ',', '.');
                 return $row;
             });
         }
