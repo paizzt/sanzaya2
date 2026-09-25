@@ -614,6 +614,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 { key: 'Penggunaan Kendaraan', label: 'Penggunaan Kendaraan' },
                                                                 { key: 'Dashboard Laporan', label: 'Dashboard Laporan' },
                                                                 { key: 'Data Laporan Tersinkronisasi', label: 'Data Laporan Tersinkronisasi' },
+                                                                { key: 'Laporan WBS', label: 'Laporan WBS' },
                                                             ].map(opt => {
                                                                 const isChecked = data.preferences?.bottom_nav?.includes(opt.key) || 
                                                                     (opt.key === 'Dashboard' && data.preferences?.bottom_nav?.includes('dashboard')) ||
@@ -683,6 +684,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                 { key: 'Penggunaan Kendaraan', label: 'Penggunaan Kendaraan' },
                                                                 { key: 'Dashboard Laporan', label: 'Dashboard Laporan' },
                                                                 { key: 'Data Laporan Tersinkronisasi', label: 'Data Laporan Tersinkronisasi' },
+                                                                { key: 'Laporan WBS', label: 'Laporan WBS' },
                                                             ].map(opt => {
                                                                 const isChecked = data.preferences?.dashboard?.includes(opt.key) || 
                                                                     (opt.key === 'Ambil Absensi' && data.preferences?.dashboard?.includes('attendance')) ||
@@ -757,6 +759,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         { label: "Pemetaan Outlet", db: "Pemetaan Outlet" }
                                                     ],
                                                     "Manajemen": [
+                                                        { label: "Laporan WBS", db: "Laporan WBS" },
                                                         { label: "Data Armada", db: "Data Armada" },
                                                         { label: "Penggunaan Kendaraan", db: "Penggunaan Kendaraan" },
                                                         { label: "Data Perusahaan", db: "Data Perusahaan" },
