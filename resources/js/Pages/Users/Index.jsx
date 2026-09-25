@@ -771,7 +771,9 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     "Sistem": [
                                                         { label: "Riwayat Perubahan", db: "Riwayat Perubahan" },
                                                         { label: "Notifikasi", db: "Notifikasi" },
-                                                        { label: "Profil & Akun", db: "Profil & Akun" }
+                                                        { label: "Profil & Akun", db: "Profil & Akun" },
+                                                        { label: "Lapor WBS", db: "Lapor WBS" },
+                                                        { label: "Riwayat Laporan Saya", db: "Riwayat Laporan Saya" }
                                                     ],
                                                     "Spreadsheet": [
                                                         { label: "Data Laporan Tersinkronisasi", db: "Data Laporan Tersinkronisasi" },

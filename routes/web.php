@@ -319,10 +319,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/wbs-reports', [\App\Http\Controllers\WbsReportController::class, 'index'])->name('wbs-reports.index');
     Route::get('/wbs-reports/{id}/download', [\App\Http\Controllers\WbsReportController::class, 'download'])->name('wbs-reports.download');
     Route::post('/wbs-reports/{id}/status', [\App\Http\Controllers\WbsReportController::class, 'updateStatus'])->name('wbs-reports.status');
+    Route::get('/lapor-wbs', [\App\Http\Controllers\WbsReportController::class, 'create'])->name('wbs.create');
+    Route::post('/wbs-reports', [\App\Http\Controllers\WbsReportController::class, 'store'])->name('wbs-reports.store');
+    Route::get('/wbs-reports/my-reports', [\App\Http\Controllers\WbsReportController::class, 'myReports'])->name('wbs-reports.my-reports');
+    Route::post('/wbs-reports/{id}/messages', [\App\Http\Controllers\WbsReportController::class, 'storeMessage'])->name('wbs-reports.messages.store');
 });
-
-// WBS Public Route
-Route::post('/wbs-reports', [\App\Http\Controllers\WbsReportController::class, 'store'])->name('wbs-reports.store');
 
 require __DIR__.'/auth.php';
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\WbsReport;
+use App\Models\WbsMessage;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 
@@ -12,10 +13,25 @@ class WbsReportController extends Controller
 {
     public function index()
     {
-        $reports = WbsReport::orderBy('created_at', 'desc')->paginate(20);
+        $reports = WbsReport::with(['messages' => function ($query) {
+            $query->orderBy('created_at', 'asc');
+        }])->orderBy('created_at', 'desc')->paginate(20);
+        
+        $reports->getCollection()->transform(function ($report) {
+            if (!array_key_exists('is_anonymous', $report->getAttributes())) {
+                $report->is_anonymous = true;
+            }
+            return $report;
+        });
+
         return Inertia::render('Wbs/Index', [
             'reports' => $reports
         ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Wbs/Create');
     }
 
     public function store(Request $request)
@@ -23,6 +39,7 @@ class WbsReportController extends Controller
         $request->validate([
             'description' => 'required|string',
             'file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240', // 10MB max, images only
+            'is_anonymous' => 'nullable|boolean'
         ]);
 
         $filePath = null;
@@ -41,9 +58,27 @@ class WbsReportController extends Controller
             }
         }
 
+        // Fallback schema for is_anonymous and reporter_name
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'is_anonymous')) {
+            \Illuminate\Support\Facades\Schema::table('wbs_reports', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->boolean('is_anonymous')->default(true)->after('status');
+                $table->string('reporter_name')->nullable()->after('is_anonymous');
+                $table->unsignedBigInteger('user_id')->nullable()->after('id');
+            });
+        } elseif (!\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'user_id')) {
+            \Illuminate\Support\Facades\Schema::table('wbs_reports', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->unsignedBigInteger('user_id')->nullable()->after('id');
+            });
+        }
+
+        $isAnonymous = $request->boolean('is_anonymous', true);
+        
         WbsReport::create([
+            'user_id' => $request->user() ? $request->user()->id : null,
             'description' => $request->description,
             'file_path' => $filePath,
+            'is_anonymous' => $isAnonymous,
+            'reporter_name' => $isAnonymous ? null : ($request->user() ? $request->user()->name : null)
         ]);
 
         return redirect()->back()->with('success', 'Laporan WBS berhasil dikirim.');
@@ -101,5 +136,49 @@ class WbsReportController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Status laporan berhasil diperbarui.');
+    }
+
+    public function myReports(Request $request)
+    {
+        $userId = $request->user()->id;
+        $reports = WbsReport::with(['messages' => function ($query) {
+            $query->orderBy('created_at', 'asc');
+        }])->where('user_id', $userId)
+          ->orderBy('created_at', 'desc')
+          ->get();
+          
+        return Inertia::render('Wbs/MyReports', [
+            'reports' => $reports
+        ]);
+    }
+
+    public function storeMessage(Request $request, $id)
+    {
+        $request->validate([
+            'message' => 'required|string'
+        ]);
+
+        $report = WbsReport::findOrFail($id);
+        
+        $isAdmin = false;
+        // Check if user has WBS admin privileges based on feature name logic in the app
+        $activeFeatures = $request->user()->roles->flatMap->features->pluck('name')->unique();
+        if ($activeFeatures->contains('Laporan WBS') || $request->user()->roles->contains('name', 'Superadmin')) {
+            $isAdmin = true;
+        }
+
+        // If not admin, verify ownership
+        if (!$isAdmin && $report->user_id !== $request->user()->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        WbsMessage::create([
+            'wbs_report_id' => $report->id,
+            'user_id' => $request->user()->id,
+            'message' => $request->message,
+            'is_admin' => $isAdmin
+        ]);
+
+        return back()->with('success', 'Pesan terkirim.');
     }
 }
