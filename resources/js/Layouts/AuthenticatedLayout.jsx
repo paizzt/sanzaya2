@@ -257,7 +257,7 @@ export default function Authenticated({ user, header, children }) {
             name: 'Manajemen', icon: Database,
             active: url.startsWith('/vehicles') || url.startsWith('/company') || url.startsWith('/users') || url.startsWith('/sops') || url.startsWith('/absensi/rekap') || url.startsWith('/wbs-reports'),
             children: [
-                { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url.startsWith('/wbs-reports'), show: auth.active_feature_names?.includes('Laporan WBS') },
+                { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url.startsWith('/wbs-reports'), show: true },
                 { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_feature_names?.includes('Data Armada') },
                 { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: auth.active_feature_names?.includes('Data Perusahaan') },
                 { name: 'Data Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_feature_names?.includes('Data Pengguna') },
