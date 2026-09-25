@@ -220,10 +220,6 @@ export default function Login({ status, canResetPassword }) {
                             <p className="text-blue-100 text-sm mt-1">Whistleblowing System</p>
                         </div>
                     </div>
-                    <p className="text-sm text-blue-50/90 leading-relaxed max-w-xl">
-                        Laporkan indikasi kecurangan, pelanggaran hukum, atau etika. 
-                        Laporan Anda pada halaman ini akan dijamin kerahasiaannya dan selalu berstatus <strong className="font-semibold text-white">Anonim</strong>.
-                    </p>
                 </div>
 
                 <form onSubmit={submitWbs} className="p-6 sm:p-8 space-y-6">
@@ -270,15 +266,6 @@ export default function Login({ status, canResetPassword }) {
                             />
                         </label>
                         <InputError message={wbsForm.errors.file} className="mt-2" />
-                    </div>
-
-                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex gap-3">
-                        <div className="mt-0.5"><EyeOff className="w-5 h-5 text-amber-600" /></div>
-                        <p className="text-sm text-amber-800 leading-relaxed">
-                            Laporan dari halaman login akan dicatat sebagai <strong className="font-semibold">Laporan Anonim</strong>.
-                            Anda tidak perlu login untuk melaporkan, namun Anda tidak dapat memantau status laporan Anda (fitur Live Chat dinonaktifkan). 
-                            Jika Anda ingin memantau status dan berbalas pesan, silakan <strong>Login</strong> terlebih dahulu.
-                        </p>
                     </div>
 
                     <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
