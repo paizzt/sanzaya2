@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, usePage, router } from '@inertiajs/react';
+import { createPortal } from 'react-dom';
+import { Link, usePage, router, useForm } from '@inertiajs/react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import Modal from '@/Components/Modal';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building, BookOpen, Download } from 'lucide-react';
+import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building, BookOpen, Download, MessageSquareWarning, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -74,6 +76,28 @@ export default function Authenticated({ user, header, children }) {
     const { auth, flash } = usePage().props;
     const notifications = auth?.notifications || [];
     const unreadCount = auth?.unread_count || 0;
+
+    const [wbsModal, setWbsModal] = useState(false);
+    const { data: wbsData, setData: setWbsData, post: postWbs, processing: wbsProcessing, errors: wbsErrors, reset: wbsReset } = useForm({
+        description: '',
+        file: null
+    });
+
+    const submitWbs = (e) => {
+        e.preventDefault();
+        postWbs(route('wbs-reports.store'), {
+            onSuccess: () => {
+                setWbsModal(false);
+                wbsReset();
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Laporan WBS Anda telah dikirim dan akan kami rahasiakan.',
+                    icon: 'success',
+                    confirmButtonColor: '#10b981'
+                });
+            }
+        });
+    };
 
     const hasPermission = (permission) => {
         if (auth.user?.roles?.some(r => r.name === 'Superadmin')) return true;
@@ -550,6 +574,130 @@ export default function Authenticated({ user, header, children }) {
                     ));
                 })()}
             </div>
+
+            {/* WBS Floating Button & Modal via Portal */}
+            {auth.active_feature_names?.includes('Tombol WBS') && typeof document !== 'undefined' && createPortal(
+                <>
+                    <button 
+                        onClick={() => setWbsModal(true)}
+                        className="fixed bottom-24 lg:bottom-6 right-6 w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(220,38,38,0.6)] hover:bg-red-700 hover:scale-105 transition-all z-50 focus:outline-none group"
+                        title="Whistleblowing System (Lapor WBS)"
+                    >
+                        <MessageSquareWarning className="w-6 h-6 group-hover:animate-bounce" />
+                    </button>
+
+                    <Modal show={wbsModal} onClose={() => setWbsModal(false)} maxWidth="lg">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-5 border-b pb-4">
+                                <div className="flex items-center gap-3 text-red-600">
+                                    <div className="p-2 bg-red-100 rounded-lg">
+                                        <MessageSquareWarning className="w-6 h-6" />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-gray-800">Lapor WBS</h2>
+                                </div>
+                                <button onClick={() => setWbsModal(false)} className="text-gray-400 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            
+                            <p className="text-sm text-gray-600 mb-6 bg-red-50 p-3 rounded-lg border border-red-100">
+                                Whistleblowing System (WBS) adalah fasilitas untuk melaporkan dugaan pelanggaran. Identitas Anda akan kami rahasiakan.
+                            </p>
+
+                            <form onSubmit={submitWbs} className="space-y-4">
+                                <div>
+                                    <label htmlFor="description" className="block font-bold text-gray-700 mb-2 text-sm">Isi Laporan / Keterangan</label>
+                                    <textarea
+                                        id="description"
+                                        className="w-full rounded-xl border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition-colors shadow-sm text-sm p-3"
+                                        rows="5"
+                                        placeholder="Jelaskan detail laporan Anda secara rinci..."
+                                        value={wbsData.description}
+                                        onChange={e => setWbsData('description', e.target.value)}
+                                        required
+                                    ></textarea>
+                                </div>
+                                <div>
+                                    <label htmlFor="file" className="block font-bold text-gray-700 mb-2 text-sm">Upload Bukti Foto (Opsional)</label>
+                                    <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-4 hover:border-red-400 transition-colors bg-gray-50 text-center">
+                                        <input
+                                            type="file"
+                                            id="file"
+                                            accept="image/*"
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            onChange={e => {
+                                                const file = e.target.files[0];
+                                                if (!file) return;
+                                                
+                                                if (!file.type.startsWith('image/') || file.size < 500 * 1024) {
+                                                    setWbsData('file', file);
+                                                    return;
+                                                }
+
+                                                const reader = new FileReader();
+                                                reader.readAsDataURL(file);
+                                                reader.onload = (event) => {
+                                                    const img = new Image();
+                                                    img.src = event.target.result;
+                                                    img.onload = () => {
+                                                        const canvas = document.createElement('canvas');
+                                                        const MAX_SIZE = 1200;
+                                                        let width = img.width;
+                                                        let height = img.height;
+
+                                                        if (width > height) {
+                                                            if (width > MAX_SIZE) {
+                                                                height = Math.round((height * MAX_SIZE) / width);
+                                                                width = MAX_SIZE;
+                                                            }
+                                                        } else {
+                                                            if (height > MAX_SIZE) {
+                                                                width = Math.round((width * MAX_SIZE) / height);
+                                                                height = MAX_SIZE;
+                                                            }
+                                                        }
+
+                                                        canvas.width = width;
+                                                        canvas.height = height;
+                                                        const ctx = canvas.getContext('2d');
+                                                        ctx.drawImage(img, 0, 0, width, height);
+                                                        
+                                                        canvas.toBlob((blob) => {
+                                                            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                                                                type: 'image/jpeg',
+                                                                lastModified: Date.now()
+                                                            });
+                                                            setWbsData('file', compressedFile);
+                                                        }, 'image/jpeg', 0.7);
+                                                    };
+                                                };
+                                            }}
+                                        />
+                                        <div className="pointer-events-none">
+                                            <div className="text-gray-500 text-sm">
+                                                {wbsData.file ? (
+                                                    <span className="font-semibold text-red-600">{wbsData.file.name}</span>
+                                                ) : (
+                                                    <span>Klik atau drop gambar di sini (Format JPG, PNG, dll, maks 10MB)</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {wbsErrors?.file && <div className="text-red-600 text-sm mt-2">{wbsErrors.file}</div>}
+                                </div>
+                                <div className="pt-4 flex justify-end gap-3 border-t">
+                                    <button type="button" onClick={() => setWbsModal(false)} className="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-xl transition-colors">Batal</button>
+                                    <button type="submit" disabled={wbsProcessing} className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors shadow-[0_4px_12px_rgba(220,38,38,0.3)] disabled:opacity-70 flex items-center gap-2">
+                                        {wbsProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                        Kirim Laporan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </Modal>
+                </>,
+                document.body
+            )}
         </div>
     );
 }

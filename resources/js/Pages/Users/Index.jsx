@@ -760,6 +760,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     ],
                                                     "Manajemen": [
                                                         { label: "Laporan WBS", db: "Laporan WBS" },
+                                                        { label: "Tombol WBS", db: "Tombol WBS" },
                                                         { label: "Data Armada", db: "Data Armada" },
                                                         { label: "Penggunaan Kendaraan", db: "Penggunaan Kendaraan" },
                                                         { label: "Data Perusahaan", db: "Data Perusahaan" },
