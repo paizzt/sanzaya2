@@ -14,7 +14,11 @@ class WbsReportController extends Controller
     public function index()
     {
         if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages') || !\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'user_id')) {
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            } catch (\Exception $e) {
+                // Ignore error if it fails
+            }
         }
 
         $reports = WbsReport::with(['messages' => function ($query) {
@@ -145,7 +149,11 @@ class WbsReportController extends Controller
     public function myReports(Request $request)
     {
         if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages') || !\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'user_id')) {
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            } catch (\Exception $e) {
+                // Ignore error if it fails
+            }
         }
 
         $userId = $request->user()->id;

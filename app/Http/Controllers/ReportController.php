@@ -15,6 +15,22 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        // Auto-fix missing columns for sync_logistik_data to prevent 500 errors
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('sync_logistik_data')) {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'pelanggan')) {
+                    \Illuminate\Support\Facades\Schema::table('sync_logistik_data', function ($table) {
+                        $table->string('pelanggan')->nullable();
+                        $table->string('nama_pt')->nullable();
+                        $table->string('jenis_pelanggan')->nullable();
+                        $table->string('no_faktur')->nullable();
+                    });
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore if it fails, fallback to normal execution
+        }
+
         $tab = $request->query('tab', 'logistik');
         $search = $request->query('search', '');
         $salesFilter = $request->query('sales_filter', '');
