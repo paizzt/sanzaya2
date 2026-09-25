@@ -299,13 +299,14 @@ class ReportController extends Controller
             // Format top 10 outlets
             $top10Outlets = array_slice($outletDetailsMap, 0, 10, true);
             $outletDetailFormatted = [];
+            $monthOrder = ['Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4, 'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8, 'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12, 'Lainnya' => 13];
+            
             foreach ($top10Outlets as $outlet => $data) {
                 $ptFormatted = [];
                 arsort($data['pt']);
                 foreach ($data['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $bulanFormatted = [];
-                $monthOrder = ['Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4, 'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8, 'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12, 'Lainnya' => 13];
                 
                 uksort($data['bulan'], function($a, $b) use ($monthOrder) {
                     $orderA = $monthOrder[$a] ?? 99;
