@@ -44,9 +44,19 @@ export default function Index({ auth, items, providers, companies, filters, dail
     };
 
     const getFilteredDetails = (details) => {
-        if (!details) return [];
-        if (filterYear.length === 0) return details;
-        return details.filter(d => filterYear.includes(String(d.year)));
+        let detailsArray = details;
+        if (typeof details === 'string') {
+            try {
+                detailsArray = JSON.parse(details);
+            } catch (e) {
+                detailsArray = [];
+            }
+        }
+        if (!Array.isArray(detailsArray)) {
+            detailsArray = [];
+        }
+        if (filterYear.length === 0) return detailsArray;
+        return detailsArray.filter(d => filterYear.includes(String(d.year)));
     };
 
     const getFilteredTotal = (details) => {
@@ -243,26 +253,26 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                 <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl shadow-sm">
                                     <h4 className="text-sm font-semibold text-blue-800 mb-2">Hutang Berdasarkan Tahun</h4>
                                     <div className="space-y-1">
-                                        {Object.entries(summaryByYear).sort(([a], [b]) => b - a).map(([year, amount]) => (
+                                        {Object.entries(summaryByYear || {}).sort(([a], [b]) => b - a).map(([year, amount]) => (
                                             <div key={year} className="flex justify-between items-start text-sm gap-2">
                                                 <span className="text-blue-700">{year}</span>
                                                 <span className="font-bold text-blue-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
                                             </div>
                                         ))}
-                                        {Object.keys(summaryByYear).length === 0 && <div className="text-sm text-blue-600/70">Tidak ada data</div>}
+                                        {Object.keys(summaryByYear || {}).length === 0 && <div className="text-sm text-blue-600/70">Tidak ada data</div>}
                                     </div>
                                 </div>
                                 
                                 <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl shadow-sm">
                                     <h4 className="text-sm font-semibold text-indigo-800 mb-2">Hutang Berdasarkan PT</h4>
                                     <div className="space-y-1">
-                                        {Object.entries(summaryByPT).map(([pt, amount]) => (
+                                        {Object.entries(summaryByPT || {}).map(([pt, amount]) => (
                                             <div key={pt} className="flex justify-between items-start text-sm gap-2 mt-1">
                                                 <span className="text-indigo-700 leading-tight">{pt}</span>
                                                 <span className="font-bold text-indigo-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
                                             </div>
                                         ))}
-                                        {Object.keys(summaryByPT).length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
+                                        {Object.keys(summaryByPT || {}).length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
                                     </div>
                                 </div>
 
