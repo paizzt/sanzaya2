@@ -198,9 +198,11 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Check In Status */}
                                 <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
-                                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${hasCheckedIn ? 'bg-green-100 text-green-600' : 'bg-white shadow-sm border border-gray-200 text-gray-400'}`}>
-                                        {hasCheckedIn ? <CheckCircle2 className="w-7 h-7" /> : <Clock className="w-7 h-7" />}
-                                    </div>
+                                    {hasCheckedIn && (
+                                        <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600">
+                                            <CheckCircle2 className="w-7 h-7" />
+                                        </div>
+                                    )}
                                     <div className="flex-1">
                                         <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
                                         <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedIn ? `Berhasil: ${attendance.check_in_time}` : 'Belum Absen'}</p>
@@ -219,9 +221,11 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
 
                                 {/* Check Out Status */}
                                 <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
-                                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${hasCheckedOut ? 'bg-green-100 text-green-600' : 'bg-white shadow-sm border border-gray-200 text-gray-400'}`}>
-                                        {hasCheckedOut ? <CheckCircle2 className="w-7 h-7" /> : <Clock className="w-7 h-7" />}
-                                    </div>
+                                    {hasCheckedOut && (
+                                        <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600">
+                                            <CheckCircle2 className="w-7 h-7" />
+                                        </div>
+                                    )}
                                     <div className="flex-1">
                                         <p className="font-bold text-lg text-gray-800">Absen Pulang</p>
                                         <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedOut ? `Berhasil: ${attendance.check_out_time}` : 'Belum Absen'}</p>
