@@ -1,6 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { MessageSquareWarning, Download, FileText, Calendar, Clock } from 'lucide-react';
+import { MessageSquareWarning, Download, FileText, Calendar, Clock, X } from 'lucide-react';
+import { useState } from 'react';
+import Modal from '@/Components/Modal';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 import Swal from 'sweetalert2';
@@ -8,6 +10,9 @@ import Swal from 'sweetalert2';
 dayjs.locale('id');
 
 export default function Index({ auth, reports }) {
+    const [photoModal, setPhotoModal] = useState(false);
+    const [selectedPhoto, setSelectedPhoto] = useState(null);
+
     const updateStatus = (id, newStatus) => {
         router.post(route('wbs-reports.status', id), {
             status: newStatus
@@ -78,14 +83,16 @@ export default function Index({ auth, reports }) {
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     {report.file_path ? (
-                                                        <a 
-                                                            href={route('wbs-reports.download', report.id)} 
-                                                            target="_blank"
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedPhoto(route('wbs-reports.download', report.id));
+                                                                setPhotoModal(true);
+                                                            }}
                                                             className="inline-flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-600 hover:bg-sky-100 font-semibold rounded-lg transition-colors border border-sky-200 shadow-sm"
                                                         >
                                                             <Download className="w-4 h-4" />
-                                                            <span>{report.file_path.startsWith('http') ? 'Lihat Foto' : 'Unduh'}</span>
-                                                        </a>
+                                                            <span>Lihat Foto</span>
+                                                        </button>
                                                     ) : (
                                                         <span className="inline-flex items-center gap-2 px-3 py-1 bg-gray-50 text-gray-500 rounded-lg text-xs italic border border-gray-100">
                                                             <FileText className="w-3 h-3" />
@@ -142,6 +149,22 @@ export default function Index({ auth, reports }) {
                     </div>
                 </div>
             </div>
+
+            <Modal show={photoModal} onClose={() => setPhotoModal(false)} maxWidth="2xl">
+                <div className="relative bg-black rounded-xl overflow-hidden">
+                    <button 
+                        onClick={() => setPhotoModal(false)}
+                        className="absolute top-4 right-4 p-2 bg-black/50 text-white hover:bg-black/80 rounded-full transition-colors z-10"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                    {selectedPhoto && (
+                        <div className="flex justify-center items-center min-h-[300px] max-h-[85vh] overflow-hidden p-2">
+                            <img src={selectedPhoto} alt="Bukti Laporan" className="max-w-full max-h-[80vh] object-contain rounded-lg" />
+                        </div>
+                    )}
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
