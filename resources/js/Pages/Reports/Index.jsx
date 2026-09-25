@@ -711,7 +711,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <Activity className="w-6 h-6 text-pink-600" />
                                         </div>
                                     </div>
-                                    <p className="text-xs text-gray-400">Persentase capaian dari target</p>
+                                    <p className="text-xs text-gray-400">capaian bulan ini</p>
                                 </div>
                             </>
                         )}
