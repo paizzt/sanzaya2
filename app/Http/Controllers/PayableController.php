@@ -133,6 +133,8 @@ class PayableController extends Controller
         list($items, $filteredYears) = $this->getFilteredData($request);
         $revenuePerPt = [];
         $revenuePerYear = [];
+        $totalAll = 0;
+        $uniqueProviders = [];
 
         if ($items->isEmpty()) {
             $headings = [];
@@ -142,7 +144,7 @@ class PayableController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($filteredYears, &$revenuePerPt, &$revenuePerYear) {
+            $rows = $items->map(function($item, $key) use ($filteredYears, &$revenuePerPt, &$revenuePerYear, &$totalAll, &$uniqueProviders) {
                 $row = [$key + 1];
                 $row[] = $item->provider ? $item->provider->name : '-';
                 $ptName = $item->company ? $item->company->name : '-';
@@ -167,18 +169,35 @@ class PayableController extends Controller
                 
                 if (!isset($revenuePerPt[$ptName])) $revenuePerPt[$ptName] = 0;
                 $revenuePerPt[$ptName] += $itemTotal;
+                $totalAll += $itemTotal;
+                
+                $providerName = $item->provider ? $item->provider->name : '';
+                if (!empty($providerName)) {
+                    $uniqueProviders[$providerName] = true;
+                }
 
                 $row[] = 'Rp ' . number_format($itemTotal, 0, ',', '.');
                 return $row;
             });
         }
         
+        $summaryCards = [
+            'total_title' => 'Total Semua Hutang',
+            'total_amount' => $totalAll,
+            'year_title' => 'Hutang Berdasarkan Tahun',
+            'year_data' => $revenuePerYear,
+            'pt_title' => 'Hutang Berdasarkan PT',
+            'pt_data' => $revenuePerPt,
+            'count_title' => 'Total Penyedia yang Punya Hutang',
+            'count_value' => count($uniqueProviders),
+            'count_label' => 'Penyedia'
+        ];
+        
         $pdf = Pdf::loadView('pdf.generic_table', [
             'title' => 'Data Hutang', 
             'headings' => $headings, 
             'rows' => $rows,
-            'revenuePerPt' => $revenuePerPt,
-            'revenuePerYear' => $revenuePerYear
+            'summaryCards' => $summaryCards
         ])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         
         return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Data Hutang') . '.pdf') : $pdf->download(str_replace(' ', '_', 'Data Hutang') . '.pdf');

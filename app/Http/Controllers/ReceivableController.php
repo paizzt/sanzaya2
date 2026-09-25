@@ -134,6 +134,8 @@ class ReceivableController extends Controller
         list($items, $filteredYears) = $this->getFilteredData($request);
         $revenuePerPt = [];
         $revenuePerYear = [];
+        $totalAll = 0;
+        $uniqueOutlets = [];
 
         if ($items->isEmpty()) {
             $headings = [];
@@ -143,7 +145,7 @@ class ReceivableController extends Controller
             $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
             array_unshift($headings, 'No');
 
-            $rows = $items->map(function($item, $key) use ($filteredYears, &$revenuePerPt, &$revenuePerYear) {
+            $rows = $items->map(function($item, $key) use ($filteredYears, &$revenuePerPt, &$revenuePerYear, &$totalAll, &$uniqueOutlets) {
                 $row = [$key + 1];
                 $row[] = $item->outlet ? $item->outlet->name : '-';
                 $ptName = $item->company ? $item->company->name : '-';
@@ -168,18 +170,35 @@ class ReceivableController extends Controller
                 
                 if (!isset($revenuePerPt[$ptName])) $revenuePerPt[$ptName] = 0;
                 $revenuePerPt[$ptName] += $itemTotal;
+                $totalAll += $itemTotal;
+                
+                $outletName = $item->outlet ? $item->outlet->name : '';
+                if (!empty($outletName)) {
+                    $uniqueOutlets[$outletName] = true;
+                }
 
                 $row[] = 'Rp ' . number_format($itemTotal, 0, ',', '.');
                 return $row;
             });
         }
         
+        $summaryCards = [
+            'total_title' => 'Total Semua Piutang',
+            'total_amount' => $totalAll,
+            'year_title' => 'Piutang Berdasarkan Tahun',
+            'year_data' => $revenuePerYear,
+            'pt_title' => 'Piutang Berdasarkan PT',
+            'pt_data' => $revenuePerPt,
+            'count_title' => 'Total Outlet yang Punya Piutang',
+            'count_value' => count($uniqueOutlets),
+            'count_label' => 'Outlet'
+        ];
+        
         $pdf = Pdf::loadView('pdf.generic_table', [
             'title' => 'Data Piutang', 
             'headings' => $headings, 
             'rows' => $rows,
-            'revenuePerPt' => $revenuePerPt,
-            'revenuePerYear' => $revenuePerYear
+            'summaryCards' => $summaryCards
         ])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         
         return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Data Piutang') . '.pdf') : $pdf->download(str_replace(' ', '_', 'Data Piutang') . '.pdf');
