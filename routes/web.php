@@ -359,3 +359,28 @@ Route::get('/run-migrations', function () {
     }
 });
 
+// Route untuk memperbaiki kolom yang hilang di database (jika migrasi terlewat)
+Route::get('/fix-db-columns', function () {
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('sync_logistik_data')) {
+            \Illuminate\Support\Facades\Schema::table('sync_logistik_data', function (\Illuminate\Database\Schema\Blueprint $table) {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'pelanggan')) {
+                    $table->string('pelanggan')->nullable();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'nama_pt')) {
+                    $table->string('nama_pt')->nullable();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'jenis_pelanggan')) {
+                    $table->string('jenis_pelanggan')->nullable();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'no_faktur')) {
+                    $table->string('no_faktur')->nullable();
+                }
+            });
+        }
+        return "Pengecekan dan perbaikan kolom database selesai.";
+    } catch (\Exception $e) {
+        return "Terjadi kesalahan: " . $e->getMessage();
+    }
+});
+
