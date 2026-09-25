@@ -88,6 +88,14 @@ class WbsReportController extends Controller
         ]);
 
         $report = WbsReport::findOrFail($id);
+
+        // Fallback: Ensure status column exists if migration wasn't run
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'status')) {
+            \Illuminate\Support\Facades\Schema::table('wbs_reports', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->string('status')->default('belum proses')->after('file_path');
+            });
+        }
+
         $report->update([
             'status' => $request->status
         ]);
