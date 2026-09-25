@@ -13,6 +13,10 @@ class WbsReportController extends Controller
 {
     public function index()
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages')) {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        }
+
         $reports = WbsReport::with(['messages' => function ($query) {
             $query->orderBy('created_at', 'asc');
         }])->orderBy('created_at', 'desc')->paginate(20);
@@ -140,6 +144,10 @@ class WbsReportController extends Controller
 
     public function myReports(Request $request)
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages')) {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        }
+
         $userId = $request->user()->id;
         $reports = WbsReport::with(['messages' => function ($query) {
             $query->orderBy('created_at', 'asc');
