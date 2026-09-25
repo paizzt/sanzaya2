@@ -58,6 +58,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
         { key: 'Riwayat Perubahan', label: 'Riwayat Perubahan' },
         { key: 'Notifikasi', label: 'Notifikasi' },
         { key: 'Profil & Akun', label: 'Profil & Akun' },
+        { key: 'Laporan WBS', label: 'Laporan WBS' },
     ];
 
     return (
