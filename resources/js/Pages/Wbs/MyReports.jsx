@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Modal from '@/Components/Modal';
 import Swal from 'sweetalert2';
@@ -55,14 +55,23 @@ export default function MyReports({ reports }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
-                        <div className="p-6 border-b border-gray-100 flex items-center gap-3">
-                            <div className="p-3 bg-sky-100 text-sky-600 rounded-xl">
-                                <MessageSquare className="w-6 h-6" />
+                        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-sky-100 text-sky-600 rounded-xl">
+                                    <MessageSquare className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Riwayat Laporan Saya</h3>
+                                    <p className="text-sm text-gray-500">Pantau status laporan dan balas pesan dari tim pengelola WBS.</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900">Riwayat Laporan Saya</h3>
-                                <p className="text-sm text-gray-500">Pantau status laporan dan balas pesan dari tim pengelola WBS.</p>
-                            </div>
+                            <Link
+                                href={route('wbs.create')}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold shadow-lg shadow-blue-500/30 text-sm"
+                            >
+                                <MessageSquare className="w-4 h-4" />
+                                Buat Laporan Baru
+                            </Link>
                         </div>
 
                         <div className="overflow-x-auto">
