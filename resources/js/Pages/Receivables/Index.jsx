@@ -1,5 +1,5 @@
 import ExportDropdown from '@/Components/ExportDropdown';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { Wallet, Plus, Edit, Trash2, ClipboardList } from 'lucide-react';
@@ -55,17 +55,10 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
         return getFilteredDetails(details).reduce((sum, d) => sum + Number(d.amount || 0), 0);
     };
 
-    
-    let summaryByYear = {};
-    let summaryByPT = {};
-    let totalOutlets = 0;
-    let totalPiutangKeseluruhan = 0;
-    let yearEntries = [];
-    let ptEntries = [];
-
-    try {
-        if (Array.isArray(items)) {
-            summaryByYear = items.reduce((acc, item) => {
+    const { yearEntries, ptEntries, totalOutlets, totalPiutangKeseluruhan } = useMemo(() => {
+        const safeItemsArr = Array.isArray(items) ? items : [];
+        try {
+            const summaryByYear = safeItemsArr.reduce((acc, item) => {
                 const filteredDetails = getFilteredDetails(item.details);
                 if (Array.isArray(filteredDetails)) {
                     filteredDetails.forEach(d => {
@@ -77,7 +70,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                 return acc;
             }, {});
 
-            summaryByPT = items.reduce((acc, item) => {
+            const summaryByPT = safeItemsArr.reduce((acc, item) => {
                 const companyName = item.company && item.company.name ? item.company.name : '-';
                 if (companyName) {
                     acc[companyName] = (acc[companyName] || 0) + getFilteredTotal(item.details);
@@ -85,18 +78,21 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                 return acc;
             }, {});
 
-            totalOutlets = new Set(items.map(item => item.outlet && item.outlet.name ? item.outlet.name : '').filter(Boolean)).size;
-            totalPiutangKeseluruhan = items.reduce((sum, item) => sum + getFilteredTotal(item.details), 0);
+            const safeSummaryByYear = (summaryByYear && typeof summaryByYear === 'object') ? summaryByYear : {};
+            const safeSummaryByPT = (summaryByPT && typeof summaryByPT === 'object') ? summaryByPT : {};
+
+            return {
+                yearEntries: Object.entries(safeSummaryByYear).sort(([a], [b]) => Number(b) - Number(a)),
+                ptEntries: Object.entries(safeSummaryByPT),
+                totalOutlets: new Set(safeItemsArr.map(item => item.outlet && item.outlet.name ? item.outlet.name : '').filter(Boolean)).size,
+                totalPiutangKeseluruhan: safeItemsArr.reduce((sum, item) => sum + getFilteredTotal(item.details), 0),
+            };
+        } catch (e) {
+            console.error('Summary computation error:', e);
+            return { yearEntries: [], ptEntries: [], totalOutlets: 0, totalPiutangKeseluruhan: 0 };
         }
-
-        const safeSummaryByYear = summaryByYear && typeof summaryByYear === 'object' ? summaryByYear : {};
-        const safeSummaryByPT = summaryByPT && typeof summaryByPT === 'object' ? summaryByPT : {};
-
-        yearEntries = Object.entries(safeSummaryByYear).sort(([a], [b]) => Number(b) - Number(a));
-        ptEntries = Object.entries(safeSummaryByPT);
-    } catch (e) {
-        console.error("Error computing summaries:", e);
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [items, filterYear]);
 
 
     const formatRupiah = (number) => {

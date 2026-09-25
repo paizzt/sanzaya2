@@ -1,5 +1,5 @@
 import ExportDropdown from '@/Components/ExportDropdown';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { Wallet, Plus, Edit, Trash2, ClipboardList } from 'lucide-react';
@@ -63,35 +63,43 @@ export default function Index({ auth, items = [], providers, companies, filters,
         return getFilteredDetails(details).reduce((sum, d) => sum + Number(d.amount || 0), 0);
     };
 
-    const safeItems = Array.isArray(items) ? items : [];
+    const safeItems = useMemo(() => Array.isArray(items) ? items : [], [items]);
 
-    const summaryByYear = safeItems.reduce((acc, item) => {
-        const filteredDetails = getFilteredDetails(item.details);
-        filteredDetails.forEach(d => {
-            if (d && d.year && d.year !== 'Total') {
-                acc[d.year] = (acc[d.year] || 0) + Number(d.amount || 0);
-            }
-        });
-        return acc;
-    }, {});
+    const { yearEntries, ptEntries, totalPenyedias, totalHutangKeseluruhan } = useMemo(() => {
+        try {
+            const summaryByYear = safeItems.reduce((acc, item) => {
+                const filteredDetails = getFilteredDetails(item.details);
+                filteredDetails.forEach(d => {
+                    if (d && d.year && d.year !== 'Total') {
+                        acc[d.year] = (acc[d.year] || 0) + Number(d.amount || 0);
+                    }
+                });
+                return acc;
+            }, {});
 
-    const summaryByPT = safeItems.reduce((acc, item) => {
-        const companyName = item.company ? item.company.name : '-';
-        if (companyName) {
-            acc[companyName] = (acc[companyName] || 0) + getFilteredTotal(item.details);
+            const summaryByPT = safeItems.reduce((acc, item) => {
+                const companyName = item.company ? item.company.name : '-';
+                if (companyName) {
+                    acc[companyName] = (acc[companyName] || 0) + getFilteredTotal(item.details);
+                }
+                return acc;
+            }, {});
+
+            const safeSummaryByYear = (summaryByYear && typeof summaryByYear === 'object') ? summaryByYear : {};
+            const safeSummaryByPT = (summaryByPT && typeof summaryByPT === 'object') ? summaryByPT : {};
+
+            return {
+                yearEntries: Object.entries(safeSummaryByYear).sort(([a], [b]) => Number(b) - Number(a)),
+                ptEntries: Object.entries(safeSummaryByPT),
+                totalPenyedias: new Set(safeItems.map(item => item.provider ? item.provider.name : '').filter(Boolean)).size,
+                totalHutangKeseluruhan: safeItems.reduce((sum, item) => sum + getFilteredTotal(item.details), 0),
+            };
+        } catch (e) {
+            console.error('Summary computation error:', e);
+            return { yearEntries: [], ptEntries: [], totalPenyedias: 0, totalHutangKeseluruhan: 0 };
         }
-        return acc;
-    }, {});
-
-    const totalPenyedias = new Set(safeItems.map(item => item.provider ? item.provider.name : '').filter(Boolean)).size;
-
-    const safeSummaryByYear = summaryByYear && typeof summaryByYear === 'object' ? summaryByYear : {};
-    const safeSummaryByPT = summaryByPT && typeof summaryByPT === 'object' ? summaryByPT : {};
-
-    const totalHutangKeseluruhan = safeItems.reduce((sum, item) => sum + getFilteredTotal(item.details), 0);
-
-    const yearEntries = Object.entries(safeSummaryByYear).sort(([a], [b]) => Number(b) - Number(a));
-    const ptEntries = Object.entries(safeSummaryByPT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [safeItems, filterYear]);
 
     const formatRupiah = (number) => {
         return new Intl.NumberFormat('id-ID').format(number);
