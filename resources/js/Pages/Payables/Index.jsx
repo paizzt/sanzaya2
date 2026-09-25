@@ -63,17 +63,19 @@ export default function Index({ auth, items, providers, companies, filters, dail
         return getFilteredDetails(details).reduce((sum, d) => sum + Number(d.amount || 0), 0);
     };
 
-    const summaryByYear = items.reduce((acc, item) => {
+    const safeItems = Array.isArray(items) ? items : [];
+
+    const summaryByYear = safeItems.reduce((acc, item) => {
         const filteredDetails = getFilteredDetails(item.details);
         filteredDetails.forEach(d => {
-            if (d.year && d.year !== 'Total') {
+            if (d && d.year && d.year !== 'Total') {
                 acc[d.year] = (acc[d.year] || 0) + Number(d.amount || 0);
             }
         });
         return acc;
     }, {});
 
-    const summaryByPT = items.reduce((acc, item) => {
+    const summaryByPT = safeItems.reduce((acc, item) => {
         const companyName = item.company ? item.company.name : '-';
         if (companyName) {
             acc[companyName] = (acc[companyName] || 0) + getFilteredTotal(item.details);
@@ -81,12 +83,15 @@ export default function Index({ auth, items, providers, companies, filters, dail
         return acc;
     }, {});
 
-    const totalPenyedias = new Set(items.map(item => item.provider ? item.provider.name : '').filter(Boolean)).size;
+    const totalPenyedias = new Set(safeItems.map(item => item.provider ? item.provider.name : '').filter(Boolean)).size;
 
     const safeSummaryByYear = summaryByYear && typeof summaryByYear === 'object' ? summaryByYear : {};
     const safeSummaryByPT = summaryByPT && typeof summaryByPT === 'object' ? summaryByPT : {};
 
-    const totalHutangKeseluruhan = items.reduce((sum, item) => sum + getFilteredTotal(item.details), 0);
+    const totalHutangKeseluruhan = safeItems.reduce((sum, item) => sum + getFilteredTotal(item.details), 0);
+
+    const yearEntries = Object.entries(safeSummaryByYear).sort(([a], [b]) => Number(b) - Number(a));
+    const ptEntries = Object.entries(safeSummaryByPT);
 
     const formatRupiah = (number) => {
         return new Intl.NumberFormat('id-ID').format(number);
@@ -269,13 +274,13 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                 <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl shadow-sm">
                                     <h4 className="text-sm font-semibold text-indigo-800 mb-2">Hutang Berdasarkan PT</h4>
                                     <div className="space-y-1">
-                                        {Object.entries(summaryByPT || {}).map(([pt, amount]) => (
+                                        {ptEntries.map(([pt, amount]) => (
                                             <div key={pt} className="flex justify-between items-start text-sm gap-2 mt-1">
                                                 <span className="text-indigo-700 leading-tight">{pt}</span>
                                                 <span className="font-bold text-indigo-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
                                             </div>
                                         ))}
-                                        {Object.keys(summaryByPT || {}).length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
+                                        {ptEntries.length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
                                     </div>
                                 </div>
 
@@ -352,7 +357,7 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {(() => {
-                                            let processedItems = [...items];
+                                            let processedItems = [...safeItems];
                                             if (filterSort === 'terbesar') {
                                                 processedItems.sort((a, b) => getFilteredTotal(b.details) - getFilteredTotal(a.details));
                                             } else if (filterSort === 'terkecil') {
@@ -400,10 +405,10 @@ export default function Index({ auth, items, providers, companies, filters, dail
                                 </table>
                             </div>
                             
-                            {items.length > 0 && (
+                            {safeItems.length > 0 && (
                                 <div className="mt-4 border-t">
                                     <ClientPagination 
-                                        total={items.length} 
+                                        total={safeItems.length} 
                                         itemsPerPage={itemsPerPage} 
                                         currentPage={currentPage} 
                                         onPageChange={setCurrentPage} 

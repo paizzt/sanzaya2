@@ -384,7 +384,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {(() => {
-                                            let processedItems = [...items];
+                                            let processedItems = Array.isArray(items) ? [...items] : [];
                                             if (filterSort === 'terbesar') {
                                                 processedItems.sort((a, b) => getFilteredTotal(b.details) - getFilteredTotal(a.details));
                                             } else if (filterSort === 'terkecil') {
@@ -432,7 +432,7 @@ export default function Index({ auth, items, outlets, companies, filters, dailyR
                                 </table>
                             </div>
                             
-                            {items.length > 0 && (
+                            {Array.isArray(items) && items.length > 0 && (
                                 <div className="mt-4 border-t">
                                     <ClientPagination 
                                         total={items.length} 
