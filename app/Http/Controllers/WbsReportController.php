@@ -13,7 +13,7 @@ class WbsReportController extends Controller
 {
     public function index()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages')) {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages') || !\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'user_id')) {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         }
 
@@ -144,7 +144,7 @@ class WbsReportController extends Controller
 
     public function myReports(Request $request)
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages')) {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages') || !\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'user_id')) {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         }
 
