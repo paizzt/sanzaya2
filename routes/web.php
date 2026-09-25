@@ -314,7 +314,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('system.activity-logs');
         Route::post('/activity-logs/{id}/restore', [\App\Http\Controllers\ActivityLogController::class, 'restore'])->name('system.activity-logs.restore');
     });
+    
+    // WBS Internal
+    Route::get('/wbs-reports', [\App\Http\Controllers\WbsReportController::class, 'index'])->name('wbs-reports.index');
+    Route::get('/wbs-reports/{id}/download', [\App\Http\Controllers\WbsReportController::class, 'download'])->name('wbs-reports.download');
 });
+
+// WBS Public Route
+Route::post('/wbs-reports', [\App\Http\Controllers\WbsReportController::class, 'store'])->name('wbs-reports.store');
 
 require __DIR__.'/auth.php';
 

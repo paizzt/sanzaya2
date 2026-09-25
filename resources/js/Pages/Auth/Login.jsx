@@ -5,17 +5,25 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import Modal from '@/Components/Modal';
 import { Head, Link, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, MessageSquareWarning } from 'lucide-react';
 
 export default function Login({ status, canResetPassword }) {
     const [showPassword, setShowPassword] = useState(false);
+    const [wbsModal, setWbsModal] = useState(false);
+    
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
         remember: false,
+    });
+
+    const { data: wbsData, setData: setWbsData, post: postWbs, processing: wbsProcessing, errors: wbsErrors, reset: wbsReset } = useForm({
+        description: '',
+        file: null,
     });
 
     useEffect(() => {
@@ -36,6 +44,22 @@ export default function Login({ status, canResetPassword }) {
         e.preventDefault();
         post(route('login'), {
             onFinish: () => reset('password'),
+        });
+    };
+
+    const submitWbs = (e) => {
+        e.preventDefault();
+        postWbs(route('wbs-reports.store'), {
+            onSuccess: () => {
+                setWbsModal(false);
+                wbsReset();
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Laporan WBS Anda telah dikirim dan akan kami rahasiakan.',
+                    icon: 'success',
+                    confirmButtonColor: '#10b981'
+                });
+            }
         });
     };
 
@@ -141,6 +165,80 @@ export default function Login({ status, canResetPassword }) {
                     </button>
                 </div>
             </form>
+            
+            {/* WBS Floating Button */}
+            <button 
+                onClick={() => setWbsModal(true)}
+                className="fixed bottom-6 right-6 w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(220,38,38,0.6)] hover:bg-red-700 hover:scale-105 transition-all z-50 focus:outline-none group"
+                title="Whistleblowing System (Lapor WBS)"
+            >
+                <MessageSquareWarning className="w-6 h-6 group-hover:animate-bounce" />
+            </button>
+
+            {/* WBS Modal */}
+            <Modal show={wbsModal} onClose={() => setWbsModal(false)} maxWidth="lg">
+                <div className="p-6">
+                    <div className="flex items-center justify-between mb-5 border-b pb-4">
+                        <div className="flex items-center gap-3 text-red-600">
+                            <div className="p-2 bg-red-100 rounded-lg">
+                                <MessageSquareWarning className="w-6 h-6" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-800">Lapor WBS</h2>
+                        </div>
+                        <button onClick={() => setWbsModal(false)} className="text-gray-400 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mb-6 bg-red-50 p-3 rounded-lg border border-red-100">
+                        Whistleblowing System (WBS) adalah fasilitas untuk melaporkan dugaan pelanggaran. Identitas Anda akan kami rahasiakan.
+                    </p>
+
+                    <form onSubmit={submitWbs} className="space-y-4">
+                        <div>
+                            <InputLabel htmlFor="description" value="Isi Laporan / Keterangan" className="font-bold text-gray-700 mb-2" />
+                            <textarea
+                                id="description"
+                                className="w-full rounded-xl border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition-colors shadow-sm text-sm p-3"
+                                rows="5"
+                                placeholder="Jelaskan detail laporan Anda secara rinci..."
+                                value={wbsData.description}
+                                onChange={e => setWbsData('description', e.target.value)}
+                                required
+                            ></textarea>
+                            <InputError message={wbsErrors.description} className="mt-2" />
+                        </div>
+                        <div>
+                            <InputLabel htmlFor="file" value="Upload Bukti Pendukung (Opsional)" className="font-bold text-gray-700 mb-2" />
+                            <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-4 hover:border-red-400 transition-colors bg-gray-50 text-center">
+                                <input
+                                    type="file"
+                                    id="file"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onChange={e => setWbsData('file', e.target.files[0])}
+                                />
+                                <div className="pointer-events-none">
+                                    <div className="text-gray-500 text-sm">
+                                        {wbsData.file ? (
+                                            <span className="font-semibold text-red-600">{wbsData.file.name}</span>
+                                        ) : (
+                                            <span>Klik atau drop file di sini (Semua format didukung, maks 10MB)</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <InputError message={wbsErrors.file} className="mt-2" />
+                        </div>
+                        <div className="pt-4 flex justify-end gap-3 border-t">
+                            <button type="button" onClick={() => setWbsModal(false)} className="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-xl transition-colors">Batal</button>
+                            <button type="submit" disabled={wbsProcessing} className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors shadow-[0_4px_12px_rgba(220,38,38,0.3)] disabled:opacity-70 flex items-center gap-2">
+                                {wbsProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                Kirim Laporan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
         </GuestLayout>
     );
 }

@@ -266,8 +266,9 @@ export default function Authenticated({ user, header, children }) {
         },
         {
             name: 'Sistem', icon: Settings,
-            active: url.startsWith('/activity-logs') || url.startsWith('/settings') || url.startsWith('/profile'),
+            active: url.startsWith('/activity-logs') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/wbs-reports'),
             children: [
+                { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url.startsWith('/wbs-reports'), show: true },
                 { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.active_feature_names?.includes('Riwayat Perubahan') },
                 { name: 'Notifikasi', href: route('notifications.index'), active: url.startsWith('/settings/notifications'), show: auth.active_feature_names?.includes('Notifikasi') },
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_feature_names?.includes('Profil & Akun') },
