@@ -55,8 +55,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             if (result.isConfirmed) {
                 router.put(route('absensi.pengajuan.status', realId), { status }, {
                     preserveScroll: true,
-                    onSuccess: () => Swal.fire('Berhasil!', 'Status berhasil diperbarui.', 'success'),
-                    onError: () => Swal.fire('Gagal!', 'Terjadi kesalahan.', 'error')
+                    onSuccess: () => { Swal.fire('Berhasil!', 'Status berhasil diperbarui.', 'success'); },
+                    onError: () => { Swal.fire('Gagal!', 'Terjadi kesalahan.', 'error'); }
                 });
             }
         });
@@ -86,8 +86,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             if (result.isConfirmed) {
                 router.delete(route(routeName, realId), {
                     preserveScroll: true,
-                    onSuccess: () => Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success'),
-                    onError: () => Swal.fire('Gagal!', 'Terjadi kesalahan atau Anda tidak memiliki akses.', 'error')
+                    onSuccess: () => { Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success'); },
+                    onError: () => { Swal.fire('Gagal!', 'Terjadi kesalahan atau Anda tidak memiliki akses.', 'error'); }
                 });
             }
         });
@@ -126,8 +126,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             if (result.isConfirmed) {
                 router.put(route('absensi.update', item.id), result.value, {
                     preserveScroll: true,
-                    onSuccess: () => Swal.fire('Tersimpan!', 'Data absensi berhasil diperbarui.', 'success'),
-                    onError: () => Swal.fire('Error!', 'Gagal memperbarui data. Pastikan format jam benar (HH:MM:SS).', 'error')
+                    onSuccess: () => { Swal.fire('Tersimpan!', 'Data absensi berhasil diperbarui.', 'success'); },
+                    onError: () => { Swal.fire('Error!', 'Gagal memperbarui data. Pastikan format jam benar (HH:MM:SS).', 'error'); }
                 });
             }
         });

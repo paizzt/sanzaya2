@@ -121,7 +121,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
         }).then((result) => {
             if (result.isConfirmed) {
                 router.delete(route('item-requirements.destroy', id), {
-                    onSuccess: () => Swal.fire({ icon: 'success', title: 'Terhapus', text: 'Data berhasil dihapus', timer: 1500 })
+                    onSuccess: () => { Swal.fire({ icon: 'success', title: 'Terhapus', text: 'Data berhasil dihapus', timer: 1500 }); }
                 });
             }
         });
