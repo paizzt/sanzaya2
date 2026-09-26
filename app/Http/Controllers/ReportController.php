@@ -800,6 +800,7 @@ class ReportController extends Controller
         $ptFilter = $request->query('pt_filter', '');
         $keteranganFilter = $request->query('keterangan_filter', '');
         $search = $request->query('search', '');
+        $monthFilter = $request->query('month_filter', '');
 
         $outletNamesToSearch = [];
         if ($outletFilter) {
@@ -817,9 +818,20 @@ class ReportController extends Controller
             '9' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
         ];
 
+        if ($monthFilter) {
+            $monthNum = array_search($monthFilter, $monthsNameMap);
+            if ($monthNum !== false) {
+                if (!in_array((string)$monthNum, $selectedMonths)) {
+                    $selectedMonths[] = (string)$monthNum;
+                }
+            }
+        }
+
         if (!empty($selectedMonths)) {
             $currentYear = \Carbon\Carbon::now()->year;
-            $title = "Laporan Rekapitulasi (Bulan Pilihan Tahun $currentYear)";
+            $monthNames = array_map(function($m) use ($monthsNameMap) { return $monthsNameMap[$m] ?? ''; }, $selectedMonths);
+            $monthNamesStr = implode(', ', $monthNames);
+            $title = "Laporan Rekapitulasi ($monthNamesStr $currentYear)";
             
             $logistikQuery = SyncLogistikData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
                 foreach($selectedMonths as $m) {
@@ -932,6 +944,7 @@ class ReportController extends Controller
         if ($search) {
             $logistikQuery->where(function($q) use ($search) {
                 $q->where('pelanggan', 'like', "%{$search}%")
+                  ->orWhere('nama_sales', 'like', "%{$search}%")
                   ->orWhere('nama_produk', 'like', "%{$search}%");
             });
         }
