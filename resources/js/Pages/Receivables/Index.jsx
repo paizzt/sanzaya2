@@ -114,7 +114,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
         company_id: '',
-        outlet_id: '',
+        outlet_name: '',
         details: [{ year: new Date().getFullYear().toString(), amount: '' }]
     });
 
@@ -124,7 +124,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
             setData({
                 id: item.id,
                 company_id: item.company_id || '',
-                outlet_id: item.outlet_id || '',
+                outlet_name: item.outlet ? item.outlet.name : '',
                 details: item.details && item.details.length > 0 ? item.details : [{ year: new Date().getFullYear().toString(), amount: '' }]
             });
         } else {
@@ -192,7 +192,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
     const dailyForm = useForm({
         billing_date: new Date().toISOString().split('T')[0],
         user_id: auth.user.id.toString(),
-        outlet_id: '',
+        outlet_name: '',
         result: ''
     });
 
@@ -482,13 +482,13 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                                     <div>
                                         <InputLabel value="Nama Outlet" />
                                         <div className="mt-1">
-                                            <SearchableSelect 
-                                                options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
-                                                value={dailyForm.data.outlet_id}
-                                                onChange={val => dailyForm.setData('outlet_id', val)}
-                                                />
+                                            <TextInput 
+                                                className="w-full"
+                                                value={dailyForm.data.outlet_name}
+                                                onChange={e => dailyForm.setData('outlet_name', e.target.value)}
+                                            />
                                         </div>
-                                        <InputError message={dailyForm.errors.outlet_id} className="mt-2" />
+                                        <InputError message={dailyForm.errors.outlet_name} className="mt-2" />
                                     </div>
                                     <div>
                                         <InputLabel value="Hasil" />
@@ -573,13 +573,14 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                         </div>
 
                         <div className="md:col-span-2">
-                            <InputLabel htmlFor="outlet_id" value="Nama Outlet" />
-                            <SearchableSelect
-                                options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
-                                value={data.outlet_id ? data.outlet_id.toString() : ''}
-                                onChange={val => setData('outlet_id', val)}
-                                />
-                            <InputError message={errors.outlet_id} className="mt-2" />
+                            <InputLabel htmlFor="outlet_name" value="Nama Outlet" />
+                            <TextInput 
+                                id="outlet_name"
+                                className="mt-1 block w-full"
+                                value={data.outlet_name}
+                                onChange={e => setData('outlet_name', e.target.value)}
+                            />
+                            <InputError message={errors.outlet_name} className="mt-2" />
                         </div>
 
                         <div className="md:col-span-2 mt-4">

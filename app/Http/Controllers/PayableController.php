@@ -62,7 +62,7 @@ class PayableController extends Controller
     {
         $validated = $request->validate([
             'company_id' => 'nullable|exists:companies,id',
-            'provider_id' => 'nullable|exists:providers,id',
+            'provider_name' => 'nullable|string|max:255',
             'details' => 'nullable|array',
             'details.*.year' => 'nullable|string',
             'details.*.amount' => 'nullable|numeric'
@@ -78,9 +78,15 @@ class PayableController extends Controller
             }
         }
         
+        $provider_id = null;
+        if (!empty($validated['provider_name'])) {
+            $provider = \App\Models\Provider::firstOrCreate(['name' => $validated['provider_name']]);
+            $provider_id = $provider->id;
+        }
+
         $dataToSave = [
             'company_id' => $validated['company_id'] ?? null,
-            'provider_id' => $validated['provider_id'] ?? null,
+            'provider_id' => $provider_id,
             'details' => $validated['details'] ?? [],
             'total' => $total,
         ];

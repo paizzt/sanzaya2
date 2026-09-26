@@ -64,7 +64,7 @@ class ReceivableController extends Controller
     {
         $validated = $request->validate([
             'company_id' => 'nullable|exists:companies,id',
-            'outlet_id' => 'nullable|exists:outlets,id',
+            'outlet_name' => 'nullable|string|max:255',
             'details' => 'nullable|array',
             'details.*.year' => 'nullable|string',
             'details.*.amount' => 'nullable|numeric'
@@ -80,9 +80,15 @@ class ReceivableController extends Controller
             }
         }
         
+        $outlet_id = null;
+        if (!empty($validated['outlet_name'])) {
+            $outlet = \App\Models\Outlet::firstOrCreate(['name' => $validated['outlet_name']]);
+            $outlet_id = $outlet->id;
+        }
+
         $dataToSave = [
             'company_id' => $validated['company_id'] ?? null,
-            'outlet_id' => $validated['outlet_id'] ?? null,
+            'outlet_id' => $outlet_id,
             'details' => $validated['details'] ?? [],
             'total' => $total,
         ];
@@ -276,11 +282,18 @@ class ReceivableController extends Controller
         $validated = $request->validate([
             'billing_date' => 'required|date',
             'user_id' => 'required|exists:users,id',
-            'outlet_id' => 'required|exists:outlets,id',
+            'outlet_name' => 'required|string|max:255',
             'result' => 'required|string',
         ]);
 
-        \App\Models\ReceivableDailyReport::create($validated);
+        $outlet = \App\Models\Outlet::firstOrCreate(['name' => $validated['outlet_name']]);
+        
+        \App\Models\ReceivableDailyReport::create([
+            'billing_date' => $validated['billing_date'],
+            'user_id' => $validated['user_id'],
+            'outlet_id' => $outlet->id,
+            'result' => $validated['result'],
+        ]);
 
         return redirect()->back()->with('success', 'Laporan harian penagihan berhasil disimpan.');
     }

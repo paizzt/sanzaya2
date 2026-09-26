@@ -120,7 +120,7 @@ export default function Index({ auth, items = [], providers, companies, filters,
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
         company_id: '',
-        provider_id: '',
+        provider_name: '',
         details: [{ year: new Date().getFullYear().toString(), amount: '' }]
     });
 
@@ -130,7 +130,7 @@ export default function Index({ auth, items = [], providers, companies, filters,
             setData({
                 id: item.id,
                 company_id: item.company_id || '',
-                provider_id: item.provider_id || '',
+                provider_name: item.provider ? item.provider.name : '',
                 details: item.details && item.details.length > 0 ? item.details : [{ year: new Date().getFullYear().toString(), amount: '' }]
             });
         } else {
@@ -458,13 +458,14 @@ export default function Index({ auth, items = [], providers, companies, filters,
                         </div>
 
                         <div className="md:col-span-2">
-                            <InputLabel htmlFor="provider_id" value="Nama Penyedia" />
-                            <SearchableSelect
-                                options={providers ? providers.map(o => ({ value: o.id.toString(), label: o.name })) : []}
-                                value={data.provider_id ? data.provider_id.toString() : ''}
-                                onChange={val => setData('provider_id', val)}
-                                />
-                            <InputError message={errors.provider_id} className="mt-2" />
+                            <InputLabel htmlFor="provider_name" value="Nama Penyedia" />
+                            <TextInput 
+                                id="provider_name"
+                                className="mt-1 block w-full"
+                                value={data.provider_name}
+                                onChange={e => setData('provider_name', e.target.value)}
+                            />
+                            <InputError message={errors.provider_name} className="mt-2" />
                         </div>
 
                         <div className="md:col-span-2 mt-4">
