@@ -103,6 +103,13 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
         return new Intl.NumberFormat('id-ID').format(number);
     };
 
+    const formatInputCurrency = (val) => {
+        if (!val) return '';
+        const parts = val.toString().split('.');
+        let intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return parts.length > 1 ? intPart + ',' + parts[1] : intPart;
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return '-';
         return new Date(dateString).toLocaleDateString('id-ID', {
@@ -613,11 +620,16 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                                             <TextInput
                                                 type="text"
                                                 className="w-full pl-9 font-mono text-right"
-                                                value={detail.amount ? formatRupiah(detail.amount) : ''}
+                                                value={detail.amount !== undefined && detail.amount !== null ? formatInputCurrency(detail.amount) : ''}
                                                 onChange={e => {
-                                                    const rawValue = e.target.value.replace(/\D/g, '');
+                                                    let rawStr = e.target.value.split('.').join('').replace(',', '.').replace(/[^0-9.]/g, '');
+                                                    let parts = rawStr.split('.');
+                                                    if (parts.length > 2) rawStr = parts[0] + '.' + parts.slice(1).join('');
+                                                    parts = rawStr.split('.');
+                                                    if (parts.length > 1) rawStr = parts[0] + '.' + parts[1].substring(0, 2);
+                                                    
                                                     const newDetails = [...data.details];
-                                                    newDetails[index].amount = rawValue;
+                                                    newDetails[index].amount = rawStr;
                                                     setData('details', newDetails);
                                                 }}
                                             />
