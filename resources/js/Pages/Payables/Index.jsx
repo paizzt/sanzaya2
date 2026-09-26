@@ -268,7 +268,7 @@ export default function Index({ auth, items = [], providers, companies, filters,
                             </div>
 
                             {/* Summary Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                                 <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center">
                                     <h4 className="text-sm font-semibold text-amber-800 mb-2">Total Semua Hutang</h4>
                                     <span className="text-xl xl:text-2xl font-extrabold text-amber-600 whitespace-nowrap">Rp {formatRupiah(totalAll || totalHutangKeseluruhan)}</span>
@@ -281,9 +281,9 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                     <h4 className="text-sm font-semibold text-blue-800 mb-2">Hutang Berdasarkan Tahun</h4>
                                     <div className="space-y-1">
                                         {yearEntries.map(([year, amount]) => (
-                                            <div key={year} className="flex justify-between items-start text-sm gap-2">
-                                                <span className="text-blue-700">{year}</span>
-                                                <span className="font-bold text-blue-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
+                                            <div key={year} className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center text-sm gap-1 sm:gap-2 mb-2 pb-2 border-b border-blue-100 last:border-0 last:pb-0">
+                                                <span className="text-blue-700 font-medium">{year}</span>
+                                                <span className="font-bold text-blue-900 whitespace-nowrap sm:text-right">Rp {formatRupiah(amount)}</span>
                                             </div>
                                         ))}
                                         {yearEntries.length === 0 && <div className="text-sm text-blue-600/70">Tidak ada data</div>}
@@ -294,9 +294,9 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                     <h4 className="text-sm font-semibold text-indigo-800 mb-2">Hutang Berdasarkan PT</h4>
                                     <div className="space-y-1">
                                         {ptEntries.map(([pt, amount]) => (
-                                            <div key={pt} className="flex justify-between items-start text-sm gap-2 mt-1">
-                                                <span className="text-indigo-700 leading-tight">{pt}</span>
-                                                <span className="font-bold text-indigo-900 whitespace-nowrap text-right">Rp {formatRupiah(amount)}</span>
+                                            <div key={pt} className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center text-sm gap-1 sm:gap-2 mb-2 pb-2 border-b border-indigo-100 last:border-0 last:pb-0">
+                                                <span className="text-indigo-700 leading-tight font-medium">{pt}</span>
+                                                <span className="font-bold text-indigo-900 whitespace-nowrap sm:text-right">Rp {formatRupiah(amount)}</span>
                                             </div>
                                         ))}
                                         {ptEntries.length === 0 && <div className="text-sm text-indigo-600/70">Tidak ada data</div>}
@@ -310,7 +310,7 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                 </div>
                             </div>
 
-                            <div className="bg-gray-50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end">
+                            <div className="bg-gray-50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-end">
                                 <div>
                                     <InputLabel value="Cari Penyedia" />
                                     <TextInput 
@@ -355,7 +355,7 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                         <option value="terkecil">Terkecil</option>
                                     </select>
                                 </div>
-                                <div className="flex gap-2 w-full lg:col-auto md:col-span-4 justify-start">
+                                <div className="flex gap-2 w-full md:col-span-2 lg:col-span-3 xl:col-span-1 justify-start xl:justify-end mt-2 xl:mt-0">
                                     <PrimaryButton onClick={applyFilter} type="button">Filter</PrimaryButton>
                                     <SecondaryButton onClick={resetFilter} type="button">Reset</SecondaryButton>
                                 </div>
