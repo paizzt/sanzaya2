@@ -118,13 +118,18 @@
         </table>
         <table style="width: 100%; border: none;">
             <tr>
-                @foreach(array_chunk(array_slice($summary['sales_penjualan'], 0, 8, true), 4, true) as $chunk)
+                @php
+                    $sales = $summary['sales_penjualan'];
+                    $salesCount = count($sales);
+                    $chunkSize = max(1, ceil($salesCount / 2));
+                @endphp
+                @foreach(array_chunk($sales, $chunkSize, true) as $chunk)
                 <td style="width: 50%; vertical-align: top; border: none; padding: 0;">
                     <table style="width: 95%;">
                         @foreach($chunk as $nama => $total)
                         <tr>
-                            <th style="background:#f3f4f6; width:50%;">{{ $nama }}</th>
-                            <td class="text-right font-bold">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                            <th style="background:#f3f4f6; width:50%; font-size: 9px;">{{ $nama }}</th>
+                            <td class="text-right font-bold" style="font-size: 9px;">Rp {{ number_format($total, 0, ',', '.') }}</td>
                         </tr>
                         @endforeach
                     </table>

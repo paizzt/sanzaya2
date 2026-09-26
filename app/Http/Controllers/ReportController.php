@@ -270,14 +270,14 @@ class ReportController extends Controller
                 }
                 if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
                 $ptNameForSales = trim($row->nama_pt);
-                $namaSales = trim($row->nama_sales);
+                $namaSales = strtoupper(trim($row->nama_sales));
                 if (!$namaSales) {
                     if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
-                        $namaSales = 'Kantor MSI';
+                        $namaSales = 'KANTOR MSI';
                     } elseif (stripos($ptNameForSales, 'SANZAYA') !== false) {
-                        $namaSales = 'Kantor Sanzaya';
+                        $namaSales = 'KANTOR SANZAYA';
                     } else {
-                        $namaSales = 'Kantor ' . ($ptNameForSales ?: 'Pusat');
+                        $namaSales = 'KANTOR ' . strtoupper($ptNameForSales ?: 'PUSAT');
                     }
                 }
                 $salesBreakdown[$namaSales] = ($salesBreakdown[$namaSales] ?? 0) + $val;
@@ -368,14 +368,14 @@ class ReportController extends Controller
                         $refTotalPenjualan += $val;
                         
                         $ptNameForSales = trim($row->nama_pt);
-                        $namaSales = trim($row->nama_sales);
+                        $namaSales = strtoupper(trim($row->nama_sales));
                         if (!$namaSales) {
                             if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
-                                $namaSales = 'Kantor MSI';
+                                $namaSales = 'KANTOR MSI';
                             } elseif (stripos($ptNameForSales, 'SANZAYA') !== false) {
-                                $namaSales = 'Kantor Sanzaya';
+                                $namaSales = 'KANTOR SANZAYA';
                             } else {
-                                $namaSales = 'Kantor ' . ($ptNameForSales ?: 'Pusat');
+                                $namaSales = 'KANTOR ' . strtoupper($ptNameForSales ?: 'PUSAT');
                             }
                         }
                         $refSalesBreakdown[$namaSales] = ($refSalesBreakdown[$namaSales] ?? 0) + $val;
@@ -948,7 +948,7 @@ class ReportController extends Controller
                   ->orWhere('nama_produk', 'like', "%{$search}%");
             });
         }
-        $logistik = $logistikQuery->take(500)->get();
+        $logistik = $logistikQuery->take(2000)->get();
 
         if ($keteranganFilter) $pesananQuery->where('keterangan', $keteranganFilter);
         if ($outletFilter) {
@@ -971,7 +971,7 @@ class ReportController extends Controller
                   ->orWhere('nama_produk', 'like', "%{$search}%");
             });
         }
-        $pesanan = $pesananQuery->take(500)->get();
+        $pesanan = $pesananQuery->take(2000)->get();
 
         if ($outletFilter) {
             $piutangQuery->where(function($q) use ($outletNamesToSearch) {
@@ -990,12 +990,12 @@ class ReportController extends Controller
         if ($search) {
             $piutangQuery->where('nama_outlet', 'like', "%{$search}%");
         }
-        $piutang = $piutangQuery->take(500)->get();
+        $piutang = $piutangQuery->take(2000)->get();
 
         if ($search) {
             $hutangQuery->where('nama_penyedia', 'like', "%{$search}%");
         }
-        $hutang = $hutangQuery->take(500)->get();
+        $hutang = $hutangQuery->take(2000)->get();
 
         // --- HITUNG RINGKASAN ---
         $totalPenjualan = 0;
@@ -1006,14 +1006,14 @@ class ReportController extends Controller
             $totalPenjualan += $val;
             
             $ptNameForSales = trim($row->nama_pt);
-            $salesName = trim($row->nama_sales);
+            $salesName = strtoupper(trim($row->nama_sales));
             if (!$salesName) {
                 if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
-                    $salesName = 'Kantor MSI';
+                    $salesName = 'KANTOR MSI';
                 } elseif (stripos($ptNameForSales, 'SANZAYA') !== false) {
-                    $salesName = 'Kantor Sanzaya';
+                    $salesName = 'KANTOR SANZAYA';
                 } else {
-                    $salesName = 'Kantor ' . ($ptNameForSales ?: 'Pusat');
+                    $salesName = 'KANTOR ' . strtoupper($ptNameForSales ?: 'PUSAT');
                 }
             }
             $salesPenjualan[$salesName] = ($salesPenjualan[$salesName] ?? 0) + $val;
