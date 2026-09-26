@@ -176,7 +176,7 @@ class ReceivableController extends Controller
                 $totalAll += $itemTotal;
                 
                 $outletName = $item->outlet ? $item->outlet->name : '';
-                if (!empty($outletName)) {
+                if (!empty($outletName) && $itemTotal > 0) {
                     $uniqueOutlets[$outletName] = true;
                 }
 

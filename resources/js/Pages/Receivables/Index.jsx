@@ -88,7 +88,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
             return {
                 yearEntries: Object.entries(safeSummaryByYear).sort(([a], [b]) => Number(b) - Number(a)),
                 ptEntries: Object.entries(safeSummaryByPT),
-                totalOutlets: new Set(safeItemsArr.map(item => item.outlet && item.outlet.name ? item.outlet.name : '').filter(Boolean)).size,
+                totalOutlets: new Set(safeItemsArr.filter(item => getFilteredTotal(item.details) > 0).map(item => item.outlet && item.outlet.name ? item.outlet.name : '').filter(Boolean)).size,
                 totalPiutangKeseluruhan: safeItemsArr.reduce((sum, item) => sum + getFilteredTotal(item.details), 0),
             };
         } catch (e) {
@@ -100,7 +100,10 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
 
 
     const formatRupiah = (number) => {
-        return new Intl.NumberFormat('id-ID').format(number);
+        return new Intl.NumberFormat('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(number);
     };
 
     const formatInputCurrency = (val) => {
@@ -286,7 +289,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                                 <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl shadow-sm flex flex-col justify-center items-center">
                                     <h4 className="text-sm font-semibold text-amber-800 mb-2">Total Semua Piutang</h4>
-                                    <span className="text-xl xl:text-2xl font-extrabold text-amber-600 whitespace-nowrap">Rp {formatRupiah(totalAll || totalPiutangKeseluruhan)}</span>
+                                    <span className="text-xl xl:text-2xl font-extrabold text-amber-600 whitespace-nowrap">Rp {formatRupiah(totalPiutangKeseluruhan)}</span>
                                     <span className="text-xs text-amber-700/70 mt-2 text-center">
                                         Terakhir diupdate pada tanggal {formatDate(lastUpdated)}
                                     </span>
