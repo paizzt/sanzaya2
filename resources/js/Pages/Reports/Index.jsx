@@ -181,7 +181,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
                 {dataSales.length > 0 && (
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 truncate"><PieChart className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
                         <div className="h-72 w-full flex items-center justify-center">
                             <Pie 
                                 data={{
@@ -204,7 +204,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                 {dataBulan.length > 0 && (
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 truncate"><TrendingUp className="w-5 h-5 text-indigo-600"/> Penjualan Per Bulan</h4>
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Penjualan Per Bulan</h4>
                         <div className="h-72 w-full">
                             <Line 
                                 data={{
@@ -227,7 +227,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                 {dataBrand.length > 0 && (
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 truncate"><Package className="w-5 h-5 text-emerald-600"/> Penjualan per Brand</h4>
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Penjualan per Brand</h4>
                         <div className="h-72 w-full flex items-center justify-center">
                             <Pie 
                                 data={{
@@ -310,7 +310,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1">
-                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 truncate"><Package className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Status Pengiriman</h4>
                     <div className="h-64 w-full">
                         <Pie 
                             data={{
@@ -327,7 +327,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </div>
                 </div>
                 <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 col-span-1 lg:col-span-2">
-                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 truncate"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</h4>
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Faktur per Outlet</h4>
                     <div className="h-64 w-full">
                         <Bar 
                             data={{
@@ -382,7 +382,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
         return (
             <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
-                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 truncate"><TrendingUp className="w-5 h-5 text-indigo-600"/> Top 10 Total Piutang Outlet</h4>
+                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Top 10 Total Piutang Outlet</h4>
                 <div className="h-72 w-full">
                     <Bar 
                         data={{
@@ -437,7 +437,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
         return (
             <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-6">
-                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 truncate"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</h4>
+                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-orange-600"/> Top 10 Hutang Penyedia</h4>
                 <div className="h-72 w-full">
                     <Bar 
                         data={{
@@ -658,7 +658,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Penjualan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summary.total_penjualan}>{summary.total_penjualan}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.total_penjualan}>{summary.total_penjualan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total akumulasi dari kolom Total (Rp)</p>
@@ -678,7 +678,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Target Bulanan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Target penjualan bulanan</p>
@@ -688,18 +688,20 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     onClick={() => summary.capaian_detail && Object.keys(summary.capaian_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Target', type: 'capaian', data: summary.capaian_detail })} 
                                     className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-pink-100 ${summary.capaian_detail && Object.keys(summary.capaian_detail).length > 0 ? 'cursor-pointer' : ''}`}
                                 >
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="min-w-0 flex-1 pr-4">
-                                            <p className="text-sm font-semibold text-gray-500 truncate">Capaian Target</p>
-                                            <h4 className="text-xl font-bold text-gray-900 mt-1 truncate">
-                                                {summary.capaian_target || '0%'}
-                                            </h4>
-                                        </div>
-                                        <div className="p-3 bg-pink-50 rounded-2xl">
-                                            <Activity className="w-6 h-6 text-pink-600" />
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gray-400">capaian bulan ini</p>
+                                        {/* Background Icon */}
+    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
+        <Activity className="w-24 h-24 text-pink-600" />
+    </div>
+
+    <div className="relative z-10 mb-4">
+        <p className="text-sm font-semibold text-gray-500">Capaian Target</p>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
+            {summary.capaian_target || '0%'}
+        </h4>
+    </div>
+    <div className="relative z-10">
+        <p className="text-xs text-gray-400">capaian bulan ini</p>
+    </div>
                                 </div>
                             </>
                         )}
@@ -717,7 +719,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Target Tahunan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Target penjualan tahunan global</p>
@@ -727,18 +729,20 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     onClick={() => summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Tahunan', type: 'capaian_tahunan', data: summary.capaian_tahunan_detail })}
                                     className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-orange-100 ${summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 ? 'cursor-pointer' : ''}`}
                                 >
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="min-w-0 flex-1 pr-4">
-                                            <p className="text-sm font-semibold text-gray-500 truncate">Capaian Tahunan</p>
-                                            <h4 className="text-xl font-bold text-gray-900 mt-1 truncate">
-                                                {summary.capaian_tahunan || '0%'}
-                                            </h4>
-                                        </div>
-                                        <div className="p-3 bg-orange-50 rounded-2xl">
-                                            <Activity className="w-6 h-6 text-orange-600" />
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gray-400">capaian bulan ini</p>
+                                        {/* Background Icon */}
+    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
+        <Activity className="w-24 h-24 text-orange-600" />
+    </div>
+
+    <div className="relative z-10 mb-4">
+        <p className="text-sm font-semibold text-gray-500">Capaian Tahunan</p>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
+            {summary.capaian_tahunan || '0%'}
+        </h4>
+    </div>
+    <div className="relative z-10">
+        <p className="text-xs text-gray-400">capaian tahun ini</p>
+    </div>
                                 </div>
                             </>
                         )}
@@ -751,7 +755,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Pesanan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summary.total_pesanan}>{summary.total_pesanan}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.total_pesanan}>{summary.total_pesanan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris transaksi tercatat</p>
@@ -766,7 +770,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Top Outlet</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summary.top_outlet}>{summary.top_outlet}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.top_outlet}>{summary.top_outlet}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
@@ -781,7 +785,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Top Produk</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summary.top_produk}>{summary.top_produk}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.top_produk}>{summary.top_produk}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Produk paling sering muncul di data</p>
@@ -800,7 +804,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Faktur</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summaryPesanan.total_faktur}>{summaryPesanan.total_faktur}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryPesanan.total_faktur}>{summaryPesanan.total_faktur}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total akumulasi dari Total Faktur</p>
@@ -815,7 +819,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Barang Terkirim</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-emerald-600 mt-1 truncate" title={summaryPesanan.total_terkirim}>{summaryPesanan.total_terkirim}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-emerald-600 mt-1" title={summaryPesanan.total_terkirim}>{summaryPesanan.total_terkirim}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Persentase barang yang berhasil terkirim</p>
@@ -830,7 +834,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Belum Terkirim</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-red-600 mt-1 truncate" title={summaryPesanan.total_belum_terkirim}>{summaryPesanan.total_belum_terkirim}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-red-600 mt-1" title={summaryPesanan.total_belum_terkirim}>{summaryPesanan.total_belum_terkirim}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Persentase barang yang belum terkirim</p>
@@ -845,7 +849,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Surat</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summaryPesanan.total_pesanan}>{summaryPesanan.total_pesanan}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryPesanan.total_pesanan}>{summaryPesanan.total_pesanan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris surat pesanan tercatat</p>
@@ -864,7 +868,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Piutang (Gabungan)</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summaryPiutang.total_gabungan}>{summaryPiutang.total_gabungan}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryPiutang.total_gabungan}>{summaryPiutang.total_gabungan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total keseluruhan piutang</p>
@@ -879,7 +883,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Piutang Sanzaya</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-blue-700 mt-1 truncate" title={summaryPiutang.total_sanzaya}>{summaryPiutang.total_sanzaya}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-blue-700 mt-1" title={summaryPiutang.total_sanzaya}>{summaryPiutang.total_sanzaya}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total piutang bagian Sanzaya</p>
@@ -894,7 +898,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Piutang Ruma</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-blue-700 mt-1 truncate" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-blue-700 mt-1" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total piutang bagian Ruma</p>
@@ -909,7 +913,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Data Piutang</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summaryPiutang.total_outlet}>{summaryPiutang.total_outlet}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryPiutang.total_outlet}>{summaryPiutang.total_outlet}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris data piutang tercatat</p>
@@ -928,7 +932,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Nominal</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-orange-700 mt-1 truncate" title={summaryHutang.total_nominal}>{summaryHutang.total_nominal}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-orange-700 mt-1" title={summaryHutang.total_nominal}>{summaryHutang.total_nominal}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total akumulasi nominal hutang</p>
@@ -943,7 +947,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Penyedia</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summaryHutang.total_penyedia}>{summaryHutang.total_penyedia}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryHutang.total_penyedia}>{summaryHutang.total_penyedia}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah penyedia berbeda</p>
@@ -958,7 +962,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Data</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={summaryHutang.total_data}>{summaryHutang.total_data}</h4>
+        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryHutang.total_data}>{summaryHutang.total_data}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris data hutang tercatat</p>
@@ -1190,7 +1194,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     })()}
                                     {detailModal.type === 'penjualan' && summary?.pt_penjualan_detail && Object.keys(summary.pt_penjualan_detail).length > 0 && (
                                         <div className="mb-4 pb-4 border-b-2 border-dashed border-gray-200">
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1 truncate">Berdasarkan PT</h4>
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan PT</h4>
                                             <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
                                                 <span>Nama PT</span>
                                                 <span>Total (Rp)</span>
@@ -1213,16 +1217,16 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                                     <div>
                                         {detailModal.type === 'penjualan' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1 truncate">Berdasarkan Sales</h4>
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan Sales</h4>
                                         )}
                                         {detailModal.type === 'target' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1 truncate">Rincian Target Sales</h4>
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Rincian Target Sales</h4>
                                         )}
                                         {detailModal.type === 'capaian' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1 truncate">Capaian per PT</h4>
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
                                         )}
                                         {detailModal.type === 'capaian_tahunan' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1 truncate">Capaian per PT</h4>
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
                                         )}
                                         <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
                                             <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama'))}</span>
