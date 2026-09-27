@@ -49,19 +49,11 @@ export default function Index({ tab, is_super_admin, global_target_value, global
     const [selectedPt, setSelectedPt] = useState(ptFilter || '');
     const [selectedKeterangan, setSelectedKeterangan] = useState(keteranganFilter || '');
     const [isSearchExpanded, setIsSearchExpanded] = useState(!!search);
-    const [isDownloadOpen, setIsDownloadOpen] = useState(false);
     const [isTabDropdownOpen, setIsTabDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
     const tabDropdownRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                // Prevent closing if clicking inside the PDF preview modal
-                if (!event.target.closest('#modal') && !event.target.closest('[role="dialog"]')) {
-                    setIsDownloadOpen(false);
-                }
-            }
             if (tabDropdownRef.current && !tabDropdownRef.current.contains(event.target)) {
                 setIsTabDropdownOpen(false);
             }
@@ -106,17 +98,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         setSelectedMonth('');
         setSelectedPt('');
         setSelectedKeterangan('');
-    };
-
-    const getPdfRouteArgs = (period) => {
-        const args = { tab: tab, period: period };
-        if (selectedSales) args.sales_filter = selectedSales;
-        if (selectedOutlet) args.outlet_filter = selectedOutlet;
-        if (selectedMonth) args.month_filter = selectedMonth;
-        if (selectedPt) args.pt_filter = selectedPt;
-        if (selectedKeterangan) args.keterangan_filter = selectedKeterangan;
-        if (searchTerm) args.search = searchTerm;
-        return args;
     };
 
     // Chart Renderers
@@ -638,26 +619,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <BarChart2 className="w-6 h-6 text-blue-600" />
                             Data Laporan Tersinkronisasi
                         </h3>
-                    </div>
-                    
-                    <div className="relative" ref={dropdownRef}>
-                        <button
-                            onClick={() => setIsDownloadOpen(!isDownloadOpen)}
-                            className="flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200 px-3 py-2 rounded-lg font-bold hover:bg-rose-100 transition-all shadow-sm text-sm whitespace-nowrap shrink-0"
-                        >
-                            <Download className="w-4 h-4 mr-2" />
-                            Unduh
-                            <ChevronDown className={`w-4 h-4 text-rose-500 transition-transform duration-200 ${isDownloadOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        
-                        {isDownloadOpen && (
-                            <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 overflow-hidden">
-                                <ExportDropdown isReportDashboard={true} outletNames={outletNames} pdfRoute={route('reports.pdf', getPdfRouteArgs('1_hari'))} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Hari</a>} />
-                                <ExportDropdown isReportDashboard={true} outletNames={outletNames} pdfRoute={route('reports.pdf', getPdfRouteArgs('1_minggu'))} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Minggu</a>} />
-                                <ExportDropdown isReportDashboard={true} outletNames={outletNames} pdfRoute={route('reports.pdf', getPdfRouteArgs('1_bulan'))} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-50 last:border-b-0">1 Bulan</a>} />
-                                <ExportDropdown isReportDashboard={true} outletNames={outletNames} pdfRoute={route('reports.pdf', getPdfRouteArgs('1_tahun'))} trigger={<a href="#" onClick={(e) => { e.preventDefault(); }} className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">1 Tahun</a>} />
-                            </div>
-                        )}
                     </div>
                 </div>
 
