@@ -658,7 +658,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Penjualan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.total_penjualan}>{summary.total_penjualan}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.total_penjualan}>{summary.total_penjualan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total akumulasi dari kolom Total (Rp)</p>
@@ -678,7 +678,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Target Bulanan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Target penjualan bulanan</p>
@@ -695,7 +695,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Capaian Target</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1">
             {summary.capaian_target || '0%'}
         </h4>
     </div>
@@ -719,7 +719,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Target Tahunan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Target penjualan tahunan global</p>
@@ -736,7 +736,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Capaian Tahunan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1">
             {summary.capaian_tahunan || '0%'}
         </h4>
     </div>
@@ -755,7 +755,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Pesanan</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.total_pesanan}>{summary.total_pesanan}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.total_pesanan}>{summary.total_pesanan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris transaksi tercatat</p>
@@ -770,7 +770,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Top Outlet</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.top_outlet}>{summary.top_outlet}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.top_outlet}>{summary.top_outlet}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
@@ -785,7 +785,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Top Produk</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summary.top_produk}>{summary.top_produk}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.top_produk}>{summary.top_produk}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Produk paling sering muncul di data</p>
@@ -804,7 +804,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Faktur</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryPesanan.total_faktur}>{summaryPesanan.total_faktur}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPesanan.total_faktur}>{summaryPesanan.total_faktur}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total akumulasi dari Total Faktur</p>
@@ -819,7 +819,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Barang Terkirim</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-emerald-600 mt-1" title={summaryPesanan.total_terkirim}>{summaryPesanan.total_terkirim}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-emerald-600 mt-1" title={summaryPesanan.total_terkirim}>{summaryPesanan.total_terkirim}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Persentase barang yang berhasil terkirim</p>
@@ -834,7 +834,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Belum Terkirim</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-red-600 mt-1" title={summaryPesanan.total_belum_terkirim}>{summaryPesanan.total_belum_terkirim}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-red-600 mt-1" title={summaryPesanan.total_belum_terkirim}>{summaryPesanan.total_belum_terkirim}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Persentase barang yang belum terkirim</p>
@@ -849,7 +849,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Surat</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryPesanan.total_pesanan}>{summaryPesanan.total_pesanan}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPesanan.total_pesanan}>{summaryPesanan.total_pesanan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris surat pesanan tercatat</p>
@@ -868,7 +868,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Piutang (Gabungan)</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryPiutang.total_gabungan}>{summaryPiutang.total_gabungan}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPiutang.total_gabungan}>{summaryPiutang.total_gabungan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total keseluruhan piutang</p>
@@ -883,7 +883,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Piutang Sanzaya</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-blue-700 mt-1" title={summaryPiutang.total_sanzaya}>{summaryPiutang.total_sanzaya}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-blue-700 mt-1" title={summaryPiutang.total_sanzaya}>{summaryPiutang.total_sanzaya}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total piutang bagian Sanzaya</p>
@@ -898,7 +898,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Piutang Ruma</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-blue-700 mt-1" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-blue-700 mt-1" title={summaryPiutang.total_ruma}>{summaryPiutang.total_ruma}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total piutang bagian Ruma</p>
@@ -913,7 +913,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Data Piutang</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryPiutang.total_outlet}>{summaryPiutang.total_outlet}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPiutang.total_outlet}>{summaryPiutang.total_outlet}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris data piutang tercatat</p>
@@ -932,7 +932,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Nominal</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-orange-700 mt-1" title={summaryHutang.total_nominal}>{summaryHutang.total_nominal}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-orange-700 mt-1" title={summaryHutang.total_nominal}>{summaryHutang.total_nominal}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total akumulasi nominal hutang</p>
@@ -947,7 +947,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Penyedia</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryHutang.total_penyedia}>{summaryHutang.total_penyedia}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryHutang.total_penyedia}>{summaryHutang.total_penyedia}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah penyedia berbeda</p>
@@ -962,7 +962,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Data</p>
-        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1" title={summaryHutang.total_data}>{summaryHutang.total_data}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryHutang.total_data}>{summaryHutang.total_data}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris data hutang tercatat</p>
