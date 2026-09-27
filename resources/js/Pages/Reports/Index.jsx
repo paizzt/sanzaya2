@@ -3,7 +3,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import Modal from '@/Components/Modal';
 import { Head, usePage, router, Link, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2';
-import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown } from 'lucide-react';
+import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown, PieChart } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
