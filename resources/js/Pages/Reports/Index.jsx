@@ -100,6 +100,17 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         setSelectedKeterangan('');
     };
 
+    const getPdfRouteArgs = () => {
+        const args = { tab: tab, period: '1_bulan' };
+        if (selectedSales) args.sales_filter = selectedSales;
+        if (selectedOutlet) args.outlet_filter = selectedOutlet;
+        if (selectedMonth) args.month_filter = selectedMonth;
+        if (selectedPt) args.pt_filter = selectedPt;
+        if (selectedKeterangan) args.keterangan_filter = selectedKeterangan;
+        if (searchTerm) args.search = searchTerm;
+        return args;
+    };
+
     // Chart Renderers
     const renderLogistikChart = () => {
         if (!summary) return null;
@@ -619,6 +630,20 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <BarChart2 className="w-6 h-6 text-blue-600" />
                             Data Laporan Tersinkronisasi
                         </h3>
+                    </div>
+                    
+                    <div className="relative">
+                        <ExportDropdown 
+                            isReportDashboard={true} 
+                            outletNames={outletNames} 
+                            pdfRoute={route('reports.pdf', getPdfRouteArgs())} 
+                            trigger={
+                                <button className="flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200 px-3 py-2 rounded-lg font-bold hover:bg-rose-100 transition-all shadow-sm text-sm whitespace-nowrap shrink-0">
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Unduh PDF
+                                </button>
+                            } 
+                        />
                     </div>
                 </div>
 
