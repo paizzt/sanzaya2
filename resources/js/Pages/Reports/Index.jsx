@@ -181,19 +181,22 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
                 {dataSales.length > 0 && (
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><BarChart2 className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
-                        <div className="h-72 w-full">
-                            <Bar 
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
+                        <div className="h-72 w-full flex items-center justify-center">
+                            <Pie 
                                 data={{
                                     labels: dataSales.map(d => d.name),
                                     datasets: [{
                                         data: dataSales.map(d => d.Penjualan),
-                                        backgroundColor: '#3b82f6',
-                                        borderRadius: 4,
-                                        barThickness: 40
+                                        backgroundColor: [
+                                            '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
+                                            '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+                                        ],
+                                        borderWidth: 2,
+                                        borderColor: '#ffffff'
                                     }]
                                 }} 
-                                options={chartOptions} 
+                                options={pieOptions} 
                             />
                         </div>
                     </div>
@@ -333,7 +336,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     data: barData.map(d => d.TotalFaktur),
                                     backgroundColor: '#0ea5e9',
                                     borderRadius: 4,
-                                    barThickness: 30
                                 }]
                             }} 
                             options={chartOptions} 
@@ -389,7 +391,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                 data: data.map(d => d.TotalPiutang),
                                 backgroundColor: '#6366f1',
                                 borderRadius: 4,
-                                barThickness: 40
                             }]
                         }} 
                         options={chartOptions} 
@@ -445,7 +446,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                 data: data.map(d => d.TotalHutang),
                                 backgroundColor: '#f97316',
                                 borderRadius: 4,
-                                barThickness: 20
                             }]
                         }} 
                         options={horizontalChartOptions} 
