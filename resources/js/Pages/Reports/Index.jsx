@@ -638,8 +638,8 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             outletNames={outletNames} 
                             pdfRoute={route('reports.pdf', getPdfRouteArgs())} 
                             trigger={
-                                <button className="flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200 px-3 py-2 rounded-lg font-bold hover:bg-rose-100 transition-all shadow-sm text-sm whitespace-nowrap shrink-0">
-                                    <Download className="w-4 h-4 mr-2" />
+                                <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] whitespace-nowrap shrink-0">
+                                    <Download className="w-4 h-4 mr-1" />
                                     Unduh PDF
                                 </button>
                             } 

@@ -204,7 +204,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                             pdfRoute={getExportUrl('pdf')} 
                             excelRoute={getExportUrl('excel')} 
                             trigger={
-                                <button className="flex w-full min-h-[44px] items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-3.5 text-sm font-semibold text-emerald-700 transition-all duration-200 hover:bg-emerald-100 hover:border-emerald-300 shadow-sm">
+                                <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] shrink-0 w-full sm:w-auto">
                                     <Download className="w-4 h-4 mr-2" /> Unduh PDF/Excel
                                 </button>
                             } 
