@@ -45,45 +45,45 @@
         <table style="width: 100%; border-collapse: separate; border-spacing: 5px; margin-bottom: 10px; margin-left: -5px;">
             <tr>
                 @if(in_array('logistik', $datasets ?? []))
-                <td style="background-color: #3b82f6; border-radius: 6px; padding: 10px; color: #fff; width: 16%;">
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 16%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Penjualan</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
                 </td>
                 @if(!empty($summary['pareto_outlets']))
-                <td style="background-color: #1d4ed8; border-radius: 6px; padding: 10px; color: #fff; width: 16%;">
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 16%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total (Potongan Pareto)</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['pareto_total_penjualan'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(isset($summary['target_bulanan']) && $summary['target_bulanan'] > 0)
-                <td style="background-color: #8b5cf6; border-radius: 6px; padding: 10px; color: #fff; width: 16%;">
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 16%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Target Bulanan</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['target_bulanan'], 0, ',', '.') }}</p>
                 </td>
-                <td style="background-color: #ec4899; border-radius: 6px; padding: 10px; color: #fff; width: 12%;">
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 12%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Capaian Target</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format(($summary['total_penjualan'] / $summary['target_bulanan']) * 100, 1, ',', '.') }}%</p>
                 </td>
                 @endif
                 @endif
                 @if(in_array('piutang', $datasets ?? []))
-                <td style="background-color: #14b8a6; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 20%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Piutang</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('hutang', $datasets ?? []))
-                <td style="background-color: #f59e0b; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 20%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Hutang</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('pesanan', $datasets ?? []))
-                <td style="background-color: #10b981; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 20%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Pesanan Terkirim</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_terkirim'], 0, ',', '.') }}</p>
                 </td>
-                <td style="background-color: #059669; border-radius: 6px; padding: 10px; color: #fff; width: 20%;">
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 20%;">
                     <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Belum Terkirim</p>
                     <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_belum'], 0, ',', '.') }}</p>
                 </td>
