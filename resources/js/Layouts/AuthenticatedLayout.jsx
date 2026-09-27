@@ -367,6 +367,12 @@ export default function Authenticated({ user, header, children }) {
                                 </Link>
                             </div>
 
+                            {header && (
+                                <div className="hidden md:flex items-center flex-1 px-4 lg:px-6">
+                                    {header}
+                                </div>
+                            )}
+
                             <div className="flex items-center ml-auto gap-4">
                                 {isInstallable && (
                                     <button
@@ -491,7 +497,7 @@ export default function Authenticated({ user, header, children }) {
                 </div>
 
                 {header && (
-                    <div className="bg-white/50 border-b border-gray-100/50 backdrop-blur-sm transition-all duration-300">
+                    <div className="md:hidden bg-white/50 border-b border-gray-100/50 backdrop-blur-sm transition-all duration-300">
                         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                             {header}
                         </div>
