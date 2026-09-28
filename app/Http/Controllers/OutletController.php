@@ -54,6 +54,7 @@ class OutletController extends Controller
             'pic_position' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:255',
             'coordinates' => 'nullable|string|max:255',
+            'is_pareto' => 'nullable|boolean',
         ]);
 
         Outlet::create($request->all());
@@ -71,6 +72,7 @@ class OutletController extends Controller
             'pic_position' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:255',
             'coordinates' => 'nullable|string|max:255',
+            'is_pareto' => 'nullable|boolean',
         ]);
 
         $outlet->update($request->all());

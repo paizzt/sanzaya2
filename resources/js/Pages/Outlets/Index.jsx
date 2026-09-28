@@ -108,6 +108,7 @@ export default function Index({ outlets, areas }) {
         pic_position: '',
         phone: '',
         coordinates: '',
+        is_pareto: false,
     });
 
     useEffect(() => {
@@ -139,6 +140,7 @@ export default function Index({ outlets, areas }) {
             pic_position: outlet.pic_position || '',
             phone: outlet.phone || '',
             coordinates: outlet.coordinates || '',
+            is_pareto: !!outlet.is_pareto,
         });
         setIsModalOpen(true);
     };
@@ -343,7 +345,12 @@ export default function Index({ outlets, areas }) {
                                             <input type="checkbox" checked={selectedIds.includes(outlet.id)} onChange={() => handleSelectOne(outlet.id)} className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
                                         </td>
                                         <td className="px-6 py-4 font-semibold text-gray-900 uppercase">
-                                            {outlet.name}
+                                            <div className="flex items-center gap-2">
+                                                {outlet.name}
+                                                {outlet.is_pareto ? (
+                                                    <span className="bg-yellow-100 text-yellow-800 text-[10px] px-2 py-0.5 rounded border border-yellow-200 uppercase tracking-wider">Pareto</span>
+                                                ) : null}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
@@ -486,6 +493,22 @@ export default function Index({ outlets, areas }) {
                                     </div>
 
                                 </div>
+
+                                    {/* Pareto Checkbox */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                                            <input 
+                                                type="checkbox" 
+                                                id="is_pareto"
+                                                className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 w-5 h-5 cursor-pointer"
+                                                checked={data.is_pareto}
+                                                onChange={(e) => setData('is_pareto', e.target.checked)}
+                                            />
+                                            <label htmlFor="is_pareto" className="text-sm font-bold text-yellow-800 cursor-pointer select-none">
+                                                Tandai sebagai Outlet Pareto
+                                            </label>
+                                        </div>
+                                    </div>
 
                                     {/* Koordinat */}
                                     <div className="space-y-4">
