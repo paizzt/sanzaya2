@@ -82,7 +82,15 @@ class ReceivableController extends Controller
         
         $outlet_id = null;
         if (!empty($validated['outlet_name'])) {
-            $outlet = \App\Models\Outlet::firstOrCreate(['name' => $validated['outlet_name']]);
+            $outletName = $validated['outlet_name'];
+            
+            // Cek mapping outlet (typo)
+            $mapping = \App\Models\OutletMapping::where('raw_name', $outletName)->with('outlet')->first();
+            if ($mapping && $mapping->outlet) {
+                $outletName = $mapping->outlet->name;
+            }
+
+            $outlet = \App\Models\Outlet::firstOrCreate(['name' => $outletName]);
             $outlet_id = $outlet->id;
         }
 

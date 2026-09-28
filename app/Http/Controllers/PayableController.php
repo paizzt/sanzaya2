@@ -80,7 +80,15 @@ class PayableController extends Controller
         
         $provider_id = null;
         if (!empty($validated['provider_name'])) {
-            $provider = \App\Models\Provider::firstOrCreate(['name' => $validated['provider_name']]);
+            $providerName = $validated['provider_name'];
+            
+            // Cek mapping penyedia (typo)
+            $mapping = \App\Models\ProviderMapping::where('raw_name', $providerName)->with('provider')->first();
+            if ($mapping && $mapping->provider) {
+                $providerName = $mapping->provider->name;
+            }
+
+            $provider = \App\Models\Provider::firstOrCreate(['name' => $providerName]);
             $provider_id = $provider->id;
         }
 
