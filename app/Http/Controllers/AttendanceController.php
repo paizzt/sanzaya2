@@ -20,17 +20,17 @@ class AttendanceController extends Controller
             ->first();
 
         // Cek apakah ada check-in hari sebelumnya yang belum check-out
-        if (!$attendance) {
-            $yesterday = Carbon::yesterday()->format('Y-m-d');
-            $uncompleted = Attendance::where('user_id', Auth::id())
-                ->where('date', $yesterday)
-                ->whereNotNull('check_in_time')
-                ->whereNull('check_out_time')
-                ->first();
+        // Jika ada, otomatis check-out di jam 17:00:00 pada hari tersebut agar tidak mengganggu absensi hari ini.
+        $uncompletedPast = Attendance::where('user_id', Auth::id())
+            ->where('date', '<', $today)
+            ->whereNotNull('check_in_time')
+            ->whereNull('check_out_time')
+            ->get();
             
-            if ($uncompleted) {
-                $attendance = $uncompleted;
-            }
+        foreach ($uncompletedPast as $uncompleted) {
+            $uncompleted->check_out_time = '17:00:00';
+            $uncompleted->notes = 'Auto checkout oleh sistem (Lupa absen pulang)';
+            $uncompleted->save();
         }
 
         $now = Carbon::now();
