@@ -12,8 +12,10 @@ use App\Models\Outlet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Http;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Carbon\Carbon;
-
 class MarketingDailyReportController extends Controller
 {
     public function index()
@@ -134,9 +136,18 @@ class MarketingDailyReportController extends Controller
             'photos' => 'nullable|file|mimes:jpeg,png,jpg|max:5120',
         ]);
 
-        $photoPath = null;
+        $photoUrl = null;
         if ($request->hasFile('photos')) {
-            $photoPath = $request->file('photos')->store('marketing_reports', 'public');
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($request->file('photos'));
+            $image->scaleDown(width: 800);
+            $base64Photo = base64_encode($image->toJpeg(70)->toString());
+            $photoUrl = $this->uploadBase64ToImgBB($base64Photo) ?? $request->file('photos')->store('marketing_reports', 'public');
+        }
+
+        $signatureUrl = $request->signature;
+        if ($request->filled('signature') && str_starts_with($request->signature, 'data:image')) {
+            $signatureUrl = $this->uploadBase64ToImgBB($request->signature) ?? $request->signature;
         }
 
         MarketingDailyReport::create([
@@ -154,11 +165,28 @@ class MarketingDailyReportController extends Controller
             'issue_type' => $request->issue_type,
             'competitor_notes' => $request->competitor_notes,
             'visit_result' => $request->visit_result,
-            'signature' => $request->signature,
-            'photos' => $photoPath,
+            'signature' => $signatureUrl,
+            'photos' => $photoUrl,
         ]);
 
         return redirect()->back()->with('success', 'Laporan aktivitas harian berhasil disimpan!');
+    }
+
+    private function uploadBase64ToImgBB($base64String)
+    {
+        $apiKey = '5950b44b24860057ff810fe73f58868b';
+        $base64String = preg_replace('#^data:image/\w+;base64,#i', '', $base64String);
+
+        $response = Http::asForm()->post('https://api.imgbb.com/1/upload', [
+            'key' => $apiKey,
+            'image' => $base64String,
+        ]);
+
+        if ($response->successful()) {
+            return $response->json('data.url');
+        }
+
+        return null;
     }
 
     public function storeTarget(Request $request)
