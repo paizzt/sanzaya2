@@ -211,7 +211,7 @@ export default function Index({ items, isShared, providers = [] }) {
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                     {/* Total Stok Barang */}
-                    <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-blue-400 flex flex-col items-center justify-center text-center">
+                    <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-blue-200 flex flex-col items-center justify-center text-center">
                         <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
                             <Boxes className="w-5 h-5 text-blue-500" />
                         </div>
@@ -224,9 +224,9 @@ export default function Index({ items, isShared, providers = [] }) {
                     </div>
 
                     {/* Total Nilai Gudang */}
-                    <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-green-500 flex flex-col items-center justify-center text-center">
-                        <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-3">
-                            <span className="text-green-500 font-bold text-sm">Rp</span>
+                    <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-blue-200 flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                            <span className="text-blue-500 font-bold text-sm">Rp</span>
                         </div>
                         <p className="text-xs font-medium text-gray-500 mb-2">Total Nilai Gudang</p>
                         <h3 className="text-2xl font-bold text-gray-800">
