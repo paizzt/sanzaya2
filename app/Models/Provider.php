@@ -28,4 +28,9 @@ class Provider extends Model
     {
         return $this->hasMany(ProviderProduct::class);
     }
+
+    public function mappings()
+    {
+        return $this->hasMany(ProviderMapping::class, 'provider_id');
+    }
 }

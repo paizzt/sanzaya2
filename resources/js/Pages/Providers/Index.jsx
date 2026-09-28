@@ -127,6 +127,32 @@ export default function Index({ providers, filters }) {
         });
     };
 
+    const handleDeleteMapping = (id, rawName) => {
+        Swal.fire({
+            title: 'Hapus Pemetaan?',
+            html: `Yakin ingin menghapus typo <b>${rawName}</b> dari penyedia ini?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                destroy(route('provider-mappings.destroy', id), {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        setEditingProvider(prev => ({
+                            ...prev,
+                            mappings: prev.mappings.filter(m => m.id !== id)
+                        }));
+                    }
+                });
+            }
+        });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         
@@ -535,6 +561,30 @@ export default function Index({ providers, filters }) {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Data Pemetaan Nama */}
+                                {isEditMode && editingProvider?.mappings?.length > 0 && (
+                                    <div className="mt-6 pt-6 border-t border-gray-100 mx-6">
+                                        <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                            <Store className="w-4 h-4" /> Daftar Typo yang Dipetakan ke Penyedia ini:
+                                        </h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {editingProvider.mappings.map(m => (
+                                                <span key={m.id} className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 pl-3 pr-1 py-1 rounded-lg text-sm font-medium">
+                                                    {m.raw_name}
+                                                    <button type="button" onClick={() => handleDeleteMapping(m.id, m.raw_name)} className="p-0.5 hover:bg-green-200 rounded text-green-600 hover:text-green-800 transition-colors">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {isEditMode && (!editingProvider?.mappings || editingProvider.mappings.length === 0) && (
+                                    <div className="mt-6 pt-6 border-t border-gray-100 mx-6">
+                                        <p className="text-sm text-gray-500 italic">Belum ada nama typo yang dipetakan ke penyedia ini.</p>
+                                    </div>
+                                )}
 
                                 <div className="mt-4 flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>

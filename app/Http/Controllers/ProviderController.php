@@ -17,7 +17,7 @@ class ProviderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Provider::query();
+        $query = Provider::with('mappings');
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
