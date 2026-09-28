@@ -123,6 +123,7 @@ class MarketingDailyReportController extends Controller
             'visit_date' => 'required|date',
             'visit_time' => 'required',
             'outlet_type' => 'nullable|string',
+            'outlet_name' => 'nullable|string',
             'outlet_id' => 'nullable|exists:outlets,id',
             'pic_phone' => 'nullable|string',
             'pic_position' => 'nullable|string',
@@ -150,13 +151,24 @@ class MarketingDailyReportController extends Controller
             $signatureUrl = $this->uploadBase64ToImgBB($request->signature) ?? $request->signature;
         }
 
+        $outletId = $request->outlet_id;
+        if ($request->filled('outlet_name')) {
+            $outletName = $request->outlet_name;
+            $mapping = \App\Models\OutletMapping::where('raw_name', $outletName)->with('outlet')->first();
+            if ($mapping && $mapping->outlet) {
+                $outletName = $mapping->outlet->name;
+            }
+            $outlet = \App\Models\Outlet::firstOrCreate(['name' => mb_strtoupper($outletName)]);
+            $outletId = $outlet->id;
+        }
+
         MarketingDailyReport::create([
             'user_id' => Auth::id(),
             'activity_type' => $request->activity_type,
             'visit_date' => $request->visit_date,
             'visit_time' => $request->visit_time,
             'outlet_type' => $request->outlet_type,
-            'outlet_id' => $request->outlet_id,
+            'outlet_id' => $outletId,
             'pic_phone' => $request->pic_phone,
             'pic_position' => $request->pic_position,
             'pic_name' => $request->pic_name,

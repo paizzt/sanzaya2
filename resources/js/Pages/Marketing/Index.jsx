@@ -20,6 +20,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         visit_date: new Date().toISOString().split('T')[0],
         visit_time: new Date().toTimeString().split(' ')[0].substring(0, 5),
         outlet_type: '',
+        outlet_name: '',
         outlet_id: '',
         pic_phone: '',
         pic_position: '',
@@ -281,11 +282,12 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                             </div>
                                             <div>
                                                 <InputLabel value="Nama Outlet" />
-                                                <SearchableSelect
-                                                    value={data.outlet_id}
-                                                    onChange={(val) => setData('outlet_id', val)}
-                                                    options={outlets.map(o => ({ value: o.id, label: `${o.name} - ${o.city}` }))}
-                                                    />
+                                                <TextInput 
+                                                    className="mt-1 block w-full bg-white" 
+                                                    value={data.outlet_name}
+                                                    onChange={(e) => setData('outlet_name', e.target.value)}
+                                                    placeholder="Ketik nama outlet..."
+                                                />
                                             </div>
                                         </div>
 
