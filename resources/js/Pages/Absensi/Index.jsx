@@ -359,6 +359,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                 ref={webcamRef}
                                 screenshotFormat="image/jpeg"
                                 videoConstraints={{ facingMode: facingMode }}
+                                mirrored={facingMode === "user"}
                                 className="w-full h-full object-cover"
                             />
                             <button
