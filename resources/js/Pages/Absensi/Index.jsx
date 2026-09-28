@@ -19,6 +19,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
     const [isLocating, setIsLocating] = useState(false);
     const [showWebcamModal, setShowWebcamModal] = useState(false);
     const [pendingAttendance, setPendingAttendance] = useState(null);
+    const [facingMode, setFacingMode] = useState("user");
     const webcamRef = useRef(null);
     
     const { data, setData, post, processing } = useForm({
@@ -357,9 +358,18 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                 audio={false}
                                 ref={webcamRef}
                                 screenshotFormat="image/jpeg"
-                                videoConstraints={{ facingMode: "environment" }}
+                                videoConstraints={{ facingMode: facingMode }}
                                 className="w-full h-full object-cover"
                             />
+                            <button
+                                onClick={() => setFacingMode(prev => prev === "user" ? "environment" : "user")}
+                                className="absolute bottom-4 right-4 bg-white/20 hover:bg-white/40 p-3 rounded-full backdrop-blur-sm text-white shadow-lg transition-colors"
+                                title="Flip Kamera"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
                         </div>
                         <div className="p-4 bg-white flex justify-between gap-3">
                             <button
