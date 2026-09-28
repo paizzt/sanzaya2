@@ -242,6 +242,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/outlet-mappings', [\App\Http\Controllers\OutletMappingController::class, 'store'])->name('outlet-mappings.store');
         Route::delete('/outlet-mappings/{id}', [\App\Http\Controllers\OutletMappingController::class, 'destroy'])->name('outlet-mappings.destroy');
 
+        Route::get('/provider-mappings', [\App\Http\Controllers\ProviderMappingController::class, 'index'])->name('provider-mappings.index');
+        Route::post('/provider-mappings', [\App\Http\Controllers\ProviderMappingController::class, 'store'])->name('provider-mappings.store');
+        Route::delete('/provider-mappings/{id}', [\App\Http\Controllers\ProviderMappingController::class, 'destroy'])->name('provider-mappings.destroy');
+
         // Master Data
         Route::resource('outlets', OutletController::class)->except(['show', 'create', 'edit']);
         Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class)->except(['show', 'create', 'edit']);

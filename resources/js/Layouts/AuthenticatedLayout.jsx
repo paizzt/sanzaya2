@@ -5,7 +5,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import Modal from '@/Components/Modal';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building, BookOpen, Download, MessageSquareWarning, Loader2 } from 'lucide-react';
+import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building, BookOpen, Download, MessageSquareWarning, Loader2, Map } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -252,8 +252,15 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: auth.active_feature_names?.includes('Data Produk') },
                 { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements'), show: auth.active_feature_names?.includes('Kebutuhan Barang') },
                 { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_feature_names?.includes('Data Outlet') },
-                { name: 'Pemetaan Outlet', href: route('outlet-mappings.index'), active: url.startsWith('/outlet-mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') },
                 { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: true },
+            ]
+        },
+        {
+            name: 'Pemetaan', icon: Map,
+            active: url.startsWith('/outlet-mappings') || url.startsWith('/provider-mappings'),
+            children: [
+                { name: 'Pemetaan Outlet', href: route('outlet-mappings.index'), active: url.startsWith('/outlet-mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') },
+                { name: 'Pemetaan Penyedia', href: route('provider-mappings.index'), active: url.startsWith('/provider-mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') },
             ]
         },
         {
