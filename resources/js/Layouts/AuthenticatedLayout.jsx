@@ -252,7 +252,6 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: auth.active_feature_names?.includes('Data Produk') },
                 { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements'), show: auth.active_feature_names?.includes('Kebutuhan Barang') },
                 { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_feature_names?.includes('Data Outlet') },
-                { name: 'Pemetaan', href: route('mappings.index'), active: url.startsWith('/mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') },
                 { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: true },
             ]
         },
@@ -270,8 +269,9 @@ export default function Authenticated({ user, header, children }) {
         },
         {
             name: 'Sistem', icon: Settings,
-            active: url.startsWith('/activity-logs') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/wbs-reports/my-reports') || url === '/lapor-wbs',
+            active: url.startsWith('/activity-logs') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/wbs-reports/my-reports') || url === '/lapor-wbs' || url.startsWith('/mappings'),
             children: [
+                { name: 'Pemetaan', href: route('mappings.index'), active: url.startsWith('/mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') },
                 { name: 'Lapor WBS', href: route('wbs-reports.my-reports'), active: url.startsWith('/wbs-reports/my-reports') || url === '/lapor-wbs', show: auth.active_feature_names?.includes('Riwayat Laporan Saya') || auth.active_feature_names?.includes('Lapor WBS') },
                 { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.active_feature_names?.includes('Riwayat Perubahan') },
                 { name: 'Notifikasi', href: route('notifications.index'), active: url.startsWith('/settings/notifications'), show: auth.active_feature_names?.includes('Notifikasi') },
