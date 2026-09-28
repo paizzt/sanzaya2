@@ -47,7 +47,7 @@ export default function Index({ items, isShared, providers = [] }) {
         link: '',
         incoming_date: '',
         po_date: '',
-        provider_id: '',
+        provider_name: '',
         price: '',
     });
 
@@ -97,7 +97,7 @@ export default function Index({ items, isShared, providers = [] }) {
             link: item.link || '',
             incoming_date: item.incoming_date || '',
             po_date: item.po_date || '',
-            provider_id: item.provider_id || '',
+            provider_name: item.provider ? item.provider.name : '',
             price: item.price || '',
         });
         setIsModalOpen(true);
@@ -673,19 +673,15 @@ export default function Index({ items, isShared, providers = [] }) {
                                             </div>
 
                                             <div className="md:col-span-2">
-                                                <InputLabel htmlFor="provider_id" value="Nama Penyedia" />
-                                                <select
-                                                    id="provider_id"
-                                                    value={data.provider_id}
-                                                    onChange={(e) => setData('provider_id', e.target.value)}
-                                                    className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm"
-                                                >
-                                                    <option value="">Pilih Penyedia</option>
-                                                    {providers.map(provider => (
-                                                        <option key={provider.id} value={provider.id}>{provider.name}</option>
-                                                    ))}
-                                                </select>
-                                                <InputError message={errors.provider_id} className="mt-2" />
+                                                <InputLabel htmlFor="provider_name" value="Nama Penyedia" />
+                                                <TextInput
+                                                    id="provider_name"
+                                                    type="text"
+                                                    value={data.provider_name}
+                                                    className="mt-1 block w-full"
+                                                    onChange={(e) => setData('provider_name', e.target.value)}
+                                                />
+                                                <InputError message={errors.provider_name} className="mt-2" />
                                             </div>
                                         </div>
                                     </div>

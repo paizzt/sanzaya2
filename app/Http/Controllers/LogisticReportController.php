@@ -119,7 +119,7 @@ class LogisticReportController extends Controller
     {
         $validated = $request->validate([
             'company_id' => 'nullable|exists:companies,id',
-            'outlet_id' => 'nullable|exists:outlets,id',
+            'outlet_name' => 'nullable|string',
             'jenis_pelanggan' => 'nullable|string',
             'tanggal' => 'nullable|date',
             'nama_sales' => 'nullable|string',
@@ -141,6 +141,19 @@ class LogisticReportController extends Controller
 
         $validated['total'] = $validated['subtotal'] + (float)($validated['ppn'] ?? 0);
         $validated['grand_total'] = 0; // Field ini diabaikan karena akan dikalkulasi ulang
+
+        if (!empty($validated['outlet_name'])) {
+            $outletName = $validated['outlet_name'];
+            $mapping = \App\Models\OutletMapping::where('raw_name', $outletName)->with('outlet')->first();
+            if ($mapping && $mapping->outlet) {
+                $outletName = $mapping->outlet->name;
+            }
+            $outlet = \App\Models\Outlet::firstOrCreate(['name' => $outletName]);
+            $validated['outlet_id'] = $outlet->id;
+        } else {
+            $validated['outlet_id'] = null;
+        }
+        unset($validated['outlet_name']);
 
         if ($request->id) {
             LogisticReport::find($request->id)->update($validated);

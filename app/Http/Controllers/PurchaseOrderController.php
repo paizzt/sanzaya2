@@ -44,7 +44,7 @@ class PurchaseOrderController extends Controller
     {
         $validated = $request->validate([
             'tanggal' => 'nullable|date',
-            'outlet_id' => 'nullable|exists:outlets,id',
+            'outlet_name' => 'nullable|string',
             'nama_produk' => 'nullable|string',
             'jumlah' => 'nullable|integer',
             'satuan' => 'nullable|string',
@@ -56,6 +56,19 @@ class PurchaseOrderController extends Controller
             'keterangan' => 'nullable|string',
         ]);
         
+        if (!empty($validated['outlet_name'])) {
+            $outletName = $validated['outlet_name'];
+            $mapping = \App\Models\OutletMapping::where('raw_name', $outletName)->with('outlet')->first();
+            if ($mapping && $mapping->outlet) {
+                $outletName = $mapping->outlet->name;
+            }
+            $outlet = \App\Models\Outlet::firstOrCreate(['name' => $outletName]);
+            $validated['outlet_id'] = $outlet->id;
+        } else {
+            $validated['outlet_id'] = null;
+        }
+        unset($validated['outlet_name']);
+
         if ($request->id) {
             PurchaseOrder::find($request->id)->update($validated);
         } else {

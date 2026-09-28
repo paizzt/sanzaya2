@@ -45,7 +45,7 @@ export default function Index({ auth, items, outlets, summary }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         id: '',
         tanggal: '',
-        outlet_id: '',
+        outlet_name: '',
         nama_produk: '',
         jumlah: '',
         satuan: '',
@@ -63,7 +63,7 @@ export default function Index({ auth, items, outlets, summary }) {
             setData({
                 id: item.id,
                 tanggal: item.tanggal || '',
-                outlet_id: item.outlet_id || '',
+                outlet_name: item.outlet ? item.outlet.name : '',
                 nama_produk: item.nama_produk || '',
                 jumlah: item.jumlah || '',
                 satuan: item.satuan || '',
@@ -375,13 +375,9 @@ export default function Index({ auth, items, outlets, summary }) {
                         </div>
                         
                         <div>
-                            <InputLabel htmlFor="outlet_id" value="Nama Outlet" />
-                            <SearchableSelect
-                                options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
-                                value={data.outlet_id ? data.outlet_id.toString() : ''}
-                                onChange={val => setData('outlet_id', val)}
-                                />
-                            <InputError message={errors.outlet_id} className="mt-2" />
+                            <InputLabel htmlFor="outlet_name" value="Nama Outlet" />
+                            <TextInput id="outlet_name" className="mt-1 block w-full" value={data.outlet_name} onChange={e => setData('outlet_name', e.target.value)} />
+                            <InputError message={errors.outlet_name} className="mt-2" />
                         </div>
 
                         <div>

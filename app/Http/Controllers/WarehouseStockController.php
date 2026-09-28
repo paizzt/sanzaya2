@@ -48,13 +48,25 @@ class WarehouseStockController extends Controller
             'location' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
             'link' => 'nullable|string',
-            'incoming_date' => 'nullable|date',
             'po_date' => 'nullable|date',
-            'provider_id' => 'nullable|exists:providers,id',
+            'provider_name' => 'nullable|string',
             'price' => 'nullable|numeric|min:0'
         ]);
 
         $validated['minimum_stock'] = $validated['minimum_stock'] ?? 0;
+
+        if (!empty($validated['provider_name'])) {
+            $providerName = $validated['provider_name'];
+            $mapping = \App\Models\ProviderMapping::where('raw_name', $providerName)->with('provider')->first();
+            if ($mapping && $mapping->provider) {
+                $providerName = $mapping->provider->name;
+            }
+            $provider = \App\Models\Provider::firstOrCreate(['name' => $providerName]);
+            $validated['provider_id'] = $provider->id;
+        } else {
+            $validated['provider_id'] = null;
+        }
+        unset($validated['provider_name']);
 
         WarehouseStock::create($validated);
 
@@ -77,11 +89,24 @@ class WarehouseStockController extends Controller
             'link' => 'nullable|string',
             'incoming_date' => 'nullable|date',
             'po_date' => 'nullable|date',
-            'provider_id' => 'nullable|exists:providers,id',
+            'provider_name' => 'nullable|string',
             'price' => 'nullable|numeric|min:0'
         ]);
 
         $validated['minimum_stock'] = $validated['minimum_stock'] ?? 0;
+
+        if (!empty($validated['provider_name'])) {
+            $providerName = $validated['provider_name'];
+            $mapping = \App\Models\ProviderMapping::where('raw_name', $providerName)->with('provider')->first();
+            if ($mapping && $mapping->provider) {
+                $providerName = $mapping->provider->name;
+            }
+            $provider = \App\Models\Provider::firstOrCreate(['name' => $providerName]);
+            $validated['provider_id'] = $provider->id;
+        } else {
+            $validated['provider_id'] = null;
+        }
+        unset($validated['provider_name']);
 
         $stock->update($validated);
 

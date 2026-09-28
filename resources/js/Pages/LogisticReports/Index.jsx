@@ -105,7 +105,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         tanggal: getTodayDate(),
         company_id: '',
-        outlet_id: '',
+        outlet_name: '',
         jenis_pelanggan: '',
         nama_sales: '',
         no_faktur: '',
@@ -159,7 +159,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
             setData({
                 tanggal: item.tanggal || getTodayDate(),
                 company_id: item.company_id || '',
-                outlet_id: item.outlet_id || '',
+                outlet_name: item.outlet ? item.outlet.name : '',
                 jenis_pelanggan: item.jenis_pelanggan || '',
                 nama_sales: item.nama_sales || '',
                 no_faktur: item.no_faktur || '',
@@ -549,13 +549,9 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                             <InputError message={errors.company_id} className="mt-2" />
                         </div>
                         <div>
-                            <InputLabel htmlFor="outlet_id" value="Pelanggan" />
-                            <SearchableSelect
-                                options={outlets ? outlets.map(o => ({ value: o.id.toString(), label: o.name })) : []}
-                                value={data.outlet_id ? data.outlet_id.toString() : ''}
-                                onChange={val => setData('outlet_id', val)}
-                                />
-                            <InputError message={errors.outlet_id} className="mt-2" />
+                            <InputLabel htmlFor="outlet_name" value="Pelanggan" />
+                            <TextInput id="outlet_name" className="mt-1 block w-full" value={data.outlet_name} onChange={e => setData('outlet_name', e.target.value)} />
+                            <InputError message={errors.outlet_name} className="mt-2" />
                         </div>
                         <div>
                             <InputLabel htmlFor="jenis_pelanggan" value="Jenis Pelanggan" />
