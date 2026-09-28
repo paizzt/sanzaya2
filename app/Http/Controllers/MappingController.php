@@ -89,17 +89,23 @@ class MappingController extends Controller
     {
         $request->validate([
             'raw_name' => 'required|string',
-            'outlet_id' => 'required|exists:outlets,id'
+            'outlet_id' => 'nullable|exists:outlets,id',
+            'is_ignored' => 'boolean'
         ]);
 
         OutletMapping::updateOrCreate(
             ['raw_name' => $request->raw_name],
             [
                 'outlet_id' => $request->outlet_id,
+                'is_ignored' => $request->is_ignored ?? false,
                 'is_confirmed' => true
             ]
         );
 
+        if ($request->is_ignored) {
+            return redirect()->back()->with('success', 'Nama berhasil diabaikan.');
+        }
+        
         return redirect()->back()->with('success', 'Mapping Outlet berhasil disimpan.');
     }
 
@@ -115,16 +121,22 @@ class MappingController extends Controller
     {
         $request->validate([
             'raw_name' => 'required|string',
-            'provider_id' => 'required|exists:providers,id'
+            'provider_id' => 'nullable|exists:providers,id',
+            'is_ignored' => 'boolean'
         ]);
 
         ProviderMapping::updateOrCreate(
             ['raw_name' => $request->raw_name],
             [
                 'provider_id' => $request->provider_id,
+                'is_ignored' => $request->is_ignored ?? false,
                 'is_confirmed' => true
             ]
         );
+
+        if ($request->is_ignored) {
+            return redirect()->back()->with('success', 'Nama penyedia berhasil diabaikan.');
+        }
 
         return redirect()->back()->with('success', 'Mapping Penyedia berhasil disimpan.');
     }

@@ -41,6 +41,40 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
         });
     };
 
+    const handleIgnoreOutlet = (rawName) => {
+        Swal.fire({
+            title: 'Abaikan Typo?',
+            text: `Apakah Anda yakin ingin mengabaikan typo "${rawName}"? Ini tidak akan dipetakan ke manapun.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#eab308',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Abaikan',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route('outlet-mappings.store'), {
+                    raw_name: rawName,
+                    outlet_id: null,
+                    is_ignored: true
+                }, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Diabaikan!',
+                            text: 'Nama berhasil diabaikan.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
+                    }
+                });
+            }
+        });
+    };
+
     const handleDeleteOutlet = (id) => {
         Swal.fire({
             title: 'Hapus Pemetaan?',
@@ -86,6 +120,40 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                     showConfirmButton: false,
                     toast: true,
                     position: 'top-end'
+                });
+            }
+        });
+    };
+
+    const handleIgnoreProvider = (rawName) => {
+        Swal.fire({
+            title: 'Abaikan Typo?',
+            text: `Apakah Anda yakin ingin mengabaikan typo "${rawName}"? Ini tidak akan dipetakan ke manapun.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#eab308',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Abaikan',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route('provider-mappings.store'), {
+                    raw_name: rawName,
+                    provider_id: null,
+                    is_ignored: true
+                }, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Diabaikan!',
+                            text: 'Nama penyedia berhasil diabaikan.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
+                    }
                 });
             }
         });
@@ -224,19 +292,28 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <button 
-                                                            onClick={() => {
-                                                                const val = selectedOutlets[idx];
-                                                                if (!val) {
-                                                                    Swal.fire('Pilih outlet dulu', '', 'warning');
-                                                                    return;
-                                                                }
-                                                                handleConfirmOutlet(item.raw_name, val);
-                                                            }}
-                                                            className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
-                                                        >
-                                                            <Check className="w-4 h-4" /> Konfirmasi
-                                                        </button>
+                                                        <div className="flex justify-end gap-2">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const val = selectedOutlets[idx];
+                                                                    if (!val) {
+                                                                        Swal.fire('Pilih outlet dulu', '', 'warning');
+                                                                        return;
+                                                                    }
+                                                                    handleConfirmOutlet(item.raw_name, val);
+                                                                }}
+                                                                className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
+                                                            >
+                                                                <Check className="w-4 h-4" /> Konfirmasi
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => handleIgnoreOutlet(item.raw_name)}
+                                                                className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                                                                title="Abaikan Typo Ini"
+                                                            >
+                                                                <X className="w-4 h-4" /> Tidak
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             )) : (
@@ -272,8 +349,12 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                     <td className="px-6 py-4 font-medium text-gray-900">
                                                         {mapping.raw_name}
                                                     </td>
-                                                    <td className="px-6 py-4 text-green-600 font-medium">
-                                                        {mapping.outlet?.name}
+                                                    <td className="px-6 py-4 font-medium">
+                                                        {mapping.is_ignored ? (
+                                                            <span className="text-gray-400 italic text-xs bg-gray-100 px-2 py-1 rounded">Diabaikan</span>
+                                                        ) : (
+                                                            <span className="text-green-600">{mapping.outlet?.name || '-'}</span>
+                                                        )}
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <button 
@@ -350,19 +431,28 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <button 
-                                                            onClick={() => {
-                                                                const val = selectedProviders[idx];
-                                                                if (!val) {
-                                                                    Swal.fire('Pilih penyedia dulu', '', 'warning');
-                                                                    return;
-                                                                }
-                                                                handleConfirmProvider(item.raw_name, val);
-                                                            }}
-                                                            className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
-                                                        >
-                                                            <Check className="w-4 h-4" /> Konfirmasi
-                                                        </button>
+                                                        <div className="flex justify-end gap-2">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const val = selectedProviders[idx];
+                                                                    if (!val) {
+                                                                        Swal.fire('Pilih penyedia dulu', '', 'warning');
+                                                                        return;
+                                                                    }
+                                                                    handleConfirmProvider(item.raw_name, val);
+                                                                }}
+                                                                className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
+                                                            >
+                                                                <Check className="w-4 h-4" /> Konfirmasi
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => handleIgnoreProvider(item.raw_name)}
+                                                                className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                                                                title="Abaikan Typo Ini"
+                                                            >
+                                                                <X className="w-4 h-4" /> Tidak
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             )) : (
@@ -398,8 +488,12 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                     <td className="px-6 py-4 font-medium text-gray-900">
                                                         {mapping.raw_name}
                                                     </td>
-                                                    <td className="px-6 py-4 text-green-600 font-medium">
-                                                        {mapping.provider?.name}
+                                                    <td className="px-6 py-4 font-medium">
+                                                        {mapping.is_ignored ? (
+                                                            <span className="text-gray-400 italic text-xs bg-gray-100 px-2 py-1 rounded">Diabaikan</span>
+                                                        ) : (
+                                                            <span className="text-green-600">{mapping.provider?.name || '-'}</span>
+                                                        )}
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <button 
