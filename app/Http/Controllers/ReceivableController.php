@@ -294,7 +294,13 @@ class ReceivableController extends Controller
             'result' => 'required|string',
         ]);
 
-        $outlet = \App\Models\Outlet::firstOrCreate(['name' => $validated['outlet_name']]);
+        $outletName = $validated['outlet_name'];
+        $mapping = \App\Models\OutletMapping::where('raw_name', $outletName)->with('outlet')->first();
+        if ($mapping && $mapping->outlet) {
+            $outletName = $mapping->outlet->name;
+        }
+
+        $outlet = \App\Models\Outlet::firstOrCreate(['name' => $outletName]);
         
         \App\Models\ReceivableDailyReport::create([
             'billing_date' => $validated['billing_date'],
