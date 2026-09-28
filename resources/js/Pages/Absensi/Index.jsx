@@ -1,12 +1,26 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { CheckCircle2, Clock, MapPin, MapPinOff, CalendarDays, Loader2 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
+import Webcam from 'react-webcam';
+
+const dataURLtoFile = (dataurl, filename) => {
+    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type:mime});
+};
 
 export default function Index({ attendance, today, currentTime, isOvertime, history = [], company, isMarketing }) {
     const [isLocating, setIsLocating] = useState(false);
+    const [showWebcamModal, setShowWebcamModal] = useState(false);
+    const [pendingAttendance, setPendingAttendance] = useState(null);
+    const webcamRef = useRef(null);
+    
     const { data, setData, post, processing } = useForm({
         type: '',
         notes: '',
@@ -89,57 +103,19 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
 
                 if (isFar) {
                     setIsLocating(false);
-                    const { value: file } = await Swal.fire({
-                        title: 'Lokasi Anda Jauh',
-                        text: 'Sistem mendeteksi Anda di luar radius kantor PT. Silakan ambil foto bukti lokasi.',
-                        input: 'file',
-                        inputAttributes: {
-                            'accept': 'image/*',
-                            'aria-label': 'Upload your location photo',
-                            'capture': 'environment'
-                        },
-                        showCancelButton: true,
-                        confirmButtonText: 'Unggah & Absen',
-                        cancelButtonText: 'Batal',
-                        confirmButtonColor: '#3b82f6',
-                        cancelButtonColor: '#9ca3af'
-                    });
-
-                    if (!file) return;
-
                     Swal.fire({
-                        title: 'Mengunggah...',
-                        text: 'Sedang memproses foto dan absensi',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading()
-                    });
-
-                    try {
-                        const options = {
-                            maxSizeMB: 1,
-                            maxWidthOrHeight: 1280,
-                            useWebWorker: true
-                        };
-                        const compressedFile = await imageCompression(file, options);
-                        
-                        const formData = new FormData();
-                        formData.append('image', compressedFile);
-                        
-                        const response = await fetch('https://api.imgbb.com/1/upload?key=5950b44b24860057ff810fe73f58868b', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        
-                        const imgData = await response.json();
-                        
-                        if (imgData.success) {
-                            sendAttendancePost(type, latitude, longitude, imgData.data.url);
-                        } else {
-                            Swal.fire('Gagal!', 'Gagal mengunggah gambar.', 'error');
+                        title: 'Lokasi Anda Jauh',
+                        text: 'Sistem mendeteksi Anda di luar radius kantor PT. Anda harus mengambil foto langsung sebagai bukti.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Buka Kamera',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            setPendingAttendance({ type, latitude, longitude });
+                            setShowWebcamModal(true);
                         }
-                    } catch (error) {
-                        Swal.fire('Gagal!', 'Terjadi kesalahan saat mengompres/mengunggah gambar.', 'error');
-                    }
+                    });
                 } else {
                     sendAttendancePost(type, latitude, longitude, null);
                 }
@@ -169,6 +145,47 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
             preserveScroll: true,
             onFinish: () => setIsLocating(false)
         });
+    };
+
+    const captureAndSubmit = async () => {
+        const imageSrc = webcamRef.current?.getScreenshot();
+        if (!imageSrc) return;
+        
+        setShowWebcamModal(false);
+        Swal.fire({
+            title: 'Memproses...',
+            text: 'Sedang mengunggah foto dan absensi',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const file = dataURLtoFile(imageSrc, 'attendance.jpg');
+            const options = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1280,
+                useWebWorker: true
+            };
+            const compressedFile = await imageCompression(file, options);
+            
+            const formData = new FormData();
+            formData.append('image', compressedFile);
+            
+            const response = await fetch('https://api.imgbb.com/1/upload?key=5950b44b24860057ff810fe73f58868b', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const imgData = await response.json();
+            
+            if (imgData.success) {
+                sendAttendancePost(pendingAttendance.type, pendingAttendance.latitude, pendingAttendance.longitude, imgData.data.url);
+            } else {
+                Swal.fire('Gagal!', 'Gagal mengunggah gambar.', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Gagal!', 'Terjadi kesalahan saat mengompres/mengunggah gambar.', 'error');
+        }
     };
 
     const hasCheckedIn = attendance?.check_in_time != null;
@@ -322,6 +339,49 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                     </div>
                 </div>
             </div>
+
+            {/* Webcam Modal */}
+            {showWebcamModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                    <div className="bg-white rounded-2xl overflow-hidden w-full max-w-md shadow-2xl flex flex-col">
+                        <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                            <h3 className="font-bold text-gray-800">Ambil Foto Bukti Lokasi</h3>
+                            <button onClick={() => setShowWebcamModal(false)} className="text-gray-400 hover:text-red-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="bg-black relative flex-1 flex flex-col items-center justify-center min-h-[300px]">
+                            <Webcam
+                                audio={false}
+                                ref={webcamRef}
+                                screenshotFormat="image/jpeg"
+                                videoConstraints={{ facingMode: "environment" }}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div className="p-4 bg-white flex justify-between gap-3">
+                            <button
+                                onClick={() => setShowWebcamModal(false)}
+                                className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={captureAndSubmit}
+                                className="flex-1 py-3 px-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 flex items-center justify-center gap-2"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Ambil & Absen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }
