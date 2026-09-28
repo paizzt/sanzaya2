@@ -106,10 +106,13 @@ class SpreadsheetSyncService
     }
 
     private static function insertLogistik($row, $sheetName, $config) {
+        $pelanggan = self::getColValue($row, $config['col_pelanggan'] ?? null);
+        $pelanggan = self::getMappedOutletName($pelanggan);
+
         $data = [
             'sheet_name' => $sheetName,
             'nama_pt' => $config['col_nama_pt'] ?? null,
-            'pelanggan' => self::getColValue($row, $config['col_pelanggan'] ?? null),
+            'pelanggan' => $pelanggan,
             'jenis_pelanggan' => self::getColValue($row, $config['col_jenis_pelanggan'] ?? null),
             'tanggal' => self::getColValue($row, $config['col_tanggal'] ?? null),
             'nama_sales' => self::getColValue($row, $config['col_nama_sales'] ?? null),
@@ -135,6 +138,7 @@ class SpreadsheetSyncService
 
     private static function insertPesanan($row, $sheetName, $config) {
         $namaOutlet = self::getColValue($row, $config['col_nama_outlet'] ?? null);
+        $namaOutlet = self::getMappedOutletName($namaOutlet);
 
         $data = [
             'sheet_name' => $sheetName,
@@ -163,6 +167,7 @@ class SpreadsheetSyncService
 
     private static function insertPiutang($row, $sheetName, $config) {
         $namaOutlet = self::getColValue($row, $config['col_nama_outlet'] ?? null);
+        $namaOutlet = self::getMappedOutletName($namaOutlet);
 
         $data = [
             'sheet_name' => $sheetName,
@@ -186,10 +191,13 @@ class SpreadsheetSyncService
     }
 
     private static function insertHutang($row, $sheetName, $config) {
+        $namaPenyedia = self::getColValue($row, $config['col_nama_penyedia'] ?? null);
+        $namaPenyedia = self::getMappedProviderName($namaPenyedia);
+
         $data = [
             'sheet_name' => $sheetName,
             'no' => self::getColValue($row, $config['col_no'] ?? null),
-            'nama_penyedia' => self::getColValue($row, $config['col_nama_penyedia'] ?? null),
+            'nama_penyedia' => $namaPenyedia,
             'nominal' => self::getColValue($row, $config['col_nominal'] ?? null),
         ];
 
@@ -197,5 +205,23 @@ class SpreadsheetSyncService
 
         \App\Models\SyncHutangData::create($data);
         return true;
+    }
+
+    private static function getMappedOutletName($rawName) {
+        if (!$rawName) return $rawName;
+        $mapping = \App\Models\OutletMapping::where('raw_name', $rawName)->with('outlet')->first();
+        if ($mapping && $mapping->outlet) {
+            return $mapping->outlet->name;
+        }
+        return $rawName;
+    }
+
+    private static function getMappedProviderName($rawName) {
+        if (!$rawName) return $rawName;
+        $mapping = \App\Models\ProviderMapping::where('raw_name', $rawName)->with('provider')->first();
+        if ($mapping && $mapping->provider) {
+            return $mapping->provider->name;
+        }
+        return $rawName;
     }
 }

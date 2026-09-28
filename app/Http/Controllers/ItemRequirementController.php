@@ -65,6 +65,11 @@ class ItemRequirementController extends Controller
 
         $validated['total'] = $validated['quantity'] * $validated['price'];
 
+        $mapping = \App\Models\OutletMapping::where('raw_name', $validated['outlet_name'])->with('outlet')->first();
+        if ($mapping && $mapping->outlet) {
+            $validated['outlet_name'] = $mapping->outlet->name;
+        }
+
         ItemRequirement::create($validated);
 
         return redirect()->back()->with('success', 'Data kebutuhan barang berhasil ditambahkan.');
@@ -94,6 +99,11 @@ class ItemRequirementController extends Controller
         ]);
 
         $validated['total'] = $validated['quantity'] * $validated['price'];
+
+        $mapping = \App\Models\OutletMapping::where('raw_name', $validated['outlet_name'])->with('outlet')->first();
+        if ($mapping && $mapping->outlet) {
+            $validated['outlet_name'] = $mapping->outlet->name;
+        }
 
         $item->update($validated);
 

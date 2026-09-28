@@ -172,6 +172,12 @@ class PaymentRequestController extends Controller
 
         try {
             DB::beginTransaction();
+
+            $projectOrOutlet = $request->project_or_outlet;
+            $mapping = \App\Models\OutletMapping::where('raw_name', $projectOrOutlet)->with('outlet')->first();
+            if ($mapping && $mapping->outlet) {
+                $projectOrOutlet = $mapping->outlet->name;
+            }
             
             // Create the record
             $paymentRequest = PaymentRequest::create([
@@ -186,7 +192,7 @@ class PaymentRequestController extends Controller
                 'recipient_name' => $request->recipient_name,
                 'vendor_id' => $request->vendor_id,
                 'invoice_reference' => $request->invoice_reference,
-                'project_or_outlet' => $request->project_or_outlet,
+                'project_or_outlet' => $projectOrOutlet,
                 'payment_method' => $request->payment_method,
                 'bank_or_wallet' => $request->bank_or_wallet,
                 'account_number' => $request->account_number,
@@ -357,6 +363,12 @@ class PaymentRequestController extends Controller
         try {
             DB::beginTransaction();
             
+            $projectOrOutlet = $request->project_or_outlet;
+            $mapping = \App\Models\OutletMapping::where('raw_name', $projectOrOutlet)->with('outlet')->first();
+            if ($mapping && $mapping->outlet) {
+                $projectOrOutlet = $mapping->outlet->name;
+            }
+
             $paymentRequest->update([
                 'company_name' => $request->company_name,
                 'payment_deadline' => $request->payment_deadline,
@@ -366,7 +378,7 @@ class PaymentRequestController extends Controller
                 'recipient_name' => $request->recipient_name,
                 'vendor_id' => $request->vendor_id,
                 'invoice_reference' => $request->invoice_reference,
-                'project_or_outlet' => $request->project_or_outlet,
+                'project_or_outlet' => $projectOrOutlet,
                 
                 'payment_method' => $request->payment_method,
                 'bank_or_wallet' => $request->bank_or_wallet,
