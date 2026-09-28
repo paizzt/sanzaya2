@@ -238,13 +238,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('warehouse-stocks', \App\Http\Controllers\WarehouseStockController::class)->except(['show', 'create', 'edit']);
 
         // Pemetaan Outlet
-        Route::get('/outlet-mappings', [\App\Http\Controllers\OutletMappingController::class, 'index'])->name('outlet-mappings.index');
-        Route::post('/outlet-mappings', [\App\Http\Controllers\OutletMappingController::class, 'store'])->name('outlet-mappings.store');
-        Route::delete('/outlet-mappings/{id}', [\App\Http\Controllers\OutletMappingController::class, 'destroy'])->name('outlet-mappings.destroy');
+        Route::get('/mappings', [\App\Http\Controllers\MappingController::class, 'index'])->name('mappings.index');
+        
+        Route::post('/outlet-mappings', [\App\Http\Controllers\MappingController::class, 'storeOutlet'])->name('outlet-mappings.store');
+        Route::delete('/outlet-mappings/{id}', [\App\Http\Controllers\MappingController::class, 'destroyOutlet'])->name('outlet-mappings.destroy');
 
-        Route::get('/provider-mappings', [\App\Http\Controllers\ProviderMappingController::class, 'index'])->name('provider-mappings.index');
-        Route::post('/provider-mappings', [\App\Http\Controllers\ProviderMappingController::class, 'store'])->name('provider-mappings.store');
-        Route::delete('/provider-mappings/{id}', [\App\Http\Controllers\ProviderMappingController::class, 'destroy'])->name('provider-mappings.destroy');
+        Route::post('/provider-mappings', [\App\Http\Controllers\MappingController::class, 'storeProvider'])->name('provider-mappings.store');
+        Route::delete('/provider-mappings/{id}', [\App\Http\Controllers\MappingController::class, 'destroyProvider'])->name('provider-mappings.destroy');
 
         // Master Data
         Route::resource('outlets', OutletController::class)->except(['show', 'create', 'edit']);
