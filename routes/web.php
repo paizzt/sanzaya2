@@ -22,15 +22,6 @@ use Inertia\Inertia;
 
 use Illuminate\Support\Facades\Artisan;
 
-Route::get('/migrate-db', function () {
-    try {
-        Artisan::call('migrate', ['--force' => true]);
-        return 'Migration successful: ' . Artisan::output();
-    } catch (\Exception $e) {
-        return 'Migration failed: ' . $e->getMessage();
-    }
-});
-
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -42,7 +33,7 @@ Route::get('/linkstorage', function () {
 });
 
 // Route to run database migrations on shared hosting
-Route::get('/migrate-db', function () {
+Route::get('/run-migrations', function () {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         return 'Migrasi Database Berhasil Dijalankan!';
