@@ -20,6 +20,7 @@ const SidebarItem = ({ item, sidebarCollapsed, setSidebarCollapsed }) => {
         return (
             <Link
                 href={item.href}
+                prefetch="hover"
                 title={sidebarCollapsed ? item.name : ''}
                 className={`flex items-center ${sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-xl transition-all duration-200 ${item.active ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
             >
@@ -56,6 +57,7 @@ const SidebarItem = ({ item, sidebarCollapsed, setSidebarCollapsed }) => {
                         <Link
                             key={child.name}
                             href={child.href}
+                            prefetch="hover"
                             className={`px-3 py-2 text-sm rounded-lg transition-colors ${child.active ? 'bg-blue-100 text-blue-700 font-bold shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
                         >
                             {child.name}
@@ -308,7 +310,7 @@ export default function Authenticated({ user, header, children }) {
             {/* Sidebar Desktop */}
             <aside className={`hidden lg:flex flex-col bg-white border-r border-gray-100 shadow-[2px_0_8px_-4px_rgba(0,0,0,0.1)] fixed h-full z-20 transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
                 <div className="p-6 flex items-center justify-center h-28 border-b border-gray-50 mb-2">
-                    <Link href={route('dashboard')} className={`relative flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100/80 hover:shadow-[0_4px_15px_-3px_rgba(6,81,237,0.15)] hover:border-blue-100 transition-all duration-300 group overflow-hidden ${sidebarCollapsed ? 'w-12 h-12 p-2' : 'w-full h-16 p-2'}`}>
+                    <Link href={route('dashboard')} prefetch="hover" className={`relative flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100/80 hover:shadow-[0_4px_15px_-3px_rgba(6,81,237,0.15)] hover:border-blue-100 transition-all duration-300 group overflow-hidden ${sidebarCollapsed ? 'w-12 h-12 p-2' : 'w-full h-16 p-2'}`}>
                         {/* Decorative background glow */}
                         <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         
@@ -354,7 +356,7 @@ export default function Authenticated({ user, header, children }) {
                                 >
                                     {showingNavigationDropdown ? <X className="w-6 h-6" /> : <LucideMenu className="w-6 h-6" />}
                                 </button>
-                                <Link href={route("dashboard")} className="ml-3 relative flex items-center justify-center bg-white rounded-xl shadow-[0_2px_8px_-2px_rgba(6,81,237,0.1)] border border-gray-100 p-1.5 h-10 w-24">
+                                <Link href={route("dashboard")} prefetch="hover" className="ml-3 relative flex items-center justify-center bg-white rounded-xl shadow-[0_2px_8px_-2px_rgba(6,81,237,0.1)] border border-gray-100 p-1.5 h-10 w-24">
                                     {auth.user?.company?.logo ? (
                                         <img 
                                             src={`/storage/${auth.user.company.logo}`} 
@@ -472,7 +474,7 @@ export default function Authenticated({ user, header, children }) {
                     <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl flex flex-col">
                         <div className="p-6 flex items-center border-b border-gray-100 relative h-24">
                             <div className="flex-1 flex justify-center w-full px-2">
-                                <Link href={route("dashboard")} className="relative flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-2 h-16 w-full max-w-[200px]">
+                                <Link href={route("dashboard")} prefetch="hover" className="relative flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-2 h-16 w-full max-w-[200px]">
                                     {auth.user?.company?.logo ? (
                                         <img 
                                             src={`/storage/${auth.user.company.logo}`} 
@@ -553,7 +555,7 @@ export default function Authenticated({ user, header, children }) {
                     return allItems.filter(item => {
                         return item.show && prefs.includes(item.id);
                     }).slice(0, 4).map((item) => (
-                        <Link key={item.name} href={item.href} className={`flex flex-col items-center p-2 rounded-xl ${item.active ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'} w-1/4`}>
+                        <Link key={item.name} href={item.href} prefetch="hover" className={`flex flex-col items-center p-2 rounded-xl ${item.active ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'} w-1/4`}>
                             <item.icon className={`w-6 h-6 mb-1 flex-shrink-0 ${item.active ? 'animate-bounce' : ''}`} />
                             <span className="text-[10px] font-medium text-center leading-tight line-clamp-1">{item.name}</span>
                         </Link>
