@@ -491,12 +491,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     </div>
 
                                     <div className="pt-4 border-t border-gray-100">
-                                        <div className="flex items-start gap-2 mb-4 bg-yellow-50 p-3 rounded-xl border border-yellow-100">
-                                            <span className="text-xl">💡</span>
-                                            <p className="text-sm text-yellow-800 mt-0.5">
-                                                Centang nama-nama outlet target kunjungan sesuai wilayah penugasan Anda.
-                                            </p>
-                                        </div>
+
 
                                         <div className="mb-4">
                                             <TextInput 
