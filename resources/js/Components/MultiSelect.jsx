@@ -20,13 +20,13 @@ export default function MultiSelect({ value = [], onChange, options, placeholder
         <div className={`relative ${className}`}>
             <Listbox value={value} onChange={handleChange} multiple>
                 <div className="relative mt-1">
-                    <Listbox.Button className="relative w-full cursor-pointer rounded-xl bg-white py-2.5 pl-4 pr-10 text-left border border-gray-300 shadow-sm hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200">
+                    <Listbox.Button className="relative w-full cursor-pointer bg-white border border-gray-300 py-2 pl-3 pr-10 text-left focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm sm:text-base transition-all duration-200">
                         {Icon && (
                             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                 <Icon className="h-4 w-4" />
                             </span>
                         )}
-                        <span className={`block truncate ${Icon ? 'ml-7' : ''} ${selectedOptions.length === 0 ? 'text-gray-500' : 'text-gray-900 font-medium'}`}>
+                        <span className={`block truncate ${Icon ? 'ml-7' : ''} ${selectedOptions.length === 0 ? 'text-gray-900' : 'text-gray-900'}`}>
                             {getDisplayLabel()}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
