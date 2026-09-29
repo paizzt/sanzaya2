@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import { Target, TrendingUp, Building, MapPin, Send, AlertTriangle, CalendarDays, CheckSquare, ClipboardList, Download } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
@@ -145,7 +145,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                         </div>
 
                         {/* Card ke-2: Total Penjualan Perbulan */}
-                        <div className="bg-gradient-to-br from-white to-emerald-50/40 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300">
+                        <Link href={route('reports.index')} className="bg-gradient-to-br from-white to-emerald-50/40 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 block">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-100 text-emerald-600 shadow-inner">
@@ -184,7 +184,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     }}
                                 ></div>
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </div>
 
