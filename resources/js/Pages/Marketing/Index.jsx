@@ -189,20 +189,18 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                 </div>
 
                 
-                {/* Tab Navigation Horizontal Scroll (Mobile First) */}
-                <div className="flex overflow-x-auto gap-3 w-full p-2 pb-4 mb-2 -ml-2 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                    <button onClick={() => setActiveTab('laporan')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'laporan' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-600 ring-offset-2' : 'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                        <ClipboardList className="w-5 h-5"/> Laporan Harian
-                    </button>
-                    <button onClick={() => setActiveTab('target')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'target' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-600 ring-offset-2' : 'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                        <Target className="w-5 h-5"/> Target Mingguan
-                    </button>
-                    <button onClick={() => setActiveTab('rekap_laporan')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'rekap_laporan' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-600 ring-offset-2' : 'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                        <TrendingUp className="w-5 h-5"/> Rekap Laporan
-                    </button>
-                    <button onClick={() => setActiveTab('rekap_target')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'rekap_target' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-600 ring-offset-2' : 'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                        <CalendarDays className="w-5 h-5"/> Rekap Target
-                    </button>
+                {/* Tab Navigation (Dropdown) */}
+                <div className="w-full md:w-72 mb-6 mt-4">
+                    <CustomSelect
+                        value={activeTab}
+                        onChange={(val) => setActiveTab(val)}
+                        options={[
+                            { value: 'laporan', label: 'Laporan Harian' },
+                            { value: 'target', label: 'Target Mingguan' },
+                            { value: 'rekap_laporan', label: 'Rekap Laporan' },
+                            { value: 'rekap_target', label: 'Rekap Target' }
+                        ]}
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
