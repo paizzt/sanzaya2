@@ -573,13 +573,13 @@ class ReportController extends Controller
                 'top_outlet' => key($outletCounts) ?: '-',
                 'top_produk' => key($produkCounts) ?: '-',
                 'total_pesanan' => $logistikAll->count(),
-                'penjualan_detail' => array_slice($salesBreakdownFormatted, 0, 10, true),
+                'penjualan_detail' => $salesBreakdownFormatted,
                 'pt_penjualan_detail' => $ptBreakdownFormatted,
-                'brand_detail' => array_slice($brandBreakdownFormatted, 0, 10, true),
+                'brand_detail' => $brandBreakdownFormatted,
                 'bulan_detail' => $monthBreakdownFormatted,
                 'outlet_detail' => $outletDetailFormatted,
-                'produk_detail' => array_slice($produkCounts, 0, 10, true),
-                'pesanan_sales' => array_slice($pesananSales, 0, 10, true)
+                'produk_detail' => $produkCounts,
+                'pesanan_sales' => $pesananSales
             ];
         });
 
@@ -656,10 +656,10 @@ class ReportController extends Controller
                 'total_terkirim' => ($totalItems > 0 ? round(($totalTerkirim / $totalItems) * 100, 1) : 0) . '%',
                 'total_belum_terkirim' => ($totalItems > 0 ? round(($totalBelumTerkirim / $totalItems) * 100, 1) : 0) . '%',
                 'total_pesanan' => $pesananAll->count(),
-                'faktur_detail' => array_slice($fakturOutletFormatted, 0, 10, true),
-                'terkirim_detail' => array_slice($terkirimOutletFormatted, 0, 10, true),
-                'belum_terkirim_detail' => array_slice($belumTerkirimOutletFormatted, 0, 10, true),
-                'pesanan_detail' => array_slice($pesananOutletFormatted, 0, 10, true)
+                'faktur_detail' => $fakturOutletFormatted,
+                'terkirim_detail' => $terkirimOutletFormatted,
+                'belum_terkirim_detail' => $belumTerkirimOutletFormatted,
+                'pesanan_detail' => $pesananOutletFormatted
             ];
         });
 
@@ -708,9 +708,9 @@ class ReportController extends Controller
                 'total_ruma' => 'Rp ' . number_format($totalRuma, 0, ',', '.'),
                 'total_gabungan' => 'Rp ' . number_format($totalGabungan, 0, ',', '.'),
                 'total_outlet' => $piutangAll->count(),
-                'sanzaya_detail' => array_slice($sanzayaOutletFormatted, 0, 10, true),
-                'ruma_detail' => array_slice($rumaOutletFormatted, 0, 10, true),
-                'gabungan_detail' => array_slice($gabunganOutletFormatted, 0, 10, true),
+                'sanzaya_detail' => $sanzayaOutletFormatted,
+                'ruma_detail' => $rumaOutletFormatted,
+                'gabungan_detail' => $gabunganOutletFormatted,
             ];
         });
 
@@ -737,7 +737,7 @@ class ReportController extends Controller
                 'total_nominal' => 'Rp ' . number_format($totalNominalHutang, 0, ',', '.'),
                 'total_data' => $hutangAll->count(),
                 'total_penyedia' => count(array_unique($penyediaList)),
-                'hutang_detail' => array_slice($hutangPenyediaFormatted, 0, 10, true)
+                'hutang_detail' => $hutangPenyediaFormatted
             ];
         });
 
