@@ -91,13 +91,13 @@ class MarketingDailyReportController extends Controller
             $logistikData = (clone $query)->where('nama_sales', $spreadsheetSalesName)->get();
                 
             foreach ($logistikData as $row) {
-                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
+                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
                 $spreadsheetSalesTotal += $val;
             }
         } elseif ($user->isAdminUser()) {
             $logistikData = (clone $query)->get();
             foreach ($logistikData as $row) {
-                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
+                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
                 $spreadsheetSalesTotal += $val;
             }
             $spreadsheetSalesName = 'Semua Data (Admin View)';
