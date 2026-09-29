@@ -112,17 +112,17 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                 {/* Target vs Realization */}
                 <div>
                     <h3 className="font-bold text-xl text-gray-800 mb-4 flex items-center gap-2">
-                        <Target className="text-blue-600" /> Target Mingguan vs Realisasi
+                        <Target className="text-blue-600" /> Target Bulanan vs Realisasi
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Card 1: Target Kunjungan Mingguan (Merged) */}
+                        {/* Card 1: Target Kunjungan Bulanan (Merged) */}
                         <div className="bg-gradient-to-br from-white to-indigo-50/40 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-indigo-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-indigo-100 text-indigo-600 shadow-inner">
                                     <Target className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-gray-500">Target Kunjungan Mingguan</p>
+                                    <p className="text-sm font-semibold text-gray-500">Target Kunjungan Bulanan</p>
                                     <div className="flex items-end gap-2">
                                         <h3 className="text-2xl font-black text-gray-800">{realization.visits}</h3>
                                         <span className="text-gray-500 text-sm mb-1">/ {target?.target_visits || 0} Outlet</span>
@@ -198,7 +198,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                         onChange={(val) => setActiveTab(val)}
                         options={[
                             { value: 'laporan', label: 'Laporan Harian' },
-                            { value: 'target', label: 'Target Mingguan' },
+                            { value: 'target', label: 'Target Bulanan' },
                             { value: 'rekap_laporan', label: 'Rekap Laporan' },
                             { value: 'rekap_target', label: 'Rekap Target' }
                         ]}
@@ -414,12 +414,12 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     )}
 
 
-                    {/* Form Target Mingguan */}
+                    {/* Form Target Bulanan */}
                     {activeTab === 'target' && (
                         <div className="lg:col-span-2 min-w-0">
                             <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                                 <h3 className="font-bold text-lg text-gray-800 mb-2">
-                                    Target Mingguan Sales
+                                    Target Bulanan Sales
                                 </h3>
                                 <p className="text-gray-500 text-sm mb-6 pb-4 border-b border-gray-50">
                                     Tentukan target kunjungan dan sebaran outlet untuk periode minggu depan.
@@ -633,13 +633,13 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                         </div>
                     )}
 
-                    {/* Rekap Target Mingguan */}
+                    {/* Rekap Target Bulanan */}
                     {activeTab === 'rekap_target' && (
                         <div className="lg:col-span-2 min-w-0">
                             <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                                 <h3 className="font-bold text-lg text-gray-800 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-gray-50 pb-4">
                                     <div>
-                                        Rekap Target Mingguan
+                                        Rekap Target Bulanan
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export_target.pdf')} trigger={
                                         <button className="inline-flex items-center rounded-md border border-emerald-400 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition duration-150 hover:bg-emerald-100 shrink-0">
@@ -675,7 +675,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                 </tr>
                                             )) : (
                                                 <tr>
-                                                    <td colSpan="4" className="px-4 py-8 text-center text-gray-400">Belum ada data target mingguan.</td>
+                                                    <td colSpan="4" className="px-4 py-8 text-center text-gray-400">Belum ada data target bulanan.</td>
                                                 </tr>
                                             )}
                                         </tbody>

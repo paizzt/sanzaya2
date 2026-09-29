@@ -195,7 +195,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                             <ClipboardList className="w-5 h-5"/> Rekap Laporan Harian
                         </button>
                         <button onClick={() => setActiveTab('target')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'target' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-600 ring-offset-2' : 'bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 shadow-sm border border-gray-100'}`}>
-                            <CalendarDays className="w-5 h-5"/> Rekap Target Mingguan
+                            <CalendarDays className="w-5 h-5"/> Rekap Target Bulanan
                         </button>
                     </div>
                     
@@ -298,13 +298,13 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                         </div>
                     )}
 
-                    {/* Rekap Target Mingguan */}
+                    {/* Rekap Target Bulanan */}
                     {activeTab === 'target' && (
                         <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden hide-scrollbar">
                             <div className="p-6 border-b border-gray-50">
                                 <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                                     <CalendarDays className="text-teal-600 w-5 h-5" />
-                                    Rekap Target Mingguan
+                                    Rekap Target Bulanan
                                 </h3>
                             </div>
                             <div className="overflow-x-auto hide-scrollbar">
@@ -358,7 +358,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             </tr>
                                         )) : (
                                             <tr className="block md:table-row">
-                                                <td colSpan="6" className="block md:table-cell px-6 py-12 text-center text-gray-400 font-medium">Belum ada data target mingguan.</td>
+                                                <td colSpan="6" className="block md:table-cell px-6 py-12 text-center text-gray-400 font-medium">Belum ada data target bulanan.</td>
                                             </tr>
                                         )}
                                     </tbody>
