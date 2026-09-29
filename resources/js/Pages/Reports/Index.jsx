@@ -980,9 +980,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <div className="flex items-center gap-2">
                                 {tab === 'logistik' && <><Package className="w-4 h-4" /> Logistik</>}
                                 {tab === 'pesanan' && <><ShoppingCart className="w-4 h-4" /> Surat Pesanan</>}
-                                {tab === 'piutang' && <><CreditCard className="w-4 h-4" /> Data Piutang</>}
-                                {tab === 'hutang' && <><CreditCard className="w-4 h-4" /> Data Hutang</>}
-                                {!['logistik', 'pesanan', 'piutang', 'hutang'].includes(tab) && <><BarChart2 className="w-4 h-4" /> Pilih Laporan</>}
+                                {!['logistik', 'pesanan'].includes(tab) && <><BarChart2 className="w-4 h-4" /> Pilih Laporan</>}
                             </div>
                             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
@@ -1000,18 +998,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='pesanan' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:bg-gray-50 hover:text-emerald-600'}`}
                                 >
                                     <ShoppingCart className="w-4 h-4" /> Surat Pesanan
-                                </button>
-                                <button 
-                                    onClick={() => { handleTabChange('piutang'); setIsTabDropdownOpen(false); }} 
-                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='piutang' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
-                                >
-                                    <CreditCard className="w-4 h-4" /> Data Piutang
-                                </button>
-                                <button 
-                                    onClick={() => { handleTabChange('hutang'); setIsTabDropdownOpen(false); }} 
-                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${tab==='hutang' ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600'}`}
-                                >
-                                    <CreditCard className="w-4 h-4" /> Data Hutang
                                 </button>
                             </div>
                         )}
