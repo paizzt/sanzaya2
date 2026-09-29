@@ -111,6 +111,23 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         return args;
     };
 
+    const getProgressBg = (capaianStr) => {
+        let perc = parseFloat((capaianStr || '0').replace(',', '.').replace('%', ''));
+        if (isNaN(perc)) perc = 0;
+        const fillPerc = Math.min(Math.max(perc, 0), 100);
+        
+        let color = '';
+        if (perc < 34) {
+            color = 'rgba(239, 68, 68, 0.2)'; // red
+        } else if (perc < 67) {
+            color = 'rgba(234, 179, 8, 0.25)'; // yellow
+        } else {
+            color = 'rgba(34, 197, 94, 0.2)'; // green
+        }
+
+        return `linear-gradient(to right, ${color} ${fillPerc}%, transparent ${fillPerc}%)`;
+    };
+
     // Chart Renderers
     const renderLogistikChart = () => {
         if (!summary) return null;
@@ -687,6 +704,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                 <div 
                                     onClick={() => summary.capaian_detail && Object.keys(summary.capaian_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Target', type: 'capaian', data: summary.capaian_detail })} 
                                     className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-pink-100 ${summary.capaian_detail && Object.keys(summary.capaian_detail).length > 0 ? 'cursor-pointer' : ''}`}
+                                    style={{ backgroundImage: getProgressBg(summary.capaian_target) }}
                                 >
                                         {/* Background Icon */}
     <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
@@ -728,6 +746,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                 <div 
                                     onClick={() => summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Tahunan', type: 'capaian_tahunan', data: summary.capaian_tahunan_detail })}
                                     className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-orange-100 ${summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 ? 'cursor-pointer' : ''}`}
+                                    style={{ backgroundImage: getProgressBg(summary.capaian_tahunan) }}
                                 >
                                         {/* Background Icon */}
     <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
