@@ -37,6 +37,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
     const [activeTab, setActiveTab] = useState('laporan');
     const [outletSearch, setOutletSearch] = useState('');
+    const [expandedTypes, setExpandedTypes] = useState([]);
     const user = usePage().props.auth.user;
 
     const { data: targetData, setData: setTargetData, post: postTarget, processing: targetProcessing, errors: targetErrors, reset: resetTarget } = useForm({
@@ -503,29 +504,56 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         </div>
 
                                         <div className="space-y-6">
-                                            {Object.entries(groupedOutlets).map(([type, typeOutlets]) => (
-                                                <div key={type} className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                                                    <h4 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
-                                                        <Building className="w-4 h-4 text-gray-400" /> {type}
-                                                    </h4>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                        {typeOutlets.map(outlet => (
-                                                            <label key={outlet.id} className="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-colors">
-                                                                <input 
-                                                                    type="checkbox" 
-                                                                    className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
-                                                                    checked={targetData.target_outlets.includes(outlet.id)}
-                                                                    onChange={() => handleOutletToggle(outlet.id)}
-                                                                />
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-sm font-medium text-gray-800 leading-tight">{outlet.name}</span>
-                                                                    <span className="text-xs text-gray-500">{outlet.city || '-'}</span>
-                                                                </div>
-                                                            </label>
-                                                        ))}
+                                            {Object.entries(groupedOutlets).map(([type, typeOutlets]) => {
+                                                const isExpanded = expandedTypes.includes(type) || outletSearch.trim() !== '';
+                                                const visibleOutlets = isExpanded ? typeOutlets : typeOutlets.slice(0, 5);
+
+                                                return (
+                                                    <div key={type} className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                                                        <h4 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                                            <Building className="w-4 h-4 text-gray-400" /> {type} <span className="text-sm font-normal text-gray-500">({typeOutlets.length})</span>
+                                                        </h4>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                            {visibleOutlets.map(outlet => (
+                                                                <label key={outlet.id} className="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-colors">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+                                                                        checked={targetData.target_outlets.includes(outlet.id)}
+                                                                        onChange={() => handleOutletToggle(outlet.id)}
+                                                                    />
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-sm font-medium text-gray-800 leading-tight">{outlet.name}</span>
+                                                                        <span className="text-xs text-gray-500">{outlet.city || '-'}</span>
+                                                                    </div>
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                        {typeOutlets.length > 5 && !isExpanded && (
+                                                            <div className="mt-4 text-center">
+                                                                <button 
+                                                                    type="button" 
+                                                                    onClick={() => setExpandedTypes([...expandedTypes, type])}
+                                                                    className="text-blue-600 hover:text-blue-700 text-sm font-semibold transition-colors bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg"
+                                                                >
+                                                                    Tampilkan {typeOutlets.length - 5} lainnya...
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                        {typeOutlets.length > 5 && isExpanded && !outletSearch.trim() && (
+                                                            <div className="mt-4 text-center">
+                                                                <button 
+                                                                    type="button" 
+                                                                    onClick={() => setExpandedTypes(expandedTypes.filter(t => t !== type))}
+                                                                    className="text-gray-500 hover:text-gray-700 text-sm transition-colors bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg"
+                                                                >
+                                                                    Tampilkan lebih sedikit
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                         <InputError message={targetErrors.target_outlets} className="mt-2" />
                                     </div>
