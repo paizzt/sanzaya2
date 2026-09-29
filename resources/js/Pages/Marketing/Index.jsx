@@ -148,8 +148,10 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                         <Link href={route('reports.index')} className="bg-gradient-to-br from-white to-emerald-50/40 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 block">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-100 text-emerald-600 shadow-inner">
-                                        <TrendingUp className="w-6 h-6" />
+                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-100 text-emerald-600 shadow-inner font-bold text-sm">
+                                        {spreadsheet?.monthly_target > 0 
+                                            ? Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
+                                            : 0}%
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-gray-500">Total Penjualan Perbulan</p>
