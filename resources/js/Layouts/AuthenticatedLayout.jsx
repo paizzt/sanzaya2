@@ -208,51 +208,51 @@ export default function Authenticated({ user, header, children }) {
             name: 'Absensi', icon: Camera, 
             active: url.startsWith('/absensi') && !url.startsWith('/absensi/rekap'),
             children: [
-                { name: 'Ambil Absensi', href: route('absensi.index'), active: url === '/absensi', show: auth.active_feature_names?.includes('Ambil Absensi') },
-                { name: 'Izin/Sakit', href: route('absensi.pengajuan'), active: url.startsWith('/absensi/pengajuan'), show: auth.active_feature_names?.includes('Izin / Sakit') },
+                { name: 'Ambil Absensi', href: route('absensi.index'), active: url === '/absensi', show: auth.active_feature_names?.includes('Ambil Absensi') && hasPermission('view absensi') },
+                { name: 'Izin/Sakit', href: route('absensi.pengajuan'), active: url.startsWith('/absensi/pengajuan'), show: auth.active_feature_names?.includes('Izin / Sakit') && hasPermission('view absensi') },
             ]
         },
         { 
             name: 'Marketing', icon: Briefcase, 
             active: url.startsWith('/marketing'),
             children: [
-                { name: 'Form Marketing', href: route('marketing.index'), active: url === '/marketing', show: auth.active_feature_names?.includes('Form Marketing') },
-                { name: 'Rekap Marketing', href: route('marketing.recap.index'), active: url.startsWith('/marketing/recap-all'), show: auth.active_feature_names?.includes('Rekap Marketing') },
-                { name: 'Cari Produk', href: route('marketing.products.index'), active: url.startsWith('/marketing/products'), show: auth.active_feature_names?.includes('Cari Produk') },
+                { name: 'Form Marketing', href: route('marketing.index'), active: url === '/marketing', show: auth.active_feature_names?.includes('Form Marketing') && hasPermission('view marketing') },
+                { name: 'Rekap Marketing', href: route('marketing.recap.index'), active: url.startsWith('/marketing/recap-all'), show: auth.active_feature_names?.includes('Rekap Marketing') && hasPermission('view marketing') },
+                { name: 'Cari Produk', href: route('marketing.products.index'), active: url.startsWith('/marketing/products'), show: auth.active_feature_names?.includes('Cari Produk') && hasPermission('view marketing') },
             ]
         },
         {
             name: 'Pengajuan', icon: FileText,
             active: url.startsWith('/requests') || url.startsWith('/payment-requests'),
             children: [
-                { name: 'Form UC', href: route('requests.uc.index'), active: url.startsWith('/requests/uc') && !url.startsWith('/requests/uc-approval') && !url.startsWith('/requests/uc-history'), show: auth.active_feature_names?.includes('Menu Pengajuan UC') },
-                { name: 'Riwayat UC', href: route('requests.uc.history'), active: url.startsWith('/requests/uc-history'), show: auth.active_feature_names?.includes('Riwayat UC') },
-                { name: 'Persetujuan UC', href: route('requests.uc.approval.index'), active: url.startsWith('/requests/uc-approval'), show: auth.active_feature_names?.includes('Menu Persetujuan UC') },
-                { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: auth.active_feature_names?.includes('Menu Pengajuan BHP') },
-                { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap'), show: auth.active_feature_names?.includes('Rekap BHP') },
-                { name: 'Pengajuan Pembayaran', href: route('payment-requests.index'), active: url.startsWith('/payment-requests'), show: auth.active_feature_names?.includes('Menu Pengajuan Pembayaran') },
+                { name: 'Form UC', href: route('requests.uc.index'), active: url.startsWith('/requests/uc') && !url.startsWith('/requests/uc-approval') && !url.startsWith('/requests/uc-history'), show: auth.active_feature_names?.includes('Menu Pengajuan UC') && hasPermission('view uc requests') },
+                { name: 'Riwayat UC', href: route('requests.uc.history'), active: url.startsWith('/requests/uc-history'), show: auth.active_feature_names?.includes('Riwayat UC') && hasPermission('view uc requests') },
+                { name: 'Persetujuan UC', href: route('requests.uc.approval.index'), active: url.startsWith('/requests/uc-approval'), show: auth.active_feature_names?.includes('Menu Persetujuan UC') && hasPermission('approve uc requests') },
+                { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: auth.active_feature_names?.includes('Menu Pengajuan BHP') && hasPermission('view bhp requests') },
+                { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap'), show: auth.active_feature_names?.includes('Rekap BHP') && hasPermission('approve bhp requests') },
+                { name: 'Pengajuan Pembayaran', href: route('payment-requests.index'), active: url.startsWith('/payment-requests'), show: auth.active_feature_names?.includes('Menu Pengajuan Pembayaran') && hasPermission('payment-request.view-own') },
             ]
         },
         {
             name: 'Finance', icon: Wallet,
             active: url.startsWith('/payables') || url.startsWith('/receivables') || url.startsWith('/payment-approvals'),
             children: [
-                { name: 'Data Hutang', href: route('payables.index'), active: url.startsWith('/payables'), show: auth.active_feature_names?.includes('Data Hutang') },
-                { name: 'Data Piutang', href: route('receivables.index'), active: url.startsWith('/receivables'), show: auth.active_feature_names?.includes('Data Piutang') },
-                { name: 'Persetujuan Pembayaran', href: route('payment-approvals.index'), active: url.startsWith('/payment-approvals'), show: auth.active_feature_names?.includes('Persetujuan Pembayaran') },
+                { name: 'Data Hutang', href: route('payables.index'), active: url.startsWith('/payables'), show: auth.active_feature_names?.includes('Data Hutang') && hasPermission('view payables') },
+                { name: 'Data Piutang', href: route('receivables.index'), active: url.startsWith('/receivables'), show: auth.active_feature_names?.includes('Data Piutang') && hasPermission('view receivables') },
+                { name: 'Persetujuan Pembayaran', href: route('payment-approvals.index'), active: url.startsWith('/payment-approvals'), show: auth.active_feature_names?.includes('Persetujuan Pembayaran') && hasPermission('payment-request.review') },
             ]
         },
         {
             name: 'Logistik', icon: Truck,
             active: url.startsWith('/logistic-reports') || url.startsWith('/purchase-orders') || url.startsWith('/providers') || url.startsWith('/products') || url.startsWith('/item-requirements') || url.startsWith('/outlets') || url.startsWith('/outlet-mappings') || url.startsWith('/warehouse-stocks'),
             children: [
-                { name: 'Laporan Logistik', href: route('logistic-reports.index'), active: url.startsWith('/logistic-reports'), show: auth.active_feature_names?.includes('Laporan Logistik') },
-                { name: 'Surat Pesanan', href: route('purchase-orders.index'), active: url.startsWith('/purchase-orders'), show: auth.active_feature_names?.includes('Surat Pesanan') },
-                { name: 'Data Penyedia', href: route('providers.index'), active: url.startsWith('/providers'), show: auth.active_feature_names?.includes('Data Penyedia') },
-                { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: auth.active_feature_names?.includes('Data Produk') },
-                { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements'), show: auth.active_feature_names?.includes('Kebutuhan Barang') },
-                { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_feature_names?.includes('Data Outlet') },
-                { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: true },
+                { name: 'Laporan Logistik', href: route('logistic-reports.index'), active: url.startsWith('/logistic-reports'), show: auth.active_feature_names?.includes('Laporan Logistik') && hasPermission('view purchase orders') },
+                { name: 'Surat Pesanan', href: route('purchase-orders.index'), active: url.startsWith('/purchase-orders'), show: auth.active_feature_names?.includes('Surat Pesanan') && hasPermission('view purchase orders') },
+                { name: 'Data Penyedia', href: route('providers.index'), active: url.startsWith('/providers'), show: auth.active_feature_names?.includes('Data Penyedia') && hasPermission('manage master data') },
+                { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: auth.active_feature_names?.includes('Data Produk') && hasPermission('manage master data') },
+                { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements'), show: auth.active_feature_names?.includes('Kebutuhan Barang') && hasPermission('manage master data') },
+                { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_feature_names?.includes('Data Outlet') && hasPermission('manage master data') },
+                { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: hasPermission('manage master data') },
             ]
         },
         {
@@ -260,20 +260,20 @@ export default function Authenticated({ user, header, children }) {
             active: url.startsWith('/vehicles') || url.startsWith('/company') || url.startsWith('/users') || url.startsWith('/sops') || url.startsWith('/absensi/rekap') || (url.startsWith('/wbs-reports') && !url.startsWith('/wbs-reports/my-reports')),
             children: [
                 { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url === '/wbs-reports', show: auth.active_feature_names?.includes('Laporan WBS') },
-                { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_feature_names?.includes('Data Armada') },
-                { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: auth.active_feature_names?.includes('Data Perusahaan') },
-                { name: 'Data Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_feature_names?.includes('Data Pengguna') },
-                { name: 'Manajemen SOP', href: route('sops.index'), active: url.startsWith('/sops'), show: auth.active_feature_names?.includes('Manajemen SOP') },
-                { name: 'Rekap Absensi', href: route('absensi.rekap'), active: url.startsWith('/absensi/rekap'), show: auth.active_feature_names?.includes('Rekap Absensi') },
+                { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_feature_names?.includes('Data Armada') && hasPermission('manage master data') },
+                { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: auth.active_feature_names?.includes('Data Perusahaan') && hasPermission('manage company') },
+                { name: 'Data Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_feature_names?.includes('Data Pengguna') && hasPermission('view users') },
+                { name: 'Manajemen SOP', href: route('sops.index'), active: url.startsWith('/sops'), show: auth.active_feature_names?.includes('Manajemen SOP') && hasPermission('manage master data') },
+                { name: 'Rekap Absensi', href: route('absensi.rekap'), active: url.startsWith('/absensi/rekap'), show: auth.active_feature_names?.includes('Rekap Absensi') && hasPermission('view absensi') },
             ]
         },
         {
             name: 'Sistem', icon: Settings,
             active: url.startsWith('/activity-logs') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/wbs-reports/my-reports') || url === '/lapor-wbs' || url.startsWith('/mappings'),
             children: [
-                { name: 'Pemetaan', href: route('mappings.index'), active: url.startsWith('/mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') },
+                { name: 'Pemetaan', href: route('mappings.index'), active: url.startsWith('/mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') && hasPermission('manage master data') },
                 { name: 'Lapor WBS', href: route('wbs-reports.my-reports'), active: url.startsWith('/wbs-reports/my-reports') || url === '/lapor-wbs', show: auth.active_feature_names?.includes('Riwayat Laporan Saya') || auth.active_feature_names?.includes('Lapor WBS') },
-                { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.active_feature_names?.includes('Riwayat Perubahan') },
+                { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.active_feature_names?.includes('Riwayat Perubahan') && hasPermission('view activity log') },
                 { name: 'Notifikasi', href: route('notifications.index'), active: url.startsWith('/settings/notifications'), show: auth.active_feature_names?.includes('Notifikasi') },
                 { name: 'Profil & Akun', href: route('profile.edit'), active: url.startsWith('/profile'), show: auth.active_feature_names?.includes('Profil & Akun') },
             ]
@@ -283,14 +283,14 @@ export default function Authenticated({ user, header, children }) {
                 name: 'Spreadsheet', icon: FileCheck,
                 active: url.startsWith('/spreadsheet') || url.startsWith('/reports'),
                 children: [
-                    { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: true },
-                    { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_feature_names?.includes('Dashboard Laporan') },
+                    { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: hasPermission('manage spreadsheet sync') },
+                    { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_feature_names?.includes('Dashboard Laporan') && hasPermission('view laporan finansial') },
                 ]
             }] 
             : auth.active_feature_names?.includes('Dashboard Laporan') ? [{
                 name: 'Dashboard Laporan', href: route('reports.index'), icon: FileCheck,
                 active: url.startsWith('/reports'),
-                show: true
+                show: hasPermission('view laporan finansial')
             }] : []
         )
     ];
