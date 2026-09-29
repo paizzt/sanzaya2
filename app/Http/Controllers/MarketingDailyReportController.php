@@ -68,19 +68,34 @@ class MarketingDailyReportController extends Controller
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 
             9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
         ];
-        $monthIndo = $months[Carbon::now()->month] . ' ' . Carbon::now()->year;
+        $monthNum = Carbon::now()->month;
+        $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+        $monthFilter = $months[$monthNum];
+        $shortMonth = substr($monthFilter, 0, 3);
+        $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+        
+        $query = \App\Models\SyncLogistikData::where(function($q) use ($monthFilter, $monthNumStr, $monthNum, $shortMonth, $shortMonthEng) {
+            $q->where('sheet_name', 'like', "%{$monthFilter}%")
+              ->orWhere('tanggal', 'like', "%{$monthFilter}%")
+              ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+              ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+              ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+              ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
+              ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+              ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+              ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+              ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+        });
 
         if ($spreadsheetSalesName) {
-            $logistikData = \App\Models\SyncLogistikData::where('nama_sales', $spreadsheetSalesName)
-                ->where('tanggal', 'LIKE', '%' . $monthIndo . '%')
-                ->get();
+            $logistikData = (clone $query)->where('nama_sales', $spreadsheetSalesName)->get();
                 
             foreach ($logistikData as $row) {
                 $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
                 $spreadsheetSalesTotal += $val;
             }
         } elseif ($user->isAdminUser()) {
-            $logistikData = \App\Models\SyncLogistikData::where('tanggal', 'LIKE', '%' . $monthIndo . '%')->get();
+            $logistikData = (clone $query)->get();
             foreach ($logistikData as $row) {
                 $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_sales);
                 $spreadsheetSalesTotal += $val;
