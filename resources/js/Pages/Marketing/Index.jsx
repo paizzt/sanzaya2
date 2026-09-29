@@ -36,6 +36,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
 
     const [activeTab, setActiveTab] = useState('laporan');
+    const [outletSearch, setOutletSearch] = useState('');
     const user = usePage().props.auth.user;
 
     const { data: targetData, setData: setTargetData, post: postTarget, processing: targetProcessing, errors: targetErrors, reset: resetTarget } = useForm({
@@ -64,12 +65,19 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
     };
 
     // Group outlets by type
-    const groupedOutlets = outlets.reduce((acc, outlet) => {
-        const type = outlet.type || 'Lainnya';
-        if (!acc[type]) acc[type] = [];
-        acc[type].push(outlet);
-        return acc;
-    }, {});
+    const groupedOutlets = outlets
+        .filter(outlet => {
+            if (!outletSearch) return true;
+            const searchLower = outletSearch.toLowerCase();
+            return (outlet.name && outlet.name.toLowerCase().includes(searchLower)) || 
+                   (outlet.city && outlet.city.toLowerCase().includes(searchLower));
+        })
+        .reduce((acc, outlet) => {
+            const type = outlet.type || 'Lainnya';
+            if (!acc[type]) acc[type] = [];
+            acc[type].push(outlet);
+            return acc;
+        }, {});
 
     const { flash } = usePage().props;
 
@@ -504,6 +512,15 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                             <p className="text-sm text-yellow-800 mt-0.5">
                                                 Centang nama-nama outlet target kunjungan sesuai wilayah penugasan Anda.
                                             </p>
+                                        </div>
+
+                                        <div className="mb-4">
+                                            <TextInput 
+                                                className="block w-full text-sm placeholder-gray-400" 
+                                                placeholder="Cari nama atau kota outlet..." 
+                                                value={outletSearch}
+                                                onChange={(e) => setOutletSearch(e.target.value)}
+                                            />
                                         </div>
 
                                         <div className="space-y-6">
