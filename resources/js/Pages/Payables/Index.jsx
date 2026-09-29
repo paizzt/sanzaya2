@@ -26,23 +26,23 @@ export default function Index({ auth, items = [], providers, companies, filters,
     const safeFilters = (filters && typeof filters === 'object' && !Array.isArray(filters)) ? filters : {};
 
     const [filterSearch, setFilterSearch] = useState(safeFilters.search || '');
-    const [filterPt, setFilterPt] = useState(safeFilters.pt ? (Array.isArray(safeFilters.pt) ? safeFilters.pt : safeFilters.pt.split(',')) : []);
-    const [filterYear, setFilterYear] = useState(safeFilters.year ? (Array.isArray(safeFilters.year) ? safeFilters.year : safeFilters.year.split(',')) : []);
+    const [filterPt, setFilterPt] = useState(safeFilters.pt || '');
+    const [filterYear, setFilterYear] = useState(safeFilters.year || '');
     const [filterSort, setFilterSort] = useState(typeof safeFilters.sort === 'string' ? safeFilters.sort : '');
 
     const applyFilter = () => {
         router.get(route('payables.index'), {
             search: filterSearch,
-            pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt,
-            year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear,
+            pt: filterPt,
+            year: filterYear,
             sort: filterSort
         }, { preserveState: true, replace: true });
     };
 
     const resetFilter = () => {
         setFilterSearch('');
-        setFilterPt([]);
-        setFilterYear([]);
+        setFilterPt('');
+        setFilterYear('');
         setFilterSort('');
         router.get(route('payables.index'), {}, { preserveState: true, replace: true });
     };
@@ -59,8 +59,8 @@ export default function Index({ auth, items = [], providers, companies, filters,
         if (!Array.isArray(detailsArray)) {
             detailsArray = [];
         }
-        if (filterYear.length === 0) return detailsArray;
-        return detailsArray.filter(d => filterYear.includes(String(d.year)));
+        if (!filterYear) return detailsArray;
+        return detailsArray.filter(d => String(d.year) === filterYear);
     };
 
     const getFilteredTotal = (details) => {
@@ -255,8 +255,8 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                                     <div className="w-full">
                                         <ExportDropdown 
-                                            pdfRoute={route('payables.export.pdf', { search: filterSearch, pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt, year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear, sort: filterSort })} 
-                                            excelRoute={route('payables.export.excel', { search: filterSearch, pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt, year: Array.isArray(filterYear) ? filterYear.join(',') : filterYear, sort: filterSort })} 
+                                            pdfRoute={route('payables.export.pdf', { search: filterSearch, pt: filterPt, year: filterYear, sort: filterSort })} 
+                                            excelRoute={route('payables.export.excel', { search: filterSearch, pt: filterPt, year: filterYear, sort: filterSort })} 
                                             className="w-full justify-center" 
                                         />
                                     </div>
@@ -323,25 +323,29 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                 </div>
                                 <div>
                                     <InputLabel value="Filter PT" />
-                                    <div className="mt-1">
-                                        <MultiSelect
-                                            options={companies ? companies.map(c => ({ value: c.id.toString(), label: c.name })) : []}
-                                            value={filterPt}
-                                            onChange={setFilterPt}
-                                            placeholder="Semua PT"
-                                        />
-                                    </div>
+                                    <select
+                                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm w-full mt-1"
+                                        value={filterPt}
+                                        onChange={e => setFilterPt(e.target.value)}
+                                    >
+                                        <option value="">Semua PT</option>
+                                        {companies && companies.map(c => (
+                                            <option key={c.id} value={c.id.toString()}>{c.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div>
                                     <InputLabel value="Filter Tahun" />
-                                    <div className="mt-1">
-                                        <MultiSelect
-                                            options={yearOptions}
-                                            value={filterYear}
-                                            onChange={setFilterYear}
-                                            placeholder="Semua Tahun"
-                                        />
-                                    </div>
+                                    <select
+                                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm w-full mt-1"
+                                        value={filterYear}
+                                        onChange={e => setFilterYear(e.target.value)}
+                                    >
+                                        <option value="">Semua Tahun</option>
+                                        {yearOptions.map(y => (
+                                            <option key={y.value} value={y.value}>{y.label}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div>
                                     <InputLabel value="Urutkan Nominal" />
