@@ -430,7 +430,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     Target Bulanan Sales
                                 </h3>
                                 <p className="text-gray-500 text-sm mb-6 pb-4 border-b border-gray-50">
-                                    Tentukan target kunjungan dan sebaran outlet untuk periode minggu depan.
+                                    Tentukan target kunjungan dan sebaran outlet untuk periode bulan depan.
                                 </p>
 
                                 <form onSubmit={submitTarget} className="space-y-6">
@@ -468,22 +468,6 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                 />
                                             </div>
                                             <div className="flex items-center gap-2 mt-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const start = new Date();
-                                                        const end = new Date();
-                                                        end.setDate(end.getDate() + 7);
-                                                        setTargetData(d => ({
-                                                            ...d,
-                                                            start_date: start.toISOString().split('T')[0],
-                                                            end_date: end.toISOString().split('T')[0]
-                                                        }));
-                                                    }}
-                                                    className="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-colors font-medium"
-                                                >
-                                                    1 Minggu ke Depan
-                                                </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => {
