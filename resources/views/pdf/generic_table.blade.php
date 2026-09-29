@@ -105,9 +105,9 @@
     <table style="width: 100%; margin-bottom: 20px; border-spacing: 10px; border-collapse: separate;">
         <tr>
             <!-- Card 1: Total Semua -->
-            <td style="width: 25%; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 12px; text-align: center; vertical-align: middle;">
-                <div style="font-size: 10px; font-weight: bold; color: #92400e; margin-bottom: 8px;">{{ $summaryCards['total_title'] }}</div>
-                <div style="font-size: 14px; font-weight: bold; color: #d97706;">Rp {{ number_format($summaryCards['total_amount'], 0, ',', '.') }}</div>
+            <td style="width: 25%; background-color: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 12px; text-align: center; vertical-align: middle;">
+                <div style="font-size: 10px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">{{ $summaryCards['total_title'] }}</div>
+                <div style="font-size: 14px; font-weight: bold; color: #1e3a8a;">Rp {{ number_format($summaryCards['total_amount'], 0, ',', '.') }}</div>
             </td>
             
             <!-- Card 2: Berdasarkan Tahun -->
@@ -126,25 +126,25 @@
             </td>
             
             <!-- Card 3: Berdasarkan PT -->
-            <td style="width: 25%; background-color: #eef2ff; border: 1px solid #e0e7ff; border-radius: 8px; padding: 12px; vertical-align: top;">
-                <div style="font-size: 10px; font-weight: bold; color: #3730a3; margin-bottom: 8px;">{{ $summaryCards['pt_title'] }}</div>
+            <td style="width: 25%; background-color: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 12px; vertical-align: top;">
+                <div style="font-size: 10px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">{{ $summaryCards['pt_title'] }}</div>
                 <table style="width: 100%; border-collapse: collapse;">
                     @forelse($summaryCards['pt_data'] as $pt => $amount)
                     <tr>
-                        <td style="font-size: 9px; color: #4338ca; padding: 2px 0; border-bottom: 1px solid #c7d2fe;">{{ $pt }}</td>
-                        <td style="font-size: 9px; font-weight: bold; color: #312e81; text-align: right; padding: 2px 0; border-bottom: 1px solid #c7d2fe;">Rp {{ number_format($amount, 0, ',', '.') }}</td>
+                        <td style="font-size: 9px; color: #1d4ed8; padding: 2px 0; border-bottom: 1px solid #bfdbfe;">{{ $pt }}</td>
+                        <td style="font-size: 9px; font-weight: bold; color: #1e3a8a; text-align: right; padding: 2px 0; border-bottom: 1px solid #bfdbfe;">Rp {{ number_format($amount, 0, ',', '.') }}</td>
                     </tr>
                     @empty
-                    <tr><td colspan="2" style="font-size: 9px; color: #818cf8; text-align: center; padding: 4px 0;">Tidak ada data</td></tr>
+                    <tr><td colspan="2" style="font-size: 9px; color: #60a5fa; text-align: center; padding: 4px 0;">Tidak ada data</td></tr>
                     @endforelse
                 </table>
             </td>
             
             <!-- Card 4: Total Outlet/Penyedia -->
-            <td style="width: 25%; background-color: #ecfdf5; border: 1px solid #d1fae5; border-radius: 8px; padding: 12px; text-align: center; vertical-align: middle;">
-                <div style="font-size: 10px; font-weight: bold; color: #065f46; margin-bottom: 8px;">{{ $summaryCards['count_title'] }}</div>
-                <div style="font-size: 20px; font-weight: bold; color: #059669; margin-bottom: 4px;">{{ $summaryCards['count_value'] }}</div>
-                <div style="font-size: 9px; color: #047857;">{{ $summaryCards['count_label'] }}</div>
+            <td style="width: 25%; background-color: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 12px; text-align: center; vertical-align: middle;">
+                <div style="font-size: 10px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">{{ $summaryCards['count_title'] }}</div>
+                <div style="font-size: 20px; font-weight: bold; color: #1e3a8a; margin-bottom: 4px;">{{ $summaryCards['count_value'] }}</div>
+                <div style="font-size: 9px; color: #1d4ed8;">{{ $summaryCards['count_label'] }}</div>
             </td>
         </tr>
     </table>
