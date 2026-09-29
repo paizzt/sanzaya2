@@ -211,7 +211,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                         </div>
 
                         <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                            <h3 className="font-bold text-xl text-gray-800 mb-6 border-b border-gray-50 pb-4">Aksi Absensi Anda</h3>
+
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Check In Status */}
