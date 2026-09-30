@@ -302,16 +302,17 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                                     }
                                                                     handleConfirmOutlet(item.raw_name, val);
                                                                 }}
-                                                                className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
+                                                                className="inline-flex items-center justify-center bg-indigo-50 text-indigo-700 w-8 h-8 rounded-lg hover:bg-indigo-100 transition-colors"
+                                                                title="Konfirmasi"
                                                             >
-                                                                <Check className="w-4 h-4" /> Konfirmasi
+                                                                <Check className="w-4 h-4" />
                                                             </button>
                                                             <button 
                                                                 onClick={() => handleIgnoreOutlet(item.raw_name)}
-                                                                className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                                                                className="inline-flex items-center justify-center bg-gray-100 text-gray-700 w-8 h-8 rounded-lg hover:bg-gray-200 transition-colors"
                                                                 title="Abaikan Typo Ini"
                                                             >
-                                                                <X className="w-4 h-4" /> Tidak
+                                                                <X className="w-4 h-4" />
                                                             </button>
                                                         </div>
                                                     </td>
@@ -441,16 +442,17 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                                     }
                                                                     handleConfirmProvider(item.raw_name, val);
                                                                 }}
-                                                                className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
+                                                                className="inline-flex items-center justify-center bg-indigo-50 text-indigo-700 w-8 h-8 rounded-lg hover:bg-indigo-100 transition-colors"
+                                                                title="Konfirmasi"
                                                             >
-                                                                <Check className="w-4 h-4" /> Konfirmasi
+                                                                <Check className="w-4 h-4" />
                                                             </button>
                                                             <button 
                                                                 onClick={() => handleIgnoreProvider(item.raw_name)}
-                                                                className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                                                                className="inline-flex items-center justify-center bg-gray-100 text-gray-700 w-8 h-8 rounded-lg hover:bg-gray-200 transition-colors"
                                                                 title="Abaikan Typo Ini"
                                                             >
-                                                                <X className="w-4 h-4" /> Tidak
+                                                                <X className="w-4 h-4" />
                                                             </button>
                                                         </div>
                                                     </td>
