@@ -17,8 +17,16 @@ class ReceivableController extends Controller
         $query = Receivable::with(['outlet', 'company'])->orderBy('id', 'desc');
 
         if ($request->search) {
-            $query->whereHas('outlet', function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%');
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function($q) use ($searchTerm) {
+                $q->whereHas('outlet', function($subQ) use ($searchTerm) {
+                    $subQ->where('name', 'like', $searchTerm);
+                })
+                ->orWhereHas('company', function($subQ) use ($searchTerm) {
+                    $subQ->where('name', 'like', $searchTerm);
+                })
+                ->orWhere('total', 'like', $searchTerm)
+                ->orWhere('details', 'like', $searchTerm);
             });
         }
 
@@ -89,8 +97,13 @@ class ReceivableController extends Controller
             if ($mapping && $mapping->outlet) {
                 $outletName = $mapping->outlet->name;
             }
-
-            $outlet = \App\Models\Outlet::firstOrCreate(['name' => $outletName]);
+            $outlet = \App\Models\Outlet::where('name', $outletName)->first();
+            if (!$outlet) {
+                $outlet = \App\Models\Outlet::create([
+                    'name' => $outletName,
+                    'is_pending' => true
+                ]);
+            }
             $outlet_id = $outlet->id;
         }
 
@@ -119,8 +132,16 @@ class ReceivableController extends Controller
         $query = \App\Models\Receivable::with(['outlet', 'company'])->orderBy('id', 'desc');
         
         if ($request->search) {
-            $query->whereHas('outlet', function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%');
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function($q) use ($searchTerm) {
+                $q->whereHas('outlet', function($subQ) use ($searchTerm) {
+                    $subQ->where('name', 'like', $searchTerm);
+                })
+                ->orWhereHas('company', function($subQ) use ($searchTerm) {
+                    $subQ->where('name', 'like', $searchTerm);
+                })
+                ->orWhere('total', 'like', $searchTerm)
+                ->orWhere('details', 'like', $searchTerm);
             });
         }
         
@@ -300,7 +321,13 @@ class ReceivableController extends Controller
             $outletName = $mapping->outlet->name;
         }
 
-        $outlet = \App\Models\Outlet::firstOrCreate(['name' => $outletName]);
+        $outlet = \App\Models\Outlet::where('name', $outletName)->first();
+        if (!$outlet) {
+            $outlet = \App\Models\Outlet::create([
+                'name' => $outletName,
+                'is_pending' => true
+            ]);
+        }
         
         \App\Models\ReceivableDailyReport::create([
             'billing_date' => $validated['billing_date'],

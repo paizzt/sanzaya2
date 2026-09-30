@@ -260,6 +260,7 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                         <thead className="text-xs text-gray-500 uppercase bg-gray-50">
                                             <tr>
                                                 <th className="px-6 py-4 font-bold rounded-tl-2xl">Nama Typo / Asal Data</th>
+                                                <th className="px-6 py-4 font-bold">Sumber Data</th>
                                                 <th className="px-6 py-4 font-bold">Saran Master Outlet</th>
                                                 <th className="px-6 py-4 font-bold">Kecocokan</th>
                                                 <th className="px-6 py-4 font-bold rounded-tr-2xl text-right">Aksi</th>
@@ -270,6 +271,9 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                 <tr key={idx} className="bg-white border-b hover:bg-gray-50 transition-colors">
                                                     <td className="px-6 py-4 font-medium text-red-600">
                                                         {item.raw_name}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-500">
+                                                        {item.source}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="min-w-[200px]">
@@ -409,6 +413,7 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                         <thead className="text-xs text-gray-500 uppercase bg-gray-50">
                                             <tr>
                                                 <th className="px-6 py-4 font-bold rounded-tl-2xl">Nama Typo / Asal Data</th>
+                                                <th className="px-6 py-4 font-bold">Sumber Data</th>
                                                 <th className="px-6 py-4 font-bold">Pilih Master Penyedia</th>
                                                 <th className="px-6 py-4 font-bold rounded-tr-2xl text-right">Aksi</th>
                                             </tr>
@@ -418,6 +423,9 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                 <tr key={idx} className="bg-white border-b hover:bg-gray-50 transition-colors">
                                                     <td className="px-6 py-4 font-medium text-red-600">
                                                         {item.raw_name}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-500">
+                                                        {item.source}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="min-w-[200px]">

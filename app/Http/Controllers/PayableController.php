@@ -88,7 +88,13 @@ class PayableController extends Controller
                 $providerName = $mapping->provider->name;
             }
 
-            $provider = \App\Models\Provider::firstOrCreate(['name' => $providerName]);
+            $provider = \App\Models\Provider::where('name', $providerName)->first();
+            if (!$provider) {
+                $provider = \App\Models\Provider::create([
+                    'name' => $providerName,
+                    'is_pending' => true
+                ]);
+            }
             $provider_id = $provider->id;
         }
 

@@ -17,7 +17,10 @@ class ProviderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Provider::with('mappings');
+        $query = Provider::with('mappings')
+            ->where(function($q) {
+                $q->whereNull('is_pending')->orWhere('is_pending', false);
+            });
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;

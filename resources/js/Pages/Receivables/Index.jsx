@@ -330,7 +330,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
 
                             <div className="bg-gray-50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-end">
                                 <div>
-                                    <InputLabel value="Cari Outlet" />
+                                    <InputLabel value="Cari Outlet, PT, Nominal, Tahun..." />
                                     <TextInput 
                                         type="text" 
                                         className="w-full mt-1" 

@@ -15,7 +15,11 @@ class OutletController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Outlet::with(['marketingArea', 'mappings'])->orderBy('id', 'desc');
+        $query = Outlet::with(['marketingArea', 'mappings'])
+            ->where(function($q) {
+                $q->whereNull('is_pending')->orWhere('is_pending', false);
+            })
+            ->orderBy('id', 'desc');
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
