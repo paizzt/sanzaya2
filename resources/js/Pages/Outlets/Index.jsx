@@ -21,6 +21,7 @@ export default function Index({ outlets, areas }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('');
     const [filterCity, setFilterCity] = useState('');
+    const [filterPareto, setFilterPareto] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 50;
 
@@ -181,12 +182,13 @@ export default function Index({ outlets, areas }) {
                             outletCity.toLowerCase().includes(searchTerm.toLowerCase());
         const matchType = filterType ? outlet.type === filterType : true;
         const matchCity = filterCity ? outletCity.toUpperCase() === filterCity : true;
-        return matchSearch && matchType && matchCity;
+        const matchPareto = filterPareto ? !!outlet.is_pareto : true;
+        return matchSearch && matchType && matchCity && matchPareto;
     });
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, filterType, filterCity]);
+    }, [searchTerm, filterType, filterCity, filterPareto]);
 
     const currentOutlets = filteredOutlets.slice(
         (currentPage - 1) * itemsPerPage,
@@ -210,7 +212,10 @@ export default function Index({ outlets, areas }) {
                 
                 {/* Cards Statistik */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                    <div 
+                        onClick={() => { setFilterType(''); setFilterPareto(false); }}
+                        className={`bg-white rounded-3xl p-5 border shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4 cursor-pointer hover:shadow-md transition-all ${(!filterType && !filterPareto) ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-gray-100'}`}
+                    >
                         <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
                             <Store className="w-6 h-6" />
                         </div>
@@ -219,7 +224,10 @@ export default function Index({ outlets, areas }) {
                             <h4 className="text-2xl font-bold text-gray-900">{totalOutlet}</h4>
                         </div>
                     </div>
-                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                    <div 
+                        onClick={() => { setFilterType(filterType === 'RS' ? '' : 'RS'); setFilterPareto(false); }}
+                        className={`bg-white rounded-3xl p-5 border shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4 cursor-pointer hover:shadow-md transition-all ${filterType === 'RS' ? 'border-red-500 ring-2 ring-red-500/20' : 'border-gray-100'}`}
+                    >
                         <div className="p-3 bg-red-50 text-red-600 rounded-2xl">
                             <Building className="w-6 h-6" />
                         </div>
@@ -228,7 +236,10 @@ export default function Index({ outlets, areas }) {
                             <h4 className="text-2xl font-bold text-gray-900">{totalRS}</h4>
                         </div>
                     </div>
-                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                    <div 
+                        onClick={() => { setFilterType(filterType === 'DINKES' ? '' : 'DINKES'); setFilterPareto(false); }}
+                        className={`bg-white rounded-3xl p-5 border shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4 cursor-pointer hover:shadow-md transition-all ${filterType === 'DINKES' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-100'}`}
+                    >
                         <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
                             <Store className="w-6 h-6" />
                         </div>
@@ -237,7 +248,10 @@ export default function Index({ outlets, areas }) {
                             <h4 className="text-2xl font-bold text-gray-900">{totalDinkes}</h4>
                         </div>
                     </div>
-                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                    <div 
+                        onClick={() => { setFilterType(filterType === 'KLINIK' ? '' : 'KLINIK'); setFilterPareto(false); }}
+                        className={`bg-white rounded-3xl p-5 border shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4 cursor-pointer hover:shadow-md transition-all ${filterType === 'KLINIK' ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-gray-100'}`}
+                    >
                         <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
                             <Store className="w-6 h-6" />
                         </div>
@@ -246,7 +260,10 @@ export default function Index({ outlets, areas }) {
                             <h4 className="text-2xl font-bold text-gray-900">{totalKlinik}</h4>
                         </div>
                     </div>
-                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                    <div 
+                        onClick={() => { setFilterPareto(!filterPareto); setFilterType(''); }}
+                        className={`bg-white rounded-3xl p-5 border shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4 cursor-pointer hover:shadow-md transition-all ${filterPareto ? 'border-amber-500 ring-2 ring-amber-500/20' : 'border-gray-100'}`}
+                    >
                         <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
                             <Store className="w-6 h-6" />
                         </div>
