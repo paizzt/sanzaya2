@@ -197,6 +197,7 @@ export default function Index({ outlets, areas }) {
     const totalRS = outlets.filter(o => o.type === 'RS').length;
     const totalDinkes = outlets.filter(o => o.type === 'DINKES').length;
     const totalKlinik = outlets.filter(o => o.type === 'KLINIK').length;
+    const totalPareto = outlets.filter(o => o.is_pareto).length;
 
     return (
         <AuthenticatedLayout
@@ -208,7 +209,7 @@ export default function Index({ outlets, areas }) {
             <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* Cards Statistik */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                     <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
                         <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
                             <Store className="w-6 h-6" />
@@ -243,6 +244,15 @@ export default function Index({ outlets, areas }) {
                         <div>
                             <p className="text-sm text-gray-500 font-medium">Klinik</p>
                             <h4 className="text-2xl font-bold text-gray-900">{totalKlinik}</h4>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
+                            <Store className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium">Pareto</p>
+                            <h4 className="text-2xl font-bold text-gray-900">{totalPareto}</h4>
                         </div>
                     </div>
                 </div>
