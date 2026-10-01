@@ -223,11 +223,27 @@ class MarketingDailyReportController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'target_outlets' => 'nullable|array',
-            'target_outlets.*' => 'exists:outlets,id'
         ]);
 
+        $outlets = [];
+        if ($request->has('target_outlets') && is_array($request->target_outlets)) {
+            foreach ($request->target_outlets as $item) {
+                if (!is_numeric($item)) {
+                    $outletName = $item;
+                    $mapping = \App\Models\OutletMapping::where('raw_name', $outletName)->with('outlet')->first();
+                    if ($mapping && $mapping->outlet) {
+                        $outletName = $mapping->outlet->name;
+                    }
+                    $outlet = \App\Models\Outlet::firstOrCreate(['name' => mb_strtoupper($outletName)]);
+                    $outlets[] = (string) $outlet->id;
+                } else {
+                    $outlets[] = (string) $item;
+                }
+            }
+        }
+
         $weekNumber = Carbon::parse($request->start_date)->weekOfYear;
-        $targetVisits = count($request->target_outlets ?? []);
+        $targetVisits = count($outlets);
 
         MarketingWeeklyTarget::updateOrCreate(
             [
@@ -238,7 +254,7 @@ class MarketingDailyReportController extends Controller
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
                 'target_visits' => $targetVisits,
-                'target_outlets' => $request->target_outlets ?? [],
+                'target_outlets' => $outlets,
             ]
         );
 

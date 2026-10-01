@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link } from '@inertiajs/react';
-import { Target, TrendingUp, Building, MapPin, Send, AlertTriangle, CalendarDays, CheckSquare, ClipboardList, Download } from 'lucide-react';
+import { Target, TrendingUp, Building, MapPin, Send, AlertTriangle, CalendarDays, CheckSquare, ClipboardList, Download, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import CustomSelect from '@/Components/CustomSelect';
@@ -45,6 +45,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         start_date: '',
         end_date: '',
         target_outlets: [],
+        custom_outlet: '',
     });
 
     const handleOutletToggle = (outletId) => {
@@ -495,13 +496,83 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
 
                                         <div className="mb-4">
-                                            <TextInput 
-                                                className="block w-full text-sm placeholder-gray-400" 
-                                                placeholder="Cari nama atau kota outlet..." 
-                                                value={outletSearch}
-                                                onChange={(e) => setOutletSearch(e.target.value)}
-                                            />
+                                            <InputLabel value="Cari / Tambah Outlet" />
+                                            <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                                                <div className="flex-1">
+                                                    <TextInput 
+                                                        className="block w-full text-sm placeholder-gray-400" 
+                                                        placeholder="Cari nama atau kota outlet dari daftar..." 
+                                                        value={outletSearch}
+                                                        onChange={(e) => setOutletSearch(e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="flex-1 flex gap-2">
+                                                    <TextInput
+                                                        className="block w-full text-sm placeholder-gray-400 bg-white"
+                                                        placeholder="Atau ketik nama outlet baru..."
+                                                        value={targetData.custom_outlet || ''}
+                                                        onChange={(e) => setTargetData('custom_outlet', e.target.value)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault();
+                                                                if (targetData.custom_outlet?.trim()) {
+                                                                    const currentOutlets = [...targetData.target_outlets];
+                                                                    if (!currentOutlets.includes(targetData.custom_outlet.trim())) {
+                                                                        currentOutlets.push(targetData.custom_outlet.trim());
+                                                                    }
+                                                                    setTargetData(prev => ({
+                                                                        ...prev,
+                                                                        target_outlets: currentOutlets,
+                                                                        custom_outlet: ''
+                                                                    }));
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (targetData.custom_outlet?.trim()) {
+                                                                const currentOutlets = [...targetData.target_outlets];
+                                                                if (!currentOutlets.includes(targetData.custom_outlet.trim())) {
+                                                                    currentOutlets.push(targetData.custom_outlet.trim());
+                                                                }
+                                                                setTargetData(prev => ({
+                                                                    ...prev,
+                                                                    target_outlets: currentOutlets,
+                                                                    custom_outlet: ''
+                                                                }));
+                                                            }
+                                                        }}
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                                                    >
+                                                        Tambah
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        {targetData.target_outlets.filter(item => typeof item === 'string').length > 0 && (
+                                            <div className="mb-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                                                <h4 className="font-bold text-gray-700 mb-2 text-sm">Outlet Tambahan Manual:</h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {targetData.target_outlets.filter(item => typeof item === 'string').map((outletName, idx) => (
+                                                        <div key={idx} className="flex items-center gap-1 bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm">
+                                                            <span>{outletName}</span>
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setTargetData('target_outlets', targetData.target_outlets.filter(item => item !== outletName));
+                                                                }}
+                                                                className="ml-1 text-blue-400 hover:text-red-500 transition-colors focus:outline-none"
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <div className="space-y-6">
                                             {Object.entries(groupedOutlets).map(([type, typeOutlets]) => {
