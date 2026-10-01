@@ -199,7 +199,7 @@ class MarketingDailyReportController extends Controller
             'competitor_notes' => $request->competitor_notes,
             'visit_result' => $request->visit_result,
             'signature' => $signatureUrl,
-            'photos' => $photoUrl,
+            'photos' => $photoUrl ? json_encode([$photoUrl]) : null,
         ]);
 
         return redirect()->back()->with('success', 'Laporan aktivitas harian berhasil disimpan!');
