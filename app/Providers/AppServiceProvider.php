@@ -25,5 +25,12 @@ class AppServiceProvider extends ServiceProvider
         if (request()->server('HTTP_X_FORWARDED_PROTO') === 'https') {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        // Register Observers for Notifications
+        \App\Models\Attendance::observe(\App\Observers\NotificationObserver::class);
+        \App\Models\MarketingDailyReport::observe(\App\Observers\NotificationObserver::class);
+        \App\Models\UcRequest::observe(\App\Observers\NotificationObserver::class);
+        \App\Models\BhpRequest::observe(\App\Observers\NotificationObserver::class);
+        \App\Models\WbsReport::observe(\App\Observers\NotificationObserver::class);
     }
 }
