@@ -155,12 +155,14 @@ class MarketingDailyReportController extends Controller
         $photoUrl = null;
         if ($request->hasFile('photos')) {
             try {
-                $manager = new ImageManager(new Driver());
-                $image = $manager->read($request->file('photos'));
-                $image->scaleDown(width: 800);
-                $base64Photo = base64_encode($image->toJpeg(70)->toString());
-                $photoUrl = $this->uploadBase64ToImgBB($base64Photo) ?? $request->file('photos')->store('marketing_reports', 'public');
-            } catch (\Exception $e) {
+                $file = $request->file('photos');
+                $base64Photo = base64_encode(file_get_contents($file->path()));
+                $photoUrl = $this->uploadBase64ToImgBB($base64Photo);
+                
+                if (!$photoUrl) {
+                    $photoUrl = $file->store('marketing_reports', 'public');
+                }
+            } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('Marketing Photo Error: ' . $e->getMessage());
                 $photoUrl = $request->file('photos')->store('marketing_reports', 'public');
             }
