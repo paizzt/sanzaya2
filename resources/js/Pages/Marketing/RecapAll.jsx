@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Modal from '@/Components/Modal';
-import { ClipboardList, CalendarDays, Filter, Download, X } from 'lucide-react';
+import { ClipboardList, CalendarDays, Filter, Download, X, Users, CheckCircle, Clock } from 'lucide-react';
 import CustomSelect from '@/Components/CustomSelect';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ExportDropdown from '@/Components/ExportDropdown';
 import Pagination from '@/Components/Pagination';
 
-export default function RecapAll({ reports, allTargets, sales_users, filters, auth }) {
+export default function RecapAll({ reports, allTargets, sales_users, filters, auth, summary }) {
     const [activeTab, setActiveTab] = useState('laporan');
     const [selectedReport, setSelectedReport] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [summaryModalType, setSummaryModalType] = useState(null); // 'reported' or 'unreported'
 
     const openModal = (report) => {
         setSelectedReport(report);
@@ -150,6 +151,35 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
 
             <div className="pb-6 pt-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                 
+                {/* Daily Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div 
+                        className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                        onClick={() => setSummaryModalType('reported')}
+                    >
+                        <div>
+                            <p className="text-sm font-medium text-gray-500 mb-1">Total Laporan Hari Ini</p>
+                            <h4 className="text-2xl font-bold text-gray-800">{summary?.reports_today_count || 0}</h4>
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
+                            <CheckCircle className="w-6 h-6 text-indigo-600" />
+                        </div>
+                    </div>
+                    
+                    <div 
+                        className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                        onClick={() => setSummaryModalType('unreported')}
+                    >
+                        <div>
+                            <p className="text-sm font-medium text-gray-500 mb-1">Jumlah Yang Belum Melapor</p>
+                            <h4 className="text-2xl font-bold text-gray-800">{summary?.not_reported_users?.length || 0}</h4>
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center">
+                            <Clock className="w-6 h-6 text-amber-600" />
+                        </div>
+                    </div>
+                </div>
+
                 {/* Filter Section */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
@@ -470,6 +500,54 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                     )}
                     <div className="mt-8 flex justify-end">
                         <PrimaryButton onClick={closeModal}>Tutup Detail</PrimaryButton>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Summary Detail Modal */}
+            <Modal show={summaryModalType !== null} onClose={() => setSummaryModalType(null)} maxWidth="xl">
+                <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
+                    <h2 className="text-xl font-black text-gray-800">
+                        {summaryModalType === 'reported' ? 'Sudah Melapor Hari Ini' : 'Belum Melapor Hari Ini'}
+                    </h2>
+                    <button onClick={() => setSummaryModalType(null)} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
+                    {summaryModalType === 'reported' ? (
+                        summary?.reported_users?.length > 0 ? (
+                            <ul className="space-y-2">
+                                {summary.reported_users.map(u => (
+                                    <li key={u.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                            <CheckCircle className="w-4 h-4 text-indigo-600" />
+                                        </div>
+                                        <span className="font-semibold text-gray-700">{u.name}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className="text-center py-8 text-gray-500 italic">Belum ada yang melapor hari ini.</div>
+                        )
+                    ) : (
+                        summary?.not_reported_users?.length > 0 ? (
+                            <ul className="space-y-2">
+                                {summary.not_reported_users.map(u => (
+                                    <li key={u.id} className="flex items-center gap-3 p-3 bg-red-50/50 rounded-xl border border-red-100">
+                                        <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                                            <Clock className="w-4 h-4 text-red-600" />
+                                        </div>
+                                        <span className="font-semibold text-gray-700">{u.name}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className="text-center py-8 text-gray-500 italic">Semua sales sudah melapor!</div>
+                        )
+                    )}
+                    <div className="mt-8 flex justify-end">
+                        <PrimaryButton onClick={() => setSummaryModalType(null)}>Tutup Detail</PrimaryButton>
                     </div>
                 </div>
             </Modal>
