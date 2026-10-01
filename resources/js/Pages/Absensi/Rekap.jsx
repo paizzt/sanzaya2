@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
@@ -164,6 +164,30 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
     const filteredRecapList = recapList?.filter(item => 
         item.user_name.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, filters]);
+
+    const totalPages = Math.ceil(filteredRecapList.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedList = filteredRecapList.slice(startIndex, startIndex + itemsPerPage);
+
+    // Calculate dynamic page range for pagination controls (max 5 buttons)
+    const getPageNumbers = () => {
+        const maxVisible = 5;
+        let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let end = Math.min(totalPages, start + maxVisible - 1);
+        
+        if (end - start + 1 < maxVisible) {
+            start = Math.max(1, end - maxVisible + 1);
+        }
+        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    };
 
     return (
         <AuthenticatedLayout
@@ -340,14 +364,14 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
-                                {filteredRecapList.length === 0 ? (
+                                {paginatedList.length === 0 ? (
                                     <tr>
                                         <td colSpan={isSuperAdmin ? "7" : "6"} className="py-8 text-center text-gray-500">
                                             Tidak ada riwayat absensi yang cocok dengan pencarian.
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredRecapList.map((item, idx) => (
+                                    paginatedList.map((item, idx) => (
                                         <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                             <td className="py-4 px-6 font-medium">{item.user_name}</td>
                                             <td className="py-4 px-6">{item.date}</td>
@@ -434,6 +458,44 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             </tbody>
                         </table>
                     </div>
+                    
+                    {totalPages > 1 && (
+                        <div className="flex justify-center py-6 border-t border-gray-100 bg-white">
+                            <nav className="flex items-center gap-2">
+                                <button 
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    &laquo; Previous
+                                </button>
+                                
+                                <div className="flex items-center gap-1">
+                                    {getPageNumbers().map(page => (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`min-w-[40px] h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                                                currentPage === page 
+                                                    ? 'bg-blue-600 text-white shadow-sm' 
+                                                    : 'text-gray-600 hover:bg-gray-50 border border-transparent'
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                <button 
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Next &raquo;
+                                </button>
+                            </nav>
+                        </div>
+                    )}
                 </div>
 
             </div>
