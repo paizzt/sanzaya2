@@ -564,7 +564,12 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                         <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
                                             <CheckCircle className="w-4 h-4 text-indigo-600" />
                                         </div>
-                                        <span className="font-semibold text-gray-700">{u.name}</span>
+                                        <div className="flex-1 flex justify-between items-center">
+                                            <span className="font-semibold text-gray-700">{u.name}</span>
+                                            <span className="text-sm text-indigo-600 font-medium bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                                                {u.report_count} Laporan
+                                            </span>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>

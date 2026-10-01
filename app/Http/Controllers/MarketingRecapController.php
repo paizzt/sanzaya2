@@ -58,9 +58,21 @@ class MarketingRecapController extends Controller
 
         $today = date('Y-m-d');
         $reportsTodayCount = MarketingDailyReport::where('visit_date', $today)->count();
-        $reportedUserIds = MarketingDailyReport::where('visit_date', $today)->pluck('user_id')->unique()->toArray();
+        
+        $reportedUserStats = MarketingDailyReport::where('visit_date', $today)
+            ->selectRaw('user_id, count(*) as count')
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+            
+        $reportedUserIds = $reportedUserStats->keys()->toArray();
         $notReportedUsers = $salesUsers->filter(fn($u) => !in_array($u->id, $reportedUserIds))->values();
-        $reportedUsers = $salesUsers->filter(fn($u) => in_array($u->id, $reportedUserIds))->values();
+        
+        // Load users who reported, regardless of their role
+        $reportedUsers = User::whereIn('id', $reportedUserIds)->get(['id', 'name'])->map(function($user) use ($reportedUserStats) {
+            $user->report_count = $reportedUserStats[$user->id]->count ?? 0;
+            return $user;
+        });
 
         return Inertia::render('Marketing/RecapAll', [
             'reports' => $reports,
