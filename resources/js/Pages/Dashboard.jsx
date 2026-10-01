@@ -97,7 +97,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                 
                 {/* Main Metrics (Today/Pending) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {dashboardPrefs.slice(0, 4).map((prefKey, idx) => {
+                    {dashboardPrefs.map((prefKey, idx) => {
                         const config = getWidgetConfig(prefKey);
                         if (!config) return null;
                         return (
