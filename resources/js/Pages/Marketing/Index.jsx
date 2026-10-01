@@ -410,6 +410,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         onChange={(e) => setData('photos', e.target.files[0])}
                                         accept="image/*"
                                     />
+                                    <InputError message={errors.photos} className="mt-2" />
                                 </div>
 
                                 <div className="pt-4 border-t border-gray-100 flex justify-end">

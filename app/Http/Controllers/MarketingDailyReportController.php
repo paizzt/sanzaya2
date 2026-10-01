@@ -149,16 +149,21 @@ class MarketingDailyReportController extends Controller
             'competitor_notes' => 'nullable|string',
             'visit_result' => 'nullable|string',
             'signature' => 'nullable|string',
-            'photos' => 'nullable|file|mimes:jpeg,png,jpg|max:5120',
+            'photos' => 'nullable|file|mimes:jpeg,png,jpg,webp,heic|max:15360',
         ]);
 
         $photoUrl = null;
         if ($request->hasFile('photos')) {
-            $manager = new ImageManager(new Driver());
-            $image = $manager->read($request->file('photos'));
-            $image->scaleDown(width: 800);
-            $base64Photo = base64_encode($image->toJpeg(70)->toString());
-            $photoUrl = $this->uploadBase64ToImgBB($base64Photo) ?? $request->file('photos')->store('marketing_reports', 'public');
+            try {
+                $manager = new ImageManager(new Driver());
+                $image = $manager->read($request->file('photos'));
+                $image->scaleDown(width: 800);
+                $base64Photo = base64_encode($image->toJpeg(70)->toString());
+                $photoUrl = $this->uploadBase64ToImgBB($base64Photo) ?? $request->file('photos')->store('marketing_reports', 'public');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Marketing Photo Error: ' . $e->getMessage());
+                $photoUrl = $request->file('photos')->store('marketing_reports', 'public');
+            }
         }
 
         $signatureUrl = $request->signature;
@@ -204,13 +209,17 @@ class MarketingDailyReportController extends Controller
         $apiKey = '5950b44b24860057ff810fe73f58868b';
         $base64String = preg_replace('#^data:image/\w+;base64,#i', '', $base64String);
 
-        $response = Http::asForm()->post('https://api.imgbb.com/1/upload', [
-            'key' => $apiKey,
-            'image' => $base64String,
-        ]);
+        try {
+            $response = Http::timeout(20)->asForm()->post('https://api.imgbb.com/1/upload', [
+                'key' => $apiKey,
+                'image' => $base64String,
+            ]);
 
-        if ($response->successful()) {
-            return $response->json('data.url');
+            if ($response->successful()) {
+                return $response->json('data.url');
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('ImgBB API Error: ' . $e->getMessage());
         }
 
         return null;
