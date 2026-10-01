@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sanzaya-cache-v4';
+const CACHE_NAME = 'sanzaya-cache-v5';
 const STATIC_ASSETS = [
     '/favicon.ico',
     '/logo.png',
@@ -44,6 +44,11 @@ self.addEventListener('fetch', (event) => {
 
     // Hindari skema yang tidak didukung oleh Cache API (seperti chrome-extension://)
     if (!request.url.startsWith('http')) {
+        return;
+    }
+
+    // Bypass cross-origin requests (misal: i.ibb.co, wsrv.nl) agar tidak terkena CORS error saat di-fetch
+    if (url.origin !== self.location.origin) {
         return;
     }
 

@@ -62,6 +62,7 @@
                     <th width="20%">Outlet / PIC</th>
                     <th width="15%">Kendala</th>
                     <th width="15%">Hasil</th>
+                    <th width="15%">Dokumentasi</th>
                 </tr>
             </thead>
             <tbody>
@@ -77,6 +78,22 @@
                     </td>
                     <td>{{ $report->issue_type }}</td>
                     <td>{{ $report->visit_result }}</td>
+                    <td class="text-center">
+                        @if($report->photos)
+                            @php $photos = json_decode($report->photos, true); @endphp
+                            @if(is_array($photos) && count($photos) > 0)
+                                <img src="{{ str_starts_with($photos[0], 'http') ? $photos[0] : public_path('storage/' . $photos[0]) }}" style="max-width: 60px; max-height: 40px; margin-bottom: 2px; border-radius: 4px;">
+                                @if(count($photos) > 1)
+                                    <div style="font-size: 8px; color: #666;">+{{ count($photos) - 1 }} foto</div>
+                                @endif
+                            @endif
+                        @endif
+                        
+                        @if($report->signature)
+                            <div style="font-size: 10px; color: #666; border-top: 1px solid #eee; padding-top: 3px;">[Tanda Tangan PIC]</div>
+                            <img src="{{ str_starts_with($report->signature, 'http') ? $report->signature : public_path('storage/' . $report->signature) }}" style="max-width: 60px; max-height: 40px; margin-top: 2px;">
+                        @endif
+                    </td>
                 </tr>
                 @empty
                 <tr>

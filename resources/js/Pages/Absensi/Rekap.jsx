@@ -128,7 +128,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             if (result.isConfirmed) {
                 router.put(route('absensi.update', realId), result.value, {
                     preserveScroll: true,
-                    onSuccess: () => { Swal.fire('Tersimpan!', 'Data absensi berhasil diperbarui.', 'success'); },
+                    onSuccess: (page) => { 
+                        const msg = page.props.flash?.success || 'Data absensi berhasil diperbarui.';
+                        Swal.fire('Tersimpan!', msg, 'success'); 
+                    },
                     onError: () => { Swal.fire('Error!', 'Gagal memperbarui data. Pastikan format jam benar (HH:MM:SS).', 'error'); }
                 });
             }

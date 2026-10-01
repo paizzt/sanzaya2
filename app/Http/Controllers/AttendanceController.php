@@ -187,25 +187,46 @@ class AttendanceController extends Controller
         }
 
         $request->validate([
-            'check_in_time' => ['nullable', 'regex:/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
-            'check_out_time' => ['nullable', 'regex:/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
+            'check_in_time' => ['nullable', 'regex:/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
+            'check_out_time' => ['nullable', 'regex:/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
         ]);
 
         $checkIn = $request->check_in_time;
-        if ($checkIn && strlen($checkIn) === 5) {
-            $checkIn .= ':00';
+        if ($checkIn) {
+            // Pad left with 0 if it's 4 chars (e.g., 8:00 -> 08:00)
+            if (strlen($checkIn) === 4 && strpos($checkIn, ':') === 1) {
+                $checkIn = '0' . $checkIn;
+            }
+            if (strlen($checkIn) === 5) {
+                $checkIn .= ':00';
+            }
         }
         
         $checkOut = $request->check_out_time;
-        if ($checkOut && strlen($checkOut) === 5) {
-            $checkOut .= ':00';
+        if ($checkOut) {
+            // Pad left with 0 if it's 4 chars (e.g., 8:00 -> 08:00)
+            if (strlen($checkOut) === 4 && strpos($checkOut, ':') === 1) {
+                $checkOut = '0' . $checkOut;
+            }
+            if (strlen($checkOut) === 5) {
+                $checkOut .= ':00';
+            }
         }
+
+        \Illuminate\Support\Facades\Log::info('Updating Attendance ID ' . $id, [
+            'original_check_in' => $attendance->check_in_time,
+            'original_check_out' => $attendance->check_out_time,
+            'new_check_in' => $checkIn,
+            'new_check_out' => $checkOut,
+            'request_check_in' => $request->check_in_time,
+            'request_check_out' => $request->check_out_time,
+        ]);
 
         $attendance->check_in_time = $checkIn;
         $attendance->check_out_time = $checkOut;
         $attendance->save();
 
-        return redirect()->back()->with('success', 'Data absensi berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Data absensi berhasil diperbarui. (In: ' . ($checkIn ?: 'null') . ', Out: ' . ($checkOut ?: 'null') . ')');
     }
 
     public function destroy($id)
