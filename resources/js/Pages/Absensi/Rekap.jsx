@@ -105,12 +105,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             title: 'Edit Jam Absensi',
             html: `
                 <div class="text-left mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Jam Masuk (HH:MM:SS)</label>
-                    <input id="swal-input-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_in || ''}" placeholder="08:00:00">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jam Masuk</label>
+                    <input type="time" step="1" id="swal-input-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_in || ''}">
                 </div>
                 <div class="text-left">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Jam Keluar (HH:MM:SS)</label>
-                    <input id="swal-input-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_out || ''}" placeholder="17:00:00">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jam Keluar</label>
+                    <input type="time" step="1" id="swal-input-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_out || ''}">
                 </div>
             `,
             focusConfirm: false,
