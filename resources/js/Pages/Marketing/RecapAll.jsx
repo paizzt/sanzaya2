@@ -14,6 +14,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
     const [selectedReport, setSelectedReport] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [summaryModalType, setSummaryModalType] = useState(null); // 'reported' or 'unreported'
+    const [selectedImage, setSelectedImage] = useState(null);
 
     const openModal = (report) => {
         setSelectedReport(report);
@@ -70,17 +71,21 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
 
                     return (
                         <div key={idx} className="relative group mb-4">
-                            <a href={driveId ? `https://drive.google.com/file/d/${driveId}/view` : src} target="_blank" rel="noreferrer">
+                            <button 
+                                type="button"
+                                onClick={() => setSelectedImage(src)}
+                                className="block focus:outline-none"
+                            >
                                 <img 
                                     src={src} 
                                     alt={`Lampiran ${idx+1}`} 
-                                    className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-80 transition-opacity"
+                                    className="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-80 transition-opacity cursor-pointer"
                                     onError={(e) => {
                                         e.target.onerror = null; 
                                         e.target.src = 'https://placehold.co/100x100/e2e8f0/64748b?text=Foto+Gagal+Muat';
                                     }}
                                 />
-                            </a>
+                            </button>
                             {driveId && (
                                 <a 
                                     href={`https://drive.google.com/file/d/${driveId}/view`} 
@@ -554,6 +559,25 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                     <div className="mt-8 flex justify-end">
                         <PrimaryButton onClick={() => setSummaryModalType(null)}>Tutup Detail</PrimaryButton>
                     </div>
+                </div>
+            </Modal>
+
+            {/* Photo Viewer Modal */}
+            <Modal show={selectedImage !== null} onClose={() => setSelectedImage(null)} maxWidth="4xl">
+                <div className="relative bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[50vh] p-4">
+                    <button 
+                        onClick={() => setSelectedImage(null)} 
+                        className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/70 p-2 rounded-full transition-colors z-10"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                    {selectedImage && (
+                        <img 
+                            src={selectedImage} 
+                            alt="Foto Kunjungan Detail" 
+                            className="max-w-full max-h-[85vh] object-contain rounded"
+                        />
+                    )}
                 </div>
             </Modal>
         </AuthenticatedLayout>
