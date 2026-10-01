@@ -216,16 +216,14 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             options={yearOptions} 
                         />
                     </div>
-                    {isAdmin && (
-                        <div className="w-full md:w-1/3">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Karyawan</label>
-                            <CustomSelect 
-                                value={data.user_id} 
-                                onChange={(val) => setData('user_id', val)} 
-                                options={userOptions} 
-                            />
-                        </div>
-                    )}
+                    <div className="w-full md:w-1/3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Karyawan</label>
+                        <CustomSelect 
+                            value={data.user_id} 
+                            onChange={(val) => setData('user_id', val)} 
+                            options={userOptions} 
+                        />
+                    </div>
                     <div className="w-full md:w-auto flex gap-2">
                         <PrimaryButton onClick={handleFilter} className="">
                             <Search className="w-4 h-4" /> Tampilkan

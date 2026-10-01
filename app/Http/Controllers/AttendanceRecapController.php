@@ -36,16 +36,10 @@ class AttendanceRecapController extends Controller
         // Default filters
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
-        $selectedUserId = $request->input('user_id');
+        $selectedUserId = $request->input('user_id', 'all');
 
-        if (!$isAdmin) {
-            $selectedUserId = $user->id; // Force self for non-admins
-        } else if (!$selectedUserId) {
-            $selectedUserId = 'all'; // Default to all for admins
-        }
-
-        // Fetch users for admin dropdown
-        $users = $isAdmin ? User::where('is_active', true)->orderBy('name')->get(['id', 'name']) : [];
+        // Fetch users for dropdown filter (available to everyone)
+        $users = User::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         // Build Queries
         $attendancesQuery = Attendance::with('user')
