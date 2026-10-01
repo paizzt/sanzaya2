@@ -187,12 +187,22 @@ class AttendanceController extends Controller
         }
 
         $request->validate([
-            'check_in_time' => 'nullable|date_format:H:i:s',
-            'check_out_time' => 'nullable|date_format:H:i:s',
+            'check_in_time' => ['nullable', 'regex:/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
+            'check_out_time' => ['nullable', 'regex:/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
         ]);
 
-        $attendance->check_in_time = $request->check_in_time;
-        $attendance->check_out_time = $request->check_out_time;
+        $checkIn = $request->check_in_time;
+        if ($checkIn && strlen($checkIn) === 5) {
+            $checkIn .= ':00';
+        }
+        
+        $checkOut = $request->check_out_time;
+        if ($checkOut && strlen($checkOut) === 5) {
+            $checkOut .= ':00';
+        }
+
+        $attendance->check_in_time = $checkIn;
+        $attendance->check_out_time = $checkOut;
         $attendance->save();
 
         return redirect()->back()->with('success', 'Data absensi berhasil diperbarui.');
