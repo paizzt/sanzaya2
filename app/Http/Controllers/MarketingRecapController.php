@@ -51,7 +51,7 @@ class MarketingRecapController extends Controller
         // Get all active sales users for the filter dropdown
         $salesUsers = User::where('is_active', true)
             ->whereHas('roles', function($q) {
-                $q->where('name', 'Sales');
+                $q->whereIn('name', ['Sales', 'sales', 'Marketing', 'marketing']);
             })
             ->orderBy('name')
             ->get(['id', 'name']);
