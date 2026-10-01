@@ -1,0 +1,86 @@
+1 RS TK IV DR. SUMANTRI PARE-PARE Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+2 RUMAH SAKIT UMUM DAERAH LA PATARAI BARRU Rp 8.200.000,00 Rp -   Rp 2.700.000,03 Rp 10.900.000,03 Rp 21.024.000,00 Rp 21.024.000,00 Rp 31.924.000,03
+4 RSUD Anuntaloko Parigi Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+5 RSUD LA TEMMAMALA KAB. SOPPENG Rp -   Rp -   Rp 9.135.002,80 Rp 9.135.002,80 Rp -   Rp -   Rp 9.135.002,80
+6 RSUD SYEKH YUSUF KAB.GOWA Rp -   Rp 273.468.880,71 Rp -   Rp 273.468.880,71 Rp 247.431.000,00 Rp 247.431.000,00 Rp 520.899.880,71
+7 RSUD Wonomulyo Kab Polewali Rp -   Rp -   Rp -   Rp 9.646.780,00 Rp 9.646.780,00 Rp 9.646.780,00
+8 RSUD. BATARA SIANG PANGKEP Rp -   Rp -   Rp 16.987.463,00 Rp 16.987.463,00 Rp -   Rp -   Rp 16.987.463,00
+9 RSUD BANYORANG KAB. BANTAENG Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+10 RUMKIT BHAYANGKARA MAKASSAR Rp -   Rp -   Rp 134.900.011,00 Rp 134.900.011,00 Rp -   Rp -   Rp 134.900.011,00
+11 RS PALEMMAI TANDI Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+12 Rumah Sakit Umum Daerah I Lagaligo Rp -   Rp -   Rp 441.676.321,49 Rp 441.676.321,49 Rp -   Rp -   Rp 441.676.321,49
+13 RSUD Arifin NU'mang Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+14 RSUD LASINRANG KAB. PINRANG Rp -   Rp -   Rp 324.195.105,93 Rp 324.195.105,93 Rp -   Rp 324.195.105,93
+15 RSUD NENE MALLOMO KAB.SIDRAP Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+16 RSUD. Prof Dr. H.M Anwar Makkatutu KAB.BANTAENG Rp -   Rp -   Rp 5.996.664,00 Rp 5.996.664,00 Rp 61.438.500,00 Rp 61.438.500,00 Rp 1.773.380.153,37 Rp 1.840.815.317,37
+17 RSUD H PADJONGA DG NGALLE KABUPATEN TAKALAR Rp -   Rp 27.305.728,05 Rp 160.502.309,12 Rp 187.808.037,17 Rp -   Rp 187.808.037,17
+18 RSUD BATARA GURU BELOPA Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+19 KLINIK UTAMA DOI 79 BANTAYAN KAB.BANTAENG Rp 23.388.441,14 Rp -   Rp 23.388.441,14 Rp 9.080.944,00 Rp 9.080.944,00 Rp 32.469.385,14
+20 Apotek Al Mujarab Rp -   Rp -   Rp -   Rp 159.960,00 Rp 159.960,00 Rp 159.960,00
+21 RSU WISATA UIT Rp -   Rp -   Rp 23.380.374,73 Rp 23.380.374,73 Rp -   Rp -   Rp 23.380.374,73
+22 RSIA ANANDA MAKASSAR Rp -   Rp -   Rp 198.173.633,94 Rp 198.173.633,94 Rp 34.845.350,00 Rp 31.085.106,00 Rp 65.930.456,00 Rp 264.104.089,94
+23 RSIA Kartini Rp -   Rp -   Rp 9.543.600,00 Rp 9.543.600,00 Rp -   Rp 9.543.600,00
+24 RSU BAHAGIA Rp -   Rp -   Rp -   Rp 3.605.075,00 Rp 3.605.075,00 Rp 3.605.075,00
+25 YAYASAN MUJAISYAH SEJAHTERA Rp -   Rp -   Rp 50.349.629,00 Rp 50.349.629,00 Rp -   Rp -   Rp 50.349.629,00
+26 RUMAH SAKIT HAPSAH Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+27 PT. Medical Solution Indonesia Rp -   Rp -   Rp 721.348.468,98 Rp 721.348.468,98 Rp -   Rp 721.348.468,98
+28 PT.Haura Abadi Jaya Rp -   Rp 6.358.900,00 Rp 6.358.900,00 Rp -   Rp 6.358.900,00
+29 RS MEGA BUANA Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+30 APOTEK YUNI FARMA Rp -   Rp -   Rp 2.271.998,15 Rp 2.271.998,15 Rp -   Rp 2.271.998,15
+31 DINAS KESEHATAN KAB. TAKALAR Rp 659.866.800,00 Rp -   Rp 144.966.000,00 Rp 804.832.800,00 Rp -   Rp 804.832.800,00
+32 DINAS KESEHATAN KAB. BANTAENG Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+33 SPPG TAMALATE BAROMBONG Rp -   Rp -   Rp 1.159.999,95 Rp 1.159.999,95 Rp -   Rp 1.159.999,95
+34 SPPG HAJI BAU Rp -   Rp -   Rp 940.000,00 Rp 940.000,00 Rp -   Rp 940.000,00
+35 RSUD AMPANA Rp -   Rp -   Rp 129.717.851,71 Rp 129.717.851,71 Rp -   Rp 129.717.851,71
+36 PT ANUGRAH SALMAN MEDIKA Rp -   Rp -   Rp 20.000.000,00 Rp 20.000.000,00 Rp -   Rp 20.000.000,00
+37 RSUD MASSENREMPULU Enrekang Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+38 RSUD PENDAU TAMBU Rp -   Rp -   Rp 19.664.520,02 Rp 19.664.520,02 Rp -   Rp 19.664.520,02
+39 RS. UNIVERSITAS HASANUDDIN MAKASSAR Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+40 KLINIK AZKA NADHIFA Rp -   Rp -   Rp 775.000,00 Rp 775.000,00 Rp -   Rp 775.000,00
+41 KLINIK GRIYA AFIAT Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+42 RS HIKMAH MAKASSAR Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+43 RSUD LAMADDUKELLENG KAB WAJO Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+44 RSUD Kab Poso Rp -   Rp -   Rp 14.520.842,55 Rp 14.520.842,55 Rp -   Rp 14.520.842,55
+45 RSUD DAYA KOTA MAKASSAR Rp -   Rp -   Rp 202.406.280,00 Rp 202.406.280,00 Rp -   Rp 202.406.280,00
+46 Dinas Kesehatan Kabupaten Pasangkayu Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+47 RUMKIT TK. IV DR.M. YASIN BONE Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+48 RSUD LANTO DG. PASEWANG KAB. JENEPONTO Rp -   Rp -   Rp 62.140.122,70 Rp 62.140.122,70 Rp -   Rp 62.140.122,70
+49 RSIA PERTIWI MAKASSAR Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+50 ANDI AIDA BONE Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+51 PT RUMA UTAMA MEGATRADING Rp -   Rp -   Rp 51.605.010,00 Rp 51.605.010,00 Rp -   Rp 51.605.010,00
+52 RSUD MOKOPIDO KAB TOLI-TOLI Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+53 RSUD RUMBIA JENEPONTO Rp -   Rp -   Rp 35.951.679,00 Rp 35.951.679,00 Rp -   Rp 35.951.679,00
+54 RS TK III DR Sindhu Trisno Rp -   Rp -   Rp 54.844.419,85 Rp 54.844.419,85 Rp -   Rp 54.844.419,85
+55 DINAS KESEHATAN KAB SIGI Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+56 APOTEK A3 MEDIKA Rp -   Rp -   Rp 2.179.878,13 Rp 2.179.878,13 Rp -   Rp 2.179.878,13
+57 RS MITRA HUSADA Rp -   Rp -   Rp 501.347,77 Rp 501.347,77 Rp -   Rp 501.347,77
+58 RS PKU Muhammadiyah Unismuh Makassar Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+59 SPPG Bara Rampoang Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+60 SPPG Salohe Sinaji Timur Rp -   Rp -   Rp 2.899.999,98 Rp 2.899.999,98 Rp -   Rp 2.899.999,98
+61 RS.Dr. TADJUDDIN CHALID MAKASSAR Rp -   Rp -   Rp 2.568.011,64 Rp 2.568.011,64 Rp -   Rp 2.568.011,64
+62 SPPG To'bulung 02 Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+63 SPPG Bangkala 3 Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+64 Rs siti fatimah makassar Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+65 Ibu Habiba Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+66 DINAS KESEHATAN KAB SOPPENG Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+67 PUSKESMAS EMBO Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+68 RSUD Lakipadada Rp -   Rp -   Rp 1.998.000,00 Rp 1.998.000,00 Rp -   Rp 1.998.000,00
+69 BBKK MAKASSAR Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+70 PT HARTA TAHTA KESEHATAN Rp -   Rp -   Rp 882.744.612,88 Rp 882.744.612,88 Rp -   Rp 882.744.612,88
+71 DR. Ayudini Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+72 RSUD SIWA, KABUPATEN WAJO Rp -   Rp -   Rp 10.016.640,00 Rp 10.016.640,00 Rp -   Rp 10.016.640,00
+73 RS HASRI AINUN HABIBIE Rp -   Rp -   Rp 52.555.170,00 Rp 52.555.170,00 Rp -   Rp 52.555.170,00
+74 DINAS KESEHATAN KAB PINRANG Rp -   Rp -   Rp 88.888.800,00 Rp 88.888.800,00 Rp -   Rp 88.888.800,00
+75 RSUD Hayyung Selayar Rp -   Rp -   Rp 180.165.210,00 Rp 180.165.210,00 Rp -   Rp 180.165.210,00
+76 SPPG BARA BALANDAI 03 Rp -   Rp -   Rp 2.179.680,14 Rp 2.179.680,14 Rp -   Rp 2.179.680,14
+77 SPPG BAROMBONG 03 Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+78 RSUD LUWUK Rp -   Rp -   Rp 217.417.717,98 Rp 217.417.717,98 Rp -   Rp 217.417.717,98
+79 DINAS KESEHATAN KOTA MAKASSAR Rp -   Rp -   Rp 38.739.000,00 Rp 38.739.000,00 Rp -   Rp 38.739.000,00
+80 RSUD DR. MUHAMMAD ZEIN PAINAN Rp -   Rp -   Rp 76.265.281,00 Rp 76.265.281,00 Rp -   Rp 76.265.281,00
+81 RSUD MOHAMMAD NATSIR Rp -   Rp -   Rp 821.400,00 Rp 821.400,00 Rp -   Rp 821.400,00
+82 NDF PRINTING Rp -   Rp -   Rp 516.000,02 Rp 516.000,02 Rp -   Rp 516.000,02
+83 APOTEK MAWAR Rp -   Rp -   Rp 4.574.039,93 Rp 4.574.039,93 Rp -   Rp 4.574.039,93
+84 SPPG PATTENE PALOPO Rp -   Rp -   Rp -   Rp -   Rp -   Rp -  
+85 SPPG ANGGERAJA ENREKANG Rp -   Rp -   Rp 1.344.000,00 Rp 1.344.000,00 Rp -   Rp 1.344.000,00
+86 SPPG SELAYAR Rp -   Rp -   Rp 1.159.999,95 Rp 1.159.999,95 Rp -   Rp 1.159.999,95
+87 DINAS KESEHATAN LUWU UTARA Rp -   Rp -   Rp 97.331.460,00 Rp 97.331.460,00 Rp -   Rp 97.331.460,00
