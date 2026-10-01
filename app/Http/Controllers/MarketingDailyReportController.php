@@ -162,7 +162,8 @@ class MarketingDailyReportController extends Controller
                 }
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('Marketing Photo Error: ' . $e->getMessage());
-                $photoUrl = $request->file('photos')->store('marketing_reports', 'public');
+                // If it fails completely, we gracefully leave it as null
+                $photoUrl = null;
             }
         }
 
