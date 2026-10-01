@@ -108,7 +108,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
                     <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
                         <LayoutDashboard className="w-5 h-5 text-blue-500" /> Widget Dashboard Beranda
                     </h4>
-                    <p className="text-sm text-gray-500 mb-4">Pilih kotak informasi atau pintasan yang ingin ditampilkan di bagian atas halaman beranda (Maksimal 4 Menu).</p>
+                    <p className="text-sm text-gray-500 mb-4">Pilih kotak informasi atau pintasan yang ingin ditampilkan di bagian atas halaman beranda (Maksimal 10 Menu).</p>
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-64 overflow-y-auto pr-2 custom-scrollbar">
                         {ALL_MENUS.map(opt => {
@@ -118,7 +118,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
                                 (opt.key === 'Form UC' && data.preferences.dashboard.includes('uc')) ||
                                 (opt.key === 'Input BHP' && data.preferences.dashboard.includes('bhp'));
                             
-                            const isDisabled = !isChecked && (data.preferences.dashboard.length >= 4);
+                            const isDisabled = !isChecked && (data.preferences.dashboard.length >= 10);
 
                             return (
                                 <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-50' : 'border-gray-200 cursor-pointer hover:bg-gray-50'}`}>

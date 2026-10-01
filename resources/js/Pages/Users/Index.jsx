@@ -693,7 +693,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                                     (opt.key === 'Input BHP' && data.preferences?.dashboard?.includes('bhp'));
                                                                 
                                                                 const currentCount = data.preferences?.dashboard?.length || 0;
-                                                                const isDisabled = !isChecked && (currentCount >= 4);
+                                                                const isDisabled = !isChecked && (currentCount >= 10);
 
                                                                 return (
                                                                     <label key={opt.key} className={`flex items-center ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
