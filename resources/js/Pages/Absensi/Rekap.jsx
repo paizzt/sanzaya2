@@ -378,7 +378,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                                     item.type === 'Hadir' ? 'bg-blue-50 text-blue-600' :
-                                                    item.type === 'Sakit' ? 'bg-orange-50 text-orange-600' : item.type === 'Lembur' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'
+                                                    item.type === 'Sakit' ? 'bg-orange-50 text-orange-600' : 
+                                                    item.type === 'Lembur' ? 'bg-blue-50 text-blue-600' : 
+                                                    item.type === 'Alpa' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
                                                 }`}>
                                                     {item.type}
                                                 </span>

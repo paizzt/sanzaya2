@@ -217,6 +217,58 @@ class AttendanceRecapController extends Controller
             ];
         }
 
+        // Generate Alpa Records for the history list
+        $today = Carbon::today();
+        $endLoop = $endOfMonth->isFuture() ? $today : $endOfMonth;
+        
+        $activeUsers = \App\Models\User::where('is_active', true)->get();
+        
+        $attendanceMap = [];
+        foreach ($attendances as $att) {
+            $date = substr($att->date, 0, 10);
+            $attendanceMap[$att->user_id][$date] = true;
+        }
+
+        $requestMap = [];
+        foreach ($attendanceRequests as $req) {
+            if ($req->status !== 'Ditolak') {
+                $st = Carbon::parse($req->start_date);
+                $en = Carbon::parse($req->end_date);
+                while ($st->lte($en)) {
+                    $requestMap[$req->user_id][$st->format('Y-m-d')] = true;
+                    $st->addDay();
+                }
+            }
+        }
+
+        $currentDate = $startOfMonth->copy();
+        while ($currentDate->lte($endLoop)) {
+            if (!$currentDate->isWeekend()) {
+                $dateStr = $currentDate->format('Y-m-d');
+                foreach ($activeUsers as $usr) {
+                    if ($selectedUserId !== 'all' && $usr->id != $selectedUserId) {
+                        continue;
+                    }
+                    
+                    if (!isset($attendanceMap[$usr->id][$dateStr]) && !isset($requestMap[$usr->id][$dateStr])) {
+                        $recapList[] = [
+                            'id' => 'alpa_' . $usr->id . '_' . $dateStr,
+                            'user_name' => $usr->name,
+                            'date' => $dateStr,
+                            'type' => 'Alpa',
+                            'check_in' => '-',
+                            'check_out' => '-',
+                            'check_in_photo' => null,
+                            'check_out_photo' => null,
+                            'is_late' => false,
+                            'status' => 'Selesai'
+                        ];
+                    }
+                }
+            }
+            $currentDate->addDay();
+        }
+
         // Sort combined list by date descending
         usort($recapList, function($a, $b) {
             $dateA = substr($a['date'], 0, 10);
