@@ -506,6 +506,37 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                 <h4 className="font-semibold text-gray-700 mb-4 border-b border-gray-50 pb-2">Foto Kunjungan / Lampiran</h4>
                                 {renderPhotos(selectedReport.photos)}
                             </div>
+                            
+                            {selectedReport.signature && (
+                                <div className="border border-gray-100 rounded-xl p-5 shadow-sm">
+                                    <h4 className="font-semibold text-gray-700 mb-4 border-b border-gray-50 pb-2">Tanda Tangan PIC</h4>
+                                    <div className="mt-2 pb-4">
+                                        <button 
+                                            type="button"
+                                            onClick={() => {
+                                                let sigSrc = selectedReport.signature;
+                                                if (sigSrc.startsWith('http') && sigSrc.includes('i.ibb.co')) {
+                                                    sigSrc = `https://wsrv.nl/?url=${encodeURIComponent(sigSrc)}`;
+                                                }
+                                                setSelectedImage(sigSrc);
+                                            }}
+                                            className="block focus:outline-none"
+                                        >
+                                            <img 
+                                                src={(() => {
+                                                    let sigSrc = selectedReport.signature;
+                                                    if (sigSrc.startsWith('http') && sigSrc.includes('i.ibb.co')) {
+                                                        return `https://wsrv.nl/?url=${encodeURIComponent(sigSrc)}`;
+                                                    }
+                                                    return sigSrc;
+                                                })()} 
+                                                alt="Tanda Tangan PIC" 
+                                                className="h-32 object-contain bg-white rounded-lg border border-gray-200 p-2 cursor-pointer hover:shadow-md transition-shadow"
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                     <div className="mt-8 flex justify-end">
