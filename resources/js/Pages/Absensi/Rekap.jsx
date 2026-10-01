@@ -99,6 +99,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             return;
         }
 
+        const realId = item.id.toString().replace('att_', '');
+
         Swal.fire({
             title: 'Edit Jam Absensi',
             html: `
@@ -124,7 +126,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                router.put(route('absensi.update', item.id), result.value, {
+                router.put(route('absensi.update', realId), result.value, {
                     preserveScroll: true,
                     onSuccess: () => { Swal.fire('Tersimpan!', 'Data absensi berhasil diperbarui.', 'success'); },
                     onError: () => { Swal.fire('Error!', 'Gagal memperbarui data. Pastikan format jam benar (HH:MM:SS).', 'error'); }
