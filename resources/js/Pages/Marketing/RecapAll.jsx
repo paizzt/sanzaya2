@@ -52,7 +52,12 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
             <div className="flex flex-wrap gap-4 mt-2 pb-4">
                 {photos.map((photo, idx) => {
                     const isHttp = photo.startsWith('http');
-                    const src = isHttp ? photo : `/storage/${photo}`;
+                    let src = isHttp ? photo : `/storage/${photo}`;
+                    
+                    // Proxy i.ibb.co to bypass ISP blocks in Indonesia
+                    if (isHttp && photo.includes('i.ibb.co')) {
+                        src = `https://wsrv.nl/?url=${encodeURIComponent(photo)}`;
+                    }
                     
                     // Ekstrak ID Google Drive dari nama file jika ada
                     let driveId = null;
