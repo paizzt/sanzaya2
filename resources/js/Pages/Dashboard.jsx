@@ -115,7 +115,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Admin Specific Metrics */}
-                    <div className="lg:col-span-2">
+                    <div className="order-2 lg:order-1 lg:col-span-2">
                         {isAdmin && (
                             <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
                                 <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
@@ -152,7 +152,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                     </div>
 
                     {/* Greeting Card */}
-                    <div className="bg-blue-500 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden flex flex-col justify-between">
+                    <div className="order-1 lg:order-2 bg-blue-500 rounded-3xl p-4 sm:p-6 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden flex flex-col justify-between">
                         <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white/10 blur-2xl"></div>
                         <div>
                             <h3 className="font-bold text-lg mb-2 relative z-10">Selamat Datang,</h3>
