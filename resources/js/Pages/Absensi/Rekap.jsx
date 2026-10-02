@@ -31,9 +31,17 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             Swal.fire('Tidak ada foto', `Foto ${type} tidak tersedia.`, 'info');
             return;
         }
+
+        // Bypass blokir ISP Indonesia (ERR_SSL_VERSION_OR_CIPHER_MISMATCH) terhadap i.ibb.co
+        // dengan menggunakan proxy gambar publik wsrv.nl
+        let finalUrl = url;
+        if (url.includes('i.ibb.co')) {
+            finalUrl = `https://wsrv.nl/?url=${encodeURIComponent(url)}`;
+        }
+
         Swal.fire({
             title: `Foto ${type}`,
-            imageUrl: url,
+            imageUrl: finalUrl,
             imageAlt: `Foto ${type}`,
             confirmButtonText: 'Tutup',
             confirmButtonColor: '#3b82f6',
