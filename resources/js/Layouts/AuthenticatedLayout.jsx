@@ -377,7 +377,7 @@ export default function Authenticated({ user, header, children }) {
                                 {isInstallable && (
                                     <button
                                         onClick={handleInstallClick}
-                                        className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
+                                        className="md:hidden relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
                                         title="Install Aplikasi"
                                     >
                                         <Download className="w-5 h-5" />
@@ -385,7 +385,7 @@ export default function Authenticated({ user, header, children }) {
                                 )}
                                 <Link
                                     href={route('sops.index')}
-                                    className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
+                                    className="hidden md:block relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
                                     title="Lihat SOP"
                                 >
                                     <BookOpen className="w-5 h-5" />
