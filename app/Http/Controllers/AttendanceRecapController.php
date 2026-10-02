@@ -92,7 +92,9 @@ class AttendanceRecapController extends Controller
         // Calculate User Summaries
         $userSummaries = [];
         $users = \App\Models\User::all();
+        $userWorkDays = [];
         foreach ($users as $user) {
+            $userWorkDays[$user->id] = $user->work_days_per_week ?? 6;
             $userSummaries[$user->id] = [
                 'name' => $user->name,
                 'hadir' => 0,
@@ -164,17 +166,25 @@ class AttendanceRecapController extends Controller
         // Calculate working days in month
         $startOfMonth = Carbon::create($year, $month, 1);
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
-        $totalWorkingDays = 0;
-        while ($startOfMonth->lte($endOfMonth)) {
-            if (!$startOfMonth->isWeekend()) {
-                $totalWorkingDays++;
+        $totalWorkingDays5 = 0;
+        $totalWorkingDays6 = 0;
+        $tempDate = $startOfMonth->copy();
+        
+        while ($tempDate->lte($endOfMonth)) {
+            if ($tempDate->isWeekday()) {
+                $totalWorkingDays5++;
+                $totalWorkingDays6++;
             }
-            $startOfMonth->addDay();
+            if ($tempDate->dayOfWeek === Carbon::SATURDAY) {
+                $totalWorkingDays6++;
+            }
+            $tempDate->addDay();
         }
 
         foreach ($userSummaries as $userId => &$uSum) {
             $attended = $uSum['hadir'] + $uSum['sakit'] + $uSum['izin'];
-            $uSum['alpa'] = max(0, $totalWorkingDays - $attended);
+            $expectedDays = (isset($userWorkDays[$userId]) && $userWorkDays[$userId] == 5) ? $totalWorkingDays5 : $totalWorkingDays6;
+            $uSum['alpa'] = max(0, $expectedDays - $attended);
             $summary['alpa'] += $uSum['alpa']; // add to total alpa summary
         }
 
@@ -237,13 +247,25 @@ class AttendanceRecapController extends Controller
 
         $currentDate = $startOfMonth->copy();
         while ($currentDate->lte($endLoop)) {
-            if (!$currentDate->isWeekend()) {
-                $dateStr = $currentDate->format('Y-m-d');
-                foreach ($activeUsers as $usr) {
-                    if ($selectedUserId !== 'all' && $usr->id != $selectedUserId) {
-                        continue;
-                    }
-                    
+            $dateStr = $currentDate->format('Y-m-d');
+            $isWeekday = $currentDate->isWeekday();
+            $isSaturday = $currentDate->dayOfWeek === Carbon::SATURDAY;
+            
+            foreach ($activeUsers as $usr) {
+                if ($selectedUserId !== 'all' && $usr->id != $selectedUserId) {
+                    continue;
+                }
+                
+                $workDays = $userWorkDays[$usr->id] ?? 6;
+                $isWorkingDayForUser = false;
+                
+                if ($workDays == 5 && $isWeekday) {
+                    $isWorkingDayForUser = true;
+                } elseif ($workDays == 6 && ($isWeekday || $isSaturday)) {
+                    $isWorkingDayForUser = true;
+                }
+                
+                if ($isWorkingDayForUser) {
                     if (!isset($attendanceMap[$usr->id][$dateStr]) && !isset($requestMap[$usr->id][$dateStr])) {
                         $recapList[] = [
                             'id' => 'alpa_' . $usr->id . '_' . $dateStr,

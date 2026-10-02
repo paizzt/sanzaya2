@@ -90,6 +90,7 @@ class UserController extends Controller
             'bpjs_kesehatan' => 'nullable|string|max:255',
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
             'preferences' => 'nullable|array',
+            'work_days_per_week' => 'nullable|integer|in:5,6',
         ]);
 
         $division = null;
@@ -106,6 +107,7 @@ class UserController extends Controller
             'company_id' => $request->company_id,
             'spreadsheet_sales_name' => $request->spreadsheet_sales_name,
             'monthly_target' => $request->monthly_target,
+            'work_days_per_week' => $request->work_days_per_week ?? 6,
             
             'nik' => $request->nik,
             'start_date' => $request->start_date,
@@ -163,6 +165,7 @@ class UserController extends Controller
             'bpjs_kesehatan' => 'nullable|string|max:255',
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
             'preferences' => 'nullable|array',
+            'work_days_per_week' => 'nullable|integer|in:5,6',
         ]);
 
         $user->name = $request->name;
@@ -170,6 +173,10 @@ class UserController extends Controller
         
         if ($request->has('preferences')) {
             $user->preferences = $request->preferences;
+        }
+        
+        if ($request->has('work_days_per_week')) {
+            $user->work_days_per_week = $request->work_days_per_week;
         }
 
         if ($request->filled('division_name')) {

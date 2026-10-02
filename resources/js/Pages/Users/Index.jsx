@@ -54,6 +54,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
         emergency_contact: '',
         bpjs_kesehatan: '',
         bpjs_ketenagakerjaan: '',
+        work_days_per_week: 6,
         preferences: { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] },
     });
 
@@ -119,6 +120,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
             emergency_contact: user.emergency_contact || '',
             bpjs_kesehatan: user.bpjs_kesehatan || '',
             bpjs_ketenagakerjaan: user.bpjs_ketenagakerjaan || '',
+            work_days_per_week: user.work_days_per_week || 6,
             preferences: user.preferences || { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] },
         });
         setIsModalOpen(true);
@@ -568,6 +570,18 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                             <TextInput className="mt-1 block w-full" value={data.bpjs_ketenagakerjaan} onChange={e => setData('bpjs_ketenagakerjaan', e.target.value)} />
                                                             <InputError message={errors.bpjs_ketenagakerjaan} className="mt-1" />
                                                         </div>
+                                                        <div>
+                                                            <InputLabel value="Jumlah Hari Kerja / Minggu" />
+                                                            <CustomSelect
+                                                                value={data.work_days_per_week}
+                                                                onChange={val => setData('work_days_per_week', val)}
+                                                                options={[
+                                                                    { value: 6, label: '6 Hari Kerja' },
+                                                                    { value: 5, label: '5 Hari Kerja' },
+                                                                ]}
+                                                            />
+                                                            <InputError message={errors.work_days_per_week} className="mt-1" />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1009,6 +1023,10 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 <div>
                                                     <p className="text-xs text-gray-500 font-medium">BPJS Ketenagakerjaan</p>
                                                     <p className="font-semibold text-gray-800">{previewUser.bpjs_ketenagakerjaan || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">Hari Kerja / Minggu</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.work_days_per_week || 6} Hari</p>
                                                 </div>
                                             </div>
                                         </div>
