@@ -3,6 +3,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import { Target, TrendingUp, Building, MapPin, Send, AlertTriangle, CalendarDays, CheckSquare, ClipboardList, Download, X } from 'lucide-react';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import CustomSelect from '@/Components/CustomSelect';
 import InputLabel from '@/Components/InputLabel';
@@ -57,6 +58,77 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         target_outlets: [],
         custom_outlet: '',
     });
+
+    const [isCopyingLastTarget, setIsCopyingLastTarget] = useState(false);
+
+    const copyLastTarget = async () => {
+        const userId = targetData.user_id || user.id;
+        if (!userId) {
+            Swal.fire({
+                title: 'Pilih Sales',
+                text: 'Silakan pilih nama sales terlebih dahulu.',
+                icon: 'warning',
+                confirmButtonColor: '#3b82f6',
+            });
+            return;
+        }
+
+        try {
+            setIsCopyingLastTarget(true);
+            const response = await axios.get(route('marketing.target.last', { user_id: userId }));
+            if (response.data && response.data.target_outlets) {
+                let outlets = response.data.target_outlets;
+                if (typeof outlets === 'string') {
+                    try {
+                        outlets = JSON.parse(outlets);
+                    } catch (e) {
+                        outlets = [];
+                    }
+                }
+                
+                // convert string IDs to integers since outlet IDs in state are integers
+                const parsedOutlets = Array.isArray(outlets) ? outlets.map(id => parseInt(id)) : [];
+                
+                if (parsedOutlets.length > 0) {
+                    setTargetData('target_outlets', parsedOutlets);
+                    Swal.fire({
+                        title: 'Berhasil',
+                        text: `Berhasil menyalin ${parsedOutlets.length} outlet dari target sebelumnya.`,
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Info',
+                        text: 'Target sebelumnya tidak memiliki outlet yang dipilih.',
+                        icon: 'info',
+                        confirmButtonColor: '#3b82f6',
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: 'Tidak Ada Target',
+                    text: 'Tidak ditemukan data target pada bulan sebelumnya.',
+                    icon: 'info',
+                    confirmButtonColor: '#3b82f6',
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching last target:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Gagal mengambil target bulan lalu.',
+                icon: 'error',
+                confirmButtonColor: '#3b82f6',
+            });
+        } finally {
+            setIsCopyingLastTarget(false);
+        }
+    };
+
 
     const handleOutletToggle = (outletId) => {
         let currentOutlets = [...targetData.target_outlets];
@@ -575,7 +647,18 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                                     <div className="grid grid-cols-1 gap-6">
                                         <div>
-                                            <InputLabel value="Periode Target (Bulan)" />
+                                            <div className="flex justify-between items-center mb-1">
+                                                <InputLabel value="Periode Target (Bulan)" className="mb-0" />
+                                                <button 
+                                                    type="button" 
+                                                    onClick={copyLastTarget}
+                                                    disabled={isCopyingLastTarget}
+                                                    className="inline-flex items-center text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 disabled:opacity-50"
+                                                >
+                                                    <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                                                    {isCopyingLastTarget ? 'Menyalin...' : 'Salin Outlet Bulan Lalu'}
+                                                </button>
+                                            </div>
                                             <div className="relative mt-1">
                                                 <input
                                                     type="month"

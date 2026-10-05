@@ -267,6 +267,24 @@ class MarketingDailyReportController extends Controller
         return null;
     }
 
+    public function getLastTarget($userId = null)
+    {
+        $user = Auth::user();
+        
+        // Ensure regular user can only fetch their own
+        if (!$user->isAdminUser() && !$user->isAdminMarketing()) {
+            $userId = $user->id;
+        } else if (!$userId) {
+            $userId = $user->id;
+        }
+
+        $lastTarget = MarketingWeeklyTarget::where('user_id', $userId)
+            ->orderBy('start_date', 'desc')
+            ->first();
+
+        return response()->json($lastTarget);
+    }
+
     public function storeTarget(Request $request)
     {
         $request->validate([

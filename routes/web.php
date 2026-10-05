@@ -133,6 +133,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/marketing/recap-all/excel', [\App\Http\Controllers\MarketingRecapController::class, 'exportExcel'])->name('marketing.recap.excel');
         Route::post('/marketing/report', [MarketingDailyReportController::class, 'store'])->name('marketing.report.store');
         Route::post('/marketing/target', [MarketingDailyReportController::class, 'storeTarget'])->name('marketing.target.store');
+        Route::get('/marketing/target/last/{user_id?}', [MarketingDailyReportController::class, 'getLastTarget'])->name('marketing.target.last');
         Route::get('/marketing-export-pdf', [MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf');
         Route::get('/marketing-export-excel', [MarketingDailyReportController::class, 'exportExcel'])->name('marketing.export.excel');
         Route::get('/marketing-export-target-pdf', [MarketingDailyReportController::class, 'exportTargetPdf'])->name('marketing.export_target.pdf');
