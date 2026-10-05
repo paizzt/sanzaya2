@@ -172,9 +172,17 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         u.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
-    const filteredRecapList = recapList?.filter(item => 
-        item.user_name.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
+    const [statusFilter, setStatusFilter] = useState('all');
+
+    const filteredRecapList = recapList?.filter(item => {
+        const matchesSearch = item.user_name.toLowerCase().includes(searchQuery.toLowerCase());
+        if (!matchesSearch) return false;
+        
+        if (statusFilter === 'all') return true;
+        if (statusFilter === 'Terlambat') return item.is_late === true || item.is_late === 1;
+        if (statusFilter === 'Izin') return item.type === 'Izin' || item.type === 'Izin Khusus';
+        return item.type === statusFilter;
+    }) || [];
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -182,7 +190,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, filters]);
+    }, [searchQuery, filters, statusFilter]);
 
     const totalPages = Math.ceil(filteredRecapList.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -253,8 +261,11 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-                    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-6">
+                    <div 
+                        onClick={() => setStatusFilter(statusFilter === 'Hadir' ? 'all' : 'Hadir')}
+                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
+                    >
                         <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
                             <CheckCircle2 className="w-6 h-6" />
                         </div>
@@ -263,7 +274,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <h4 className="text-2xl font-black text-gray-800">{summary.hadir}</h4>
                         </div>
                     </div>
-                    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div 
+                        onClick={() => setStatusFilter(statusFilter === 'Sakit' ? 'all' : 'Sakit')}
+                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Sakit' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-100'}`}
+                    >
                         <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
                             <AlertCircle className="w-6 h-6" />
                         </div>
@@ -272,7 +286,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <h4 className="text-2xl font-black text-gray-800">{summary.sakit}</h4>
                         </div>
                     </div>
-                    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div 
+                        onClick={() => setStatusFilter(statusFilter === 'Izin' ? 'all' : 'Izin')}
+                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Izin' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
+                    >
                         <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
                             <ClipboardCheck className="w-6 h-6" />
                         </div>
@@ -281,7 +298,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <h4 className="text-2xl font-black text-gray-800">{summary.izin}</h4>
                         </div>
                     </div>
-                    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div 
+                        onClick={() => setStatusFilter(statusFilter === 'Alpa' ? 'all' : 'Alpa')}
+                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Alpa' ? 'ring-2 ring-red-500 border-red-500' : 'border-gray-100'}`}
+                    >
                         <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
                             <AlertCircle className="w-6 h-6" />
                         </div>
@@ -291,7 +311,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div 
+                        onClick={() => setStatusFilter(statusFilter === 'Terlambat' ? 'all' : 'Terlambat')}
+                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Terlambat' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
+                    >
                         <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
                             <Clock className="w-6 h-6" />
                         </div>
