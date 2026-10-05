@@ -95,10 +95,14 @@ class MarketingRecapController extends Controller
             ->get()
             ->keyBy('user_id');
 
-        $periodUserIds = $periodUserStats->keys()->toArray();
-        $reportsPerUserPeriod = User::whereIn('id', $periodUserIds)->get(['id', 'name'])->map(function($user) use ($periodUserStats) {
-            $user->report_count = $periodUserStats[$user->id]->count ?? 0;
-            return $user;
+        $reportsPerUserPeriod = $salesUsers->map(function($user) use ($periodUserStats) {
+            // Create a new copy of the user object or just assign the property
+            $newUser = (object)[
+                'id' => $user->id,
+                'name' => $user->name,
+                'report_count' => $periodUserStats[$user->id]->count ?? 0
+            ];
+            return $newUser;
         })->sortByDesc('report_count')->values();
 
         return Inertia::render('Marketing/RecapAll', [
