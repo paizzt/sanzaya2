@@ -13,6 +13,7 @@ import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 import CustomDatePicker from '@/Components/CustomDatePicker';
 import SearchableSelect from '@/Components/SearchableSelect';
 import SignaturePad from '@/Components/SignaturePad';
+import Modal from '@/Components/Modal';
 import heic2any from 'heic2any';
 
 export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
@@ -39,6 +40,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
     const [activeTab, setActiveTab] = useState('laporan');
     const [outletSearch, setOutletSearch] = useState('');
     const [expandedTypes, setExpandedTypes] = useState([]);
+    const [selectedTarget, setSelectedTarget] = useState(null);
     const user = usePage().props.auth.user;
 
     const { data: targetData, setData: setTargetData, post: postTarget, processing: targetProcessing, errors: targetErrors, reset: resetTarget } = useForm({
@@ -238,29 +240,29 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Card 1: Target Kunjungan Bulanan (Merged) */}
-                        <div className="bg-gradient-to-br from-white to-indigo-50/40 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-indigo-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300">
+                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-blue-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-indigo-100 text-indigo-600 shadow-inner">
+                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-400/30 text-white shadow-inner">
                                     <Target className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-gray-500">Target Kunjungan Bulanan</p>
+                                    <p className="text-sm font-semibold text-blue-100">Target Kunjungan Bulanan</p>
                                     <div className="flex items-end gap-2">
-                                        <h3 className="text-2xl font-black text-gray-800">{realization.visits}</h3>
-                                        <span className="text-gray-500 text-sm mb-1">/ {target?.target_visits || 0} Outlet</span>
+                                        <h3 className="text-2xl font-black text-white">{realization.visits}</h3>
+                                        <span className="text-blue-200 text-sm mb-1">/ {target?.target_visits || 0} Outlet</span>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
+                            <div className="flex justify-between items-center text-xs text-blue-100 mb-2">
                                 <span>Realisasi Kunjungan</span>
-                                <span className="font-bold text-gray-700">
+                                <span className="font-bold text-white">
                                     {target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%
                                 </span>
                             </div>
-                            <div className="w-full bg-indigo-100/50 rounded-full h-2.5 overflow-hidden">
+                            <div className="w-full bg-blue-700/50 rounded-full h-2.5 overflow-hidden">
                                 <div 
-                                    className="bg-indigo-500 h-full rounded-full transition-all duration-500" 
+                                    className="bg-white h-full rounded-full transition-all duration-500" 
                                     style={{ width: `${Math.min(100, target?.target_visits > 0 ? (realization.visits / target.target_visits) * 100 : 0)}%` }}
                                 ></div>
                             </div>
@@ -866,7 +868,13 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                         {new Date(t.start_date).toLocaleDateString('id-ID')} s/d {new Date(t.end_date).toLocaleDateString('id-ID')}
                                                     </td>
                                                     <td className="px-4 py-3 text-center">
-                                                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{t.target_visits} Outlet</span>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => setSelectedTarget(t)}
+                                                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 transition-colors px-3 py-1 rounded-full text-xs font-bold cursor-pointer border border-blue-100 shadow-sm"
+                                                        >
+                                                            {t.target_visits} Outlet
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             )) : (
@@ -914,6 +922,34 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                     </div>
                 </div>
             </div>
+
+            {/* Target Outlets Modal */}
+            <Modal show={selectedTarget !== null} onClose={() => setSelectedTarget(null)} maxWidth="lg">
+                <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
+                    <h2 className="text-lg font-black text-gray-800">
+                        List Outlet Target
+                    </h2>
+                    <button onClick={() => setSelectedTarget(null)} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
+                    {selectedTarget?.target_outlet_names?.length > 0 ? (
+                        <ul className="space-y-2">
+                            {selectedTarget.target_outlet_names.map((outletName, idx) => (
+                                <li key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-sm">
+                                        {idx + 1}
+                                    </div>
+                                    <span className="font-semibold text-gray-700">{outletName}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500 italic">Tidak ada outlet.</div>
+                    )}
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

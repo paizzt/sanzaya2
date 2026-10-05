@@ -15,6 +15,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [summaryModalType, setSummaryModalType] = useState(null); // 'reported' or 'unreported'
     const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedTarget, setSelectedTarget] = useState(null);
 
     const openModal = (report) => {
         setSelectedReport(report);
@@ -398,7 +399,13 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                                 <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
                                                     <div className="flex justify-between md:justify-center items-center">
                                                         <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Kunjungan</span>
-                                                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{t.target_visits} Outlet</span>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => setSelectedTarget(t)}
+                                                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors px-3 py-1 rounded-full text-xs font-bold cursor-pointer border border-blue-100 shadow-sm"
+                                                        >
+                                                            {t.target_visits} Outlet
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -639,6 +646,34 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                             alt="Foto Kunjungan Detail" 
                             className="max-w-full max-h-[85vh] object-contain rounded"
                         />
+                    )}
+                </div>
+            </Modal>
+
+            {/* Target Outlets Modal */}
+            <Modal show={selectedTarget !== null} onClose={() => setSelectedTarget(null)} maxWidth="lg">
+                <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
+                    <h2 className="text-lg font-black text-gray-800">
+                        List Outlet Target
+                    </h2>
+                    <button onClick={() => setSelectedTarget(null)} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
+                    {selectedTarget?.target_outlet_names?.length > 0 ? (
+                        <ul className="space-y-2">
+                            {selectedTarget.target_outlet_names.map((outletName, idx) => (
+                                <li key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-sm">
+                                        {idx + 1}
+                                    </div>
+                                    <span className="font-semibold text-gray-700">{outletName}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500 italic">Tidak ada outlet.</div>
                     )}
                 </div>
             </Modal>
