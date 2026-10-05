@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('work_days_per_week')->default(6)->after('password');
+            if (!Schema::hasColumn('users', 'work_days_per_week')) {
+                $table->integer('work_days_per_week')->default(6)->after('password');
+            }
         });
     }
 
