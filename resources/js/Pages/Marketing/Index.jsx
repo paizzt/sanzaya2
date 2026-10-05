@@ -566,39 +566,31 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
                                     <div className="grid grid-cols-1 gap-6">
                                         <div>
-                                            <InputLabel value="Periode Target (Start & End Date)" />
+                                            <InputLabel value="Periode Target (Bulan)" />
                                             <div className="relative mt-1">
-                                                <CustomDateRangePicker
-                                                    value={{ 
-                                                        startDate: targetData.start_date || null, 
-                                                        endDate: targetData.end_date || null 
-                                                    }}
-                                                    onChange={(newVal) => {
+                                                <input
+                                                    type="month"
+                                                    value={targetData.start_date ? targetData.start_date.substring(0, 7) : ''}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        if (!val) {
+                                                            setTargetData(data => ({ ...data, start_date: '', end_date: '' }));
+                                                            return;
+                                                        }
+                                                        const [year, month] = val.split('-');
+                                                        const startDate = `${year}-${month}-01`;
+                                                        // Get the last day of the month
+                                                        const end = new Date(year, month, 0);
+                                                        const endDate = `${year}-${month}-${String(end.getDate()).padStart(2, '0')}`;
+                                                        
                                                         setTargetData(data => ({
                                                             ...data,
-                                                            start_date: newVal?.startDate || '',
-                                                            end_date: newVal?.endDate || ''
+                                                            start_date: startDate,
+                                                            end_date: endDate
                                                         }));
                                                     }}
+                                                    className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm px-4 py-2.5 transition-shadow"
                                                 />
-                                            </div>
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const start = new Date();
-                                                        const end = new Date();
-                                                        end.setMonth(end.getMonth() + 1);
-                                                        setTargetData(d => ({
-                                                            ...d,
-                                                            start_date: start.toISOString().split('T')[0],
-                                                            end_date: end.toISOString().split('T')[0]
-                                                        }));
-                                                    }}
-                                                    className="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-colors font-medium"
-                                                >
-                                                    1 Bulan ke Depan
-                                                </button>
                                             </div>
                                             <InputError message={targetErrors.start_date} className="mt-2" />
                                             <InputError message={targetErrors.end_date} className="mt-1" />
