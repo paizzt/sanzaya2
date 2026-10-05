@@ -168,7 +168,7 @@ class MarketingDailyReportController extends Controller
                 'issue_type' => 'nullable|string',
                 'competitor_notes' => 'nullable|string',
                 'visit_result' => 'nullable|string',
-                'signature' => 'nullable|string',
+                'signature' => 'nullable',
                 'photos' => 'nullable|file|mimes:jpeg,png,jpg,webp,heic|max:15360',
             ]);
 
