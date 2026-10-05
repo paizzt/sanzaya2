@@ -369,7 +369,6 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             <th className="px-6 py-4">Tahun/Minggu</th>
                                             <th className="px-6 py-4">Tanggal Periode</th>
                                             <th className="px-6 py-4 text-center">Target Kunjungan</th>
-                                            <th className="px-6 py-4 text-right">Target Transaksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50 bg-gray-50/30 md:bg-white p-4 md:p-0">
@@ -402,16 +401,10 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                                         <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{t.target_visits} Outlet</span>
                                                     </div>
                                                 </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4">
-                                                    <div className="flex justify-between md:justify-end items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Transaksi</span>
-                                                        <span className="font-bold text-emerald-600 text-base md:text-sm">{formatRupiah(t.target_transactions)}</span>
-                                                    </div>
-                                                </td>
                                             </tr>
                                         )) : (
                                             <tr className="block md:table-row">
-                                                <td colSpan="6" className="block md:table-cell px-6 py-12 text-center text-gray-400 font-medium">Belum ada data target bulanan.</td>
+                                                <td colSpan="5" className="block md:table-cell px-6 py-12 text-center text-gray-400 font-medium">Belum ada data target bulanan.</td>
                                             </tr>
                                         )}
                                     </tbody>

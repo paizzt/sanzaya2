@@ -358,7 +358,7 @@
     ]
   },
   "resources/js/Pages/Marketing/Index.jsx": {
-    "file": "assets/Index-TsLeL-JF.js",
+    "file": "assets/Index-DJytfRLQ.js",
     "name": "Index",
     "src": "resources/js/Pages/Marketing/Index.jsx",
     "isDynamicEntry": true,
@@ -390,7 +390,7 @@
     ]
   },
   "resources/js/Pages/Marketing/RecapAll.jsx": {
-    "file": "assets/RecapAll-Z2hFyqG0.js",
+    "file": "assets/RecapAll-D2XZDCcY.js",
     "name": "RecapAll",
     "src": "resources/js/Pages/Marketing/RecapAll.jsx",
     "isDynamicEntry": true,
@@ -839,7 +839,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-CKKMCwL0.js",
+    "file": "assets/Index-CwZRvIfu.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -860,7 +860,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-BHodRx33.js",
+    "file": "assets/Show-BkCRRgn7.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1037,7 +1037,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-BBhzLO5x.js",
+    "file": "assets/app-BttTqYZZ.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,

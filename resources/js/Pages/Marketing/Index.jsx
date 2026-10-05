@@ -811,8 +811,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                             <tr>
                                                 <th className="px-4 py-3 rounded-l-xl">Tahun/Minggu</th>
                                                 <th className="px-4 py-3">Tanggal Periode</th>
-                                                <th className="px-4 py-3 text-center">Target Kunjungan</th>
-                                                <th className="px-4 py-3 text-right rounded-r-xl">Target Transaksi</th>
+                                                <th className="px-4 py-3 text-center rounded-r-xl">Target Kunjungan</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50">
@@ -827,13 +826,10 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                     <td className="px-4 py-3 text-center">
                                                         <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{t.target_visits} Outlet</span>
                                                     </td>
-                                                    <td className="px-4 py-3 text-right font-medium text-emerald-600">
-                                                        {formatRupiah(t.target_transactions)}
-                                                    </td>
                                                 </tr>
                                             )) : (
                                                 <tr>
-                                                    <td colSpan="4" className="px-4 py-8 text-center text-gray-400">Belum ada data target bulanan.</td>
+                                                    <td colSpan="3" className="px-4 py-8 text-center text-gray-400">Belum ada data target bulanan.</td>
                                                 </tr>
                                             )}
                                         </tbody>
