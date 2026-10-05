@@ -28,9 +28,10 @@ class MarketingDailyReportController extends Controller
             ->orderBy('visit_time', 'desc')
             ->get();
 
-        $weekNumber = Carbon::now()->weekOfYear;
+        $today = Carbon::now()->toDateString();
         $target = MarketingWeeklyTarget::where('user_id', $userId)
-            ->where('week_number', $weekNumber)
+            ->where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
             ->first();
             
         $allTargets = MarketingWeeklyTarget::where('user_id', $userId)
@@ -38,22 +39,42 @@ class MarketingDailyReportController extends Controller
             ->get();
 
         if ($user->isAdminUser()) {
-            $realizedVisits = MarketingDailyReport::whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                ->where('activity_type', 'Kunjungan')
-                ->count();
-            $realizedTransactions = MarketingDailyReport::whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->sum('actual_value');
-            $target = MarketingWeeklyTarget::where('week_number', $weekNumber)
-                ->selectRaw('SUM(target_visits) as target_visits, SUM(target_new_outlets) as target_new_outlets, SUM(target_transactions) as target_transactions')
-                ->first();
-        } else {
-            $realizedVisits = MarketingDailyReport::where('user_id', $userId)
-                ->whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                ->where('activity_type', 'Kunjungan')
-                ->count();
+            $activeTargets = MarketingWeeklyTarget::where('start_date', '<=', $today)
+                ->where('end_date', '>=', $today)
+                ->get();
                 
-            $realizedTransactions = MarketingDailyReport::where('user_id', $userId)
-                ->whereBetween('visit_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                ->sum('actual_value');
+            if ($activeTargets->count() > 0) {
+                $minStartDate = $activeTargets->min('start_date');
+                $maxEndDate = $activeTargets->max('end_date');
+                
+                $realizedVisits = MarketingDailyReport::whereBetween('visit_date', [$minStartDate, $maxEndDate])
+                    ->where('activity_type', 'Kunjungan')
+                    ->count();
+                $realizedTransactions = MarketingDailyReport::whereBetween('visit_date', [$minStartDate, $maxEndDate])->sum('actual_value');
+                $target = new MarketingWeeklyTarget([
+                    'target_visits' => $activeTargets->sum('target_visits'),
+                    'target_new_outlets' => $activeTargets->sum('target_new_outlets'),
+                    'target_transactions' => $activeTargets->sum('target_transactions')
+                ]);
+            } else {
+                $realizedVisits = 0;
+                $realizedTransactions = 0;
+                $target = null;
+            }
+        } else {
+            if ($target) {
+                $realizedVisits = MarketingDailyReport::where('user_id', $userId)
+                    ->whereBetween('visit_date', [$target->start_date, $target->end_date])
+                    ->where('activity_type', 'Kunjungan')
+                    ->count();
+                    
+                $realizedTransactions = MarketingDailyReport::where('user_id', $userId)
+                    ->whereBetween('visit_date', [$target->start_date, $target->end_date])
+                    ->sum('actual_value');
+            } else {
+                $realizedVisits = 0;
+                $realizedTransactions = 0;
+            }
         }
 
         // Calculate Spreadsheet Sales for current month
