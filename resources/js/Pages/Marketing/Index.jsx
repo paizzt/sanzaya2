@@ -859,7 +859,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     <table className="w-full text-sm text-left">
                                         <thead className="bg-gray-50 text-gray-600 font-medium">
                                             <tr>
-                                                <th className="px-4 py-3 rounded-l-xl">Tahun/Minggu</th>
+                                                <th className="px-4 py-3 rounded-l-xl">Bulan/Tahun</th>
                                                 <th className="px-4 py-3">Tanggal Periode</th>
                                                 <th className="px-4 py-3 text-center rounded-r-xl">Target Kunjungan</th>
                                             </tr>
@@ -868,7 +868,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                             {allTargets && allTargets.length > 0 ? allTargets.map(t => (
                                                 <tr key={t.id} className="hover:bg-gray-50/50">
                                                     <td className="px-4 py-3 font-medium text-gray-800">
-                                                        Tahun {t.year} - M{t.week_number}
+                                                        {new Date(t.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
                                                     </td>
                                                     <td className="px-4 py-3 text-gray-600">
                                                         {new Date(t.start_date).toLocaleDateString('id-ID')} s/d {new Date(t.end_date).toLocaleDateString('id-ID')}

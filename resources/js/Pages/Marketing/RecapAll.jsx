@@ -366,7 +366,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                         <tr>
                                             <th className="px-6 py-4 w-12 text-center">No</th>
                                             <th className="px-6 py-4">Nama Sales</th>
-                                            <th className="px-6 py-4">Tahun/Minggu</th>
+                                            <th className="px-6 py-4">Bulan/Tahun</th>
                                             <th className="px-6 py-4">Tanggal Periode</th>
                                             <th className="px-6 py-4 text-center">Target Kunjungan</th>
                                         </tr>
@@ -385,8 +385,8 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                                 </td>
                                                 <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0 font-medium text-gray-800">
                                                     <div className="flex justify-between md:block items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Tahun/Minggu</span>
-                                                        <span>Tahun {t.year} - M{t.week_number}</span>
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Bulan/Tahun</span>
+                                                        <span>{new Date(t.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
                                                     </div>
                                                 </td>
                                                 <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0 text-gray-600">
