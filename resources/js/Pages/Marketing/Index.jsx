@@ -13,6 +13,7 @@ import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 import CustomDatePicker from '@/Components/CustomDatePicker';
 import SearchableSelect from '@/Components/SearchableSelect';
 import SignaturePad from '@/Components/SignaturePad';
+import heic2any from 'heic2any';
 
 export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
     const { data, setData, post, processing, errors, reset, transform } = useForm({
@@ -128,71 +129,99 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         const file = e.target.files[0];
         if (!file) return;
 
+        const isHEIC = file.type.match(/image\/(heic|heif)/i) || file.name.match(/\.(heic|heif)$/i);
         const isCompressible = file.type.match(/image\/(jpeg|jpg|png|webp)/i);
 
-        // If the file is > 4MB and cannot be compressed by canvas (e.g., HEIC/PDF), block it
-        // otherwise it will be uploaded raw and cause 500 / ERR_HTTP2_PROTOCOL_ERROR on shared hosting
+        const processImage = (fileToProcess) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(fileToProcess);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1000;
+                        const MAX_HEIGHT = 1000;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height = Math.round((height *= MAX_WIDTH / width));
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width = Math.round((width *= MAX_HEIGHT / height));
+                                height = MAX_HEIGHT;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                const compressedFile = new File([blob], fileToProcess.name, {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now(),
+                                });
+                                setData('photos', compressedFile);
+                            } else {
+                                setData('photos', fileToProcess);
+                            }
+                        }, 'image/jpeg', 0.8);
+                    } catch (err) {
+                        console.error("Compression error:", err);
+                        setData('photos', fileToProcess);
+                    }
+                };
+                img.onerror = () => {
+                    setData('photos', fileToProcess);
+                };
+            };
+        };
+
+        if (isHEIC) {
+            Swal.fire({
+                title: 'Memproses Foto...',
+                text: 'Membaca format kamera iPhone, mohon tunggu sebentar.',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            heic2any({
+                blob: file,
+                toType: "image/jpeg",
+                quality: 0.8
+            }).then((conversionResult) => {
+                Swal.close();
+                const jpegBlob = Array.isArray(conversionResult) ? conversionResult[0] : conversionResult;
+                const jpegFile = new File([jpegBlob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' });
+                processImage(jpegFile);
+            }).catch((err) => {
+                Swal.close();
+                console.error("HEIC conversion error:", err);
+                alert('Gagal memproses foto HEIC. Silakan gunakan foto lain.');
+            });
+            return;
+        }
+
+        // If the file is > 4MB and cannot be compressed by canvas (e.g., PDF), block it
         if (!isCompressible && file.size > 4 * 1024 * 1024) {
-            alert('Ukuran foto terlalu besar (Lebih dari 4MB) dan format tidak dapat dikompres otomatis. Mohon gunakan foto ukuran lebih kecil atau format JPG/PNG.');
+            alert('Ukuran foto/file ini terlalu besar (Lebih dari 4MB) dan format tidak dapat dikompres otomatis. Mohon gunakan file ukuran lebih kecil atau format JPG/PNG.');
             e.target.value = null; // reset input
             return;
         }
         
-        // Don't compress if not an image (e.g. some HEIC might not load in canvas without library)
         if (!isCompressible) {
             setData('photos', file);
             return;
         }
 
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                try {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1000;
-                    const MAX_HEIGHT = 1000;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height = Math.round((height *= MAX_WIDTH / width));
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width = Math.round((width *= MAX_HEIGHT / height));
-                            height = MAX_HEIGHT;
-                        }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    canvas.toBlob((blob) => {
-                        if (blob) {
-                            const compressedFile = new File([blob], file.name, {
-                                type: 'image/jpeg',
-                                lastModified: Date.now(),
-                            });
-                            setData('photos', compressedFile);
-                        } else {
-                            setData('photos', file);
-                        }
-                    }, 'image/jpeg', 0.8);
-                } catch (err) {
-                    console.error("Compression error:", err);
-                    setData('photos', file);
-                }
-            };
-            img.onerror = () => {
-                setData('photos', file);
-            };
-        };
+        processImage(file);
     };
 
     const formatRupiah = (value) => {
