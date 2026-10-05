@@ -43,10 +43,17 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
     const [selectedTarget, setSelectedTarget] = useState(null);
     const user = usePage().props.auth.user;
 
+    const currentTargetDate = new Date();
+    const currentTargetYear = currentTargetDate.getFullYear();
+    const currentTargetMonth = String(currentTargetDate.getMonth() + 1).padStart(2, '0');
+    const initialTargetStartDate = `${currentTargetYear}-${currentTargetMonth}-01`;
+    const initialTargetLastDay = new Date(currentTargetYear, currentTargetDate.getMonth() + 1, 0).getDate();
+    const initialTargetEndDate = `${currentTargetYear}-${currentTargetMonth}-${String(initialTargetLastDay).padStart(2, '0')}`;
+
     const { data: targetData, setData: setTargetData, post: postTarget, processing: targetProcessing, errors: targetErrors, reset: resetTarget } = useForm({
         user_id: isAdminMarketing ? '' : user.id,
-        start_date: '',
-        end_date: '',
+        start_date: initialTargetStartDate,
+        end_date: initialTargetEndDate,
         target_outlets: [],
         custom_outlet: '',
     });
