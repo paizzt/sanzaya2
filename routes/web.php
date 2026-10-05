@@ -379,6 +379,15 @@ Route::get('/fix-db-columns', function () {
     }
 });
 
+Route::get('/developer/run-build', function () {
+    try {
+        $output = shell_exec('cd ' . base_path() . ' && npm run build 2>&1');
+        return "<pre>Berhasil menjalankan build:\n\n" . $output . "</pre>";
+    } catch (\Exception $e) {
+        return "<pre>Gagal menjalankan build: " . $e->getMessage() . "</pre>";
+    }
+});
+
 Route::get('/debug-logs', function () {
     $path = storage_path('logs/laravel.log');
     if (!file_exists($path)) {

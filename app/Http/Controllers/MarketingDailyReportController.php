@@ -131,78 +131,98 @@ class MarketingDailyReportController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'activity_type' => 'required|string',
-            'visit_date' => 'required|date',
-            'visit_time' => 'required',
-            'outlet_type' => 'nullable|string',
-            'outlet_name' => 'nullable|string',
-            'outlet_id' => 'nullable|exists:outlets,id',
-            'pic_phone' => 'nullable|string',
-            'pic_position' => 'nullable|string',
-            'pic_name' => 'nullable|string',
-            'outlet_status' => 'nullable|string',
-            'visit_type' => 'nullable|string',
-            'issue_type' => 'nullable|string',
-            'competitor_notes' => 'nullable|string',
-            'visit_result' => 'nullable|string',
-            'signature' => 'nullable|string',
-            'photos' => 'nullable|file|mimes:jpeg,png,jpg,webp,heic|max:15360',
-        ]);
+        try {
+            $request->validate([
+                'activity_type' => 'required|string',
+                'visit_date' => 'required|date',
+                'visit_time' => 'required',
+                'outlet_type' => 'nullable|string',
+                'outlet_name' => 'nullable|string',
+                'outlet_id' => 'nullable|exists:outlets,id',
+                'pic_phone' => 'nullable|string',
+                'pic_position' => 'nullable|string',
+                'pic_name' => 'nullable|string',
+                'outlet_status' => 'nullable|string',
+                'visit_type' => 'nullable|string',
+                'issue_type' => 'nullable|string',
+                'competitor_notes' => 'nullable|string',
+                'visit_result' => 'nullable|string',
+                'signature' => 'nullable|string',
+                'photos' => 'nullable|file|mimes:jpeg,png,jpg,webp,heic|max:15360',
+            ]);
 
-        $photoUrl = null;
-        if ($request->hasFile('photos')) {
-            try {
-                $file = $request->file('photos');
-                $base64Photo = base64_encode(file_get_contents($file->path()));
-                $photoUrl = $this->uploadBase64ToImgBB($base64Photo);
-                
-                if (!$photoUrl) {
-                    $photoUrl = $file->store('marketing_reports', 'public');
+            $photoUrl = null;
+            if ($request->hasFile('photos')) {
+                try {
+                    $file = $request->file('photos');
+                    $base64Photo = base64_encode(file_get_contents($file->path()));
+                    $photoUrl = $this->uploadBase64ToImgBB($base64Photo);
+                    
+                    if (!$photoUrl) {
+                        $photoUrl = $file->store('marketing_reports', 'public');
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Marketing Photo Error: ' . $e->getMessage());
+                    // If it fails completely, we gracefully leave it as null
+                    $photoUrl = null;
                 }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Marketing Photo Error: ' . $e->getMessage());
-                // If it fails completely, we gracefully leave it as null
-                $photoUrl = null;
             }
-        }
 
-        $signatureUrl = $request->signature;
-        if ($request->filled('signature') && str_starts_with($request->signature, 'data:image')) {
-            $signatureUrl = $this->uploadBase64ToImgBB($request->signature) ?? $request->signature;
-        }
-
-        $outletId = $request->outlet_id;
-        if ($request->filled('outlet_name')) {
-            $outletName = $request->outlet_name;
-            $mapping = \App\Models\OutletMapping::where('raw_name', $outletName)->with('outlet')->first();
-            if ($mapping && $mapping->outlet) {
-                $outletName = $mapping->outlet->name;
+            $signatureUrl = $request->signature;
+            if ($request->hasFile('signature')) {
+                try {
+                    $sigFile = $request->file('signature');
+                    $base64Sig = base64_encode(file_get_contents($sigFile->path()));
+                    $signatureUrl = $this->uploadBase64ToImgBB($base64Sig);
+                    
+                    if (!$signatureUrl) {
+                        $signatureUrl = $sigFile->store('marketing_reports', 'public');
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Signature Photo Error: ' . $e->getMessage());
+                    $signatureUrl = null;
+                }
+            } elseif ($request->filled('signature') && is_string($request->signature) && str_starts_with($request->signature, 'data:image')) {
+                $signatureUrl = $this->uploadBase64ToImgBB($request->signature) ?? $request->signature;
             }
-            $outlet = \App\Models\Outlet::firstOrCreate(['name' => mb_strtoupper($outletName)]);
-            $outletId = $outlet->id;
+
+            $outletId = $request->outlet_id;
+            if ($request->filled('outlet_name')) {
+                $outletName = $request->outlet_name;
+                $mapping = \App\Models\OutletMapping::where('raw_name', $outletName)->with('outlet')->first();
+                if ($mapping && $mapping->outlet) {
+                    $outletName = $mapping->outlet->name;
+                }
+                $outlet = \App\Models\Outlet::firstOrCreate(['name' => mb_strtoupper($outletName)]);
+                $outletId = $outlet->id;
+            }
+
+            MarketingDailyReport::create([
+                'user_id' => Auth::id(),
+                'activity_type' => $request->activity_type,
+                'visit_date' => $request->visit_date,
+                'visit_time' => $request->visit_time,
+                'outlet_type' => $request->outlet_type,
+                'outlet_id' => $outletId,
+                'pic_phone' => $request->pic_phone,
+                'pic_position' => $request->pic_position,
+                'pic_name' => $request->pic_name,
+                'outlet_status' => $request->outlet_status,
+                'visit_type' => $request->visit_type,
+                'issue_type' => $request->issue_type,
+                'competitor_notes' => $request->competitor_notes,
+                'visit_result' => $request->visit_result,
+                'signature' => $signatureUrl,
+                'photos' => $photoUrl ? json_encode([$photoUrl]) : null,
+            ]);
+
+            return redirect()->back()->with('success', 'Laporan aktivitas harian berhasil disimpan!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Marketing Store Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage() . ' (Line: ' . $e->getLine() . ')');
         }
-
-        MarketingDailyReport::create([
-            'user_id' => Auth::id(),
-            'activity_type' => $request->activity_type,
-            'visit_date' => $request->visit_date,
-            'visit_time' => $request->visit_time,
-            'outlet_type' => $request->outlet_type,
-            'outlet_id' => $outletId,
-            'pic_phone' => $request->pic_phone,
-            'pic_position' => $request->pic_position,
-            'pic_name' => $request->pic_name,
-            'outlet_status' => $request->outlet_status,
-            'visit_type' => $request->visit_type,
-            'issue_type' => $request->issue_type,
-            'competitor_notes' => $request->competitor_notes,
-            'visit_result' => $request->visit_result,
-            'signature' => $signatureUrl,
-            'photos' => $photoUrl ? json_encode([$photoUrl]) : null,
-        ]);
-
-        return redirect()->back()->with('success', 'Laporan aktivitas harian berhasil disimpan!');
     }
 
     private function uploadBase64ToImgBB($base64String)

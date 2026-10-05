@@ -15,7 +15,7 @@ import SearchableSelect from '@/Components/SearchableSelect';
 import SignaturePad from '@/Components/SignaturePad';
 
 export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, transform } = useForm({
         activity_type: 'Kunjungan',
         visit_date: new Date().toISOString().split('T')[0],
         visit_time: new Date().toTimeString().split(' ')[0].substring(0, 5),
@@ -98,6 +98,27 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
 
     const submit = (e) => {
         e.preventDefault();
+        
+        transform((data) => {
+            const newData = { ...data };
+            if (newData.signature && typeof newData.signature === 'string' && newData.signature.startsWith('data:image')) {
+                try {
+                    const arr = newData.signature.split(',');
+                    const mime = arr[0].match(/:(.*?);/)[1];
+                    const bstr = atob(arr[1]);
+                    let n = bstr.length;
+                    const u8arr = new Uint8Array(n);
+                    while(n--){
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    newData.signature = new File([u8arr], 'signature.png', {type:mime});
+                } catch(err) {
+                    console.error("Signature conversion error", err);
+                }
+            }
+            return newData;
+        });
+
         post(route('marketing.report.store'), {
             preserveScroll: true,
         });
@@ -106,6 +127,13 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        // If the file is > 4MB, it might cause 500 / ERR_HTTP2_PROTOCOL_ERROR on shared hosting
+        if (file.size > 4 * 1024 * 1024) {
+            alert('Ukuran foto terlalu besar (Lebih dari 4MB). Mohon gunakan foto dengan ukuran lebih kecil atau ubah pengaturan kamera Anda.');
+            e.target.value = null; // reset input
+            return;
+        }
         
         // Don't compress if not an image (e.g. some HEIC might not load in canvas without library)
         // But we will try. If it's a standard image, compress it.
