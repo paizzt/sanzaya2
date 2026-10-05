@@ -185,24 +185,15 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         };
 
         if (isHEIC) {
-            Swal.fire({
-                title: 'Memproses Foto...',
-                text: 'Membaca format kamera iPhone, mohon tunggu sebentar.',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-
             heic2any({
                 blob: file,
                 toType: "image/jpeg",
                 quality: 0.8
             }).then((conversionResult) => {
-                Swal.close();
                 const jpegBlob = Array.isArray(conversionResult) ? conversionResult[0] : conversionResult;
                 const jpegFile = new File([jpegBlob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' });
                 processImage(jpegFile);
             }).catch((err) => {
-                Swal.close();
                 console.error("HEIC conversion error:", err);
                 alert('Gagal memproses foto HEIC. Silakan gunakan foto lain.');
             });
