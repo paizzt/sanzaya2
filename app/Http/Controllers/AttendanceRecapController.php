@@ -129,6 +129,12 @@ class AttendanceRecapController extends Controller
         }
 
         foreach ($attendances as $att) {
+            if (!isset($userSummaries[$att->user_id])) {
+                $userSummaries[$att->user_id] = [
+                    'name' => $att->user->name ?? 'Unknown',
+                    'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0
+                ];
+            }
             if ($att->status == 'Hadir') {
                 $userSummaries[$att->user_id]['hadir']++;
                 
@@ -150,6 +156,12 @@ class AttendanceRecapController extends Controller
 
         foreach ($attendanceRequests as $req) {
             if ($req->status !== 'Ditolak') {
+                if (!isset($userSummaries[$req->user_id])) {
+                    $userSummaries[$req->user_id] = [
+                        'name' => $req->user->name ?? 'Unknown',
+                        'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0
+                    ];
+                }
                 $start = Carbon::parse($req->start_date);
                 $end = Carbon::parse($req->end_date);
                 $days = $start->diffInDays($end) + 1;
