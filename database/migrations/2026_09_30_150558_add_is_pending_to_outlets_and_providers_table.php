@@ -12,11 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('outlets', function (Blueprint $table) {
-            $table->boolean('is_pending')->default(false)->after('name');
+            if (!Schema::hasColumn('outlets', 'is_pending')) {
+                $table->boolean('is_pending')->default(false)->after('name');
+            }
         });
 
         Schema::table('providers', function (Blueprint $table) {
-            $table->boolean('is_pending')->default(false)->after('name');
+            if (!Schema::hasColumn('providers', 'is_pending')) {
+                $table->boolean('is_pending')->default(false)->after('name');
+            }
         });
     }
 
