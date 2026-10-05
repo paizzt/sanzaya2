@@ -162,7 +162,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
             <div className="pb-6 pt-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                 
                 {/* Daily Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div 
                         className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
                         onClick={() => setSummaryModalType('reported')}
@@ -173,6 +173,19 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
                             <CheckCircle className="w-6 h-6 text-indigo-600" />
+                        </div>
+                    </div>
+
+                    <div 
+                        className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                        onClick={() => setSummaryModalType('period_reported')}
+                    >
+                        <div>
+                            <p className="text-sm font-medium text-gray-500 mb-1">Total Laporan</p>
+                            <h4 className="text-2xl font-bold text-gray-800">{summary?.total_reports_period_count || 0}</h4>
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+                            <ClipboardList className="w-6 h-6 text-blue-600" />
                         </div>
                     </div>
                     
@@ -549,7 +562,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
             <Modal show={summaryModalType !== null} onClose={() => setSummaryModalType(null)} maxWidth="xl">
                 <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
                     <h2 className="text-xl font-black text-gray-800">
-                        {summaryModalType === 'reported' ? 'Sudah Melapor Hari Ini' : 'Belum Melapor Hari Ini'}
+                        {summaryModalType === 'reported' ? 'Sudah Melapor Hari Ini' : summaryModalType === 'period_reported' ? 'Total Laporan Periode Ini' : 'Belum Melapor Hari Ini'}
                     </h2>
                     <button onClick={() => setSummaryModalType(null)} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
                         <X className="w-5 h-5" />
@@ -575,6 +588,26 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                             </ul>
                         ) : (
                             <div className="text-center py-8 text-gray-500 italic">Belum ada yang melapor hari ini.</div>
+                        )
+                    ) : summaryModalType === 'period_reported' ? (
+                        summary?.reports_per_user_period?.length > 0 ? (
+                            <ul className="space-y-2">
+                                {summary.reports_per_user_period.map(u => (
+                                    <li key={u.id} className="flex items-center gap-3 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <ClipboardList className="w-4 h-4 text-blue-600" />
+                                        </div>
+                                        <div className="flex-1 flex justify-between items-center">
+                                            <span className="font-semibold text-gray-700">{u.name}</span>
+                                            <span className="text-sm text-blue-600 font-medium bg-white px-3 py-1 rounded-full border border-blue-100 shadow-sm">
+                                                {u.report_count} Laporan
+                                            </span>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className="text-center py-8 text-gray-500 italic">Belum ada laporan pada periode ini.</div>
                         )
                     ) : (
                         summary?.not_reported_users?.length > 0 ? (

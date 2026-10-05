@@ -74,12 +74,41 @@ class MarketingRecapController extends Controller
             return $user;
         });
 
+        // Total Reports in Period (defaults to current month if no dates selected)
+        $periodQuery = MarketingDailyReport::query();
+        if ($startDate) {
+            $periodQuery->where('visit_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $periodQuery->where('visit_date', '<=', $endDate);
+        }
+        if (!$startDate && !$endDate) {
+            $periodQuery->whereMonth('visit_date', date('m'))
+                        ->whereYear('visit_date', date('Y'));
+        }
+
+        $totalReportsPeriodCount = $periodQuery->count();
+
+        $periodUserStats = (clone $periodQuery)
+            ->selectRaw('user_id, count(*) as count')
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+
+        $periodUserIds = $periodUserStats->keys()->toArray();
+        $reportsPerUserPeriod = User::whereIn('id', $periodUserIds)->get(['id', 'name'])->map(function($user) use ($periodUserStats) {
+            $user->report_count = $periodUserStats[$user->id]->count ?? 0;
+            return $user;
+        })->sortByDesc('report_count')->values();
+
         return Inertia::render('Marketing/RecapAll', [
             'reports' => $reports,
             'summary' => [
                 'reports_today_count' => $reportsTodayCount,
                 'reported_users' => $reportedUsers,
                 'not_reported_users' => $notReportedUsers,
+                'total_reports_period_count' => $totalReportsPeriodCount,
+                'reports_per_user_period' => $reportsPerUserPeriod,
             ],
             'allTargets' => $allTargets,
             'sales_users' => $salesUsers,
