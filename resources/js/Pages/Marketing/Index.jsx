@@ -861,7 +861,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                         <thead className="bg-gray-50 text-gray-600 font-medium">
                                             <tr>
                                                 <th className="px-4 py-3 rounded-l-xl">Bulan/Tahun</th>
-                                                <th className="px-4 py-3">Tanggal Periode</th>
+
                                                 <th className="px-4 py-3 text-center">Target Kunjungan</th>
                                                 <th className="px-4 py-3 text-center rounded-r-xl">Capaian (%)</th>
                                             </tr>
@@ -872,9 +872,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                     <td className="px-4 py-3 font-medium text-gray-800">
                                                         {new Date(t.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
                                                     </td>
-                                                    <td className="px-4 py-3 text-gray-600">
-                                                        {new Date(t.start_date).toLocaleDateString('id-ID')} s/d {new Date(t.end_date).toLocaleDateString('id-ID')}
-                                                    </td>
+
                                                     <td className="px-4 py-3 text-center">
                                                         <button 
                                                             type="button"

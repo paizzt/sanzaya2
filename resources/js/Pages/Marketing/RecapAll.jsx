@@ -356,7 +356,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             <th className="px-6 py-4 w-12 text-center">No</th>
                                             <th className="px-6 py-4">Nama Sales</th>
                                             <th className="px-6 py-4">Bulan/Tahun</th>
-                                            <th className="px-6 py-4">Tanggal Periode</th>
+
                                             <th className="px-6 py-4 text-center">Target Kunjungan</th>
                                             <th className="px-6 py-4 text-center">Capaian (%)</th>
                                         </tr>
@@ -379,12 +379,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                                         <span>{new Date(t.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
                                                     </div>
                                                 </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0 text-gray-600">
-                                                    <div className="flex flex-col md:block items-start md:items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider mb-1">Periode</span>
-                                                        <span>{new Date(t.start_date).toLocaleDateString('id-ID')} s/d {new Date(t.end_date).toLocaleDateString('id-ID')}</span>
-                                                    </div>
-                                                </td>
+
                                                 <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
                                                     <div className="flex justify-between md:justify-center items-center">
                                                         <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Kunjungan</span>
