@@ -19,8 +19,19 @@ class MarketingRecapController extends Controller
         // You could add a check for feature 10 here if strictly needed.
 
         $salesUserId = $request->get('user_id');
+        $filterDate = $request->get('filter_date');
+        $filterMonth = $request->get('filter_month');
+        
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+
+        if ($filterDate) {
+            $startDate = $filterDate;
+            $endDate = $filterDate;
+        } elseif ($filterMonth) {
+            $startDate = $filterMonth . '-01';
+            $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
+        }
 
         // Query Reports
         $reportsQuery = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')->orderBy('visit_time', 'desc');
@@ -120,6 +131,8 @@ class MarketingRecapController extends Controller
                 'user_id' => $salesUserId,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'filter_date' => $filterDate,
+                'filter_month' => $filterMonth,
                 'period' => $request->get('period')
             ]
         ]);
@@ -134,8 +147,19 @@ class MarketingRecapController extends Controller
 
         $type = $request->get('type', 'laporan'); // 'laporan' or 'target'
         $salesUserId = $request->get('user_id');
+        $filterDate = $request->get('filter_date');
+        $filterMonth = $request->get('filter_month');
+        
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+
+        if ($filterDate) {
+            $startDate = $filterDate;
+            $endDate = $filterDate;
+        } elseif ($filterMonth) {
+            $startDate = $filterMonth . '-01';
+            $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
+        }
 
         $data = [];
         if ($type === 'laporan') {
@@ -158,6 +182,8 @@ class MarketingRecapController extends Controller
             'user' => $salesUser ? $salesUser->name : 'Semua Sales',
             'start_date' => $startDate,
             'end_date' => $endDate,
+            'filter_date' => $filterDate,
+            'filter_month' => $filterMonth,
         ];
 
         $pdf = \PDF::loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
@@ -172,8 +198,19 @@ class MarketingRecapController extends Controller
 
         $type = $request->get('type', 'laporan');
         $salesUserId = $request->get('user_id');
+        $filterDate = $request->get('filter_date');
+        $filterMonth = $request->get('filter_month');
+        
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+
+        if ($filterDate) {
+            $startDate = $filterDate;
+            $endDate = $filterDate;
+        } elseif ($filterMonth) {
+            $startDate = $filterMonth . '-01';
+            $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
+        }
 
         if ($type === 'laporan') {
             $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc');

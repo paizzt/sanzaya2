@@ -107,8 +107,17 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
     const handleFilterChange = (key, value) => {
         const newFilters = { ...filters, [key]: value };
         
-        // Ensure period is removed if we are using exact dates (so controller doesn't get confused)
-        if (key === 'start_date' || key === 'end_date') {
+        if (key === 'filter_date') {
+            newFilters.filter_month = '';
+            newFilters.start_date = '';
+            newFilters.end_date = '';
+            newFilters.period = '';
+        }
+        
+        if (key === 'filter_month') {
+            newFilters.filter_date = '';
+            newFilters.start_date = '';
+            newFilters.end_date = '';
             newFilters.period = '';
         }
 
@@ -191,21 +200,20 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                        <div className="w-full md:w-auto flex items-center gap-2">
+                        <div className="w-full md:w-auto flex flex-col sm:flex-row items-center gap-3">
                             <TextInput
                                 type="date"
                                 className="w-full md:w-40 text-sm"
-                                value={filters.start_date || ''}
-                                onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                                title="Tanggal Mulai"
+                                value={filters.filter_date || ''}
+                                onChange={(e) => handleFilterChange('filter_date', e.target.value)}
+                                title="Pilih Tanggal"
                             />
-                            <span className="text-gray-400 font-medium">s/d</span>
                             <TextInput
-                                type="date"
+                                type="month"
                                 className="w-full md:w-40 text-sm"
-                                value={filters.end_date || ''}
-                                onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                                title="Tanggal Akhir"
+                                value={filters.filter_month || ''}
+                                onChange={(e) => handleFilterChange('filter_month', e.target.value)}
+                                title="Pilih Bulan"
                             />
                         </div>
                         <div className="w-full md:w-64">
