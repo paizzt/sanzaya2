@@ -128,16 +128,18 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         const file = e.target.files[0];
         if (!file) return;
 
-        // If the file is > 4MB, it might cause 500 / ERR_HTTP2_PROTOCOL_ERROR on shared hosting
-        if (file.size > 4 * 1024 * 1024) {
-            alert('Ukuran foto terlalu besar (Lebih dari 4MB). Mohon gunakan foto dengan ukuran lebih kecil atau ubah pengaturan kamera Anda.');
+        const isCompressible = file.type.match(/image\/(jpeg|jpg|png|webp)/i);
+
+        // If the file is > 4MB and cannot be compressed by canvas (e.g., HEIC/PDF), block it
+        // otherwise it will be uploaded raw and cause 500 / ERR_HTTP2_PROTOCOL_ERROR on shared hosting
+        if (!isCompressible && file.size > 4 * 1024 * 1024) {
+            alert('Ukuran foto terlalu besar (Lebih dari 4MB) dan format tidak dapat dikompres otomatis. Mohon gunakan foto ukuran lebih kecil atau format JPG/PNG.');
             e.target.value = null; // reset input
             return;
         }
         
         // Don't compress if not an image (e.g. some HEIC might not load in canvas without library)
-        // But we will try. If it's a standard image, compress it.
-        if (!file.type.match(/image\/(jpeg|jpg|png|webp)/)) {
+        if (!isCompressible) {
             setData('photos', file);
             return;
         }
