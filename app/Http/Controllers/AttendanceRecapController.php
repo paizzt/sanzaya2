@@ -131,7 +131,7 @@ class AttendanceRecapController extends Controller
         foreach ($attendances as $att) {
             if (!isset($userSummaries[$att->user_id])) {
                 $userSummaries[$att->user_id] = [
-                    'name' => $att->user->name ?? 'Unknown',
+                    'name' => $att->user?->name ?? 'Unknown',
                     'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0
                 ];
             }
@@ -158,7 +158,7 @@ class AttendanceRecapController extends Controller
             if ($req->status !== 'Ditolak') {
                 if (!isset($userSummaries[$req->user_id])) {
                     $userSummaries[$req->user_id] = [
-                        'name' => $req->user->name ?? 'Unknown',
+                        'name' => $req->user?->name ?? 'Unknown',
                         'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0
                     ];
                 }
@@ -207,7 +207,7 @@ class AttendanceRecapController extends Controller
         foreach ($attendances as $att) {
             $recapList[] = [
                 'id' => 'att_' . $att->id,
-                'user_name' => $att->user->name,
+                'user_name' => $att->user?->name ?? 'Unknown',
                 'date' => $att->date,
                 'type' => 'Hadir',
                 'check_in' => $att->check_in_time,
@@ -222,7 +222,7 @@ class AttendanceRecapController extends Controller
         foreach ($attendanceRequests as $req) {
             $recapList[] = [
                 'id' => 'req_' . $req->id,
-                'user_name' => $req->user->name,
+                'user_name' => $req->user?->name ?? 'Unknown',
                 'date' => $req->start_date . ' s/d ' . $req->end_date,
                 'type' => $req->type,
                 'check_in' => '-',
