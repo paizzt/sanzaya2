@@ -370,6 +370,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             <th className="px-6 py-4">Bulan/Tahun</th>
                                             <th className="px-6 py-4">Tanggal Periode</th>
                                             <th className="px-6 py-4 text-center">Target Kunjungan</th>
+                                            <th className="px-6 py-4 text-center">Capaian (%)</th>
                                         </tr>
                                     </thead>
                                     <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50 bg-gray-50/30 md:bg-white p-4 md:p-0">
@@ -408,10 +409,24 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                                         </button>
                                                     </div>
                                                 </td>
+                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
+                                                    <div className="flex justify-between md:justify-center items-center">
+                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Capaian</span>
+                                                        <div className="flex flex-col items-end md:items-center">
+                                                            <span className="font-bold text-gray-800">{t.realized_visits || 0} <span className="text-gray-400 font-normal text-xs">/ {t.target_visits}</span></span>
+                                                            <div className="w-16 bg-gray-200 rounded-full h-1.5 mt-1 overflow-hidden">
+                                                                <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0}%` }}></div>
+                                                            </div>
+                                                            <span className="text-[10px] font-semibold text-blue-600 mt-0.5">
+                                                                {t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0}%
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         )) : (
                                             <tr className="block md:table-row">
-                                                <td colSpan="5" className="block md:table-cell px-6 py-12 text-center text-gray-400 font-medium">Belum ada data target bulanan.</td>
+                                                <td colSpan="6" className="block md:table-cell px-6 py-12 text-center text-gray-400 font-medium">Belum ada data target bulanan.</td>
                                             </tr>
                                         )}
                                     </tbody>

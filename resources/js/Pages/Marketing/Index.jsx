@@ -862,7 +862,8 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                             <tr>
                                                 <th className="px-4 py-3 rounded-l-xl">Bulan/Tahun</th>
                                                 <th className="px-4 py-3">Tanggal Periode</th>
-                                                <th className="px-4 py-3 text-center rounded-r-xl">Target Kunjungan</th>
+                                                <th className="px-4 py-3 text-center">Target Kunjungan</th>
+                                                <th className="px-4 py-3 text-center rounded-r-xl">Capaian (%)</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50">
@@ -883,10 +884,21 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                                             {t.target_visits} Outlet
                                                         </button>
                                                     </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex flex-col items-center">
+                                                            <span className="font-bold text-gray-800">{t.realized_visits || 0} <span className="text-gray-400 font-normal text-xs">/ {t.target_visits}</span></span>
+                                                            <div className="w-16 bg-gray-200 rounded-full h-1.5 mt-1 overflow-hidden">
+                                                                <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0}%` }}></div>
+                                                            </div>
+                                                            <span className="text-[10px] font-semibold text-blue-600 mt-0.5">
+                                                                {t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0}%
+                                                            </span>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             )) : (
                                                 <tr>
-                                                    <td colSpan="3" className="px-4 py-8 text-center text-gray-400">Belum ada data target bulanan.</td>
+                                                    <td colSpan="4" className="px-4 py-8 text-center text-gray-400">Belum ada data target bulanan.</td>
                                                 </tr>
                                             )}
                                         </tbody>

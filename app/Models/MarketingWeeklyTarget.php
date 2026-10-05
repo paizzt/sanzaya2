@@ -14,7 +14,7 @@ class MarketingWeeklyTarget extends Model
         'end_date' => 'date',
     ];
 
-    protected $appends = ['target_outlet_names'];
+    protected $appends = ['target_outlet_names', 'realized_visits'];
 
     public function getTargetOutletNamesAttribute()
     {
@@ -23,6 +23,17 @@ class MarketingWeeklyTarget extends Model
         
         // Return array of outlet names for the frontend
         return \App\Models\Outlet::whereIn('id', $outletIds)->pluck('name')->toArray();
+    }
+
+    public function getRealizedVisitsAttribute()
+    {
+        if (!$this->user_id || !$this->start_date || !$this->end_date) return 0;
+
+        return \App\Models\MarketingDailyReport::where('user_id', $this->user_id)
+            ->where('activity_type', 'Kunjungan')
+            ->whereDate('visit_date', '>=', $this->start_date)
+            ->whereDate('visit_date', '<=', $this->end_date)
+            ->count();
     }
 
     public function user()
