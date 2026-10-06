@@ -151,7 +151,15 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                 <tbody className="divide-y divide-gray-200">
                                     {paymentRequests.data && paymentRequests.data.length > 0 ? (
                                         paymentRequests.data.map((pr) => (
-                                            <tr key={pr.id} className="hover:bg-gray-50">
+                                            <tr 
+                                                key={pr.id} 
+                                                onClick={(e) => {
+                                                    if (!e.target.closest('a') && !e.target.closest('button')) {
+                                                        router.get(route('payment-requests.show', pr.id));
+                                                    }
+                                                }}
+                                                className="hover:bg-gray-100 cursor-pointer transition-colors"
+                                            >
                                                 <td className="px-4 py-3">
                                                     <div className="font-medium text-gray-900">{pr.reference_number}</div>
                                                     <div className="text-xs text-gray-500 mt-1">
@@ -177,9 +185,6 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3 text-center space-x-3">
-                                                    <Link href={route('payment-requests.show', pr.id)} className="text-indigo-600 hover:text-indigo-900 inline-block" title="Detail">
-                                                        <Eye size={18} />
-                                                    </Link>
                                                     <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-900 inline-block" title="Unduh PDF">
                                                         <FileText size={18} />
                                                     </a>
