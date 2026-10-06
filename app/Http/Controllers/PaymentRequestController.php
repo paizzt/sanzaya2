@@ -210,8 +210,10 @@ class PaymentRequestController extends Controller
                 'account_change_note' => $request->account_change_note,
                 'vat_status' => $request->vat_status ?? 'Tidak Dikenakan',
                 'vat_rate' => $request->vat_rate ?? 0,
-                'workflow_status' => 'draft',
+                'workflow_status' => 'waiting_ga',
                 'created_by' => $user->id,
+                'submission_date' => now(),
+                'submitted_at' => now(),
             ]);
 
             // Save items
