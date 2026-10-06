@@ -448,7 +448,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     }`}>
                                                         {item.status}
                                                     </span>
-                                                    {isAdmin && item.id.startsWith('req_') && item.status === 'Menunggu' && (
+                                                    {(isAdmin || isSuperAdmin) && item.id.startsWith('req_') && item.status === 'Menunggu' && (
                                                         <div className="flex gap-1.5 mt-1">
                                                             <button 
                                                                 onClick={() => handleUpdateStatus(item.id, 'Disetujui')}
