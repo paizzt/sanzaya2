@@ -725,45 +725,29 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                         )}
 
                         {(summary.target_tahunan || is_super_admin) && (
-                            <>
                                 <div 
                                     onClick={() => summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Tahunan', type: 'target', data: summary.target_tahunan_detail })}
                                     className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-indigo-100 ${summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0 ? 'cursor-pointer' : ''}`}
-                                >
-                                        {/* Background Icon */}
-    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-        <svg className="w-24 h-24 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-    </div>
-
-    <div className="relative z-10 mb-4">
-        <p className="text-sm font-semibold text-gray-500">Target Tahunan</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
-    </div>
-    <div className="relative z-10">
-        <p className="text-xs text-gray-400">Target penjualan tahunan global</p>
-    </div>
-                                </div>
-                                <div 
-                                    onClick={() => summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Tahunan', type: 'capaian_tahunan', data: summary.capaian_tahunan_detail })}
-                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-orange-100 ${summary.capaian_tahunan_detail && Object.keys(summary.capaian_tahunan_detail).length > 0 ? 'cursor-pointer' : ''}`}
                                     style={{ backgroundImage: getProgressBg(summary.capaian_tahunan) }}
                                 >
-                                        {/* Background Icon */}
-    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-        <Activity className="w-24 h-24 text-orange-600" />
-    </div>
+                                    {/* Background Icon */}
+                                    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
+                                        <svg className="w-24 h-24 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                    </div>
 
-    <div className="relative z-10 mb-4">
-        <p className="text-sm font-semibold text-gray-500">Capaian Tahunan</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1">
-            {summary.capaian_tahunan || '0%'}
-        </h4>
-    </div>
-    <div className="relative z-10">
-        <p className="text-xs text-gray-400">capaian tahun ini</p>
-    </div>
+                                    <div className="relative z-10 mb-4">
+                                        <div className="flex justify-between items-start">
+                                            <p className="text-sm font-semibold text-gray-500">Target Tahunan</p>
+                                            <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full shadow-sm">
+                                                {summary.capaian_tahunan || '0%'}
+                                            </span>
+                                        </div>
+                                        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-2" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
+                                    </div>
+                                    <div className="relative z-10">
+                                        <p className="text-xs text-gray-400">Target global dan capaian tahun ini</p>
+                                    </div>
                                 </div>
-                            </>
                         )}
 
                         <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Outlet', type: 'outlet', data: summary.outlet_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
