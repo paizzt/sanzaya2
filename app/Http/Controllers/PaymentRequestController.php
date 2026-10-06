@@ -661,6 +661,46 @@ class PaymentRequestController extends Controller
                          ->with('success', 'Pengajuan berhasil ditolak.');
     }
 
+    public function revise(Request $request, $id)
+    {
+        $request->validate(['notes' => 'required|string']);
+
+        $paymentRequest = PaymentRequest::findOrFail($id);
+        $user = Auth::user();
+
+        $canRevise = false;
+
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
+            $canRevise = true;
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
+            $canRevise = true;
+        } elseif ($user->hasRole('SUPERADMIN')) {
+            $canRevise = in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga']);
+        }
+
+        if (!$canRevise) {
+            abort(403, 'Anda tidak memiliki hak akses untuk meminta revisi tahap ini.');
+        }
+
+        DB::transaction(function () use ($paymentRequest, $user, $request) {
+            \App\Models\PaymentRequestApproval::create([
+                'payment_request_id' => $paymentRequest->id,
+                'approver_id' => $user->id,
+                'approval_stage' => $paymentRequest->workflow_status,
+                'action' => 'returned',
+                'notes' => $request->notes,
+                'acted_at' => now(),
+            ]);
+
+            $paymentRequest->update([
+                'workflow_status' => 'draft',
+            ]);
+        });
+
+        return redirect()->route('payment-requests.show', $paymentRequest->id)
+                         ->with('success', 'Pengajuan berhasil dikembalikan untuk direvisi.');
+    }
+
     public function downloadPdf(PaymentRequest $paymentRequest)
     {
         $user = Auth::user();

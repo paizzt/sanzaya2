@@ -85,6 +85,35 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
         });
     };
 
+    const handleRevise = () => {
+        Swal.fire({
+            title: 'Minta Revisi',
+            input: 'textarea',
+            inputLabel: 'Catatan Revisi',
+            inputPlaceholder: 'Masukkan bagian yang perlu direvisi...',
+            inputAttributes: {
+                'aria-label': 'Catatan Revisi'
+            },
+            showCancelButton: true,
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Minta Revisi',
+            cancelButtonText: 'Batal',
+            preConfirm: (notes) => {
+                if (!notes) {
+                    Swal.showValidationMessage('Catatan revisi wajib diisi!');
+                }
+                return notes;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                post(route('payment-requests.revise', paymentRequest.id), {
+                    data: { notes: result.value }
+                });
+            }
+        });
+    };
+
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title={`Detail Pengajuan - ${paymentRequest.reference_number}`} />
@@ -121,7 +150,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                         case 'rejected':
                                             return { text: 'DI TOLAK', color: 'bg-red-100 text-red-800' };
                                         default:
-                                            return { text: 'DRAFT', color: 'bg-gray-100 text-gray-800' };
+                                            return { text: 'DRAFT / REVISI', color: 'bg-gray-100 text-gray-800' };
                                     }
                                 };
                                 const badge = getStatusBadge(paymentRequest.workflow_status);
@@ -289,7 +318,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                     )}
                                     
                                     {(canApprove || canReject) && (
-                                        <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t">
+                                        <div className="flex flex-col gap-2 mt-4 pt-4 border-t">
                                             {canApprove && (
                                                 <button 
                                                     onClick={handleApprove}
@@ -297,6 +326,15 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                                     className="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
                                                 >
                                                     Setujui
+                                                </button>
+                                            )}
+                                            {canReject && (
+                                                <button 
+                                                    onClick={handleRevise}
+                                                    disabled={processing}
+                                                    className="w-full inline-flex justify-center items-center px-4 py-2 bg-amber-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-400 focus:bg-amber-400 active:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                >
+                                                    Revisi
                                                 </button>
                                             )}
                                             {canReject && (

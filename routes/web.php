@@ -299,6 +299,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('payment-approvals/{payment_request}/edit', [\App\Http\Controllers\PaymentRequestController::class, 'editApproval'])->name('payment-approvals.edit');
         Route::post('payment-requests/{payment_request}/approve', [\App\Http\Controllers\PaymentRequestController::class, 'approve'])->name('payment-requests.approve');
         Route::post('payment-requests/{payment_request}/reject', [\App\Http\Controllers\PaymentRequestController::class, 'reject'])->name('payment-requests.reject');
+        Route::post('payment-requests/{payment_request}/revise', [\App\Http\Controllers\PaymentRequestController::class, 'revise'])->name('payment-requests.revise');
     });
 });
 
