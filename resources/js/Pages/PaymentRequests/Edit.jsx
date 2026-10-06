@@ -72,14 +72,24 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
     };
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Edit Pengajuan Pembayaran: {paymentRequest.reference_number}</h2>}
-        >
+        <AuthenticatedLayout user={auth.user}>
             <Head title={`Edit Pengajuan - ${paymentRequest.reference_number}`} />
 
             <div className="py-2">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
+                    <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <button 
+                            onClick={() => window.history.back()}
+                            className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100 flex-shrink-0"
+                            title="Kembali"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left w-5 h-5" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+                        </button>
+                        <h2 className="font-semibold text-xl text-gray-800 leading-tight">
+                            Edit Pengajuan Pembayaran: {paymentRequest.reference_number}
+                        </h2>
+                    </div>
+
                     <form onSubmit={submit} noValidate className="bg-white p-6 shadow sm:rounded-lg space-y-6">
                         
                         {/* Section A: Informasi Pengajuan */}

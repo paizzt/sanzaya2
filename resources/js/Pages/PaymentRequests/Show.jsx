@@ -86,33 +86,27 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
     };
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                    <div className="flex items-center gap-3">
-                        <button 
-                            onClick={() => window.history.back()}
-                            className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100 flex-shrink-0"
-                            title="Kembali"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left w-5 h-5" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
-                        </button>
-                        <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                            Detail Pengajuan: {paymentRequest.reference_number}
-                        </h2>
-                    </div>
-                </div>
-            }
-        >
+        <AuthenticatedLayout user={auth.user}>
             <Head title={`Detail Pengajuan - ${paymentRequest.reference_number}`} />
 
             <div className="py-2">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
                     {/* Action Bar */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
+                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
+                            <button 
+                                onClick={() => window.history.back()}
+                                className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100 flex-shrink-0"
+                                title="Kembali"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left w-5 h-5" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+                            </button>
+                            <h2 className="font-semibold text-xl text-gray-800 leading-tight">
+                                Detail Pengajuan: {paymentRequest.reference_number}
+                            </h2>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t md:border-t-0 border-gray-100">
                             <span className="text-gray-600 font-medium">Status Pengajuan:</span>
                             {(() => {
                                 const getStatusBadge = (status) => {
