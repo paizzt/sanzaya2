@@ -149,6 +149,12 @@ class AttendanceRecapController extends Controller
                     $summary['terlambat']++;
                 }
 
+                if ($att->check_out_time && $att->check_out_time >= '20:00:00') {
+                    $userSummaries[$att->user_id]['lembur']++;
+                    $summary['lembur']++;
+                    $lemburMap[$att->user_id][substr($att->date, 0, 10)] = true;
+                }
+
             } elseif ($att->status == 'Lembur') {
                 $userSummaries[$att->user_id]['lembur']++;
             }
@@ -215,7 +221,9 @@ class AttendanceRecapController extends Controller
                 'check_in_photo' => $att->check_in_photo ? (str_starts_with($att->check_in_photo, 'http') ? $att->check_in_photo : asset('storage/' . $att->check_in_photo)) : null,
                 'check_out_photo' => $att->check_out_photo ? (str_starts_with($att->check_out_photo, 'http') ? $att->check_out_photo : asset('storage/' . $att->check_out_photo)) : null,
                 'is_late' => $att->is_late ?? false,
-                'status' => 'Selesai'
+                'is_lembur' => ($att->check_out_time && $att->check_out_time >= '20:00:00') ? true : false,
+                'status' => 'Selesai',
+                'notes' => $att->notes
             ];
         }
 
@@ -229,7 +237,8 @@ class AttendanceRecapController extends Controller
                 'check_out' => '-',
                 'check_in_photo' => null,
                 'check_out_photo' => null,
-                'status' => $req->status
+                'status' => $req->status,
+                'notes' => $req->reason
             ];
         }
 
@@ -289,7 +298,8 @@ class AttendanceRecapController extends Controller
                             'check_in_photo' => null,
                             'check_out_photo' => null,
                             'is_late' => false,
-                            'status' => 'Selesai'
+                            'status' => 'Selesai',
+                            'notes' => null
                         ];
                     }
                 }

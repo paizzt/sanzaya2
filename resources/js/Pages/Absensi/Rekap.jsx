@@ -433,6 +433,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6 text-center font-medium">
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span>{item.check_out || '-'}</span>
+                                                    {item.is_lembur && (
+                                                        <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">Lembur</span>
+                                                    )}
                                                     {item.check_out_photo && (
                                                         <button onClick={() => handleShowPhoto(item.check_out_photo, 'Keluar')} className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1">
                                                             <Camera className="w-3 h-3"/> Foto
@@ -448,6 +451,11 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     }`}>
                                                         {item.status}
                                                     </span>
+                                                    {item.notes && (
+                                                        <div className="text-xs text-gray-500 italic max-w-[200px] break-words">
+                                                            "{item.notes}"
+                                                        </div>
+                                                    )}
                                                     {(isAdmin || isSuperAdmin) && item.id.startsWith('req_') && item.status === 'Menunggu' && (
                                                         <div className="flex gap-1.5 mt-1">
                                                             <button 
