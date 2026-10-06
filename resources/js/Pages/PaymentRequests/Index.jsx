@@ -140,8 +140,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                             <table className="w-full whitespace-nowrap text-left text-sm text-gray-500">
                                 <thead className="bg-gray-50 text-gray-700">
                                     <tr>
-                                        <th className="px-4 py-3 font-semibold">Nomor Referensi</th>
-                                        <th className="px-4 py-3 font-semibold">Tgl. Pengajuan</th>
+                                        <th className="px-4 py-3 font-semibold">Referensi & Tanggal</th>
                                         <th className="px-4 py-3 font-semibold">Pengaju / Divisi</th>
                                         <th className="px-4 py-3 font-semibold">Penerima</th>
                                         <th className="px-4 py-3 font-semibold text-right">Grand Total</th>
@@ -153,17 +152,17 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                     {paymentRequests.data && paymentRequests.data.length > 0 ? (
                                         paymentRequests.data.map((pr) => (
                                             <tr key={pr.id} className="hover:bg-gray-50">
-                                                <td className="px-4 py-3 font-medium text-gray-900">
-                                                    {pr.reference_number}
+                                                <td className="px-4 py-3">
+                                                    <div className="font-medium text-gray-900">{pr.reference_number}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">
+                                                        {pr.submission_date ? dayjs(pr.submission_date).format('DD MMM YYYY') : '-'}
+                                                    </div>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {pr.submission_date ? dayjs(pr.submission_date).format('DD MMMM YYYY') : '-'}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <div>{pr.requester?.name}</div>
+                                                    <div className="font-medium">{pr.requester?.name}</div>
                                                     <div className="text-xs text-gray-400">{pr.division?.name}</div>
                                                 </td>
-                                                <td className="px-4 py-3">
+                                                <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[250px] break-words">
                                                     {pr.recipient_name}
                                                 </td>
                                                 <td className="px-4 py-3 text-right font-medium">
