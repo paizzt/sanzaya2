@@ -101,31 +101,42 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                         <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                             Detail Pengajuan: {paymentRequest.reference_number}
                         </h2>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                        {(() => {
-                            const getStatusBadge = (status) => {
-                                switch (status) {
-                                    case 'waiting_ga':
-                                    case 'waiting_supervisor':
-                                        return { text: 'DI PROSES', color: 'bg-yellow-100 text-yellow-800' };
-                                    case 'approved':
-                                        return { text: 'DI SETUJUI', color: 'bg-blue-100 text-blue-800' };
-                                    case 'paid':
-                                        return { text: 'SELESAI', color: 'bg-green-100 text-green-800' };
-                                    case 'rejected':
-                                        return { text: 'DI TOLAK', color: 'bg-red-100 text-red-800' };
-                                    default:
-                                        return { text: 'DRAFT', color: 'bg-gray-100 text-gray-800' };
-                                }
-                            };
-                            const badge = getStatusBadge(paymentRequest.workflow_status);
-                            return (
-                                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${badge.color}`}>
-                                    {badge.text}
-                                </span>
-                            );
-                        })()}
+                </div>
+            }
+        >
+            <Head title={`Detail Pengajuan - ${paymentRequest.reference_number}`} />
+
+            <div className="py-2">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+                    {/* Action Bar */}
+                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <span className="text-gray-600 font-medium">Status Pengajuan:</span>
+                            {(() => {
+                                const getStatusBadge = (status) => {
+                                    switch (status) {
+                                        case 'waiting_ga':
+                                        case 'waiting_supervisor':
+                                            return { text: 'DI PROSES', color: 'bg-yellow-100 text-yellow-800' };
+                                        case 'approved':
+                                            return { text: 'DI SETUJUI', color: 'bg-blue-100 text-blue-800' };
+                                        case 'paid':
+                                            return { text: 'SELESAI', color: 'bg-green-100 text-green-800' };
+                                        case 'rejected':
+                                            return { text: 'DI TOLAK', color: 'bg-red-100 text-red-800' };
+                                        default:
+                                            return { text: 'DRAFT', color: 'bg-gray-100 text-gray-800' };
+                                    }
+                                };
+                                const badge = getStatusBadge(paymentRequest.workflow_status);
+                                return (
+                                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${badge.color}`}>
+                                        {badge.text}
+                                    </span>
+                                );
+                            })()}
+                        </div>
                         <a 
                             href={route('payment-requests.pdf', paymentRequest.id)} 
                             target="_blank" 
@@ -138,13 +149,6 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                             Cetak PDF
                         </a>
                     </div>
-                </div>
-            }
-        >
-            <Head title={`Detail Pengajuan - ${paymentRequest.reference_number}`} />
-
-            <div className="py-2">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     
                     {/* Status Kelengkapan */}
                     {!completeness.is_complete && (
