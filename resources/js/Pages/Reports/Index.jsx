@@ -765,21 +765,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                 </div>
                             </>
                         )}
-                        
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Pesanan', type: 'pesanan', data: summary.pesanan_sales })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
-                                {/* Background Icon */}
-    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-        <Activity className="w-24 h-24 text-blue-600" />
-    </div>
-
-    <div className="relative z-10 mb-4">
-        <p className="text-sm font-semibold text-gray-500">Total Pesanan</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.total_pesanan}>{summary.total_pesanan}</h4>
-    </div>
-    <div className="relative z-10">
-        <p className="text-xs text-gray-400">Jumlah baris transaksi tercatat</p>
-    </div>
-                        </div>
 
                         <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Outlet', type: 'outlet', data: summary.outlet_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
                                 {/* Background Icon */}
