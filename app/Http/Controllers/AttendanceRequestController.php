@@ -12,12 +12,18 @@ class AttendanceRequestController extends Controller
 {
     public function index()
     {
-        $requests = AttendanceRequest::where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $user = Auth::user();
+        $canApprove = $user->can('approve pengajuan absensi') || $user->isAdminUser();
+        
+        $query = AttendanceRequest::with('user')->orderBy('created_at', 'desc');
+        
+        if (!$canApprove) {
+            $query->where('user_id', $user->id);
+        }
             
         return Inertia::render('Absensi/Pengajuan', [
-            'requests' => $requests
+            'requests' => $query->get(),
+            'canApprove' => $canApprove
         ]);
     }
 

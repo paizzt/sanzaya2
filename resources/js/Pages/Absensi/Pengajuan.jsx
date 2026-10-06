@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { FileText, Send, Clock, CheckCircle2, XCircle, UploadCloud } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
@@ -10,7 +10,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
 import CustomDatePicker from '@/Components/CustomDatePicker';
 
-export default function Pengajuan({ requests }) {
+export default function Pengajuan({ requests, canApprove }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         type: 'Sakit',
         start_date: '',
@@ -38,6 +38,21 @@ export default function Pengajuan({ requests }) {
         e.preventDefault();
         post(route('absensi.pengajuan.store'), {
             preserveScroll: true,
+        });
+    };
+
+    const handleUpdateStatus = (id, status) => {
+        router.put(route('absensi.pengajuan.status', id), { status }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Status pengajuan berhasil diperbarui.',
+                    icon: 'success',
+                    confirmButtonColor: '#3b82f6',
+                    customClass: { popup: 'rounded-2xl' }
+                });
+            }
         });
     };
 
@@ -164,14 +179,37 @@ export default function Pengajuan({ requests }) {
                                                     <span className="text-sm font-semibold text-gray-700">
                                                         {req.start_date} {req.start_date !== req.end_date ? ` s/d ${req.end_date}` : ''}
                                                     </span>
+                                                    {canApprove && (
+                                                        <span className="text-sm font-semibold text-gray-600 ml-1">
+                                                            - {req.user?.name || 'User'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <p className="text-sm text-gray-600 mt-2">{req.reason}</p>
                                             </div>
-                                            <div className="flex items-center gap-1">
-                                                {getStatusIcon(req.status)}
-                                                <span className={`text-xs font-bold ${req.status === 'Menunggu' ? 'text-orange-500' : req.status === 'Disetujui' ? 'text-green-500' : 'text-red-500'}`}>
-                                                    {req.status}
-                                                </span>
+                                            <div className="flex flex-col items-end gap-2">
+                                                <div className="flex items-center gap-1">
+                                                    {getStatusIcon(req.status)}
+                                                    <span className={`text-xs font-bold ${req.status === 'Menunggu' ? 'text-orange-500' : req.status === 'Disetujui' ? 'text-green-500' : 'text-red-500'}`}>
+                                                        {req.status}
+                                                    </span>
+                                                </div>
+                                                {canApprove && req.status === 'Menunggu' && (
+                                                    <div className="flex gap-2 mt-1">
+                                                        <button 
+                                                            onClick={() => handleUpdateStatus(req.id, 'Disetujui')}
+                                                            className="text-xs px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                                                        >
+                                                            Setujui
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleUpdateStatus(req.id, 'Ditolak')}
+                                                            className="text-xs px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                                                        >
+                                                            Tolak
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}

@@ -67,10 +67,10 @@ class MarketingRecapController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $today = date('Y-m-d');
-        $reportsTodayCount = MarketingDailyReport::where('visit_date', $today)->count();
+        $targetDate = $filterDate ?: date('Y-m-d');
+        $reportsTodayCount = MarketingDailyReport::where('visit_date', $targetDate)->count();
         
-        $reportedUserStats = MarketingDailyReport::where('visit_date', $today)
+        $reportedUserStats = MarketingDailyReport::where('visit_date', $targetDate)
             ->selectRaw('user_id, count(*) as count')
             ->groupBy('user_id')
             ->get()

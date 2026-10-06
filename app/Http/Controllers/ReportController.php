@@ -207,12 +207,13 @@ class ReportController extends Controller
                 });
             }
             
-            $logistikAll = $summaryQuery->select('grand_total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal', 'brand')->get();
+            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal', 'brand')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = []; $monthBreakdown = []; $brandBreakdown = [];
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
             foreach ($logistikAll as $row) {
-                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
+                $cleanTotal = explode(',', (string)$row->total)[0];
+                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                 $totalPenjualan += $val;
                 if ($row->pelanggan) {
                     $pel = $row->pelanggan;
@@ -364,7 +365,8 @@ class ReportController extends Controller
                         strpos($tanggal, "-{$shortMonthEng}") !== false ||
                         strpos($tanggal, " {$shortMonthEng}") !== false
                     ) {
-                        $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
+                        $cleanTotal = explode(',', (string)$row->total)[0];
+                        $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                         $refTotalPenjualan += $val;
                         
                         $ptNameForSales = trim($row->nama_pt);
@@ -498,12 +500,13 @@ class ReportController extends Controller
                 });
             }
             
-            $logistikAnnual = $annualQuery->select('grand_total', 'nama_pt', 'nama_sales')->get();
+            $logistikAnnual = $annualQuery->select('total', 'nama_pt', 'nama_sales')->get();
             $totalPenjualanAnnual = 0;
             $ptBreakdownAnnual = [];
             
             foreach ($logistikAnnual as $row) {
-                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
+                $cleanTotal = explode(',', (string)$row->total)[0];
+                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                 $totalPenjualanAnnual += $val;
                 if ($row->nama_pt) {
                     $nPt = trim($row->nama_pt);
@@ -1002,7 +1005,8 @@ class ReportController extends Controller
         $salesPenjualan = [];
         $outletPenjualan = [];
         foreach ($logistik as $row) {
-            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
+            $cleanTotal = explode(',', (string)$row->total)[0];
+            $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
             $totalPenjualan += $val;
             
             $ptNameForSales = trim($row->nama_pt);
