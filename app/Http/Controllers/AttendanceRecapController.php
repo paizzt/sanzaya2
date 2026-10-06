@@ -215,7 +215,7 @@ class AttendanceRecapController extends Controller
                 'id' => 'att_' . $att->id,
                 'user_name' => $att->user?->name ?? 'Unknown',
                 'date' => $att->date,
-                'type' => 'Hadir',
+                'type' => $att->status,
                 'check_in' => $att->check_in_time,
                 'check_out' => $att->check_out_time,
                 'check_in_photo' => $att->check_in_photo ? (str_starts_with($att->check_in_photo, 'http') ? $att->check_in_photo : asset('storage/' . $att->check_in_photo)) : null,
