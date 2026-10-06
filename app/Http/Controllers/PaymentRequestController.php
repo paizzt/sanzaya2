@@ -40,7 +40,11 @@ class PaymentRequestController extends Controller
         }
         
         if ($request->filled('status')) {
-            $query->where('workflow_status', $request->status);
+            if ($request->status === 'pending') {
+                $query->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga']);
+            } else {
+                $query->where('workflow_status', $request->status);
+            }
         }
 
         $paymentRequests = $query->paginate(15)->withQueryString();
@@ -99,7 +103,11 @@ class PaymentRequestController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('workflow_status', $request->status);
+            if ($request->status === 'pending') {
+                $query->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga']);
+            } else {
+                $query->where('workflow_status', $request->status);
+            }
         }
 
         $paymentRequests = $query->paginate(15)->withQueryString();

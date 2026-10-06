@@ -48,13 +48,11 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
 
     const statusOptions = [
         { value: '', label: 'Semua Status' },
-        { value: 'draft', label: 'Draft' },
-        { value: 'waiting_supervisor', label: 'Menunggu Atasan' },
-        { value: 'waiting_ga', label: 'Menunggu GA' },
-        { value: 'waiting_director', label: 'Menunggu Direktur' },
-        { value: 'approved', label: 'Disetujui' },
-        { value: 'rejected', label: 'Ditolak' },
-        { value: 'paid', label: 'Dibayar' }
+        ...(isApprovalView ? [] : [{ value: 'draft', label: 'Draft' }]),
+        { value: 'pending', label: 'Di Proses' },
+        { value: 'approved', label: 'Di Setujui' },
+        { value: 'rejected', label: 'Di Tolak' },
+        { value: 'paid', label: 'Selesai' }
     ];
 
     const handleSearch = (e) => {
@@ -182,13 +180,13 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                             switch (status) {
                                                                 case 'waiting_ga':
                                                                 case 'waiting_supervisor':
-                                                                    return { text: 'DIAJUKAN', color: 'bg-yellow-100 text-yellow-800' };
+                                                                    return { text: 'DI PROSES', color: 'bg-yellow-100 text-yellow-800' };
                                                                 case 'approved':
-                                                                    return { text: 'DIPROSES', color: 'bg-blue-100 text-blue-800' };
+                                                                    return { text: 'DI SETUJUI', color: 'bg-blue-100 text-blue-800' };
                                                                 case 'paid':
                                                                     return { text: 'SELESAI', color: 'bg-green-100 text-green-800' };
                                                                 case 'rejected':
-                                                                    return { text: 'DITOLAK', color: 'bg-red-100 text-red-800' };
+                                                                    return { text: 'DI TOLAK', color: 'bg-red-100 text-red-800' };
                                                                 default:
                                                                     return { text: 'DRAFT', color: 'bg-gray-100 text-gray-800' };
                                                             }
