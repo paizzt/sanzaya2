@@ -103,9 +103,29 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                         </h2>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
-                            {paymentRequest.workflow_status.replace(/_/g, ' ').toUpperCase()}
-                        </span>
+                        {(() => {
+                            const getStatusBadge = (status) => {
+                                switch (status) {
+                                    case 'waiting_ga':
+                                    case 'waiting_supervisor':
+                                        return { text: 'DIAJUKAN', color: 'bg-yellow-100 text-yellow-800' };
+                                    case 'approved':
+                                        return { text: 'DIPROSES', color: 'bg-blue-100 text-blue-800' };
+                                    case 'paid':
+                                        return { text: 'SELESAI', color: 'bg-green-100 text-green-800' };
+                                    case 'rejected':
+                                        return { text: 'DITOLAK', color: 'bg-red-100 text-red-800' };
+                                    default:
+                                        return { text: 'DRAFT', color: 'bg-gray-100 text-gray-800' };
+                                }
+                            };
+                            const badge = getStatusBadge(paymentRequest.workflow_status);
+                            return (
+                                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${badge.color}`}>
+                                    {badge.text}
+                                </span>
+                            );
+                        })()}
                         <a 
                             href={route('payment-requests.pdf', paymentRequest.id)} 
                             target="_blank" 

@@ -177,12 +177,29 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     {formatCurrency(pr.grand_total)}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                        ${pr.workflow_status === 'paid' ? 'bg-green-100 text-green-800' : 
-                                                          pr.workflow_status === 'draft' ? 'bg-gray-100 text-gray-800' : 
-                                                          'bg-yellow-100 text-yellow-800'}`}>
-                                                        {pr.workflow_status.replace(/_/g, ' ').toUpperCase()}
-                                                    </span>
+                                                    {(() => {
+                                                        const getStatusBadge = (status) => {
+                                                            switch (status) {
+                                                                case 'waiting_ga':
+                                                                case 'waiting_supervisor':
+                                                                    return { text: 'DIAJUKAN', color: 'bg-yellow-100 text-yellow-800' };
+                                                                case 'approved':
+                                                                    return { text: 'DIPROSES', color: 'bg-blue-100 text-blue-800' };
+                                                                case 'paid':
+                                                                    return { text: 'SELESAI', color: 'bg-green-100 text-green-800' };
+                                                                case 'rejected':
+                                                                    return { text: 'DITOLAK', color: 'bg-red-100 text-red-800' };
+                                                                default:
+                                                                    return { text: 'DRAFT', color: 'bg-gray-100 text-gray-800' };
+                                                            }
+                                                        };
+                                                        const badge = getStatusBadge(pr.workflow_status);
+                                                        return (
+                                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badge.color}`}>
+                                                                {badge.text}
+                                                            </span>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td className="px-4 py-3 text-center space-x-3">
                                                     <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-900 inline-block" title="Unduh PDF">
