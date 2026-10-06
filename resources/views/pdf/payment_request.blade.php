@@ -136,7 +136,7 @@
     <div class="approval-section" style="margin-top: 50px;">
         <table class="approval-table">
             <tr>
-                <td style="width: 33%;">
+                <td style="width: 50%;">
                     Dibuat Oleh,<br>
                     <div class="signature-box" style="text-align: center; height: auto; min-height: 80px; border-bottom: none;">
                         <img src="data:image/svg+xml;base64,{!! $qrCode !!}" width="70" style="margin-top: 10px;" />
@@ -144,20 +144,7 @@
                     <b>{{ $paymentRequest->requester->name ?? 'Pemohon' }}</b><br>
                     <small>{{ \Carbon\Carbon::parse($paymentRequest->created_at)->format('d M Y') }}</small>
                 </td>
-                <td style="width: 33%;">
-                    Diperiksa,<br>
-                    @if($paymentRequest->supervisor_approved_at)
-                        <div class="signature-box" style="text-align: center; height: auto; min-height: 80px; border-bottom: none;">
-                            <img src="data:image/svg+xml;base64,{!! $qrCode !!}" width="70" style="margin-top: 10px;" />
-                        </div>
-                        <b>Manager</b><br>
-                        <small>{{ \Carbon\Carbon::parse($paymentRequest->supervisor_approved_at)->format('d M Y') }}</small>
-                    @else
-                        <div class="signature-box" style="height: 80px;"></div>
-                        <b>Manager</b>
-                    @endif
-                </td>
-                <td style="width: 33%;">
+                <td style="width: 50%;">
                     Disetujui,<br>
                     @if($paymentRequest->finance_verified_at)
                         <div class="signature-box" style="text-align: center; height: auto; min-height: 80px; border-bottom: none;">

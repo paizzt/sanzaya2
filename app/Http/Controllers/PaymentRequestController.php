@@ -484,13 +484,13 @@ class PaymentRequestController extends Controller
         }
 
         $paymentRequest->update([
-            'workflow_status' => 'waiting_supervisor',
+            'workflow_status' => 'waiting_ga',
             'submission_date' => now(),
             'submitted_at' => now(),
         ]);
 
         return redirect()->route('payment-requests.show', $paymentRequest->id)
-                         ->with('success', 'Pengajuan berhasil dikirim dan sedang menunggu persetujuan Supervisor.');
+                         ->with('success', 'Pengajuan berhasil dikirim dan sedang menunggu persetujuan Finance.');
     }
 
     public function approve(Request $request, $id)
