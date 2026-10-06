@@ -271,18 +271,20 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                             <div className="bg-white p-6 rounded-lg shadow-sm">
                                 <h3 className="text-lg font-bold border-b pb-2 mb-4">Aksi</h3>
                                 <div className="space-y-3">
-                                    {paymentRequest.workflow_status === 'draft' && (
+                                    {(paymentRequest.workflow_status === 'draft' || paymentRequest.workflow_status === 'waiting_ga') && (
                                         <>
                                             <Link href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', paymentRequest.id)}>
                                                 <SecondaryButton className="">Edit Pengajuan</SecondaryButton>
                                             </Link>
-                                            <PrimaryButton 
-                                                className="" 
-                                                disabled={!completeness.is_complete}
-                                                onClick={() => handleAction('payment-requests.submit')}
-                                            >
-                                                Kirim
-                                            </PrimaryButton>
+                                            {paymentRequest.workflow_status === 'draft' && (
+                                                <PrimaryButton 
+                                                    className="" 
+                                                    disabled={!completeness.is_complete}
+                                                    onClick={() => handleAction('payment-requests.submit')}
+                                                >
+                                                    Kirim
+                                                </PrimaryButton>
+                                            )}
                                         </>
                                     )}
                                     

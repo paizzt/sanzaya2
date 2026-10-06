@@ -370,8 +370,8 @@ class PaymentRequestController extends Controller
         $paymentRequest = PaymentRequest::with(['items', 'requester', 'division'])->findOrFail($id);
         $user = Auth::user();
 
-        // Only requester can edit their draft, except SUPERADMIN can edit anytime
-        if (!$user->hasRole('SUPERADMIN') && ($paymentRequest->requester_id !== $user->id || $paymentRequest->workflow_status !== 'draft')) {
+        // Only requester can edit their draft/waiting_ga, except SUPERADMIN can edit anytime
+        if (!$user->hasRole('SUPERADMIN') && ($paymentRequest->requester_id !== $user->id || !in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga']))) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
@@ -410,7 +410,7 @@ class PaymentRequestController extends Controller
         $paymentRequest = PaymentRequest::findOrFail($id);
         $user = Auth::user();
 
-        if (!$user->hasRole('SUPERADMIN') && ($paymentRequest->requester_id !== $user->id || $paymentRequest->workflow_status !== 'draft')) {
+        if (!$user->hasRole('SUPERADMIN') && ($paymentRequest->requester_id !== $user->id || !in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga']))) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
