@@ -292,7 +292,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                                 <button 
                                                     onClick={handleApprove}
                                                     disabled={processing}
-                                                    className="inline-flex items-center rounded-md border border-emerald-400 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition duration-150 hover:bg-emerald-100 shrink-0"
+                                                    className="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
                                                 >
                                                     Setujui
                                                 </button>
