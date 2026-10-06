@@ -1,165 +1,313 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>Pengajuan Pembayaran - {{ $paymentRequest->reference_number }}</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; color: #333; line-height: 1.4; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .header h2 { margin: 0; padding: 0; font-size: 18px; }
-        .info-table { width: 100%; margin-bottom: 20px; }
-        .info-table td { padding: 3px 0; vertical-align: top; }
-        .info-table .label { width: 150px; font-weight: bold; }
-        .info-table .colon { width: 10px; }
-        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .items-table th, .items-table td { border: 1px solid #ddd; padding: 8px; }
-        .items-table th { background-color: #f5f5f5; text-align: left; }
-        .items-table .text-right { text-align: right; }
-        .summary-box { float: right; width: 300px; border: 1px solid #ddd; padding: 10px; }
-        .summary-table { width: 100%; }
-        .summary-table td { padding: 3px 0; }
-        .summary-table .bold { font-weight: bold; }
-        .clear { clear: both; }
-        .approval-section { margin-top: 40px; }
-        .approval-table { width: 100%; text-align: center; }
-        .approval-table td { padding: 10px; width: 25%; vertical-align: bottom; }
-        .signature-box { height: 80px; border-bottom: 1px solid #333; margin: 10px 20px; }
+        body {
+            font-family: {{ request('font', 'sans-serif') }} !important;
+            font-size: {{ request('size', '12') }}px !important;
+        }
+    
+        @page {
+            margin: 25px 35px 50px 35px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            color: #000;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .header {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .header td {
+            vertical-align: top;
+            border: none;
+            padding: 0;
+        }
+        .company-name {
+            color: #1a75d2;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+        }
+        .company-sub {
+            color: #666;
+            font-size: 10px;
+            margin: 0;
+            padding: 0;
+        }
+        .form-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 25px;
+            margin-bottom: 0;
+        }
+        .form-subtitle {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+        
+        .signature-wrapper {
+            text-align: right;
+            width: 100%;
+        }
+        
+        .signature-table {
+            font-size: 10px;
+            text-align: center;
+            width: 250px;
+            margin-left: auto;
+        }
+        .signature-table th, .signature-table td {
+            border: 1px solid #000;
+            padding: 4px;
+        }
+        .signature-name {
+            font-weight: bold;
+            text-decoration: underline;
+            margin-top: 5px;
+        }
+        
+        .date-right {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .intro-text {
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .form-list {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .form-list td {
+            padding: 6px 0;
+            vertical-align: top;
+            border: none;
+        }
+        .box-outline {
+            border: 1px solid #000;
+            padding: 5px 8px;
+            width: 95%;
+            display: block;
+        }
+        
+        .lampiran-table {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .lampiran-table th {
+            background-color: #fff;
+            border: 1px solid #000;
+            padding: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .lampiran-table td {
+            border: 1px solid #000;
+            padding: 8px;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .red-text {
+            color: red;
+            font-weight: bold;
+            font-size: 11px;
+            margin-top: 15px;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: -30px;
+            left: -35px;
+            right: -35px;
+            height: 30px;
+            background-color: #799fbb;
+            color: white;
+            font-style: italic;
+            font-weight: bold;
+            padding: 8px 40px;
+            font-size: 11px;
+        }
+        
+        .page-break {
+            page-break-after: always;
+        }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h2>FORM PENGAJUAN PEMBAYARAN</h2>
-        <p>No: {{ $paymentRequest->reference_number }}</p>
+    <div class="footer">
+        Make a Different
     </div>
 
-    <table class="info-table">
+    <!-- PAGE 1: FORM PENGAJUAN -->
+    <table class="header">
         <tr>
-            <td class="label">Tanggal Pengajuan</td><td class="colon">:</td>
-            <td>{{ \Carbon\Carbon::parse($paymentRequest->submission_date ?? $paymentRequest->created_at)->format('d M Y') }}</td>
-            <td class="label">Divisi / Pengaju</td><td class="colon">:</td>
-            <td>{{ $paymentRequest->division->name ?? '-' }} / {{ $paymentRequest->requester->name ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Penerima Dana</td><td class="colon">:</td>
-            <td>{{ $paymentRequest->recipient_name }}</td>
-            <td class="label">Kategori / Tujuan</td><td class="colon">:</td>
-            <td>{{ $paymentRequest->category }} / {{ $paymentRequest->purpose }}</td>
-        </tr>
-        <tr>
-            <td class="label">Bank & Rekening</td><td class="colon">:</td>
-            <td colspan="4">{{ $paymentRequest->bank_or_wallet ?? '-' }} - {{ $paymentRequest->account_number ?? '-' }}</td>
+            <td width="50%">
+                <p class="company-name">PT. SANZAYA MEDIKA PRATAMA</p>
+                <p class="company-sub">MEDICAL & HEALTHCARE</p>
+                
+                <p class="form-title">FORM PENGAJUAN PEMBAYARAN</p>
+                <p class="form-subtitle">{{ $paymentRequest->reference_number }}</p>
+            </td>
+            <td width="50%" align="right">
+                <div class="signature-wrapper">
+                    <table class="signature-table">
+                        <tr>
+                            <th width="50%">Dibuat Oleh</th>
+                            <th width="50%">Disetujui Oleh</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">
+                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
+                                <div class="signature-name">{{ $paymentRequest->requester->name ?? 'Pemohon' }}</div>
+                            </td>
+                            <td style="padding: 10px;">
+                                @if(in_array($paymentRequest->workflow_status, ['approved', 'paid']))
+                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
+                                    <div class="signature-name">Finance</div>
+                                @else
+                                    <div style="height: 50px;"></div>
+                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Pemohon</td>
+                            <td>Finance</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
         </tr>
     </table>
 
-    <table class="items-table">
+    <div class="date-right">
+        Makassar, {{ \Carbon\Carbon::parse($paymentRequest->submission_date ?? $paymentRequest->created_at)->format('d F Y') }}
+    </div>
+
+    <div class="intro-text">
+        Dengan ini kami mengajukan permohonan pembayaran untuk keperluan operasional/kegiatan perusahaan sebagai berikut:
+    </div>
+
+    <table class="form-list">
+        <tr>
+            <td width="5%">1.</td>
+            <td width="25%">Nama Divisi / Pengaju</td>
+            <td width="2%">:</td>
+            <td width="68%">{{ $paymentRequest->division->name ?? '-' }} / {{ $paymentRequest->requester->name ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>2.</td>
+            <td>Penerima Dana</td>
+            <td>:</td>
+            <td><div class="box-outline">{{ $paymentRequest->recipient_name }}</div></td>
+        </tr>
+        <tr>
+            <td>3.</td>
+            <td>Kategori / Tujuan</td>
+            <td>:</td>
+            <td>{{ $paymentRequest->category }} / {{ $paymentRequest->purpose }}</td>
+        </tr>
+        <tr>
+            <td>4.</td>
+            <td>Bank / Dompet Digital</td>
+            <td>:</td>
+            <td>{{ $paymentRequest->bank_or_wallet ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>5.</td>
+            <td>Nomor Rekening / Akun</td>
+            <td>:</td>
+            <td><div class="box-outline">{{ $paymentRequest->account_number ?? '-' }}</div></td>
+        </tr>
+    </table>
+
+    <table class="lampiran-table">
         <thead>
             <tr>
-                <th>No</th>
-                <th>Keterangan Item</th>
-                <th class="text-right">Total</th>
+                <th width="5%">NO</th>
+                <th width="40%">KETERANGAN ITEM</th>
+                <th width="20%">QTY / UNIT</th>
+                <th width="15%">HARGA (Rp)</th>
+                <th width="20%">TOTAL (Rp)</th>
             </tr>
         </thead>
         <tbody>
             @if($paymentRequest->items && $paymentRequest->items->count() > 0)
                 @foreach($paymentRequest->items as $index => $item)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
+                    <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $item->description }}</td>
-                    <td class="text-right">Rp {{ number_format($item->amount ?? ($item->quantity * $item->unit_price), 0, ',', '.') }}</td>
+                    <td class="text-center">{{ $item->quantity }} {{ $item->unit }}</td>
+                    <td class="text-right">{{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                    <td class="text-right">{{ number_format($item->amount, 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
             @else
                 <tr>
-                    <td colspan="3" class="text-center">Tidak ada rincian item. (Gunakan Grand Total)</td>
+                    <td colspan="5" class="text-center">Tidak ada rincian item.</td>
                 </tr>
             @endif
+            
+            <tr>
+                <td colspan="4" class="text-right"><strong>SUBTOTAL</strong></td>
+                <td class="text-right"><strong>{{ number_format($paymentRequest->subtotal, 0, ',', '.') }}</strong></td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right"><strong>DISKON</strong></td>
+                <td class="text-right"><strong>{{ number_format($paymentRequest->discount, 0, ',', '.') }}</strong></td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right"><strong>BIAYA LAINNYA</strong></td>
+                <td class="text-right"><strong>{{ number_format($paymentRequest->other_cost, 0, ',', '.') }}</strong></td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right"><strong>PPN ({{ $paymentRequest->vat_status }})</strong></td>
+                <td class="text-right"><strong>{{ number_format($paymentRequest->vat_amount, 0, ',', '.') }}</strong></td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right" style="background-color: #f5f5f5;"><strong>GRAND TOTAL</strong></td>
+                <td class="text-right" style="background-color: #f5f5f5;"><strong>Rp. {{ number_format($paymentRequest->grand_total, 0, ',', '.') }}</strong></td>
+            </tr>
         </tbody>
     </table>
 
-    <div class="summary-box">
-        <table class="summary-table">
-            <tr>
-                <td>Subtotal</td>
-                <td class="text-right">Rp {{ number_format($paymentRequest->subtotal, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td>Diskon</td>
-                <td class="text-right">Rp {{ number_format($paymentRequest->discount, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td>Biaya Lainnya</td>
-                <td class="text-right">Rp {{ number_format($paymentRequest->other_cost, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td>PPN</td>
-                <td class="text-right">Rp {{ number_format($paymentRequest->vat_amount, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td class="bold">Grand Total</td>
-                <td class="text-right bold">Rp {{ number_format($paymentRequest->grand_total, 0, ',', '.') }}</td>
-            </tr>
-        </table>
-    </div>
-    <div class="clear"></div>
-
-    <div class="approval-section">
-        <h3>Riwayat Persetujuan</h3>
-        @if($paymentRequest->approvals && $paymentRequest->approvals->count() > 0)
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Nama</th>
-                        <th>Tahap</th>
-                        <th>Status</th>
-                        <th>Catatan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($paymentRequest->approvals as $approval)
-                    <tr>
-                        <td>{{ \Carbon\Carbon::parse($approval->acted_at)->format('d/m/Y H:i') }}</td>
-                        <td>{{ $approval->approver->name ?? '-' }}</td>
-                        <td>{{ strtoupper(str_replace('_', ' ', $approval->approval_stage)) }}</td>
-                        <td>{{ strtoupper($approval->action) }}</td>
-                        <td>{{ $approval->notes ?? '-' }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @else
-            <p>Belum ada persetujuan tercatat.</p>
-        @endif
+    <div class="red-text">
+        Rek {{ $paymentRequest->bank_or_wallet ?? '...' }} A/N {{ $paymentRequest->recipient_name }} ({{ $paymentRequest->account_number ?? '...' }})
     </div>
 
-    <div class="approval-section" style="margin-top: 50px;">
-        <table class="approval-table">
-            <tr>
-                <td style="width: 50%;">
-                    Dibuat Oleh,<br>
-                    <div class="signature-box" style="text-align: center; height: auto; min-height: 80px; border-bottom: none;">
-                        <img src="data:image/svg+xml;base64,{!! $qrCode !!}" width="70" style="margin-top: 10px;" />
-                    </div>
-                    <b>{{ $paymentRequest->requester->name ?? 'Pemohon' }}</b><br>
-                    <small>{{ \Carbon\Carbon::parse($paymentRequest->created_at)->format('d M Y') }}</small>
-                </td>
-                <td style="width: 50%;">
-                    Disetujui,<br>
-                    @if($paymentRequest->finance_verified_at)
-                        <div class="signature-box" style="text-align: center; height: auto; min-height: 80px; border-bottom: none;">
-                            <img src="data:image/svg+xml;base64,{!! $qrCode !!}" width="70" style="margin-top: 10px;" />
+    @if($paymentRequest->attachments && $paymentRequest->attachments->count() > 0)
+        <div class="page-break"></div>
+        <div style="margin-top: 30px; font-size: 14px;">
+            <p style="font-weight: bold; margin-bottom: 10px;">Lampiran / Bukti Pendukung:</p>
+            <div>
+                @foreach($paymentRequest->attachments as $attachment)
+                    @if($attachment->attachment_type === 'Lampiran Foto' && file_exists(public_path('storage/' . $attachment->file_path)))
+                        <div style="margin-bottom: 15px; text-align: center;">
+                            <img src="{{ public_path('storage/' . $attachment->file_path) }}" style="max-width: 90%; max-height: 400px; border: 1px solid #ccc; padding: 5px;" />
                         </div>
-                        <b>Finance</b><br>
-                        <small>{{ \Carbon\Carbon::parse($paymentRequest->finance_verified_at)->format('d M Y') }}</small>
-                    @else
-                        <div class="signature-box" style="height: 80px;"></div>
-                        <b>Finance</b>
                     @endif
-                </td>
-            </tr>
-        </table>
-    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
 </body>
 </html>
