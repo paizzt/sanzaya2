@@ -522,8 +522,8 @@ class ReportController extends Controller
                 if ($companyTarget && $companyTarget->annual_target > 0) {
                     $targetTahunanVal = (float)$companyTarget->annual_target;
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
-                    $targetTahunanDetail[$companyTarget->name] = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
                     $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualanAnnual / $targetTahunanVal) * 100 : 0;
+                    $targetTahunanDetail[$companyTarget->name] = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.') . ' (' . number_format($capPercentTahunan, 1, ',', '.') . '%)';
                     $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
                     $capaianTahunanDetail[$companyTarget->name] = $capaianTahunan;
                 }
@@ -534,7 +534,6 @@ class ReportController extends Controller
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
                     $totalTargetedPenjualanAnn = 0;
                     foreach ($companyTargetsAnn as $ct) {
-                        $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ct->annual_target, 0, ',', '.');
                         $ptPenjualanAnn = 0;
                         foreach ($ct->companies as $companyModel) {
                             $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
@@ -547,6 +546,7 @@ class ReportController extends Controller
                         }
                         $totalTargetedPenjualanAnn += $ptPenjualanAnn;
                         $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
+                        $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
                         $capaianTahunanDetail[$ct->name] = number_format($capPercent, 1, ',', '.') . '%';
                     }
                     $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalTargetedPenjualanAnn / $targetTahunanVal) * 100 : 0;
