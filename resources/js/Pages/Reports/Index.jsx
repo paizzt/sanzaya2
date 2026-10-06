@@ -683,45 +683,29 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                         </div>
 
                         {(summary.target_bulanan || is_super_admin) && (
-                            <>
                                 <div 
                                     onClick={() => summary.target_detail && Object.keys(summary.target_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail })} 
                                     className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-blue-100 ${summary.target_detail && Object.keys(summary.target_detail).length > 0 ? 'cursor-pointer' : ''}`}
-                                >
-                                        {/* Background Icon */}
-    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-        <Activity className="w-24 h-24 text-blue-600" />
-    </div>
-
-    <div className="relative z-10 mb-4">
-        <p className="text-sm font-semibold text-gray-500">Target Bulanan</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
-    </div>
-    <div className="relative z-10">
-        <p className="text-xs text-gray-400">Target penjualan bulanan</p>
-    </div>
-                                </div>
-                                <div 
-                                    onClick={() => summary.capaian_detail && Object.keys(summary.capaian_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Capaian Target', type: 'capaian', data: summary.capaian_detail })} 
-                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-pink-100 ${summary.capaian_detail && Object.keys(summary.capaian_detail).length > 0 ? 'cursor-pointer' : ''}`}
                                     style={{ backgroundImage: getProgressBg(summary.capaian_target) }}
                                 >
-                                        {/* Background Icon */}
-    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-        <Activity className="w-24 h-24 text-pink-600" />
-    </div>
+                                    {/* Background Icon */}
+                                    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
+                                        <Activity className="w-24 h-24 text-blue-600" />
+                                    </div>
 
-    <div className="relative z-10 mb-4">
-        <p className="text-sm font-semibold text-gray-500">Capaian Target</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1">
-            {summary.capaian_target || '0%'}
-        </h4>
-    </div>
-    <div className="relative z-10">
-        <p className="text-xs text-gray-400">capaian bulan ini</p>
-    </div>
+                                    <div className="relative z-10 mb-4">
+                                        <div className="flex justify-between items-start">
+                                            <p className="text-sm font-semibold text-gray-500">Target Bulanan</p>
+                                            <span className="text-xs font-bold text-pink-700 bg-pink-50 border border-pink-100 px-2.5 py-1 rounded-full shadow-sm">
+                                                {summary.capaian_target || '0%'}
+                                            </span>
+                                        </div>
+                                        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-2" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
+                                    </div>
+                                    <div className="relative z-10">
+                                        <p className="text-xs text-gray-400">Target penjualan bulanan dan capaian</p>
+                                    </div>
                                 </div>
-                            </>
                         )}
 
                         {(summary.target_tahunan || is_super_admin) && (
