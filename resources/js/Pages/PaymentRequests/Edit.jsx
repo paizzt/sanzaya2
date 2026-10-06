@@ -9,7 +9,7 @@ import CurrencyInput from '@/Components/CurrencyInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
 
-export default function Edit({ auth, vendors, companies, paymentRequest }) {
+export default function Edit({ auth, vendors, companies, paymentRequest, isApprovalView }) {
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         company_name: paymentRequest.company_name || '',
@@ -58,7 +58,8 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('payment-requests.update', paymentRequest.id), {
+        const updateRoute = route('payment-requests.update', paymentRequest.id) + (isApprovalView ? '?isApprovalView=1' : '');
+        post(updateRoute, {
             onError: (errors) => {
                 console.error(errors);
                 Swal.fire({
@@ -283,7 +284,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest }) {
                         </div>
 
                         <div className="flex justify-end pt-6 border-t">
-                            <Link href={route('payment-requests.show', paymentRequest.id)} className="mr-3 px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50">
+                            <Link href={route(isApprovalView ? 'payment-approvals.show' : 'payment-requests.show', paymentRequest.id)} className="mr-3 px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50">
                                 Batal
                             </Link>
                             <PrimaryButton type="submit" disabled={processing}>

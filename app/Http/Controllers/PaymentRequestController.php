@@ -383,6 +383,26 @@ class PaymentRequestController extends Controller
         ]);
     }
 
+    public function editApproval($id)
+    {
+        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division'])->findOrFail($id);
+        $user = Auth::user();
+
+        if (!$user->hasRole('SUPERADMIN') && !$user->hasPermissionTo('payment-request.review')) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
+        }
+
+        $vendors = Provider::select('id', 'name')->get();
+        $companies = \App\Models\Company::select('id', 'name')->get();
+
+        return Inertia::render('PaymentRequests/Edit', [
+            'paymentRequest' => $paymentRequest,
+            'vendors' => $vendors,
+            'companies' => $companies,
+            'isApprovalView' => true,
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         $paymentRequest = PaymentRequest::findOrFail($id);
@@ -510,6 +530,11 @@ class PaymentRequestController extends Controller
             }
 
             DB::commit();
+
+            if ($request->query('isApprovalView')) {
+                return redirect()->route('payment-approvals.show', $paymentRequest->id)
+                                 ->with('success', 'Draft Pengajuan Pembayaran berhasil diperbarui.');
+            }
 
             return redirect()->route('payment-requests.show', $paymentRequest->id)
                              ->with('success', 'Draft Pengajuan Pembayaran berhasil diperbarui.');

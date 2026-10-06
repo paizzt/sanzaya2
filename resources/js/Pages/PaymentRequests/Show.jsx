@@ -18,7 +18,7 @@ const formatCurrency = (value) => {
     }).format(value);
 };
 
-export default function Show({ auth, paymentRequest, completeness, canApprove, canReject }) {
+export default function Show({ auth, paymentRequest, completeness, canApprove, canReject, isApprovalView }) {
     const { post, processing } = useForm();
 
     const handleAction = (actionRoute) => {
@@ -289,7 +289,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                 <div className="space-y-3">
                                     {paymentRequest.workflow_status === 'draft' && (
                                         <>
-                                            <Link href={route('payment-requests.edit', paymentRequest.id)}>
+                                            <Link href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', paymentRequest.id)}>
                                                 <SecondaryButton className="">Edit Pengajuan</SecondaryButton>
                                             </Link>
                                             <PrimaryButton 

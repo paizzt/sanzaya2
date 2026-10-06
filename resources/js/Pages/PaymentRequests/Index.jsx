@@ -205,7 +205,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     </a>
                                                     {isSuperAdmin && (
                                                         <>
-                                                            <Link href={route('payment-requests.edit', pr.id)} className="text-blue-600 hover:text-blue-900 inline-block" title="Edit">
+                                                            <Link href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', pr.id)} className="text-blue-600 hover:text-blue-900 inline-block" title="Edit">
                                                                 <Edit size={18} />
                                                             </Link>
                                                             <button onClick={() => handleDelete(pr.id)} className="text-red-600 hover:text-red-900 inline-block" title="Hapus">
