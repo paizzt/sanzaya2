@@ -295,6 +295,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Payment Approvals
     Route::middleware(['can:payment-request.review'])->group(function() {
         Route::get('payment-approvals', [\App\Http\Controllers\PaymentRequestController::class, 'approvals'])->name('payment-approvals.index');
+        Route::get('payment-approvals/{payment_request}', [\App\Http\Controllers\PaymentRequestController::class, 'showApproval'])->name('payment-approvals.show');
         Route::post('payment-requests/{payment_request}/approve', [\App\Http\Controllers\PaymentRequestController::class, 'approve'])->name('payment-requests.approve');
         Route::post('payment-requests/{payment_request}/reject', [\App\Http\Controllers\PaymentRequestController::class, 'reject'])->name('payment-requests.reject');
     });

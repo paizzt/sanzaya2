@@ -316,6 +316,45 @@ class PaymentRequestController extends Controller
         ]);
     }
 
+    public function showApproval($id)
+    {
+        $paymentRequest = PaymentRequest::with([
+            'requester', 'division', 'vendor', 
+            'items', 'attachments', 'approvals.approver', 
+            'financeVerifications.verifier', 'payments.processedBy'
+        ])->findOrFail($id);
+
+        $user = Auth::user();
+        
+        if (!$user->hasRole('SUPERADMIN') && !$user->hasPermissionTo('payment-request.review')) {
+            abort(403);
+        }
+
+        $completeness = $this->paymentService->checkCompleteness($paymentRequest);
+
+        $canApprove = false;
+        $canReject = false;
+
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
+            $canApprove = true;
+            $canReject = true;
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
+            $canApprove = true;
+            $canReject = true;
+        } elseif ($user->hasRole('SUPERADMIN') && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga'])) {
+            $canApprove = true;
+            $canReject = true;
+        }
+
+        return Inertia::render('PaymentRequests/Show', [
+            'paymentRequest' => $paymentRequest,
+            'completeness' => $completeness,
+            'canApprove' => $canApprove,
+            'canReject' => $canReject,
+            'isApprovalView' => true
+        ]);
+    }
+
     public function edit($id)
     {
         $paymentRequest = PaymentRequest::with(['items', 'requester', 'division'])->findOrFail($id);

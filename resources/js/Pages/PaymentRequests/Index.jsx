@@ -155,7 +155,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                 key={pr.id} 
                                                 onClick={(e) => {
                                                     if (!e.target.closest('a') && !e.target.closest('button')) {
-                                                        router.get(route('payment-requests.show', pr.id));
+                                                        router.get(route(isApprovalView ? 'payment-approvals.show' : 'payment-requests.show', pr.id));
                                                     }
                                                 }}
                                                 className="hover:bg-gray-100 cursor-pointer transition-colors"
