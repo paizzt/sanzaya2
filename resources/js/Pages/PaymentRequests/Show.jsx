@@ -101,6 +101,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                         <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                             Detail Pengajuan: {paymentRequest.reference_number}
                         </h2>
+                    </div>
                 </div>
             }
         >
