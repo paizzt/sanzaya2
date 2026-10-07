@@ -67,12 +67,14 @@ export default function Index({ tab, is_super_admin, global_target_value, global
             return (
                 <div ref={detailRef} className="scroll-mt-24 space-y-6">
                     <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6">
-                        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                            <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Detail {detailModal.title}</h3>
-                            <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="flex items-center gap-2 text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-xl transition-colors">
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                                Kembali
+                        <div className="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
+                            <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100 flex-shrink-0" title="Kembali">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left w-5 h-5" aria-hidden="true">
+                                    <path d="m12 19-7-7 7-7"></path>
+                                    <path d="M19 12H5"></path>
+                                </svg>
                             </button>
+                            <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Detail {detailModal.title}</h3>
                         </div>
                         <div className="custom-scrollbar max-h-[80vh] overflow-y-auto pr-2">
                             {renderDetailContent()}
