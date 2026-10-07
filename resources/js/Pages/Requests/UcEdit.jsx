@@ -9,6 +9,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SearchableSelect from '@/Components/SearchableSelect';
 import CustomDatePicker from '@/Components/CustomDatePicker';
+import CustomSelect from '@/Components/CustomSelect';
 import UcPreview from '@/Components/UcPreview';
 import CurrencyInput from '@/Components/CurrencyInput';
 
@@ -126,7 +127,7 @@ export default function UcEdit({ ucRequest, users, vehicles, isAdmin }) {
                             <div>
                                 <InputLabel value="Pilih Entitas Perusahaan *" />
                                 <div className="mt-1">
-                                    <SearchableSelect
+                                    <CustomSelect
                                         value={data.entity}
                                         onChange={(val) => setData('entity', val)}
                                         options={[
@@ -136,7 +137,7 @@ export default function UcEdit({ ucRequest, users, vehicles, isAdmin }) {
                                             { value: 'PT. MSI', label: 'PT. MSI (MSI)' },
                                             { value: 'PT. Ruma', label: 'PT. Ruma (Ruma)' }
                                         ]}
-                                        />
+                                    />
                                 </div>
                             </div>
                             <div>
