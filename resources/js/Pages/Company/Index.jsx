@@ -203,31 +203,28 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">Data Perusahaan</h2>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                        <div className="w-full">
-                            <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
-                        </div>
-                        {is_super_admin && (
-                            <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full justify-center h-[42px] whitespace-nowrap bg-blue-600 hover:bg-blue-700">
-                                <Target className="w-4 h-4 mr-2" />
-                                Target
-                            </PrimaryButton>
-                        )}
-                        <PrimaryButton onClick={() => openModal()} className="w-full justify-center h-[42px] whitespace-nowrap">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Tambah
-                        </PrimaryButton>
-                    </div>
-                </div>
-            }
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Data Perusahaan</h2>}
         >
             <Head title="Data Perusahaan" />
 
             <div className="py-6">
                 <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 w-full">
+                        <div className="w-full sm:w-auto">
+                            <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
+                        </div>
+                        {is_super_admin && (
+                            <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap bg-blue-600 hover:bg-blue-700">
+                                <Target className="w-4 h-4 mr-2" />
+                                Target
+                            </PrimaryButton>
+                        )}
+                        <PrimaryButton onClick={() => openModal()} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Tambah
+                        </PrimaryButton>
+                    </div>
+
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             
