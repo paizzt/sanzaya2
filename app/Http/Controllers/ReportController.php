@@ -786,16 +786,13 @@ class ReportController extends Controller
         if ($period === '1_minggu') {
             $days = 7;
         } elseif ($period === '1_bulan') {
-            $days = 30;
+            $days = \Carbon\Carbon::today()->day; // Mengambil dari tanggal 1 bulan ini
         } elseif ($period === '1_tahun') {
             $days = 365;
         }
 
         $selectedMonths = $request->query('months', []);
         if (!is_array($selectedMonths)) $selectedMonths = [$selectedMonths];
-
-        $paretoOutlets = $request->query('pareto_outlets', []);
-        if (!is_array($paretoOutlets)) $paretoOutlets = [$paretoOutlets];
 
         $selectedOutlets = $request->query('selected_outlets', null);
         if ($selectedOutlets !== null && !is_array($selectedOutlets)) {
@@ -1083,19 +1080,6 @@ class ReportController extends Controller
             }
         }
 
-        $paretoTotalPenjualan = $totalPenjualan;
-        $paretoOutletPenjualan = $outletPenjualan;
-        if (!empty($paretoOutlets)) {
-            foreach ($paretoOutlets as $paretoOutlet) {
-                if (isset($paretoOutletPenjualan[$paretoOutlet])) {
-                    $cut = $paretoOutletPenjualan[$paretoOutlet] * 0.5;
-                    $paretoOutletPenjualan[$paretoOutlet] -= $cut;
-                    $paretoTotalPenjualan -= $cut;
-                }
-            }
-            arsort($paretoOutletPenjualan);
-        }
-
         $summary = [
             'total_penjualan' => $totalPenjualan,
             'total_piutang' => $totalPiutang,
@@ -1105,9 +1089,6 @@ class ReportController extends Controller
             'sales_penjualan' => $salesPenjualan,
             'outlet_penjualan' => $outletPenjualan,
             'target_bulanan' => $targetBulanan,
-            'pareto_outlets' => $paretoOutlets,
-            'pareto_total_penjualan' => $paretoTotalPenjualan,
-            'pareto_outlet_penjualan' => $paretoOutletPenjualan,
         ];
 
         // --- BUAT GRAFIK (QUICKCHART.IO) ---
