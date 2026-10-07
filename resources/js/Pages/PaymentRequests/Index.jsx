@@ -23,6 +23,7 @@ const formatCurrency = (value) => {
 export default function Index({ auth, paymentRequests, summary, filters, isApprovalView = false }) {
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || '');
+    const [deadline, setDeadline] = useState(filters.deadline || '');
     
     const isSuperAdmin = auth.user?.roles?.some(r => r.name === 'SUPERADMIN');
 
@@ -49,6 +50,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const statusOptions = [
         { value: '', label: 'Semua Status' },
         ...(isApprovalView ? [] : [{ value: 'draft', label: 'Draft' }]),
+        ...(isApprovalView ? [{ value: 'unprocessed', label: 'Belum di Proses' }] : []),
         { value: 'pending', label: 'Di Proses' },
         { value: 'approved', label: 'Di Setujui' },
         { value: 'rejected', label: 'Di Tolak' },
@@ -58,7 +60,14 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const handleSearch = (e) => {
         e.preventDefault();
         const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
-        router.get(route(routeName), { search, status }, { preserveState: true });
+        router.get(route(routeName), { search, status, deadline }, { preserveState: true });
+    };
+
+    const handleFilterCard = (newStatus, newDeadline = '') => {
+        setStatus(newStatus);
+        setDeadline(newDeadline);
+        const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
+        router.get(route(routeName), { search, status: newStatus, deadline: newDeadline }, { preserveState: true });
     };
 
     return (
@@ -73,34 +82,38 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                     {/* Dashboard Summary Cards - Only show on Request View */}
                     {!isApprovalView ? (
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                            <div onClick={() => handleFilterCard('')} className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Total Pengajuan</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.total || 0}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+                            <div onClick={() => handleFilterCard('pending')} className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Menunggu Persetujuan</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.waiting_approval || 0}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                            <div onClick={() => handleFilterCard('paid')} className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Dibayar</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.paid || 0}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-gray-400">
+                            <div onClick={() => handleFilterCard('draft')} className="bg-white p-4 rounded-lg shadow border-l-4 border-gray-400 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Draft</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.draft || 0}</p>
                             </div>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-                                <p className="text-sm text-gray-500 font-semibold uppercase">Menunggu Persetujuan Anda</p>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <div onClick={() => handleFilterCard('')} className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 cursor-pointer hover:bg-gray-50 transition">
+                                <p className="text-sm text-gray-500 font-semibold uppercase">Total Persetujuan Anda</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.waiting_approval || 0}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
+                            <div onClick={() => handleFilterCard('unprocessed')} className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500 cursor-pointer hover:bg-gray-50 transition">
+                                <p className="text-sm text-gray-500 font-semibold uppercase">Belum di Proses</p>
+                                <p className="text-3xl font-bold text-gray-800">{summary?.unprocessed || 0}</p>
+                            </div>
+                            <div onClick={() => handleFilterCard('', 'nearing')} className="bg-white p-4 rounded-lg shadow border-l-4 border-orange-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Dekat Jatuh Tempo</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.nearing_deadline || 0}</p>
                             </div>
-                            <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                            <div onClick={() => handleFilterCard('', 'overdue')} className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Lewat Jatuh Tempo</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.overdue || 0}</p>
                             </div>

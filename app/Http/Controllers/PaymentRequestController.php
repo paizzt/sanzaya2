@@ -105,8 +105,21 @@ class PaymentRequestController extends Controller
         if ($request->filled('status')) {
             if ($request->status === 'pending') {
                 $query->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga']);
+            } elseif ($request->status === 'unprocessed') {
+                $query->whereIn('workflow_status', $allowedStatuses);
             } else {
                 $query->where('workflow_status', $request->status);
+            }
+        }
+
+        if ($request->filled('deadline')) {
+            $now = now()->startOfDay();
+            if ($request->deadline === 'nearing') {
+                $threeDaysLater = now()->addDays(3)->endOfDay();
+                $query->where('payment_deadline', '>=', $now)
+                      ->where('payment_deadline', '<=', $threeDaysLater);
+            } elseif ($request->deadline === 'overdue') {
+                $query->where('payment_deadline', '<', $now);
             }
         }
 
@@ -114,15 +127,18 @@ class PaymentRequestController extends Controller
 
         return Inertia::render('PaymentRequests/Index', [
             'paymentRequests' => $paymentRequests,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status', 'deadline']),
             'isApprovalView' => true,
-            'summary' => Inertia::defer(function () use ($query) {
-                $summaryData = (clone $query)->get(['id', 'payment_deadline']);
+            'summary' => Inertia::defer(function () use ($query, $allowedStatuses) {
+                $summaryData = (clone $query)->get(['id', 'payment_deadline', 'workflow_status']);
                 $now = now()->startOfDay();
                 $threeDaysLater = now()->addDays(3)->endOfDay();
                 
                 return [
                     'waiting_approval' => $summaryData->count(),
+                    'unprocessed' => $summaryData->filter(function($pr) use ($allowedStatuses) {
+                        return in_array($pr->workflow_status, $allowedStatuses);
+                    })->count(),
                     'nearing_deadline' => $summaryData->filter(function($pr) use ($now, $threeDaysLater) {
                         return $pr->payment_deadline >= $now && $pr->payment_deadline <= $threeDaysLater;
                     })->count(),
