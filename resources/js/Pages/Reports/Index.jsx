@@ -379,7 +379,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     labels: dataBulan.map(d => d.name),
                                     datasets: [{
                                         data: dataBulan.map(d => d.Penjualan),
-                                        backgroundColor: '#4f46e5',
+                                        backgroundColor: '#3b82f6',
                                         borderRadius: 6
                                     }]
                                 }} 
@@ -391,7 +391,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         datalabels: {
                                             anchor: 'end',
                                             align: 'top',
-                                            color: '#4f46e5',
+                                            color: '#3b82f6',
                                             font: { weight: 'bold', size: 10 },
                                             formatter: function(value) {
                                                 if (value === 0) return '';
