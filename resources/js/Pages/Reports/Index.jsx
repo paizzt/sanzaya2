@@ -1033,11 +1033,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <h4 className="text-base sm:text-lg xl:text-2xl leading-snug break-words font-extrabold text-blue-700" title={summary.total_penjualan_bulan_ini || 'Rp 0'}>{summary.total_penjualan_bulan_ini || 'Rp 0'}</h4>
                                         </div>
                                     </div>
-                                    <div className="relative z-10">
-                                        <p className="text-xs text-blue-600 font-medium opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                                            <span>Klik untuk detail PT</span>
-                                        </p>
-                                    </div>
+
                                 </div>
                         )}
 
@@ -1067,11 +1063,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             <h4 className="text-base sm:text-lg xl:text-2xl leading-snug break-words font-extrabold text-indigo-700" title={summary.total_penjualan || 'Rp 0'}>{summary.total_penjualan || 'Rp 0'}</h4>
                                         </div>
                                     </div>
-                                    <div className="relative z-10">
-                                        <p className="text-xs text-indigo-600 font-medium opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                                            <span>Klik untuk detail PT</span>
-                                        </p>
-                                    </div>
+
                                 </div>
                         )}
 
@@ -1100,9 +1092,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         <p className="text-sm font-semibold text-gray-500">Top Produk</p>
         <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.top_produk}>{summary.top_produk}</h4>
     </div>
-    <div className="relative z-10">
-        <p className="text-xs text-gray-400">Produk paling sering muncul di data</p>
-    </div>
+
                         </div>
                     </div>
                 )}
