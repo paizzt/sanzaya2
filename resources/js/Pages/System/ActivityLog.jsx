@@ -124,7 +124,7 @@ export default function ActivityLog({ auth, logs, filters, modules = [] }) {
             <Head title="Riwayat Perubahan" />
 
             <div className="py-2">
-                <div className="max-w-7xl mx-auto">
+                <div className="">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
                         {/* Header & Filter */}
                         <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">

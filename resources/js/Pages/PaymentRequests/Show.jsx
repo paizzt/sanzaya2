@@ -119,7 +119,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
             <Head title={`Detail Pengajuan - ${paymentRequest.reference_number}`} />
 
             <div className="py-2">
-                <div className="max-w-7xl mx-auto space-y-6">
+                <div className="space-y-6">
 
                     {/* Action Bar */}
                     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

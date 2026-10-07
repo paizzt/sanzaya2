@@ -140,7 +140,7 @@ export default function Show({ provider, products, filters }) {
             <Head title={`Detail Penyedia - ${provider.name}`} />
 
             <div className="py-8">
-                <div className="max-w-7xl mx-auto space-y-6">
+                <div className="space-y-6">
                     {/* Header with Back Button */}
                     <div className="flex items-center gap-4">
                         <Link 

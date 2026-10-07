@@ -91,8 +91,8 @@ export default function UcApproval({ requests, isAdmin }) {
         >
             <Head title="Persetujuan UC" />
 
-            <div className="pb-12 pt-0">
-                <div className="max-w-7xl mx-auto">
+            <div className="">
+                <div className="">
                     
                     <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                         <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">

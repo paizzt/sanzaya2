@@ -263,8 +263,8 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
         >
             <Head title="Laporan Logistik" />
 
-            <div className="pb-12 pt-0">
-                <div className="max-w-7xl mx-auto">
+            <div className="">
+                <div className="">
                     
                     <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div 

@@ -238,8 +238,8 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
         >
             <Head title="Data Piutang" />
 
-            <div className="pb-12 pt-0">
-                <div className="max-w-7xl mx-auto">
+            <div className="">
+                <div className="">
                     
                     {/* Tab Navigation */}
                     <div className="mb-6 border-b border-gray-200">

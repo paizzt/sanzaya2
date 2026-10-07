@@ -192,8 +192,8 @@ export default function Index({ auth, items, outlets, summary }) {
         >
             <Head title="Surat Pesanan" />
 
-            <div className="pb-12 pt-0">
-                <div className="max-w-7xl mx-auto">
+            <div className="">
+                <div className="">
                     
                     {summary && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
