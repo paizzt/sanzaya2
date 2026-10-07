@@ -875,7 +875,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 bg-white p-4 rounded-3xl shadow-sm border border-gray-100 relative z-50">
                     <div className="relative w-full lg:w-auto z-40" ref={tabDropdownRef}>
                         <button
                             onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
