@@ -798,7 +798,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         >
             <Head title="Dashboard Laporan" />
 
-            <div className="pb-6 pt-0 space-y-6 max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6">
                 
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-2">
                     <div>
