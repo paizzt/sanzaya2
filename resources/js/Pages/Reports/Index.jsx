@@ -641,6 +641,134 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
             <div className="pb-6 pt-0 space-y-6 max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="relative w-full lg:w-auto z-40" ref={tabDropdownRef}>
+                        <button
+                            onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
+                            className="flex items-center justify-between w-full lg:w-44 xl:w-48 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
+                        >
+                            <div className="flex items-center gap-2">
+                                {tab === 'logistik' && <><Package className="w-4 h-4" /> Logistik</>}
+                                {tab === 'pesanan' && <><ShoppingCart className="w-4 h-4" /> Surat Pesanan</>}
+                                {!['logistik', 'pesanan'].includes(tab) && <><BarChart2 className="w-4 h-4" /> Pilih Laporan</>}
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        {isTabDropdownOpen && (
+                            <div className="absolute left-0 mt-2 w-full lg:w-44 xl:w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-40 overflow-hidden">
+                                <button 
+                                    onClick={() => { handleTabChange('logistik'); setIsTabDropdownOpen(false); }} 
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='logistik' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
+                                >
+                                    <Package className="w-4 h-4" /> Logistik
+                                </button>
+                                <button 
+                                    onClick={() => { handleTabChange('pesanan'); setIsTabDropdownOpen(false); }} 
+                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='pesanan' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:bg-gray-50 hover:text-emerald-600'}`}
+                                >
+                                    <ShoppingCart className="w-4 h-4" /> Surat Pesanan
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-wrap">
+                        <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-30">
+                            <CustomSelect
+                                value={selectedMonth}
+                                onChange={(value) => {
+                                    setSelectedMonth(value);
+                                    const filters = { tab: tab, search: searchTerm, month_filter: value };
+                                    if (tab === 'logistik') {
+                                        filters.sales_filter = selectedSales;
+                                        filters.outlet_filter = selectedOutlet;
+                                        filters.pt_filter = selectedPt;
+                                    } else if (tab === 'pesanan') {
+                                        filters.outlet_filter = selectedOutlet;
+                                        filters.keterangan_filter = selectedKeterangan;
+                                    } else if (tab === 'piutang') {
+                                        filters.outlet_filter = selectedOutlet;
+                                    }
+                                    router.get(route('reports.index'), filters, { preserveState: true });
+                                }}
+                                options={[
+                                    { value: '', label: 'Semua Bulan' },
+                                    ...months.map(m => ({ value: m, label: m }))
+                                ]}
+                                icon={Calendar}
+                            />
+                        </div>
+                        
+                        {tab === 'logistik' && (
+                            <>
+                                <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-20">
+                                    <CustomSelect
+                                        value={selectedPt}
+                                        onChange={(value) => {
+                                            setSelectedPt(value);
+                                            router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: selectedSales, outlet_filter: selectedOutlet, pt_filter: value, month_filter: selectedMonth }, { preserveState: true });
+                                        }}
+                                        options={[
+                                            { value: '', label: 'Semua PT' },
+                                            ...(Array.isArray(ptNames) ? ptNames : Object.values(ptNames || {})).map(name => ({ value: name, label: name }))
+                                        ]}
+                                        icon={Package}
+                                    />
+                                </div>
+                                {!isSalesLocked && (
+                                    <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-10">
+                                        <CustomSelect
+                                            value={selectedSales}
+                                            onChange={(value) => {
+                                                setSelectedSales(value);
+                                                router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, pt_filter: selectedPt, month_filter: selectedMonth }, { preserveState: true });
+                                            }}
+                                            options={[
+                                                { value: '', label: 'Semua Sales' },
+                                                ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
+                                            ]}
+                                            icon={UserIcon}
+                                        />
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+
+                        {tab === 'pesanan' && (
+                            <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-10">
+                                <CustomSelect
+                                    value={selectedKeterangan}
+                                    onChange={(value) => {
+                                        setSelectedKeterangan(value);
+                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, outlet_filter: selectedOutlet, month_filter: selectedMonth, keterangan_filter: value }, { preserveState: true });
+                                    }}
+                                    options={[
+                                        { value: '', label: 'Semua Keterangan' },
+                                        ...(Array.isArray(keteranganNames) ? keteranganNames : Object.values(keteranganNames || {})).map(name => ({ value: name, label: name }))
+                                    ]}
+                                    icon={Store}
+                                />
+                            </div>
+                        )}
+                        <div className={`flex items-center gap-2 w-full md:w-auto transition-all duration-300 ease-in-out z-0`}>
+                            <div className="relative w-full md:w-40 lg:w-48 xl:w-56">
+                                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <TextInput 
+                                    type="text" 
+                                    className="w-full pl-10 rounded-xl" 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Pencarian..."
+                                />
+                            </div>
+                            <button type="submit" className="bg-blue-600 text-white px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center font-bold text-sm shrink-0">
+                                Cari
+                            </button>
+                        </div>
+                    </form>
+                </div>
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-2">
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -940,134 +1068,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </div>
                 )}
 
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="relative w-full lg:w-auto z-40" ref={tabDropdownRef}>
-                        <button
-                            onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
-                            className="flex items-center justify-between w-full lg:w-44 xl:w-48 gap-2 bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition-colors shadow-sm text-sm border border-blue-100"
-                        >
-                            <div className="flex items-center gap-2">
-                                {tab === 'logistik' && <><Package className="w-4 h-4" /> Logistik</>}
-                                {tab === 'pesanan' && <><ShoppingCart className="w-4 h-4" /> Surat Pesanan</>}
-                                {!['logistik', 'pesanan'].includes(tab) && <><BarChart2 className="w-4 h-4" /> Pilih Laporan</>}
-                            </div>
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        
-                        {isTabDropdownOpen && (
-                            <div className="absolute left-0 mt-2 w-full lg:w-44 xl:w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-40 overflow-hidden">
-                                <button 
-                                    onClick={() => { handleTabChange('logistik'); setIsTabDropdownOpen(false); }} 
-                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='logistik' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
-                                >
-                                    <Package className="w-4 h-4" /> Logistik
-                                </button>
-                                <button 
-                                    onClick={() => { handleTabChange('pesanan'); setIsTabDropdownOpen(false); }} 
-                                    className={`flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-50 ${tab==='pesanan' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:bg-gray-50 hover:text-emerald-600'}`}
-                                >
-                                    <ShoppingCart className="w-4 h-4" /> Surat Pesanan
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                    
-                    <form onSubmit={handleSearch} className="w-full lg:w-auto flex flex-col md:flex-row gap-2 md:gap-3 flex-wrap">
-                        <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-30">
-                            <CustomSelect
-                                value={selectedMonth}
-                                onChange={(value) => {
-                                    setSelectedMonth(value);
-                                    const filters = { tab: tab, search: searchTerm, month_filter: value };
-                                    if (tab === 'logistik') {
-                                        filters.sales_filter = selectedSales;
-                                        filters.outlet_filter = selectedOutlet;
-                                        filters.pt_filter = selectedPt;
-                                    } else if (tab === 'pesanan') {
-                                        filters.outlet_filter = selectedOutlet;
-                                        filters.keterangan_filter = selectedKeterangan;
-                                    } else if (tab === 'piutang') {
-                                        filters.outlet_filter = selectedOutlet;
-                                    }
-                                    router.get(route('reports.index'), filters, { preserveState: true });
-                                }}
-                                options={[
-                                    { value: '', label: 'Semua Bulan' },
-                                    ...months.map(m => ({ value: m, label: m }))
-                                ]}
-                                icon={Calendar}
-                            />
-                        </div>
-                        
-                        {tab === 'logistik' && (
-                            <>
-                                <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-20">
-                                    <CustomSelect
-                                        value={selectedPt}
-                                        onChange={(value) => {
-                                            setSelectedPt(value);
-                                            router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: selectedSales, outlet_filter: selectedOutlet, pt_filter: value, month_filter: selectedMonth }, { preserveState: true });
-                                        }}
-                                        options={[
-                                            { value: '', label: 'Semua PT' },
-                                            ...(Array.isArray(ptNames) ? ptNames : Object.values(ptNames || {})).map(name => ({ value: name, label: name }))
-                                        ]}
-                                        icon={Package}
-                                    />
-                                </div>
-                                {!isSalesLocked && (
-                                    <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-10">
-                                        <CustomSelect
-                                            value={selectedSales}
-                                            onChange={(value) => {
-                                                setSelectedSales(value);
-                                                router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, pt_filter: selectedPt, month_filter: selectedMonth }, { preserveState: true });
-                                            }}
-                                            options={[
-                                                { value: '', label: 'Semua Sales' },
-                                                ...(Array.isArray(salesNames) ? salesNames : Object.values(salesNames || {})).map(name => ({ value: name, label: name }))
-                                            ]}
-                                            icon={UserIcon}
-                                        />
-                                    </div>
-                                )}
-                            </>
-                        )}
-
-
-                        {tab === 'pesanan' && (
-                            <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-10">
-                                <CustomSelect
-                                    value={selectedKeterangan}
-                                    onChange={(value) => {
-                                        setSelectedKeterangan(value);
-                                        router.get(route('reports.index'), { tab: tab, search: searchTerm, outlet_filter: selectedOutlet, month_filter: selectedMonth, keterangan_filter: value }, { preserveState: true });
-                                    }}
-                                    options={[
-                                        { value: '', label: 'Semua Keterangan' },
-                                        ...(Array.isArray(keteranganNames) ? keteranganNames : Object.values(keteranganNames || {})).map(name => ({ value: name, label: name }))
-                                    ]}
-                                    icon={Store}
-                                />
-                            </div>
-                        )}
-                        <div className={`flex items-center gap-2 w-full md:w-auto transition-all duration-300 ease-in-out z-0`}>
-                            <div className="relative w-full md:w-40 lg:w-48 xl:w-56">
-                                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                <TextInput 
-                                    type="text" 
-                                    className="w-full pl-10 rounded-xl" 
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    placeholder="Pencarian..."
-                                />
-                            </div>
-                            <button type="submit" className="bg-blue-600 text-white px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center font-bold text-sm shrink-0">
-                                Cari
-                            </button>
-                        </div>
-                    </form>
-                </div>
 
                 {/* Charts Area */}
                 {tab === 'logistik' && renderLogistikChart()}
