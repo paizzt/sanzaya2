@@ -1117,7 +1117,7 @@ class ReportController extends Controller
                 'options' => ['scales' => ['yAxes' => [['ticks' => ['beginAtZero' => true]]]]]
             ];
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=450&h=250&c=' . urlencode(json_encode($configPH)));
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=450&h=250&bkg=white&c=' . urlencode(json_encode($configPH)));
                 if ($res->successful()) $charts['piutang_hutang'] = 'data:image/png;base64,' . base64_encode($res->body());
             } catch (\Exception $e) {}
         }
@@ -1133,7 +1133,7 @@ class ReportController extends Controller
                 'options' => ['plugins' => ['datalabels' => ['color' => '#fff']]]
             ];
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=300&h=250&c=' . urlencode(json_encode($configPesanan)));
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=300&h=250&bkg=white&c=' . urlencode(json_encode($configPesanan)));
                 if ($res->successful()) $charts['pesanan'] = 'data:image/png;base64,' . base64_encode($res->body());
             } catch (\Exception $e) {}
         }
@@ -1180,7 +1180,8 @@ class ReportController extends Controller
                     'chart' => $configOutlets,
                     'width' => 700,
                     'height' => 300,
-                    'format' => 'png'
+                    'format' => 'png',
+                    'backgroundColor' => 'white'
                 ]);
                 if ($res->successful()) $charts['outlets'] = 'data:image/png;base64,' . base64_encode($res->body());
             } catch (\Exception $e) {}
