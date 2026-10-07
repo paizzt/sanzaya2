@@ -667,21 +667,6 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 {/* Summary Cards */}
                 {tab === 'logistik' && summary && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Total Penjualan', type: 'penjualan', data: summary.penjualan_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
-                                {/* Background Icon */}
-    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-        <TrendingUp className="w-24 h-24 text-green-600" />
-    </div>
-
-    <div className="relative z-10 mb-4">
-        <p className="text-sm font-semibold text-gray-500">Total Penjualan</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.total_penjualan}>{summary.total_penjualan}</h4>
-    </div>
-    <div className="relative z-10">
-        <p className="text-xs text-gray-400">Total akumulasi dari kolom Total (Rp)</p>
-    </div>
-                        </div>
-
                         {(summary.target_bulanan || is_super_admin) && (
                                 <div 
                                     onClick={() => summary.target_detail && Object.keys(summary.target_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail })} 
@@ -732,10 +717,16 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                                 {summary.capaian_tahunan || '0%'}
                                             </span>
                                         </div>
-                                        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-2" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
+                                        <div className="mt-2">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xs font-medium text-gray-400">Total Penjualan:</span>
+                                                <span className="text-sm font-bold text-indigo-600">{summary.total_penjualan || 'Rp 0'}</span>
+                                            </div>
+                                            <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
+                                        </div>
                                     </div>
                                     <div className="relative z-10">
-                                        <p className="text-xs text-gray-400">Target global dan capaian tahun ini</p>
+                                        <p className="text-xs text-gray-400">Target dan total penjualan keseluruhan</p>
                                     </div>
                                 </div>
                         )}
