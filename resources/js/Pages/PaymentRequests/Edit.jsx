@@ -76,7 +76,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
             <Head title={`Edit Pengajuan - ${paymentRequest.reference_number}`} />
 
             <div className="py-2">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
+                <div className="max-w-7xl mx-auto space-y-4">
                     <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
                         <button 
                             onClick={() => window.history.back()}

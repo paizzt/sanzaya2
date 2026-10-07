@@ -91,7 +91,7 @@ export default function DeleteUserForm({ className = '' }) {
                         </div>
 
                         <div className="mt-8 flex justify-end gap-3">
-                            <SecondaryButton onClick={closeModal} className="">
+                            <SecondaryButton onClick={closeModal} >
                                 Batal
                             </SecondaryButton>
 

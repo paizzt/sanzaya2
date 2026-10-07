@@ -244,7 +244,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         />
                     </div>
                     <div className="w-full md:w-auto flex gap-2">
-                        <PrimaryButton onClick={handleFilter} className="">
+                        <PrimaryButton onClick={handleFilter} >
                             <Search className="w-4 h-4" /> Tampilkan
                         </PrimaryButton>
                     </div>

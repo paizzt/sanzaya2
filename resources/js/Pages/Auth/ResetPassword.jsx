@@ -84,7 +84,7 @@ export default function ResetPassword({ token, email }) {
                 </div>
 
                 <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="" disabled={processing}>
+                    <PrimaryButton  disabled={processing}>
                         Reset Password
                     </PrimaryButton>
                 </div>

@@ -140,7 +140,7 @@ export default function Show({ provider, products, filters }) {
             <Head title={`Detail Penyedia - ${provider.name}`} />
 
             <div className="py-8">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div className="max-w-7xl mx-auto space-y-6">
                     {/* Header with Back Button */}
                     <div className="flex items-center gap-4">
                         <Link 
@@ -543,7 +543,7 @@ export default function Show({ provider, products, filters }) {
 
                                 <div className="p-6 border-t border-gray-100 bg-gray-50/50 sticky bottom-0 z-10 rounded-b-3xl flex justify-end gap-3">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
-                                    <PrimaryButton disabled={processing} className="">
+                                    <PrimaryButton disabled={processing} >
                                         {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>

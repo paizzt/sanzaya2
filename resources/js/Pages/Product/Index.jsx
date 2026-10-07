@@ -404,7 +404,7 @@ export default function Index({ products }) {
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
                                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                 <ExportDropdown pdfRoute={route('products.export.pdf')} excelRoute={route('products.export.excel')} />
-                                <PrimaryButton disabled={processing} className="">
+                                <PrimaryButton disabled={processing} >
                                         {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                             </div>

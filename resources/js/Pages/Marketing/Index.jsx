@@ -607,7 +607,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                 </div>
 
                                 <div className="pt-4 border-t border-gray-100 flex justify-end">
-                                    <PrimaryButton disabled={processing} className="">
+                                    <PrimaryButton disabled={processing} >
                                         {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>
@@ -827,7 +827,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     </div>
 
                                     <div className="pt-6 border-t border-gray-100 flex justify-end">
-                                        <PrimaryButton disabled={targetProcessing} className="">
+                                        <PrimaryButton disabled={targetProcessing} >
                                             {targetProcessing ? 'Menyimpan...' : 'Simpan'}
                                         </PrimaryButton>
                                     </div>

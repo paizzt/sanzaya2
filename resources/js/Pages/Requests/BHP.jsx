@@ -117,7 +117,7 @@ export default function BHP({ requests, today }) {
                                 </div>
 
                                 <div className="pt-4 flex justify-end">
-                                    <PrimaryButton disabled={processing} className="">
+                                    <PrimaryButton disabled={processing} >
                                         Ajukan
                                     </PrimaryButton>
                                 </div>

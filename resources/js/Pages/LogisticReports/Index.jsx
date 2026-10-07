@@ -264,7 +264,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
             <Head title="Laporan Logistik" />
 
             <div className="pb-12 pt-0">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
                     
                     <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div 
@@ -417,10 +417,10 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         />
                                 </div>
                                 <div className="w-full md:w-auto flex items-center gap-2 h-11">
-                                    <PrimaryButton type="submit" className="">
+                                    <PrimaryButton type="submit" >
                                         <Filter className="w-4 h-4 mr-2" /> Filter
                                     </PrimaryButton>
-                                    <SecondaryButton type="button" onClick={resetFilter} className="">
+                                    <SecondaryButton type="button" onClick={resetFilter} >
                                         <RefreshCw className="w-4 h-4" />
                                     </SecondaryButton>
                                 </div>

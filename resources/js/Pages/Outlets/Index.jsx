@@ -565,7 +565,7 @@ export default function Index({ outlets, areas }) {
 
                                 <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
-                                    <PrimaryButton disabled={processing} className="">
+                                    <PrimaryButton disabled={processing} >
                                         {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>
                                 </div>

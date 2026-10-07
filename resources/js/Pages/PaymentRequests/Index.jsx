@@ -69,7 +69,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
             <Head title={pageTitle} />
 
             <div className="py-2">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
                     {/* Dashboard Summary Cards - Only show on Request View */}
                     {!isApprovalView ? (
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -124,12 +124,12 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                         options={statusOptions}
                                     />
                                 </div>
-                                <PrimaryButton type="submit" className="">Filter</PrimaryButton>
+                                <PrimaryButton type="submit" >Filter</PrimaryButton>
                             </form>
 
                             {!isApprovalView && (
                                 <Link href={route('payment-requests.create')} className="w-full md:w-auto">
-                                    <PrimaryButton className="">Buat Baru</PrimaryButton>
+                                    <PrimaryButton >Buat Baru</PrimaryButton>
                                 </Link>
                             )}
                         </div>

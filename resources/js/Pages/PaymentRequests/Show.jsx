@@ -119,7 +119,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
             <Head title={`Detail Pengajuan - ${paymentRequest.reference_number}`} />
 
             <div className="py-2">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div className="max-w-7xl mx-auto space-y-6">
 
                     {/* Action Bar */}
                     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -303,11 +303,11 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                     {(paymentRequest.workflow_status === 'draft' || paymentRequest.workflow_status === 'waiting_ga') && (
                                         <>
                                             <Link href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', paymentRequest.id)}>
-                                                <SecondaryButton className="">Edit Pengajuan</SecondaryButton>
+                                                <SecondaryButton >Edit Pengajuan</SecondaryButton>
                                             </Link>
                                             {paymentRequest.workflow_status === 'draft' && (
                                                 <PrimaryButton 
-                                                    className="" 
+                                                     
                                                     disabled={!completeness.is_complete}
                                                     onClick={() => handleAction('payment-requests.submit')}
                                                 >

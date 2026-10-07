@@ -97,7 +97,7 @@ export default function Create() {
             <Head title="Lapor WBS" />
 
             <div className="py-12">
-                <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-3xl mx-auto">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
                         <div className="p-8">
                             <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">

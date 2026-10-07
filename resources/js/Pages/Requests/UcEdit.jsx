@@ -338,7 +338,7 @@ export default function UcEdit({ ucRequest, users, vehicles, isAdmin }) {
                         </div>
 
                         <div className="pt-4 flex justify-end">
-                            <PrimaryButton disabled={processing} className="">
+                            <PrimaryButton disabled={processing} >
                                 {processing && <Loader2 className="w-5 h-5 animate-spin" />}
                                 {processing ? 'Memproses...' : 'Simpan Perubahan'}
                             </PrimaryButton>

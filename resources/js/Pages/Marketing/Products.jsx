@@ -30,7 +30,7 @@ export default function Products({ auth, products, filters }) {
             <Head title="Cari Produk Marketing" />
 
             <div className="py-8">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div className="max-w-7xl mx-auto space-y-6">
                     {/* Header Section */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>

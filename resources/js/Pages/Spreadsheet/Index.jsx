@@ -138,7 +138,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} className="">Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} >Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -177,7 +177,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} className="">Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} >Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -211,7 +211,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} className="">Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} >Simpan</PrimaryButton></div>
         </form>
     );
 
@@ -238,7 +238,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} className="">Simpan</PrimaryButton></div>
+            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} >Simpan</PrimaryButton></div>
         </form>
     );
 

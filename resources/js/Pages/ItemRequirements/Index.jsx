@@ -790,7 +790,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                             <SecondaryButton onClick={() => setIsShareModalOpen(false)}>
                                 Batal
                             </SecondaryButton>
-                            <PrimaryButton onClick={copyShareLink} className="">
+                            <PrimaryButton onClick={copyShareLink} >
                                 Salin Link
                             </PrimaryButton>
                         </div>

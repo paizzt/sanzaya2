@@ -97,7 +97,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                 )}
 
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-50">
-                    <PrimaryButton disabled={processing} className="">
+                    <PrimaryButton disabled={processing} >
                         Simpan
                     </PrimaryButton>
 

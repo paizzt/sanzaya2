@@ -92,7 +92,7 @@ export default function UcApproval({ requests, isAdmin }) {
             <Head title="Persetujuan UC" />
 
             <div className="pb-12 pt-0">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
                     
                     <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                         <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
@@ -296,7 +296,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                 <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors">
                                     Batal
                                 </button>
-                                <PrimaryButton disabled={processing} className="">
+                                <PrimaryButton disabled={processing} >
                                     {processing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                     {processing ? 'Menyimpan...' : 'Simpan'}
                                 </PrimaryButton>

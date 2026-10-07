@@ -149,7 +149,7 @@ export default function Pengajuan({ requests, canApprove }) {
                                 </div>
 
                                 <div className="pt-4 flex justify-center">
-                                    <PrimaryButton disabled={processing} className="">
+                                    <PrimaryButton disabled={processing} >
                                         Kirim
                                     </PrimaryButton>
                                 </div>

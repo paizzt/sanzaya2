@@ -77,7 +77,7 @@ export default function Create({ auth, vendors, companies, user }) {
             <Head title="Buat Pengajuan" />
 
             <div className="py-2">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
                     <form onSubmit={submit} noValidate className="bg-white p-6 shadow sm:rounded-lg space-y-6">
                         
                         {/* Section A: Informasi Pengajuan */}

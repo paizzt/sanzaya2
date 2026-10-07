@@ -110,7 +110,7 @@ export default function Register() {
                         Sudah punya akun?
                     </Link>
 
-                    <PrimaryButton className="" disabled={processing}>
+                    <PrimaryButton  disabled={processing}>
                         Daftar
                     </PrimaryButton>
                 </div>

@@ -205,7 +205,7 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
             <Head title="Pemetaan Data" />
 
             <div className="py-8">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div className="max-w-7xl mx-auto space-y-6">
 
                     <div className="flex bg-white rounded-xl shadow-sm border border-gray-100 p-1 w-full sm:w-fit overflow-x-auto">
                         <button
