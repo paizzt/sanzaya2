@@ -400,9 +400,9 @@ class ReportController extends Controller
             
             // Format function
             $formatCapaian = function($sales, $target) {
-                if ($target <= 0) return '0%';
+                if ($target <= 0) return ['sales' => $sales, 'percent' => '0%'];
                 $capPercent = ($sales / $target) * 100;
-                return number_format($capPercent, 1, ',', '.') . '%';
+                return ['sales' => $sales, 'percent' => number_format($capPercent, 1, ',', '.') . '%'];
             };
 
             if ($ptFilter) {
@@ -478,7 +478,9 @@ class ReportController extends Controller
 
             foreach ($targetDetail as $key => $val) {
                 if (isset($capaianDetail[$key])) {
-                    $targetDetail[$key] = $val . ' (' . $capaianDetail[$key] . ')';
+                    $salesVal = $capaianDetail[$key]['sales'] ?? 0;
+                    $percentStr = $capaianDetail[$key]['percent'] ?? '0%';
+                    $targetDetail[$key] = 'Rp ' . number_format($salesVal, 0, ',', '.') . ' / ' . $val . ' (' . $percentStr . ')';
                 }
             }
 
@@ -555,7 +557,7 @@ class ReportController extends Controller
                         }
                         $totalTargetedPenjualanAnn += $ptPenjualanAnn;
                         $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
-                        $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
+                        $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ptPenjualanAnn, 0, ',', '.') . ' / Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
                         $capaianTahunanDetail[$ct->name] = number_format($capPercent, 1, ',', '.') . '%';
                     }
                     $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalTargetedPenjualanAnn / $targetTahunanVal) * 100 : 0;
