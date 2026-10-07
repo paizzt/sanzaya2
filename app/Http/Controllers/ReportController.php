@@ -207,7 +207,7 @@ class ReportController extends Controller
                 });
             }
             
-            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal', 'brand')->get();
+            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal', 'brand')->lazy();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = []; $monthBreakdown = []; $brandBreakdown = [];
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
@@ -500,7 +500,7 @@ class ReportController extends Controller
                 });
             }
             
-            $logistikAnnual = $annualQuery->select('total', 'nama_pt', 'nama_sales')->get();
+            $logistikAnnual = $annualQuery->select('total', 'nama_pt', 'nama_sales')->lazy();
             $totalPenjualanAnnual = 0;
             $ptBreakdownAnnual = [];
             
@@ -565,6 +565,7 @@ class ReportController extends Controller
 
             return [
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
+                'total_penjualan_bulan_ini' => 'Rp ' . number_format($refTotalPenjualan, 0, ',', '.'),
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
                 'capaian_target' => $capaianTarget,
                 'target_tahunan' => $targetTahunan,

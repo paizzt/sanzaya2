@@ -700,7 +700,13 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                                 {summary.capaian_target || '0%'}
                                             </span>
                                         </div>
-                                        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-2" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
+                                        <div className="mt-2">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xs font-medium text-gray-400">Total Penjualan:</span>
+                                                <span className="text-sm font-bold text-blue-600">{summary.total_penjualan_bulan_ini || 'Rp 0'}</span>
+                                            </div>
+                                            <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
+                                        </div>
                                     </div>
                                     <div className="relative z-10">
                                         <p className="text-xs text-gray-400">Target penjualan bulanan dan capaian</p>
