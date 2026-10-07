@@ -448,14 +448,11 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 {data.role && (data.role.toLowerCase() === 'sales' || data.role.toLowerCase() === 'marketing') && (
                                                     <div>
                                                         <InputLabel value="Target Bulanan (Rp) (Opsional)" />
-                                                        <div className="relative">
-                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">Rp</span>
-                                                            <CurrencyInput 
-                                                                className="mt-1 block w-full pl-9" 
-                                                                value={data.monthly_target} 
-                                                                onChange={val => setData('monthly_target', val)} 
-                                                            />
-                                                        </div>
+                                                        <CurrencyInput 
+                                                            className="mt-1 block w-full" 
+                                                            value={data.monthly_target} 
+                                                            onChange={val => setData('monthly_target', val)} 
+                                                        />
                                                         <InputError message={errors.monthly_target} className="mt-1" />
                                                         <p className="text-xs text-gray-500 mt-1">Isi hanya angka, tanpa titik atau koma.</p>
                                                     </div>

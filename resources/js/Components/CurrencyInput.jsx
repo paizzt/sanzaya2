@@ -6,6 +6,8 @@ export default function CurrencyInput({ value, onChange, className = '', ...prop
         if (val === null || val === undefined || val === '') return '';
         
         let strVal = val.toString();
+        // Remove decimal parts if they exist (either . or ,)
+        strVal = strVal.split('.')[0].split(',')[0];
         // Get only digits
         let number_string = strVal.replace(/[^0-9]/g, '');
         if (number_string === '') return '';
