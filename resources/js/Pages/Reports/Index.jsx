@@ -641,6 +641,29 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
             <div className="pb-6 pt-0 space-y-6 max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-2">
+                    <div>
+                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <BarChart2 className="w-6 h-6 text-blue-600" />
+                            Data Laporan Tersinkronisasi
+                        </h3>
+                    </div>
+                    
+                    <div className="relative">
+                        <ExportDropdown 
+                            isReportDashboard={true} 
+                            outletNames={outletNames} 
+                            pdfRoute={route('reports.pdf', getPdfRouteArgs())} 
+                            trigger={
+                                <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] whitespace-nowrap shrink-0">
+                                    <Download className="w-4 h-4 mr-1" />
+                                    Unduh PDF
+                                </button>
+                            } 
+                        />
+                    </div>
+                </div>
+
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
                     <div className="relative w-full lg:w-auto z-40" ref={tabDropdownRef}>
                         <button
@@ -769,29 +792,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                         </div>
                     </form>
                 </div>
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-2">
-                    <div>
-                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <BarChart2 className="w-6 h-6 text-blue-600" />
-                            Data Laporan Tersinkronisasi
-                        </h3>
-                    </div>
-                    
-                    <div className="relative">
-                        <ExportDropdown 
-                            isReportDashboard={true} 
-                            outletNames={outletNames} 
-                            pdfRoute={route('reports.pdf', getPdfRouteArgs())} 
-                            trigger={
-                                <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] whitespace-nowrap shrink-0">
-                                    <Download className="w-4 h-4 mr-1" />
-                                    Unduh PDF
-                                </button>
-                            } 
-                        />
-                    </div>
-                </div>
-
+                
                 {/* Summary Cards */}
                 {tab === 'logistik' && summary && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
