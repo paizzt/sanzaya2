@@ -43,6 +43,36 @@ export default function Index({ tab, is_super_admin, global_target_value, global
     const isSalesLocked = !!authUser.spreadsheet_sales_name;
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
+    const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+            window.addEventListener('resize', handleResize);
+            return () => window.removeEventListener('resize', handleResize);
+        }
+    }, []);
+
+    const DesktopDetailView = ({ children }) => {
+        if (isDesktop && detailModal.isOpen) {
+            return (
+                <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6">
+                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Detail {detailModal.title}</h3>
+                        <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="flex items-center gap-2 text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-xl transition-colors">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                            Kembali
+                        </button>
+                    </div>
+                    <div className="custom-scrollbar max-h-[80vh] overflow-y-auto pr-2">
+                        {renderDetailContent()}
+                    </div>
+                </div>
+            );
+        }
+        return <>{children}</>;
+    };
+
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
@@ -127,6 +157,135 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
         return `linear-gradient(to right, ${color} ${fillPerc}%, transparent ${fillPerc}%)`;
     };
+
+    const renderDetailContent = () => (
+        <>
+            {!detailModal.data || Object.keys(detailModal.data).length === 0 ? (
+                                <div className="text-center py-8 text-gray-500">
+                                    Tidak ada detail data yang tersedia.
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {(() => {
+                                        let totalValue = null;
+                                        if (detailModal.type === 'penjualan') totalValue = summary?.total_penjualan;
+                                        else if (detailModal.type === 'pesanan') totalValue = summary?.total_pesanan;
+                                        else if (detailModal.type === 'faktur') totalValue = summaryPesanan?.total_faktur;
+                                        else if (detailModal.type === 'terkirim') totalValue = summaryPesanan?.total_terkirim;
+                                        else if (detailModal.type === 'belum_terkirim') totalValue = summaryPesanan?.total_belum_terkirim;
+                                        else if (detailModal.type === 'total_surat') totalValue = summaryPesanan?.total_pesanan;
+                                        else if (detailModal.type === 'gabungan') totalValue = summaryPiutang?.total_gabungan;
+                                        else if (detailModal.type === 'sanzaya') totalValue = summaryPiutang?.total_sanzaya;
+                                        else if (detailModal.type === 'ruma') totalValue = summaryPiutang?.total_ruma;
+                                        else if (detailModal.type === 'hutang') totalValue = summaryHutang?.total_nominal;
+
+                                        if (totalValue) {
+                                            return (
+                                                <div className="flex justify-between items-center p-4 mb-2 bg-blue-50/80 rounded-xl border border-blue-100 gap-2">
+                                                    <span className="font-bold text-blue-900 text-sm sm:text-base shrink-0">Total Keseluruhan</span>
+                                                    <span className="font-bold text-blue-700 text-sm sm:text-lg text-right break-words">{totalValue}</span>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
+                                    {detailModal.type === 'penjualan' && summary?.pt_penjualan_detail && Object.keys(summary.pt_penjualan_detail).length > 0 && (
+                                        <div className="mb-4 pb-4 border-b-2 border-dashed border-gray-200">
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan PT</h4>
+                                            <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
+                                                <span>Nama PT</span>
+                                                <span>Total (Rp)</span>
+                                            </div>
+                                            <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+                                                {Object.entries(summary.pt_penjualan_detail).map(([key, value], idx) => (
+                                                      <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors gap-2">
+                                                          <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                                                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
+                                                                  {idx + 1}
+                                                              </div>
+                                                              <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
+                                                          </div>
+                                                          <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
+                                                      </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        {detailModal.type === 'penjualan' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan Sales</h4>
+                                        )}
+                                        {detailModal.type === 'target' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Rincian Target Sales</h4>
+                                        )}
+                                        {detailModal.type === 'capaian' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
+                                        )}
+                                        {detailModal.type === 'capaian_tahunan' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
+                                        )}
+                                        <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
+                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama'))}</span>
+                                            <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai')}</span>
+                                        </div>
+                                        <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+                                            {detailModal.type === 'outlet' ? (
+                                                Object.entries(detailModal.data).map(([key, value], idx) => (
+                                                    <div key={idx} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm mb-3">
+                                                        <div className="flex justify-between items-center border-b pb-3 mb-3">
+                                                           <div className="flex items-center gap-2">
+                                                               <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">{idx + 1}</div>
+                                                               <h5 className="font-bold text-gray-800 text-sm">{key}</h5>
+                                                           </div>
+                                                           <span className="font-bold text-gray-900 text-sm">{value.total_formatted}</span>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan PT</p>
+                                                                <div className="space-y-1">
+                                                                    {Object.entries(value.pt).map(([pt, val]) => (
+                                                                        <div key={pt} className="flex justify-between text-[11px] sm:text-xs">
+                                                                            <span className="text-gray-600">{pt}</span>
+                                                                            <span className="font-semibold text-gray-800">{val}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan Bulan</p>
+                                                                <div className="space-y-1">
+                                                                    {Object.entries(value.bulan).map(([bln, val]) => (
+                                                                        <div key={bln} className="flex justify-between text-[11px] sm:text-xs">
+                                                                            <span className="text-gray-600">{bln}</span>
+                                                                            <span className="font-semibold text-gray-800">{val}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                Object.entries(detailModal.data).map(([key, value], idx) => (
+                                                      <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
+                                                          <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                                                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
+                                                                  {idx + 1}
+                                                              </div>
+                                                              <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
+                                                          </div>
+                                                          <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
+                                                      </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        
+        </>
+    );
 
     // Chart Renderers
     const renderLogistikChart = () => {
@@ -1074,6 +1233,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 )}
 
 
+                                <DesktopDetailView>
                 {/* Charts Area */}
                 {tab === 'logistik' && renderLogistikChart()}
                 {tab === 'pesanan' && renderPesananChart()}
@@ -1111,144 +1271,25 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                         </div>
                     )}
                                     </div>
+                                </DesktopDetailView>
                 </div>
-                            {/* Detail Modal */}
-                <Modal show={detailModal.isOpen} onClose={() => setDetailModal({ ...detailModal, isOpen: false })} maxWidth="md">
-                    <div className="p-4 sm:p-6">
-                        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                            <h3 className="text-xl font-bold text-gray-800">Detail {detailModal.title}</h3>
-                            <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
+                            {/* Detail Modal (Hanya Mobile) */}
+                {!isDesktop && (
+                    <Modal show={detailModal.isOpen} onClose={() => setDetailModal({ ...detailModal, isOpen: false })} maxWidth="md">
+                        <div className="p-4 sm:p-6">
+                            <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                                <h3 className="text-xl font-bold text-gray-800">Detail {detailModal.title}</h3>
+                                <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+                            
+                            <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                                {renderDetailContent()}
+                            </div>
                         </div>
-                        
-                        <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                            {!detailModal.data || Object.keys(detailModal.data).length === 0 ? (
-                                <div className="text-center py-8 text-gray-500">
-                                    Tidak ada detail data yang tersedia.
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {(() => {
-                                        let totalValue = null;
-                                        if (detailModal.type === 'penjualan') totalValue = summary?.total_penjualan;
-                                        else if (detailModal.type === 'pesanan') totalValue = summary?.total_pesanan;
-                                        else if (detailModal.type === 'faktur') totalValue = summaryPesanan?.total_faktur;
-                                        else if (detailModal.type === 'terkirim') totalValue = summaryPesanan?.total_terkirim;
-                                        else if (detailModal.type === 'belum_terkirim') totalValue = summaryPesanan?.total_belum_terkirim;
-                                        else if (detailModal.type === 'total_surat') totalValue = summaryPesanan?.total_pesanan;
-                                        else if (detailModal.type === 'gabungan') totalValue = summaryPiutang?.total_gabungan;
-                                        else if (detailModal.type === 'sanzaya') totalValue = summaryPiutang?.total_sanzaya;
-                                        else if (detailModal.type === 'ruma') totalValue = summaryPiutang?.total_ruma;
-                                        else if (detailModal.type === 'hutang') totalValue = summaryHutang?.total_nominal;
-
-                                        if (totalValue) {
-                                            return (
-                                                <div className="flex justify-between items-center p-4 mb-2 bg-blue-50/80 rounded-xl border border-blue-100 gap-2">
-                                                    <span className="font-bold text-blue-900 text-sm sm:text-base shrink-0">Total Keseluruhan</span>
-                                                    <span className="font-bold text-blue-700 text-sm sm:text-lg text-right break-words">{totalValue}</span>
-                                                </div>
-                                            );
-                                        }
-                                        return null;
-                                    })()}
-                                    {detailModal.type === 'penjualan' && summary?.pt_penjualan_detail && Object.keys(summary.pt_penjualan_detail).length > 0 && (
-                                        <div className="mb-4 pb-4 border-b-2 border-dashed border-gray-200">
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan PT</h4>
-                                            <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                                <span>Nama PT</span>
-                                                <span>Total (Rp)</span>
-                                            </div>
-                                            <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-                                                {Object.entries(summary.pt_penjualan_detail).map(([key, value], idx) => (
-                                                      <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors gap-2">
-                                                          <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
-                                                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
-                                                                  {idx + 1}
-                                                              </div>
-                                                              <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
-                                                          </div>
-                                                          <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
-                                                      </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div>
-                                        {detailModal.type === 'penjualan' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan Sales</h4>
-                                        )}
-                                        {detailModal.type === 'target' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Rincian Target Sales</h4>
-                                        )}
-                                        {detailModal.type === 'capaian' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
-                                        )}
-                                        {detailModal.type === 'capaian_tahunan' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
-                                        )}
-                                        <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama'))}</span>
-                                            <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai')}</span>
-                                        </div>
-                                        <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-                                            {detailModal.type === 'outlet' ? (
-                                                Object.entries(detailModal.data).map(([key, value], idx) => (
-                                                    <div key={idx} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm mb-3">
-                                                        <div className="flex justify-between items-center border-b pb-3 mb-3">
-                                                           <div className="flex items-center gap-2">
-                                                               <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">{idx + 1}</div>
-                                                               <h5 className="font-bold text-gray-800 text-sm">{key}</h5>
-                                                           </div>
-                                                           <span className="font-bold text-gray-900 text-sm">{value.total_formatted}</span>
-                                                        </div>
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                            <div>
-                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan PT</p>
-                                                                <div className="space-y-1">
-                                                                    {Object.entries(value.pt).map(([pt, val]) => (
-                                                                        <div key={pt} className="flex justify-between text-[11px] sm:text-xs">
-                                                                            <span className="text-gray-600">{pt}</span>
-                                                                            <span className="font-semibold text-gray-800">{val}</span>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan Bulan</p>
-                                                                <div className="space-y-1">
-                                                                    {Object.entries(value.bulan).map(([bln, val]) => (
-                                                                        <div key={bln} className="flex justify-between text-[11px] sm:text-xs">
-                                                                            <span className="text-gray-600">{bln}</span>
-                                                                            <span className="font-semibold text-gray-800">{val}</span>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                Object.entries(detailModal.data).map(([key, value], idx) => (
-                                                      <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
-                                                          <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
-                                                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
-                                                                  {idx + 1}
-                                                              </div>
-                                                              <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
-                                                          </div>
-                                                          <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
-                                                      </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </Modal>
+                    </Modal>
+                )}
             </AuthenticatedLayout>
         </ErrorBoundary>
     );
