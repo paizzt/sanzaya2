@@ -43,11 +43,11 @@ export default function Index({ tab, is_super_admin, global_target_value, global
     const isSalesLocked = !!authUser.spreadsheet_sales_name;
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
-    const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+    const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+            const handleResize = () => setIsDesktop(window.innerWidth >= 768);
             window.addEventListener('resize', handleResize);
             return () => window.removeEventListener('resize', handleResize);
         }
