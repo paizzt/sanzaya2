@@ -308,7 +308,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
         >
             <Head title="Marketing" />
 
-            <div className="pb-6 pt-0 space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-8">
                 
 
 

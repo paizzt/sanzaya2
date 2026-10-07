@@ -210,7 +210,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
         >
             <Head title="Absensi" />
 
-            <div className="pb-6 pt-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="pb-6 pt-0 space-y-6">
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Status Section */}

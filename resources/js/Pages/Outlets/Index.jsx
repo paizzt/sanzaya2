@@ -208,7 +208,7 @@ export default function Index({ outlets, areas }) {
         >
             <Head title="Data Outlet" />
 
-            <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6">
                 
                 {/* Cards Statistik */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">

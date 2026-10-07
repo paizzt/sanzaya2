@@ -88,7 +88,7 @@ export default function Form({ vehicle }) {
         >
             <Head title={isEdit ? "Edit Armada" : "Tambah Armada"} />
 
-            <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6">
                 
                 <div className="flex items-center gap-4 mb-6">
                     <Link href={route('vehicles.index')} className="p-2 bg-white rounded-xl shadow-sm text-gray-500 hover:text-gray-700 transition-colors">

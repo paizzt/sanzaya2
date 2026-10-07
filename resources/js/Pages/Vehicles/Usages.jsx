@@ -36,7 +36,7 @@ export default function Usages({ usages, vehicles, filters }) {
         >
             <Head title="Log Armada" />
 
-            <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
                     <div className="flex items-center gap-4">
                         <Link 

@@ -206,7 +206,7 @@ export default function Index({ items, isShared, providers = [] }) {
         >
             <Head title="Stok Gudang" />
 
-            <div className="pb-6 pt-0 space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="pb-6 pt-0 space-y-6">
                 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
