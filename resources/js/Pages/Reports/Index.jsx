@@ -25,6 +25,7 @@ import {
   ArcElement
 } from 'chart.js';
 import { Bar, Line, Pie } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 ChartJS.register(
   CategoryScale,
@@ -54,19 +55,30 @@ export default function Index({ tab, is_super_admin, global_target_value, global
     }, []);
 
     const DesktopDetailView = ({ children }) => {
+        const detailRef = useRef(null);
+        
+        useEffect(() => {
+            if (isDesktop && detailModal.isOpen && detailRef.current) {
+                detailRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, [isDesktop, detailModal.isOpen]);
+
         if (isDesktop && detailModal.isOpen) {
             return (
-                <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6">
-                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Detail {detailModal.title}</h3>
-                        <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="flex items-center gap-2 text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-xl transition-colors">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                            Kembali
-                        </button>
+                <div ref={detailRef} className="scroll-mt-24 space-y-6">
+                    <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6">
+                        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                            <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Detail {detailModal.title}</h3>
+                            <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="flex items-center gap-2 text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-xl transition-colors">
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                                Kembali
+                            </button>
+                        </div>
+                        <div className="custom-scrollbar max-h-[80vh] overflow-y-auto pr-2">
+                            {renderDetailContent()}
+                        </div>
                     </div>
-                    <div className="custom-scrollbar max-h-[80vh] overflow-y-auto pr-2">
-                        {renderDetailContent()}
-                    </div>
+                    {children}
                 </div>
             );
         }
@@ -354,70 +366,108 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         };
 
         return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-                {dataSales.length > 0 && (
-                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
-                        <div className="h-72 w-full flex items-center justify-center">
-                            <Pie 
-                                data={{
-                                    labels: dataSales.map(d => d.name),
-                                    datasets: [{
-                                        data: dataSales.map(d => d.Penjualan),
-                                        backgroundColor: [
-                                            '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
-                                            '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
-                                        ],
-                                        borderWidth: 2,
-                                        borderColor: '#ffffff'
-                                    }]
-                                }} 
-                                options={pieOptions} 
-                            />
-                        </div>
-                    </div>
-                )}
-
+            <div className="flex flex-col gap-6 mb-6">
                 {dataBulan.length > 0 && (
-                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 w-full">
                         <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Penjualan Per Bulan</h4>
                         <div className="h-72 w-full">
-                            <Line 
+                            <Bar 
+                                plugins={[ChartDataLabels]}
                                 data={{
                                     labels: dataBulan.map(d => d.name),
                                     datasets: [{
                                         data: dataBulan.map(d => d.Penjualan),
-                                        borderColor: '#4f46e5',
                                         backgroundColor: '#4f46e5',
-                                        borderWidth: 3,
-                                        pointRadius: 4,
-                                        pointHoverRadius: 6,
-                                        tension: 0.4
+                                        borderRadius: 6
                                     }]
                                 }} 
-                                options={chartOptions} 
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { display: false },
+                                        datalabels: {
+                                            anchor: 'end',
+                                            align: 'top',
+                                            color: '#4f46e5',
+                                            font: { weight: 'bold', size: 10 },
+                                            formatter: function(value) {
+                                                if (value === 0) return '';
+                                                return 'Rp ' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(value);
+                                            }
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                                                }
+                                            }
+                                        }
+                                    },
+                                    layout: {
+                                        padding: { top: 25 }
+                                    },
+                                    scales: {
+                                        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
+                                        y: {
+                                            grid: { color: '#f0f0f0', drawBorder: false },
+                                            border: { display: false },
+                                            ticks: {
+                                                font: { size: 11 }, color: '#6b7280',
+                                                callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
+                                            }
+                                        }
+                                    }
+                                }} 
                             />
                         </div>
                     </div>
                 )}
 
-                {dataBrand.length > 0 && (
-                    <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Penjualan per Brand</h4>
-                        <div className="h-72 w-full flex items-center justify-center">
-                            <Pie 
-                                data={{
-                                    labels: dataBrand.map(d => d.name),
-                                    datasets: [{
-                                        data: dataBrand.map(d => d.Penjualan),
-                                        backgroundColor: dataBrand.map(d => d.color),
-                                        borderWidth: 0,
-                                        hoverOffset: 4
-                                    }]
-                                }} 
-                                options={pieOptions} 
-                            />
-                        </div>
+                {(dataSales.length > 0 || dataBrand.length > 0) && (
+                    <div className={`grid grid-cols-1 ${dataSales.length > 0 && dataBrand.length > 0 ? 'lg:grid-cols-2' : ''} gap-6`}>
+                        {dataSales.length > 0 && (
+                            <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart className="w-5 h-5 text-blue-600"/> Top 10 Penjualan per Sales</h4>
+                                <div className="h-72 w-full flex items-center justify-center">
+                                    <Pie 
+                                        data={{
+                                            labels: dataSales.map(d => d.name),
+                                            datasets: [{
+                                                data: dataSales.map(d => d.Penjualan),
+                                                backgroundColor: [
+                                                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
+                                                    '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+                                                ],
+                                                borderWidth: 2,
+                                                borderColor: '#ffffff'
+                                            }]
+                                        }} 
+                                        options={pieOptions} 
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {dataBrand.length > 0 && (
+                            <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-emerald-600"/> Penjualan per Brand</h4>
+                                <div className="h-72 w-full flex items-center justify-center">
+                                    <Pie 
+                                        data={{
+                                            labels: dataBrand.map(d => d.name),
+                                            datasets: [{
+                                                data: dataBrand.map(d => d.Penjualan),
+                                                backgroundColor: dataBrand.map(d => d.color),
+                                                borderWidth: 0,
+                                                hoverOffset: 4
+                                            }]
+                                        }} 
+                                        options={pieOptions} 
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
