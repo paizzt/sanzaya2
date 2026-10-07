@@ -1144,13 +1144,44 @@ class ReportController extends Controller
             $configOutlets = [
                 'type' => 'bar',
                 'data' => [
-                    'labels' => array_map(function($l) { return \Illuminate\Support\Str::limit($l, 10); }, array_keys($topOutlets)),
-                    'datasets' => [['label' => 'Penjualan (Juta)', 'data' => array_map(function($v) { return round($v/1000000, 2); }, array_values($topOutlets)), 'backgroundColor' => '#8b5cf6']]
+                    'labels' => array_keys($topOutlets),
+                    'datasets' => [['label' => 'Penjualan', 'data' => array_values($topOutlets), 'backgroundColor' => '#3b82f6']]
                 ],
-                'options' => ['scales' => ['yAxes' => [['ticks' => ['beginAtZero' => true]]]]]
+                'options' => [
+                    'plugins' => [
+                        'datalabels' => [
+                            'display' => true,
+                            'align' => 'end',
+                            'anchor' => 'end',
+                            'font' => ['size' => 9, 'weight' => 'bold'],
+                            'formatter' => "function(value) { return 'Rp ' + value.toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.'); }"
+                        ]
+                    ],
+                    'scales' => [
+                        'yAxes' => [[
+                            'ticks' => [
+                                'beginAtZero' => true,
+                                'callback' => "function(value) { return (value/1000000) + ' Jt'; }"
+                            ]
+                        ]],
+                        'xAxes' => [[
+                            'ticks' => [
+                                'autoSkip' => false,
+                                'maxRotation' => 25,
+                                'minRotation' => 25,
+                                'fontSize' => 9
+                            ]
+                        ]]
+                    ]
+                ]
             ];
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=600&h=250&c=' . urlencode(json_encode($configOutlets)));
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->post('https://quickchart.io/chart', [
+                    'chart' => $configOutlets,
+                    'width' => 700,
+                    'height' => 300,
+                    'format' => 'png'
+                ]);
                 if ($res->successful()) $charts['outlets'] = 'data:image/png;base64,' . base64_encode($res->body());
             } catch (\Exception $e) {}
         }

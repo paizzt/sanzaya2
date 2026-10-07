@@ -150,9 +150,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                                 <div className="space-y-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg">
                                                     {[
                                                         { id: 'logistik', label: 'Data Logistik' },
-                                                        { id: 'pesanan', label: 'Surat Pesanan' },
-                                                        { id: 'piutang', label: 'Data Piutang' },
-                                                        { id: 'hutang', label: 'Data Hutang' }
+                                                        { id: 'pesanan', label: 'Surat Pesanan' }
                                                     ].map((ds) => (
                                                         <label key={ds.id} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
                                                             <input 
