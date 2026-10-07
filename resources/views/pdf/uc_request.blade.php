@@ -34,12 +34,41 @@
             font-weight: bold;
             margin: 0;
             padding: 0;
+            display: none; /* Hide old text but keep class if used */
         }
         .company-sub {
             color: #666;
             font-size: 10px;
             margin: 0;
             padding: 0;
+            display: none;
+        }
+        
+        .kop-table {
+            width: 100%;
+            border-bottom: 2px solid #28305c;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+        }
+        .kop-table td {
+            border: none;
+            padding: 0;
+            vertical-align: middle;
+        }
+        .kop-title {
+            color: #28305c;
+            font-size: 20px;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            letter-spacing: 0.5px;
+        }
+        .kop-text {
+            font-size: 11px;
+            color: #333;
+            margin: 4px 0 0 0;
+            line-height: 1.3;
         }
         .form-title {
             font-size: 15px;
@@ -179,13 +208,26 @@
     </div>
 
     <!-- PAGE 1: FORM PENGAJUAN -->
+    <table class="kop-table">
+        <tr>
+            <td width="35%">
+                <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
+            </td>
+            <td width="65%" align="right">
+                <div class="kop-title">PT. HARTA TAHTA KESEHATAN</div>
+                <div class="kop-text">
+                    Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
+                    Kota Makassar, Sulawesi Selatan 90235<br>
+                    Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
+                </div>
+            </td>
+        </tr>
+    </table>
+
     <table class="header">
         <tr>
-            <td width="50%">
-                <p class="company-name">PT. SANZAYA MEDIKA PRATAMA</p>
-                <p class="company-sub">MEDICAL & HEALTHCARE</p>
-                
-                <p class="form-title">FORM PENGAJUAN BIAYA</p>
+            <td width="50%" style="vertical-align: middle;">
+                <p class="form-title" style="margin-top: 0;">FORM PENGAJUAN BIAYA</p>
                 <p class="form-subtitle">UPCOUNTRY (UC)</p>
             </td>
             <td width="50%" align="right">
@@ -328,12 +370,26 @@
     <div class="page-break"></div>
 
     <!-- PAGE 2: LAMPIRAN -->
+    <table class="kop-table">
+        <tr>
+            <td width="35%">
+                <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
+            </td>
+            <td width="65%" align="right">
+                <div class="kop-title">PT. HARTA TAHTA KESEHATAN</div>
+                <div class="kop-text">
+                    Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
+                    Kota Makassar, Sulawesi Selatan 90235<br>
+                    Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
+                </div>
+            </td>
+        </tr>
+    </table>
+
     <table class="header">
         <tr>
-            <td width="50%">
-                <p class="company-name">PT. SANZAYA MEDIKA PRATAMA</p>
-                
-                <p class="form-title">LAMPIRAN PENGAJUAN</p>
+            <td width="50%" style="vertical-align: middle;">
+                <p class="form-title" style="margin-top: 0;">LAMPIRAN PENGAJUAN</p>
                 <p class="form-subtitle">UPCOUNTRY (UC)</p>
             </td>
             <td width="50%" align="right">
@@ -426,11 +482,26 @@
     <div class="page-break"></div>
 
     <!-- PAGE 3: RESULT PERJALANAN -->
+    <table class="kop-table">
+        <tr>
+            <td width="35%">
+                <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
+            </td>
+            <td width="65%" align="right">
+                <div class="kop-title">PT. HARTA TAHTA KESEHATAN</div>
+                <div class="kop-text">
+                    Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
+                    Kota Makassar, Sulawesi Selatan 90235<br>
+                    Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
+                </div>
+            </td>
+        </tr>
+    </table>
+
     <table class="header">
         <tr>
-            <td width="50%">
-                <p class="company-name">PT. SANZAYA MEDIKA PRATAMA</p>
-                <div class="form-title" style="margin-top: 15px;">LAPORAN HASIL PERJALANAN</div>
+            <td width="50%" style="vertical-align: middle;">
+                <div class="form-title" style="margin-top: 0;">LAPORAN HASIL PERJALANAN</div>
                 <div class="form-subtitle">UPCOUNTRY (UC)</div>
             </td>
             <td width="50%" align="right">
