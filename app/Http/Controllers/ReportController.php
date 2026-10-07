@@ -957,7 +957,7 @@ class ReportController extends Controller
                   ->orWhere('nama_produk', 'like', "%{$search}%");
             });
         }
-        $logistik = $logistikQuery->take(2000)->get();
+        $logistik = $logistikQuery->orderBy('id', 'desc')->take(2000)->get();
 
         if ($keteranganFilter) $pesananQuery->where('keterangan', $keteranganFilter);
         if ($outletFilter) {
@@ -980,7 +980,7 @@ class ReportController extends Controller
                   ->orWhere('nama_produk', 'like', "%{$search}%");
             });
         }
-        $pesanan = $pesananQuery->take(2000)->get();
+        $pesanan = $pesananQuery->orderBy('id', 'desc')->take(2000)->get();
 
         if ($outletFilter) {
             $piutangQuery->where(function($q) use ($outletNamesToSearch) {
@@ -999,12 +999,12 @@ class ReportController extends Controller
         if ($search) {
             $piutangQuery->where('nama_outlet', 'like', "%{$search}%");
         }
-        $piutang = $piutangQuery->take(2000)->get();
+        $piutang = $piutangQuery->orderBy('id', 'desc')->take(2000)->get();
 
         if ($search) {
             $hutangQuery->where('nama_penyedia', 'like', "%{$search}%");
         }
-        $hutang = $hutangQuery->take(2000)->get();
+        $hutang = $hutangQuery->orderBy('id', 'desc')->take(2000)->get();
 
         // --- HITUNG RINGKASAN ---
         $totalPenjualan = 0;
