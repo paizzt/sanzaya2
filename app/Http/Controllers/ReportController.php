@@ -476,6 +476,12 @@ class ReportController extends Controller
                 }
             }
 
+            foreach ($targetDetail as $key => $val) {
+                if (isset($capaianDetail[$key])) {
+                    $targetDetail[$key] = $val . ' (' . $capaianDetail[$key] . ')';
+                }
+            }
+
             $targetTahunan = null;
             $capaianTahunan = null;
             $targetTahunanDetail = [];
