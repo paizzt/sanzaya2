@@ -809,21 +809,23 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                                     <div className="relative z-10 mb-4">
                                         <div className="flex justify-between items-start">
-                                            <p className="text-sm font-semibold text-gray-500">Target Bulanan</p>
+                                            <p className="text-sm font-semibold text-gray-500">Penjualan Bulanan</p>
                                             <span className="text-xs font-bold text-pink-700 bg-pink-50 border border-pink-100 px-2.5 py-1 rounded-full shadow-sm">
                                                 {summary.capaian_target || '0%'}
                                             </span>
                                         </div>
                                         <div className="mt-2">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs font-medium text-gray-400">Total Penjualan:</span>
-                                                <span className="text-sm font-bold text-blue-600">{summary.total_penjualan_bulan_ini || 'Rp 0'}</span>
+                                                <span className="text-xs font-medium text-gray-500">Target:</span>
+                                                <span className="text-sm font-bold text-gray-600">{summary.target_bulanan || 'Rp 0'}</span>
                                             </div>
-                                            <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900" title={summary.target_bulanan || 'Rp 0'}>{summary.target_bulanan || 'Rp 0'}</h4>
+                                            <h4 className="text-base sm:text-lg xl:text-2xl leading-snug break-words font-extrabold text-blue-700" title={summary.total_penjualan_bulan_ini || 'Rp 0'}>{summary.total_penjualan_bulan_ini || 'Rp 0'}</h4>
                                         </div>
                                     </div>
                                     <div className="relative z-10">
-                                        <p className="text-xs text-gray-400">Target penjualan bulanan dan capaian</p>
+                                        <p className="text-xs text-blue-600 font-medium opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                            <span>Klik untuk detail PT</span>
+                                        </p>
                                     </div>
                                 </div>
                         )}
@@ -841,21 +843,23 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
                                     <div className="relative z-10 mb-4">
                                         <div className="flex justify-between items-start">
-                                            <p className="text-sm font-semibold text-gray-500">Target Tahunan</p>
+                                            <p className="text-sm font-semibold text-gray-500">Penjualan Tahunan</p>
                                             <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full shadow-sm">
                                                 {summary.capaian_tahunan || '0%'}
                                             </span>
                                         </div>
                                         <div className="mt-2">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs font-medium text-gray-400">Total Penjualan:</span>
-                                                <span className="text-sm font-bold text-indigo-600">{summary.total_penjualan || 'Rp 0'}</span>
+                                                <span className="text-xs font-medium text-gray-500">Target:</span>
+                                                <span className="text-sm font-bold text-gray-600">{summary.target_tahunan || 'Rp 0'}</span>
                                             </div>
-                                            <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900" title={summary.target_tahunan || 'Rp 0'}>{summary.target_tahunan || 'Rp 0'}</h4>
+                                            <h4 className="text-base sm:text-lg xl:text-2xl leading-snug break-words font-extrabold text-indigo-700" title={summary.total_penjualan || 'Rp 0'}>{summary.total_penjualan || 'Rp 0'}</h4>
                                         </div>
                                     </div>
                                     <div className="relative z-10">
-                                        <p className="text-xs text-gray-400">Target dan total penjualan keseluruhan</p>
+                                        <p className="text-xs text-indigo-600 font-medium opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                            <span>Klik untuk detail PT</span>
+                                        </p>
                                     </div>
                                 </div>
                         )}
