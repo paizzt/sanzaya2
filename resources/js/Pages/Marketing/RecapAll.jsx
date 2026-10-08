@@ -448,7 +448,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                                             <div className="mt-1 w-2 h-2 rounded-full bg-red-400 shrink-0"></div>
                                                             <div>
                                                                 <p className="text-xs font-bold text-gray-800">{k.outlet} <span className="font-normal text-gray-400">({k.date})</span></p>
-                                                                <p className="text-sm text-gray-600 mt-1 leading-relaxed">{k.description}</p>
+                                                                <p className="text-sm text-gray-600 mt-1 leading-relaxed whitespace-pre-line">{k.description}</p>
                                                             </div>
                                                         </li>
                                                     ))}

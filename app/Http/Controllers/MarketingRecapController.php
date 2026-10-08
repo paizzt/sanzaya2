@@ -116,11 +116,11 @@ class MarketingRecapController extends Controller
             return $newUser;
         })->sortByDesc('report_count')->values();
 
-        // Kendala summary
         $kendalaReports = (clone $periodQuery)
             ->where(function($q) {
                 $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
-                  ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '');
+                  ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '')
+                  ->orWhereNotNull('visit_result')->where('visit_result', '!=', '');
             })
             ->with('outlet:id,name')
             ->orderBy('visit_date', 'desc')
@@ -138,15 +138,21 @@ class MarketingRecapController extends Controller
             $userId = $k->user_id;
             if (isset($kendalaPerUser[$userId])) {
                 $desc = '';
+                if ($k->visit_result) {
+                    $desc .= 'Hasil: ' . $k->visit_result . "\n";
+                }
+
                 if ($k->issue_type && $k->issue_description) {
-                    $desc = $k->issue_type . ': ' . $k->issue_description;
+                    $desc .= 'Kendala (' . $k->issue_type . '): ' . $k->issue_description . "\n";
                 } elseif ($k->issue_description) {
-                    $desc = $k->issue_description;
+                    $desc .= 'Kendala: ' . $k->issue_description . "\n";
                 }
                 
                 if ($k->competitor_notes) {
-                    $desc .= ($desc ? ' | ' : '') . 'Kompetitor: ' . $k->competitor_notes;
+                    $desc .= 'Kompetitor: ' . $k->competitor_notes;
                 }
+
+                $desc = trim($desc);
 
                 if ($desc) {
                     $kendalaPerUser[$userId]['kendal_list'][] = [
