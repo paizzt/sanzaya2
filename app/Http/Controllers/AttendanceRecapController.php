@@ -92,8 +92,14 @@ class AttendanceRecapController extends Controller
         // Calculate User Summaries
         $userSummaries = [];
         $users = \App\Models\User::all();
+        $usersQuery = \App\Models\User::query();
+        if ($selectedUserId !== 'all') {
+            $usersQuery->where('id', $selectedUserId);
+        }
+        $usersToSummarize = $usersQuery->get();
+        
         $userWorkDays = [];
-        foreach ($users as $user) {
+        foreach ($usersToSummarize as $user) {
             $userWorkDays[$user->id] = $user->work_days_per_week ?? 6;
             $userSummaries[$user->id] = [
                 'name' => $user->name,
