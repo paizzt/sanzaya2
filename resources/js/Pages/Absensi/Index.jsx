@@ -123,28 +123,37 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
             },
             (error) => {
                 setIsLocating(false);
-                let msg = 'Gagal mendapatkan lokasi GPS. Pastikan GPS/Lokasi perangkat Anda aktif.';
                 if (error.code === 1) {
-                    msg = `<b>Akses lokasi ditolak oleh browser.</b><br><br>
-                           Jika browser sudah memblokir permanen, sistem tidak bisa meminta izin lagi otomatis. Silakan buka kunci secara manual:<br><br>
-                           1. Klik ikon <b>Gembok/Settings</b> di samping alamat web (di atas).<br>
-                           2. Pilih <b>Izin (Permissions)</b>.<br>
-                           3. Ubah Izin Lokasi (Location) menjadi <b>Izinkan (Allow)</b>.<br>
-                           4. Muat ulang (Refresh) halaman ini.`;
+                    Swal.fire({
+                        title: 'Akses Lokasi Ditolak',
+                        text: 'Karena akses lokasi ditolak oleh browser, Anda diwajibkan untuk melampirkan foto bukti kehadiran sebagai gantinya.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ambil Foto',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#3b82f6',
+                        customClass: { popup: 'rounded-2xl' }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            setPendingAttendance({ type, latitude: 0, longitude: 0 });
+                            setShowWebcamModal(true);
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error Lokasi',
+                        text: 'Gagal mendapatkan lokasi GPS. Pastikan GPS/Lokasi perangkat Anda aktif.',
+                        icon: 'error',
+                        showCancelButton: true,
+                        confirmButtonText: 'Coba Lagi',
+                        cancelButtonText: 'Tutup',
+                        confirmButtonColor: '#3b82f6',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            submitAttendance(type);
+                        }
+                    });
                 }
-                Swal.fire({
-                    title: 'Error Lokasi',
-                    html: msg,
-                    icon: 'error',
-                    showCancelButton: true,
-                    confirmButtonText: 'Coba Lagi',
-                    cancelButtonText: 'Tutup',
-                    confirmButtonColor: '#3b82f6',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        submitAttendance(type);
-                    }
-                });
             },
             {
                 enableHighAccuracy: true,
