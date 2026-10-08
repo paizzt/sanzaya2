@@ -152,9 +152,9 @@ export default function Index({ auth, reports }) {
                                                                 'bg-gray-100 text-gray-700 border-gray-200 focus:border-gray-500 focus:ring-gray-200'
                                                             }`}
                                                         >
-                                                            <option value="belum proses">Belum Proses</option>
-                                                            <option value="di proses">Di Proses</option>
-                                                            <option value="selesai">Selesai</option>
+                                                            <option className="bg-white text-gray-900" value="belum proses">Belum Proses</option>
+                                                            <option className="bg-white text-gray-900" value="di proses">Di Proses</option>
+                                                            <option className="bg-white text-gray-900" value="selesai">Selesai</option>
                                                         </select>
                                                         
                                                         {report.user_id && (
