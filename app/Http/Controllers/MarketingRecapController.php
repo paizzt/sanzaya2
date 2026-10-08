@@ -119,8 +119,7 @@ class MarketingRecapController extends Controller
         $kendalaReports = (clone $periodQuery)
             ->where(function($q) {
                 $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
-                  ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '')
-                  ->orWhereNotNull('visit_result')->where('visit_result', '!=', '');
+                  ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '');
             })
             ->with('outlet:id,name')
             ->orderBy('visit_date', 'desc')
@@ -221,8 +220,7 @@ class MarketingRecapController extends Controller
             $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')->orderBy('visit_time', 'desc')
                 ->where(function($q) {
                     $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
-                      ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '')
-                      ->orWhereNotNull('visit_result')->where('visit_result', '!=', '');
+                      ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '');
                 });
             if ($salesUserId) $query->where('user_id', $salesUserId);
             if ($startDate) $query->where('visit_date', '>=', $startDate);
@@ -288,8 +286,7 @@ class MarketingRecapController extends Controller
             $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')
                 ->where(function($q) {
                     $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
-                      ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '')
-                      ->orWhereNotNull('visit_result')->where('visit_result', '!=', '');
+                      ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '');
                 });
             if ($salesUserId) $query->where('user_id', $salesUserId);
             if ($startDate) $query->where('visit_date', '>=', $startDate);
