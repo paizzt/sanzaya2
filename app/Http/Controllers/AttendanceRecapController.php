@@ -314,6 +314,91 @@ class AttendanceRecapController extends Controller
             return strtotime($dateB) - strtotime($dateA);
         });
 
+        // OVERRIDE SUMMARY UNTUK HARI INI SAJA
+        $todayStr = Carbon::today()->format('Y-m-d');
+        
+        $todayAttendancesQuery = \App\Models\Attendance::where('date', $todayStr);
+        if ($selectedUserId !== 'all') {
+            $todayAttendancesQuery->where('user_id', $selectedUserId);
+        }
+        $todayAttendances = $todayAttendancesQuery->get();
+
+        $todayRequestsQuery = \App\Models\AttendanceRequest::where('status', '!=', 'Ditolak')
+            ->where('start_date', '<=', $todayStr)
+            ->where('end_date', '>=', $todayStr);
+        if ($selectedUserId !== 'all') {
+            $todayRequestsQuery->where('user_id', $selectedUserId);
+        }
+        $todayRequests = $todayRequestsQuery->get();
+
+        $summary = [
+            'hadir' => $todayAttendances->where('status', 'Hadir')->count(),
+            'sakit' => 0,
+            'izin' => 0,
+            'alpa' => 0,
+            'lembur' => $todayAttendances->where('status', 'Lembur')->count(),
+            'terlambat' => 0
+        ];
+
+        foreach ($todayRequests as $req) {
+            if (strtolower($req->type) === 'sakit') {
+                $summary['sakit']++;
+            } elseif (strtolower($req->type) === 'lembur') {
+                $summary['lembur']++;
+            } else {
+                $summary['izin']++;
+            }
+        }
+
+        foreach ($todayAttendances as $att) {
+            if ($att->status == 'Hadir') {
+                $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
+                $isLemburYesterday = \App\Models\Attendance::where('user_id', $att->user_id)
+                    ->where('date', $prevDate)
+                    ->where('check_out_time', '>=', '20:00:00')
+                    ->exists();
+                $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
+                
+                if ($att->check_in_time > $threshold) {
+                    $summary['terlambat']++;
+                }
+
+                if ($att->check_out_time && $att->check_out_time >= '20:00:00') {
+                    $summary['lembur']++;
+                }
+            }
+        }
+
+        $todayDate = Carbon::today();
+        $isWeekday = $todayDate->isWeekday();
+        $isSaturday = $todayDate->dayOfWeek === Carbon::SATURDAY;
+
+        if ($isWeekday || $isSaturday) {
+            $expectedUsers = 0;
+            foreach ($activeUsers as $usr) {
+                if ($selectedUserId !== 'all' && $usr->id != $selectedUserId) {
+                    continue;
+                }
+                
+                $workDays = $usr->work_days_per_week ?? 6;
+                $isWorkingDayForUser = false;
+                
+                if ($workDays == 5 && $isWeekday) {
+                    $isWorkingDayForUser = true;
+                } elseif ($workDays == 6 && ($isWeekday || $isSaturday)) {
+                    $isWorkingDayForUser = true;
+                }
+
+                if ($isWorkingDayForUser) {
+                    $expectedUsers++;
+                }
+            }
+            $attendedTodayCount = $summary['hadir'] + $summary['sakit'] + $summary['izin'];
+            $summary['alpa'] = max(0, $expectedUsers - $attendedTodayCount);
+        } else {
+            $summary['alpa'] = 0;
+        }
+
         return [
             'recapList' => $recapList,
             'summary' => $summary,

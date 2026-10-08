@@ -270,7 +270,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <CheckCircle2 className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Hadir</p>
+                            <p className="text-sm text-gray-500 font-medium">Hadir (Hari Ini)</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.hadir}</h4>
                         </div>
                     </div>
@@ -282,7 +282,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <AlertCircle className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Sakit</p>
+                            <p className="text-sm text-gray-500 font-medium">Sakit (Hari Ini)</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.sakit}</h4>
                         </div>
                     </div>
@@ -294,7 +294,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <ClipboardCheck className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Izin</p>
+                            <p className="text-sm text-gray-500 font-medium">Izin (Hari Ini)</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.izin}</h4>
                         </div>
                     </div>
@@ -306,7 +306,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <AlertCircle className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Alpa</p>
+                            <p className="text-sm text-gray-500 font-medium">Alpa (Hari Ini)</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.alpa}</h4>
                         </div>
                     </div>
@@ -319,7 +319,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <Clock className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Terlambat</p>
+                            <p className="text-sm text-gray-500 font-medium">Terlambat (Hari Ini)</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.terlambat || 0}</h4>
                         </div>
                     </div>
