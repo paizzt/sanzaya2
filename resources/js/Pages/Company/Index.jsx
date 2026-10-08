@@ -23,7 +23,7 @@ const formatCurrencyInput = (value) => {
 
 const parseCurrencyInput = (value) => {
     if (!value) return '';
-    return value.toString().replace(/[^0-9]/g, '');
+    return value.toString().split(',')[0].replace(/[^0-9]/g, '');
 };
 
 export default function Index({ auth, companies, companyTargets = [], is_super_admin }) {
@@ -209,20 +209,29 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
 
             <div className="py-6">
                 <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 w-full">
-                        <div className="w-full sm:w-auto">
-                            <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
+                    <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                <Building2 className="w-6 h-6 text-blue-600" />
+                                Manajemen Perusahaan
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-1">Kelola data, logo, koordinat lokasi, dan waktu operasional perusahaan.</p>
                         </div>
-                        {is_super_admin && (
-                            <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap bg-blue-600 hover:bg-blue-700">
-                                <Target className="w-4 h-4 mr-2" />
-                                Target
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                            <div className="w-full sm:w-auto">
+                                <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
+                            </div>
+                            {is_super_admin && (
+                                <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-xl">
+                                    <Target className="w-4 h-4 mr-2" />
+                                    Target
+                                </PrimaryButton>
+                            )}
+                            <PrimaryButton onClick={() => openModal()} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap rounded-xl">
+                                <Plus className="w-4 h-4 mr-2" />
+                                Tambah
                             </PrimaryButton>
-                        )}
-                        <PrimaryButton onClick={() => openModal()} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Tambah
-                        </PrimaryButton>
+                        </div>
                     </div>
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">

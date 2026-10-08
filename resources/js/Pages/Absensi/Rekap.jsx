@@ -217,9 +217,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
             <div className="pb-6 pt-0 space-y-6">
                 
-                {/* Filter Section */}
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-end gap-4">
-                    <div className="w-full md:w-1/4">
+                {/* Filter & Search Section */}
+                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-end gap-4">
+                    <div className="w-full lg:w-1/6">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
                         <CustomSelect 
                             value={data.month} 
@@ -227,7 +227,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             options={monthOptions} 
                         />
                     </div>
-                    <div className="w-full md:w-1/4">
+                    <div className="w-full lg:w-1/6">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
                         <CustomSelect 
                             value={data.year} 
@@ -235,7 +235,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             options={yearOptions} 
                         />
                     </div>
-                    <div className="w-full md:w-1/3">
+                    <div className="w-full lg:w-1/4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Karyawan</label>
                         <CustomSelect 
                             value={data.user_id} 
@@ -243,21 +243,21 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             options={userOptions} 
                         />
                     </div>
-                    <div className="w-full md:w-auto flex gap-2">
-                        <PrimaryButton onClick={handleFilter} >
-                            <Search className="w-4 h-4" /> Tampilkan
+                    <div className="w-full lg:w-1/4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Cari Karyawan / Status</label>
+                        <TextInput
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="block w-full"
+                            placeholder="Ketik nama karyawan..."
+                        />
+                    </div>
+                    <div className="w-full lg:w-auto flex gap-2">
+                        <PrimaryButton onClick={handleFilter} className="w-full justify-center">
+                            <Search className="w-4 h-4 mr-2" /> Tampilkan
                         </PrimaryButton>
                     </div>
-                </div>
-
-                {/* Search Input */}
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center">
-                    <TextInput
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="block w-full max-w-md"
-                    />
                 </div>
 
                 {/* Summary Cards */}

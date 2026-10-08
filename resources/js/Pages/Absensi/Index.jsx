@@ -126,7 +126,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                 let msg = 'Gagal mendapatkan lokasi GPS. Pastikan GPS/Lokasi perangkat Anda aktif.';
                 if (error.code === 1) {
                     msg = `<b>Akses lokasi ditolak oleh browser.</b><br><br>
-                           Sistem tidak bisa meminta izin lagi secara otomatis. Anda harus mengizinkannya secara manual:<br><br>
+                           Jika browser sudah memblokir permanen, sistem tidak bisa meminta izin lagi otomatis. Silakan buka kunci secara manual:<br><br>
                            1. Klik ikon <b>Gembok/Settings</b> di samping alamat web (di atas).<br>
                            2. Pilih <b>Izin (Permissions)</b>.<br>
                            3. Ubah Izin Lokasi (Location) menjadi <b>Izinkan (Allow)</b>.<br>
@@ -135,7 +135,15 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                 Swal.fire({
                     title: 'Error Lokasi',
                     html: msg,
-                    icon: 'error'
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonText: 'Coba Lagi',
+                    cancelButtonText: 'Tutup',
+                    confirmButtonColor: '#3b82f6',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        submitAttendance(type);
+                    }
                 });
             },
             {

@@ -26,6 +26,8 @@ export default function CurrencyInput({ value, onChange, className = '', ...prop
 
     const handleChange = (e) => {
         let val = e.target.value;
+        // If user typed a comma for decimals, ignore the decimal part
+        val = val.split(',')[0];
         // Remove everything except numbers
         val = val.replace(/[^0-9]/g, '');
 

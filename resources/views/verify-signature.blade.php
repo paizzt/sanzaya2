@@ -29,7 +29,7 @@
                 <p class="text-gray-900 font-medium">{{ optional($user->division)->name ?? $user->role ?? 'Admin' }}</p>
             </div>
             <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Terdaftar Sejak</p>
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Tanggal Masuk</p>
                 <p class="text-gray-900 font-medium">{{ $user->start_date ? \Carbon\Carbon::parse($user->start_date)->format('d F Y') : $user->created_at->format('d F Y') }}</p>
             </div>
         </div>
