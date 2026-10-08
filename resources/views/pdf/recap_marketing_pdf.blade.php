@@ -34,7 +34,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>REKAPITULASI MARKETING ({{ strtoupper($type) }})</h1>
+        <h1>REKAPITULASI MARKETING{{ $type === 'kendala' ? '' : ' (' . strtoupper($type) . ')' }}</h1>
         <p>Dicetak pada: {{ date('d-m-Y H:i') }}</p>
     </div>
 
