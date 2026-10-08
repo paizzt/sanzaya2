@@ -168,11 +168,21 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         ...users.map(u => ({ value: u.id.toString(), label: u.name }))
     ];
 
-    const filteredUserSummaries = userSummaries?.filter(u => 
-        u.name.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
-
     const [statusFilter, setStatusFilter] = useState('all');
+
+    const filteredUserSummaries = userSummaries?.filter(u => {
+        const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase());
+        if (!matchesSearch) return false;
+        
+        if (statusFilter === 'all') return true;
+        if (statusFilter === 'Hadir') return u.hadir > 0;
+        if (statusFilter === 'Sakit') return u.sakit > 0;
+        if (statusFilter === 'Izin') return u.izin > 0;
+        if (statusFilter === 'Alpa') return u.alpa > 0;
+        if (statusFilter === 'Terlambat') return u.terlambat > 0;
+        
+        return true;
+    }) || [];
 
     const filteredRecapList = recapList?.filter(item => {
         const matchesSearch = item.user_name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -270,7 +280,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <CheckCircle2 className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Hadir (Hari Ini)</p>
+                            <p className="text-sm text-gray-500 font-medium">Hadir</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.hadir}</h4>
                         </div>
                     </div>
@@ -282,7 +292,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <AlertCircle className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Sakit (Hari Ini)</p>
+                            <p className="text-sm text-gray-500 font-medium">Sakit</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.sakit}</h4>
                         </div>
                     </div>
@@ -294,7 +304,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <ClipboardCheck className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Izin (Hari Ini)</p>
+                            <p className="text-sm text-gray-500 font-medium">Izin</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.izin}</h4>
                         </div>
                     </div>
@@ -306,7 +316,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <AlertCircle className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Alpa (Hari Ini)</p>
+                            <p className="text-sm text-gray-500 font-medium">Alpa</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.alpa}</h4>
                         </div>
                     </div>
@@ -319,7 +329,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <Clock className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">Terlambat (Hari Ini)</p>
+                            <p className="text-sm text-gray-500 font-medium">Terlambat</p>
                             <h4 className="text-2xl font-black text-gray-800">{summary.terlambat || 0}</h4>
                         </div>
                     </div>
