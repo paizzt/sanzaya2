@@ -82,7 +82,20 @@
                         @if($report->photos)
                             @php $photos = json_decode($report->photos, true); @endphp
                             @if(is_array($photos) && count($photos) > 0)
-                                <img src="{{ str_starts_with($photos[0], 'http') ? $photos[0] : public_path('storage/' . $photos[0]) }}" style="max-width: 60px; max-height: 40px; margin-bottom: 2px; border-radius: 4px;">
+                                @php
+                                    $photoPath = storage_path('app/public/' . $photos[0]);
+                                    $base64 = '';
+                                    if(file_exists($photoPath)) {
+                                        $type = pathinfo($photoPath, PATHINFO_EXTENSION);
+                                        $data = file_get_contents($photoPath);
+                                        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                                    } else {
+                                        $base64 = str_starts_with($photos[0], 'http') ? $photos[0] : '';
+                                    }
+                                @endphp
+                                @if($base64)
+                                    <img src="{{ $base64 }}" style="max-width: 60px; max-height: 40px; margin-bottom: 2px; border-radius: 4px;">
+                                @endif
                                 @if(count($photos) > 1)
                                     <div style="font-size: 8px; color: #666;">+{{ count($photos) - 1 }} foto</div>
                                 @endif
@@ -91,7 +104,20 @@
                         
                         @if($report->signature)
                             <div style="font-size: 10px; color: #666; border-top: 1px solid #eee; padding-top: 3px;">[Tanda Tangan PIC]</div>
-                            <img src="{{ str_starts_with($report->signature, 'http') ? $report->signature : public_path('storage/' . $report->signature) }}" style="max-width: 60px; max-height: 40px; margin-top: 2px;">
+                            @php
+                                $sigPath = storage_path('app/public/' . $report->signature);
+                                $sigBase64 = '';
+                                if(file_exists($sigPath)) {
+                                    $sigType = pathinfo($sigPath, PATHINFO_EXTENSION);
+                                    $sigData = file_get_contents($sigPath);
+                                    $sigBase64 = 'data:image/' . $sigType . ';base64,' . base64_encode($sigData);
+                                } else {
+                                    $sigBase64 = str_starts_with($report->signature, 'http') ? $report->signature : '';
+                                }
+                            @endphp
+                            @if($sigBase64)
+                                <img src="{{ $sigBase64 }}" style="max-width: 60px; max-height: 40px; margin-top: 2px;">
+                            @endif
                         @endif
                     </td>
                 </tr>
