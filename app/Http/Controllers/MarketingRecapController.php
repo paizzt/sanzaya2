@@ -116,14 +116,14 @@ class MarketingRecapController extends Controller
             return $newUser;
         })->sortByDesc('report_count')->values();
 
-        $kendalaReports = (clone $periodQuery)
-            ->where(function($q) {
-                $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
-                  ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '');
-            })
+        $allReports = (clone $periodQuery)
             ->with('outlet:id,name')
             ->orderBy('visit_date', 'desc')
             ->get();
+        
+        $kendalaReports = $allReports->filter(function($r) {
+            return $this->isRealKendala($r);
+        })->values();
 
         $kendalaPerUser = [];
         foreach ($salesUsers as $user) {
@@ -217,15 +217,13 @@ class MarketingRecapController extends Controller
             if ($endDate) $query->where('visit_date', '<=', $endDate);
             $data['reports'] = $query->get();
         } elseif ($type === 'kendala') {
-            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')->orderBy('visit_time', 'desc')
-                ->where(function($q) {
-                    $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
-                      ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '');
-                });
+            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')->orderBy('visit_time', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
             if ($startDate) $query->where('visit_date', '>=', $startDate);
             if ($endDate) $query->where('visit_date', '<=', $endDate);
-            $data['reports'] = $query->get();
+            $data['reports'] = $query->get()->filter(function($r) {
+                return $this->isRealKendala($r);
+            })->values();
         } else {
             $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc')->orderBy('week_number', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
@@ -283,15 +281,13 @@ class MarketingRecapController extends Controller
             });
             $title = 'Rekap_Laporan_Marketing';
         } elseif ($type === 'kendala') {
-            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')
-                ->where(function($q) {
-                    $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
-                      ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '');
-                });
+            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
             if ($startDate) $query->where('visit_date', '>=', $startDate);
             if ($endDate) $query->where('visit_date', '<=', $endDate);
-            $items = $query->get();
+            $items = $query->get()->filter(function($r) {
+                return $this->isRealKendala($r);
+            })->values();
             
             $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Kendala', 'Hasil', 'Kompetitor'];
             $rows = $items->map(function($item, $key) {
@@ -313,5 +309,49 @@ class MarketingRecapController extends Controller
         }
 
         return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new \App\Exports\GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($rows, $headings), $title . '_' . date('YmdHis') . '.xlsx');
+    }
+
+    private function isRealKendala($report)
+    {
+        $ignoreWords = ['-', ' ', '', '.', 'tidak ada', 'tidak ada kendala', 'tidaj ada', 'nihil', 'aman', 'lancar', '0', 'ss', 'onemed', 'triton'];
+        
+        $issue = strtolower(trim($report->issue_description ?? ''));
+        if ($issue && !in_array($issue, $ignoreWords)) {
+            return true;
+        }
+
+        $comp = strtolower(trim($report->competitor_notes ?? ''));
+        if ($comp && !in_array($comp, $ignoreWords)) {
+            if (str_word_count($comp) > 2 || strlen($comp) > 15) {
+                return true;
+            }
+        }
+
+        $result = strtolower(trim($report->visit_result ?? ''));
+        if ($result) {
+            $routines = ['bawa berkas', 'perkenalan diri', 'kerja berkas', 'tanda tangan', 'kunjungan rutin', 'silaturahmi', 'memperkenal diri', 'memperkenalkan diri'];
+            foreach ($routines as $r) {
+                if (str_contains($result, $r)) {
+                    $hasNegative = false;
+                    $negatives = ['belum', 'bayar', 'pembayaran', 'cair', 'terelisasikan', 'mahal', 'kosong', 'komplain', 'rusak', 'tunggu'];
+                    foreach ($negatives as $n) {
+                        if (str_contains($result, $n)) {
+                            $hasNegative = true;
+                            break;
+                        }
+                    }
+                    if (!$hasNegative) return false;
+                }
+            }
+
+            $issueKeywords = ['pembayaran', 'terelisasikan', 'tunggakan', 'mahal', 'kosong', 'komplain', 'rusak', 'tolak', 'batal', 'kendala', 'pending'];
+            foreach ($issueKeywords as $kw) {
+                if (str_contains($result, $kw)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
