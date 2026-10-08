@@ -380,20 +380,24 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                             </div>
 
                             {/* Lampiran Tambahan */}
-                            {paymentRequest.attachments?.find(a => a.attachment_type === 'Lampiran Foto') && (
-                                <div className="bg-white p-6 rounded-lg shadow-sm">
-                                    <h3 className="text-lg font-bold border-b pb-2 mb-4">Lampiran Tambahan</h3>
-                                    <div>
-                                        <a href={`/storage/${paymentRequest.attachments.find(a => a.attachment_type === 'Lampiran Foto').file_path}`} target="_blank" rel="noopener noreferrer">
-                                            <img 
-                                                src={`/storage/${paymentRequest.attachments.find(a => a.attachment_type === 'Lampiran Foto').file_path}`} 
-                                                alt="Lampiran" 
-                                                className="w-full max-w-md rounded-lg shadow-sm border"
-                                            />
-                                        </a>
+                            {paymentRequest.attachments?.find(a => a.attachment_type === 'Lampiran Foto') && (() => {
+                                const attachment = paymentRequest.attachments.find(a => a.attachment_type === 'Lampiran Foto');
+                                const imgUrl = attachment.file_path.startsWith('http') ? attachment.file_path : `/storage/${attachment.file_path}`;
+                                return (
+                                    <div className="bg-white p-6 rounded-lg shadow-sm">
+                                        <h3 className="text-lg font-bold border-b pb-2 mb-4">Lampiran Tambahan</h3>
+                                        <div>
+                                            <a href={imgUrl} target="_blank" rel="noopener noreferrer">
+                                                <img 
+                                                    src={imgUrl} 
+                                                    alt="Lampiran" 
+                                                    className="w-full max-w-md rounded-lg shadow-sm border"
+                                                />
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                );
+                            })()}
                         </div>
                     </div>
                 </div>

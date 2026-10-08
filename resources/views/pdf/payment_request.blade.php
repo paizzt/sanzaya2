@@ -299,10 +299,17 @@
             <p style="font-weight: bold; margin-bottom: 10px;">Lampiran / Bukti Pendukung:</p>
             <div>
                 @foreach($paymentRequest->attachments as $attachment)
-                    @if($attachment->attachment_type === 'Lampiran Foto' && file_exists(public_path('storage/' . $attachment->file_path)))
-                        <div style="margin-bottom: 15px; text-align: center;">
-                            <img src="{{ public_path('storage/' . $attachment->file_path) }}" style="max-width: 90%; max-height: 400px; border: 1px solid #ccc; padding: 5px;" />
-                        </div>
+                    @if($attachment->attachment_type === 'Lampiran Foto')
+                        @php
+                            $isHttp = str_starts_with($attachment->file_path, 'http');
+                            $isValid = $isHttp || file_exists(public_path('storage/' . $attachment->file_path));
+                            $imgSrc = $isHttp ? $attachment->file_path : public_path('storage/' . $attachment->file_path);
+                        @endphp
+                        @if($isValid)
+                            <div style="margin-bottom: 15px; text-align: center;">
+                                <img src="{{ $imgSrc }}" style="max-width: 90%; max-height: 400px; border: 1px solid #ccc; padding: 5px;" />
+                            </div>
+                        @endif
                     @endif
                 @endforeach
             </div>

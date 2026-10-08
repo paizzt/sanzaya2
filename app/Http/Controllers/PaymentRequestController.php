@@ -271,7 +271,20 @@ class PaymentRequestController extends Controller
 
             if ($request->hasFile('lampiran_foto')) {
                 $file = $request->file('lampiran_foto');
-                $path = $file->store('payment_requests', 'public');
+                
+                $response = \Illuminate\Support\Facades\Http::attach(
+                    'image', 
+                    file_get_contents($file->getRealPath()), 
+                    $file->getClientOriginalName()
+                )->post('https://api.imgbb.com/1/upload', [
+                    'key' => '5950b44b24860057ff810fe73f58868b'
+                ]);
+
+                if ($response->successful()) {
+                    $path = $response->json('data.url');
+                } else {
+                    $path = $file->store('payment_requests', 'public');
+                }
                 \Illuminate\Support\Facades\DB::table('payment_request_attachments')->insert([
                     'payment_request_id' => $paymentRequest->id,
                     'attachment_type' => 'Lampiran Foto',
@@ -511,7 +524,20 @@ class PaymentRequestController extends Controller
 
             if ($request->hasFile('lampiran_foto')) {
                 $file = $request->file('lampiran_foto');
-                $path = $file->store('payment_requests', 'public');
+                
+                $response = \Illuminate\Support\Facades\Http::attach(
+                    'image', 
+                    file_get_contents($file->getRealPath()), 
+                    $file->getClientOriginalName()
+                )->post('https://api.imgbb.com/1/upload', [
+                    'key' => '5950b44b24860057ff810fe73f58868b'
+                ]);
+
+                if ($response->successful()) {
+                    $path = $response->json('data.url');
+                } else {
+                    $path = $file->store('payment_requests', 'public');
+                }
                 
                 $oldAttachment = \Illuminate\Support\Facades\DB::table('payment_request_attachments')
                     ->where('payment_request_id', $paymentRequest->id)
@@ -519,7 +545,9 @@ class PaymentRequestController extends Controller
                     ->first();
                     
                 if ($oldAttachment) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAttachment->file_path);
+                    if (!str_starts_with($oldAttachment->file_path, 'http')) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAttachment->file_path);
+                    }
                     \Illuminate\Support\Facades\DB::table('payment_request_attachments')
                         ->where('id', $oldAttachment->id)
                         ->update([
@@ -746,7 +774,7 @@ class PaymentRequestController extends Controller
         $qrCode = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(100)->generate($qrUrl));
 
         try {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.payment_request', [
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true])->loadView('pdf.payment_request', [
                 'paymentRequest' => $paymentRequest,
                 'qrCode' => $qrCode
             ]);

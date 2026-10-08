@@ -282,14 +282,18 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                       hover:file:bg-indigo-100 border border-gray-300 rounded-md p-1"
                                 />
                                 <InputError message={errors.lampiran_foto} />
-                                {paymentRequest.attachments?.find(a => a.attachment_type === 'Lampiran Foto') && (
-                                    <div className="mt-2 text-sm text-gray-600">
-                                        Saat ini ada lampiran terpasang: 
-                                        <a href={`/storage/${paymentRequest.attachments.find(a => a.attachment_type === 'Lampiran Foto').file_path}`} target="_blank" className="text-indigo-600 hover:underline ml-1">
-                                            Lihat Foto
-                                        </a>
-                                    </div>
-                                )}
+                                {paymentRequest.attachments?.find(a => a.attachment_type === 'Lampiran Foto') && (() => {
+                                    const attachment = paymentRequest.attachments.find(a => a.attachment_type === 'Lampiran Foto');
+                                    const imgUrl = attachment.file_path.startsWith('http') ? attachment.file_path : `/storage/${attachment.file_path}`;
+                                    return (
+                                        <div className="mt-2 text-sm text-gray-600">
+                                            Saat ini ada lampiran terpasang: 
+                                            <a href={imgUrl} target="_blank" className="text-indigo-600 hover:underline ml-1">
+                                                Lihat Foto
+                                            </a>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
 
