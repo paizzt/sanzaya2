@@ -138,7 +138,7 @@ class MarketingRecapController extends Controller
             if (isset($kendalaPerUser[$userId])) {
                 $desc = '';
                 if ($k->visit_result) {
-                    $desc .= 'Hasil: ' . $k->visit_result . "\n";
+                    $desc .= $k->visit_result . "\n";
                 }
 
                 if ($k->issue_type && $k->issue_description) {
@@ -329,11 +329,11 @@ class MarketingRecapController extends Controller
 
         $result = strtolower(trim($report->visit_result ?? ''));
         if ($result) {
-            $routines = ['bawa berkas', 'perkenalan diri', 'kerja berkas', 'tanda tangan', 'kunjungan rutin', 'silaturahmi', 'memperkenal diri', 'memperkenalkan diri'];
+            $routines = ['bawa berkas', 'perkenalan diri', 'kerja berkas', 'tanda tangan', 'kunjungan rutin', 'silaturahmi', 'memperkenal diri', 'memperkenalkan diri', 'zoom meeting', 'presentasi', 'menawarkan', 'membawa faktur', 'ttd berkas', 'minta orderan', 'koordinasi'];
             foreach ($routines as $r) {
                 if (str_contains($result, $r)) {
                     $hasNegative = false;
-                    $negatives = ['belum', 'bayar', 'pembayaran', 'cair', 'terelisasikan', 'mahal', 'kosong', 'komplain', 'rusak', 'tunggu'];
+                    $negatives = ['belum', 'bayar', 'pembayaran', 'cair', 'terelisasikan', 'mahal', 'kosong', 'komplain', 'rusak', 'tunggu', 'sakit', 'tidak masuk', 'kurang', 'jangan', 'cuti', 'jatuh tempo', 'tdk sesuai', 'kuliah'];
                     foreach ($negatives as $n) {
                         if (str_contains($result, $n)) {
                             $hasNegative = true;
@@ -344,7 +344,7 @@ class MarketingRecapController extends Controller
                 }
             }
 
-            $issueKeywords = ['pembayaran', 'terelisasikan', 'tunggakan', 'mahal', 'kosong', 'komplain', 'rusak', 'tolak', 'batal', 'kendala', 'pending'];
+            $issueKeywords = ['pembayaran', 'terelisasikan', 'tunggakan', 'mahal', 'kosong', 'komplain', 'rusak', 'tolak', 'batal', 'kendala', 'pending', 'sakit', 'tidak masuk', 'belum tahu', 'belum ada pengambilan', 'merk lain', 'hanya pake satu merk', 'pelatihan', 'belum sempat', 'kurang', 'jangan dikirimkan lagi', 'cuti', 'jatuh tempo', 'tdk sesuai', 'kuliah'];
             foreach ($issueKeywords as $kw) {
                 if (str_contains($result, $kw)) {
                     return true;
