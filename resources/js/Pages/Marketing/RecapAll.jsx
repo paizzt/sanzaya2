@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Modal from '@/Components/Modal';
-import { ClipboardList, CalendarDays, Filter, Download, X, Users, CheckCircle, Clock } from 'lucide-react';
+import { ClipboardList, CalendarDays, Filter, Download, X, Users, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import CustomSelect from '@/Components/CustomSelect';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -239,6 +239,9 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                         <button onClick={() => setActiveTab('target')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'target' ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
                             <CalendarDays className="w-5 h-5"/> Rekap Target Bulanan
                         </button>
+                        <button onClick={() => setActiveTab('kendala')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'kendala' ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
+                            <AlertCircle className="w-5 h-5"/> Kesimpulan & Kendala
+                        </button>
                     </div>
                     
                     <div className="w-full md:w-auto mt-2 md:mt-0">
@@ -418,6 +421,56 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                             <div className="mt-4">
                                 <Pagination links={allTargets.links} from={allTargets.from} to={allTargets.to} total={allTargets.total} />
                             </div>
+                        </div>
+                    )}
+
+                    {/* Kesimpulan & Kendala */}
+                    {activeTab === 'kendala' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {summary?.kendala_per_user_period && summary.kendala_per_user_period.length > 0 ? (
+                                summary.kendala_per_user_period.map((mkt, idx) => (
+                                    <div key={idx} className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col hover:border-red-100 transition-colors">
+                                        <div className="flex items-center gap-3 mb-4 border-b border-gray-50 pb-4">
+                                            <div className="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center font-bold">
+                                                <Users className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-gray-800 text-lg leading-none">{mkt.name}</h3>
+                                                <p className="text-xs text-gray-500 mt-1">{mkt.kendal_list.length} Laporan Kendala</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar" style={{maxHeight: '300px'}}>
+                                            {mkt.kendal_list.length > 0 ? (
+                                                <ul className="space-y-4">
+                                                    {mkt.kendal_list.map((k, i) => (
+                                                        <li key={i} className="flex gap-3">
+                                                            <div className="mt-1 w-2 h-2 rounded-full bg-red-400 shrink-0"></div>
+                                                            <div>
+                                                                <p className="text-xs font-bold text-gray-800">{k.outlet} <span className="font-normal text-gray-400">({k.date})</span></p>
+                                                                <p className="text-sm text-gray-600 mt-1 leading-relaxed">{k.description}</p>
+                                                            </div>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <div className="h-full flex flex-col items-center justify-center text-gray-400 p-4">
+                                                    <CheckCircle className="w-8 h-8 mb-2 text-green-400 opacity-50" />
+                                                    <p className="text-sm text-center">Tidak ada kendala yang dilaporkan pada periode ini.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="col-span-full bg-white rounded-3xl p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col items-center justify-center text-center">
+                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                        <AlertCircle className="w-8 h-8 text-gray-300" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-800">Belum Ada Data Kendala</h3>
+                                    <p className="text-gray-500 max-w-md mt-2">Tidak ditemukan catatan kendala lapangan untuk filter periode dan sales yang dipilih.</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

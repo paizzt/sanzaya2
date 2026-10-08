@@ -116,6 +116,48 @@ class MarketingRecapController extends Controller
             return $newUser;
         })->sortByDesc('report_count')->values();
 
+        // Kendala summary
+        $kendalaReports = (clone $periodQuery)
+            ->where(function($q) {
+                $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
+                  ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '');
+            })
+            ->with('outlet:id,name')
+            ->orderBy('visit_date', 'desc')
+            ->get();
+
+        $kendalaPerUser = [];
+        foreach ($salesUsers as $user) {
+            $kendalaPerUser[$user->id] = [
+                'name' => $user->name,
+                'kendal_list' => []
+            ];
+        }
+
+        foreach ($kendalaReports as $k) {
+            $userId = $k->user_id;
+            if (isset($kendalaPerUser[$userId])) {
+                $desc = '';
+                if ($k->issue_type && $k->issue_description) {
+                    $desc = $k->issue_type . ': ' . $k->issue_description;
+                } elseif ($k->issue_description) {
+                    $desc = $k->issue_description;
+                }
+                
+                if ($k->competitor_notes) {
+                    $desc .= ($desc ? ' | ' : '') . 'Kompetitor: ' . $k->competitor_notes;
+                }
+
+                if ($desc) {
+                    $kendalaPerUser[$userId]['kendal_list'][] = [
+                        'date' => \Carbon\Carbon::parse($k->visit_date)->format('d/m/Y'),
+                        'outlet' => $k->outlet ? $k->outlet->name : '-',
+                        'description' => $desc
+                    ];
+                }
+            }
+        }
+
         return Inertia::render('Marketing/RecapAll', [
             'reports' => $reports,
             'summary' => [
@@ -124,6 +166,7 @@ class MarketingRecapController extends Controller
                 'not_reported_users' => $notReportedUsers,
                 'total_reports_period_count' => $totalReportsPeriodCount,
                 'reports_per_user_period' => $reportsPerUserPeriod,
+                'kendala_per_user_period' => array_values($kendalaPerUser),
             ],
             'allTargets' => $allTargets,
             'sales_users' => $salesUsers,
