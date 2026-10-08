@@ -613,7 +613,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
             <Modal show={summaryModalType !== null} onClose={() => setSummaryModalType(null)} maxWidth="xl">
                 <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
                     <h2 className="text-xl font-black text-gray-800">
-                        {summaryModalType === 'reported' ? 'Sudah Melapor Hari Ini' : summaryModalType === 'period_reported' ? 'Total Laporan Periode Ini' : 'Belum Melapor Hari Ini'}
+                        {summaryModalType === 'reported' ? 'Sudah Melapor Hari Ini' : summaryModalType === 'period_reported' ? 'Total Laporan Periode Ini' : summaryModalType === 'unreported' ? 'Belum Melapor Hari Ini' : ''}
                     </h2>
                     <button onClick={() => setSummaryModalType(null)} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
                         <X className="w-5 h-5" />
@@ -660,7 +660,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                         ) : (
                             <div className="text-center py-8 text-gray-500 italic">Belum ada laporan pada periode ini.</div>
                         )
-                    ) : (
+                    ) : summaryModalType === 'unreported' ? (
                         summary?.not_reported_users?.length > 0 ? (
                             <ul className="space-y-2">
                                 {summary.not_reported_users.map(u => (
@@ -675,7 +675,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                         ) : (
                             <div className="text-center py-8 text-gray-500 italic">Semua sales sudah melapor!</div>
                         )
-                    )}
+                    ) : null}
                     <div className="mt-8 flex justify-end">
                         <PrimaryButton onClick={() => setSummaryModalType(null)}>Tutup Detail</PrimaryButton>
                     </div>
