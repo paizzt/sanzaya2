@@ -98,10 +98,24 @@ class SopController extends Controller
             $imagePath = $oldImage;
 
             if ($hasNewImage) {
-                if ($oldImage && \Storage::disk('public')->exists($oldImage)) {
+                if ($oldImage && !str_starts_with($oldImage, 'http') && \Storage::disk('public')->exists($oldImage)) {
                     \Storage::disk('public')->delete($oldImage);
                 }
-                $imagePath = $request->file("step_images.$index")->store('sops/steps', 'public');
+
+                $file = $request->file("step_images.$index");
+                $response = \Illuminate\Support\Facades\Http::attach(
+                    'image', 
+                    file_get_contents($file->getRealPath()), 
+                    $file->getClientOriginalName()
+                )->post('https://api.imgbb.com/1/upload', [
+                    'key' => '5950b44b24860057ff810fe73f58868b'
+                ]);
+
+                if ($response->successful()) {
+                    $imagePath = $response->json('data.url');
+                } else {
+                    $imagePath = $file->store('sops/steps', 'public');
+                }
             }
 
             $stepsData[] = [
@@ -119,13 +133,13 @@ class SopController extends Controller
 
     public function destroy(Sop $sop)
     {
-        if ($sop->image && \Storage::disk('public')->exists($sop->image)) {
+        if ($sop->image && !str_starts_with($sop->image, 'http') && \Storage::disk('public')->exists($sop->image)) {
             \Storage::disk('public')->delete($sop->image);
         }
 
         if (is_array($sop->steps)) {
             foreach ($sop->steps as $step) {
-                if (!empty($step['image']) && \Storage::disk('public')->exists($step['image'])) {
+                if (!empty($step['image']) && !str_starts_with($step['image'], 'http') && \Storage::disk('public')->exists($step['image'])) {
                     \Storage::disk('public')->delete($step['image']);
                 }
             }

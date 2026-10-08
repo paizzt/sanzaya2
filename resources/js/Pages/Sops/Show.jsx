@@ -430,15 +430,18 @@ export default function Show({ auth, division }) {
                                                                 {text && text.trim() !== '' && (
                                                                     <p className="text-gray-700 leading-relaxed text-[15px] whitespace-pre-wrap">{text}</p>
                                                                 )}
-                                                                {image && (
+                                                                {image && (() => {
+                                                                    const imgSrc = image.startsWith('http') ? image : `/storage/${image}`;
+                                                                    return (
                                                                     <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm inline-block max-w-full">
                                                                         <img 
-                                                                            src={`/storage/${image}`} 
+                                                                            src={imgSrc} 
                                                                             alt={`Gambar tahap ${idx + 1}`}
                                                                             className="max-h-[300px] object-contain bg-gray-50"
                                                                         />
                                                                     </div>
-                                                                )}
+                                                                    );
+                                                                })()}
                                                             </div>
                                                         </div>
                                                     );
