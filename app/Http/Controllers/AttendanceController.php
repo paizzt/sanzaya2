@@ -148,9 +148,6 @@ class AttendanceController extends Controller
                 $isOvertime = true;
             }
 
-            if ($isOvertime && empty($request->notes)) {
-                return redirect()->back()->with('error', 'Catatan lembur wajib diisi karena Anda pulang di atas jam 20:00!');
-            }
 
             if ($now->isAfter($attDate) && !$now->isSameDay($attDate)) {
                 // If it's the next day (e.g. 01:00 AM), cap the checkout time to 23:59:59 of the attendance date

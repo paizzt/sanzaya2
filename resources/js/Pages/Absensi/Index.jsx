@@ -264,7 +264,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                                 {isOvertime && (
                                                     <div>
                                                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                                            Catatan Lembur <span className="text-red-500">*</span>
+                                                            Catatan Lembur (Opsional)
                                                         </label>
                                                         <textarea
                                                             className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
@@ -272,14 +272,13 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                                             value={data.notes}
                                                             onChange={(e) => setData('notes', e.target.value)}
                                                             placeholder="Jelaskan alasan lembur..."
-                                                            required
                                                         ></textarea>
-                                                        <p className="text-xs text-red-500 mt-1">Wajib diisi karena absen di atas jam 20:00</p>
+                                                        <p className="text-xs text-blue-500 mt-1">Isi catatan jika Anda terhitung lembur, kosongkan jika tidak lembur.</p>
                                                     </div>
                                                 )}
                                                 <button
                                                     onClick={() => submitAttendance('check_out')}
-                                                    disabled={isLocating || (isOvertime && !data.notes.trim())}
+                                                    disabled={isLocating}
                                                     className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
                                                 >
                                                     {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Keluar</>}
