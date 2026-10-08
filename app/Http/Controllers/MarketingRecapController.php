@@ -217,6 +217,17 @@ class MarketingRecapController extends Controller
             if ($startDate) $query->where('visit_date', '>=', $startDate);
             if ($endDate) $query->where('visit_date', '<=', $endDate);
             $data['reports'] = $query->get();
+        } elseif ($type === 'kendala') {
+            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')->orderBy('visit_time', 'desc')
+                ->where(function($q) {
+                    $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
+                      ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '')
+                      ->orWhereNotNull('visit_result')->where('visit_result', '!=', '');
+                });
+            if ($salesUserId) $query->where('user_id', $salesUserId);
+            if ($startDate) $query->where('visit_date', '>=', $startDate);
+            if ($endDate) $query->where('visit_date', '<=', $endDate);
+            $data['reports'] = $query->get();
         } else {
             $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc')->orderBy('week_number', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
@@ -268,11 +279,28 @@ class MarketingRecapController extends Controller
             if ($endDate) $query->where('visit_date', '<=', $endDate);
             $items = $query->get();
             
-            $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Keterangan'];
+            $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Aktivitas', 'Kendala', 'Hasil', 'Kompetitor'];
             $rows = $items->map(function($item, $key) {
-                return [$key+1, $item->visit_date, $item->user->name ?? '-', $item->outlet->name ?? '-', $item->description];
+                return [$key+1, $item->visit_date, $item->user->name ?? '-', $item->outlet->name ?? '-', $item->activity_type, $item->issue_type . ($item->issue_description ? ': ' . $item->issue_description : ''), $item->visit_result, $item->competitor_notes];
             });
             $title = 'Rekap_Laporan_Marketing';
+        } elseif ($type === 'kendala') {
+            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')
+                ->where(function($q) {
+                    $q->whereNotNull('issue_description')->where('issue_description', '!=', '')
+                      ->orWhereNotNull('competitor_notes')->where('competitor_notes', '!=', '')
+                      ->orWhereNotNull('visit_result')->where('visit_result', '!=', '');
+                });
+            if ($salesUserId) $query->where('user_id', $salesUserId);
+            if ($startDate) $query->where('visit_date', '>=', $startDate);
+            if ($endDate) $query->where('visit_date', '<=', $endDate);
+            $items = $query->get();
+            
+            $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Kendala', 'Hasil', 'Kompetitor'];
+            $rows = $items->map(function($item, $key) {
+                return [$key+1, $item->visit_date, $item->user->name ?? '-', $item->outlet->name ?? '-', $item->issue_type . ($item->issue_description ? ': ' . $item->issue_description : ''), $item->visit_result, $item->competitor_notes];
+            });
+            $title = 'Rekap_Kendala_Marketing';
         } else {
             $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);

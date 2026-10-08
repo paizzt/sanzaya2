@@ -51,7 +51,7 @@
         </table>
     </div>
 
-    @if($type === 'laporan')
+    @if($type === 'laporan' || $type === 'kendala')
         <table class="data-table">
             <thead>
                 <tr>
