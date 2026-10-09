@@ -66,9 +66,9 @@ export default function UcPreview({ data, user }) {
     );
 
     const HeaderBlock = ({ title }) => (
-        <div className="flex flex-col border-b-2 border-indigo-900 pb-2 mb-4">
-            <div className="flex flex-col md:flex-row items-center justify-between mb-4">
-                <div className="mb-4 md:mb-0 w-1/3">
+        <div className="flex flex-col mb-4">
+            <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
+                <div className="mb-2 md:mb-0 w-1/3">
                     <img src="/img/logo.png" alt="Logo" className="max-h-12 object-contain" />
                 </div>
                 <div className="text-center w-2/3">
