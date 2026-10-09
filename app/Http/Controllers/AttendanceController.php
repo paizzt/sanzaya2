@@ -186,6 +186,7 @@ class AttendanceController extends Controller
         $request->validate([
             'check_in_time' => ['nullable', 'regex:/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
             'check_out_time' => ['nullable', 'regex:/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
+            'notes' => ['nullable', 'string', 'max:255'],
         ]);
 
         $checkIn = $request->check_in_time;
@@ -217,13 +218,17 @@ class AttendanceController extends Controller
             'new_check_out' => $checkOut,
             'request_check_in' => $request->check_in_time,
             'request_check_out' => $request->check_out_time,
+            'notes' => $request->notes,
         ]);
 
         $attendance->check_in_time = $checkIn;
         $attendance->check_out_time = $checkOut;
+        if ($request->has('notes')) {
+            $attendance->notes = $request->notes;
+        }
         $attendance->save();
 
-        return redirect()->back()->with('success', 'Data absensi berhasil diperbarui. (In: ' . ($checkIn ?: 'null') . ', Out: ' . ($checkOut ?: 'null') . ')');
+        return redirect()->back()->with('success', 'Data absensi berhasil diperbarui.');
     }
 
     public function destroy($id)

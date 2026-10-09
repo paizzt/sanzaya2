@@ -110,15 +110,19 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         const realId = item.id.toString().replace('att_', '');
 
         Swal.fire({
-            title: 'Edit Jam Absensi',
+            title: 'Edit Absensi',
             html: `
                 <div class="text-left mb-3">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Jam Masuk</label>
                     <input type="time" step="1" id="swal-input-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_in || ''}">
                 </div>
-                <div class="text-left">
+                <div class="text-left mb-3">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Jam Keluar</label>
                     <input type="time" step="1" id="swal-input-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_out || ''}">
+                </div>
+                <div class="text-left">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
+                    <textarea id="swal-input-notes" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" rows="2" placeholder="Masukkan keterangan tambahan...">${item.notes || ''}</textarea>
                 </div>
             `,
             focusConfirm: false,
@@ -129,7 +133,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             preConfirm: () => {
                 return {
                     check_in_time: document.getElementById('swal-input-in').value || null,
-                    check_out_time: document.getElementById('swal-input-out').value || null
+                    check_out_time: document.getElementById('swal-input-out').value || null,
+                    notes: document.getElementById('swal-input-notes').value || null
                 }
             }
         }).then((result) => {
@@ -461,10 +466,21 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     }`}>
                                                         {item.status}
                                                     </span>
-                                                    {item.notes && (
-                                                        <div className="text-xs text-gray-500 italic max-w-[200px] break-words">
-                                                            "{item.notes}"
+                                                    {item.notes ? (
+                                                        <div className="text-xs text-gray-500 italic max-w-[200px] break-words flex items-start gap-1 mt-1">
+                                                            <span>"{item.notes}"</span>
+                                                            {isSuperAdmin && !item.id.startsWith('req_') && !item.id.startsWith('alpa_') && (
+                                                                <button onClick={() => handleEditAbsensi(item)} className="text-blue-400 hover:text-blue-600 p-0.5 shrink-0 transition-colors" title="Edit Keterangan">
+                                                                    <Edit className="w-3 h-3" />
+                                                                </button>
+                                                            )}
                                                         </div>
+                                                    ) : (
+                                                        isSuperAdmin && !item.id.startsWith('req_') && !item.id.startsWith('alpa_') && (
+                                                            <button onClick={() => handleEditAbsensi(item)} className="text-[10px] text-blue-500 font-medium hover:underline mt-1 flex items-center gap-1">
+                                                                <Edit className="w-3 h-3" /> Tambah Keterangan
+                                                            </button>
+                                                        )
                                                     )}
                                                     {(isAdmin || isSuperAdmin) && item.id.startsWith('req_') && item.status === 'Menunggu' && (
                                                         <div className="flex gap-1.5 mt-1">
