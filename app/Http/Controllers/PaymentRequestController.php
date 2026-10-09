@@ -145,6 +145,9 @@ class PaymentRequestController extends Controller
                     'overdue' => $summaryData->filter(function($pr) use ($now) {
                         return $pr->payment_deadline < $now;
                     })->count(),
+                    'draft' => $summaryData->filter(function($pr) {
+                        return $pr->workflow_status === 'draft';
+                    })->count(),
                 ];
             }),
         ]);

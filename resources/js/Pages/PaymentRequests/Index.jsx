@@ -49,6 +49,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
 
     const statusOptions = [
         { value: '', label: 'Semua Status' },
+        { value: 'draft', label: 'Revisi' },
         ...(isApprovalView ? [{ value: 'unprocessed', label: 'Belum di Proses' }] : []),
         { value: 'pending', label: 'Di Proses' },
         { value: 'approved', label: 'Di Setujui' },
@@ -80,7 +81,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                 <div className="">
                     {/* Dashboard Summary Cards - Only show on Request View */}
                     {!isApprovalView ? (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                             <div onClick={() => handleFilterCard('')} className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Total Pengajuan</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.total || 0}</p>
@@ -93,9 +94,13 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Dibayar</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.paid || 0}</p>
                             </div>
+                            <div onClick={() => handleFilterCard('draft')} className="bg-white p-4 rounded-lg shadow border-l-4 border-gray-400 cursor-pointer hover:bg-gray-50 transition">
+                                <p className="text-sm text-gray-500 font-semibold uppercase">Revisi</p>
+                                <p className="text-3xl font-bold text-gray-800">{summary?.draft || 0}</p>
+                            </div>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                             <div onClick={() => handleFilterCard('')} className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Total Persetujuan Anda</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.waiting_approval || 0}</p>
@@ -103,6 +108,10 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                             <div onClick={() => handleFilterCard('unprocessed')} className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Belum di Proses</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.unprocessed || 0}</p>
+                            </div>
+                            <div onClick={() => handleFilterCard('draft')} className="bg-white p-4 rounded-lg shadow border-l-4 border-gray-400 cursor-pointer hover:bg-gray-50 transition">
+                                <p className="text-sm text-gray-500 font-semibold uppercase">Revisi</p>
+                                <p className="text-3xl font-bold text-gray-800">{summary?.draft || 0}</p>
                             </div>
                             <div onClick={() => handleFilterCard('', 'nearing')} className="bg-white p-4 rounded-lg shadow border-l-4 border-orange-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Dekat Jatuh Tempo</p>
@@ -195,8 +204,10 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                                     return { text: 'SELESAI', color: 'bg-green-100 text-green-800' };
                                                                 case 'rejected':
                                                                     return { text: 'DI TOLAK', color: 'bg-red-100 text-red-800' };
+                                                                case 'draft':
+                                                                    return { text: 'REVISI', color: 'bg-gray-100 text-gray-800' };
                                                                 default:
-                                                                    return { text: 'DRAFT', color: 'bg-gray-100 text-gray-800' };
+                                                                    return { text: 'REVISI', color: 'bg-gray-100 text-gray-800' };
                                                             }
                                                         };
                                                         const badge = getStatusBadge(pr.workflow_status);
