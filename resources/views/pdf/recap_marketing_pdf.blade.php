@@ -57,11 +57,13 @@
         <h3 style="margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Kesimpulan dan Kendala Per Marketing</h3>
         @foreach($kendala_per_user as $mkt)
             @if(count($mkt['kendal_list']) > 0)
-                <div style="margin-bottom: 10px;">
-                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 13px;">{{ $mkt['name'] }}</div>
-                    <ul style="margin: 0; padding-left: 20px; list-style-type: none;">
+                <div style="border: 1px solid #ccc; padding: 12px; margin-bottom: 15px; border-radius: 4px; page-break-inside: avoid;">
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px; text-transform: uppercase;">{{ $mkt['name'] }}</div>
+                    <ul style="margin: 0; padding-left: 20px; list-style-type: disc; text-align: justify;">
                         @foreach($mkt['kendal_list'] as $kendala)
-                            <li style="margin-bottom: 4px;">{{ $kendala['outlet'] }} : {{ str_replace("\n", ' | ', $kendala['description']) }}</li>
+                            <li style="margin-bottom: 6px; line-height: 1.4;">
+                                <strong>{{ $kendala['outlet'] }}</strong> : {{ str_replace("\n", ' | ', $kendala['description']) }}
+                            </li>
                         @endforeach
                     </ul>
                 </div>
