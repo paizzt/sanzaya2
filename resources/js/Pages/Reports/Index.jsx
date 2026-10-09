@@ -11,6 +11,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
 import SearchableSelect from '@/Components/SearchableSelect';
+import MultiSelect from '@/Components/MultiSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import {
   Chart as ChartJS,
@@ -90,7 +91,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
     const [selectedMonth, setSelectedMonth] = useState(monthFilter || '');
-    const [selectedPt, setSelectedPt] = useState(ptFilter || '');
+    const [selectedPt, setSelectedPt] = useState(ptFilter ? ptFilter.split(',') : []);
     const [selectedKeterangan, setSelectedKeterangan] = useState(keteranganFilter || '');
     const [isSearchExpanded, setIsSearchExpanded] = useState(!!search);
     const [isTabDropdownOpen, setIsTabDropdownOpen] = useState(false);
@@ -124,7 +125,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         if (tab === 'logistik') {
             filters.sales_filter = selectedSales;
             filters.outlet_filter = selectedOutlet;
-            filters.pt_filter = selectedPt;
+            filters.pt_filter = selectedPt.length > 0 ? selectedPt.join(',') : '';
         } else if (tab === 'pesanan') {
             filters.outlet_filter = selectedOutlet;
             filters.keterangan_filter = selectedKeterangan;
@@ -140,7 +141,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         setSelectedSales('');
         setSelectedOutlet('');
         setSelectedMonth('');
-        setSelectedPt('');
+        setSelectedPt([]);
         setSelectedKeterangan('');
     };
 
@@ -149,7 +150,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         if (selectedSales) args.sales_filter = selectedSales;
         if (selectedOutlet) args.outlet_filter = selectedOutlet;
         if (selectedMonth) args.month_filter = selectedMonth;
-        if (selectedPt) args.pt_filter = selectedPt;
+        if (selectedPt && selectedPt.length > 0) args.pt_filter = selectedPt.join(',');
         if (selectedKeterangan) args.keterangan_filter = selectedKeterangan;
         if (searchTerm) args.search = searchTerm;
         return args;
@@ -917,7 +918,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                     if (tab === 'logistik') {
                                         filters.sales_filter = selectedSales;
                                         filters.outlet_filter = selectedOutlet;
-                                        filters.pt_filter = selectedPt;
+                                        filters.pt_filter = selectedPt.length > 0 ? selectedPt.join(',') : '';
                                     } else if (tab === 'pesanan') {
                                         filters.outlet_filter = selectedOutlet;
                                         filters.keterangan_filter = selectedKeterangan;
@@ -937,17 +938,17 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                         {tab === 'logistik' && (
                             <>
                                 <div className="w-full md:w-36 lg:w-40 xl:w-44 transition-all duration-300 ease-in-out relative z-20">
-                                    <CustomSelect
+                                    <MultiSelect
                                         value={selectedPt}
                                         onChange={(value) => {
                                             setSelectedPt(value);
-                                            router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: selectedSales, outlet_filter: selectedOutlet, pt_filter: value, month_filter: selectedMonth }, { preserveState: true });
+                                            router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: selectedSales, outlet_filter: selectedOutlet, pt_filter: value.length > 0 ? value.join(',') : '', month_filter: selectedMonth }, { preserveState: true });
                                         }}
                                         options={[
-                                            { value: '', label: 'Semua PT' },
                                             ...(Array.isArray(ptNames) ? ptNames : Object.values(ptNames || {})).map(name => ({ value: name, label: name }))
                                         ]}
                                         icon={Package}
+                                        placeholder="Semua PT"
                                     />
                                 </div>
                                 {!isSalesLocked && (
@@ -956,7 +957,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                             value={selectedSales}
                                             onChange={(value) => {
                                                 setSelectedSales(value);
-                                                router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, pt_filter: selectedPt, month_filter: selectedMonth }, { preserveState: true });
+                                                router.get(route('reports.index'), { tab: tab, search: searchTerm, sales_filter: value, outlet_filter: selectedOutlet, pt_filter: selectedPt.length > 0 ? selectedPt.join(',') : '', month_filter: selectedMonth }, { preserveState: true });
                                             }}
                                             options={[
                                                 { value: '', label: 'Semua Sales' },

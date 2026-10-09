@@ -58,7 +58,7 @@ class ReportController extends Controller
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-        $targetPtNamesToSearch = $ptFilter ? [$ptFilter] : [];
+        $targetPtNamesToSearch = $ptFilter ? explode(',', $ptFilter) : [];
 
         $logistikBaseQuery = SyncLogistikData::query();
         if ($ptFilter) $logistikBaseQuery->whereIn('nama_pt', $targetPtNamesToSearch);
@@ -932,7 +932,7 @@ class ReportController extends Controller
             $hutangQuery = SyncHutangData::where('created_at', '>=', $startDate);
         }
 
-        $targetPtNamesToSearch = $ptFilter ? [$ptFilter] : [];
+        $targetPtNamesToSearch = $ptFilter ? explode(',', $ptFilter) : [];
 
         if ($ptFilter) $logistikQuery->whereIn('nama_pt', $targetPtNamesToSearch);
         if ($salesFilter) $logistikQuery->where('nama_sales', $salesFilter);

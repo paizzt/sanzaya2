@@ -217,25 +217,25 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
                             </h3>
                             <p className="text-sm text-gray-500 mt-1">Kelola data, logo, koordinat lokasi, dan waktu operasional perusahaan.</p>
                         </div>
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                            <div className="w-full sm:w-auto">
-                                <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
-                            </div>
-                            {is_super_admin && (
-                                <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-xl">
-                                    <Target className="w-4 h-4 mr-2" />
-                                    Target
-                                </PrimaryButton>
-                            )}
-                            <PrimaryButton onClick={() => openModal()} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap rounded-xl">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Tambah
-                            </PrimaryButton>
-                        </div>
                     </div>
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 w-full mb-6">
+                                <div className="w-full sm:w-auto">
+                                    <ExportDropdown pdfRoute={route('company.export.pdf')} excelRoute={route('company.export.excel')} className="w-full justify-center" />
+                                </div>
+                                {is_super_admin && (
+                                    <PrimaryButton onClick={() => setTargetModalOpen(true)} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-xl">
+                                        <Target className="w-4 h-4 mr-2" />
+                                        Target
+                                    </PrimaryButton>
+                                )}
+                                <PrimaryButton onClick={() => openModal()} className="w-full sm:w-auto justify-center h-[42px] whitespace-nowrap rounded-xl">
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Tambah
+                                </PrimaryButton>
+                            </div>
                             
                             {companies.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
