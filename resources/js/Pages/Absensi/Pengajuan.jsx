@@ -92,7 +92,8 @@ export default function Pengajuan({ requests, canApprove }) {
                                         options={[
                                             { value: 'Sakit', label: 'Sakit' },
                                             { value: 'Izin', label: 'Izin' },
-                                            { value: 'Izin Khusus', label: 'Izin Khusus' }
+                                            { value: 'Izin Khusus', label: 'Izin Khusus' },
+                                            { value: 'Cuti', label: 'Cuti' }
                                         ]}
                                     />
                                     <InputError message={errors.type} className="mt-2" />
