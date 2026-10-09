@@ -195,7 +195,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         
         if (statusFilter === 'all') return true;
         if (statusFilter === 'Terlambat') return item.is_late === true || item.is_late === 1;
-        if (statusFilter === 'Izin') return item.type === 'Izin' || item.type === 'Izin Khusus';
+        if (statusFilter === 'Izin') return item.type === 'Izin' || item.type === 'Izin Khusus' || item.type === 'Cuti';
         return item.type === statusFilter;
     }) || [];
 
