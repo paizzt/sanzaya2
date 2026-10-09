@@ -212,7 +212,7 @@
                 <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
             </td>
             <td width="65%" align="center">
-                <div class="kop-title">PT. HARTA TAHTA KESEHATAN</div>
+                <div class="kop-title">{{ $paymentRequest->entity ?? 'PT. HARTA TAHTA KESEHATAN' }}</div>
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>
@@ -374,7 +374,7 @@
                 <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
             </td>
             <td width="65%" align="center">
-                <div class="kop-title">PT. HARTA TAHTA KESEHATAN</div>
+                <div class="kop-title">{{ $paymentRequest->entity ?? 'PT. HARTA TAHTA KESEHATAN' }}</div>
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>
@@ -486,7 +486,7 @@
                 <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
             </td>
             <td width="65%" align="center">
-                <div class="kop-title">PT. HARTA TAHTA KESEHATAN</div>
+                <div class="kop-title">{{ $paymentRequest->entity ?? 'PT. HARTA TAHTA KESEHATAN' }}</div>
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>

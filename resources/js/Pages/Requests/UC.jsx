@@ -114,20 +114,7 @@ export default function UC({ requests, users, vehicles, isAdmin }) {
                     {/* Form Pengajuan UC */}
                     <div className="w-full lg:w-5/12 xl:w-1/2 bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-fit">
                     
-                    {/* Kop Surat / Header */}
-                    <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-4 mb-6">
-                        <div className="mb-4 md:mb-0">
-                            <img src="/img/logo.png" alt="Logo" className="h-16 object-contain" />
-                        </div>
-                        <div className="text-center md:text-center w-full md:w-3/4">
-                            <h2 className="text-xl md:text-2xl font-bold text-indigo-900 font-serif tracking-wide mb-1">PT. HARTA TAHTA KESEHATAN</h2>
-                            <p className="text-[10px] md:text-xs text-gray-700 leading-tight">
-                                Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br />
-                                Kota Makassar, Sulawesi Selatan 90235<br />
-                                Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
-                            </p>
-                        </div>
-                    </div>
+                    {/* Kop Surat removed from here */}
 
                     <div className="mb-6 pb-4 border-b border-gray-50">
                         <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">

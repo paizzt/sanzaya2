@@ -66,17 +66,32 @@ export default function UcPreview({ data, user }) {
     );
 
     const HeaderBlock = ({ title }) => (
-        <div className="flex justify-between items-start mb-6">
-            <div className="w-1/2">
-                <p className="text-[#1a75d2] font-bold text-sm lg:text-base leading-tight mb-0 uppercase">{data.entity || 'PT. SANZAYA MEDIKA PRATAMA'}</p>
-                <p className="text-gray-500 font-bold text-[8px] lg:text-[10px] leading-tight mb-4">MEDICAL & HEALTHCARE</p>
-                
-                <p className="font-bold text-xs lg:text-sm leading-tight mt-6">{title}</p>
-                <p className="font-bold text-sm lg:text-base leading-tight mt-0.5">UPCOUNTRY (UC)</p>
+        <div className="flex flex-col border-b-2 border-indigo-900 pb-2 mb-4">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+                <div className="mb-4 md:mb-0 w-1/3">
+                    <img src="/img/logo.png" alt="Logo" className="max-h-12 object-contain" />
+                </div>
+                <div className="text-center w-2/3">
+                    <h2 className="text-sm lg:text-base font-bold text-indigo-900 font-serif tracking-wide mb-1 uppercase">
+                        {data.entity || 'PT. HARTA TAHTA KESEHATAN'}
+                    </h2>
+                    <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight">
+                        Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br />
+                        Kota Makassar, Sulawesi Selatan 90235<br />
+                        Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
+                    </p>
+                </div>
             </div>
-            <div className="w-1/2 pl-4 flex justify-end">
-                <div className="w-full max-w-[220px] lg:max-w-[280px]">
-                    <SignatureBlock />
+            
+            <div className="flex justify-between items-start mt-2">
+                <div className="w-1/2">
+                    <p className="font-bold text-xs lg:text-sm leading-tight mt-0">{title}</p>
+                    <p className="font-bold text-sm lg:text-base leading-tight mt-0.5">UPCOUNTRY (UC)</p>
+                </div>
+                <div className="w-1/2 pl-4 flex justify-end">
+                    <div className="w-full max-w-[220px] lg:max-w-[280px]">
+                        <SignatureBlock />
+                    </div>
                 </div>
             </div>
         </div>
