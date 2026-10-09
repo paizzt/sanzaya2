@@ -49,7 +49,6 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
 
     const statusOptions = [
         { value: '', label: 'Semua Status' },
-        ...(isApprovalView ? [] : [{ value: 'draft', label: 'Draft' }]),
         ...(isApprovalView ? [{ value: 'unprocessed', label: 'Belum di Proses' }] : []),
         { value: 'pending', label: 'Di Proses' },
         { value: 'approved', label: 'Di Setujui' },
@@ -81,7 +80,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                 <div className="">
                     {/* Dashboard Summary Cards - Only show on Request View */}
                     {!isApprovalView ? (
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                             <div onClick={() => handleFilterCard('')} className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Total Pengajuan</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.total || 0}</p>
@@ -93,10 +92,6 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                             <div onClick={() => handleFilterCard('paid')} className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500 cursor-pointer hover:bg-gray-50 transition">
                                 <p className="text-sm text-gray-500 font-semibold uppercase">Dibayar</p>
                                 <p className="text-3xl font-bold text-gray-800">{summary?.paid || 0}</p>
-                            </div>
-                            <div onClick={() => handleFilterCard('draft')} className="bg-white p-4 rounded-lg shadow border-l-4 border-gray-400 cursor-pointer hover:bg-gray-50 transition">
-                                <p className="text-sm text-gray-500 font-semibold uppercase">Draft</p>
-                                <p className="text-3xl font-bold text-gray-800">{summary?.draft || 0}</p>
                             </div>
                         </div>
                     ) : (
