@@ -17,6 +17,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
         transaction_date: paymentRequest.transaction_date || '',
         category: paymentRequest.category || '',
         purpose: paymentRequest.purpose || '',
+        letter_number: paymentRequest.letter_number || '',
         recipient_name: paymentRequest.recipient_name || '',
         vendor_id: paymentRequest.vendor_id || '',
         invoice_reference: paymentRequest.invoice_reference || '',
@@ -129,6 +130,11 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                     <InputLabel value="Perihal / Tujuan" />
                                     <TextInput value={data.purpose} onChange={e => setData('purpose', e.target.value)} className="w-full" required />
                                     <InputError message={errors.purpose} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Nomor Surat (Opsional)" />
+                                    <TextInput value={data.letter_number} onChange={e => setData('letter_number', e.target.value)} className="w-full" />
+                                    <InputError message={errors.letter_number} />
                                 </div>
                                 <div>
                                     <InputLabel value="Nama Penerima / Vendor" />

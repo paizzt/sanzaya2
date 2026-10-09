@@ -223,6 +223,14 @@
             <td>:</td>
             <td>{{ $paymentRequest->category }} / {{ $paymentRequest->purpose }}</td>
         </tr>
+        @if($paymentRequest->letter_number)
+        <tr>
+            <td>-</td>
+            <td>Nomor Surat</td>
+            <td>:</td>
+            <td>{{ $paymentRequest->letter_number }}</td>
+        </tr>
+        @endif
         <tr>
             <td>4.</td>
             <td>Bank / Dompet Digital</td>

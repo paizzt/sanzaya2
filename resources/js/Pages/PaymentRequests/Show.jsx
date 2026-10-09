@@ -211,6 +211,10 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                         <span className="font-semibold text-gray-900">{paymentRequest.purpose}</span>
                                     </div>
                                     <div>
+                                        <span className="text-gray-500 block text-xs">Nomor Surat</span>
+                                        <span className="font-semibold text-gray-900">{paymentRequest.letter_number || '-'}</span>
+                                    </div>
+                                    <div>
                                         <span className="text-gray-500 block text-xs">Batas Waktu Bayar</span>
                                         <span className="font-semibold text-red-600">
                                             {paymentRequest.payment_deadline ? dayjs(paymentRequest.payment_deadline).format('DD MMMM YYYY') : '-'}

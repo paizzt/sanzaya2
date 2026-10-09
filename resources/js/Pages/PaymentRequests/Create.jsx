@@ -16,6 +16,7 @@ export default function Create({ auth, vendors, companies, user }) {
         transaction_date: '',
         category: '',
         purpose: '',
+        letter_number: '',
         recipient_name: '',
         vendor_id: '',
         invoice_reference: '',
@@ -117,6 +118,11 @@ export default function Create({ auth, vendors, companies, user }) {
                                     <InputLabel value="Perihal / Tujuan" />
                                     <TextInput value={data.purpose} onChange={e => setData('purpose', e.target.value)} className="w-full" required />
                                     <InputError message={errors.purpose} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Nomor Surat (Opsional)" />
+                                    <TextInput value={data.letter_number} onChange={e => setData('letter_number', e.target.value)} className="w-full" />
+                                    <InputError message={errors.letter_number} />
                                 </div>
                                 <div>
                                     <InputLabel value="Nama Penerima / Vendor" />
