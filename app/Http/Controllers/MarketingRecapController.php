@@ -137,17 +137,19 @@ class MarketingRecapController extends Controller
             $userId = $k->user_id;
             if (isset($kendalaPerUser[$userId])) {
                 $desc = '';
-                if ($k->visit_result) {
-                    $desc .= $k->visit_result . "\n";
+                
+                $ignoreWords = ['-', ' ', '', '.', 'tidak ada', 'tidak ada kendala', 'tidaj ada', 'nihil', 'aman', 'lancar', '0', 'ss', 'onemed', 'triton'];
+                $issue = strtolower(trim($k->issue_description ?? ''));
+                if ($issue && !in_array($issue, $ignoreWords)) {
+                    if ($k->issue_type && $k->issue_description) {
+                        $desc .= 'Kendala (' . $k->issue_type . '): ' . $k->issue_description . "\n";
+                    } elseif ($k->issue_description) {
+                        $desc .= 'Kendala: ' . $k->issue_description . "\n";
+                    }
                 }
 
-                if ($k->issue_type && $k->issue_description) {
-                    $desc .= 'Kendala (' . $k->issue_type . '): ' . $k->issue_description . "\n";
-                } elseif ($k->issue_description) {
-                    $desc .= 'Kendala: ' . $k->issue_description . "\n";
-                }
-                
-                if ($k->competitor_notes) {
+                $comp = strtolower(trim($k->competitor_notes ?? ''));
+                if ($comp && !in_array($comp, $ignoreWords)) {
                     $desc .= 'Kompetitor: ' . $k->competitor_notes;
                 }
 
@@ -248,13 +250,21 @@ class MarketingRecapController extends Controller
                 $uid = $k->user_id;
                 if (isset($kendalaPerUser[$uid])) {
                     $desc = '';
-                    if ($k->visit_result) $desc .= $k->visit_result . "\n";
-                    if ($k->issue_type && $k->issue_description) {
-                        $desc .= 'Kendala (' . $k->issue_type . '): ' . $k->issue_description . "\n";
-                    } elseif ($k->issue_description) {
-                        $desc .= 'Kendala: ' . $k->issue_description . "\n";
+                    
+                    $ignoreWords = ['-', ' ', '', '.', 'tidak ada', 'tidak ada kendala', 'tidaj ada', 'nihil', 'aman', 'lancar', '0', 'ss', 'onemed', 'triton'];
+                    $issue = strtolower(trim($k->issue_description ?? ''));
+                    if ($issue && !in_array($issue, $ignoreWords)) {
+                        if ($k->issue_type && $k->issue_description) {
+                            $desc .= 'Kendala (' . $k->issue_type . '): ' . $k->issue_description . "\n";
+                        } elseif ($k->issue_description) {
+                            $desc .= 'Kendala: ' . $k->issue_description . "\n";
+                        }
                     }
-                    if ($k->competitor_notes) $desc .= 'Kompetitor: ' . $k->competitor_notes;
+
+                    $comp = strtolower(trim($k->competitor_notes ?? ''));
+                    if ($comp && !in_array($comp, $ignoreWords)) {
+                        $desc .= 'Kompetitor: ' . $k->competitor_notes;
+                    }
                     
                     $desc = trim($desc);
                     if ($desc) {
@@ -368,31 +378,6 @@ class MarketingRecapController extends Controller
         if ($comp && !in_array($comp, $ignoreWords)) {
             if (str_word_count($comp) > 2 || strlen($comp) > 15) {
                 return true;
-            }
-        }
-
-        $result = strtolower(trim($report->visit_result ?? ''));
-        if ($result) {
-            $routines = ['bawa berkas', 'perkenalan diri', 'kerja berkas', 'tanda tangan', 'kunjungan rutin', 'silaturahmi', 'memperkenal diri', 'memperkenalkan diri', 'zoom meeting', 'presentasi', 'menawarkan', 'membawa faktur', 'ttd berkas', 'minta orderan', 'koordinasi'];
-            foreach ($routines as $r) {
-                if (str_contains($result, $r)) {
-                    $hasNegative = false;
-                    $negatives = ['belum', 'bayar', 'pembayaran', 'cair', 'terelisasikan', 'mahal', 'kosong', 'komplain', 'rusak', 'tunggu', 'sakit', 'tidak masuk', 'kurang', 'jangan', 'cuti', 'jatuh tempo', 'tdk sesuai', 'kuliah'];
-                    foreach ($negatives as $n) {
-                        if (str_contains($result, $n)) {
-                            $hasNegative = true;
-                            break;
-                        }
-                    }
-                    if (!$hasNegative) return false;
-                }
-            }
-
-            $issueKeywords = ['pembayaran', 'terelisasikan', 'tunggakan', 'mahal', 'kosong', 'komplain', 'rusak', 'tolak', 'batal', 'kendala', 'pending', 'sakit', 'tidak masuk', 'belum tahu', 'belum ada pengambilan', 'merk lain', 'hanya pake satu merk', 'pelatihan', 'belum sempat', 'kurang', 'jangan dikirimkan lagi', 'cuti', 'jatuh tempo', 'tdk sesuai', 'kuliah'];
-            foreach ($issueKeywords as $kw) {
-                if (str_contains($result, $kw)) {
-                    return true;
-                }
             }
         }
 
