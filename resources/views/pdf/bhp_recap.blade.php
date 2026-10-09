@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Rekap Pengajuan BHP</title>
     <style>
+        @page { margin: 1.27cm; }
 
         body {
             font-family: {{ request('font', 'sans-serif') }} !important;
@@ -87,3 +88,4 @@
     <div style="clear: both;"></div>
 </body>
 </html>
+

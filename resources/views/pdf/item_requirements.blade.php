@@ -3,6 +3,7 @@
 <head>
     <title>Laporan Pemenuhan Kebutuhan Barang</title>
     <style>
+        @page { margin: 1.27cm; }
 
         body {
             font-family: {{ request('font', 'sans-serif') }} !important;
@@ -89,3 +90,4 @@
     <div style="clear: both;"></div>
 </body>
 </html>
+

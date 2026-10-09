@@ -2,6 +2,7 @@
 <html>
 <head>
     <style>
+        @page { margin: 1.27cm; }
 
         body {
             font-family: {{ request('font', 'sans-serif') }} !important;

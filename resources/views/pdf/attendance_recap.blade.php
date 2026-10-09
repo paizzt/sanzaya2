@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Rekap Absensi</title>
     <style>
+        @page { margin: 1.27cm; }
 
         body {
             font-family: {{ request('font', 'sans-serif') }} !important;
@@ -139,3 +140,4 @@
 
 </body>
 </html>
+

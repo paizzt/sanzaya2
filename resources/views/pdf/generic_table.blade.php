@@ -3,7 +3,7 @@
 <head>
     <title>{{ $title }}</title>
     <style>
-        @page { margin: 15px; } /* Maximize paper space */
+        @page { margin: 1.27cm; } /* Maximize paper space */
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; color: #374151; margin: 0; padding: 0; }
         .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
         .header h2 { margin: 0; padding: 0; font-size: 18px; color: #111827; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
@@ -226,3 +226,4 @@
     </div>
 </body>
 </html>
+

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>{{ $title }}</title>
     <style>
+        @page { margin: 1.27cm; }
 
         body {
             font-family: {{ request('font', 'sans-serif') }} !important;
@@ -318,3 +319,4 @@
     <div style="clear: both;"></div>
 </body>
 </html>
+

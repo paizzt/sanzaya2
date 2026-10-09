@@ -7,9 +7,7 @@
             font-size: {{ request('size', '12') }}px !important;
         }
     
-        @page {
-            margin: 25px 35px 50px 35px;
-        }
+        @page { margin: 1.27cm; }
         body {
             font-family: Arial, sans-serif;
             font-size: 13px;
@@ -318,3 +316,4 @@
 
 </body>
 </html>
+
