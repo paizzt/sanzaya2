@@ -52,6 +52,27 @@
         </table>
     </div>
 
+    @if(($type === 'laporan' || $type === 'kendala') && isset($kendala_per_user) && count($kendala_per_user) > 0)
+    <div style="margin-bottom: 20px;">
+        <h3 style="margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Kesimpulan dan Kendala Per Marketing</h3>
+        @foreach($kendala_per_user as $mkt)
+            @if(count($mkt['kendal_list']) > 0)
+                <div style="margin-bottom: 10px;">
+                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 13px;">{{ $mkt['name'] }}</div>
+                    <ul style="margin: 0; padding-left: 20px; list-style-type: none;">
+                        @foreach($mkt['kendal_list'] as $kendala)
+                            <li style="margin-bottom: 4px;">{{ $kendala['outlet'] }} : {{ str_replace("\n", ' | ', $kendala['description']) }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+        @endforeach
+    </div>
+    
+    <h3 style="margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 30px;">Rekapan Laporan</h3>
+    @endif
+
+
     @if($type === 'laporan' || $type === 'kendala')
         <table class="data-table">
             <thead>

@@ -210,20 +210,62 @@ class MarketingRecapController extends Controller
         }
 
         $data = [];
-        if ($type === 'laporan') {
+        $kendalaPerUser = [];
+
+        if (in_array($type, ['laporan', 'kendala'])) {
             $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')->orderBy('visit_time', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
             if ($startDate) $query->where('visit_date', '>=', $startDate);
             if ($endDate) $query->where('visit_date', '<=', $endDate);
-            $data['reports'] = $query->get();
-        } elseif ($type === 'kendala') {
-            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc')->orderBy('visit_time', 'desc');
-            if ($salesUserId) $query->where('user_id', $salesUserId);
-            if ($startDate) $query->where('visit_date', '>=', $startDate);
-            if ($endDate) $query->where('visit_date', '<=', $endDate);
-            $data['reports'] = $query->get()->filter(function($r) {
+            
+            $allReports = $query->get();
+            
+            if ($type === 'laporan') {
+                $data['reports'] = $allReports;
+            } else {
+                $data['reports'] = $allReports->filter(function($r) {
+                    return $this->isRealKendala($r);
+                })->values();
+            }
+
+            // Calculate Kesimpulan dan Kendala
+            $salesUsersQuery = User::role('marketing')->orderBy('name');
+            if ($salesUserId) $salesUsersQuery->where('id', $salesUserId);
+            $salesUsers = $salesUsersQuery->get();
+
+            foreach ($salesUsers as $u) {
+                $kendalaPerUser[$u->id] = [
+                    'name' => $u->name,
+                    'kendal_list' => []
+                ];
+            }
+
+            $kendalaReports = $allReports->filter(function($r) {
                 return $this->isRealKendala($r);
             })->values();
+
+            foreach ($kendalaReports as $k) {
+                $uid = $k->user_id;
+                if (isset($kendalaPerUser[$uid])) {
+                    $desc = '';
+                    if ($k->visit_result) $desc .= $k->visit_result . "\n";
+                    if ($k->issue_type && $k->issue_description) {
+                        $desc .= 'Kendala (' . $k->issue_type . '): ' . $k->issue_description . "\n";
+                    } elseif ($k->issue_description) {
+                        $desc .= 'Kendala: ' . $k->issue_description . "\n";
+                    }
+                    if ($k->competitor_notes) $desc .= 'Kompetitor: ' . $k->competitor_notes;
+                    
+                    $desc = trim($desc);
+                    if ($desc) {
+                        $kendalaPerUser[$uid]['kendal_list'][] = [
+                            'date' => \Carbon\Carbon::parse($k->visit_date)->format('d/m/Y'),
+                            'outlet' => $k->outlet ? $k->outlet->name : '-',
+                            'description' => $desc
+                        ];
+                    }
+                }
+            }
         } else {
             $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc')->orderBy('week_number', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
@@ -234,6 +276,8 @@ class MarketingRecapController extends Controller
 
         $salesUser = $salesUserId ? User::find($salesUserId) : null;
         $data['type'] = $type;
+        $data['kendala_per_user'] = array_values($kendalaPerUser);
+        
         $data['filters'] = [
             'user' => $salesUser ? $salesUser->name : 'Semua Sales',
             'start_date' => $startDate,
