@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { CheckCircle2, Clock, MapPin, MapPinOff, CalendarDays, Loader2 } from 'lucide-react';
+import { CheckCircle2, Clock, MapPin, MapPinOff, CalendarDays, Loader2, ShieldCheck } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
@@ -15,7 +15,7 @@ const dataURLtoFile = (dataurl, filename) => {
     return new File([u8arr], filename, {type:mime});
 };
 
-export default function Index({ attendance, today, currentTime, isOvertime, history = [], company, isMarketing }) {
+export default function Index({ attendance, today, currentTime, isOvertime, history = [], company, isMarketing, isSatpam }) {
     const [isLocating, setIsLocating] = useState(false);
     const [showWebcamModal, setShowWebcamModal] = useState(false);
     const [pendingAttendance, setPendingAttendance] = useState(null);
@@ -235,11 +235,27 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl shadow-blue-500/20 text-center">
                             <p className="text-blue-100 text-lg font-medium">{today}</p>
                             <h2 className="text-6xl font-black mt-2 tracking-tighter tabular-nums">{liveTime}</h2>
+                            {isSatpam && (
+                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold text-white">
+                                    <ShieldCheck className="w-4 h-4" /> Shift Satpam (Lintas Hari & Bebas Keterlambatan/Lembur)
+                                </div>
+                            )}
                             <p className="text-blue-200 mt-4 max-w-xl mx-auto text-sm">Pastikan Anda berada di lokasi kantor (PT) saat melakukan absensi masuk maupun pulang.</p>
                         </div>
 
                         <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-
+                            {isSatpam && hasCheckedIn && !hasCheckedOut && (
+                                <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 text-sm flex items-center gap-3">
+                                    <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0" />
+                                    <div>
+                                        <p className="font-bold">Shift Satpam Aktif Sedang Berjalan</p>
+                                        <p className="text-xs text-amber-700 mt-0.5">
+                                            Masuk: <span className="font-semibold">{attendance.date} pukul {attendance.check_in_time}</span>.
+                                            Silakan lakukan <b>Absen Pulang</b> setelah pergantian shift (bisa lintas hari).
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Check In Status */}
@@ -251,7 +267,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                     )}
                                     <div className="flex-1">
                                         <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
-                                        <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedIn ? `Berhasil: ${attendance.check_in_time}` : 'Belum Absen'}</p>
+                                        <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedIn ? `Berhasil: ${attendance.check_in_time}${attendance?.date ? ` (${attendance.date})` : ''}` : 'Belum Absen'}</p>
 
                                         {!hasCheckedIn && (
                                             <button
@@ -342,7 +358,12 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                         </td>
                                         <td className="px-4 py-3 text-gray-600">
                                             {item.check_out_time ? (
-                                                <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-green-500"/> {item.check_out_time}</span>
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <Clock className="w-3.5 h-3.5 text-green-500"/> {item.check_out_time}
+                                                    {item.check_in_time && item.check_out_time < item.check_in_time && (
+                                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">+1 Hari</span>
+                                                    )}
+                                                </span>
                                             ) : '-'}
                                         </td>
                                         <td className="px-4 py-3">

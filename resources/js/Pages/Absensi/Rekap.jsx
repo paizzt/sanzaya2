@@ -448,6 +448,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6 text-center font-medium">
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span>{item.check_out || '-'}</span>
+                                                    {item.is_cross_day && (
+                                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">+1 Hari</span>
+                                                    )}
                                                     {item.is_lembur && (
                                                         <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">Lembur</span>
                                                     )}

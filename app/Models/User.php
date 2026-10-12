@@ -66,4 +66,18 @@ class User extends Authenticatable
     {
         return $this->hasAnyRole(['Superadmin', 'Admin', 'Manager', 'Direktur']);
     }
+
+    /**
+     * Check if user has satpam (security guard) role or division.
+     */
+    public function isSatpam(): bool
+    {
+        if ($this->hasAnyRole(['SATPAM', 'Satpam', 'satpam', 'SECURITY', 'Security', 'security'])) {
+            return true;
+        }
+        if ($this->division && in_array(strtoupper(trim($this->division->name)), ['SATPAM', 'SECURITY', 'SATPAM/SECURITY'])) {
+            return true;
+        }
+        return false;
+    }
 }

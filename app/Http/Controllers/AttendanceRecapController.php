@@ -135,34 +135,46 @@ class AttendanceRecapController extends Controller
         }
 
         foreach ($attendances as $att) {
+            $attUser = $att->user;
+            $isUserSatpam = $attUser ? $attUser->isSatpam() : false;
+
             if (!isset($userSummaries[$att->user_id])) {
                 $userSummaries[$att->user_id] = [
-                    'name' => $att->user?->name ?? 'Unknown',
+                    'name' => $attUser?->name ?? 'Unknown',
                     'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0
                 ];
             }
             if ($att->status == 'Hadir') {
                 $userSummaries[$att->user_id]['hadir']++;
                 
-                // Calculate Terlambat
-                $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
-                $isLemburYesterday = isset($lemburMap[$att->user_id][$prevDate]);
-                $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
-                
-                $att->is_late = $att->check_in_time > $threshold;
-                if ($att->is_late) {
-                    $userSummaries[$att->user_id]['terlambat']++;
-                    $summary['terlambat']++;
+                // Calculate Terlambat (Khusus SATPAM: TIDAK berlaku jam terlambat)
+                if ($isUserSatpam) {
+                    $att->is_late = false;
+                } else {
+                    $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
+                    $isLemburYesterday = isset($lemburMap[$att->user_id][$prevDate]);
+                    $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
+                    
+                    $att->is_late = $att->check_in_time > $threshold;
+                    if ($att->is_late) {
+                        $userSummaries[$att->user_id]['terlambat']++;
+                        $summary['terlambat']++;
+                    }
                 }
 
-                if ($att->check_out_time && $att->check_out_time >= '20:00:00') {
-                    $userSummaries[$att->user_id]['lembur']++;
-                    $summary['lembur']++;
-                    $lemburMap[$att->user_id][substr($att->date, 0, 10)] = true;
+                // Calculate Lembur (Khusus SATPAM: TIDAK berlaku jam lembur)
+                if (!$isUserSatpam) {
+                    if ($att->check_out_time && $att->check_out_time >= '20:00:00') {
+                        $userSummaries[$att->user_id]['lembur']++;
+                        $summary['lembur']++;
+                        $lemburMap[$att->user_id][substr($att->date, 0, 10)] = true;
+                    }
                 }
 
             } elseif ($att->status == 'Lembur') {
-                $userSummaries[$att->user_id]['lembur']++;
+                if (!$isUserSatpam) {
+                    $userSummaries[$att->user_id]['lembur']++;
+                }
             }
         }
 
@@ -217,17 +229,22 @@ class AttendanceRecapController extends Controller
         // Prepare data table format
         $recapList = [];
         foreach ($attendances as $att) {
+            $attUser = $att->user;
+            $isUserSatpam = $attUser ? $attUser->isSatpam() : false;
+            $isCrossDay = ($att->check_in_time && $att->check_out_time && $att->check_out_time < $att->check_in_time);
+
             $recapList[] = [
                 'id' => 'att_' . $att->id,
-                'user_name' => $att->user?->name ?? 'Unknown',
+                'user_name' => $attUser?->name ?? 'Unknown',
                 'date' => $att->date,
                 'type' => $att->status,
                 'check_in' => $att->check_in_time,
                 'check_out' => $att->check_out_time,
                 'check_in_photo' => $att->check_in_photo ? (str_starts_with($att->check_in_photo, 'http') ? $att->check_in_photo : asset('storage/' . $att->check_in_photo)) : null,
                 'check_out_photo' => $att->check_out_photo ? (str_starts_with($att->check_out_photo, 'http') ? $att->check_out_photo : asset('storage/' . $att->check_out_photo)) : null,
-                'is_late' => $att->is_late ?? false,
-                'is_lembur' => ($att->check_out_time && $att->check_out_time >= '20:00:00') ? true : false,
+                'is_late' => (!$isUserSatpam && ($att->is_late ?? false)),
+                'is_lembur' => (!$isUserSatpam && $att->check_out_time && $att->check_out_time >= '20:00:00') ? true : false,
+                'is_cross_day' => $isCrossDay,
                 'status' => 'Selesai',
                 'notes' => $att->notes
             ];
@@ -357,20 +374,25 @@ class AttendanceRecapController extends Controller
         }
 
         foreach ($todayAttendances as $att) {
-            if ($att->status == 'Hadir') {
-                $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
-                $isLemburYesterday = \App\Models\Attendance::where('user_id', $att->user_id)
-                    ->where('date', $prevDate)
-                    ->where('check_out_time', '>=', '20:00:00')
-                    ->exists();
-                $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
-                
-                if ($att->check_in_time > $threshold) {
-                    $summary['terlambat']++;
-                }
+            $attUser = $att->user;
+            $isUserSatpam = $attUser ? $attUser->isSatpam() : false;
 
-                if ($att->check_out_time && $att->check_out_time >= '20:00:00') {
-                    $summary['lembur']++;
+            if ($att->status == 'Hadir') {
+                if (!$isUserSatpam) {
+                    $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
+                    $isLemburYesterday = \App\Models\Attendance::where('user_id', $att->user_id)
+                        ->where('date', $prevDate)
+                        ->where('check_out_time', '>=', '20:00:00')
+                        ->exists();
+                    $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
+                    
+                    if ($att->check_in_time > $threshold) {
+                        $summary['terlambat']++;
+                    }
+
+                    if ($att->check_out_time && $att->check_out_time >= '20:00:00') {
+                        $summary['lembur']++;
+                    }
                 }
             }
         }

@@ -15,42 +15,69 @@ class AttendanceController extends Controller
     public function index()
     {
         $today = Carbon::today()->format('Y-m-d');
-        $attendance = Attendance::where('user_id', Auth::id())
-            ->where('date', $today)
-            ->first();
+        $user = Auth::user();
+        $isSatpam = $user->isSatpam();
 
         // Cek apakah ada check-in hari sebelumnya yang belum check-out
-        // Jika ada, otomatis check-out di jam 17:00:00 pada hari tersebut agar tidak mengganggu absensi hari ini.
-        $uncompletedPast = Attendance::where('user_id', Auth::id())
-            ->where('date', '<', $today)
-            ->whereNotNull('check_in_time')
-            ->whereNull('check_out_time')
-            ->get();
-            
-        foreach ($uncompletedPast as $uncompleted) {
-            $uncompleted->check_out_time = '17:00:00';
-            $uncompleted->notes = 'Auto checkout oleh sistem (Lupa absen pulang)';
-            $uncompleted->save();
+        // Untuk karyawan biasa, otomatis check-out di jam 17:00:00 pada hari tersebut agar tidak mengganggu absensi hari ini.
+        // Khusus SATPAM: TIDAK auto-checkout karena jam kerjanya bisa lintas hari (misal jam 22:00 malam s/d 08:00 pagi).
+        if (!$isSatpam) {
+            $uncompletedPast = Attendance::where('user_id', $user->id)
+                ->where('date', '<', $today)
+                ->whereNotNull('check_in_time')
+                ->whereNull('check_out_time')
+                ->get();
+                
+            foreach ($uncompletedPast as $uncompleted) {
+                $uncompleted->check_out_time = '17:00:00';
+                $uncompleted->notes = 'Auto checkout oleh sistem (Lupa absen pulang)';
+                $uncompleted->save();
+            }
+        }
+
+        // Ambil data absensi aktif
+        if ($isSatpam) {
+            // Untuk Satpam: cari absensi aktif yang sedang berjalan (sudah check-in tapi belum check-out),
+            // meskipun tanggal check-in adalah hari kemarin (lintas hari).
+            $attendance = Attendance::where('user_id', $user->id)
+                ->whereNotNull('check_in_time')
+                ->whereNull('check_out_time')
+                ->orderBy('date', 'desc')
+                ->first();
+
+            // Jika tidak ada shift aktif yang berjalan, ambil absensi hari ini
+            if (!$attendance) {
+                $attendance = Attendance::where('user_id', $user->id)
+                    ->where('date', $today)
+                    ->first();
+            }
+        } else {
+            $attendance = Attendance::where('user_id', $user->id)
+                ->where('date', $today)
+                ->first();
         }
 
         $now = Carbon::now();
         $isOvertime = false;
         
-        if ($attendance && $attendance->check_in_time && !$attendance->check_out_time) {
-            $attDate = Carbon::parse($attendance->date);
-            if ($now->isSameDay($attDate)) {
-                if ($now->hour >= 20) {
+        // Khusus SATPAM: TIDAK berlaku jam lembur
+        if (!$isSatpam) {
+            if ($attendance && $attendance->check_in_time && !$attendance->check_out_time) {
+                $attDate = Carbon::parse($attendance->date);
+                if ($now->isSameDay($attDate)) {
+                    if ($now->hour >= 20) {
+                        $isOvertime = true;
+                    }
+                } else if ($now->isAfter($attDate)) {
                     $isOvertime = true;
                 }
-            } else if ($now->isAfter($attDate)) {
-                $isOvertime = true;
             }
         }
 
         $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
         $endOfMonth = Carbon::now()->endOfMonth()->format('Y-m-d');
         
-        $history = Attendance::where('user_id', Auth::id())
+        $history = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
             ->orderBy('date', 'desc')
             ->get();
@@ -61,8 +88,9 @@ class AttendanceController extends Controller
             'currentTime' => Carbon::now()->format('H:i'),
             'isOvertime' => $isOvertime,
             'history' => $history,
-            'company' => Auth::user()->company,
-            'isMarketing' => Auth::user()->hasRole(['Marketing', 'marketing']),
+            'company' => $user->company,
+            'isMarketing' => $user->hasRole(['Marketing', 'marketing']),
+            'isSatpam' => $isSatpam,
         ]);
     }
 
@@ -109,6 +137,18 @@ class AttendanceController extends Controller
         $currentTime = Carbon::now()->format('H:i:s');
 
         if ($request->type === 'check_in') {
+            // Untuk Satpam: pastikan tidak ada shift aktif sebelumnya yang belum checkout
+            if ($user->isSatpam()) {
+                $activeShift = Attendance::where('user_id', $user->id)
+                    ->whereNotNull('check_in_time')
+                    ->whereNull('check_out_time')
+                    ->first();
+                if ($activeShift) {
+                    $shiftDateStr = Carbon::parse($activeShift->date)->isoFormat('D MMMM Y');
+                    return redirect()->back()->with('error', "Anda masih memiliki shift aktif tanggal {$shiftDateStr} (Jam Masuk: {$activeShift->check_in_time}) yang belum absen pulang. Silakan lakukan Absen Pulang terlebih dahulu.");
+                }
+            }
+
             $attendance = Attendance::firstOrCreate(
                 ['user_id' => $user->id, 'date' => $today],
                 ['status' => 'Hadir']
@@ -138,21 +178,26 @@ class AttendanceController extends Controller
 
             $now = Carbon::now();
             $attDate = Carbon::parse($attendance->date);
+            $isCrossDay = $now->isAfter($attDate) && !$now->isSameDay($attDate);
             
             $isOvertime = false;
-            if ($now->isSameDay($attDate)) {
-                if ($now->hour >= 20) {
+            // Khusus SATPAM: TIDAK berlaku jam lembur
+            if (!$user->isSatpam()) {
+                if ($now->isSameDay($attDate)) {
+                    if ($now->hour >= 20) {
+                        $isOvertime = true;
+                    }
+                } else if ($now->isAfter($attDate)) {
                     $isOvertime = true;
                 }
-            } else if ($now->isAfter($attDate)) {
-                $isOvertime = true;
             }
 
-
-            if ($now->isAfter($attDate) && !$now->isSameDay($attDate)) {
-                // If it's the next day (e.g. 01:00 AM), cap the checkout time to 23:59:59 of the attendance date
+            // Atur jam check out
+            if (!$user->isSatpam() && $isCrossDay) {
+                // Untuk karyawan biasa jika checkout di hari berikutnya, dicap 23:59:59
                 $attendance->check_out_time = '23:59:59';
             } else {
+                // Untuk SATPAM (atau checkout hari yang sama), simpan jam checkout aktual (misal 08:00:00)
                 $attendance->check_out_time = $now->format('H:i:s');
             }
             
@@ -161,6 +206,10 @@ class AttendanceController extends Controller
             
             if ($isOvertime) {
                 $attendance->notes = $request->notes;
+            } elseif ($user->isSatpam() && $isCrossDay) {
+                if (empty($attendance->notes)) {
+                    $attendance->notes = 'Shift malam (Lintas hari: selesai ' . $now->isoFormat('D MMM Y') . ' ' . $now->format('H:i') . ')';
+                }
             }
 
             if (!empty($request->photo_url)) {
