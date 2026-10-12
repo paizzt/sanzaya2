@@ -222,19 +222,6 @@ export default function Index({ items, isShared, providers = [] }) {
                             )}
                         </h3>
                     </div>
-
-                    {/* Total Nilai Gudang */}
-                    <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-blue-200 flex flex-col items-center justify-center text-center">
-                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
-                            <span className="text-blue-500 font-bold text-sm">Rp</span>
-                        </div>
-                        <p className="text-xs font-medium text-gray-500 mb-2">Total Nilai Gudang</p>
-                        <h3 className="text-2xl font-bold text-gray-800">
-                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(
-                                items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0)
-                            )}
-                        </h3>
-                    </div>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
