@@ -380,7 +380,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(context.raw);
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
                         }
                     }
                 }
@@ -406,7 +406,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return ' ' + new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(context.raw);
+                            return ' ' + new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
                         }
                     }
                 }
@@ -447,7 +447,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         tooltip: {
                                             callbacks: {
                                                 label: function(context) {
-                                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(context.raw);
+                                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
                                                 }
                                             }
                                         }

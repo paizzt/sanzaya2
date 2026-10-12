@@ -231,7 +231,8 @@ class ReportController extends Controller
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
             foreach ($logistikAll as $row) {
-                $val = self::parseCurrency($row->total);
+                $cleanTotal = explode(',', (string)$row->total)[0];
+                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                 $totalPenjualan += $val;
                 if ($row->pelanggan) {
                     $pel = $row->pelanggan;
@@ -323,7 +324,7 @@ class ReportController extends Controller
             foreach ($top10Outlets as $outlet => $data) {
                 $ptFormatted = [];
                 arsort($data['pt']);
-                foreach ($data['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 2, ',', '.');
+                foreach ($data['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $bulanFormatted = [];
                 
@@ -333,30 +334,30 @@ class ReportController extends Controller
                     return $orderA <=> $orderB;
                 });
                 
-                foreach ($data['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 2, ',', '.');
+                foreach ($data['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $outletDetailFormatted[$outlet] = [
-                    'total_formatted' => 'Rp ' . number_format($data['total'], 2, ',', '.'),
+                    'total_formatted' => 'Rp ' . number_format($data['total'], 0, ',', '.'),
                     'pt' => $ptFormatted,
                     'bulan' => $bulanFormatted
                 ];
             }
             
             $salesBreakdownFormatted = [];
-            foreach($salesBreakdown as $s => $v) $salesBreakdownFormatted[$s] = 'Rp ' . number_format($v, 2, ',', '.');
+            foreach($salesBreakdown as $s => $v) $salesBreakdownFormatted[$s] = 'Rp ' . number_format($v, 0, ',', '.');
             
             $ptBreakdownFormatted = [];
-            foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 2, ',', '.');
+            foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
 
             $brandBreakdownFormatted = [];
             arsort($brandBreakdown);
-            foreach($brandBreakdown as $b => $v) $brandBreakdownFormatted[$b] = 'Rp ' . number_format($v, 2, ',', '.');
+            foreach($brandBreakdown as $b => $v) $brandBreakdownFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
 
             $monthBreakdownFormatted = [];
             uksort($monthBreakdown, function($a, $b) use ($monthOrder) {
                 return ($monthOrder[$a] ?? 99) <=> ($monthOrder[$b] ?? 99);
             });
-            foreach($monthBreakdown as $m => $v) $monthBreakdownFormatted[$m] = 'Rp ' . number_format($v, 2, ',', '.');
+            foreach($monthBreakdown as $m => $v) $monthBreakdownFormatted[$m] = 'Rp ' . number_format($v, 0, ',', '.');
 
             // Hitung penjualan spesifik bulan ini jika tidak ada filter bulan
             $refSalesBreakdown = [];
@@ -383,7 +384,8 @@ class ReportController extends Controller
                         strpos($tanggal, "-{$shortMonthEng}") !== false ||
                         strpos($tanggal, " {$shortMonthEng}") !== false
                     ) {
-                        $val = self::parseCurrency($row->total);
+                        $cleanTotal = explode(',', (string)$row->total)[0];
+                        $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                         $refTotalPenjualan += $val;
                         
                         $ptNameForSales = trim($row->nama_pt);
@@ -541,7 +543,8 @@ class ReportController extends Controller
             $ptBreakdownAnnual = [];
             
             foreach ($logistikAnnual as $row) {
-                $val = self::parseCurrency($row->total);
+                $cleanTotal = explode(',', (string)$row->total)[0];
+                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                 $totalPenjualanAnnual += $val;
                 if ($row->nama_pt) {
                     $nPt = trim($row->nama_pt);
@@ -599,8 +602,8 @@ class ReportController extends Controller
             }
 
             $summary = [
-                'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 2, ',', '.'),
-                'total_penjualan_bulan_ini' => 'Rp ' . number_format($refTotalPenjualan, 2, ',', '.'),
+                'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
+                'total_penjualan_bulan_ini' => 'Rp ' . number_format($refTotalPenjualan, 0, ',', '.'),
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
                 'capaian_target' => $capaianTarget,
                 'target_tahunan' => $targetTahunan,
@@ -1072,7 +1075,8 @@ class ReportController extends Controller
         $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
 
         foreach ($logistik as $row) {
-            $val = self::parseCurrency($row->total);
+            $cleanTotal = explode(',', (string)$row->total)[0];
+            $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
             $totalPenjualan += $val;
             
             // PT Breakdown
@@ -1154,13 +1158,13 @@ class ReportController extends Controller
 
         $totalPiutang = 0;
         foreach ($piutang as $row) {
-            $val = self::parseCurrency($row->total_gabungan);
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_gabungan);
             $totalPiutang += $val;
         }
 
         $totalHutang = 0;
         foreach ($hutang as $row) {
-            $val = self::parseCurrency($row->nominal);
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->nominal);
             $totalHutang += $val;
         }
 
