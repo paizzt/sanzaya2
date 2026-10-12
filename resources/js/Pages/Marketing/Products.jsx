@@ -98,7 +98,6 @@ export default function Products({ auth, products, filters }) {
                                     <tr>
                                         <th className="px-6 py-4">Nama Produk & Sumber</th>
                                         <th className="px-6 py-4">Kategori</th>
-                                        <th className="px-6 py-4">NIE / Reg. No</th>
                                         <th className="px-6 py-4">Kemasan</th>
                                     </tr>
                                 </thead>
@@ -111,9 +110,6 @@ export default function Products({ auth, products, filters }) {
                                                             <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${product.source_type === 'Internal' ? 'bg-indigo-50 text-indigo-700' : 'bg-orange-50 text-orange-700'}`}>
                                                                 {product.source_type}
                                                             </span>
-                                                            <span className="text-xs font-medium text-gray-500">
-                                                                {product.provider_name}
-                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
@@ -122,12 +118,6 @@ export default function Products({ auth, products, filters }) {
                                                             <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
                                                                 {product.jenis || '-'}
                                                             </span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 font-medium text-gray-700 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                        <div className="flex justify-between md:block items-center">
-                                                            <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">NIE/Reg No</span>
-                                                            <span>{product.registration_no || '-'}</span>
                                                         </div>
                                                     </td>
                                                     <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 text-gray-500 text-sm">
@@ -139,7 +129,7 @@ export default function Products({ auth, products, filters }) {
                                                 </tr>
                                             )) : (
                                                 <tr className="block md:table-row">
-                                                    <td colSpan="4" className="block md:table-cell px-6 py-16 text-center">
+                                                    <td colSpan="3" className="block md:table-cell px-6 py-16 text-center">
                                                         <div className="flex flex-col items-center justify-center text-gray-400">
                                                             <div className="bg-gray-50 p-4 rounded-full mb-4">
                                                                 <Package className="w-12 h-12 text-gray-300" />
