@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FileText, Sheet, X, Settings2 } from 'lucide-react';
+import { Download, FileText, Sheet, X, Settings2, ExternalLink } from 'lucide-react';
 import Modal from '@/Components/Modal';
 
 export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null, availableColumns = [], isReportDashboard = false, outletNames = [] }) {
@@ -297,36 +297,50 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                         )}
 
                         <div className="flex-1 flex flex-col min-w-0">
-                            <div className="flex space-x-2 border-b border-gray-200 mb-4">
-                                {pdfRoute && (
-                                    <button
-                                        onClick={() => setActiveTab('pdf')}
-                                        className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
-                                            activeTab === 'pdf'
-                                                ? 'bg-red-50 text-red-600 border-b-2 border-red-500'
-                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                                        }`}
+                            <div className="flex justify-between items-center border-b border-gray-200 mb-4">
+                                <div className="flex space-x-2">
+                                    {pdfRoute && (
+                                        <button
+                                            onClick={() => setActiveTab('pdf')}
+                                            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
+                                                activeTab === 'pdf'
+                                                    ? 'bg-red-50 text-red-600 border-b-2 border-red-500'
+                                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="w-4 h-4" />
+                                                Pratinjau PDF
+                                            </div>
+                                        </button>
+                                    )}
+                                    {excelRoute && (
+                                        <button
+                                            onClick={() => setActiveTab('excel')}
+                                            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
+                                                activeTab === 'excel'
+                                                    ? 'bg-emerald-50 text-emerald-600 border-b-2 border-emerald-500'
+                                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <Sheet className="w-4 h-4" />
+                                                Pratinjau Excel
+                                            </div>
+                                        </button>
+                                    )}
+                                </div>
+                                {activeTab === 'pdf' && pdfRoute && (
+                                    <a
+                                        href={buildUrlParams(pdfRoute, true)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors mb-1"
+                                        title="Buka PDF di tab baru untuk melihat seluruh halaman di HP / Layar Sentuh"
                                     >
-                                        <div className="flex items-center gap-2">
-                                            <FileText className="w-4 h-4" />
-                                            Pratinjau PDF
-                                        </div>
-                                    </button>
-                                )}
-                                {excelRoute && (
-                                    <button
-                                        onClick={() => setActiveTab('excel')}
-                                        className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
-                                            activeTab === 'excel'
-                                                ? 'bg-emerald-50 text-emerald-600 border-b-2 border-emerald-500'
-                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                                        }`}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <Sheet className="w-4 h-4" />
-                                            Pratinjau Excel
-                                        </div>
-                                    </button>
+                                        <ExternalLink className="w-3.5 h-3.5" />
+                                        <span>Buka Tab Baru (Lengkap)</span>
+                                    </a>
                                 )}
                             </div>
 
@@ -349,7 +363,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                         </div>
                     </div>
 
-                    <div className="mt-6 flex justify-end gap-3">
+                    <div className="mt-6 flex flex-wrap justify-end gap-3">
                         <button
                             onClick={handleClose}
                             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-medium transition-colors"
@@ -357,13 +371,24 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                             Tutup
                         </button>
                         {activeTab === 'pdf' && pdfRoute && (
-                            <a
-                                href={buildUrlParams(pdfRoute, false)}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-colors"
-                            >
-                                <Download className="w-4 h-4" />
-                                Unduh PDF
-                            </a>
+                            <>
+                                <a
+                                    href={buildUrlParams(pdfRoute, true)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl font-medium transition-colors"
+                                >
+                                    <ExternalLink className="w-4 h-4" />
+                                    Buka di Tab Baru
+                                </a>
+                                <a
+                                    href={buildUrlParams(pdfRoute, false)}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-colors"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Unduh PDF
+                                </a>
+                            </>
                         )}
                         {activeTab === 'excel' && excelRoute && (
                             <a

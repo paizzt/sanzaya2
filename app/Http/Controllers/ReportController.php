@@ -102,7 +102,7 @@ class ReportController extends Controller
         }
 
         $salesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');
-        $ptNames = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->pluck('nama_pt');
+        $ptNames = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-')->pluck('nama_pt')->map(fn($p) => trim($p))->filter(fn($p) => $p !== '' && $p !== '-')->unique()->values();
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -245,8 +245,8 @@ class ReportController extends Controller
                 $cleanTotal = explode(',', (string)$row->total)[0];
                 $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                 $totalPenjualan += $val;
-                if ($row->pelanggan) {
-                    $pel = $row->pelanggan;
+                $pel = trim((string)$row->pelanggan);
+                if ($pel !== '' && !in_array(strtolower($pel), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya'])) {
                     $outletCounts[$pel] = ($outletCounts[$pel] ?? 0) + 1;
                     
                     if (!isset($outletDetailsMap[$pel])) {
@@ -299,7 +299,10 @@ class ReportController extends Controller
                     $nBrand = trim($row->brand);
                     if ($nBrand) $brandBreakdown[$nBrand] = ($brandBreakdown[$nBrand] ?? 0) + $val;
                 }
-                if ($row->nama_produk) $produkCounts[$row->nama_produk] = ($produkCounts[$row->nama_produk] ?? 0) + 1;
+                $prod = trim((string)$row->nama_produk);
+                if ($prod !== '' && !in_array(strtolower($prod), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya'])) {
+                    $produkCounts[$prod] = ($produkCounts[$prod] ?? 0) + 1;
+                }
                 $ptNameForSales = trim($row->nama_pt);
                 $namaSales = strtoupper(trim($row->nama_sales));
                 if (!$namaSales) {
@@ -435,18 +438,40 @@ class ReportController extends Controller
                 return ['sales' => $sales, 'percent' => number_format($capPercent, 1, ',', '.') . '%'];
             };
 
-            if ($ptFilter) {
-                $companyTarget = \App\Models\CompanyTarget::where('name', $ptFilter)->first();
-                if (!$companyTarget) {
-                    $companyTarget = \App\Models\CompanyTarget::whereHas('companies', function($q) use ($ptFilter) {
-                        $q->where('name', $ptFilter);
-                    })->first();
-                }
-                
-                if ($companyTarget && $companyTarget->monthly_target > 0) {
-                    $targetBulanan = (float)$companyTarget->monthly_target;
-                    $targetDetail[$companyTarget->name] = 'Rp ' . number_format($targetBulanan, 0, ',', '.');
-                    $capaianDetail[$companyTarget->name] = $formatCapaian($refTotalPenjualan, $targetBulanan);
+            if (!empty($targetPtNamesToSearch)) {
+                $companyTargets = \App\Models\CompanyTarget::with('companies')->where(function($q) use ($targetPtNamesToSearch) {
+                    $q->whereIn('name', $targetPtNamesToSearch);
+                    foreach ($targetPtNamesToSearch as $pt) {
+                        $q->orWhere('name', 'like', '%' . $pt . '%');
+                        $q->orWhereHas('companies', function($cq) use ($pt) {
+                            $cq->where('name', 'like', '%' . $pt . '%');
+                        });
+                    }
+                })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
+
+                if ($companyTargets->count() > 0) {
+                    $targetBulanan = $companyTargets->sum('monthly_target');
+                    $totalTargetedPenjualan = 0;
+                    foreach ($companyTargets as $ct) {
+                        $targetDetail[$ct->name] = 'Rp ' . number_format($ct->monthly_target, 0, ',', '.');
+                        
+                        $ptPenjualan = 0;
+                        foreach ($ct->companies as $companyModel) {
+                            $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
+                            foreach ($refPtBreakdown as $nPt => $val) {
+                                $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
+                                if (stripos($companyNameNormalized, $nPtNormalized) !== false || stripos($nPtNormalized, $companyNameNormalized) !== false) {
+                                    $ptPenjualan += $val;
+                                }
+                            }
+                        }
+                        if ($ptPenjualan == 0 && isset($refPtBreakdown[$ct->name])) {
+                            $ptPenjualan = $refPtBreakdown[$ct->name];
+                        }
+                        $totalTargetedPenjualan += $ptPenjualan;
+                        $capaianDetail[$ct->name] = $formatCapaian($ptPenjualan, $ct->monthly_target);
+                    }
+                    $refTotalPenjualan = $totalTargetedPenjualan;
                 }
             } elseif ($salesFilter) {
                 $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
@@ -481,6 +506,9 @@ class ReportController extends Controller
                                     $ptPenjualan += $val;
                                 }
                             }
+                        }
+                        if ($ptPenjualan == 0 && isset($refPtBreakdown[$ct->name])) {
+                            $ptPenjualan = $refPtBreakdown[$ct->name];
                         }
                         $totalTargetedPenjualan += $ptPenjualan;
                         
@@ -559,25 +587,48 @@ class ReportController extends Controller
                 $totalPenjualanAnnual += $val;
                 if ($row->nama_pt) {
                     $nPt = trim($row->nama_pt);
-                    $ptBreakdownAnnual[$nPt] = ($ptBreakdownAnnual[$nPt] ?? 0) + $val;
+                    if ($nPt !== '' && $nPt !== '-' && !in_array(strtolower($nPt), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
+                        $ptBreakdownAnnual[$nPt] = ($ptBreakdownAnnual[$nPt] ?? 0) + $val;
+                    }
                 }
             }
             
-            if ($ptFilter) {
-                $companyTarget = \App\Models\CompanyTarget::where('name', $ptFilter)->first();
-                if (!$companyTarget) {
-                    $companyTarget = \App\Models\CompanyTarget::whereHas('companies', function($q) use ($ptFilter) {
-                        $q->where('name', $ptFilter);
-                    })->first();
-                }
+            if (!empty($targetPtNamesToSearch)) {
+                $companyTargetsAnn = \App\Models\CompanyTarget::with('companies')->where(function($q) use ($targetPtNamesToSearch) {
+                    $q->whereIn('name', $targetPtNamesToSearch);
+                    foreach ($targetPtNamesToSearch as $pt) {
+                        $q->orWhere('name', 'like', '%' . $pt . '%');
+                        $q->orWhereHas('companies', function($cq) use ($pt) {
+                            $cq->where('name', 'like', '%' . $pt . '%');
+                        });
+                    }
+                })->whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
 
-                if ($companyTarget && $companyTarget->annual_target > 0) {
-                    $targetTahunanVal = (float)$companyTarget->annual_target;
+                $targetTahunanVal = $companyTargetsAnn->sum('annual_target');
+                if ($targetTahunanVal > 0) {
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
-                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalPenjualanAnnual / $targetTahunanVal) * 100 : 0;
-                    $targetTahunanDetail[$companyTarget->name] = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.') . ' (' . number_format($capPercentTahunan, 1, ',', '.') . '%)';
+                    $totalTargetedPenjualanAnn = 0;
+                    foreach ($companyTargetsAnn as $ct) {
+                        $ptPenjualanAnn = 0;
+                        foreach ($ct->companies as $companyModel) {
+                            $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
+                            foreach ($ptBreakdownAnnual as $nPt => $val) {
+                                $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
+                                if (stripos($companyNameNormalized, $nPtNormalized) !== false || stripos($nPtNormalized, $companyNameNormalized) !== false) {
+                                    $ptPenjualanAnn += $val;
+                                }
+                            }
+                        }
+                        if ($ptPenjualanAnn == 0 && isset($ptBreakdownAnnual[$ct->name])) {
+                            $ptPenjualanAnn = $ptBreakdownAnnual[$ct->name];
+                        }
+                        $totalTargetedPenjualanAnn += $ptPenjualanAnn;
+                        $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
+                        $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ptPenjualanAnn, 0, ',', '.') . ' / Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
+                        $capaianTahunanDetail[$ct->name] = number_format($capPercent, 1, ',', '.') . '%';
+                    }
+                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalTargetedPenjualanAnn / $targetTahunanVal) * 100 : 0;
                     $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
-                    $capaianTahunanDetail[$companyTarget->name] = $capaianTahunan;
                 }
             } else {
                 $companyTargetsAnn = \App\Models\CompanyTarget::with('companies')->whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
@@ -596,6 +647,9 @@ class ReportController extends Controller
                                 }
                             }
                         }
+                        if ($ptPenjualanAnn == 0 && isset($ptBreakdownAnnual[$ct->name])) {
+                            $ptPenjualanAnn = $ptBreakdownAnnual[$ct->name];
+                        }
                         $totalTargetedPenjualanAnn += $ptPenjualanAnn;
                         $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
                         $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ptPenjualanAnn, 0, ',', '.') . ' / Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
@@ -612,6 +666,23 @@ class ReportController extends Controller
                 $capaianTarget = number_format($capPercent, 1, ',', '.') . '%';
             }
 
+            $topOutletName = '-';
+            foreach ($outletCounts as $k => $cnt) {
+                $kTrim = trim((string)$k);
+                if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
+                    $topOutletName = $kTrim;
+                    break;
+                }
+            }
+            $topProdukName = '-';
+            foreach ($produkCounts as $k => $cnt) {
+                $kTrim = trim((string)$k);
+                if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
+                    $topProdukName = $kTrim;
+                    break;
+                }
+            }
+
             $summary = [
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
                 'total_penjualan_bulan_ini' => 'Rp ' . number_format($refTotalPenjualan, 0, ',', '.'),
@@ -623,8 +694,8 @@ class ReportController extends Controller
                 'capaian_tahunan_detail' => $capaianTahunanDetail,
                 'target_detail' => $targetDetail,
                 'capaian_detail' => $capaianDetail,
-                'top_outlet' => key($outletCounts) ?: '-',
-                'top_produk' => key($produkCounts) ?: '-',
+                'top_outlet' => $topOutletName,
+                'top_produk' => $topProdukName,
                 'total_pesanan' => $logistikAll->count(),
                 'penjualan_detail' => $salesBreakdownFormatted,
                 'pt_penjualan_detail' => $ptBreakdownFormatted,
