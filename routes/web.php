@@ -125,12 +125,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/absensi/pengajuan/{id}', [AttendanceRequestController::class, 'destroy'])->name('absensi.pengajuan.destroy');
     });
 
+    // Rekap Marketing (Authorization handled in controller to support feature toggles)
+    Route::get('/marketing/recap-all', [\App\Http\Controllers\MarketingRecapController::class, 'index'])->name('marketing.recap.index');
+    Route::get('/marketing/recap-all/pdf', [\App\Http\Controllers\MarketingRecapController::class, 'exportPdf'])->name('marketing.recap.pdf');
+    Route::get('/marketing/recap-all/excel', [\App\Http\Controllers\MarketingRecapController::class, 'exportExcel'])->name('marketing.recap.excel');
+
     // Modul Marketing
     Route::middleware(['can:view marketing'])->group(function() {
         Route::get('/marketing', [MarketingDailyReportController::class, 'index'])->name('marketing.index');
-        Route::get('/marketing/recap-all', [\App\Http\Controllers\MarketingRecapController::class, 'index'])->name('marketing.recap.index');
-        Route::get('/marketing/recap-all/pdf', [\App\Http\Controllers\MarketingRecapController::class, 'exportPdf'])->name('marketing.recap.pdf');
-        Route::get('/marketing/recap-all/excel', [\App\Http\Controllers\MarketingRecapController::class, 'exportExcel'])->name('marketing.recap.excel');
         Route::post('/marketing/report', [MarketingDailyReportController::class, 'store'])->name('marketing.report.store');
         Route::post('/marketing/target', [MarketingDailyReportController::class, 'storeTarget'])->name('marketing.target.store');
         Route::get('/marketing/target/last/{user_id?}', [MarketingDailyReportController::class, 'getLastTarget'])->name('marketing.target.last');

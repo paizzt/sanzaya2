@@ -14,9 +14,9 @@ class MarketingRecapController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        
-        // Access control is handled via feature toggles in the UI.
-        // You could add a check for feature 10 here if strictly needed.
+        if (!$this->canAccessMarketingRecap($user)) {
+            abort(403, 'Unauthorized access.');
+        }
 
         $salesUserId = $request->get('user_id');
         $filterDate = $request->get('filter_date');
@@ -186,13 +186,13 @@ class MarketingRecapController extends Controller
         ]);
     }
 
-    private function canExportMarketing($user)
+    private function canAccessMarketingRecap($user)
     {
         if (!$user) {
             return false;
         }
 
-        if ($user->hasRole(['SUPERADMIN', 'Superadmin'])) {
+        if ($user->hasRole(['SUPERADMIN', 'Superadmin', 'superadmin'])) {
             return true;
         }
 
@@ -214,7 +214,7 @@ class MarketingRecapController extends Controller
     public function exportPdf(Request $request)
     {
         $user = Auth::user();
-        if (!$this->canExportMarketing($user)) {
+        if (!$this->canAccessMarketingRecap($user)) {
             return abort(403, 'Unauthorized access.');
         }
 
@@ -245,18 +245,12 @@ class MarketingRecapController extends Controller
             
             $allReports = $query->get();
             
-            if ($type === 'laporan') {
-                $data['reports'] = $allReports;
-            } else {
-                $data['reports'] = $allReports->filter(function($r) {
-                    return $this->isRealKendala($r);
-                })->values();
-            }
+            // Ambil semua laporan yang ada tanpa batasan filter
+            $data['reports'] = $allReports;
 
-            // Calculate Kesimpulan dan Kendala
-            $salesUsersQuery = User::role('marketing')->orderBy('name');
-            if ($salesUserId) $salesUsersQuery->where('id', $salesUserId);
-            $salesUsers = $salesUsersQuery->get();
+            // Kesimpulan dan Kendala: Ambil semua laporan dari semua sales/marketing
+            $userIds = $allReports->pluck('user_id')->filter()->unique();
+            $salesUsers = User::whereIn('id', $userIds)->orderBy('name')->get();
 
             foreach ($salesUsers as $u) {
                 $kendalaPerUser[$u->id] = [
@@ -265,31 +259,40 @@ class MarketingRecapController extends Controller
                 ];
             }
 
-            $kendalaReports = $allReports->filter(function($r) {
-                return $this->isRealKendala($r);
-            })->values();
-
-            foreach ($kendalaReports as $k) {
+            foreach ($allReports as $k) {
                 $uid = $k->user_id;
-                if (isset($kendalaPerUser[$uid])) {
-                    $desc = '';
-                    if ($k->visit_result) $desc .= $k->visit_result . "\n";
-                    if ($k->issue_type && $k->issue_description) {
-                        $desc .= 'Kendala (' . $k->issue_type . '): ' . $k->issue_description . "\n";
-                    } elseif ($k->issue_description) {
-                        $desc .= 'Kendala: ' . $k->issue_description . "\n";
-                    }
-                    if ($k->competitor_notes) $desc .= 'Kompetitor: ' . $k->competitor_notes;
-                    
-                    $desc = trim($desc);
-                    if ($desc) {
-                        $kendalaPerUser[$uid]['kendal_list'][] = [
-                            'date' => \Carbon\Carbon::parse($k->visit_date)->format('d/m/Y'),
-                            'outlet' => $k->outlet ? $k->outlet->name : '-',
-                            'description' => $desc
-                        ];
-                    }
+                if (!isset($kendalaPerUser[$uid])) {
+                    $kendalaPerUser[$uid] = [
+                        'name' => $k->user ? $k->user->name : 'Sales #' . $uid,
+                        'kendal_list' => []
+                    ];
                 }
+
+                $descParts = [];
+                if ($k->visit_result) {
+                    $descParts[] = 'Hasil: ' . $k->visit_result;
+                }
+                if ($k->issue_type && $k->issue_description) {
+                    $descParts[] = 'Kendala (' . $k->issue_type . '): ' . $k->issue_description;
+                } elseif ($k->issue_description) {
+                    $descParts[] = 'Kendala: ' . $k->issue_description;
+                } elseif ($k->issue_type) {
+                    $descParts[] = 'Kendala: ' . $k->issue_type;
+                }
+                if ($k->competitor_notes) {
+                    $descParts[] = 'Kompetitor: ' . $k->competitor_notes;
+                }
+
+                $desc = implode("\n", $descParts);
+                if (!$desc) {
+                    $desc = $k->activity_type ?? 'Kunjungan';
+                }
+
+                $kendalaPerUser[$uid]['kendal_list'][] = [
+                    'date' => \Carbon\Carbon::parse($k->visit_date)->format('d/m/Y'),
+                    'outlet' => $k->outlet ? $k->outlet->name : ($k->activity_type ?? '-'),
+                    'description' => $desc
+                ];
             }
         } else {
             $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc')->orderBy('week_number', 'desc');
@@ -317,7 +320,7 @@ class MarketingRecapController extends Controller
     public function exportExcel(Request $request)
     {
         $user = Auth::user();
-        if (!$this->canExportMarketing($user)) {
+        if (!$this->canAccessMarketingRecap($user)) {
             return abort(403, 'Unauthorized access.');
         }
 
@@ -337,7 +340,7 @@ class MarketingRecapController extends Controller
             $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
         }
 
-        if ($type === 'laporan') {
+        if ($type === 'laporan' || $type === 'kendala') {
             $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
             if ($startDate) $query->where('visit_date', '>=', $startDate);
@@ -346,23 +349,18 @@ class MarketingRecapController extends Controller
             
             $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Aktivitas', 'Kendala', 'Hasil', 'Kompetitor'];
             $rows = $items->map(function($item, $key) {
-                return [$key+1, $item->visit_date, $item->user->name ?? '-', $item->outlet->name ?? '-', $item->activity_type, $item->issue_type . ($item->issue_description ? ': ' . $item->issue_description : ''), $item->visit_result, $item->competitor_notes];
+                return [
+                    $key + 1,
+                    $item->visit_date,
+                    $item->user->name ?? '-',
+                    $item->outlet->name ?? '-',
+                    $item->activity_type,
+                    $item->issue_type . ($item->issue_description ? ': ' . $item->issue_description : ''),
+                    $item->visit_result,
+                    $item->competitor_notes
+                ];
             });
-            $title = 'Rekap_Laporan_Marketing';
-        } elseif ($type === 'kendala') {
-            $query = MarketingDailyReport::with(['outlet', 'user'])->orderBy('visit_date', 'desc');
-            if ($salesUserId) $query->where('user_id', $salesUserId);
-            if ($startDate) $query->where('visit_date', '>=', $startDate);
-            if ($endDate) $query->where('visit_date', '<=', $endDate);
-            $items = $query->get()->filter(function($r) {
-                return $this->isRealKendala($r);
-            })->values();
-            
-            $headings = ['No', 'Tanggal', 'Sales', 'Outlet', 'Kendala', 'Hasil', 'Kompetitor'];
-            $rows = $items->map(function($item, $key) {
-                return [$key+1, $item->visit_date, $item->user->name ?? '-', $item->outlet->name ?? '-', $item->issue_type . ($item->issue_description ? ': ' . $item->issue_description : ''), $item->visit_result, $item->competitor_notes];
-            });
-            $title = 'Rekap_Kendala_Marketing';
+            $title = $type === 'kendala' ? 'Rekap_Kendala_Marketing' : 'Rekap_Laporan_Marketing';
         } else {
             $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);

@@ -100,8 +100,8 @@
                         {{ str_contains($report->activity_type, 'Non-Kunjungan') ? '-' : ($report->outlet ? $report->outlet->name : $report->outlet_id) }}<br>
                         <small>{{ $report->pic_name ? 'PIC: '.$report->pic_name : '' }}</small>
                     </td>
-                    <td>{{ $report->issue_type }}</td>
-                    <td>{{ $report->visit_result }}</td>
+                    <td>{{ $report->issue_type ? $report->issue_type . ($report->issue_description ? ': ' . $report->issue_description : '') : ($report->issue_description ?: '-') }}</td>
+                    <td>{{ $report->visit_result ?: '-' }}</td>
                     <td class="text-center">
                         @if($report->photos)
                             @php $photos = json_decode($report->photos, true); @endphp
