@@ -957,6 +957,7 @@ class ReportController extends Controller
             $selectedOutlets = [$selectedOutlets];
         }
 
+        $isSuperAdmin = auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']);
         $salesFilter = $request->query('sales_filter', '');
         if (!$isSuperAdmin && auth()->user() && auth()->user()->spreadsheet_sales_name) {
             $salesFilter = auth()->user()->spreadsheet_sales_name;
