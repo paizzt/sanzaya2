@@ -10,11 +10,6 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import Pagination from '@/Components/Pagination';
 
 export default function RecapAll({ reports, allTargets, sales_users, filters, auth, summary }) {
-    const canDownloadPdf = auth?.can_download_pdf !== undefined
-        ? Boolean(auth.can_download_pdf)
-        : (auth?.active_feature_names 
-            ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
-            : true);
     const [activeTab, setActiveTab] = useState('laporan');
     const [selectedReport, setSelectedReport] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);

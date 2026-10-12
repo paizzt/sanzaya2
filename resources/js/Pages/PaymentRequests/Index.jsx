@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
@@ -21,15 +21,17 @@ const formatCurrency = (value) => {
 };
 
 export default function Index({ auth, paymentRequests, summary, filters, isApprovalView = false }) {
+    const pageAuth = usePage().props.auth;
+    const currentAuth = auth || pageAuth;
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || '');
     const [deadline, setDeadline] = useState(filters.deadline || '');
     
-    const isSuperAdmin = auth.user?.roles?.some(r => r.name === 'SUPERADMIN');
-    const canDownloadPdf = auth?.can_download_pdf !== undefined
-        ? Boolean(auth.can_download_pdf)
-        : (auth?.active_feature_names 
-            ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
+    const isSuperAdmin = currentAuth?.user?.roles?.some(r => r.name === 'SUPERADMIN');
+    const canDownloadPdf = currentAuth?.can_download_pdf !== undefined
+        ? Boolean(currentAuth.can_download_pdf)
+        : (currentAuth?.active_feature_names 
+            ? currentAuth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
             : true);
 
     const handleDelete = (id) => {

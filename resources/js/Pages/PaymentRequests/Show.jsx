@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
@@ -19,10 +19,12 @@ const formatCurrency = (value) => {
 };
 
 export default function Show({ auth, paymentRequest, completeness, canApprove, canReject, isApprovalView }) {
-    const canDownloadPdf = auth?.can_download_pdf !== undefined
-        ? Boolean(auth.can_download_pdf)
-        : (auth?.active_feature_names 
-            ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
+    const pageAuth = usePage().props.auth;
+    const currentAuth = auth || pageAuth;
+    const canDownloadPdf = currentAuth?.can_download_pdf !== undefined
+        ? Boolean(currentAuth.can_download_pdf)
+        : (currentAuth?.active_feature_names 
+            ? currentAuth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
             : true);
     const { post, processing } = useForm();
 
