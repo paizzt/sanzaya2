@@ -851,7 +851,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
                                         <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] shrink-0 w-full sm:w-auto">
-                                            <Download className="w-4 h-4 mr-2" /> {canDownloadPdf ? 'Unduh PDF/Excel' : 'Unduh Excel'}
+                                            <Download className="w-4 h-4 mr-2" /> Unduh
                                         </button>
                                     } />
                                 </h3>

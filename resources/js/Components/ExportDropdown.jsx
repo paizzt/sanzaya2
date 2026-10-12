@@ -13,12 +13,17 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
             : true);
 
-    const effectivePdfRoute = canDownloadPdf ? pdfRoute : null;
-    const effectiveExcelRoute = excelRoute;
-
-    if (!effectivePdfRoute && !effectiveExcelRoute) {
+    // Jika saklar unduh dimatikan untuk user ini, sembunyikan semua tombol unduh (baik PDF maupun Excel)
+    if (!canDownloadPdf) {
         return null;
     }
+
+    if (!pdfRoute && !excelRoute) {
+        return null;
+    }
+
+    const effectivePdfRoute = pdfRoute;
+    const effectiveExcelRoute = excelRoute;
 
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(effectivePdfRoute ? 'pdf' : 'excel');
@@ -147,7 +152,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                     className={`inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 text-gray-700 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-gray-100 hover:text-blue-600 transition-colors gap-2 whitespace-nowrap shrink-0 ${className}`}
                 >
                     <Download className="w-4 h-4 text-emerald-600" />
-                    {effectiveExcelRoute && !effectivePdfRoute ? 'Unduh Excel' : 'Unduh'}
+                    {effectivePdfRoute && !effectiveExcelRoute ? 'Unduh PDF' : (effectiveExcelRoute && !effectivePdfRoute ? 'Unduh Excel' : 'Unduh')}
                 </button>
             )}
 
@@ -355,18 +360,6 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                         </button>
                                     )}
                                 </div>
-                                {currentTab === 'pdf' && effectivePdfRoute && (
-                                    <a
-                                        href={buildUrlParams(effectivePdfRoute, true)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors mb-1"
-                                        title="Buka PDF di tab baru untuk melihat seluruh halaman di HP / Layar Sentuh"
-                                    >
-                                        <ExternalLink className="w-3.5 h-3.5" />
-                                        <span>Buka Tab Baru (Lengkap)</span>
-                                    </a>
-                                )}
                             </div>
 
                             <div className="bg-gray-50 rounded-xl border border-gray-200 p-2 h-[60vh]">
