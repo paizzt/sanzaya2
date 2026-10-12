@@ -74,36 +74,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/users/{user}/download-barcode', [\App\Http\Controllers\UserController::class, 'downloadBarcode'])->name('users.download-barcode');
 
     // Added Export Routes
-    Route::get('/warehouse-stocks-export-pdf', [\App\Http\Controllers\WarehouseStockController::class, 'exportPdf'])->name('warehouse-stocks.export.pdf');
+    Route::middleware(['can.pdf'])->group(function () {
+        Route::get('/warehouse-stocks-export-pdf', [\App\Http\Controllers\WarehouseStockController::class, 'exportPdf'])->name('warehouse-stocks.export.pdf');
+        Route::get('/logistic-reports-export-pdf', [\App\Http\Controllers\LogisticReportController::class, 'exportPdf'])->name('logistic-reports.export.pdf');
+        Route::get('/purchase-orders-export-pdf', [\App\Http\Controllers\PurchaseOrderController::class, 'exportPdf'])->name('purchase-orders.export.pdf');
+        Route::get('/receivables-export-pdf', [\App\Http\Controllers\ReceivableController::class, 'exportPdf'])->name('receivables.export.pdf');
+        Route::get('/payables-export-pdf', [\App\Http\Controllers\PayableController::class, 'exportPdf'])->name('payables.export.pdf');
+        Route::get('/company-export-pdf', [\App\Http\Controllers\CompanyController::class, 'exportPdf'])->name('company.export.pdf');
+        Route::get('/outlets-export-pdf', [\App\Http\Controllers\OutletController::class, 'exportPdf'])->name('outlets.export.pdf');
+        Route::get('/vehicles-export-pdf', [\App\Http\Controllers\VehicleController::class, 'exportPdf'])->name('vehicles.export.pdf');
+        Route::get('/providers-export-pdf', [\App\Http\Controllers\ProviderController::class, 'exportPdf'])->name('providers.export.pdf');
+        Route::get('/provider-products-export-pdf/{provider}', [\App\Http\Controllers\ProviderProductController::class, 'exportPdf'])->name('provider-products.export.pdf');
+        Route::get('/products-export-pdf', [\App\Http\Controllers\ProductController::class, 'exportPdf'])->name('products.export.pdf');
+        Route::get('/users-export-pdf', [\App\Http\Controllers\UserController::class, 'exportPdf'])->name('users.export.pdf');
+        Route::get('/marketing-export-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf');
+        Route::get('/marketing-export-target-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportTargetPdf'])->name('marketing.export_target.pdf');
+        Route::get('/uc-export-pdf', [\App\Http\Controllers\UcRequestController::class, 'exportPdf'])->name('requests.uc.export.pdf');
+        Route::get('/uc-approval-export-pdf', [\App\Http\Controllers\UcApprovalController::class, 'exportPdf'])->name('requests.uc.approval.export.pdf');
+    });
+
     Route::get('/warehouse-stocks-export-excel', [\App\Http\Controllers\WarehouseStockController::class, 'exportExcel'])->name('warehouse-stocks.export.excel');
-    Route::get('/logistic-reports-export-pdf', [\App\Http\Controllers\LogisticReportController::class, 'exportPdf'])->name('logistic-reports.export.pdf');
     Route::get('/logistic-reports-export-excel', [\App\Http\Controllers\LogisticReportController::class, 'exportExcel'])->name('logistic-reports.export.excel');
-    Route::get('/purchase-orders-export-pdf', [\App\Http\Controllers\PurchaseOrderController::class, 'exportPdf'])->name('purchase-orders.export.pdf');
     Route::get('/purchase-orders-export-excel', [\App\Http\Controllers\PurchaseOrderController::class, 'exportExcel'])->name('purchase-orders.export.excel');
-    Route::get('/receivables-export-pdf', [\App\Http\Controllers\ReceivableController::class, 'exportPdf'])->name('receivables.export.pdf');
     Route::get('/receivables-export-excel', [\App\Http\Controllers\ReceivableController::class, 'exportExcel'])->name('receivables.export.excel');
-    Route::get('/payables-export-pdf', [\App\Http\Controllers\PayableController::class, 'exportPdf'])->name('payables.export.pdf');
     Route::get('/payables-export-excel', [\App\Http\Controllers\PayableController::class, 'exportExcel'])->name('payables.export.excel');
-    Route::get('/company-export-pdf', [\App\Http\Controllers\CompanyController::class, 'exportPdf'])->name('company.export.pdf');
     Route::get('/company-export-excel', [\App\Http\Controllers\CompanyController::class, 'exportExcel'])->name('company.export.excel');
-    Route::get('/outlets-export-pdf', [\App\Http\Controllers\OutletController::class, 'exportPdf'])->name('outlets.export.pdf');
     Route::get('/outlets-export-excel', [\App\Http\Controllers\OutletController::class, 'exportExcel'])->name('outlets.export.excel');
-    Route::get('/vehicles-export-pdf', [\App\Http\Controllers\VehicleController::class, 'exportPdf'])->name('vehicles.export.pdf');
     Route::get('/vehicles-export-excel', [\App\Http\Controllers\VehicleController::class, 'exportExcel'])->name('vehicles.export.excel');
-    Route::get('/providers-export-pdf', [\App\Http\Controllers\ProviderController::class, 'exportPdf'])->name('providers.export.pdf');
     Route::get('/providers-export-excel', [\App\Http\Controllers\ProviderController::class, 'exportExcel'])->name('providers.export.excel');
-    Route::get('/provider-products-export-pdf/{provider}', [\App\Http\Controllers\ProviderProductController::class, 'exportPdf'])->name('provider-products.export.pdf');
     Route::get('/provider-products-export-excel/{provider}', [\App\Http\Controllers\ProviderProductController::class, 'exportExcel'])->name('provider-products.export.excel');
-    Route::get('/products-export-pdf', [\App\Http\Controllers\ProductController::class, 'exportPdf'])->name('products.export.pdf');
     Route::get('/products-export-excel', [\App\Http\Controllers\ProductController::class, 'exportExcel'])->name('products.export.excel');
-    Route::get('/users-export-pdf', [\App\Http\Controllers\UserController::class, 'exportPdf'])->name('users.export.pdf');
     Route::get('/users-export-excel', [\App\Http\Controllers\UserController::class, 'exportExcel'])->name('users.export.excel');
-    Route::get('/marketing-export-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf');
     Route::get('/marketing-export-excel', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportExcel'])->name('marketing.export.excel');
-    Route::get('/marketing-export-target-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportTargetPdf'])->name('marketing.export_target.pdf');
-    Route::get('/uc-export-pdf', [\App\Http\Controllers\UcRequestController::class, 'exportPdf'])->name('requests.uc.export.pdf');
     Route::get('/uc-export-excel', [\App\Http\Controllers\UcRequestController::class, 'exportExcel'])->name('requests.uc.export.excel');
-    Route::get('/uc-approval-export-pdf', [\App\Http\Controllers\UcApprovalController::class, 'exportPdf'])->name('requests.uc.approval.export.pdf');
     Route::get('/uc-approval-export-excel', [\App\Http\Controllers\UcApprovalController::class, 'exportExcel'])->name('requests.uc.approval.export.excel');
 
 
@@ -113,7 +116,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Absensi
         Route::get('/absensi', [AttendanceController::class, 'index'])->name('absensi.index');
         Route::get('/absensi/rekap', [AttendanceRecapController::class, 'index'])->name('absensi.rekap');
-        Route::get('/absensi/rekap/export-pdf', [AttendanceRecapController::class, 'exportPdf'])->name('absensi.rekap.export-pdf');
+        Route::get('/absensi/rekap/export-pdf', [AttendanceRecapController::class, 'exportPdf'])->name('absensi.rekap.export-pdf')->middleware('can.pdf');
         Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
         Route::put('/absensi/{id}', [AttendanceController::class, 'update'])->name('absensi.update');
         Route::delete('/absensi/{id}', [AttendanceController::class, 'destroy'])->name('absensi.destroy');
@@ -127,7 +130,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Rekap Marketing (Authorization handled in controller to support feature toggles)
     Route::get('/marketing/recap-all', [\App\Http\Controllers\MarketingRecapController::class, 'index'])->name('marketing.recap.index');
-    Route::get('/marketing/recap-all/pdf', [\App\Http\Controllers\MarketingRecapController::class, 'exportPdf'])->name('marketing.recap.pdf');
+    Route::get('/marketing/recap-all/pdf', [\App\Http\Controllers\MarketingRecapController::class, 'exportPdf'])->name('marketing.recap.pdf')->middleware('can.pdf');
     Route::get('/marketing/recap-all/excel', [\App\Http\Controllers\MarketingRecapController::class, 'exportExcel'])->name('marketing.recap.excel');
 
     // Modul Marketing
@@ -136,9 +139,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/marketing/report', [MarketingDailyReportController::class, 'store'])->name('marketing.report.store');
         Route::post('/marketing/target', [MarketingDailyReportController::class, 'storeTarget'])->name('marketing.target.store');
         Route::get('/marketing/target/last/{user_id?}', [MarketingDailyReportController::class, 'getLastTarget'])->name('marketing.target.last');
-        Route::get('/marketing-export-pdf', [MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf');
+        Route::get('/marketing-export-pdf', [MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf')->middleware('can.pdf');
         Route::get('/marketing-export-excel', [MarketingDailyReportController::class, 'exportExcel'])->name('marketing.export.excel');
-        Route::get('/marketing-export-target-pdf', [MarketingDailyReportController::class, 'exportTargetPdf'])->name('marketing.export_target.pdf');
+        Route::get('/marketing-export-target-pdf', [MarketingDailyReportController::class, 'exportTargetPdf'])->name('marketing.export_target.pdf')->middleware('can.pdf');
         
         // Fitur Pencarian Produk
         Route::get('/marketing/products', [\App\Http\Controllers\MarketingProductController::class, 'index'])->name('marketing.products.index');
@@ -149,7 +152,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/requests/uc-history', [UcRequestController::class, 'history'])->name('requests.uc.history');
         Route::post('/requests/uc', [UcRequestController::class, 'store'])->name('requests.uc.store');
         Route::post('/requests/uc/{id}/result', [UcRequestController::class, 'storeResult'])->name('requests.uc.storeResult');
-        Route::get('/requests/uc/{id}/pdf', [UcRequestController::class, 'generatePdf'])->name('requests.uc.pdf');
+        Route::get('/requests/uc/{id}/pdf', [UcRequestController::class, 'generatePdf'])->name('requests.uc.pdf')->middleware('can.pdf');
         Route::resource('uc-requests', UcRequestController::class);
     });
 
@@ -162,7 +165,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['can:view bhp requests'])->group(function() {
         Route::get('/requests/bhp', [BhpRequestController::class, 'index'])->name('requests.bhp.index');
         Route::post('/requests/bhp', [BhpRequestController::class, 'store'])->name('requests.bhp.store');
-        Route::get('/requests/bhp/{id}/pdf', [BhpRequestController::class, 'generatePdf'])->name('requests.bhp.pdf');
+        Route::get('/requests/bhp/{id}/pdf', [BhpRequestController::class, 'generatePdf'])->name('requests.bhp.pdf')->middleware('can.pdf');
         Route::resource('bhp-requests', BhpRequestController::class);
     });
 
@@ -170,7 +173,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Rekap BHP
         Route::get('/requests/bhp-recap', [BhpRecapController::class, 'index'])->name('requests.bhp.recap.index');
         Route::put('/requests/bhp-recap/{id}/status', [BhpRecapController::class, 'updateStatus'])->name('requests.bhp.recap.status');
-        Route::get('/requests/bhp-recap/export', [BhpRecapController::class, 'exportPdf'])->name('requests.bhp.recap.export');
+        Route::get('/requests/bhp-recap/export', [BhpRecapController::class, 'exportPdf'])->name('requests.bhp.recap.export')->middleware('can.pdf');
     });
 
     Route::middleware(['can:manage spreadsheet sync'])->group(function() {
@@ -183,7 +186,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['can:view laporan finansial'])->group(function() {
         // Reports (Spreadsheet Data Dashboard)
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-        Route::get('/reports/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
+        Route::get('/reports/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf')->middleware('can.pdf');
         Route::post('/reports/target', [ReportController::class, 'updateTarget'])->name('reports.target.update');
     });
 
@@ -223,7 +226,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Item Requirements
         Route::post('item-requirements/toggle-share', [\App\Http\Controllers\ItemRequirementController::class, 'toggleShare'])->name('item-requirements.toggleShare');
-        Route::get('item-requirements/export/pdf', [\App\Http\Controllers\ItemRequirementController::class, 'exportPdf'])->name('item-requirements.export.pdf');
+        Route::get('item-requirements/export/pdf', [\App\Http\Controllers\ItemRequirementController::class, 'exportPdf'])->name('item-requirements.export.pdf')->middleware('can.pdf');
         Route::get('item-requirements/export/excel', [\App\Http\Controllers\ItemRequirementController::class, 'exportExcel'])->name('item-requirements.export.excel');
         Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class);
 
@@ -291,7 +294,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Payment Request PDF (Can be downloaded by both requester and approver)
     Route::middleware('auth')->group(function() {
-        Route::get('payment-requests/{payment_request}/pdf', [\App\Http\Controllers\PaymentRequestController::class, 'downloadPdf'])->name('payment-requests.pdf');
+        Route::get('payment-requests/{payment_request}/pdf', [\App\Http\Controllers\PaymentRequestController::class, 'downloadPdf'])->name('payment-requests.pdf')->middleware('can.pdf');
     });
 
     // Payment Approvals

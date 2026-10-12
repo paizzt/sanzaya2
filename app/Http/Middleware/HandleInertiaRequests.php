@@ -35,12 +35,19 @@ class HandleInertiaRequests extends Middleware
         $active_feature_names = [];
         if ($request->user()) {
             $features = \App\Models\FeatureToggle::all();
+            $hasUnduhPdf = false;
             foreach ($features as $feature) {
+                if ($feature->name === 'Unduh PDF') {
+                    $hasUnduhPdf = true;
+                }
                 $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
                 if (!in_array($request->user()->id, $disabledUsers)) {
                     $active_features[] = $feature->id;
                     $active_feature_names[] = $feature->name;
                 }
+            }
+            if (!$hasUnduhPdf) {
+                $active_feature_names[] = 'Unduh PDF';
             }
         }
 

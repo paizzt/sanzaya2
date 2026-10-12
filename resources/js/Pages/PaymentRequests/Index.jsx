@@ -26,6 +26,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const [deadline, setDeadline] = useState(filters.deadline || '');
     
     const isSuperAdmin = auth.user?.roles?.some(r => r.name === 'SUPERADMIN');
+    const canDownloadPdf = auth?.active_feature_names ? auth.active_feature_names.includes('Unduh PDF') : true;
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -219,9 +220,11 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     })()}
                                                 </td>
                                                 <td className="px-4 py-3 text-center space-x-3">
-                                                    <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-900 inline-block" title="Unduh PDF">
-                                                        <FileText size={18} />
-                                                    </a>
+                                                    {canDownloadPdf && (
+                                                        <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-900 inline-block" title="Unduh PDF">
+                                                            <FileText size={18} />
+                                                        </a>
+                                                    )}
                                                     {isSuperAdmin && (
                                                         <>
                                                             <Link href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', pr.id)} className="text-blue-600 hover:text-blue-900 inline-block" title="Edit">

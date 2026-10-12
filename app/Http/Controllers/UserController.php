@@ -29,9 +29,10 @@ class UserController extends Controller
         $roles = Role::all();
         $companies = Company::all();
 
-        // Ensure new WBS features exist in the database so they appear in the UI toggle
+        // Ensure new WBS features and Unduh PDF exist in the database so they appear in the UI toggle
         FeatureToggle::firstOrCreate(['name' => 'Lapor WBS']);
         FeatureToggle::firstOrCreate(['name' => 'Riwayat Laporan Saya']);
+        FeatureToggle::firstOrCreate(['name' => 'Unduh PDF']);
         
         $featureToggles = FeatureToggle::all();
         $spreadsheetSalesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');

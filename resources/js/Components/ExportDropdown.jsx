@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import { Download, FileText, Sheet, X, Settings2, ExternalLink } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 
 export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null, availableColumns = [], isReportDashboard = false, outletNames = [] }) {
+    const { auth } = usePage().props;
+    const canDownloadPdf = auth?.active_feature_names ? auth.active_feature_names.includes('Unduh PDF') : true;
+
+    const effectivePdfRoute = canDownloadPdf ? pdfRoute : null;
+    const effectiveExcelRoute = excelRoute;
+
+    if (!effectivePdfRoute && !effectiveExcelRoute) {
+        return null;
+    }
+
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState(pdfRoute ? 'pdf' : 'excel');
+    const [activeTab, setActiveTab] = useState(effectivePdfRoute ? 'pdf' : 'excel');
+    const currentTab = (activeTab === 'pdf' && !effectivePdfRoute) ? 'excel' : activeTab;
 
     // PDF Settings State
     const [paperSize, setPaperSize] = useState('a4');
@@ -82,13 +94,13 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
         const params = new URLSearchParams();
         if (isPreview) params.append('preview', '1');
         
-        if (activeTab === 'pdf' || activeTab === 'excel') {
+        if (currentTab === 'pdf' || currentTab === 'excel') {
             if (availableColumns.length > 0) {
                 selectedColumns.forEach(col => params.append('columns[]', col));
             }
         }
 
-        if (activeTab === 'pdf') {
+        if (currentTab === 'pdf' && effectivePdfRoute) {
             params.append('paper', paperSize);
             params.append('orientation', orientation);
             params.append('font', fontFamily);
@@ -137,7 +149,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
 
                     <div className="flex flex-col md:flex-row gap-6">
                         {/* Settings Sidebar (Only for PDF) */}
-                        {activeTab === 'pdf' && (
+                        {currentTab === 'pdf' && effectivePdfRoute && (
                             <div className="w-full md:w-72 flex-shrink-0 bg-gray-50 rounded-xl p-4 border border-gray-200 overflow-y-auto max-h-[60vh]">
                                 <h3 className="font-semibold text-gray-800 flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
                                     <Settings2 className="w-4 h-4 text-blue-600" />
@@ -299,11 +311,11 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                         <div className="flex-1 flex flex-col min-w-0">
                             <div className="flex justify-between items-center border-b border-gray-200 mb-4">
                                 <div className="flex space-x-2">
-                                    {pdfRoute && (
+                                    {effectivePdfRoute && (
                                         <button
                                             onClick={() => setActiveTab('pdf')}
                                             className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
-                                                activeTab === 'pdf'
+                                                currentTab === 'pdf'
                                                     ? 'bg-red-50 text-red-600 border-b-2 border-red-500'
                                                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                                             }`}
@@ -314,11 +326,11 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                             </div>
                                         </button>
                                     )}
-                                    {excelRoute && (
+                                    {effectiveExcelRoute && (
                                         <button
                                             onClick={() => setActiveTab('excel')}
                                             className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
-                                                activeTab === 'excel'
+                                                currentTab === 'excel'
                                                     ? 'bg-emerald-50 text-emerald-600 border-b-2 border-emerald-500'
                                                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                                             }`}
@@ -330,9 +342,9 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                         </button>
                                     )}
                                 </div>
-                                {activeTab === 'pdf' && pdfRoute && (
+                                {currentTab === 'pdf' && effectivePdfRoute && (
                                     <a
-                                        href={buildUrlParams(pdfRoute, true)}
+                                        href={buildUrlParams(effectivePdfRoute, true)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors mb-1"
@@ -345,16 +357,16 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                             </div>
 
                             <div className="bg-gray-50 rounded-xl border border-gray-200 p-2 h-[60vh]">
-                                {activeTab === 'pdf' && pdfRoute && (
+                                {currentTab === 'pdf' && effectivePdfRoute && (
                                     <iframe 
-                                        src={buildUrlParams(pdfRoute, true)} 
+                                        src={buildUrlParams(effectivePdfRoute, true)} 
                                         className="w-full h-full rounded-lg bg-white"
                                         title="PDF Preview"
                                     />
                                 )}
-                                {activeTab === 'excel' && excelRoute && (
+                                {currentTab === 'excel' && effectiveExcelRoute && (
                                     <iframe 
-                                        src={buildUrlParams(excelRoute, true)} 
+                                        src={buildUrlParams(effectiveExcelRoute, true)} 
                                         className="w-full h-full rounded-lg bg-white"
                                         title="Excel Preview"
                                     />
@@ -370,10 +382,10 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                         >
                             Tutup
                         </button>
-                        {activeTab === 'pdf' && pdfRoute && (
+                        {currentTab === 'pdf' && effectivePdfRoute && (
                             <>
                                 <a
-                                    href={buildUrlParams(pdfRoute, true)}
+                                    href={buildUrlParams(effectivePdfRoute, true)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl font-medium transition-colors"
@@ -382,7 +394,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                     Buka di Tab Baru
                                 </a>
                                 <a
-                                    href={buildUrlParams(pdfRoute, false)}
+                                    href={buildUrlParams(effectivePdfRoute, false)}
                                     className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-colors"
                                 >
                                     <Download className="w-4 h-4" />
@@ -390,9 +402,9 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                 </a>
                             </>
                         )}
-                        {activeTab === 'excel' && excelRoute && (
+                        {currentTab === 'excel' && effectiveExcelRoute && (
                             <a
-                                href={buildUrlParams(excelRoute, false)}
+                                href={buildUrlParams(effectiveExcelRoute, false)}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-colors"
                             >
                                 <Download className="w-4 h-4" />

@@ -18,6 +18,8 @@ import Modal from '@/Components/Modal';
 import heic2any from 'heic2any';
 
 export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
+    const { auth } = usePage().props;
+    const canDownloadPdf = auth?.active_feature_names ? auth.active_feature_names.includes('Unduh PDF') : true;
     const { data, setData, post, processing, errors, reset, transform } = useForm({
         activity_type: 'Kunjungan',
         visit_date: new Date().toISOString().split('T')[0],
@@ -846,7 +848,7 @@ export default function Index({ outlets, reports, target, allTargets, realizatio
                                     </div>
                                     <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
                                         <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] shrink-0 w-full sm:w-auto">
-                                            <Download className="w-4 h-4 mr-2" /> Unduh PDF/Excel
+                                            <Download className="w-4 h-4 mr-2" /> {canDownloadPdf ? 'Unduh PDF/Excel' : 'Unduh Excel'}
                                         </button>
                                     } />
                                 </h3>
