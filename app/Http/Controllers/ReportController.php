@@ -242,7 +242,8 @@ class ReportController extends Controller
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
             foreach ($logistikAll as $row) {
-                $val = self::parseCurrency($row->total);
+                $cleanTotal = explode(',', (string)$row->total)[0];
+                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                 $totalPenjualan += $val;
                 if ($row->pelanggan) {
                     $pel = $row->pelanggan;
@@ -394,7 +395,8 @@ class ReportController extends Controller
                         strpos($tanggal, "-{$shortMonthEng}") !== false ||
                         strpos($tanggal, " {$shortMonthEng}") !== false
                     ) {
-                        $val = self::parseCurrency($row->total);
+                        $cleanTotal = explode(',', (string)$row->total)[0];
+                        $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                         $refTotalPenjualan += $val;
                         
                         $ptNameForSales = trim($row->nama_pt);
@@ -552,7 +554,8 @@ class ReportController extends Controller
             $ptBreakdownAnnual = [];
             
             foreach ($logistikAnnual as $row) {
-                $val = self::parseCurrency($row->total);
+                $cleanTotal = explode(',', (string)$row->total)[0];
+                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                 $totalPenjualanAnnual += $val;
                 if ($row->nama_pt) {
                     $nPt = trim($row->nama_pt);
@@ -674,11 +677,11 @@ class ReportController extends Controller
             $totalFaktur = 0; $totalTerkirim = 0; $totalBelumTerkirim = 0;
             $fakturOutlet = []; $terkirimOutlet = []; $belumTerkirimOutlet = []; $pesananOutlet = [];
             foreach ($pesananAll as $row) {
-                $f = self::parseCurrency($row->total_faktur);
+                $f = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_faktur);
                 $totalFaktur += $f;
-                $t = self::parseCurrency($row->terkirim);
+                $t = (float) str_replace(['.', ','], ['', '.'], (string)$row->terkirim);
                 $totalTerkirim += $t;
-                $bt = self::parseCurrency($row->belum_terkirim);
+                $bt = (float) str_replace(['.', ','], ['', '.'], (string)$row->belum_terkirim);
                 $totalBelumTerkirim += $bt;
 
                 if ($row->nama_outlet) {
@@ -737,11 +740,11 @@ class ReportController extends Controller
             $sanzayaOutlet = []; $rumaOutlet = []; $gabunganOutlet = [];
             
             foreach ($piutangAll as $row) {
-                $s = self::parseCurrency($row->total_sanzaya);
+                $s = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_sanzaya));
                 $totalSanzaya += $s;
-                $r = self::parseCurrency($row->total_ruma);
+                $r = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_ruma));
                 $totalRuma += $r;
-                $g = self::parseCurrency($row->total_gabungan);
+                $g = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_gabungan));
                 $totalGabungan += $g;
                 
                 if ($row->nama_outlet) {
@@ -776,7 +779,7 @@ class ReportController extends Controller
             $hutangPenyedia = [];
             
             foreach ($hutangAll as $row) {
-                $n = self::parseCurrency($row->nominal);
+                $n = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->nominal));
                 $totalNominalHutang += $n;
                 if ($row->nama_penyedia) {
                     $penyediaList[] = $row->nama_penyedia;
@@ -1084,7 +1087,8 @@ class ReportController extends Controller
         $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
 
         foreach ($logistik as $row) {
-            $val = self::parseCurrency($row->total);
+            $cleanTotal = explode(',', (string)$row->total)[0];
+            $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
             $totalPenjualan += $val;
             
             // PT Breakdown
@@ -1166,13 +1170,13 @@ class ReportController extends Controller
 
         $totalPiutang = 0;
         foreach ($piutang as $row) {
-            $val = self::parseCurrency($row->total_gabungan);
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_gabungan);
             $totalPiutang += $val;
         }
 
         $totalHutang = 0;
         foreach ($hutang as $row) {
-            $val = self::parseCurrency($row->nominal);
+            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->nominal);
             $totalHutang += $val;
         }
 
