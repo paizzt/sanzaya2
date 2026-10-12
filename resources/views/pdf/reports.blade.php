@@ -6,12 +6,13 @@
     <style>
         @page { margin: 1.27cm; }
 
-        body {
+        html, body {
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+            color: #111827 !important;
             font-family: {{ request('font', 'sans-serif') }} !important;
             font-size: {{ request('size', '12') }}px !important;
         }
-    
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; }
         h2, h3 { color: #333; }
         table { 
             width: 100%; 
@@ -274,6 +275,11 @@
     @if(in_array('logistik', $datasets ?? []))
     <!-- LOGISTIK -->
     <h3 class="section-title">1. Data Logistik</h3>
+    @if($isPreview ?? false)
+    <p style="font-size: 9px; color: #64748b; font-style: italic; margin-top: -4px; margin-bottom: 6px;">
+        * Pratinjau menampilkan {{ count($logistik) }} baris data pertama dari {{ $totalLogistikCount ?? count($logistik) }} data. Unduh PDF untuk mengunduh seluruh data lengkap.
+    </p>
+    @endif
     <table>
         <thead>
             <tr>
@@ -303,6 +309,11 @@
     @if(in_array('pesanan', $datasets ?? []))
     <!-- SURAT PESANAN -->
     <h3 class="section-title">2. Data Surat Pesanan</h3>
+    @if($isPreview ?? false)
+    <p style="font-size: 9px; color: #64748b; font-style: italic; margin-top: -4px; margin-bottom: 6px;">
+        * Pratinjau menampilkan {{ count($pesanan) }} baris data pertama dari {{ $totalPesananCount ?? count($pesanan) }} data. Unduh PDF untuk mengunduh seluruh data lengkap.
+    </p>
+    @endif
       <table>
           <thead>
               <tr>

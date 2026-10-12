@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, FileText, Sheet, X, Settings2, ExternalLink } from 'lucide-react';
 import { usePage } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -55,15 +55,25 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     // Pareto Outlet State
     const [selectedParetoOutlets, setSelectedParetoOutlets] = useState([]);
 
+    // Loading State for Preview
+    const [isLoadingPreview, setIsLoadingPreview] = useState(true);
+
     const handleOpen = () => {
         if (!effectivePdfRoute && effectiveExcelRoute) {
             setActiveTab('excel');
         } else if (effectivePdfRoute && !effectiveExcelRoute) {
             setActiveTab('pdf');
         }
+        setIsLoadingPreview(true);
         setIsOpen(true);
     };
     const handleClose = () => setIsOpen(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setIsLoadingPreview(true);
+        }
+    }, [isOpen, currentTab, paperSize, orientation, fontFamily, fontSize, selectedDatasets, selectedMonths, selectedOutlets, selectedColumns, selectedParetoOutlets]);
 
     const toggleColumn = (col) => {
         if (col === 'No') return; // Prevent unchecking "No"
@@ -362,17 +372,28 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                 </div>
                             </div>
 
-                            <div className="bg-gray-50 rounded-xl border border-gray-200 p-2 h-[60vh]">
+                            <div className="relative bg-gray-50 rounded-xl border border-gray-200 p-2 h-[60vh] overflow-hidden">
+                                {isLoadingPreview && (
+                                    <div className="absolute inset-2 z-10 flex flex-col items-center justify-center bg-white rounded-lg border border-gray-100 shadow-sm">
+                                        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+                                        <p className="text-sm font-semibold text-gray-800">Menyiapkan Pratinjau Dokumen...</p>
+                                        <p className="text-xs text-gray-400 mt-1">Memproses tampilan tata letak</p>
+                                    </div>
+                                )}
                                 {currentTab === 'pdf' && effectivePdfRoute && (
                                     <iframe 
-                                        src={buildUrlParams(effectivePdfRoute, true)} 
+                                        key={effectivePdfRoute ? `${buildUrlParams(effectivePdfRoute, true)}#toolbar=0&navpanes=0&scrollbar=1&view=FitH` : 'pdf'}
+                                        src={effectivePdfRoute ? `${buildUrlParams(effectivePdfRoute, true)}#toolbar=0&navpanes=0&scrollbar=1&view=FitH` : ''} 
+                                        onLoad={() => setIsLoadingPreview(false)}
                                         className="w-full h-full rounded-lg bg-white"
                                         title="PDF Preview"
                                     />
                                 )}
                                 {currentTab === 'excel' && effectiveExcelRoute && (
                                     <iframe 
-                                        src={buildUrlParams(effectiveExcelRoute, true)} 
+                                        key={effectiveExcelRoute ? buildUrlParams(effectiveExcelRoute, true) : 'excel'}
+                                        src={effectiveExcelRoute ? buildUrlParams(effectiveExcelRoute, true) : ''} 
+                                        onLoad={() => setIsLoadingPreview(false)}
                                         className="w-full h-full rounded-lg bg-white"
                                         title="Excel Preview"
                                     />

@@ -1358,8 +1358,12 @@ class ReportController extends Controller
             'outlets' => null,
         ];
 
+        $isPreview = $request->has('preview') && $request->query('preview') == '1';
+        $chartTimeout = $isPreview ? 2 : 4;
+        $quickChartActive = true;
+
         // 1. Chart Penjualan Per Bulan
-        if (in_array('logistik', $datasets) && !empty($monthPenjualan)) {
+        if ($quickChartActive && in_array('logistik', $datasets) && !empty($monthPenjualan)) {
             $chartLabels = json_encode(array_keys($monthPenjualan));
             $chartData = json_encode(array_values($monthPenjualan));
             $chartStringBulan = "{
@@ -1401,7 +1405,7 @@ class ReportController extends Controller
                 }
             }";
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->post('https://quickchart.io/chart', [
+                $res = \Illuminate\Support\Facades\Http::timeout($chartTimeout)->post('https://quickchart.io/chart', [
                     'chart' => $chartStringBulan,
                     'width' => 750,
                     'height' => 260,
@@ -1409,11 +1413,13 @@ class ReportController extends Controller
                     'backgroundColor' => 'white'
                 ]);
                 if ($res->successful()) $charts['penjualan_bulan'] = 'data:image/png;base64,' . base64_encode($res->body());
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {
+                $quickChartActive = false;
+            }
         }
 
         // 2. Chart Top 10 Penjualan per Sales
-        if (in_array('logistik', $datasets) && !empty($salesPenjualan)) {
+        if ($quickChartActive && in_array('logistik', $datasets) && !empty($salesPenjualan)) {
             $topSales = array_slice($salesPenjualan, 0, 10, true);
             $salesLabels = json_encode(array_keys($topSales));
             $salesValues = json_encode(array_values($topSales));
@@ -1443,7 +1449,7 @@ class ReportController extends Controller
                 }
             }";
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->post('https://quickchart.io/chart', [
+                $res = \Illuminate\Support\Facades\Http::timeout($chartTimeout)->post('https://quickchart.io/chart', [
                     'chart' => $chartStringSales,
                     'width' => 380,
                     'height' => 240,
@@ -1451,11 +1457,13 @@ class ReportController extends Controller
                     'backgroundColor' => 'white'
                 ]);
                 if ($res->successful()) $charts['top_sales'] = 'data:image/png;base64,' . base64_encode($res->body());
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {
+                $quickChartActive = false;
+            }
         }
 
         // 3. Chart Penjualan per Brand
-        if (in_array('logistik', $datasets) && !empty($brandPenjualan)) {
+        if ($quickChartActive && in_array('logistik', $datasets) && !empty($brandPenjualan)) {
             $brandLabels = json_encode(array_keys($brandPenjualan));
             $brandValues = json_encode(array_values($brandPenjualan));
             $brandColors = json_encode([
@@ -1484,7 +1492,7 @@ class ReportController extends Controller
                 }
             }";
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->post('https://quickchart.io/chart', [
+                $res = \Illuminate\Support\Facades\Http::timeout($chartTimeout)->post('https://quickchart.io/chart', [
                     'chart' => $chartStringBrand,
                     'width' => 380,
                     'height' => 240,
@@ -1492,11 +1500,13 @@ class ReportController extends Controller
                     'backgroundColor' => 'white'
                 ]);
                 if ($res->successful()) $charts['brand'] = 'data:image/png;base64,' . base64_encode($res->body());
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {
+                $quickChartActive = false;
+            }
         }
 
         // 4. Chart Piutang vs Hutang
-        if (in_array('piutang', $datasets) || in_array('hutang', $datasets)) {
+        if ($quickChartActive && (in_array('piutang', $datasets) || in_array('hutang', $datasets))) {
             $phLabels = [];
             $phData = [];
             $phColors = [];
@@ -1512,13 +1522,15 @@ class ReportController extends Controller
                 'options' => ['scales' => ['yAxes' => [['ticks' => ['beginAtZero' => true]]]]]
             ];
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=450&h=250&bkg=white&c=' . urlencode(json_encode($configPH)));
+                $res = \Illuminate\Support\Facades\Http::timeout($chartTimeout)->get('https://quickchart.io/chart?w=450&h=250&bkg=white&c=' . urlencode(json_encode($configPH)));
                 if ($res->successful()) $charts['piutang_hutang'] = 'data:image/png;base64,' . base64_encode($res->body());
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {
+                $quickChartActive = false;
+            }
         }
 
         // 5. Chart Doughnut Pesanan
-        if (in_array('pesanan', $datasets)) {
+        if ($quickChartActive && in_array('pesanan', $datasets)) {
             $configPesanan = [
                 'type' => 'doughnut',
                 'data' => [
@@ -1528,13 +1540,15 @@ class ReportController extends Controller
                 'options' => ['plugins' => ['datalabels' => ['color' => '#fff']]]
             ];
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->get('https://quickchart.io/chart?w=300&h=250&bkg=white&c=' . urlencode(json_encode($configPesanan)));
+                $res = \Illuminate\Support\Facades\Http::timeout($chartTimeout)->get('https://quickchart.io/chart?w=300&h=250&bkg=white&c=' . urlencode(json_encode($configPesanan)));
                 if ($res->successful()) $charts['pesanan'] = 'data:image/png;base64,' . base64_encode($res->body());
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {
+                $quickChartActive = false;
+            }
         }
 
         // 6. Chart Top Outlets
-        if (in_array('logistik', $datasets) && !empty($outletPenjualan)) {
+        if ($quickChartActive && in_array('logistik', $datasets) && !empty($outletPenjualan)) {
             $topOutlets = array_slice($outletPenjualan, 0, 5, true);
             $configOutlets = [
                 'type' => 'bar',
@@ -1571,7 +1585,7 @@ class ReportController extends Controller
                 ]
             ];
             try {
-                $res = \Illuminate\Support\Facades\Http::timeout(10)->post('https://quickchart.io/chart', [
+                $res = \Illuminate\Support\Facades\Http::timeout($chartTimeout)->post('https://quickchart.io/chart', [
                     'chart' => $configOutlets,
                     'width' => 700,
                     'height' => 300,
@@ -1579,11 +1593,33 @@ class ReportController extends Controller
                     'backgroundColor' => 'white'
                 ]);
                 if ($res->successful()) $charts['outlets'] = 'data:image/png;base64,' . base64_encode($res->body());
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {
+                $quickChartActive = false;
+            }
         }
 
-        $pdf = Pdf::loadView('pdf.reports', compact('logistik', 'pesanan', 'piutang', 'hutang', 'title', 'summary', 'charts', 'datasets'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
-        return request()->has('preview') ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
+        // Optimasi Pratinjau: Pada mode pratinjau (preview), batasi data tabel ke 50 baris pertama
+        // agar DomPDF selesai diproses cepat (< 1 detik) tanpa membebani browser atau memicu layar hitam (black screen).
+        $logistikRows = $isPreview ? $logistik->take(50) : $logistik;
+        $pesananRows = $isPreview ? $pesanan->take(50) : $pesanan;
+        $piutangRows = $isPreview ? $piutang->take(50) : $piutang;
+        $hutangRows = $isPreview ? $hutang->take(50) : $hutang;
+
+        $pdf = Pdf::loadView('pdf.reports', [
+            'logistik' => $logistikRows,
+            'pesanan' => $pesananRows,
+            'piutang' => $piutangRows,
+            'hutang' => $hutangRows,
+            'title' => $title,
+            'summary' => $summary,
+            'charts' => $charts,
+            'datasets' => $datasets,
+            'isPreview' => $isPreview,
+            'totalLogistikCount' => $logistik->count(),
+            'totalPesananCount' => $pesanan->count(),
+        ])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+
+        return $isPreview ? $pdf->stream("laporan_gabungan_{$period}.pdf") : $pdf->download("laporan_gabungan_{$period}.pdf");
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
             return response("Terjadi kesalahan saat membuat PDF: " . $e->getMessage() . " (Baris " . $e->getLine() . ")", 500);
