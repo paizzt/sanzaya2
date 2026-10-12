@@ -40,7 +40,10 @@ ChartJS.register(
   ChartLegend
 );
 
-export default function Index({ tab, is_super_admin, global_target_value, global_annual_target_value, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames, outletNames, ptNames, keteranganNames, reportData, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
+export default function Index({ tab = 'logistik', is_super_admin, global_target_value, global_annual_target_value, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames = [], outletNames = [], ptNames = [], keteranganNames = [], months: propMonths, reportData = { data: [] }, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
+    const reportRows = Array.isArray(reportData)
+        ? reportData
+        : (Array.isArray(reportData?.data) ? reportData.data : []);
     const authUser = usePage().props.auth.user;
     const isSalesLocked = !!authUser.spreadsheet_sales_name;
     const [searchTerm, setSearchTerm] = useState(search || '');
@@ -162,7 +165,9 @@ export default function Index({ tab, is_super_admin, global_target_value, global
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#a4de6c', '#d0ed57', '#8dd1e1'];
 
-    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const months = (propMonths && Array.isArray(propMonths) && propMonths.length > 0)
+        ? propMonths
+        : ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -257,7 +262,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                                 <span>Total (Rp)</span>
                                             </div>
                                             <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-                                                {Object.entries(summary.pt_penjualan_detail).map(([key, value], idx) => (
+                                                {Object.entries(summary?.pt_penjualan_detail || {}).map(([key, value], idx) => (
                                                       <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors gap-2">
                                                           <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
                                                               <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
@@ -291,20 +296,20 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         </div>
                                         <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
                                             {detailModal.type === 'outlet' ? (
-                                                Object.entries(detailModal.data).map(([key, value], idx) => (
+                                                Object.entries(detailModal?.data || {}).map(([key, value], idx) => (
                                                     <div key={idx} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm mb-3">
                                                         <div className="flex justify-between items-center border-b pb-3 mb-3">
                                                            <div className="flex items-center gap-2">
                                                                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">{idx + 1}</div>
                                                                <h5 className="font-bold text-gray-800 text-sm">{key}</h5>
                                                            </div>
-                                                           <span className="font-bold text-gray-900 text-sm">{value.total_formatted}</span>
+                                                           <span className="font-bold text-gray-900 text-sm">{value?.total_formatted || '-'}</span>
                                                         </div>
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                             <div>
                                                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan PT</p>
                                                                 <div className="space-y-1">
-                                                                    {Object.entries(value.pt).map(([pt, val]) => (
+                                                                    {Object.entries(value?.pt || {}).map(([pt, val]) => (
                                                                         <div key={pt} className="flex justify-between text-[11px] sm:text-xs">
                                                                             <span className="text-gray-600">{pt}</span>
                                                                             <span className="font-semibold text-gray-800">{val}</span>
@@ -315,7 +320,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                                             <div>
                                                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan Bulan</p>
                                                                 <div className="space-y-1">
-                                                                    {Object.entries(value.bulan).map(([bln, val]) => (
+                                                                    {Object.entries(value?.bulan || {}).map(([bln, val]) => (
                                                                         <div key={bln} className="flex justify-between text-[11px] sm:text-xs">
                                                                             <span className="text-gray-600">{bln}</span>
                                                                             <span className="font-semibold text-gray-800">{val}</span>
@@ -327,7 +332,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                                     </div>
                                                 ))
                                             ) : (
-                                                Object.entries(detailModal.data).map(([key, value], idx) => (
+                                                Object.entries(detailModal?.data || {}).map(([key, value], idx) => (
                                                       <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
                                                           <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
                                                               <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
@@ -759,7 +764,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </tr>
                 </thead>
                 <tbody>
-                    {reportData.data.map((row) => (
+                    {reportRows.map((row) => (
                         <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
                             <td className="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
@@ -768,7 +773,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <td className="px-6 py-4 whitespace-nowrap text-right font-bold text-blue-600">{row.total ? 'Rp ' + parseRpToNumber(row.total).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</td>
                         </tr>
                     ))}
-                    {reportData.data.length === 0 && <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Data laporan logistik kosong atau tidak ditemukan.</td></tr>}
+                    {reportRows.length === 0 && <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">Data laporan logistik kosong atau tidak ditemukan.</td></tr>}
                 </tbody>
             </table>
         </div>
@@ -797,7 +802,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </tr>
                 </thead>
                 <tbody>
-                    {reportData.data.map((row) => (
+                    {reportRows.map((row) => (
                         <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
                             <td className="px-6 py-4"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
                             <td className="px-6 py-4">{row.nomor_klikkan}</td>
@@ -816,7 +821,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <td className="px-6 py-4">{getKeteranganBadge(row.keterangan)}</td>
                         </tr>
                     ))}
-                    {reportData.data.length === 0 && <tr><td colSpan="15" className="px-6 py-8 text-center text-gray-500">Data surat pesanan kosong atau tidak ditemukan.</td></tr>}
+                    {reportRows.length === 0 && <tr><td colSpan="15" className="px-6 py-8 text-center text-gray-500">Data surat pesanan kosong atau tidak ditemukan.</td></tr>}
                 </tbody>
             </table>
         </div>
@@ -844,7 +849,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </tr>
                 </thead>
                 <tbody>
-                    {reportData.data.map((row) => (
+                    {reportRows.map((row) => (
                         <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
                             <td className="px-6 py-4 font-semibold text-gray-900"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_outlet}</td>
                             <td className="px-4 py-3">{row.tahun_1}</td>
@@ -858,7 +863,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                             <td className="px-6 py-4 text-right font-bold text-gray-900 bg-gray-50">{row.total_gabungan}</td>
                         </tr>
                     ))}
-                    {reportData.data.length === 0 && <tr><td colSpan="10" className="px-6 py-8 text-center text-gray-500">Data piutang kosong atau tidak ditemukan.</td></tr>}
+                    {reportRows.length === 0 && <tr><td colSpan="10" className="px-6 py-8 text-center text-gray-500">Data piutang kosong atau tidak ditemukan.</td></tr>}
                 </tbody>
             </table>
         </div>
@@ -875,14 +880,14 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </tr>
                 </thead>
                 <tbody>
-                    {reportData.data.map((row) => (
+                    {reportRows.map((row) => (
                         <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
                             <td className="px-6 py-4 text-center font-medium text-gray-900">{row.no}</td>
                             <td className="px-6 py-4 font-semibold text-gray-900">{row.nama_penyedia}</td>
                             <td className="px-6 py-4 text-right font-bold text-orange-600">{row.nominal}</td>
                         </tr>
                     ))}
-                    {reportData.data.length === 0 && <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-500">Data hutang kosong atau tidak ditemukan.</td></tr>}
+                    {reportRows.length === 0 && <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-500">Data hutang kosong atau tidak ditemukan.</td></tr>}
                 </tbody>
             </table>
         </div>
@@ -1337,10 +1342,10 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                     </div>
                     
                     {/* Pagination */}
-                    {reportData.links && reportData.links.length > 3 && (
+                    {reportData?.links && Array.isArray(reportData.links) && reportData.links.length > 3 && (
                         <div className="px-4 sm:px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <span className="text-sm text-gray-500">
-                                Menampilkan <span className="font-medium text-gray-900">{reportData.from || 0}</span> - <span className="font-medium text-gray-900">{reportData.to || 0}</span> dari <span className="font-medium text-gray-900">{reportData.total}</span> data
+                                Menampilkan <span className="font-medium text-gray-900">{reportData.from || 0}</span> - <span className="font-medium text-gray-900">{reportData.to || 0}</span> dari <span className="font-medium text-gray-900">{reportData.total || reportRows.length}</span> data
                             </span>
                             <div className="flex gap-1">
                                 {reportData.links.map((link, index) => (

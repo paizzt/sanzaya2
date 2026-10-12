@@ -24,8 +24,10 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     // Month Filter State
     const [selectedMonths, setSelectedMonths] = useState([]);
     
+    const normalizedOutletNames = Array.isArray(outletNames) ? outletNames : (outletNames ? Object.values(outletNames) : []);
+    
     // Outlet Filter State
-    const [selectedOutlets, setSelectedOutlets] = useState(() => outletNames || []);
+    const [selectedOutlets, setSelectedOutlets] = useState(() => normalizedOutletNames);
 
     // Pareto Outlet State
     const [selectedParetoOutlets, setSelectedParetoOutlets] = useState([]);
@@ -95,7 +97,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             selectedMonths.forEach(m => params.append('months[]', m));
             selectedParetoOutlets.forEach(po => params.append('pareto_outlets[]', po));
             
-            if (outletNames && selectedOutlets.length === outletNames.length) {
+            if (normalizedOutletNames && selectedOutlets.length === normalizedOutletNames.length) {
                 // Skip appending to keep URL short, backend defaults to all
             } else if (selectedOutlets.length === 0) {
                 params.append('selected_outlets[]', '_NONE_');
@@ -166,16 +168,16 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                                             </div>
 
                                             {/* Outlet Ditampilkan */}
-                                            {outletNames && outletNames.length > 0 && (
+                                            {normalizedOutletNames && normalizedOutletNames.length > 0 && (
                                             <div className="mb-4">
                                                 <label className="block text-xs font-medium text-gray-700 mb-2 flex justify-between items-center">
                                                     <span>Outlet Ditampilkan</span>
-                                                    <button type="button" onClick={() => setSelectedOutlets(selectedOutlets.length === outletNames.length ? [] : [...outletNames])} className="text-[10px] text-blue-600 hover:underline">
-                                                        {selectedOutlets.length === outletNames.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
+                                                    <button type="button" onClick={() => setSelectedOutlets(selectedOutlets.length === normalizedOutletNames.length ? [] : [...normalizedOutletNames])} className="text-[10px] text-blue-600 hover:underline">
+                                                        {selectedOutlets.length === normalizedOutletNames.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
                                                     </button>
                                                 </label>
                                                 <div className="space-y-1.5 custom-scrollbar bg-white p-2 border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
-                                                    {outletNames.map((outlet) => (
+                                                    {normalizedOutletNames.map((outlet) => (
                                                         <label key={`out-${outlet}`} className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-50 p-1 rounded">
                                                             <input 
                                                                 type="checkbox" 

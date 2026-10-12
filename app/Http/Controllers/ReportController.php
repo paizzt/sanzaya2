@@ -76,6 +76,9 @@ class ReportController extends Controller
         }
 
         $tab = $request->query('tab', 'logistik');
+        if (!in_array($tab, ['logistik', 'pesanan', 'piutang', 'hutang'])) {
+            $tab = 'logistik';
+        }
         $search = $request->query('search', '');
         $salesFilter = $request->query('sales_filter', '');
         if (auth()->user() && auth()->user()->spreadsheet_sales_name) {
@@ -220,6 +223,13 @@ class ReportController extends Controller
                 $query->where('nama_penyedia', 'like', "%{$search}%");
             }
             $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+        }
+
+        if (empty($data)) {
+            $data = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 50, 1, [
+                'path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(),
+                'query' => $request->query()
+            ]);
         }
 
         // Calculate Summaries directly per active tab so charts and summaries immediately follow filters and search
@@ -800,6 +810,7 @@ class ReportController extends Controller
             'ptNames' => $ptNames,
             'outletNames' => $outletNames,
             'keteranganNames' => $keteranganNames,
+            'months' => $months,
             'reportData' => $data,
             'summary' => $summary,
             'summaryPesanan' => $summaryPesanan,
