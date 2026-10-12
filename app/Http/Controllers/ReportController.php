@@ -117,16 +117,7 @@ class ReportController extends Controller
                 }
             });
         } else {
-            if ($ptNames->isNotEmpty()) {
-                $logistikBaseQuery->where(function($q) use ($ptNames) {
-                    $q->whereIn('nama_pt', $ptNames->toArray());
-                    foreach ($ptNames as $p) {
-                        $q->orWhere('nama_pt', 'like', '%' . $p . '%');
-                    }
-                });
-            } else {
-                $logistikBaseQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
-            }
+            $logistikBaseQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
         }
         $logistikBaseQuery->where(function($q) {
             $q->where(function($sub) {
@@ -177,10 +168,14 @@ class ReportController extends Controller
         // Get dynamic outlet names based on the filtered logistik data
         $outletNames = (clone $logistikBaseQuery)->distinct()->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->pluck('pelanggan')->sort()->values();
 
-        $data = [];
+        $reportData = [];
         if ($tab === 'logistik') {
-            $query = $logistikBaseQuery;
-            $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            $query = (clone $logistikBaseQuery)->orderBy('id', 'desc');
+            $reportData = $query->paginate(50)->withQueryString();
+            if ($reportData->isEmpty() && (int)$request->query('page', 1) > 1) {
+                \Illuminate\Pagination\Paginator::currentPageResolver(fn() => 1);
+                $reportData = (clone $logistikBaseQuery)->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            }
         } elseif ($tab === 'pesanan') {
             $query = SyncPesananData::query();
             if ($keteranganFilter) {
@@ -218,7 +213,11 @@ class ReportController extends Controller
                       ->orWhere('nama_produk', 'like', "%{$search}%");
                 });
             }
-            $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            $reportData = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            if ($reportData->isEmpty() && (int)$request->query('page', 1) > 1) {
+                \Illuminate\Pagination\Paginator::currentPageResolver(fn() => 1);
+                $reportData = (clone $query)->paginate(50)->withQueryString();
+            }
         } elseif ($tab === 'piutang') {
             $query = SyncPiutangData::query();
             if ($outletFilter) {
@@ -235,17 +234,25 @@ class ReportController extends Controller
             if ($search) {
                 $query->where('nama_outlet', 'like', "%{$search}%");
             }
-            $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            $reportData = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            if ($reportData->isEmpty() && (int)$request->query('page', 1) > 1) {
+                \Illuminate\Pagination\Paginator::currentPageResolver(fn() => 1);
+                $reportData = (clone $query)->paginate(50)->withQueryString();
+            }
         } elseif ($tab === 'hutang') {
             $query = SyncHutangData::query();
             if ($search) {
                 $query->where('nama_penyedia', 'like', "%{$search}%");
             }
-            $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            $reportData = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            if ($reportData->isEmpty() && (int)$request->query('page', 1) > 1) {
+                \Illuminate\Pagination\Paginator::currentPageResolver(fn() => 1);
+                $reportData = (clone $query)->paginate(50)->withQueryString();
+            }
         }
 
-        if (empty($data)) {
-            $data = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 50, 1, [
+        if (empty($reportData)) {
+            $reportData = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 50, 1, [
                 'path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(),
                 'query' => $request->query()
             ]);
@@ -353,23 +360,23 @@ class ReportController extends Controller
             $outletDetailFormatted = [];
             $monthOrder = ['Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4, 'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8, 'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12, 'Lainnya' => 13];
             
-            foreach ($top10Outlets as $outlet => $data) {
+            foreach ($top10Outlets as $outlet => $outletDetail) {
                 $ptFormatted = [];
-                arsort($data['pt']);
-                foreach ($data['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
+                arsort($outletDetail['pt']);
+                foreach ($outletDetail['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $bulanFormatted = [];
                 
-                uksort($data['bulan'], function($a, $b) use ($monthOrder) {
+                uksort($outletDetail['bulan'], function($a, $b) use ($monthOrder) {
                     $orderA = $monthOrder[$a] ?? 99;
                     $orderB = $monthOrder[$b] ?? 99;
                     return $orderA <=> $orderB;
                 });
                 
-                foreach ($data['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
+                foreach ($outletDetail['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $outletDetailFormatted[$outlet] = [
-                    'total_formatted' => 'Rp ' . number_format($data['total'], 0, ',', '.'),
+                    'total_formatted' => 'Rp ' . number_format($outletDetail['total'], 0, ',', '.'),
                     'pt' => $ptFormatted,
                     'bulan' => $bulanFormatted
                 ];
@@ -575,16 +582,7 @@ class ReportController extends Controller
                     }
                 });
             } else {
-                if ($ptNames->isNotEmpty()) {
-                    $annualQuery->where(function($q) use ($ptNames) {
-                        $q->whereIn('nama_pt', $ptNames->toArray());
-                        foreach ($ptNames as $p) {
-                            $q->orWhere('nama_pt', 'like', '%' . $p . '%');
-                        }
-                    });
-                } else {
-                    $annualQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
-                }
+                $annualQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
             }
             $annualQuery->where(function($q) {
                 $q->where(function($sub) {
@@ -923,7 +921,7 @@ class ReportController extends Controller
             'outletNames' => $outletNames,
             'keteranganNames' => $keteranganNames,
             'months' => $months,
-            'reportData' => $data,
+            'reportData' => $reportData,
             'summary' => $summary,
             'summaryPesanan' => $summaryPesanan,
             'summaryPiutang' => $summaryPiutang,
@@ -1109,17 +1107,7 @@ class ReportController extends Controller
             });
             $title .= " (" . implode(', ', $targetPtNamesToSearch) . ")";
         } else {
-            $ptNamesList = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-')->pluck('nama_pt')->map(fn($p) => trim($p))->filter(fn($p) => $p !== '' && $p !== '-')->unique()->values();
-            if ($ptNamesList->isNotEmpty()) {
-                $logistikQuery->where(function($q) use ($ptNamesList) {
-                    $q->whereIn('nama_pt', $ptNamesList->toArray());
-                    foreach ($ptNamesList as $p) {
-                        $q->orWhere('nama_pt', 'like', '%' . $p . '%');
-                    }
-                });
-            } else {
-                $logistikQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
-            }
+            $logistikQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
         }
         $logistikQuery->where(function($q) {
             $q->where(function($sub) {
