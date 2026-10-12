@@ -842,7 +842,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-D--yqkYu.js",
+    "file": "assets/Index-BIe0v-HC.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -863,7 +863,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-CkxiD1TH.js",
+    "file": "assets/Show-C7PKKFSa.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -974,7 +974,7 @@
     ]
   },
   "resources/js/Pages/WarehouseStocks/Index.jsx": {
-    "file": "assets/Index-Dm_c1-UU.js",
+    "file": "assets/Index-CQRKrWTU.js",
     "name": "Index",
     "src": "resources/js/Pages/WarehouseStocks/Index.jsx",
     "isDynamicEntry": true,
@@ -1040,7 +1040,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-0B7O_1fJ.js",
+    "file": "assets/app-Ka5ULO9t.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
