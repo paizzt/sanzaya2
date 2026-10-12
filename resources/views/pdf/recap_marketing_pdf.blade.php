@@ -4,22 +4,22 @@
     <meta charset="utf-8">
     <title>Rekap Marketing - {{ ucfirst($type) }}</title>
     <style>
-        @page { margin: 1.27cm; }
+        @page { margin: 1cm; }
 
         body {
             font-family: {{ request('font', 'sans-serif') }} !important;
-            font-size: {{ request('size', '12') }}px !important;
+            font-size: {{ request('size', '11') }}px !important;
+            color: #333;
         }
     
-        body { font-family: sans-serif; font-size: 12px; color: #333; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .header h1 { margin: 0; font-size: 18px; }
-        .header p { margin: 5px 0 0 0; font-size: 12px; color: #666; }
-        .filters { margin-bottom: 20px; font-size: 12px; }
+        .header { text-align: center; margin-bottom: 12px; border-bottom: 2px solid #333; padding-bottom: 6px; }
+        .header h1 { margin: 0; font-size: 16px; }
+        .header p { margin: 3px 0 0 0; font-size: 11px; color: #666; }
+        .filters { margin-bottom: 12px; font-size: 11px; }
         .filters table { width: 100%; }
-        .filters td { padding: 2px 0; }
-        table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        table.data-table th, table.data-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .filters td { padding: 1px 0; }
+        table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        table.data-table th, table.data-table td { border: 1px solid #ddd; padding: 6px; text-align: left; }
         table.data-table th { background-color: #f8f9fa; font-weight: bold; }
         .text-right { text-align: right !important; }
         .text-center { text-align: center !important; }
@@ -53,15 +53,15 @@
     </div>
 
     @if(($type === 'laporan' || $type === 'kendala') && isset($kendala_per_user) && count($kendala_per_user) > 0)
-    <div style="margin-bottom: 20px;">
-        <h3 style="margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Kesimpulan dan Kendala Per Marketing</h3>
+    <div style="margin-bottom: 15px;">
+        <h3 style="margin-bottom: 8px; font-size: 13px; border-bottom: 1px solid #ddd; padding-bottom: 4px; page-break-after: avoid;">Kesimpulan dan Kendala Per Marketing</h3>
         @foreach($kendala_per_user as $mkt)
             @if(count($mkt['kendal_list']) > 0)
-                <div style="border: 1px solid #ccc; padding: 12px; margin-bottom: 15px; border-radius: 4px; page-break-inside: avoid;">
-                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px; text-transform: uppercase;">{{ $mkt['name'] }}</div>
+                <div style="border: 1px solid #e2e8f0; padding: 10px 12px; margin-bottom: 10px; border-radius: 4px; page-break-inside: auto;">
+                    <div style="font-weight: bold; margin-bottom: 6px; font-size: 12px; text-transform: uppercase; color: #1e293b; page-break-after: avoid;">{{ $mkt['name'] }}</div>
                     <ul style="margin: 0; padding-left: 20px; list-style-type: disc; text-align: justify;">
                         @foreach($mkt['kendal_list'] as $kendala)
-                            <li style="margin-bottom: 6px; line-height: 1.4;">
+                            <li style="margin-bottom: 4px; line-height: 1.35; page-break-inside: avoid;">
                                 <strong>{{ $kendala['outlet'] }}</strong> : {{ str_replace("\n", ' | ', $kendala['description']) }}
                             </li>
                         @endforeach
@@ -71,7 +71,7 @@
         @endforeach
     </div>
     
-    <h3 style="margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 30px;">Rekapan Laporan</h3>
+    <h3 style="margin-bottom: 8px; font-size: 13px; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-top: 15px; page-break-after: avoid;">Rekapan Laporan</h3>
     @endif
 
 
