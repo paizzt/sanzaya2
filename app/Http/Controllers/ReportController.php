@@ -116,7 +116,25 @@ class ReportController extends Controller
                     $q->orWhere('nama_pt', 'like', '%' . $pt . '%');
                 }
             });
+        } else {
+            if ($ptNames->isNotEmpty()) {
+                $logistikBaseQuery->where(function($q) use ($ptNames) {
+                    $q->whereIn('nama_pt', $ptNames->toArray());
+                    foreach ($ptNames as $p) {
+                        $q->orWhere('nama_pt', 'like', '%' . $p . '%');
+                    }
+                });
+            } else {
+                $logistikBaseQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
+            }
         }
+        $logistikBaseQuery->where(function($q) {
+            $q->where(function($sub) {
+                $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-');
+            })->orWhere(function($sub) {
+                $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-');
+            });
+        });
         if ($salesFilter) $logistikBaseQuery->where('nama_sales', $salesFilter);
         if ($outletFilter) {
             $logistikBaseQuery->where(function($q) use ($outletNamesToSearch) {
@@ -556,7 +574,25 @@ class ReportController extends Controller
                         $q->orWhere('nama_pt', 'like', '%' . $pt . '%');
                     }
                 });
+            } else {
+                if ($ptNames->isNotEmpty()) {
+                    $annualQuery->where(function($q) use ($ptNames) {
+                        $q->whereIn('nama_pt', $ptNames->toArray());
+                        foreach ($ptNames as $p) {
+                            $q->orWhere('nama_pt', 'like', '%' . $p . '%');
+                        }
+                    });
+                } else {
+                    $annualQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
+                }
             }
+            $annualQuery->where(function($q) {
+                $q->where(function($sub) {
+                    $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-');
+                })->orWhere(function($sub) {
+                    $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-');
+                });
+            });
             if ($salesFilter) $annualQuery->where('nama_sales', $salesFilter);
             if ($search) {
                 $annualQuery->where(function($q) use ($search) {
@@ -683,8 +719,12 @@ class ReportController extends Controller
                 }
             }
 
+            $displayAnnualTotal = (isset($totalTargetedPenjualanAnn) && $totalTargetedPenjualanAnn > 0)
+                ? $totalTargetedPenjualanAnn 
+                : ($totalPenjualanAnnual ?: $totalPenjualan);
+
             $summary = [
-                'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
+                'total_penjualan' => 'Rp ' . number_format($displayAnnualTotal, 0, ',', '.'),
                 'total_penjualan_bulan_ini' => 'Rp ' . number_format($refTotalPenjualan, 0, ',', '.'),
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
                 'capaian_target' => $capaianTarget,
@@ -1061,9 +1101,33 @@ class ReportController extends Controller
         $targetPtNamesToSearch = $ptFilter ? array_map('trim', explode(',', $ptFilter)) : [];
 
         if (!empty($targetPtNamesToSearch)) {
-            $logistikQuery->whereIn('nama_pt', $targetPtNamesToSearch);
+            $logistikQuery->where(function($q) use ($targetPtNamesToSearch) {
+                $q->whereIn('nama_pt', $targetPtNamesToSearch);
+                foreach ($targetPtNamesToSearch as $pt) {
+                    $q->orWhere('nama_pt', 'like', '%' . $pt . '%');
+                }
+            });
             $title .= " (" . implode(', ', $targetPtNamesToSearch) . ")";
+        } else {
+            $ptNamesList = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-')->pluck('nama_pt')->map(fn($p) => trim($p))->filter(fn($p) => $p !== '' && $p !== '-')->unique()->values();
+            if ($ptNamesList->isNotEmpty()) {
+                $logistikQuery->where(function($q) use ($ptNamesList) {
+                    $q->whereIn('nama_pt', $ptNamesList->toArray());
+                    foreach ($ptNamesList as $p) {
+                        $q->orWhere('nama_pt', 'like', '%' . $p . '%');
+                    }
+                });
+            } else {
+                $logistikQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
+            }
         }
+        $logistikQuery->where(function($q) {
+            $q->where(function($sub) {
+                $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-');
+            })->orWhere(function($sub) {
+                $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-');
+            });
+        });
         if ($salesFilter) $logistikQuery->where('nama_sales', $salesFilter);
         if ($outletFilter) {
             $logistikQuery->where(function($q) use ($outletNamesToSearch) {
