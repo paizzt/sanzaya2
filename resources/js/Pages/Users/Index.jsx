@@ -29,7 +29,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
     const [togglingUserId, setTogglingUserId] = useState(null);
     const itemsPerPage = 50;
 
-    const pdfFeature = featureToggles?.find(f => f.name.toLowerCase() === 'unduh pdf');
+    const pdfFeature = featureToggles?.find(f => f.name.toLowerCase().trim() === 'unduh pdf');
     const resolvedPdfFeatureId = pdfFeatureId || pdfFeature?.id;
 
     const isUserPdfEnabled = (userId) => {

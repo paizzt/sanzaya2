@@ -5,7 +5,13 @@ import Modal from '@/Components/Modal';
 
 export default function ExportDropdown({ pdfRoute, excelRoute, className = '', trigger = null, availableColumns = [], isReportDashboard = false, outletNames = [] }) {
     const { auth } = usePage().props;
-    const canDownloadPdf = auth?.active_feature_names ? auth.active_feature_names.includes('Unduh PDF') : true;
+    
+    // Explicit permission check: auth.can_download_pdf first, fallback to active_feature_names
+    const canDownloadPdf = auth?.can_download_pdf !== undefined
+        ? Boolean(auth.can_download_pdf)
+        : (auth?.active_feature_names 
+            ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
+            : true);
 
     const effectivePdfRoute = canDownloadPdf ? pdfRoute : null;
     const effectiveExcelRoute = excelRoute;
@@ -16,7 +22,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
 
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(effectivePdfRoute ? 'pdf' : 'excel');
-    const currentTab = (activeTab === 'pdf' && !effectivePdfRoute) ? 'excel' : activeTab;
+    const currentTab = !effectivePdfRoute ? 'excel' : activeTab;
 
     // PDF Settings State
     const [paperSize, setPaperSize] = useState('a4');
@@ -44,7 +50,14 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     // Pareto Outlet State
     const [selectedParetoOutlets, setSelectedParetoOutlets] = useState([]);
 
-    const handleOpen = () => setIsOpen(true);
+    const handleOpen = () => {
+        if (!effectivePdfRoute && effectiveExcelRoute) {
+            setActiveTab('excel');
+        } else if (effectivePdfRoute && !effectiveExcelRoute) {
+            setActiveTab('pdf');
+        }
+        setIsOpen(true);
+    };
     const handleClose = () => setIsOpen(false);
 
     const toggleColumn = (col) => {
@@ -134,7 +147,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
                     className={`inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 text-gray-700 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-gray-100 hover:text-blue-600 transition-colors gap-2 whitespace-nowrap shrink-0 ${className}`}
                 >
                     <Download className="w-4 h-4 text-emerald-600" />
-                    Unduh
+                    {effectiveExcelRoute && !effectivePdfRoute ? 'Unduh Excel' : 'Unduh'}
                 </button>
             )}
 

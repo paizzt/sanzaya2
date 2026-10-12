@@ -19,7 +19,11 @@ const formatCurrency = (value) => {
 };
 
 export default function Show({ auth, paymentRequest, completeness, canApprove, canReject, isApprovalView }) {
-    const canDownloadPdf = auth?.active_feature_names ? auth.active_feature_names.includes('Unduh PDF') : true;
+    const canDownloadPdf = auth?.can_download_pdf !== undefined
+        ? Boolean(auth.can_download_pdf)
+        : (auth?.active_feature_names 
+            ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
+            : true);
     const { post, processing } = useForm();
 
     const handleAction = (actionRoute) => {

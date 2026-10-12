@@ -10,6 +10,11 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import Pagination from '@/Components/Pagination';
 
 export default function RecapAll({ reports, allTargets, sales_users, filters, auth, summary }) {
+    const canDownloadPdf = auth?.can_download_pdf !== undefined
+        ? Boolean(auth.can_download_pdf)
+        : (auth?.active_feature_names 
+            ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
+            : true);
     const [activeTab, setActiveTab] = useState('laporan');
     const [selectedReport, setSelectedReport] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -249,8 +254,8 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                             pdfRoute={getExportUrl('pdf')} 
                             excelRoute={getExportUrl('excel')} 
                             trigger={
-                                <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] shrink-0 w-full sm:w-auto">
-                                    <Download className="w-4 h-4 mr-2" /> Unduh
+                                <button className={`flex items-center justify-center gap-2 ${canDownloadPdf ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'} text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] shrink-0 w-full sm:w-auto`}>
+                                    <Download className="w-4 h-4 mr-2" /> {canDownloadPdf ? 'Unduh' : 'Unduh Excel'}
                                 </button>
                             } 
                         />

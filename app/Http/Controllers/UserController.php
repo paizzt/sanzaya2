@@ -55,8 +55,9 @@ class UserController extends Controller
             $userFeatures[$user->id] = [];
             foreach ($featureToggles as $feature) {
                 $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
+                $disabledUserIds = array_map('strval', (array)$disabledUsers);
                 // If the user's ID is NOT in the disabled list, it means the feature is ENABLED for them
-                $userFeatures[$user->id][$feature->id] = !in_array($user->id, $disabledUsers);
+                $userFeatures[$user->id][$feature->id] = !in_array((string)$user->id, $disabledUserIds, true);
             }
         }
 
@@ -76,27 +77,30 @@ class UserController extends Controller
 
     public function togglePdf(User $user)
     {
-        $feature = FeatureToggle::firstOrCreate(
-            ['name' => 'Unduh PDF'],
-            [
+        $feature = FeatureToggle::whereRaw('LOWER(TRIM(name)) = ?', ['unduh pdf'])->first();
+        if (!$feature) {
+            $feature = FeatureToggle::create([
+                'name' => 'Unduh PDF',
                 'is_active' => true,
                 'disabled_for_users' => json_encode([]),
-            ]
-        );
+            ]);
+        }
 
         $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
+        $userIdStr = (string)$user->id;
+        $disabledUserIds = array_map('strval', (array)$disabledUsers);
 
-        if (in_array($user->id, $disabledUsers)) {
+        if (in_array($userIdStr, $disabledUserIds, true)) {
             // Currently disabled -> enable it (remove user from disabled array)
-            $disabledUsers = array_values(array_diff($disabledUsers, [$user->id]));
+            $disabledUserIds = array_values(array_diff($disabledUserIds, [$userIdStr]));
             $status = 'diaktifkan';
         } else {
             // Currently enabled -> disable it (add user to disabled array)
-            $disabledUsers[] = $user->id;
+            $disabledUserIds[] = $userIdStr;
             $status = 'dinonaktifkan';
         }
 
-        $feature->disabled_for_users = json_encode(array_values(array_unique($disabledUsers)));
+        $feature->disabled_for_users = json_encode(array_values(array_unique($disabledUserIds)));
         $feature->save();
 
         return redirect()->back()->with('success', "Saklar Unduh PDF untuk {$user->name} berhasil {$status}.");
@@ -316,10 +320,12 @@ class UserController extends Controller
 
         foreach ($features as $feature) {
             $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
+            $disabledUserIds = array_map('strval', (array)$disabledUsers);
+            $userIdStr = (string)$userId;
             
             if (in_array($feature->id, $enabledFeatureIds)) {
                 // Feature is ENABLED for this user -> Remove user from disabled list
-                $disabledUsers = array_diff($disabledUsers, [$userId]);
+                $disabledUserIds = array_values(array_diff($disabledUserIds, [$userIdStr]));
                 
                 // Collect permissions to grant
                 if (isset($featurePermissions[$feature->id])) {
@@ -327,12 +333,12 @@ class UserController extends Controller
                 }
             } else {
                 // Feature is DISABLED for this user -> Add user to disabled list
-                if (!in_array($userId, $disabledUsers)) {
-                    $disabledUsers[] = $userId;
+                if (!in_array($userIdStr, $disabledUserIds, true)) {
+                    $disabledUserIds[] = $userIdStr;
                 }
             }
             
-            $feature->disabled_for_users = json_encode(array_values($disabledUsers));
+            $feature->disabled_for_users = json_encode(array_values(array_unique($disabledUserIds)));
             $feature->save();
         }
 

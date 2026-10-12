@@ -18,8 +18,11 @@ import Modal from '@/Components/Modal';
 import heic2any from 'heic2any';
 
 export default function Index({ outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
-    const { auth } = usePage().props;
-    const canDownloadPdf = auth?.active_feature_names ? auth.active_feature_names.includes('Unduh PDF') : true;
+    const canDownloadPdf = auth?.can_download_pdf !== undefined
+        ? Boolean(auth.can_download_pdf)
+        : (auth?.active_feature_names 
+            ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
+            : true);
     const { data, setData, post, processing, errors, reset, transform } = useForm({
         activity_type: 'Kunjungan',
         visit_date: new Date().toISOString().split('T')[0],

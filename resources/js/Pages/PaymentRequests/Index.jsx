@@ -26,7 +26,11 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const [deadline, setDeadline] = useState(filters.deadline || '');
     
     const isSuperAdmin = auth.user?.roles?.some(r => r.name === 'SUPERADMIN');
-    const canDownloadPdf = auth?.active_feature_names ? auth.active_feature_names.includes('Unduh PDF') : true;
+    const canDownloadPdf = auth?.can_download_pdf !== undefined
+        ? Boolean(auth.can_download_pdf)
+        : (auth?.active_feature_names 
+            ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
+            : true);
 
     const handleDelete = (id) => {
         Swal.fire({
