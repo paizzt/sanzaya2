@@ -130,9 +130,9 @@ class ReportController extends Controller
         }
         $logistikBaseQuery->where(function($q) {
             $q->where(function($sub) {
-                $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-');
+                $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-')->where('pelanggan', '!=', 'Pelanggan');
             })->orWhere(function($sub) {
-                $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-');
+                $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-')->where('nama_produk', '!=', 'Nama Produk');
             });
         });
         if ($salesFilter) $logistikBaseQuery->where('nama_sales', $salesFilter);
@@ -264,7 +264,7 @@ class ReportController extends Controller
                 $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
                 $totalPenjualan += $val;
                 $pel = trim((string)$row->pelanggan);
-                if ($pel !== '' && !in_array(strtolower($pel), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya'])) {
+                if ($pel !== '' && !in_array(strtolower($pel), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya', 'pelanggan', 'nama pelanggan', 'outlet', 'nama outlet', 'customer'])) {
                     $outletCounts[$pel] = ($outletCounts[$pel] ?? 0) + 1;
                     
                     if (!isset($outletDetailsMap[$pel])) {
@@ -318,7 +318,7 @@ class ReportController extends Controller
                     if ($nBrand) $brandBreakdown[$nBrand] = ($brandBreakdown[$nBrand] ?? 0) + $val;
                 }
                 $prod = trim((string)$row->nama_produk);
-                if ($prod !== '' && !in_array(strtolower($prod), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya'])) {
+                if ($prod !== '' && !in_array(strtolower($prod), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya', 'nama produk', 'nama_produk', 'produk', 'item', 'nama barang', 'total'])) {
                     $produkCounts[$prod] = ($produkCounts[$prod] ?? 0) + 1;
                 }
                 $ptNameForSales = trim($row->nama_pt);
@@ -532,7 +532,7 @@ class ReportController extends Controller
                         
                         $capaianDetail[$ct->name] = $formatCapaian($ptPenjualan, $ct->monthly_target);
                     }
-                    $refTotalPenjualan = $totalTargetedPenjualan;
+                    $refTotalPenjualan = max($refTotalPenjualan, $totalTargetedPenjualan);
                 } else {
                     $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
                     $targetBulanan = $usersWithTarget->sum('monthly_target');
@@ -588,9 +588,9 @@ class ReportController extends Controller
             }
             $annualQuery->where(function($q) {
                 $q->where(function($sub) {
-                    $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-');
+                    $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-')->where('pelanggan', '!=', 'Pelanggan');
                 })->orWhere(function($sub) {
-                    $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-');
+                    $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-')->where('nama_produk', '!=', 'Nama Produk');
                 });
             });
             if ($salesFilter) $annualQuery->where('nama_sales', $salesFilter);
@@ -705,7 +705,7 @@ class ReportController extends Controller
             $topOutletName = '-';
             foreach ($outletCounts as $k => $cnt) {
                 $kTrim = trim((string)$k);
-                if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
+                if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya', 'pelanggan', 'nama pelanggan', 'outlet', 'nama outlet', 'customer'])) {
                     $topOutletName = $kTrim;
                     break;
                 }
@@ -713,14 +713,14 @@ class ReportController extends Controller
             $topProdukName = '-';
             foreach ($produkCounts as $k => $cnt) {
                 $kTrim = trim((string)$k);
-                if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
+                if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya', 'nama produk', 'nama_produk', 'produk', 'item', 'nama barang', 'total'])) {
                     $topProdukName = $kTrim;
                     break;
                 }
             }
 
             $displayAnnualTotal = (isset($totalTargetedPenjualanAnn) && $totalTargetedPenjualanAnn > 0)
-                ? $totalTargetedPenjualanAnn 
+                ? max($totalTargetedPenjualanAnn, $totalPenjualanAnnual) 
                 : ($totalPenjualanAnnual ?: $totalPenjualan);
 
             $summary = [
@@ -1123,9 +1123,9 @@ class ReportController extends Controller
         }
         $logistikQuery->where(function($q) {
             $q->where(function($sub) {
-                $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-');
+                $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-')->where('pelanggan', '!=', 'Pelanggan');
             })->orWhere(function($sub) {
-                $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-');
+                $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-')->where('nama_produk', '!=', 'Nama Produk');
             });
         });
         if ($salesFilter) $logistikQuery->where('nama_sales', $salesFilter);

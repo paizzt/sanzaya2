@@ -23,9 +23,7 @@ export default function MultiSelect({ value = [], onChange, options = [], placeh
     const handleOptionToggle = (optVal) => {
         const strVal = String(optVal);
         let newValues;
-        if (isAllSelected) {
-            newValues = [strVal];
-        } else if (value.includes(strVal)) {
+        if (value.includes(strVal)) {
             newValues = value.filter(v => v !== strVal);
         } else {
             newValues = [...value, strVal];
@@ -83,7 +81,7 @@ export default function MultiSelect({ value = [], onChange, options = [], placeh
 
                             {/* Opsi Individual PT */}
                             {options.map((option, idx) => {
-                                const isSelected = isAllSelected || value.includes(String(option.value));
+                                const isSelected = value.includes(String(option.value));
                                 return (
                                     <div
                                         key={idx}
