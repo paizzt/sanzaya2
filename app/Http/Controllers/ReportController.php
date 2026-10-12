@@ -598,7 +598,7 @@ class ReportController extends Controller
                 $capaianTarget = number_format($capPercent, 1, ',', '.') . '%';
             }
 
-            return [
+            $summary = [
                 'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 2, ',', '.'),
                 'total_penjualan_bulan_ini' => 'Rp ' . number_format($refTotalPenjualan, 2, ',', '.'),
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
