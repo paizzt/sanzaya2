@@ -102,10 +102,17 @@ class ReportController extends Controller
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-        $targetPtNamesToSearch = $ptFilter ? explode(',', $ptFilter) : [];
+        $targetPtNamesToSearch = $ptFilter ? array_filter(array_map('trim', explode(',', $ptFilter))) : [];
 
         $logistikBaseQuery = SyncLogistikData::query();
-        if ($ptFilter) $logistikBaseQuery->whereIn('nama_pt', $targetPtNamesToSearch);
+        if (!empty($targetPtNamesToSearch)) {
+            $logistikBaseQuery->where(function($q) use ($targetPtNamesToSearch) {
+                $q->whereIn('nama_pt', $targetPtNamesToSearch);
+                foreach ($targetPtNamesToSearch as $pt) {
+                    $q->orWhere('nama_pt', 'like', '%' . $pt . '%');
+                }
+            });
+        }
         if ($salesFilter) $logistikBaseQuery->where('nama_sales', $salesFilter);
         if ($outletFilter) {
             $logistikBaseQuery->where(function($q) use ($outletNamesToSearch) {
@@ -137,7 +144,11 @@ class ReportController extends Controller
             $logistikBaseQuery->where(function($q) use ($search) {
                 $q->where('pelanggan', 'like', "%{$search}%")
                   ->orWhere('nama_sales', 'like', "%{$search}%")
-                  ->orWhere('nama_produk', 'like', "%{$search}%");
+                  ->orWhere('nama_produk', 'like', "%{$search}%")
+                  ->orWhere('brand', 'like', "%{$search}%")
+                  ->orWhere('nama_pt', 'like', "%{$search}%")
+                  ->orWhere('no_faktur', 'like', "%{$search}%")
+                  ->orWhere('tanggal', 'like', "%{$search}%");
             });
         }
 
@@ -211,47 +222,11 @@ class ReportController extends Controller
             $data = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
         }
 
-        // Calculate Summaries using Inertia::defer
-        $summary = Inertia::defer(function () use ($search, $salesFilter, $outletFilter, $monthFilter, $ptFilter, $outletNamesToSearch, $targetPtNamesToSearch) {
-            $summaryQuery = SyncLogistikData::query();
-            if ($ptFilter) $summaryQuery->whereIn('nama_pt', $targetPtNamesToSearch);
-            if ($salesFilter) $summaryQuery->where('nama_sales', $salesFilter);
-            if ($outletFilter) {
-                $summaryQuery->where(function($q) use ($outletNamesToSearch) {
-                    foreach ($outletNamesToSearch as $name) {
-                        $q->orWhere('pelanggan', 'like', $name);
-                    }
-                });
-            }
-            if ($monthFilter) {
-                $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                $monthNum = array_search($monthFilter, $months) + 1;
-                $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
-                $shortMonth = substr($monthFilter, 0, 3);
-                $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
-                
-                $summaryQuery->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
-                    $q->where('sheet_name', 'like', "%{$monthFilter}%")
-                      ->orWhere('tanggal', 'like', "%{$monthFilter}%")
-                      ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
-                      ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
-                      ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
-                      ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
-                      ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
-                      ->orWhere('tanggal', 'like', "% {$shortMonth}%")
-                      ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
-                      ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
-                });
-            }
-            if ($search) {
-                $summaryQuery->where(function($q) use ($search) {
-                    $q->where('pelanggan', 'like', "%{$search}%")
-                      ->orWhere('nama_sales', 'like', "%{$search}%")
-                      ->orWhere('nama_produk', 'like', "%{$search}%");
-                });
-            }
-            
-            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal', 'brand')->lazy();
+        // Calculate Summaries directly per active tab so charts and summaries immediately follow filters and search
+        $summary = null;
+        if ($tab === 'logistik') {
+            $summaryQuery = clone $logistikBaseQuery;
+            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal', 'brand')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = []; $monthBreakdown = []; $brandBreakdown = [];
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
@@ -533,13 +508,24 @@ class ReportController extends Controller
             
             // Hitung total tahunan (Year-To-Date) secara terpisah tanpa filter bulan
             $annualQuery = SyncLogistikData::query();
-            if ($ptFilter) $annualQuery->whereIn('nama_pt', $targetPtNamesToSearch);
+            if (!empty($targetPtNamesToSearch)) {
+                $annualQuery->where(function($q) use ($targetPtNamesToSearch) {
+                    $q->whereIn('nama_pt', $targetPtNamesToSearch);
+                    foreach ($targetPtNamesToSearch as $pt) {
+                        $q->orWhere('nama_pt', 'like', '%' . $pt . '%');
+                    }
+                });
+            }
             if ($salesFilter) $annualQuery->where('nama_sales', $salesFilter);
             if ($search) {
                 $annualQuery->where(function($q) use ($search) {
                     $q->where('pelanggan', 'like', "%{$search}%")
                       ->orWhere('nama_sales', 'like', "%{$search}%")
-                      ->orWhere('nama_produk', 'like', "%{$search}%");
+                      ->orWhere('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('brand', 'like', "%{$search}%")
+                      ->orWhere('nama_pt', 'like', "%{$search}%")
+                      ->orWhere('no_faktur', 'like', "%{$search}%")
+                      ->orWhere('tanggal', 'like', "%{$search}%");
                 });
             }
             if ($outletFilter) {
@@ -550,7 +536,7 @@ class ReportController extends Controller
                 });
             }
             
-            $logistikAnnual = $annualQuery->select('total', 'nama_pt', 'nama_sales')->lazy();
+            $logistikAnnual = $annualQuery->select('total', 'nama_pt', 'nama_sales')->get();
             $totalPenjualanAnnual = 0;
             $ptBreakdownAnnual = [];
             
@@ -634,9 +620,10 @@ class ReportController extends Controller
                 'produk_detail' => $produkCounts,
                 'pesanan_sales' => $pesananSales
             ];
-        });
+        }
 
-        $summaryPesanan = Inertia::defer(function () use ($search, $outletFilter, $monthFilter, $keteranganFilter, $outletNamesToSearch) {
+        $summaryPesanan = null;
+        if ($tab === 'pesanan') {
             $summaryPesananQuery = SyncPesananData::query();
             if ($keteranganFilter) $summaryPesananQuery->where('keterangan', $keteranganFilter);
             if ($outletFilter) {
@@ -667,7 +654,8 @@ class ReportController extends Controller
             if ($search) {
                 $summaryPesananQuery->where(function($q) use ($search) {
                     $q->where('nama_outlet', 'like', "%{$search}%")
-                      ->orWhere('nama_produk', 'like', "%{$search}%");
+                      ->orWhere('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('nomor_klikkan', 'like', "%{$search}%");
                 });
             }
             
@@ -675,11 +663,11 @@ class ReportController extends Controller
             $totalFaktur = 0; $totalTerkirim = 0; $totalBelumTerkirim = 0;
             $fakturOutlet = []; $terkirimOutlet = []; $belumTerkirimOutlet = []; $pesananOutlet = [];
             foreach ($pesananAll as $row) {
-                $f = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_faktur);
+                $f = self::parseCurrency($row->total_faktur);
                 $totalFaktur += $f;
-                $t = (float) str_replace(['.', ','], ['', '.'], (string)$row->terkirim);
+                $t = self::parseCurrency($row->terkirim);
                 $totalTerkirim += $t;
-                $bt = (float) str_replace(['.', ','], ['', '.'], (string)$row->belum_terkirim);
+                $bt = self::parseCurrency($row->belum_terkirim);
                 $totalBelumTerkirim += $bt;
 
                 if ($row->nama_outlet) {
@@ -704,7 +692,7 @@ class ReportController extends Controller
             foreach($pesananOutlet as $o => $v) $pesananOutletFormatted[$o] = number_format($v, 0, ',', '.') . ' Surat';
 
             $totalItems = $totalTerkirim + $totalBelumTerkirim;
-            return [
+            $summaryPesanan = [
                 'total_faktur' => 'Rp ' . number_format($totalFaktur, 0, ',', '.'),
                 'total_terkirim' => ($totalItems > 0 ? round(($totalTerkirim / $totalItems) * 100, 1) : 0) . '%',
                 'total_belum_terkirim' => ($totalItems > 0 ? round(($totalBelumTerkirim / $totalItems) * 100, 1) : 0) . '%',
@@ -714,9 +702,10 @@ class ReportController extends Controller
                 'belum_terkirim_detail' => $belumTerkirimOutletFormatted,
                 'pesanan_detail' => $pesananOutletFormatted
             ];
-        });
+        }
 
-        $summaryPiutang = Inertia::defer(function () use ($search, $outletFilter, $monthFilter, $outletNamesToSearch, $months) {
+        $summaryPiutang = null;
+        if ($tab === 'piutang') {
             $summaryPiutangQuery = SyncPiutangData::query();
             if ($outletFilter) {
                 $summaryPiutangQuery->where(function($q) use ($outletNamesToSearch) {
@@ -737,11 +726,11 @@ class ReportController extends Controller
             $sanzayaOutlet = []; $rumaOutlet = []; $gabunganOutlet = [];
             
             foreach ($piutangAll as $row) {
-                $s = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_sanzaya));
+                $s = self::parseCurrency($row->total_sanzaya);
                 $totalSanzaya += $s;
-                $r = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_ruma));
+                $r = self::parseCurrency($row->total_ruma);
                 $totalRuma += $r;
-                $g = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_gabungan));
+                $g = self::parseCurrency($row->total_gabungan);
                 $totalGabungan += $g;
                 
                 if ($row->nama_outlet) {
@@ -756,7 +745,7 @@ class ReportController extends Controller
             $rumaOutletFormatted = []; foreach($rumaOutlet as $o => $v) $rumaOutletFormatted[$o] = 'Rp ' . number_format($v, 0, ',', '.');
             $gabunganOutletFormatted = []; foreach($gabunganOutlet as $o => $v) $gabunganOutletFormatted[$o] = 'Rp ' . number_format($v, 0, ',', '.');
             
-            return [
+            $summaryPiutang = [
                 'total_sanzaya' => 'Rp ' . number_format($totalSanzaya, 0, ',', '.'),
                 'total_ruma' => 'Rp ' . number_format($totalRuma, 0, ',', '.'),
                 'total_gabungan' => 'Rp ' . number_format($totalGabungan, 0, ',', '.'),
@@ -765,17 +754,18 @@ class ReportController extends Controller
                 'ruma_detail' => $rumaOutletFormatted,
                 'gabungan_detail' => $gabunganOutletFormatted,
             ];
-        });
+        }
 
-        $summaryHutang = Inertia::defer(function () use ($search, $tab) {
+        $summaryHutang = null;
+        if ($tab === 'hutang') {
             $summaryHutangQuery = SyncHutangData::query();
-            if ($search && $tab === 'hutang') $summaryHutangQuery->where('nama_penyedia', 'like', "%{$search}%");
+            if ($search) $summaryHutangQuery->where('nama_penyedia', 'like', "%{$search}%");
             $hutangAll = $summaryHutangQuery->select('nominal', 'nama_penyedia')->get();
             $totalNominalHutang = 0; $penyediaList = [];
             $hutangPenyedia = [];
             
             foreach ($hutangAll as $row) {
-                $n = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->nominal));
+                $n = self::parseCurrency($row->nominal);
                 $totalNominalHutang += $n;
                 if ($row->nama_penyedia) {
                     $penyediaList[] = $row->nama_penyedia;
@@ -786,13 +776,13 @@ class ReportController extends Controller
             $hutangPenyediaFormatted = [];
             foreach($hutangPenyedia as $p => $v) $hutangPenyediaFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
             
-            return [
+            $summaryHutang = [
                 'total_nominal' => 'Rp ' . number_format($totalNominalHutang, 0, ',', '.'),
                 'total_data' => $hutangAll->count(),
                 'total_penyedia' => count(array_unique($penyediaList)),
                 'hutang_detail' => $hutangPenyediaFormatted
             ];
-        });
+        }
 
         return Inertia::render('Reports/Index', [
             'tab' => $tab,
@@ -801,6 +791,7 @@ class ReportController extends Controller
             'salesFilter' => $salesFilter,
             'outletFilter' => $outletFilter,
             'ptFilter' => $ptFilter,
+            'monthFilter' => $monthFilter,
             'keteranganFilter' => $keteranganFilter,
             'salesNames' => $salesNames,
             'ptNames' => $ptNames,
@@ -1006,7 +997,11 @@ class ReportController extends Controller
             $logistikQuery->where(function($q) use ($search) {
                 $q->where('pelanggan', 'like', "%{$search}%")
                   ->orWhere('nama_sales', 'like', "%{$search}%")
-                  ->orWhere('nama_produk', 'like', "%{$search}%");
+                  ->orWhere('nama_produk', 'like', "%{$search}%")
+                  ->orWhere('brand', 'like', "%{$search}%")
+                  ->orWhere('nama_pt', 'like', "%{$search}%")
+                  ->orWhere('no_faktur', 'like', "%{$search}%")
+                  ->orWhere('tanggal', 'like', "%{$search}%");
             });
         }
         $logistik = $logistikQuery->orderBy('id', 'desc')->take(2000)->get();

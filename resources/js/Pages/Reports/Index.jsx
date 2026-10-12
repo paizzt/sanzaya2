@@ -98,6 +98,30 @@ export default function Index({ tab, is_super_admin, global_target_value, global
     const tabDropdownRef = useRef(null);
 
     useEffect(() => {
+        setSearchTerm(search || '');
+    }, [search]);
+
+    useEffect(() => {
+        setSelectedMonth(monthFilter || '');
+    }, [monthFilter]);
+
+    useEffect(() => {
+        setSelectedPt(ptFilter ? ptFilter.split(',') : []);
+    }, [ptFilter]);
+
+    useEffect(() => {
+        setSelectedSales(salesFilter || '');
+    }, [salesFilter]);
+
+    useEffect(() => {
+        setSelectedOutlet(outletFilter || '');
+    }, [outletFilter]);
+
+    useEffect(() => {
+        setSelectedKeterangan(keteranganFilter || '');
+    }, [keteranganFilter]);
+
+    useEffect(() => {
         const handleClickOutside = (event) => {
             if (tabDropdownRef.current && !tabDropdownRef.current.contains(event.target)) {
                 setIsTabDropdownOpen(false);
@@ -111,8 +135,29 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         if (!str) return 0;
         if (typeof str === 'number') return str;
         let s = str.toString().trim();
-        if (/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
-        return parseFloat(s.replace(/Rp/gi, '').replace(/\./g, '').replace(/,/g, '.').replace(/ /g, '')) || 0;
+        if (s.includes(',') && s.includes('.')) {
+            if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+                // Format Indonesia: 137.727.055,59
+                s = s.replace(/Rp/gi, '').replace(/\./g, '').replace(/,/g, '.').replace(/\s/g, '');
+                return parseFloat(s) || 0;
+            } else {
+                // Format US: 137,727,055.59
+                s = s.replace(/Rp/gi, '').replace(/,/g, '').replace(/\s/g, '');
+                return parseFloat(s) || 0;
+            }
+        }
+        if (s.includes(',')) {
+            s = s.replace(/Rp/gi, '').replace(/,/g, '.').replace(/\s/g, '');
+            return parseFloat(s) || 0;
+        }
+        if (s.includes('.')) {
+            if ((s.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(s)) {
+                s = s.replace(/Rp/gi, '').replace(/\./g, '').replace(/\s/g, '');
+                return parseFloat(s) || 0;
+            }
+        }
+        s = s.replace(/Rp/gi, '').replace(/\s/g, '');
+        return parseFloat(s) || 0;
     };
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#a4de6c', '#d0ed57', '#8dd1e1'];
@@ -309,7 +354,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
         const dataSales = summary.penjualan_detail && Object.keys(summary.penjualan_detail).length > 0 ? Object.entries(summary.penjualan_detail).map(([name, val]) => ({
             name: name,
             Penjualan: parseRpToNumber(val)
-        })) : [];
+        })).slice(0, 10) : [];
 
         const dataBulan = summary.bulan_detail && Object.keys(summary.bulan_detail).length > 0 ? Object.entries(summary.bulan_detail).map(([name, val]) => ({
             name: name,
@@ -335,7 +380,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(context.raw);
                         }
                     }
                 }
@@ -361,7 +406,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return ' ' + new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                            return ' ' + new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(context.raw);
                         }
                     }
                 }
@@ -402,7 +447,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
                                         tooltip: {
                                             callbacks: {
                                                 label: function(context) {
-                                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(context.raw);
                                                 }
                                             }
                                         }
