@@ -13,22 +13,44 @@
     
         body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; }
         h2, h3 { color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; page-break-inside: avoid; }
-        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
-        th { background-color: #f4f4f4; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px; 
+            table-layout: auto; 
+            page-break-inside: auto; 
+        }
+        tr { 
+            page-break-inside: avoid; 
+            page-break-after: auto; 
+        }
+        thead { 
+            display: table-header-group; 
+        }
+        tfoot { 
+            display: table-footer-group; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 6px; 
+            text-align: left; 
+            word-wrap: break-word; 
+            overflow-wrap: break-word; 
+        }
+        th { 
+            background-color: #f4f4f4; 
+        }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .header { text-align: center; margin-bottom: 20px; }
-        .section-title { margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        .section-title { 
+            margin-top: 18px; 
+            margin-bottom: 8px; 
+            border-bottom: 2px solid #ddd; 
+            padding-bottom: 4px; 
+            page-break-after: avoid; 
+        }
         .page-break { page-break-before: always; }
-    
-        /* PDF Fixes for Overflow & Layout */
-        table { width: 100%; border-collapse: collapse; table-layout: auto; }
-        tr { page-break-inside: avoid; page-break-after: auto; }
-        thead { display: table-header-group; }
-        tfoot { display: table-footer-group; }
-        th, td { word-wrap: break-word; overflow-wrap: break-word; }
-        .page-break { page-break-after: always; }
     </style>
 </head>
 <body>
@@ -397,10 +419,10 @@
         <p>Makassar, {{ \Carbon\Carbon::now()->format('d M Y') }}</p>
         <p>Mengetahui,</p>
         <div style="margin: 10px 0;">
-            <img src="data:image/svg+xml;base64,{{ base64_encode(QrCode::format('svg')->size(70)->generate('Ditandatangani secara digital oleh: ' . (auth()->user()->name ?? 'Admin') . ' pada ' . \Carbon\Carbon::now()->format('d M Y H:i:s'))) }}" alt="QR Code" width="70" height="70">
+            <img src="data:image/svg+xml;base64,{{ base64_encode(QrCode::format('svg')->size(70)->generate('Ditandatangani secara digital oleh: ' . (auth()->user()?->name ?? 'Admin') . ' pada ' . \Carbon\Carbon::now()->format('d M Y H:i:s'))) }}" alt="QR Code" width="70" height="70">
         </div>
-        <p style="text-decoration: underline; font-weight: bold; margin-bottom: 2px;">{{ auth()->user()->name ?? '..........................................' }}</p>
-        <p style="margin-top: 0; font-size: 11px; color: #4b5563;">{{ optional(auth()->user()->division)->name ?? 'Admin' }}</p>
+        <p style="text-decoration: underline; font-weight: bold; margin-bottom: 2px;">{{ auth()->user()?->name ?? '..........................................' }}</p>
+        <p style="margin-top: 0; font-size: 11px; color: #4b5563;">{{ auth()->user()?->division?->name ?? 'Admin' }}</p>
     </div>
     <div style="clear: both;"></div>
 </body>
