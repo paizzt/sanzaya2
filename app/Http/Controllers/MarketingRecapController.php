@@ -186,10 +186,35 @@ class MarketingRecapController extends Controller
         ]);
     }
 
+    private function canExportMarketing($user)
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasRole(['SUPERADMIN', 'Superadmin'])) {
+            return true;
+        }
+
+        if ($user->can('export marketing') || $user->can('view marketing')) {
+            return true;
+        }
+
+        $feature = \App\Models\FeatureToggle::where('name', 'Rekap Marketing')->first();
+        if ($feature) {
+            $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
+            if (!in_array($user->id, $disabledUsers)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function exportPdf(Request $request)
     {
         $user = Auth::user();
-        if (!$user->can('export marketing')) {
+        if (!$this->canExportMarketing($user)) {
             return abort(403, 'Unauthorized access.');
         }
 
@@ -292,7 +317,7 @@ class MarketingRecapController extends Controller
     public function exportExcel(Request $request)
     {
         $user = Auth::user();
-        if (!$user->can('export marketing')) {
+        if (!$this->canExportMarketing($user)) {
             return abort(403, 'Unauthorized access.');
         }
 
