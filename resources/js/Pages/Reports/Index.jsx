@@ -138,29 +138,8 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
         if (!str) return 0;
         if (typeof str === 'number') return str;
         let s = str.toString().trim();
-        if (s.includes(',') && s.includes('.')) {
-            if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
-                // Format Indonesia: 137.727.055,59
-                s = s.replace(/Rp/gi, '').replace(/\./g, '').replace(/,/g, '.').replace(/\s/g, '');
-                return parseFloat(s) || 0;
-            } else {
-                // Format US: 137,727,055.59
-                s = s.replace(/Rp/gi, '').replace(/,/g, '').replace(/\s/g, '');
-                return parseFloat(s) || 0;
-            }
-        }
-        if (s.includes(',')) {
-            s = s.replace(/Rp/gi, '').replace(/,/g, '.').replace(/\s/g, '');
-            return parseFloat(s) || 0;
-        }
-        if (s.includes('.')) {
-            if ((s.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(s)) {
-                s = s.replace(/Rp/gi, '').replace(/\./g, '').replace(/\s/g, '');
-                return parseFloat(s) || 0;
-            }
-        }
-        s = s.replace(/Rp/gi, '').replace(/\s/g, '');
-        return parseFloat(s) || 0;
+        if (/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+        return parseFloat(s.replace(/Rp/gi, '').replace(/\./g, '').replace(/,/g, '.').replace(/ /g, '')) || 0;
     };
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#a4de6c', '#d0ed57', '#8dd1e1'];

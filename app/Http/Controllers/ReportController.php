@@ -80,8 +80,9 @@ class ReportController extends Controller
             $tab = 'logistik';
         }
         $search = $request->query('search', '');
+        $isSuperAdmin = auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']);
         $salesFilter = $request->query('sales_filter', '');
-        if (auth()->user() && auth()->user()->spreadsheet_sales_name) {
+        if (!$isSuperAdmin && auth()->user() && auth()->user()->spreadsheet_sales_name) {
             $salesFilter = auth()->user()->spreadsheet_sales_name;
         }
 
@@ -241,8 +242,7 @@ class ReportController extends Controller
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
             foreach ($logistikAll as $row) {
-                $cleanTotal = explode(',', (string)$row->total)[0];
-                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+                $val = self::parseCurrency($row->total);
                 $totalPenjualan += $val;
                 if ($row->pelanggan) {
                     $pel = $row->pelanggan;
@@ -394,8 +394,7 @@ class ReportController extends Controller
                         strpos($tanggal, "-{$shortMonthEng}") !== false ||
                         strpos($tanggal, " {$shortMonthEng}") !== false
                     ) {
-                        $cleanTotal = explode(',', (string)$row->total)[0];
-                        $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+                        $val = self::parseCurrency($row->total);
                         $refTotalPenjualan += $val;
                         
                         $ptNameForSales = trim($row->nama_pt);
@@ -553,8 +552,7 @@ class ReportController extends Controller
             $ptBreakdownAnnual = [];
             
             foreach ($logistikAnnual as $row) {
-                $cleanTotal = explode(',', (string)$row->total)[0];
-                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+                $val = self::parseCurrency($row->total);
                 $totalPenjualanAnnual += $val;
                 if ($row->nama_pt) {
                     $nPt = trim($row->nama_pt);
@@ -848,7 +846,7 @@ class ReportController extends Controller
         }
 
         $salesFilter = $request->query('sales_filter', '');
-        if (auth()->user() && auth()->user()->spreadsheet_sales_name) {
+        if (!$isSuperAdmin && auth()->user() && auth()->user()->spreadsheet_sales_name) {
             $salesFilter = auth()->user()->spreadsheet_sales_name;
         }
         $outletFilter = $request->query('outlet_filter', '');
@@ -1086,8 +1084,7 @@ class ReportController extends Controller
         $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
 
         foreach ($logistik as $row) {
-            $cleanTotal = explode(',', (string)$row->total)[0];
-            $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+            $val = self::parseCurrency($row->total);
             $totalPenjualan += $val;
             
             // PT Breakdown
@@ -1169,13 +1166,13 @@ class ReportController extends Controller
 
         $totalPiutang = 0;
         foreach ($piutang as $row) {
-            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_gabungan);
+            $val = self::parseCurrency($row->total_gabungan);
             $totalPiutang += $val;
         }
 
         $totalHutang = 0;
         foreach ($hutang as $row) {
-            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->nominal);
+            $val = self::parseCurrency($row->nominal);
             $totalHutang += $val;
         }
 

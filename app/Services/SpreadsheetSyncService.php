@@ -14,63 +14,109 @@ class SpreadsheetSyncService
             throw new \Exception('Konfigurasi untuk tipe ' . $type . ' tidak ditemukan.');
         }
 
-        $hasCredentials = file_exists(storage_path('app/credentials.json'));
-        if (!$hasCredentials) {
-            throw new \Exception('File credentials.json Google API tidak ditemukan di folder storage/app/.');
+        $credentialsPath = storage_path('app/credentials.json');
+        if (!file_exists($credentialsPath)) {
+            throw new \Exception('File credentials.json Google API tidak ditemukan di folder storage/app/. Pastikan file Service Account JSON sudah diletakkan di server.');
         }
 
         $client = new \Google_Client();
         $client->setApplicationName('Sanzaya Sync');
         $client->setScopes([\Google_Service_Sheets::SPREADSHEETS_READONLY]);
-        $client->setAuthConfig(storage_path('app/credentials.json'));
+        $client->setAuthConfig($credentialsPath);
         $client->setAccessType('offline');
 
         $service = new \Google_Service_Sheets($client);
         $spreadsheetId = $config->spreadsheet_id;
-        
-        $rowsAdded = 0;
+        if (empty($spreadsheetId)) {
+            throw new \Exception('Spreadsheet ID belum diatur pada konfigurasi ' . $type . '.');
+        }
 
-        \Illuminate\Support\Facades\DB::beginTransaction();
-        try {
-            if ($type == 'logistik') \App\Models\SyncLogistikData::query()->delete();
-            if ($type == 'pesanan') \App\Models\SyncPesananData::query()->delete();
-            if ($type == 'piutang') \App\Models\SyncPiutangData::query()->delete();
-            if ($type == 'hutang') \App\Models\SyncHutangData::query()->delete();
+        if (!is_array($config->sheets_config) || empty($config->sheets_config)) {
+            throw new \Exception('Daftar sheet pada konfigurasi ' . $type . ' masih kosong.');
+        }
 
-        if (is_array($config->sheets_config)) {
-            foreach ($config->sheets_config as $sheet) {
-                $sheetName = $sheet['sheet_name'] ?? null;
-                if (!$sheetName) continue;
+        $collectedRows = [];
+        $errors = [];
 
-                $range = $sheetName . '!A:Z';
-                try {
-                    $response = $service->spreadsheets_values->get($spreadsheetId, $range);
-                    $values = $response->getValues();
+        foreach ($config->sheets_config as $sheet) {
+            $sheetName = $sheet['sheet_name'] ?? null;
+            if (!$sheetName) continue;
 
-                    if (empty($values)) continue;
+            // Quote sheet name to handle spaces & special characters, and fetch columns without A:Z limit
+            $quotedSheetName = "'" . str_replace("'", "''", $sheetName) . "'";
+            $range = $quotedSheetName . '!A:ZZ';
 
-                    array_shift($values);
+            try {
+                $response = $service->spreadsheets_values->get($spreadsheetId, $range);
+                $values = $response->getValues();
 
-                    foreach ($values as $row) {
-                        if ($type == 'logistik') {
-                            if (self::insertLogistik($row, $sheetName, $sheet)) $rowsAdded++;
-                        } elseif ($type == 'pesanan') {
-                            if (self::insertPesanan($row, $sheetName, $sheet)) $rowsAdded++;
-                        } elseif ($type == 'piutang') {
-                            if (self::insertPiutang($row, $sheetName, $sheet)) $rowsAdded++;
-                        } elseif ($type == 'hutang') {
-                            if (self::insertHutang($row, $sheetName, $sheet)) $rowsAdded++;
-                        }
+                if (empty($values)) continue;
+
+                array_shift($values); // Skip header row
+
+                foreach ($values as $row) {
+                    $rowItem = null;
+                    if ($type == 'logistik') {
+                        $rowItem = self::buildLogistikData($row, $sheetName, $sheet);
+                    } elseif ($type == 'pesanan') {
+                        $rowItem = self::buildPesananData($row, $sheetName, $sheet);
+                    } elseif ($type == 'piutang') {
+                        $rowItem = self::buildPiutangData($row, $sheetName, $sheet);
+                    } elseif ($type == 'hutang') {
+                        $rowItem = self::buildHutangData($row, $sheetName, $sheet);
                     }
-                } catch (\Exception $e) {
-                    continue;
+
+                    if ($rowItem && !self::isRowEmptyOrInvalid($rowItem)) {
+                        $collectedRows[] = $rowItem;
+                    }
                 }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Spreadsheet sync error [{$type}] sheet [{$sheetName}]: " . $e->getMessage());
+                $errors[] = "Sheet '{$sheetName}': " . $e->getMessage();
             }
         }
 
-            $config->update(['last_synced_at' => Carbon::now()]);
+        // GUARD: If no rows extracted, DO NOT delete existing database table!
+        if (empty($collectedRows)) {
+            $errMsg = !empty($errors)
+                ? implode('; ', $errors)
+                : 'Tidak ada baris data valid yang terbaca dari Google Spreadsheet. Periksa nama sheet dan mapping kolom.';
+            throw new \Exception('Gagal sinkronisasi data: ' . $errMsg);
+        }
+
+        $now = Carbon::now();
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            if ($type == 'logistik') {
+                \App\Models\SyncLogistikData::query()->delete();
+                foreach (array_chunk($collectedRows, 300) as $chunk) {
+                    foreach ($chunk as &$item) { $item['created_at'] = $now; $item['updated_at'] = $now; }
+                    \App\Models\SyncLogistikData::insert($chunk);
+                }
+            } elseif ($type == 'pesanan') {
+                \App\Models\SyncPesananData::query()->delete();
+                foreach (array_chunk($collectedRows, 300) as $chunk) {
+                    foreach ($chunk as &$item) { $item['created_at'] = $now; $item['updated_at'] = $now; }
+                    \App\Models\SyncPesananData::insert($chunk);
+                }
+            } elseif ($type == 'piutang') {
+                \App\Models\SyncPiutangData::query()->delete();
+                foreach (array_chunk($collectedRows, 300) as $chunk) {
+                    foreach ($chunk as &$item) { $item['created_at'] = $now; $item['updated_at'] = $now; }
+                    \App\Models\SyncPiutangData::insert($chunk);
+                }
+            } elseif ($type == 'hutang') {
+                \App\Models\SyncHutangData::query()->delete();
+                foreach (array_chunk($collectedRows, 300) as $chunk) {
+                    foreach ($chunk as &$item) { $item['created_at'] = $now; $item['updated_at'] = $now; }
+                    \App\Models\SyncHutangData::insert($chunk);
+                }
+            }
+
+            $config->update(['last_synced_at' => $now]);
             \Illuminate\Support\Facades\DB::commit();
-            return $rowsAdded;
+
+            return count($collectedRows);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\DB::rollBack();
             throw $e;
@@ -96,7 +142,7 @@ class SpreadsheetSyncService
     }
 
     private static function isRowEmptyOrInvalid($data) {
-        $ignoreKeys = ['sheet_name', 'nama_pt'];
+        $ignoreKeys = ['sheet_name', 'nama_pt', 'created_at', 'updated_at'];
         foreach ($data as $key => $value) {
             if (!in_array($key, $ignoreKeys) && !self::isInvalidValue($value)) {
                 return false; // Found at least one valid value from spreadsheet
@@ -105,11 +151,11 @@ class SpreadsheetSyncService
         return true;
     }
 
-    private static function insertLogistik($row, $sheetName, $config) {
+    public static function buildLogistikData($row, $sheetName, $config) {
         $pelanggan = self::getColValue($row, $config['col_pelanggan'] ?? null);
         $pelanggan = self::getMappedOutletName($pelanggan);
 
-        $data = [
+        return [
             'sheet_name' => $sheetName,
             'nama_pt' => $config['col_nama_pt'] ?? null,
             'pelanggan' => $pelanggan,
@@ -129,18 +175,13 @@ class SpreadsheetSyncService
             'grand_total' => self::getColValue($row, $config['col_grand_total'] ?? null),
             'jenis_barang' => self::getColValue($row, $config['col_jenis_barang'] ?? null),
         ];
-
-        if (self::isRowEmptyOrInvalid($data)) return false;
-
-        \App\Models\SyncLogistikData::create($data);
-        return true;
     }
 
-    private static function insertPesanan($row, $sheetName, $config) {
+    public static function buildPesananData($row, $sheetName, $config) {
         $namaOutlet = self::getColValue($row, $config['col_nama_outlet'] ?? null);
         $namaOutlet = self::getMappedOutletName($namaOutlet);
 
-        $data = [
+        return [
             'sheet_name' => $sheetName,
             'tanggal' => self::getColValue($row, $config['col_tanggal'] ?? null),
             'nomor_klikkan' => self::getColValue($row, $config['col_nomor_klikkan'] ?? null),
@@ -158,18 +199,13 @@ class SpreadsheetSyncService
             'persen_belum_terpenuhi' => self::getColValue($row, $config['col_persen_belum_terpenuhi'] ?? null),
             'keterangan' => self::getColValue($row, $config['col_keterangan'] ?? null),
         ];
-
-        if (self::isRowEmptyOrInvalid($data)) return false;
-
-        \App\Models\SyncPesananData::create($data);
-        return true;
     }
 
-    private static function insertPiutang($row, $sheetName, $config) {
+    public static function buildPiutangData($row, $sheetName, $config) {
         $namaOutlet = self::getColValue($row, $config['col_nama_outlet'] ?? null);
         $namaOutlet = self::getMappedOutletName($namaOutlet);
 
-        $data = [
+        return [
             'sheet_name' => $sheetName,
             'nama_outlet' => $namaOutlet,
             'tahun_1' => self::getColValue($row, $config['col_tahun_1'] ?? null),
@@ -183,28 +219,18 @@ class SpreadsheetSyncService
             'total_ruma' => self::getColValue($row, $config['col_total_ruma'] ?? null),
             'total_gabungan' => self::getColValue($row, $config['col_total_gabungan'] ?? null),
         ];
-
-        if (self::isRowEmptyOrInvalid($data)) return false;
-
-        \App\Models\SyncPiutangData::create($data);
-        return true;
     }
 
-    private static function insertHutang($row, $sheetName, $config) {
+    public static function buildHutangData($row, $sheetName, $config) {
         $namaPenyedia = self::getColValue($row, $config['col_nama_penyedia'] ?? null);
         $namaPenyedia = self::getMappedProviderName($namaPenyedia);
 
-        $data = [
+        return [
             'sheet_name' => $sheetName,
             'no' => self::getColValue($row, $config['col_no'] ?? null),
             'nama_penyedia' => $namaPenyedia,
             'nominal' => self::getColValue($row, $config['col_nominal'] ?? null),
         ];
-
-        if (self::isRowEmptyOrInvalid($data)) return false;
-
-        \App\Models\SyncHutangData::create($data);
-        return true;
     }
 
     private static function getMappedOutletName($rawName) {
