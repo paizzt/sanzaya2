@@ -146,7 +146,7 @@ export default function Index({ tab, is_super_admin, global_target_value, global
     };
 
     const getPdfRouteArgs = () => {
-        const args = { tab: tab, period: '1_bulan' };
+        const args = { tab: tab, period: selectedMonth ? '1_bulan' : '1_tahun' };
         if (selectedSales) args.sales_filter = selectedSales;
         if (selectedOutlet) args.outlet_filter = selectedOutlet;
         if (selectedMonth) args.month_filter = selectedMonth;

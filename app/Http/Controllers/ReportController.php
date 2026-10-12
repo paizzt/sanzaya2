@@ -891,12 +891,20 @@ class ReportController extends Controller
                     }
                 });
                 
-            $hutangQuery = SyncHutangData::whereYear('created_at', $currentYear)
+                $hutangQuery = SyncHutangData::whereYear('created_at', $currentYear)
                 ->where(function($q) use ($selectedMonths) {
                     foreach($selectedMonths as $m) {
                         $q->orWhereMonth('created_at', $m);
                     }
                 });
+        } elseif ($period === '1_tahun' || $period === 'all') {
+            $currentYear = \Carbon\Carbon::now()->year;
+            $title = "Laporan Rekapitulasi Tahunan ($currentYear)";
+            
+            $logistikQuery = SyncLogistikData::query();
+            $pesananQuery = SyncPesananData::query();
+            $piutangQuery = SyncPiutangData::whereYear('created_at', $currentYear);
+            $hutangQuery = SyncHutangData::whereYear('created_at', $currentYear);
         } else {
             $dateStrings = [];
             $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -932,9 +940,12 @@ class ReportController extends Controller
             $hutangQuery = SyncHutangData::where('created_at', '>=', $startDate);
         }
 
-        $targetPtNamesToSearch = $ptFilter ? explode(',', $ptFilter) : [];
+        $targetPtNamesToSearch = $ptFilter ? array_map('trim', explode(',', $ptFilter)) : [];
 
-        if ($ptFilter) $logistikQuery->whereIn('nama_pt', $targetPtNamesToSearch);
+        if (!empty($targetPtNamesToSearch)) {
+            $logistikQuery->whereIn('nama_pt', $targetPtNamesToSearch);
+            $title .= " (" . implode(', ', $targetPtNamesToSearch) . ")";
+        }
         if ($salesFilter) $logistikQuery->where('nama_sales', $salesFilter);
         if ($outletFilter) {
             $logistikQuery->where(function($q) use ($outletNamesToSearch) {
@@ -1006,15 +1017,34 @@ class ReportController extends Controller
         }
         $hutang = $hutangQuery->orderBy('id', 'desc')->take(2000)->get();
 
-        // --- HITUNG RINGKASAN ---
+        // --- HITUNG RINGKASAN & DATA GRAFIK ---
         $totalPenjualan = 0;
         $salesPenjualan = [];
         $outletPenjualan = [];
+        $ptPenjualan = [];
+        $monthPenjualan = [];
+        $brandPenjualan = [];
+
+        if (!empty($targetPtNamesToSearch)) {
+            foreach ($targetPtNamesToSearch as $tPt) {
+                if ($tPt !== '') {
+                    $ptPenjualan[$tPt] = 0;
+                }
+            }
+        }
+
+        $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+
         foreach ($logistik as $row) {
             $cleanTotal = explode(',', (string)$row->total)[0];
             $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
             $totalPenjualan += $val;
             
+            // PT Breakdown
+            $rawPt = trim($row->nama_pt ?: 'Lainnya');
+            $ptPenjualan[$rawPt] = ($ptPenjualan[$rawPt] ?? 0) + $val;
+
+            // Sales Breakdown
             $ptNameForSales = trim($row->nama_pt);
             $salesName = strtoupper(trim($row->nama_sales));
             if (!$salesName) {
@@ -1028,11 +1058,64 @@ class ReportController extends Controller
             }
             $salesPenjualan[$salesName] = ($salesPenjualan[$salesName] ?? 0) + $val;
 
+            // Brand Breakdown
+            if ($row->brand) {
+                $nBrand = trim($row->brand);
+                if ($nBrand) {
+                    $brandPenjualan[$nBrand] = ($brandPenjualan[$nBrand] ?? 0) + $val;
+                }
+            }
+
+            // Month Breakdown
+            if ($row->tanggal) {
+                $mName = 'Lainnya';
+                $tgl = strtolower($row->tanggal);
+                $found = false;
+                
+                $indoMonthsList = [
+                    1 => ['januari', 'jan'], 2 => ['februari', 'feb'], 3 => ['maret', 'mar'],
+                    4 => ['april', 'apr'], 5 => ['mei', 'may'], 6 => ['juni', 'jun'],
+                    7 => ['juli', 'jul'], 8 => ['agustus', 'agt', 'agu', 'aug'], 9 => ['september', 'sep'],
+                    10 => ['oktober', 'okt', 'oct'], 11 => ['november', 'nov'], 12 => ['desember', 'des', 'dec']
+                ];
+                
+                foreach ($indoMonthsList as $num => $names) {
+                    foreach ($names as $name) {
+                        if (strpos($tgl, $name) !== false && !preg_match('/\d{4}-\d{2}-\d{2}/', $tgl) && !preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $tgl)) {
+                            $mName = $monthsIndo[$num];
+                            $found = true;
+                            break 2;
+                        }
+                    }
+                }
+                
+                if (!$found) {
+                    $time = strtotime(str_replace('/', '-', $row->tanggal));
+                    if ($time) {
+                        $m = date('n', $time);
+                        $mName = $monthsIndo[$m] ?? 'Lainnya';
+                    } elseif (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $row->tanggal, $matches) || preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/', $row->tanggal, $matches)) {
+                        $m = (int)$matches[2];
+                        if (isset($monthsIndo[$m])) $mName = $monthsIndo[$m];
+                    }
+                }
+                $monthPenjualan[$mName] = ($monthPenjualan[$mName] ?? 0) + $val;
+            }
+
+            // Outlet Breakdown
             $outletName = $row->pelanggan ?? '-';
             $outletPenjualan[$outletName] = ($outletPenjualan[$outletName] ?? 0) + $val;
         }
+
+        $monthOrder = ['Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4, 'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8, 'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12, 'Lainnya' => 13];
+        uksort($monthPenjualan, function($a, $b) use ($monthOrder) {
+            return ($monthOrder[$a] ?? 99) <=> ($monthOrder[$b] ?? 99);
+        });
+
         arsort($salesPenjualan);
         arsort($outletPenjualan);
+        arsort($brandPenjualan);
+        arsort($ptPenjualan);
 
         $totalPiutang = 0;
         foreach ($piutang as $row) {
@@ -1057,16 +1140,12 @@ class ReportController extends Controller
         }
 
         $targetBulanan = 0;
-        if ($ptFilter) {
-            $companyTarget = \App\Models\CompanyTarget::with('companies')->where('name', $ptFilter)->first();
-            if (!$companyTarget) {
-                $companyTarget = \App\Models\CompanyTarget::with('companies')->whereHas('companies', function($q) use ($ptFilter) {
-                    $q->where('name', $ptFilter);
-                })->first();
-            }
-            if ($companyTarget && $companyTarget->monthly_target > 0) {
-                $targetBulanan = (float)$companyTarget->monthly_target;
-            }
+        if (!empty($targetPtNamesToSearch)) {
+            $companyTargets = \App\Models\CompanyTarget::whereIn('name', $targetPtNamesToSearch)
+                ->orWhereHas('companies', function($q) use ($targetPtNamesToSearch) {
+                    $q->whereIn('name', $targetPtNamesToSearch);
+                })->get();
+            $targetBulanan = (float)$companyTargets->sum('monthly_target');
         } elseif ($salesFilter) {
             $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
             if ($userWithTarget && $userWithTarget->monthly_target > 0) {
@@ -1078,29 +1157,172 @@ class ReportController extends Controller
             if ($targetBulananPTs > 0) {
                 $targetBulanan = (float)$targetBulananPTs;
             } else {
-                $targetBulanan = \App\Models\User::sum('monthly_target');
+                $targetBulanan = (float)\App\Models\User::sum('monthly_target');
             }
         }
 
         $summary = [
             'total_penjualan' => $totalPenjualan,
+            'pt_penjualan' => $ptPenjualan,
             'total_piutang' => $totalPiutang,
             'total_hutang' => $totalHutang,
             'pesanan_terkirim' => $pesananTerkirim,
             'pesanan_belum' => $pesananBelum,
             'sales_penjualan' => $salesPenjualan,
             'outlet_penjualan' => $outletPenjualan,
+            'brand_penjualan' => $brandPenjualan,
+            'month_penjualan' => $monthPenjualan,
             'target_bulanan' => $targetBulanan,
         ];
 
         // --- BUAT GRAFIK (QUICKCHART.IO) ---
         $charts = [
+            'penjualan_bulan' => null,
+            'top_sales' => null,
+            'brand' => null,
             'piutang_hutang' => null,
             'pesanan' => null,
             'outlets' => null,
         ];
 
-        // 1. Chart Piutang vs Hutang
+        // 1. Chart Penjualan Per Bulan
+        if (in_array('logistik', $datasets) && !empty($monthPenjualan)) {
+            $chartLabels = json_encode(array_keys($monthPenjualan));
+            $chartData = json_encode(array_values($monthPenjualan));
+            $chartStringBulan = "{
+                type: 'bar',
+                data: {
+                    labels: {$chartLabels},
+                    datasets: [{
+                        label: 'Penjualan',
+                        data: {$chartData},
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    legend: { display: false },
+                    layout: { padding: { top: 25 } },
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#3b82f6',
+                            font: { weight: 'bold', size: 8 },
+                            formatter: function(value) {
+                                if (!value) return '';
+                                return 'Rp ' + value.toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.');
+                            }
+                        }
+                    },
+                    scales: {
+                        xAxes: [{ gridLines: { display: false }, ticks: { fontSize: 9, fontColor: '#6b7280' } }],
+                        yAxes: [{
+                            gridLines: { color: '#f0f0f0', drawBorder: false },
+                            ticks: {
+                                fontColor: '#6b7280',
+                                callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
+                            }
+                        }]
+                    }
+                }
+            }";
+            try {
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->post('https://quickchart.io/chart', [
+                    'chart' => $chartStringBulan,
+                    'width' => 750,
+                    'height' => 260,
+                    'format' => 'png',
+                    'backgroundColor' => 'white'
+                ]);
+                if ($res->successful()) $charts['penjualan_bulan'] = 'data:image/png;base64,' . base64_encode($res->body());
+            } catch (\Exception $e) {}
+        }
+
+        // 2. Chart Top 10 Penjualan per Sales
+        if (in_array('logistik', $datasets) && !empty($salesPenjualan)) {
+            $topSales = array_slice($salesPenjualan, 0, 10, true);
+            $salesLabels = json_encode(array_keys($topSales));
+            $salesValues = json_encode(array_values($topSales));
+            $salesColors = json_encode([
+                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
+                '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+            ]);
+            $chartStringSales = "{
+                type: 'pie',
+                data: {
+                    labels: {$salesLabels},
+                    datasets: [{
+                        data: {$salesValues},
+                        backgroundColor: {$salesColors},
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { fontSize: 9, boxWidth: 12, padding: 8 }
+                    },
+                    plugins: {
+                        datalabels: { display: false }
+                    }
+                }
+            }";
+            try {
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->post('https://quickchart.io/chart', [
+                    'chart' => $chartStringSales,
+                    'width' => 380,
+                    'height' => 240,
+                    'format' => 'png',
+                    'backgroundColor' => 'white'
+                ]);
+                if ($res->successful()) $charts['top_sales'] = 'data:image/png;base64,' . base64_encode($res->body());
+            } catch (\Exception $e) {}
+        }
+
+        // 3. Chart Penjualan per Brand
+        if (in_array('logistik', $datasets) && !empty($brandPenjualan)) {
+            $brandLabels = json_encode(array_keys($brandPenjualan));
+            $brandValues = json_encode(array_values($brandPenjualan));
+            $brandColors = json_encode([
+                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
+                '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+            ]);
+            $chartStringBrand = "{
+                type: 'pie',
+                data: {
+                    labels: {$brandLabels},
+                    datasets: [{
+                        data: {$brandValues},
+                        backgroundColor: {$brandColors},
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { fontSize: 9, boxWidth: 12, padding: 8 }
+                    },
+                    plugins: {
+                        datalabels: { display: false }
+                    }
+                }
+            }";
+            try {
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->post('https://quickchart.io/chart', [
+                    'chart' => $chartStringBrand,
+                    'width' => 380,
+                    'height' => 240,
+                    'format' => 'png',
+                    'backgroundColor' => 'white'
+                ]);
+                if ($res->successful()) $charts['brand'] = 'data:image/png;base64,' . base64_encode($res->body());
+            } catch (\Exception $e) {}
+        }
+
+        // 4. Chart Piutang vs Hutang
         if (in_array('piutang', $datasets) || in_array('hutang', $datasets)) {
             $phLabels = [];
             $phData = [];
@@ -1122,7 +1344,7 @@ class ReportController extends Controller
             } catch (\Exception $e) {}
         }
 
-        // 2. Chart Doughnut Pesanan
+        // 5. Chart Doughnut Pesanan
         if (in_array('pesanan', $datasets)) {
             $configPesanan = [
                 'type' => 'doughnut',
@@ -1138,7 +1360,7 @@ class ReportController extends Controller
             } catch (\Exception $e) {}
         }
 
-        // 3. Chart Top Outlets
+        // 6. Chart Top Outlets
         if (in_array('logistik', $datasets) && !empty($outletPenjualan)) {
             $topOutlets = array_slice($outletPenjualan, 0, 5, true);
             $configOutlets = [

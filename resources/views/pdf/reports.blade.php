@@ -46,72 +46,158 @@
         <table style="width: 100%; border-collapse: separate; border-spacing: 5px; margin-bottom: 10px; margin-left: -5px;">
             <tr>
                 @if(in_array('logistik', $datasets ?? []))
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 16%;">
-                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Penjualan</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
-                </td>
+                    @if(isset($summary['pt_penjualan']) && count($summary['pt_penjualan']) > 1)
+                        @foreach($summary['pt_penjualan'] as $ptName => $ptTotal)
+                        <td style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 8px 10px; color: #166534; vertical-align: top;">
+                            <p style="font-size: 8px; margin: 0 0 3px 0; font-weight: bold; text-transform: uppercase;">{{ $ptName }}</p>
+                            <p style="font-size: 11px; font-weight: bold; margin: 0;">Rp {{ number_format($ptTotal, 0, ',', '.') }}</p>
+                        </td>
+                        @endforeach
+                        <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 8px 10px; color: #0369a1; vertical-align: top;">
+                            <p style="font-size: 8px; margin: 0 0 3px 0; font-weight: bold; text-transform: uppercase;">TOTAL GABUNGAN</p>
+                            <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
+                        </td>
+                    @else
+                        <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
+                            <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">
+                                {{ !empty($summary['pt_penjualan']) ? 'Total Penjualan (' . key($summary['pt_penjualan']) . ')' : 'Total Penjualan' }}
+                            </p>
+                            <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
+                        </td>
+                    @endif
 
-                @if(isset($summary['target_bulanan']) && $summary['target_bulanan'] > 0)
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 16%;">
-                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Target Bulanan</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['target_bulanan'], 0, ',', '.') }}</p>
-                </td>
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 12%;">
-                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Capaian Target</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format(($summary['total_penjualan'] / $summary['target_bulanan']) * 100, 1, ',', '.') }}%</p>
-                </td>
-                @endif
+                    @if(isset($summary['target_bulanan']) && $summary['target_bulanan'] > 0)
+                    <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
+                        <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Target Bulanan</p>
+                        <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['target_bulanan'], 0, ',', '.') }}</p>
+                    </td>
+                    <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
+                        <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Capaian Target</p>
+                        <p style="font-size: 12px; font-weight: bold; margin: 0;">{{ number_format(($summary['total_penjualan'] / $summary['target_bulanan']) * 100, 1, ',', '.') }}%</p>
+                    </td>
+                    @endif
                 @endif
                 @if(in_array('piutang', $datasets ?? []))
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 20%;">
-                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Piutang</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang'], 0, ',', '.') }}</p>
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
+                    <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Total Piutang</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('hutang', $datasets ?? []))
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 20%;">
-                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Total Hutang</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang'], 0, ',', '.') }}</p>
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
+                    <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Total Hutang</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('pesanan', $datasets ?? []))
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 20%;">
-                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Pesanan Terkirim</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_terkirim'], 0, ',', '.') }}</p>
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
+                    <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Pesanan Terkirim</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_terkirim'], 0, ',', '.') }}</p>
                 </td>
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; width: 20%;">
-                    <p style="font-size: 10px; margin: 0 0 4px 0; opacity: 0.9;">Belum Terkirim</p>
-                    <p style="font-size: 13px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_belum'], 0, ',', '.') }}</p>
+                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
+                    <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Belum Terkirim</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_belum'], 0, ',', '.') }}</p>
                 </td>
                 @endif
             </tr>
         </table>
 
+        @if(in_array('logistik', $datasets ?? []) && isset($summary['pt_penjualan']) && count($summary['pt_penjualan']) > 1)
+        <!-- Tabel Rincian Total Penjualan per PT -->
+        <div style="margin-top: 5px; margin-bottom: 12px;">
+            <h4 style="margin-bottom: 6px; margin-top: 0; font-size: 11px; font-weight: bold; color: #1e3a8a;">
+                Total Penjualan per PT / Perusahaan
+            </h4>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
+                <thead>
+                    <tr style="background-color: #f1f5f9;">
+                        <th style="width: 5%; text-align: center; padding: 5px; font-size: 9px;">No</th>
+                        <th style="width: 50%; padding: 5px; font-size: 9px;">Nama PT / Perusahaan</th>
+                        <th style="width: 30%; text-align: right; padding: 5px; font-size: 9px;">Total Penjualan (Rp)</th>
+                        <th style="width: 15%; text-align: center; padding: 5px; font-size: 9px;">Kontribusi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $noPt = 1; @endphp
+                    @foreach($summary['pt_penjualan'] as $ptName => $ptTotal)
+                    @php 
+                        $kontribusi = $summary['total_penjualan'] > 0 ? ($ptTotal / $summary['total_penjualan']) * 100 : 0; 
+                    @endphp
+                    <tr>
+                        <td style="text-align: center; font-size: 9px; padding: 5px;">{{ $noPt++ }}</td>
+                        <td style="font-size: 9px; font-weight: bold; padding: 5px;">{{ $ptName }}</td>
+                        <td style="text-align: right; font-size: 9px; font-weight: bold; padding: 5px; color: #0284c7;">
+                            Rp {{ number_format($ptTotal, 0, ',', '.') }}
+                        </td>
+                        <td style="text-align: center; font-size: 9px; padding: 5px;">
+                            {{ number_format($kontribusi, 1, ',', '.') }}%
+                        </td>
+                    </tr>
+                    @endforeach
+                    <tr style="background-color: #e0f2fe; font-weight: bold;">
+                        <td colspan="2" style="padding: 6px 8px; font-size: 9px; text-transform: uppercase;">Total Gabungan Penjualan</td>
+                        <td style="text-align: right; padding: 6px 8px; font-size: 9px; color: #0369a1;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</td>
+                        <td style="text-align: center; padding: 6px 8px; font-size: 9px; color: #0369a1;">100%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        @endif
+
         <!-- Charts Grid -->
+        @if(in_array('logistik', $datasets ?? []) && !empty($charts['penjualan_bulan']))
+        <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; margin-bottom: 10px; text-align: center;">
+            <h4 style="margin: 0 0 6px 0; font-size: 11px; font-weight: bold; color: #1e3a8a; text-align: left;">Penjualan Per Bulan</h4>
+            <img src="{{ $charts['penjualan_bulan'] }}" style="width: 100%; height: auto; max-height: 240px;" />
+        </div>
+        @endif
+
+        @if(in_array('logistik', $datasets ?? []) && (!empty($charts['top_sales']) || !empty($charts['brand'])))
+        <table style="width: 100%; border-collapse: separate; border-spacing: 10px; margin-left: -10px; margin-bottom: 8px;">
+            <tr>
+                @if(!empty($charts['top_sales']))
+                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; text-align: center; width: 50%; vertical-align: top;">
+                    <h4 style="margin: 0 0 6px 0; font-size: 11px; font-weight: bold; color: #1e3a8a; text-align: left;">Top 10 Penjualan per Sales</h4>
+                    <img src="{{ $charts['top_sales'] }}" style="width: 100%; height: auto;" />
+                </td>
+                @endif
+
+                @if(!empty($charts['brand']))
+                <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; text-align: center; width: 50%; vertical-align: top;">
+                    <h4 style="margin: 0 0 6px 0; font-size: 11px; font-weight: bold; color: #1e3a8a; text-align: left;">Penjualan per Brand</h4>
+                    <img src="{{ $charts['brand'] }}" style="width: 100%; height: auto;" />
+                </td>
+                @endif
+            </tr>
+        </table>
+        @endif
+
+        @if((in_array('logistik', $datasets ?? []) && !empty($charts['outlets'])) || ((in_array('piutang', $datasets ?? []) || in_array('hutang', $datasets ?? [])) && !empty($charts['piutang_hutang'])) || (in_array('pesanan', $datasets ?? []) && !empty($charts['pesanan'])))
         <table style="width: 100%; border-collapse: separate; border-spacing: 10px; margin-left: -10px; margin-bottom: 5px;">
             <tr>
                 @if(in_array('logistik', $datasets ?? []) && !empty($charts['outlets']))
                 <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 45%; vertical-align: middle;">
-                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Top 5 Outlet (Juta)</h4>
+                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563; text-align: left;">Top 5 Outlet (Juta)</h4>
                     <img src="{{ $charts['outlets'] }}" style="width: 100%; height: auto;" />
                 </td>
                 @endif
 
                 @if((in_array('piutang', $datasets ?? []) || in_array('hutang', $datasets ?? [])) && !empty($charts['piutang_hutang']))
                 <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 30%; vertical-align: middle;">
-                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Piutang vs Hutang (Juta)</h4>
+                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563; text-align: left;">Piutang vs Hutang (Juta)</h4>
                     <img src="{{ $charts['piutang_hutang'] }}" style="width: 100%; height: auto;" />
                 </td>
                 @endif
                 
                 @if(in_array('pesanan', $datasets ?? []) && !empty($charts['pesanan']))
                 <td style="background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center; width: 25%; vertical-align: middle;">
-                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563;">Status Pesanan</h4>
+                    <h4 style="margin-top:0; font-size: 10px; color: #4b5563; text-align: left;">Status Pesanan</h4>
                     <img src="{{ $charts['pesanan'] }}" style="width: 100%; height: auto;" />
                 </td>
                 @endif
             </tr>
         </table>
+        @endif
         <table style="width: 100%; border: none;">
             <tr>
                 @php
