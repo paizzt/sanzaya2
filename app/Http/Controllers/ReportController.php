@@ -103,12 +103,32 @@ class ReportController extends Controller
 
         $salesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');
         $ptNames = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-')->pluck('nama_pt')->map(fn($p) => trim($p))->filter(fn($p) => $p !== '' && $p !== '-')->unique()->values();
+        
+        $userAllowedPtNames = auth()->user()?->getAllowedCompanyNames();
+        if ($userAllowedPtNames !== null) {
+            $ptNames = $ptNames->filter(function($pt) use ($userAllowedPtNames) {
+                foreach ($userAllowedPtNames as $allowed) {
+                    if (stripos($pt, trim($allowed)) !== false || stripos(trim($allowed), $pt) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            })->values();
+        }
+
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
         $targetPtNamesToSearch = $ptFilter ? array_filter(array_map('trim', explode(',', $ptFilter))) : [];
 
         $logistikBaseQuery = SyncLogistikData::query();
+        if ($userAllowedPtNames !== null) {
+            $logistikBaseQuery->where(function($q) use ($userAllowedPtNames) {
+                foreach ($userAllowedPtNames as $allowed) {
+                    $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%');
+                }
+            });
+        }
         if (!empty($targetPtNamesToSearch)) {
             $logistikBaseQuery->where(function($q) use ($targetPtNamesToSearch) {
                 $q->whereIn('nama_pt', $targetPtNamesToSearch);
@@ -573,6 +593,13 @@ class ReportController extends Controller
             
             // Hitung total tahunan (Year-To-Date) secara terpisah tanpa filter bulan
             $annualQuery = SyncLogistikData::query();
+            if ($userAllowedPtNames !== null) {
+                $annualQuery->where(function($q) use ($userAllowedPtNames) {
+                    foreach ($userAllowedPtNames as $allowed) {
+                        $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%');
+                    }
+                });
+            }
             if (!empty($targetPtNamesToSearch)) {
                 $annualQuery->where(function($q) use ($targetPtNamesToSearch) {
                     $q->whereIn('nama_pt', $targetPtNamesToSearch);
@@ -1097,6 +1124,15 @@ class ReportController extends Controller
         }
 
         $targetPtNamesToSearch = $ptFilter ? array_map('trim', explode(',', $ptFilter)) : [];
+
+        $userAllowedPtNames = auth()->user()?->getAllowedCompanyNames();
+        if ($userAllowedPtNames !== null) {
+            $logistikQuery->where(function($q) use ($userAllowedPtNames) {
+                foreach ($userAllowedPtNames as $allowed) {
+                    $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%');
+                }
+            });
+        }
 
         if (!empty($targetPtNamesToSearch)) {
             $logistikQuery->where(function($q) use ($targetPtNamesToSearch) {

@@ -842,7 +842,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-DoIqokwW.js",
+    "file": "assets/Index-G8RXO0bg.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -863,7 +863,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-DWVVJDwm.js",
+    "file": "assets/Show-vyECqr7Y.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -913,7 +913,7 @@
     ]
   },
   "resources/js/Pages/Users/Index.jsx": {
-    "file": "assets/Index-DBgfFQKG.js",
+    "file": "assets/Index-LafDOU8t.js",
     "name": "Index",
     "src": "resources/js/Pages/Users/Index.jsx",
     "isDynamicEntry": true,
@@ -1040,7 +1040,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-DpEURNY2.js",
+    "file": "assets/app-p4d3RFaI.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1108,7 +1108,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-Dv4qJ7I7.css"
+      "assets/app-CdScFtBx.css"
     ]
   },
   "resources/js/assets/logo.png": {

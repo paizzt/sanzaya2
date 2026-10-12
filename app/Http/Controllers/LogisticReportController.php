@@ -48,6 +48,11 @@ class LogisticReportController extends Controller
         if ($request->filled('tahun')) {
             $query->whereYear('tanggal', $request->tahun);
         }
+        $allowedCompanyIds = auth()->user()?->getAllowedCompanyIds();
+        if ($allowedCompanyIds !== null) {
+            $query->whereIn('company_id', $allowedCompanyIds);
+        }
+
         if ($request->filled('company_id')) {
             $query->where('company_id', $request->company_id);
         }
@@ -92,7 +97,11 @@ class LogisticReportController extends Controller
         }
 
         $outlets = \App\Models\Outlet::orderBy('name')->get(['id', 'name']);
-        $companies = \App\Models\Company::orderBy('name')->get(['id', 'name']);
+        $companiesQuery = \App\Models\Company::orderBy('name');
+        if ($allowedCompanyIds !== null) {
+            $companiesQuery->whereIn('id', $allowedCompanyIds);
+        }
+        $companies = $companiesQuery->get(['id', 'name']);
 
         $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
         $perPage = 50;
@@ -188,6 +197,11 @@ class LogisticReportController extends Controller
         if ($request->filled('tahun')) {
             $query->whereYear('tanggal', $request->tahun);
         }
+        $allowedCompanyIds = auth()->user()?->getAllowedCompanyIds();
+        if ($allowedCompanyIds !== null) {
+            $query->whereIn('company_id', $allowedCompanyIds);
+        }
+
         if ($request->filled('company_id')) {
             $query->where('company_id', $request->company_id);
         }
@@ -299,6 +313,11 @@ class LogisticReportController extends Controller
         if ($request->filled('tahun')) {
             $query->whereYear('tanggal', $request->tahun);
         }
+        $allowedCompanyIds = auth()->user()?->getAllowedCompanyIds();
+        if ($allowedCompanyIds !== null) {
+            $query->whereIn('company_id', $allowedCompanyIds);
+        }
+
         if ($request->filled('company_id')) {
             $query->where('company_id', $request->company_id);
         }

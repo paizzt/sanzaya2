@@ -22,12 +22,20 @@ class UserController extends Controller
 {
     public function index()
     {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('users') && !\Illuminate\Support\Facades\Schema::hasColumn('users', 'allowed_companies')) {
+                \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                    $table->json('allowed_companies')->nullable()->after('company_id');
+                });
+            }
+        } catch (\Throwable $e) {}
+
         $users = User::with(['division', 'position', 'marketingAreas', 'roles', 'company'])->get();
         $divisions = Division::all();
         $positions = Position::all();
         $areas = MarketingArea::orderBy('name')->get();
         $roles = Role::all();
-        $companies = Company::all();
+        $companies = Company::orderBy('name')->get();
 
         // Ensure new WBS features and Unduh PDF exist in the database so they appear in the UI toggle
         FeatureToggle::firstOrCreate(['name' => 'Lapor WBS']);
@@ -118,6 +126,8 @@ class UserController extends Controller
             'marketing_areas' => 'nullable|array',
             'marketing_areas.*' => 'exists:marketing_areas,id',
             'company_id' => 'nullable|exists:companies,id',
+            'allowed_companies' => 'nullable|array',
+            'allowed_companies.*' => 'exists:companies,id',
             'feature_toggles' => 'nullable|array',
             'spreadsheet_sales_name' => 'nullable|string|max:255',
             'monthly_target' => 'nullable|numeric',
@@ -144,6 +154,10 @@ class UserController extends Controller
             $division = Division::firstOrCreate(['name' => $request->division_name]);
         }
 
+        $allowedCompanies = $request->has('allowed_companies') && is_array($request->allowed_companies)
+            ? array_values(array_map('intval', array_filter($request->allowed_companies)))
+            : null;
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -151,6 +165,7 @@ class UserController extends Controller
             'division_id' => $division ? $division->id : null,
             'position_id' => $request->position_id,
             'company_id' => $request->company_id,
+            'allowed_companies' => $allowedCompanies,
             'spreadsheet_sales_name' => $request->spreadsheet_sales_name,
             'monthly_target' => $request->monthly_target,
             'work_days_per_week' => $request->work_days_per_week ?? 6,
@@ -193,6 +208,8 @@ class UserController extends Controller
             'marketing_areas' => 'nullable|array',
             'marketing_areas.*' => 'exists:marketing_areas,id',
             'company_id' => 'nullable|exists:companies,id',
+            'allowed_companies' => 'nullable|array',
+            'allowed_companies.*' => 'exists:companies,id',
             'feature_toggles' => 'nullable|array',
             'spreadsheet_sales_name' => 'nullable|string|max:255',
             'monthly_target' => 'nullable|numeric',
@@ -223,6 +240,12 @@ class UserController extends Controller
         
         if ($request->has('work_days_per_week')) {
             $user->work_days_per_week = $request->work_days_per_week;
+        }
+
+        if ($request->has('allowed_companies')) {
+            $user->allowed_companies = is_array($request->allowed_companies)
+                ? array_values(array_map('intval', array_filter($request->allowed_companies)))
+                : null;
         }
 
         if ($request->filled('division_name')) {

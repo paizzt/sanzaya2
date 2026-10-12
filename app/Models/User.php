@@ -33,6 +33,7 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'require_password_change' => 'boolean',
             'preferences' => 'array',
+            'allowed_companies' => 'array',
         ];
     }
 
@@ -56,6 +57,37 @@ class User extends Authenticatable
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Get list of allowed company IDs for this user.
+     * Returns null if user is Super Admin or has unrestricted access.
+     */
+    public function getAllowedCompanyIds(): ?array
+    {
+        if ($this->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+            return null; // Null means all access
+        }
+        if ($this->allowed_companies !== null && is_array($this->allowed_companies)) {
+            return array_values(array_map('intval', array_filter($this->allowed_companies)));
+        }
+        if ($this->company_id) {
+            return [(int)$this->company_id];
+        }
+        return null;
+    }
+
+    /**
+     * Get list of allowed company names for this user.
+     * Returns null if user has unrestricted access.
+     */
+    public function getAllowedCompanyNames(): ?array
+    {
+        $ids = $this->getAllowedCompanyIds();
+        if ($ids === null) {
+            return null;
+        }
+        return \App\Models\Company::whereIn('id', $ids)->pluck('name')->toArray();
     }
 
     /**

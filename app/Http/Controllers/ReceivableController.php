@@ -30,6 +30,11 @@ class ReceivableController extends Controller
             });
         }
 
+        $allowedCompanyIds = auth()->user()?->getAllowedCompanyIds();
+        if ($allowedCompanyIds !== null) {
+            $query->whereIn('company_id', $allowedCompanyIds);
+        }
+
         if ($request->pt) {
             $pts = is_array($request->pt) ? $request->pt : explode(',', $request->pt);
             $query->whereIn('company_id', $pts);
@@ -48,7 +53,11 @@ class ReceivableController extends Controller
         $items = $query->get();
         
         $outlets = \App\Models\Outlet::orderBy('name')->get();
-        $companies = \App\Models\Company::orderBy('name')->get();
+        $companiesQuery = \App\Models\Company::orderBy('name');
+        if ($allowedCompanyIds !== null) {
+            $companiesQuery->whereIn('id', $allowedCompanyIds);
+        }
+        $companies = $companiesQuery->get();
         
         $dailyReports = \App\Models\ReceivableDailyReport::with(['user', 'outlet'])->orderBy('billing_date', 'desc')->get();
         $users = \App\Models\User::orderBy('name')->get();
@@ -145,6 +154,11 @@ class ReceivableController extends Controller
             });
         }
         
+        $allowedCompanyIds = auth()->user()?->getAllowedCompanyIds();
+        if ($allowedCompanyIds !== null) {
+            $query->whereIn('company_id', $allowedCompanyIds);
+        }
+
         if ($request->pt) {
             $pts = is_array($request->pt) ? $request->pt : explode(',', $request->pt);
             $query->whereIn('company_id', $pts);

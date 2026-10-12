@@ -22,6 +22,11 @@ class PayableController extends Controller
             });
         }
 
+        $allowedCompanyIds = auth()->user()?->getAllowedCompanyIds();
+        if ($allowedCompanyIds !== null) {
+            $query->whereIn('company_id', $allowedCompanyIds);
+        }
+
         if ($request->pt) {
             $pts = is_array($request->pt) ? $request->pt : explode(',', $request->pt);
             $query->whereIn('company_id', $pts);
@@ -40,7 +45,11 @@ class PayableController extends Controller
         $items = $query->get();
         
         $providers = \App\Models\Provider::orderBy('name')->get();
-        $companies = \App\Models\Company::orderBy('name')->get();
+        $companiesQuery = \App\Models\Company::orderBy('name');
+        if ($allowedCompanyIds !== null) {
+            $companiesQuery->whereIn('id', $allowedCompanyIds);
+        }
+        $companies = $companiesQuery->get();
         
         $users = \App\Models\User::orderBy('name')->get();
 
@@ -129,6 +138,11 @@ class PayableController extends Controller
             });
         }
         
+        $allowedCompanyIds = auth()->user()?->getAllowedCompanyIds();
+        if ($allowedCompanyIds !== null) {
+            $query->whereIn('company_id', $allowedCompanyIds);
+        }
+
         if ($request->pt) {
             $pts = is_array($request->pt) ? $request->pt : explode(',', $request->pt);
             $query->whereIn('company_id', $pts);

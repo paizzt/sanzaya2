@@ -57,6 +57,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
         position_id: '',
         marketing_areas: [],
         company_id: '',
+        allowed_companies: [],
         feature_toggles: [],
         spreadsheet_sales_name: '',
         monthly_target: '',
@@ -99,6 +100,8 @@ export default function Index({ users = [], divisions = [], positions = [], area
         }
         setData(data => ({
             ...data,
+            company_id: '',
+            allowed_companies: companies.map(c => Number(c.id)),
             feature_toggles: allFeatureIds,
             preferences: { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] }
         }));
@@ -125,6 +128,10 @@ export default function Index({ users = [], divisions = [], positions = [], area
             }
         }
 
+        const allowedCompIds = Array.isArray(user.allowed_companies)
+            ? user.allowed_companies.map(Number)
+            : (user.company_id ? [Number(user.company_id)] : companies.map(c => Number(c.id)));
+
         setData({
             name: user.name,
             email: user.email,
@@ -134,6 +141,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
             position_id: user.position_id || '',
             marketing_areas: user.marketing_areas ? user.marketing_areas.map(a => a.id) : [],
             company_id: user.company_id || '',
+            allowed_companies: allowedCompIds,
             feature_toggles: enabledFeatureIds,
             spreadsheet_sales_name: user.spreadsheet_sales_name || '',
             monthly_target: user.monthly_target || '',
@@ -257,6 +265,39 @@ export default function Index({ users = [], divisions = [], positions = [], area
         }
     };
 
+    const toggleAllowedCompany = (companyId) => {
+        const id = Number(companyId);
+        const current = Array.isArray(data.allowed_companies) ? [...data.allowed_companies] : [];
+        if (current.includes(id)) {
+            setData('allowed_companies', current.filter(x => x !== id));
+        } else {
+            setData('allowed_companies', [...current, id]);
+        }
+    };
+
+    const selectAllAllowedCompanies = () => {
+        setData('allowed_companies', companies.map(c => Number(c.id)));
+    };
+
+    const deselectAllAllowedCompanies = () => {
+        setData('allowed_companies', []);
+    };
+
+    const handleCompanyChange = (val) => {
+        setData(prev => {
+            const nextAllowed = Array.isArray(prev.allowed_companies) ? [...prev.allowed_companies] : [];
+            const numVal = Number(val);
+            if (numVal && !nextAllowed.includes(numVal)) {
+                nextAllowed.push(numVal);
+            }
+            return {
+                ...prev,
+                company_id: val,
+                allowed_companies: nextAllowed,
+            };
+        });
+    };
+
     const filteredAreas = areas.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const filteredUsers = users.filter(user => 
@@ -350,6 +391,34 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                         <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
                                                             {user.roles && user.roles.length > 0 ? user.roles[0].name : 'Tidak ada role'}
                                                         </span>
+                                                        {(() => {
+                                                            const isSuper = user.roles && user.roles.some(r => ['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'].includes(r.name));
+                                                            if (isSuper) {
+                                                                return (
+                                                                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 mt-0.5">
+                                                                        Semua PT (Superadmin)
+                                                                    </span>
+                                                                );
+                                                            }
+                                                            const allowed = Array.isArray(user.allowed_companies) ? user.allowed_companies : (user.company_id ? [user.company_id] : null);
+                                                            if (allowed && allowed.length > 0) {
+                                                                const allowedCount = allowed.length;
+                                                                const allowedNames = companies.filter(c => allowed.map(Number).includes(Number(c.id))).map(c => c.name);
+                                                                return (
+                                                                    <span 
+                                                                        className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 mt-0.5"
+                                                                        title={allowedNames.join(', ')}
+                                                                    >
+                                                                        Akses: {allowedCount} PT
+                                                                    </span>
+                                                                );
+                                                            }
+                                                            return (
+                                                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200 mt-0.5">
+                                                                    Semua PT (Bawaan)
+                                                                </span>
+                                                            );
+                                                        })()}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -464,14 +533,15 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     <InputError message={errors.password} className="mt-1" />
                                                 </div>
                                                 <div>
-                                                    <InputLabel value="Perusahaan (PT)" />
+                                                    <InputLabel value="Perusahaan (PT) Utama" />
                                                     <CustomSelect 
                                                         icon={Building}
                                                         value={data.company_id}
-                                                        onChange={val => setData('company_id', val)}
+                                                        onChange={handleCompanyChange}
                                                         options={companies.map(c => ({ value: c.id, label: c.name }))}
                                                         />
                                                     <InputError message={errors.company_id} className="mt-1" />
+                                                    <p className="text-xs text-gray-500 mt-1">Perusahaan utama tempat pengguna bertugas.</p>
                                                 </div>
                                             </div>
 
@@ -535,6 +605,100 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     </div>
                                                 </>
                                                 </div>
+                                            </div>
+
+                                            {/* SAKLAR HAK AKSES DATA PT / PERUSAHAAN */}
+                                            <div className="space-y-4 pt-6 border-t border-gray-100">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-blue-50/80 p-4 rounded-2xl border border-blue-100">
+                                                    <div>
+                                                        <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                                                            <Building className="w-5 h-5 text-blue-600" />
+                                                            Saklar Hak Akses Data PT / Perusahaan
+                                                        </h4>
+                                                        <p className="text-xs text-gray-600 mt-1 max-w-2xl">
+                                                            Pilih data PT apa saja yang diizinkan untuk dilihat oleh pengguna ini. Data pada Dashboard Laporan, Data Hutang, Data Piutang, dan Laporan Logistik akan otomatis terfilter sesuai saklar PT yang aktif.
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                                        <button
+                                                            type="button"
+                                                            onClick={selectAllAllowedCompanies}
+                                                            className="text-xs font-semibold px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-all shadow-sm"
+                                                        >
+                                                            Aktifkan Semua PT
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={deselectAllAllowedCompanies}
+                                                            className="text-xs font-semibold px-3 py-1.5 bg-white text-gray-700 hover:bg-gray-100 rounded-xl transition-all border border-gray-200 shadow-sm"
+                                                        >
+                                                            Nonaktifkan Semua
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {companies.length === 0 ? (
+                                                    <p className="text-xs text-gray-400 italic">Belum ada data perusahaan / PT terdaftar.</p>
+                                                ) : (
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                                        {companies.map((comp) => {
+                                                            const isAllowed = Array.isArray(data.allowed_companies) && data.allowed_companies.includes(Number(comp.id));
+                                                            const isPrimary = Number(data.company_id) === Number(comp.id);
+                                                            return (
+                                                                <div
+                                                                    key={comp.id}
+                                                                    onClick={() => toggleAllowedCompany(comp.id)}
+                                                                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer select-none flex items-center justify-between gap-3 shadow-sm ${
+                                                                        isAllowed
+                                                                            ? 'bg-gradient-to-r from-emerald-50 via-teal-50/50 to-emerald-50 border-emerald-300 ring-1 ring-emerald-300/40 hover:bg-emerald-100/70'
+                                                                            : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex items-center gap-3 min-w-0">
+                                                                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                                                                            isAllowed ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400'
+                                                                        }`}>
+                                                                            <Building className="w-4 h-4" />
+                                                                        </div>
+                                                                        <div className="min-w-0">
+                                                                            <div className="flex items-center gap-1.5">
+                                                                                <span className={`text-sm font-semibold truncate ${isAllowed ? 'text-emerald-950' : 'text-gray-700'}`}>
+                                                                                    {comp.name}
+                                                                                </span>
+                                                                                {isPrimary && (
+                                                                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-bold uppercase tracking-wider flex-shrink-0">
+                                                                                        Utama
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                            <span className={`text-xs block ${isAllowed ? 'text-emerald-700 font-medium' : 'text-gray-400'}`}>
+                                                                                {isAllowed ? 'Akses Diizinkan' : 'Akses Dibatasi'}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Saklar Toggle */}
+                                                                    <div className="flex-shrink-0">
+                                                                        <span
+                                                                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                                                                                isAllowed ? 'bg-emerald-600' : 'bg-gray-300'
+                                                                            }`}
+                                                                        >
+                                                                            <span
+                                                                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                                                    isAllowed ? 'translate-x-5' : 'translate-x-0'
+                                                                                }`}
+                                                                            />
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                                {errors.allowed_companies && (
+                                                    <p className="text-xs text-red-500 mt-1">{errors.allowed_companies}</p>
+                                                )}
                                             </div>
 
                                             {/* Data Pribadi & Karyawan */}
@@ -1039,8 +1203,37 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                             
                                             <div className="space-y-3">
                                                 <div>
-                                                    <p className="text-xs text-gray-500 font-medium">Perusahaan (PT)</p>
+                                                    <p className="text-xs text-gray-500 font-medium">Perusahaan (PT) Utama</p>
                                                     <p className="font-semibold text-gray-800">{previewUser.company?.name || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium mb-1">Akses Data PT yang Diizinkan</p>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {(() => {
+                                                            const isSuper = previewUser.roles && previewUser.roles.some(r => ['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'].includes(r.name));
+                                                            if (isSuper) {
+                                                                return (
+                                                                    <span className="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-lg border border-emerald-200">
+                                                                        Semua PT (Akses Penuh Superadmin)
+                                                                    </span>
+                                                                );
+                                                            }
+                                                            const allowed = Array.isArray(previewUser.allowed_companies) ? previewUser.allowed_companies : (previewUser.company_id ? [previewUser.company_id] : null);
+                                                            if (allowed && allowed.length > 0) {
+                                                                const matchedComps = companies.filter(c => allowed.map(Number).includes(Number(c.id)));
+                                                                if (matchedComps.length > 0) {
+                                                                    return matchedComps.map(c => (
+                                                                        <span key={c.id} className="text-xs bg-blue-50 text-blue-700 font-medium px-2.5 py-1 rounded-lg border border-blue-200 flex items-center gap-1">
+                                                                            <Building className="w-3 h-3" /> {c.name}
+                                                                        </span>
+                                                                    ));
+                                                                }
+                                                            }
+                                                            return (
+                                                                <span className="text-xs text-gray-500 italic">Semua PT (Akses Default)</span>
+                                                            );
+                                                        })()}
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-gray-500 font-medium">Role Sistem</p>
