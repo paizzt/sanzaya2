@@ -50,26 +50,26 @@
                         @foreach($summary['pt_penjualan'] as $ptName => $ptTotal)
                         <td style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 8px 10px; color: #166534; vertical-align: top;">
                             <p style="font-size: 8px; margin: 0 0 3px 0; font-weight: bold; text-transform: uppercase;">{{ $ptName }}</p>
-                            <p style="font-size: 11px; font-weight: bold; margin: 0;">Rp {{ number_format($ptTotal, 0, ',', '.') }}</p>
+                            <p style="font-size: 11px; font-weight: bold; margin: 0;">Rp {{ number_format($ptTotal, 2, ',', '.') }}</p>
                         </td>
                         @endforeach
                         <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 8px 10px; color: #0369a1; vertical-align: top;">
                             <p style="font-size: 8px; margin: 0 0 3px 0; font-weight: bold; text-transform: uppercase;">TOTAL GABUNGAN</p>
-                            <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
+                            <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 2, ',', '.') }}</p>
                         </td>
                     @else
                         <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
                             <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">
                                 {{ !empty($summary['pt_penjualan']) ? 'Total Penjualan (' . key($summary['pt_penjualan']) . ')' : 'Total Penjualan' }}
                             </p>
-                            <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
+                            <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 2, ',', '.') }}</p>
                         </td>
                     @endif
 
                     @if(isset($summary['target_bulanan']) && $summary['target_bulanan'] > 0)
                     <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
                         <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Target Bulanan</p>
-                        <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['target_bulanan'], 0, ',', '.') }}</p>
+                        <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['target_bulanan'], 2, ',', '.') }}</p>
                     </td>
                     <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
                         <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Capaian Target</p>
@@ -80,13 +80,13 @@
                 @if(in_array('piutang', $datasets ?? []))
                 <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
                     <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Total Piutang</p>
-                    <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang'], 0, ',', '.') }}</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang'], 2, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('hutang', $datasets ?? []))
                 <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
                     <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Total Hutang</p>
-                    <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang'], 0, ',', '.') }}</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang'], 2, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('pesanan', $datasets ?? []))
@@ -127,7 +127,7 @@
                         <td style="text-align: center; font-size: 9px; padding: 5px;">{{ $noPt++ }}</td>
                         <td style="font-size: 9px; font-weight: bold; padding: 5px;">{{ $ptName }}</td>
                         <td style="text-align: right; font-size: 9px; font-weight: bold; padding: 5px; color: #0284c7;">
-                            Rp {{ number_format($ptTotal, 0, ',', '.') }}
+                            Rp {{ number_format($ptTotal, 2, ',', '.') }}
                         </td>
                         <td style="text-align: center; font-size: 9px; padding: 5px;">
                             {{ number_format($kontribusi, 1, ',', '.') }}%
@@ -136,7 +136,7 @@
                     @endforeach
                     <tr style="background-color: #e0f2fe; font-weight: bold;">
                         <td colspan="2" style="padding: 6px 8px; font-size: 9px; text-transform: uppercase;">Total Gabungan Penjualan</td>
-                        <td style="text-align: right; padding: 6px 8px; font-size: 9px; color: #0369a1;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</td>
+                        <td style="text-align: right; padding: 6px 8px; font-size: 9px; color: #0369a1;">Rp {{ number_format($summary['total_penjualan'], 2, ',', '.') }}</td>
                         <td style="text-align: center; padding: 6px 8px; font-size: 9px; color: #0369a1;">100%</td>
                     </tr>
                 </tbody>
@@ -211,7 +211,7 @@
                         @foreach($chunk as $nama => $total)
                         <tr>
                             <th style="background:#f3f4f6; width:50%; font-size: 9px;">{{ $nama }}</th>
-                            <td class="text-right font-bold" style="font-size: 9px;">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                            <td class="text-right font-bold" style="font-size: 9px;">Rp {{ number_format($total, 2, ',', '.') }}</td>
                         </tr>
                         @endforeach
                     </table>
@@ -236,7 +236,7 @@
                         @foreach($chunk as $nama => $total)
                         <tr>
                             <th style="background:#e0f2fe; width:60%; font-size: 9px; word-wrap: break-word;">{{ $nama }}</th>
-                            <td class="text-right font-bold" style="font-size: 9px; width:40%;">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                            <td class="text-right font-bold" style="font-size: 9px; width:40%;">Rp {{ number_format($total, 2, ',', '.') }}</td>
                         </tr>
                         @endforeach
                     </table>
@@ -269,7 +269,7 @@
                     <td>{{ $row->nama_sales }}</td>
                     <td>{{ $row->pelanggan }}</td>
                     <td>{{ $row->nama_produk }}</td>
-                    <td class="text-right">{{ $row->total ? 'Rp ' . number_format(intval(preg_replace('/[^0-9]/', '', $row->total)), 0, ',', '.') : '-' }}</td>
+                    <td class="text-right">{{ $row->total ? 'Rp ' . number_format(\App\Http\Controllers\ReportController::parseCurrency($row->total), 2, ',', '.') : '-' }}</td>
                 </tr>
             @empty
                 <tr><td colspan="5" class="text-center">Tidak ada data logistik untuk periode ini</td></tr>

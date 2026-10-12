@@ -13,6 +13,50 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
+    /**
+     * Parse Indonesian / numeric currency string to float with decimal precision.
+     */
+    public static function parseCurrency($str): float
+    {
+        if (is_numeric($str)) {
+            return (float) $str;
+        }
+        if (empty($str)) {
+            return 0.0;
+        }
+        $s = trim((string) $str);
+        if (preg_match('/^-?\d+(\.\d+)?$/', $s)) {
+            return (float) $s;
+        }
+        // Remove currency symbols, letters, spaces, etc.
+        $s = preg_replace('/[^\d,.-]/', '', $s);
+        if ($s === '' || $s === '-') {
+            return 0.0;
+        }
+        // If both . and , exist
+        if (strpos($s, '.') !== false && strpos($s, ',') !== false) {
+            if (strrpos($s, ',') > strrpos($s, '.')) {
+                // Indonesian: 5.871.131,88 -> remove . and replace , with .
+                $s = str_replace('.', '', $s);
+                $s = str_replace(',', '.', $s);
+            } else {
+                // US: 5,871,131.88 -> remove ,
+                $s = str_replace(',', '', $s);
+            }
+        } elseif (strpos($s, ',') !== false) {
+            if (preg_match('/,\d{1,2}$/', $s)) {
+                $s = str_replace(',', '.', $s);
+            } else {
+                $s = str_replace(',', '', $s);
+            }
+        } elseif (strpos($s, '.') !== false) {
+            if (substr_count($s, '.') > 1 || preg_match('/\.\d{3}$/', $s)) {
+                $s = str_replace('.', '', $s);
+            }
+        }
+        return (float) $s;
+    }
+
     public function index(Request $request)
     {
         // Auto-fix missing columns for sync_logistik_data to prevent 500 errors
@@ -212,8 +256,7 @@ class ReportController extends Controller
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
             foreach ($logistikAll as $row) {
-                $cleanTotal = explode(',', (string)$row->total)[0];
-                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+                $val = self::parseCurrency($row->total);
                 $totalPenjualan += $val;
                 if ($row->pelanggan) {
                     $pel = $row->pelanggan;
@@ -305,7 +348,7 @@ class ReportController extends Controller
             foreach ($top10Outlets as $outlet => $data) {
                 $ptFormatted = [];
                 arsort($data['pt']);
-                foreach ($data['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
+                foreach ($data['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 2, ',', '.');
                 
                 $bulanFormatted = [];
                 
@@ -315,30 +358,30 @@ class ReportController extends Controller
                     return $orderA <=> $orderB;
                 });
                 
-                foreach ($data['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
+                foreach ($data['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 2, ',', '.');
                 
                 $outletDetailFormatted[$outlet] = [
-                    'total_formatted' => 'Rp ' . number_format($data['total'], 0, ',', '.'),
+                    'total_formatted' => 'Rp ' . number_format($data['total'], 2, ',', '.'),
                     'pt' => $ptFormatted,
                     'bulan' => $bulanFormatted
                 ];
             }
             
             $salesBreakdownFormatted = [];
-            foreach($salesBreakdown as $s => $v) $salesBreakdownFormatted[$s] = 'Rp ' . number_format($v, 0, ',', '.');
+            foreach($salesBreakdown as $s => $v) $salesBreakdownFormatted[$s] = 'Rp ' . number_format($v, 2, ',', '.');
             
             $ptBreakdownFormatted = [];
-            foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
+            foreach($ptBreakdown as $p => $v) $ptBreakdownFormatted[$p] = 'Rp ' . number_format($v, 2, ',', '.');
 
             $brandBreakdownFormatted = [];
             arsort($brandBreakdown);
-            foreach($brandBreakdown as $b => $v) $brandBreakdownFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
+            foreach($brandBreakdown as $b => $v) $brandBreakdownFormatted[$b] = 'Rp ' . number_format($v, 2, ',', '.');
 
             $monthBreakdownFormatted = [];
             uksort($monthBreakdown, function($a, $b) use ($monthOrder) {
                 return ($monthOrder[$a] ?? 99) <=> ($monthOrder[$b] ?? 99);
             });
-            foreach($monthBreakdown as $m => $v) $monthBreakdownFormatted[$m] = 'Rp ' . number_format($v, 0, ',', '.');
+            foreach($monthBreakdown as $m => $v) $monthBreakdownFormatted[$m] = 'Rp ' . number_format($v, 2, ',', '.');
 
             // Hitung penjualan spesifik bulan ini jika tidak ada filter bulan
             $refSalesBreakdown = [];
@@ -365,8 +408,7 @@ class ReportController extends Controller
                         strpos($tanggal, "-{$shortMonthEng}") !== false ||
                         strpos($tanggal, " {$shortMonthEng}") !== false
                     ) {
-                        $cleanTotal = explode(',', (string)$row->total)[0];
-                        $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+                        $val = self::parseCurrency($row->total);
                         $refTotalPenjualan += $val;
                         
                         $ptNameForSales = trim($row->nama_pt);
@@ -513,8 +555,7 @@ class ReportController extends Controller
             $ptBreakdownAnnual = [];
             
             foreach ($logistikAnnual as $row) {
-                $cleanTotal = explode(',', (string)$row->total)[0];
-                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+                $val = self::parseCurrency($row->total);
                 $totalPenjualanAnnual += $val;
                 if ($row->nama_pt) {
                     $nPt = trim($row->nama_pt);
@@ -572,8 +613,8 @@ class ReportController extends Controller
             }
 
             return [
-                'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 0, ',', '.'),
-                'total_penjualan_bulan_ini' => 'Rp ' . number_format($refTotalPenjualan, 0, ',', '.'),
+                'total_penjualan' => 'Rp ' . number_format($totalPenjualan, 2, ',', '.'),
+                'total_penjualan_bulan_ini' => 'Rp ' . number_format($refTotalPenjualan, 2, ',', '.'),
                 'target_bulanan' => $targetBulanan > 0 ? 'Rp ' . number_format($targetBulanan, 0, ',', '.') : null,
                 'capaian_target' => $capaianTarget,
                 'target_tahunan' => $targetTahunan,
@@ -1036,8 +1077,7 @@ class ReportController extends Controller
         $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
 
         foreach ($logistik as $row) {
-            $cleanTotal = explode(',', (string)$row->total)[0];
-            $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+            $val = self::parseCurrency($row->total);
             $totalPenjualan += $val;
             
             // PT Breakdown
@@ -1119,13 +1159,13 @@ class ReportController extends Controller
 
         $totalPiutang = 0;
         foreach ($piutang as $row) {
-            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_gabungan);
+            $val = self::parseCurrency($row->total_gabungan);
             $totalPiutang += $val;
         }
 
         $totalHutang = 0;
         foreach ($hutang as $row) {
-            $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->nominal);
+            $val = self::parseCurrency($row->nominal);
             $totalHutang += $val;
         }
 
