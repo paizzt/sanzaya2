@@ -32,7 +32,19 @@ class UserController extends Controller
         // Ensure new WBS features and Unduh PDF exist in the database so they appear in the UI toggle
         FeatureToggle::firstOrCreate(['name' => 'Lapor WBS']);
         FeatureToggle::firstOrCreate(['name' => 'Riwayat Laporan Saya']);
-        FeatureToggle::firstOrCreate(['name' => 'Unduh PDF']);
+        
+        $pdfToggle = FeatureToggle::firstOrCreate(
+            ['name' => 'Unduh PDF'],
+            [
+                'is_active' => true,
+                'disabled_for_users' => json_encode([]),
+            ]
+        );
+        if ($pdfToggle && is_null($pdfToggle->disabled_for_users)) {
+            $pdfToggle->disabled_for_users = json_encode([]);
+            $pdfToggle->is_active = true;
+            $pdfToggle->save();
+        }
         
         $featureToggles = FeatureToggle::all();
         $spreadsheetSalesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');
@@ -57,8 +69,37 @@ class UserController extends Controller
             'companies' => $companies,
             'featureToggles' => $featureToggles,
             'userFeatures' => $userFeatures,
+            'pdfFeatureId' => $pdfToggle ? $pdfToggle->id : null,
             'spreadsheetSalesNames' => $spreadsheetSalesNames,
         ]);
+    }
+
+    public function togglePdf(User $user)
+    {
+        $feature = FeatureToggle::firstOrCreate(
+            ['name' => 'Unduh PDF'],
+            [
+                'is_active' => true,
+                'disabled_for_users' => json_encode([]),
+            ]
+        );
+
+        $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
+
+        if (in_array($user->id, $disabledUsers)) {
+            // Currently disabled -> enable it (remove user from disabled array)
+            $disabledUsers = array_values(array_diff($disabledUsers, [$user->id]));
+            $status = 'diaktifkan';
+        } else {
+            // Currently enabled -> disable it (add user to disabled array)
+            $disabledUsers[] = $user->id;
+            $status = 'dinonaktifkan';
+        }
+
+        $feature->disabled_for_users = json_encode(array_values(array_unique($disabledUsers)));
+        $feature->save();
+
+        return redirect()->back()->with('success', "Saklar Unduh PDF untuk {$user->name} berhasil {$status}.");
     }
 
     public function store(Request $request)

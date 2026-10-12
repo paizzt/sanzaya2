@@ -52,10 +52,16 @@ Route::get('/seed-features', function () {
             'Data Armada',
             'Data Piutang',
             'Data Hutang',
-            'Manajemen SOP'
+            'Manajemen SOP',
+            'Unduh PDF',
+            'Lapor WBS',
+            'Riwayat Laporan Saya'
         ];
         foreach ($features as $name) {
-            \App\Models\FeatureToggle::firstOrCreate(['name' => $name]);
+            \App\Models\FeatureToggle::firstOrCreate(['name' => $name], [
+                'is_active' => true,
+                'disabled_for_users' => json_encode([])
+            ]);
         }
         return 'Data Fitur Berhasil Ditambahkan!';
     } catch (\Exception $e) {
@@ -203,6 +209,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::middleware(['can:view users'])->group(function() {
         // Kelola Pengguna
+        Route::post('/users/{user}/toggle-pdf', [UserController::class, 'togglePdf'])->name('users.toggle-pdf');
         Route::resource('users', UserController::class);
     });
 

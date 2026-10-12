@@ -1,8 +1,8 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import ClientPagination from '@/Components/ClientPagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight, QrCode, Sliders } from 'lucide-react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight, QrCode, Sliders, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -14,7 +14,7 @@ import CustomSelect from '@/Components/CustomSelect';
 import CustomDatePicker from '@/Components/CustomDatePicker';
 import CurrencyInput from '@/Components/CurrencyInput';
 
-export default function Index({ users, divisions, positions, areas, roles, companies, featureToggles, userFeatures, spreadsheetSalesNames }) {
+export default function Index({ users = [], divisions = [], positions = [], areas = [], roles = [], companies = [], featureToggles = [], userFeatures = {}, pdfFeatureId = null, spreadsheetSalesNames = [] }) {
     const { flash } = usePage().props;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -26,7 +26,27 @@ export default function Index({ users, divisions, positions, areas, roles, compa
     const [searchTerm, setSearchTerm] = useState('');
     const [searchUserTerm, setSearchUserTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [togglingUserId, setTogglingUserId] = useState(null);
     const itemsPerPage = 50;
+
+    const pdfFeature = featureToggles?.find(f => f.name.toLowerCase() === 'unduh pdf');
+    const resolvedPdfFeatureId = pdfFeatureId || pdfFeature?.id;
+
+    const isUserPdfEnabled = (userId) => {
+        if (!resolvedPdfFeatureId) return true;
+        if (userFeatures && userFeatures[userId] && userFeatures[userId][resolvedPdfFeatureId] !== undefined) {
+            return userFeatures[userId][resolvedPdfFeatureId];
+        }
+        return true;
+    };
+
+    const handleToggleUserPdf = (targetUser) => {
+        setTogglingUserId(targetUser.id);
+        router.post(route('users.toggle-pdf', targetUser.id), {}, {
+            preserveScroll: true,
+            onFinish: () => setTogglingUserId(null),
+        });
+    };
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
@@ -73,9 +93,13 @@ export default function Index({ users, divisions, positions, areas, roles, compa
         setIsEditMode(false);
         setEditingUser(null);
         reset();
+        const allFeatureIds = featureToggles.map(f => f.id);
+        if (resolvedPdfFeatureId && !allFeatureIds.includes(resolvedPdfFeatureId)) {
+            allFeatureIds.push(resolvedPdfFeatureId);
+        }
         setData(data => ({
             ...data,
-            feature_toggles: featureToggles.map(f => f.id),
+            feature_toggles: allFeatureIds,
             preferences: { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] }
         }));
         setSearchTerm('');
@@ -93,6 +117,13 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                 enabledFeatureIds.push(f.id);
             }
         });
+
+        // Ensure Unduh PDF is enabled if not explicitly marked false
+        if (resolvedPdfFeatureId && (!userFeatures[user.id] || userFeatures[user.id][resolvedPdfFeatureId] !== false)) {
+            if (!enabledFeatureIds.includes(resolvedPdfFeatureId)) {
+                enabledFeatureIds.push(resolvedPdfFeatureId);
+            }
+        }
 
         setData({
             name: user.name,
@@ -286,7 +317,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                     <th className="px-6 py-4">Kontak / Akun</th>
                                     <th className="px-6 py-4">Perusahaan & Role</th>
                                     <th className="px-6 py-4">Jabatan & Divisi</th>
-
+                                    <th className="px-6 py-4 text-center">Saklar Unduh PDF</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -332,6 +363,30 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                     )}
                                                 </td>
 
+                                                <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleToggleUserPdf(user)}
+                                                        disabled={togglingUserId === user.id}
+                                                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border shadow-sm ${
+                                                            isUserPdfEnabled(user.id)
+                                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                                                : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+                                                        } ${togglingUserId === user.id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
+                                                        title={`Klik untuk ${isUserPdfEnabled(user.id) ? 'menonaktifkan' : 'mengaktifkan'} saklar unduh PDF untuk ${user.name}`}
+                                                    >
+                                                        <FileText className={`w-3.5 h-3.5 ${isUserPdfEnabled(user.id) ? 'text-emerald-600' : 'text-red-500'}`} />
+                                                        <span>{isUserPdfEnabled(user.id) ? 'PDF Aktif' : 'PDF Mati'}</span>
+                                                        <span className={`relative inline-flex h-4 w-7 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                                                            isUserPdfEnabled(user.id) ? 'bg-emerald-600' : 'bg-gray-300'
+                                                        }`}>
+                                                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                                isUserPdfEnabled(user.id) ? 'translate-x-3' : 'translate-x-0'
+                                                            }`} />
+                                                        </span>
+                                                    </button>
+                                                </td>
+
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                         <button type="button" onClick={() => openBarcodeModal(user)} className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Unduh Barcode (Tanda Tangan)"><QrCode className="w-4 h-4" /></button>
@@ -345,7 +400,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                         ))}
                                         {filteredUsers.length === 0 && (
                                             <tr>
-                                                <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
                                                     Belum ada pengguna terdaftar.
                                                 </td>
                                             </tr>
@@ -732,10 +787,63 @@ export default function Index({ users, divisions, positions, areas, roles, compa
 
                                         {/* Saklar Fitur (Toggles) */}
                                         <div className="space-y-6 pt-6 border-t border-gray-100">
-                                            <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><ToggleRight className="w-5 h-5 text-blue-500"/> Manajemen Akses Fitur</h4>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h4 className="font-semibold text-gray-800 flex items-center gap-2"><ToggleRight className="w-5 h-5 text-blue-500"/> Manajemen Akses Fitur</h4>
+                                                <span className="text-xs text-gray-400">Atur hak akses menu & fitur per pengguna</span>
+                                            </div>
+
+                                            {/* KARTU UTAMA SAKLAR UNDUH PDF */}
+                                            {resolvedPdfFeatureId && (
+                                                <div className={`p-4 rounded-2xl border-2 transition-all mb-4 ${
+                                                    data.feature_toggles.includes(resolvedPdfFeatureId)
+                                                        ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-emerald-300 shadow-sm'
+                                                        : 'bg-gradient-to-r from-red-50 via-rose-50 to-red-50 border-red-300 shadow-sm'
+                                                }`}>
+                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                        <div className="flex items-center gap-3.5">
+                                                            <div className={`p-3 rounded-xl shadow-sm ${
+                                                                data.feature_toggles.includes(resolvedPdfFeatureId)
+                                                                    ? 'bg-emerald-600 text-white'
+                                                                    : 'bg-red-500 text-white'
+                                                            }`}>
+                                                                <FileText className="w-6 h-6" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="font-bold text-gray-900 text-base">Saklar Unduh PDF</span>
+                                                                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                                                        data.feature_toggles.includes(resolvedPdfFeatureId)
+                                                                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                                                            : 'bg-red-100 text-red-800 border border-red-200'
+                                                                    }`}>
+                                                                        {data.feature_toggles.includes(resolvedPdfFeatureId) ? 'Aktif (Bisa Unduh PDF)' : 'Nonaktif (Tombol PDF Hilang)'}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-xs text-gray-600 mt-1 max-w-xl">
+                                                                    Jika saklar ini dimatikan, semua tombol unduh PDF dan pratinjau PDF di seluruh modul (Rekap Marketing, Laporan Logistik, Stok Gudang, Surat Pesanan, Pengajuan Pembayaran, dll) tidak akan muncul untuk pengguna ini.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => toggleFeature(resolvedPdfFeatureId)}
+                                                            className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                                                data.feature_toggles.includes(resolvedPdfFeatureId) ? 'bg-emerald-600' : 'bg-gray-300'
+                                                            }`}
+                                                        >
+                                                            <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                                data.feature_toggles.includes(resolvedPdfFeatureId) ? 'translate-x-5' : 'translate-x-0'
+                                                            }`} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                             
                                             {(() => {
                                                 const groups = {
+                                                    "Dokumen & Ekspor": [
+                                                        { label: "Unduh PDF (Semua Halaman)", db: "Unduh PDF" }
+                                                    ],
                                                     "Dashboard": [{ label: "Dashboard", db: "Dashboard" }],
                                                     "Absensi": [
                                                         { label: "Ambil Absensi", db: "Ambil Absensi" },
@@ -784,8 +892,7 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         { label: "Notifikasi", db: "Notifikasi" },
                                                         { label: "Profil & Akun", db: "Profil & Akun" },
                                                         { label: "Lapor WBS", db: "Lapor WBS" },
-                                                        { label: "Riwayat Laporan Saya", db: "Riwayat Laporan Saya" },
-                                                        { label: "Unduh PDF", db: "Unduh PDF" }
+                                                        { label: "Riwayat Laporan Saya", db: "Riwayat Laporan Saya" }
                                                     ],
                                                     "Spreadsheet": [
                                                         { label: "Data Laporan Tersinkronisasi", db: "Data Laporan Tersinkronisasi" },
@@ -799,7 +906,10 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                 Object.keys(groups).forEach(groupName => {
                                                     groupedFeatures[groupName] = [];
                                                     groups[groupName].forEach(item => {
-                                                        const f = featureToggles.find(x => x.name.toLowerCase() === item.db.toLowerCase());
+                                                        let f = featureToggles.find(x => x.name.toLowerCase() === item.db.toLowerCase());
+                                                        if (!f && item.db.toLowerCase() === 'unduh pdf' && resolvedPdfFeatureId) {
+                                                            f = { id: resolvedPdfFeatureId, name: 'Unduh PDF' };
+                                                        }
                                                         if (f) {
                                                             groupedFeatures[groupName].push({ ...f, display_name: item.label });
                                                             usedIds.add(f.id);
@@ -958,6 +1068,21 @@ export default function Index({ users, divisions, positions, areas, roles, compa
                                                         </div>
                                                     </>
                                                 )}
+
+                                                {/* Status Saklar Unduh PDF */}
+                                                <div className="pt-3 border-t border-gray-200">
+                                                    <p className="text-xs text-gray-500 font-medium">Saklar Unduh PDF</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                                                            isUserPdfEnabled(previewUser.id)
+                                                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                                                : 'bg-red-100 text-red-800 border border-red-200'
+                                                        }`}>
+                                                            <FileText className="w-3.5 h-3.5" />
+                                                            {isUserPdfEnabled(previewUser.id) ? 'Aktif (Diizinkan Unduh PDF)' : 'Nonaktif (Dilarang Unduh PDF)'}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
