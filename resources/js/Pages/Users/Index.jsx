@@ -358,7 +358,6 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                     <th className="px-6 py-4">Kontak / Akun</th>
                                     <th className="px-6 py-4">Perusahaan & Role</th>
                                     <th className="px-6 py-4">Jabatan & Divisi</th>
-                                    <th className="px-6 py-4 text-center">Saklar Unduh PDF</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -432,30 +431,6 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     )}
                                                 </td>
 
-                                                <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleToggleUserPdf(user)}
-                                                        disabled={togglingUserId === user.id}
-                                                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border shadow-sm ${
-                                                            isUserPdfEnabled(user.id)
-                                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                                                                : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
-                                                        } ${togglingUserId === user.id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
-                                                        title={`Klik untuk ${isUserPdfEnabled(user.id) ? 'menonaktifkan' : 'mengaktifkan'} saklar unduh PDF untuk ${user.name}`}
-                                                    >
-                                                        <FileText className={`w-3.5 h-3.5 ${isUserPdfEnabled(user.id) ? 'text-emerald-600' : 'text-red-500'}`} />
-                                                        <span>{isUserPdfEnabled(user.id) ? 'PDF Aktif' : 'PDF Mati'}</span>
-                                                        <span className={`relative inline-flex h-4 w-7 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                                                            isUserPdfEnabled(user.id) ? 'bg-emerald-600' : 'bg-gray-300'
-                                                        }`}>
-                                                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                                                isUserPdfEnabled(user.id) ? 'translate-x-3' : 'translate-x-0'
-                                                            }`} />
-                                                        </span>
-                                                    </button>
-                                                </td>
-
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                         <button type="button" onClick={() => openBarcodeModal(user)} className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Unduh Barcode (Tanda Tangan)"><QrCode className="w-4 h-4" /></button>
@@ -469,7 +444,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                         ))}
                                         {filteredUsers.length === 0 && (
                                             <tr>
-                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                                                <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                                                     Belum ada pengguna terdaftar.
                                                 </td>
                                             </tr>
@@ -605,100 +580,6 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     </div>
                                                 </>
                                                 </div>
-                                            </div>
-
-                                            {/* SAKLAR HAK AKSES DATA PT / PERUSAHAAN */}
-                                            <div className="space-y-4 pt-6 border-t border-gray-100">
-                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-blue-50/80 p-4 rounded-2xl border border-blue-100">
-                                                    <div>
-                                                        <h4 className="font-bold text-gray-900 flex items-center gap-2">
-                                                            <Building className="w-5 h-5 text-blue-600" />
-                                                            Saklar Hak Akses Data PT / Perusahaan
-                                                        </h4>
-                                                        <p className="text-xs text-gray-600 mt-1 max-w-2xl">
-                                                            Pilih data PT apa saja yang diizinkan untuk dilihat oleh pengguna ini. Data pada Dashboard Laporan, Data Hutang, Data Piutang, dan Laporan Logistik akan otomatis terfilter sesuai saklar PT yang aktif.
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 flex-shrink-0">
-                                                        <button
-                                                            type="button"
-                                                            onClick={selectAllAllowedCompanies}
-                                                            className="text-xs font-semibold px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-all shadow-sm"
-                                                        >
-                                                            Aktifkan Semua PT
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={deselectAllAllowedCompanies}
-                                                            className="text-xs font-semibold px-3 py-1.5 bg-white text-gray-700 hover:bg-gray-100 rounded-xl transition-all border border-gray-200 shadow-sm"
-                                                        >
-                                                            Nonaktifkan Semua
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                {companies.length === 0 ? (
-                                                    <p className="text-xs text-gray-400 italic">Belum ada data perusahaan / PT terdaftar.</p>
-                                                ) : (
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                                        {companies.map((comp) => {
-                                                            const isAllowed = Array.isArray(data.allowed_companies) && data.allowed_companies.includes(Number(comp.id));
-                                                            const isPrimary = Number(data.company_id) === Number(comp.id);
-                                                            return (
-                                                                <div
-                                                                    key={comp.id}
-                                                                    onClick={() => toggleAllowedCompany(comp.id)}
-                                                                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer select-none flex items-center justify-between gap-3 shadow-sm ${
-                                                                        isAllowed
-                                                                            ? 'bg-gradient-to-r from-emerald-50 via-teal-50/50 to-emerald-50 border-emerald-300 ring-1 ring-emerald-300/40 hover:bg-emerald-100/70'
-                                                                            : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                                                    }`}
-                                                                >
-                                                                    <div className="flex items-center gap-3 min-w-0">
-                                                                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                                                                            isAllowed ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400'
-                                                                        }`}>
-                                                                            <Building className="w-4 h-4" />
-                                                                        </div>
-                                                                        <div className="min-w-0">
-                                                                            <div className="flex items-center gap-1.5">
-                                                                                <span className={`text-sm font-semibold truncate ${isAllowed ? 'text-emerald-950' : 'text-gray-700'}`}>
-                                                                                    {comp.name}
-                                                                                </span>
-                                                                                {isPrimary && (
-                                                                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-bold uppercase tracking-wider flex-shrink-0">
-                                                                                        Utama
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-                                                                            <span className={`text-xs block ${isAllowed ? 'text-emerald-700 font-medium' : 'text-gray-400'}`}>
-                                                                                {isAllowed ? 'Akses Diizinkan' : 'Akses Dibatasi'}
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {/* Saklar Toggle */}
-                                                                    <div className="flex-shrink-0">
-                                                                        <span
-                                                                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                                                                                isAllowed ? 'bg-emerald-600' : 'bg-gray-300'
-                                                                            }`}
-                                                                        >
-                                                                            <span
-                                                                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                                                                    isAllowed ? 'translate-x-5' : 'translate-x-0'
-                                                                                }`}
-                                                                            />
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                )}
-                                                {errors.allowed_companies && (
-                                                    <p className="text-xs text-red-500 mt-1">{errors.allowed_companies}</p>
-                                                )}
                                             </div>
 
                                             {/* Data Pribadi & Karyawan */}
@@ -956,52 +837,63 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                 <span className="text-xs text-gray-400">Atur hak akses menu & fitur per pengguna</span>
                                             </div>
 
-                                            {/* KARTU UTAMA SAKLAR UNDUH PDF */}
-                                            {resolvedPdfFeatureId && (
-                                                <div className={`p-4 rounded-2xl border-2 transition-all mb-4 ${
-                                                    data.feature_toggles.includes(resolvedPdfFeatureId)
-                                                        ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-emerald-300 shadow-sm'
-                                                        : 'bg-gradient-to-r from-red-50 via-rose-50 to-red-50 border-red-300 shadow-sm'
-                                                }`}>
-                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                                        <div className="flex items-center gap-3.5">
-                                                            <div className={`p-3 rounded-xl shadow-sm ${
-                                                                data.feature_toggles.includes(resolvedPdfFeatureId)
-                                                                    ? 'bg-emerald-600 text-white'
-                                                                    : 'bg-red-500 text-white'
-                                                            }`}>
-                                                                <FileText className="w-6 h-6" />
-                                                            </div>
-                                                            <div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="font-bold text-gray-900 text-base">Saklar Unduh PDF</span>
-                                                                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                                                                        data.feature_toggles.includes(resolvedPdfFeatureId)
-                                                                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                                                            : 'bg-red-100 text-red-800 border border-red-200'
-                                                                    }`}>
-                                                                        {data.feature_toggles.includes(resolvedPdfFeatureId) ? 'Aktif (Bisa Unduh PDF)' : 'Nonaktif (Tombol PDF Hilang)'}
-                                                                    </span>
-                                                                </div>
-                                                                <p className="text-xs text-gray-600 mt-1 max-w-xl">
-                                                                    Jika saklar ini dimatikan, semua tombol unduh PDF dan pratinjau PDF di seluruh modul (Rekap Marketing, Laporan Logistik, Stok Gudang, Surat Pesanan, Pengajuan Pembayaran, dll) tidak akan muncul untuk pengguna ini.
-                                                                </p>
-                                                            </div>
-                                                        </div>
+                                            {/* GRUP SAKLAR AKSES PERUSAHAAN (PT) - BENTUK SERAGAM */}
+                                            <div className="mb-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-2 border-b border-gray-100">
+                                                    <h5 className="font-semibold text-gray-700 flex items-center gap-2">
+                                                        <div className="w-1.5 h-4 bg-indigo-500 rounded-full"></div>
+                                                        Akses Data Perusahaan (PT)
+                                                    </h5>
+                                                    <div className="flex items-center gap-2">
                                                         <button
                                                             type="button"
-                                                            onClick={() => toggleFeature(resolvedPdfFeatureId)}
-                                                            className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                                                                data.feature_toggles.includes(resolvedPdfFeatureId) ? 'bg-emerald-600' : 'bg-gray-300'
-                                                            }`}
+                                                            onClick={selectAllAllowedCompanies}
+                                                            className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-200"
                                                         >
-                                                            <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                                                data.feature_toggles.includes(resolvedPdfFeatureId) ? 'translate-x-5' : 'translate-x-0'
-                                                            }`} />
+                                                            Aktifkan Semua PT
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={deselectAllAllowedCompanies}
+                                                            className="text-xs font-semibold px-2.5 py-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+                                                        >
+                                                            Nonaktifkan Semua
                                                         </button>
                                                     </div>
                                                 </div>
-                                            )}
+                                                {companies.length > 0 ? (
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                        {companies.map(comp => {
+                                                            const isAllowed = Array.isArray(data.allowed_companies) && data.allowed_companies.includes(Number(comp.id));
+                                                            const isPrimary = Number(data.company_id) === Number(comp.id);
+                                                            return (
+                                                                <div 
+                                                                    key={comp.id} 
+                                                                    onClick={() => toggleAllowedCompany(comp.id)}
+                                                                    className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${isAllowed ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-gray-50 border-gray-200 opacity-70 hover:opacity-100 hover:border-indigo-300'}`}
+                                                                >
+                                                                    <div className="flex items-center gap-1.5 truncate mr-2">
+                                                                        <span className={`text-sm font-medium truncate ${isAllowed ? 'text-indigo-900' : 'text-gray-600'}`}>{comp.name}</span>
+                                                                        {isPrimary && (
+                                                                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-bold uppercase tracking-wider flex-shrink-0">
+                                                                                Utama
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <button type="button" className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isAllowed ? 'bg-indigo-600' : 'bg-gray-300'}`}>
+                                                                        <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isAllowed ? 'translate-x-4' : 'translate-x-0'}`} />
+                                                                    </button>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-gray-400 italic px-2">Belum ada data perusahaan.</p>
+                                                )}
+                                                {errors.allowed_companies && (
+                                                    <p className="text-xs text-red-500 mt-2">{errors.allowed_companies}</p>
+                                                )}
+                                            </div>
                                             
                                             {(() => {
                                                 const groups = {
