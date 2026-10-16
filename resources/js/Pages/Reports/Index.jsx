@@ -746,9 +746,9 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                     {reportRows.map((row) => (
                         <tr key={row.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap"><Calendar className="w-3 h-3 inline mr-1 text-gray-400"/> {row.tanggal}</td>
-                            <td className="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales}</td>
-                            <td className="px-6 py-4 whitespace-nowrap"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.pelanggan || '-'}</td>
-                            <td className="px-6 py-4 min-w-[300px]">{row.nama_produk || '-'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap font-semibold text-gray-900"><UserIcon className="w-3 h-3 inline mr-1 text-gray-400"/> {row.nama_sales || (row.nama_pt ? 'KANTOR ' + row.nama_pt : (row.sheet_name ? 'KANTOR ' + row.sheet_name : '-'))}</td>
+                            <td className="px-6 py-4 whitespace-nowrap"><MapPin className="w-3 h-3 inline mr-1 text-gray-400"/> {row.pelanggan || (row.nama_pt ? 'Non-Outlet (' + row.nama_pt + ')' : (row.sheet_name ? 'Non-Outlet (' + row.sheet_name + ')' : '-'))}</td>
+                            <td className="px-6 py-4 min-w-[300px]">{row.nama_produk || (row.no_faktur ? 'Faktur: ' + row.no_faktur : (row.nama_pt || row.sheet_name || '-'))}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-right font-bold text-blue-600">{row.total ? 'Rp ' + parseRpToNumber(row.total).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</td>
                         </tr>
                     ))}

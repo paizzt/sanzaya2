@@ -102,7 +102,30 @@ class ReportController extends Controller
         }
 
         $salesNames = SyncLogistikData::select('nama_sales')->distinct()->whereNotNull('nama_sales')->pluck('nama_sales');
-        $ptNames = SyncLogistikData::select('nama_pt')->distinct()->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-')->pluck('nama_pt')->map(fn($p) => trim($p))->filter(fn($p) => $p !== '' && $p !== '-')->unique()->values();
+        $ptNames = SyncLogistikData::select('nama_pt', 'sheet_name')->distinct()
+            ->get()
+            ->map(function($row) {
+                $pt = trim((string)$row->nama_pt);
+                if ($pt === '' || $pt === '-') {
+                    $pt = trim((string)$row->sheet_name);
+                }
+                return $pt;
+            })
+            ->filter(fn($p) => $p !== '' && $p !== '-' && !in_array(strtolower($p), ['null', '0', '#n/a', '#ref!']))
+            ->unique()
+            ->values();
+
+        $configuredPtNames = [];
+        $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
+        if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
+            foreach ($logistikConfig->sheets_config as $sc) {
+                $name = trim((string)($sc['col_nama_pt'] ?? $sc['sheet_name'] ?? ''));
+                if ($name !== '' && $name !== '-') {
+                    $configuredPtNames[] = $name;
+                }
+            }
+        }
+        $ptNames = $ptNames->concat($configuredPtNames)->unique()->values();
         
         $userAllowedPtNames = auth()->user()?->getAllowedCompanyNames();
         if ($userAllowedPtNames !== null) {
@@ -125,25 +148,36 @@ class ReportController extends Controller
         if ($userAllowedPtNames !== null) {
             $logistikBaseQuery->where(function($q) use ($userAllowedPtNames) {
                 foreach ($userAllowedPtNames as $allowed) {
-                    $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%');
+                    $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%')
+                      ->orWhere('sheet_name', 'like', '%' . trim($allowed) . '%');
                 }
             });
         }
         if (!empty($targetPtNamesToSearch)) {
             $logistikBaseQuery->where(function($q) use ($targetPtNamesToSearch) {
-                $q->whereIn('nama_pt', $targetPtNamesToSearch);
                 foreach ($targetPtNamesToSearch as $pt) {
-                    $q->orWhere('nama_pt', 'like', '%' . $pt . '%');
+                    $ptTrim = trim($pt);
+                    $ptClean = str_replace(' ', '', $ptTrim);
+                    $q->orWhere('nama_pt', 'like', '%' . $ptTrim . '%')
+                      ->orWhere('sheet_name', 'like', '%' . $ptTrim . '%')
+                      ->orWhere('sheet_name', 'like', '%' . $ptClean . '%');
                 }
             });
         } else {
-            $logistikBaseQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
+            $logistikBaseQuery->where(function($q) {
+                $q->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-')
+                  ->orWhereNotNull('sheet_name')->where('sheet_name', '!=', '');
+            });
         }
         $logistikBaseQuery->where(function($q) {
             $q->where(function($sub) {
                 $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-')->where('pelanggan', '!=', 'Pelanggan');
             })->orWhere(function($sub) {
                 $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-')->where('nama_produk', '!=', 'Nama Produk');
+            })->orWhere(function($sub) {
+                $sub->whereNotNull('total')->where('total', '!=', '')->where('total', '!=', '-')->where('total', '!=', '0')->where('total', '!=', 'Total');
+            })->orWhere(function($sub) {
+                $sub->whereNotNull('no_faktur')->where('no_faktur', '!=', '')->where('no_faktur', '!=', '-')->where('no_faktur', '!=', 'No Faktur');
             });
         });
         if ($salesFilter) $logistikBaseQuery->where('nama_sales', $salesFilter);
@@ -180,6 +214,7 @@ class ReportController extends Controller
                   ->orWhere('nama_produk', 'like', "%{$search}%")
                   ->orWhere('brand', 'like', "%{$search}%")
                   ->orWhere('nama_pt', 'like', "%{$search}%")
+                  ->orWhere('sheet_name', 'like', "%{$search}%")
                   ->orWhere('no_faktur', 'like', "%{$search}%")
                   ->orWhere('tanggal', 'like', "%{$search}%");
             });
@@ -282,13 +317,52 @@ class ReportController extends Controller
         $summary = null;
         if ($tab === 'logistik') {
             $summaryQuery = clone $logistikBaseQuery;
-            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'tanggal', 'brand')->get();
+            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'sheet_name', 'no_faktur', 'tanggal', 'brand')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = []; $monthBreakdown = []; $brandBreakdown = [];
             $outletDetailsMap = [];
             $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
             foreach ($logistikAll as $row) {
                 $val = self::parseCurrency($row->total);
                 $totalPenjualan += $val;
+                $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
+
+                // Month breakdown (calculated for ALL rows regardless of whether outlet is present)
+                $mName = null;
+                if ($row->tanggal) {
+                    $mName = 'Lainnya';
+                    $tgl = strtolower($row->tanggal);
+                    $found = false;
+                    
+                    $indoMonthsList = [
+                        1 => ['januari', 'jan'], 2 => ['februari', 'feb'], 3 => ['maret', 'mar'],
+                        4 => ['april', 'apr'], 5 => ['mei', 'may'], 6 => ['juni', 'jun'],
+                        7 => ['juli', 'jul'], 8 => ['agustus', 'agt', 'agu', 'aug'], 9 => ['september', 'sep'],
+                        10 => ['oktober', 'okt', 'oct'], 11 => ['november', 'nov'], 12 => ['desember', 'des', 'dec']
+                    ];
+                    
+                    foreach ($indoMonthsList as $num => $names) {
+                        foreach ($names as $name) {
+                            if (strpos($tgl, $name) !== false && !preg_match('/\d{4}-\d{2}-\d{2}/', $tgl) && !preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $tgl)) {
+                                $mName = $monthsIndo[$num];
+                                $found = true;
+                                break 2;
+                            }
+                        }
+                    }
+                    
+                    if (!$found) {
+                        $time = strtotime(str_replace('/', '-', $row->tanggal));
+                        if ($time) {
+                            $m = date('n', $time);
+                            $mName = $monthsIndo[$m] ?? 'Lainnya';
+                        } elseif (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $row->tanggal, $matches) || preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/', $row->tanggal, $matches)) {
+                            $m = (int)$matches[2];
+                            if (isset($monthsIndo[$m])) $mName = $monthsIndo[$m];
+                        }
+                    }
+                    $monthBreakdown[$mName] = ($monthBreakdown[$mName] ?? 0) + $val;
+                }
+
                 $pel = trim((string)$row->pelanggan);
                 if ($pel !== '' && !in_array(strtolower($pel), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya', 'pelanggan', 'nama pelanggan', 'outlet', 'nama outlet', 'customer'])) {
                     $outletCounts[$pel] = ($outletCounts[$pel] ?? 0) + 1;
@@ -298,73 +372,42 @@ class ReportController extends Controller
                     }
                     $outletDetailsMap[$pel]['total'] += $val;
                     
-                    if ($row->nama_pt) {
-                        $nPt = trim($row->nama_pt);
-                        $outletDetailsMap[$pel]['pt'][$nPt] = ($outletDetailsMap[$pel]['pt'][$nPt] ?? 0) + $val;
+                    if ($rowPt) {
+                        $outletDetailsMap[$pel]['pt'][$rowPt] = ($outletDetailsMap[$pel]['pt'][$rowPt] ?? 0) + $val;
                     }
-                    
-                    if ($row->tanggal) {
-                        $mName = 'Lainnya';
-                        $tgl = strtolower($row->tanggal);
-                        $found = false;
-                        
-                        $indoMonthsList = [
-                            1 => ['januari', 'jan'], 2 => ['februari', 'feb'], 3 => ['maret', 'mar'],
-                            4 => ['april', 'apr'], 5 => ['mei', 'may'], 6 => ['juni', 'jun'],
-                            7 => ['juli', 'jul'], 8 => ['agustus', 'agt', 'agu', 'aug'], 9 => ['september', 'sep'],
-                            10 => ['oktober', 'okt', 'oct'], 11 => ['november', 'nov'], 12 => ['desember', 'des', 'dec']
-                        ];
-                        
-                        foreach ($indoMonthsList as $num => $names) {
-                            foreach ($names as $name) {
-                                if (strpos($tgl, $name) !== false && !preg_match('/\d{4}-\d{2}-\d{2}/', $tgl) && !preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $tgl)) {
-                                    $mName = $monthsIndo[$num];
-                                    $found = true;
-                                    break 2;
-                                }
-                            }
-                        }
-                        
-                        if (!$found) {
-                            $time = strtotime(str_replace('/', '-', $row->tanggal));
-                            if ($time) {
-                                $m = date('n', $time);
-                                $mName = $monthsIndo[$m];
-                            } elseif (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $row->tanggal, $matches) || preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/', $row->tanggal, $matches)) {
-                                $m = (int)$matches[2];
-                                if (isset($monthsIndo[$m])) $mName = $monthsIndo[$m];
-                            }
-                        }
+                    if ($mName) {
                         $outletDetailsMap[$pel]['bulan'][$mName] = ($outletDetailsMap[$pel]['bulan'][$mName] ?? 0) + $val;
-                        $monthBreakdown[$mName] = ($monthBreakdown[$mName] ?? 0) + $val;
                     }
                 }
+
                 if ($row->brand) {
                     $nBrand = trim($row->brand);
                     if ($nBrand) $brandBreakdown[$nBrand] = ($brandBreakdown[$nBrand] ?? 0) + $val;
                 }
+
                 $prod = trim((string)$row->nama_produk);
                 if ($prod !== '' && !in_array(strtolower($prod), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya', 'nama produk', 'nama_produk', 'produk', 'item', 'nama barang', 'total'])) {
                     $produkCounts[$prod] = ($produkCounts[$prod] ?? 0) + 1;
+                } elseif ($row->no_faktur) {
+                    $invName = 'Faktur ' . trim($row->no_faktur);
+                    $produkCounts[$invName] = ($produkCounts[$invName] ?? 0) + 1;
                 }
-                $ptNameForSales = trim($row->nama_pt);
-                $namaSales = strtoupper(trim($row->nama_sales));
+
+                $namaSales = strtoupper(trim((string)$row->nama_sales));
                 if (!$namaSales) {
-                    if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
+                    if (stripos($rowPt, 'MSI') !== false || stripos($rowPt, 'MULTI SENTOSA') !== false) {
                         $namaSales = 'KANTOR MSI';
-                    } elseif (stripos($ptNameForSales, 'SANZAYA') !== false) {
+                    } elseif (stripos($rowPt, 'SANZAYA') !== false) {
                         $namaSales = 'KANTOR SANZAYA';
                     } else {
-                        $namaSales = 'KANTOR ' . strtoupper($ptNameForSales ?: 'PUSAT');
+                        $namaSales = 'KANTOR ' . strtoupper($rowPt ?: 'PUSAT');
                     }
                 }
                 $salesBreakdown[$namaSales] = ($salesBreakdown[$namaSales] ?? 0) + $val;
                 $pesananSales[$namaSales] = ($pesananSales[$namaSales] ?? 0) + 1;
-                if ($row->nama_pt) {
-                    $nPt = trim($row->nama_pt);
-                    // No merging, use raw names for exact matching with dropdown
 
-                    $ptBreakdown[$nPt] = ($ptBreakdown[$nPt] ?? 0) + $val;
+                if ($rowPt !== '') {
+                    $ptBreakdown[$rowPt] = ($ptBreakdown[$rowPt] ?? 0) + $val;
                 }
             }
             arsort($outletCounts); arsort($produkCounts); arsort($salesBreakdown); arsort($pesananSales); arsort($ptBreakdown);
@@ -443,26 +486,24 @@ class ReportController extends Controller
                         strpos($tanggal, "-{$shortMonthEng}") !== false ||
                         strpos($tanggal, " {$shortMonthEng}") !== false
                     ) {
-                        $cleanTotal = explode(',', (string)$row->total)[0];
-                        $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+                        $val = self::parseCurrency($row->total);
                         $refTotalPenjualan += $val;
                         
-                        $ptNameForSales = trim($row->nama_pt);
-                        $namaSales = strtoupper(trim($row->nama_sales));
+                        $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
+                        $namaSales = strtoupper(trim((string)$row->nama_sales));
                         if (!$namaSales) {
-                            if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
+                            if (stripos($rowPt, 'MSI') !== false || stripos($rowPt, 'MULTI SENTOSA') !== false) {
                                 $namaSales = 'KANTOR MSI';
-                            } elseif (stripos($ptNameForSales, 'SANZAYA') !== false) {
+                            } elseif (stripos($rowPt, 'SANZAYA') !== false) {
                                 $namaSales = 'KANTOR SANZAYA';
                             } else {
-                                $namaSales = 'KANTOR ' . strtoupper($ptNameForSales ?: 'PUSAT');
+                                $namaSales = 'KANTOR ' . strtoupper($rowPt ?: 'PUSAT');
                             }
                         }
                         $refSalesBreakdown[$namaSales] = ($refSalesBreakdown[$namaSales] ?? 0) + $val;
                         
-                        if ($row->nama_pt) {
-                            $nPt = trim($row->nama_pt);
-                            $refPtBreakdown[$nPt] = ($refPtBreakdown[$nPt] ?? 0) + $val;
+                        if ($rowPt !== '') {
+                            $refPtBreakdown[$rowPt] = ($refPtBreakdown[$rowPt] ?? 0) + $val;
                         }
                     }
                 }
@@ -488,8 +529,10 @@ class ReportController extends Controller
                     $q->whereIn('name', $targetPtNamesToSearch);
                     foreach ($targetPtNamesToSearch as $pt) {
                         $q->orWhere('name', 'like', '%' . $pt . '%');
+                        $q->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
                         $q->orWhereHas('companies', function($cq) use ($pt) {
-                            $cq->where('name', 'like', '%' . $pt . '%');
+                            $cq->where('name', 'like', '%' . $pt . '%')
+                               ->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
                         });
                     }
                 })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
@@ -517,6 +560,10 @@ class ReportController extends Controller
                         $capaianDetail[$ct->name] = $formatCapaian($ptPenjualan, $ct->monthly_target);
                     }
                     $refTotalPenjualan = $totalTargetedPenjualan;
+                } else {
+                    $targetBulanan = 0;
+                    $targetDetail[$ptFilter] = 'Tanpa Target';
+                    $capaianDetail[$ptFilter] = ['sales' => $refTotalPenjualan, 'percent' => '-'];
                 }
             } elseif ($salesFilter) {
                 $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
@@ -597,25 +644,41 @@ class ReportController extends Controller
             if ($userAllowedPtNames !== null) {
                 $annualQuery->where(function($q) use ($userAllowedPtNames) {
                     foreach ($userAllowedPtNames as $allowed) {
-                        $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%');
+                        $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%')
+                          ->orWhere('sheet_name', 'like', '%' . trim($allowed) . '%');
                     }
                 });
             }
             if (!empty($targetPtNamesToSearch)) {
                 $annualQuery->where(function($q) use ($targetPtNamesToSearch) {
-                    $q->whereIn('nama_pt', $targetPtNamesToSearch);
                     foreach ($targetPtNamesToSearch as $pt) {
-                        $q->orWhere('nama_pt', 'like', '%' . $pt . '%');
+                        $q->orWhere('nama_pt', 'like', '%' . $pt . '%')
+                          ->orWhere('sheet_name', 'like', '%' . $pt . '%');
+                        $ptNoSpace = str_replace(' ', '', $pt);
+                        if ($ptNoSpace !== $pt) {
+                            $q->orWhere('sheet_name', 'like', '%' . $ptNoSpace . '%')
+                              ->orWhere('nama_pt', 'like', '%' . $ptNoSpace . '%');
+                        }
                     }
                 });
             } else {
-                $annualQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
+                $annualQuery->where(function($q) {
+                    $q->where(function($sub) {
+                        $sub->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
+                    })->orWhere(function($sub) {
+                        $sub->whereNotNull('sheet_name')->where('sheet_name', '!=', '')->where('sheet_name', '!=', '-');
+                    });
+                });
             }
             $annualQuery->where(function($q) {
                 $q->where(function($sub) {
                     $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-')->where('pelanggan', '!=', 'Pelanggan');
                 })->orWhere(function($sub) {
                     $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-')->where('nama_produk', '!=', 'Nama Produk');
+                })->orWhere(function($sub) {
+                    $sub->whereNotNull('total')->where('total', '!=', '')->where('total', '!=', '0')->where('total', '!=', 'Total');
+                })->orWhere(function($sub) {
+                    $sub->whereNotNull('no_faktur')->where('no_faktur', '!=', '')->where('no_faktur', '!=', 'No Faktur');
                 });
             });
             if ($salesFilter) $annualQuery->where('nama_sales', $salesFilter);
@@ -626,6 +689,7 @@ class ReportController extends Controller
                       ->orWhere('nama_produk', 'like', "%{$search}%")
                       ->orWhere('brand', 'like', "%{$search}%")
                       ->orWhere('nama_pt', 'like', "%{$search}%")
+                      ->orWhere('sheet_name', 'like', "%{$search}%")
                       ->orWhere('no_faktur', 'like', "%{$search}%")
                       ->orWhere('tanggal', 'like', "%{$search}%");
                 });
@@ -638,19 +702,16 @@ class ReportController extends Controller
                 });
             }
             
-            $logistikAnnual = $annualQuery->select('total', 'nama_pt', 'nama_sales')->get();
+            $logistikAnnual = $annualQuery->select('total', 'nama_pt', 'sheet_name', 'nama_sales')->get();
             $totalPenjualanAnnual = 0;
             $ptBreakdownAnnual = [];
             
             foreach ($logistikAnnual as $row) {
-                $cleanTotal = explode(',', (string)$row->total)[0];
-                $val = (float) preg_replace('/[^0-9]/', '', $cleanTotal);
+                $val = self::parseCurrency($row->total);
                 $totalPenjualanAnnual += $val;
-                if ($row->nama_pt) {
-                    $nPt = trim($row->nama_pt);
-                    if ($nPt !== '' && $nPt !== '-' && !in_array(strtolower($nPt), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
-                        $ptBreakdownAnnual[$nPt] = ($ptBreakdownAnnual[$nPt] ?? 0) + $val;
-                    }
+                $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
+                if ($rowPt !== '' && $rowPt !== '-' && !in_array(strtolower($rowPt), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
+                    $ptBreakdownAnnual[$rowPt] = ($ptBreakdownAnnual[$rowPt] ?? 0) + $val;
                 }
             }
             
@@ -659,14 +720,16 @@ class ReportController extends Controller
                     $q->whereIn('name', $targetPtNamesToSearch);
                     foreach ($targetPtNamesToSearch as $pt) {
                         $q->orWhere('name', 'like', '%' . $pt . '%');
+                        $q->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
                         $q->orWhereHas('companies', function($cq) use ($pt) {
-                            $cq->where('name', 'like', '%' . $pt . '%');
+                            $cq->where('name', 'like', '%' . $pt . '%')
+                               ->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
                         });
                     }
                 })->whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
 
-                $targetTahunanVal = $companyTargetsAnn->sum('annual_target');
-                if ($targetTahunanVal > 0) {
+                if ($companyTargetsAnn->count() > 0) {
+                    $targetTahunanVal = $companyTargetsAnn->sum('annual_target');
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
                     $totalTargetedPenjualanAnn = 0;
                     foreach ($companyTargetsAnn as $ct) {
@@ -690,6 +753,11 @@ class ReportController extends Controller
                     }
                     $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalTargetedPenjualanAnn / $targetTahunanVal) * 100 : 0;
                     $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
+                } else {
+                    $targetTahunan = 'Tanpa Target';
+                    $capaianTahunan = '-';
+                    $targetTahunanDetail[$ptFilter] = 'Rp ' . number_format($totalPenjualanAnnual, 0, ',', '.') . ' (Tanpa Target)';
+                    $capaianTahunanDetail[$ptFilter] = '-';
                 }
             } else {
                 $companyTargetsAnn = \App\Models\CompanyTarget::with('companies')->whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
@@ -1143,20 +1211,35 @@ class ReportController extends Controller
 
         if (!empty($targetPtNamesToSearch)) {
             $logistikQuery->where(function($q) use ($targetPtNamesToSearch) {
-                $q->whereIn('nama_pt', $targetPtNamesToSearch);
                 foreach ($targetPtNamesToSearch as $pt) {
-                    $q->orWhere('nama_pt', 'like', '%' . $pt . '%');
+                    $q->orWhere('nama_pt', 'like', '%' . $pt . '%')
+                      ->orWhere('sheet_name', 'like', '%' . $pt . '%');
+                    $ptNoSpace = str_replace(' ', '', $pt);
+                    if ($ptNoSpace !== $pt) {
+                        $q->orWhere('sheet_name', 'like', '%' . $ptNoSpace . '%')
+                          ->orWhere('nama_pt', 'like', '%' . $ptNoSpace . '%');
+                    }
                 }
             });
             $title .= " (" . implode(', ', $targetPtNamesToSearch) . ")";
         } else {
-            $logistikQuery->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
+            $logistikQuery->where(function($q) {
+                $q->where(function($sub) {
+                    $sub->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-');
+                })->orWhere(function($sub) {
+                    $sub->whereNotNull('sheet_name')->where('sheet_name', '!=', '')->where('sheet_name', '!=', '-');
+                });
+            });
         }
         $logistikQuery->where(function($q) {
             $q->where(function($sub) {
                 $sub->whereNotNull('pelanggan')->where('pelanggan', '!=', '')->where('pelanggan', '!=', '-')->where('pelanggan', '!=', 'Pelanggan');
             })->orWhere(function($sub) {
                 $sub->whereNotNull('nama_produk')->where('nama_produk', '!=', '')->where('nama_produk', '!=', '-')->where('nama_produk', '!=', 'Nama Produk');
+            })->orWhere(function($sub) {
+                $sub->whereNotNull('total')->where('total', '!=', '')->where('total', '!=', '0')->where('total', '!=', 'Total');
+            })->orWhere(function($sub) {
+                $sub->whereNotNull('no_faktur')->where('no_faktur', '!=', '')->where('no_faktur', '!=', 'No Faktur');
             });
         });
         if ($salesFilter) $logistikQuery->where('nama_sales', $salesFilter);
@@ -1181,6 +1264,7 @@ class ReportController extends Controller
                   ->orWhere('nama_produk', 'like', "%{$search}%")
                   ->orWhere('brand', 'like', "%{$search}%")
                   ->orWhere('nama_pt', 'like', "%{$search}%")
+                  ->orWhere('sheet_name', 'like', "%{$search}%")
                   ->orWhere('no_faktur', 'like', "%{$search}%")
                   ->orWhere('tanggal', 'like', "%{$search}%");
             });
@@ -1257,12 +1341,12 @@ class ReportController extends Controller
             $totalPenjualan += $val;
             
             // PT Breakdown
-            $rawPt = trim($row->nama_pt ?: 'Lainnya');
+            $rawPt = trim((string)($row->nama_pt ?: $row->sheet_name ?: 'Lainnya'));
             $ptPenjualan[$rawPt] = ($ptPenjualan[$rawPt] ?? 0) + $val;
 
             // Sales Breakdown
-            $ptNameForSales = trim($row->nama_pt);
-            $salesName = strtoupper(trim($row->nama_sales));
+            $ptNameForSales = trim((string)($row->nama_pt ?: $row->sheet_name));
+            $salesName = strtoupper(trim((string)$row->nama_sales));
             if (!$salesName) {
                 if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
                     $salesName = 'KANTOR MSI';
@@ -1319,7 +1403,10 @@ class ReportController extends Controller
             }
 
             // Outlet Breakdown
-            $outletName = $row->pelanggan ?? '-';
+            $pel = trim((string)$row->pelanggan);
+            $outletName = ($pel !== '' && !in_array(strtolower($pel), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya', 'pelanggan', 'nama pelanggan', 'outlet', 'nama outlet', 'customer']))
+                ? $pel
+                : ($rawPt ? "Non-Outlet ({$rawPt})" : '-');
             $outletPenjualan[$outletName] = ($outletPenjualan[$outletName] ?? 0) + $val;
         }
 
@@ -1357,10 +1444,17 @@ class ReportController extends Controller
 
         $targetBulanan = 0;
         if (!empty($targetPtNamesToSearch)) {
-            $companyTargets = \App\Models\CompanyTarget::whereIn('name', $targetPtNamesToSearch)
-                ->orWhereHas('companies', function($q) use ($targetPtNamesToSearch) {
-                    $q->whereIn('name', $targetPtNamesToSearch);
-                })->get();
+            $companyTargets = \App\Models\CompanyTarget::where(function($q) use ($targetPtNamesToSearch) {
+                $q->whereIn('name', $targetPtNamesToSearch);
+                foreach ($targetPtNamesToSearch as $pt) {
+                    $q->orWhere('name', 'like', '%' . $pt . '%')
+                      ->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
+                    $q->orWhereHas('companies', function($cq) use ($pt) {
+                        $cq->where('name', 'like', '%' . $pt . '%')
+                           ->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
+                    });
+                }
+            })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
             $targetBulanan = (float)$companyTargets->sum('monthly_target');
         } elseif ($salesFilter) {
             $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();

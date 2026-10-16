@@ -47,6 +47,10 @@ class SpreadsheetSyncController extends Controller
 
         try {
             $rowsAdded = \App\Services\SpreadsheetSyncService::syncType($type);
+            $errors = \App\Services\SpreadsheetSyncService::getLastErrors();
+            if (!empty($errors)) {
+                return redirect()->back()->with('warning', 'Sinkronisasi berhasil (' . $rowsAdded . ' baris diperbarui), namun ada sheet bermasalah: ' . implode('; ', $errors));
+            }
             return redirect()->back()->with('success', 'Sinkronisasi data ' . $type . ' berhasil! ' . $rowsAdded . ' baris data diperbarui.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal sinkronisasi data ' . $type . ': ' . $e->getMessage());

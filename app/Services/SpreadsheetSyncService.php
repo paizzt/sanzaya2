@@ -7,8 +7,16 @@ use Carbon\Carbon;
 
 class SpreadsheetSyncService
 {
+    private static array $lastErrors = [];
+
+    public static function getLastErrors(): array
+    {
+        return self::$lastErrors;
+    }
+
     public static function syncType($type)
     {
+        self::$lastErrors = [];
         $config = SpreadsheetConfiguration::where('type', $type)->first();
         if (!$config) {
             throw new \Exception('Konfigurasi untuk tipe ' . $type . ' tidak ditemukan.');
@@ -75,6 +83,8 @@ class SpreadsheetSyncService
                 $errors[] = "Sheet '{$sheetName}': " . $e->getMessage();
             }
         }
+
+        self::$lastErrors = $errors;
 
         // GUARD: If no rows extracted, DO NOT delete existing database table!
         if (empty($collectedRows)) {
@@ -157,7 +167,7 @@ class SpreadsheetSyncService
 
         return [
             'sheet_name' => $sheetName,
-            'nama_pt' => $config['col_nama_pt'] ?? null,
+            'nama_pt' => !empty($config['col_nama_pt']) ? trim($config['col_nama_pt']) : trim($sheetName),
             'pelanggan' => $pelanggan,
             'jenis_pelanggan' => self::getColValue($row, $config['col_jenis_pelanggan'] ?? null),
             'tanggal' => self::getColValue($row, $config['col_tanggal'] ?? null),

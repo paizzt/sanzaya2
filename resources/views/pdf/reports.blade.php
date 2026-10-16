@@ -292,11 +292,17 @@
         </thead>
         <tbody>
             @forelse($logistik as $row)
+                @php
+                    $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
+                    $salesDisplay = $row->nama_sales ?: ($rowPt ? 'KANTOR ' . $rowPt : '-');
+                    $pelangganDisplay = $row->pelanggan ?: ($rowPt ? 'Non-Outlet (' . $rowPt . ')' : '-');
+                    $produkDisplay = $row->nama_produk ?: ($row->no_faktur ? 'Faktur ' . $row->no_faktur : ($rowPt ?: '-'));
+                @endphp
                 <tr>
                     <td>{{ $row->tanggal }}</td>
-                    <td>{{ $row->nama_sales }}</td>
-                    <td>{{ $row->pelanggan }}</td>
-                    <td>{{ $row->nama_produk }}</td>
+                    <td>{{ $salesDisplay }}</td>
+                    <td>{{ $pelangganDisplay }}</td>
+                    <td>{{ $produkDisplay }}</td>
                     <td class="text-right">{{ $row->total ? 'Rp ' . number_format(\App\Http\Controllers\ReportController::parseCurrency($row->total), 2, ',', '.') : '-' }}</td>
                 </tr>
             @empty
