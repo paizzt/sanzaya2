@@ -190,11 +190,11 @@ class ReportController extends Controller
 
         $reportData = [];
         if ($tab === 'logistik') {
-            $query = (clone $logistikBaseQuery)->orderBy('id', 'desc');
+            $query = (clone $logistikBaseQuery)->orderByLatestTanggal();
             $reportData = $query->paginate(50)->withQueryString();
             if ($reportData->isEmpty() && (int)$request->query('page', 1) > 1) {
                 \Illuminate\Pagination\Paginator::currentPageResolver(fn() => 1);
-                $reportData = (clone $logistikBaseQuery)->orderBy('id', 'desc')->paginate(50)->withQueryString();
+                $reportData = (clone $logistikBaseQuery)->orderByLatestTanggal()->paginate(50)->withQueryString();
             }
         } elseif ($tab === 'pesanan') {
             $query = SyncPesananData::query();
@@ -233,10 +233,10 @@ class ReportController extends Controller
                       ->orWhere('nama_produk', 'like', "%{$search}%");
                 });
             }
-            $reportData = $query->orderBy('id', 'desc')->paginate(50)->withQueryString();
+            $reportData = $query->orderByLatestTanggal()->paginate(50)->withQueryString();
             if ($reportData->isEmpty() && (int)$request->query('page', 1) > 1) {
                 \Illuminate\Pagination\Paginator::currentPageResolver(fn() => 1);
-                $reportData = (clone $query)->paginate(50)->withQueryString();
+                $reportData = (clone $query)->orderByLatestTanggal()->paginate(50)->withQueryString();
             }
         } elseif ($tab === 'piutang') {
             $query = SyncPiutangData::query();
@@ -1185,7 +1185,7 @@ class ReportController extends Controller
                   ->orWhere('tanggal', 'like', "%{$search}%");
             });
         }
-        $logistik = $logistikQuery->orderBy('id', 'desc')->take(2000)->get();
+        $logistik = $logistikQuery->orderByLatestTanggal()->take(2000)->get();
 
         if ($keteranganFilter) $pesananQuery->where('keterangan', $keteranganFilter);
         if ($outletFilter) {
@@ -1208,7 +1208,7 @@ class ReportController extends Controller
                   ->orWhere('nama_produk', 'like', "%{$search}%");
             });
         }
-        $pesanan = $pesananQuery->orderBy('id', 'desc')->take(2000)->get();
+        $pesanan = $pesananQuery->orderByLatestTanggal()->take(2000)->get();
 
         if ($outletFilter) {
             $piutangQuery->where(function($q) use ($outletNamesToSearch) {
