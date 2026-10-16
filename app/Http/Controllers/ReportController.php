@@ -513,6 +513,12 @@ class ReportController extends Controller
                 $refTotalPenjualan = $totalPenjualan;
             }
 
+            arsort($refPtBreakdown);
+            $refPtBreakdownFormatted = [];
+            foreach ($refPtBreakdown as $p => $v) {
+                $refPtBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
+            }
+
             $targetBulanan = 0;
             $targetDetail = [];
             $capaianDetail = [];
@@ -715,6 +721,12 @@ class ReportController extends Controller
                 }
             }
             
+            arsort($ptBreakdownAnnual);
+            $ptBreakdownAnnualFormatted = [];
+            foreach ($ptBreakdownAnnual as $p => $v) {
+                $ptBreakdownAnnualFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
+            }
+            
             if (!empty($targetPtNamesToSearch)) {
                 $companyTargetsAnn = \App\Models\CompanyTarget::with('companies')->where(function($q) use ($targetPtNamesToSearch) {
                     $q->whereIn('name', $targetPtNamesToSearch);
@@ -832,6 +844,8 @@ class ReportController extends Controller
                 'total_pesanan' => $logistikAll->count(),
                 'penjualan_detail' => $salesBreakdownFormatted,
                 'pt_penjualan_detail' => $ptBreakdownFormatted,
+                'pt_penjualan_bulan_ini' => $refPtBreakdownFormatted,
+                'pt_penjualan_tahunan' => $ptBreakdownAnnualFormatted,
                 'brand_detail' => $brandBreakdownFormatted,
                 'bulan_detail' => $monthBreakdownFormatted,
                 'outlet_detail' => $outletDetailFormatted,

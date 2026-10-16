@@ -213,6 +213,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                     {(() => {
                                         let totalValue = null;
                                         if (detailModal.type === 'penjualan') totalValue = summary?.total_penjualan;
+                                        else if (detailModal.type === 'target') totalValue = detailModal.title === 'Target Bulanan' ? summary?.total_penjualan_bulan_ini : summary?.total_penjualan;
                                         else if (detailModal.type === 'pesanan') totalValue = summary?.total_pesanan;
                                         else if (detailModal.type === 'faktur') totalValue = summaryPesanan?.total_faktur;
                                         else if (detailModal.type === 'terkirim') totalValue = summaryPesanan?.total_terkirim;
@@ -233,28 +234,45 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                         }
                                         return null;
                                     })()}
-                                    {detailModal.type === 'penjualan' && summary?.pt_penjualan_detail && Object.keys(summary.pt_penjualan_detail).length > 0 && (
-                                        <div className="mb-4 pb-4 border-b-2 border-dashed border-gray-200">
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan PT</h4>
-                                            <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                                <span>Nama PT</span>
-                                                <span>Total (Rp)</span>
-                                            </div>
-                                            <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-                                                {Object.entries(summary?.pt_penjualan_detail || {}).map(([key, value], idx) => (
-                                                      <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors gap-2">
-                                                          <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
-                                                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
-                                                                  {idx + 1}
+                                    {(() => {
+                                        let ptData = null;
+                                        let ptTitle = 'Berdasarkan PT';
+                                        if (detailModal.type === 'penjualan') {
+                                            ptData = summary?.pt_penjualan_detail;
+                                            ptTitle = 'Berdasarkan PT';
+                                        } else if (detailModal.type === 'target' && detailModal.title === 'Target Bulanan') {
+                                            ptData = summary?.pt_penjualan_bulan_ini || summary?.pt_penjualan_detail;
+                                            ptTitle = 'Total Penjualan per PT (Bulan Ini)';
+                                        } else if (detailModal.type === 'target' && detailModal.title === 'Target Tahunan') {
+                                            ptData = summary?.pt_penjualan_tahunan || summary?.pt_penjualan_detail;
+                                            ptTitle = 'Total Penjualan per PT (Tahunan)';
+                                        }
+
+                                        if (!ptData || Object.keys(ptData).length === 0) return null;
+
+                                        return (
+                                            <div className="mb-4 pb-4 border-b-2 border-dashed border-gray-200">
+                                                <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">{ptTitle}</h4>
+                                                <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
+                                                    <span>Nama PT</span>
+                                                    <span>Total (Rp)</span>
+                                                </div>
+                                                <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+                                                    {Object.entries(ptData || {}).map(([key, value], idx) => (
+                                                          <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl border border-indigo-100 transition-colors gap-2">
+                                                              <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                                                                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
+                                                                      {idx + 1}
+                                                                  </div>
+                                                                  <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
                                                               </div>
-                                                              <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
+                                                              <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
                                                           </div>
-                                                          <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
-                                                      </div>
-                                                ))}
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        );
+                                    })()}
 
                                     <div>
                                         {detailModal.type === 'penjualan' && (
@@ -270,8 +288,8 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
                                         )}
                                         <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'target', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama'))}</span>
-                                            <span>{['penjualan', 'faktur', 'target'].includes(detailModal.type) ? 'Total (Rp)' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai')}</span>
+                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['target'].includes(detailModal.type) ? 'Nama PT / Sales' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama')))}</span>
+                                            <span>{['penjualan', 'faktur'].includes(detailModal.type) ? 'Total (Rp)' : (['target'].includes(detailModal.type) ? 'Realisasi / Target' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai'))}</span>
                                         </div>
                                         <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
                                             {detailModal.type === 'outlet' ? (
@@ -1039,8 +1057,8 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                         {(summary.target_bulanan || is_super_admin) && (
                                 <div 
-                                    onClick={() => summary.target_detail && Object.keys(summary.target_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail })} 
-                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-blue-100 ${summary.target_detail && Object.keys(summary.target_detail).length > 0 ? 'cursor-pointer' : ''}`}
+                                    onClick={() => ((summary.target_detail && Object.keys(summary.target_detail).length > 0) || (summary.pt_penjualan_bulan_ini && Object.keys(summary.pt_penjualan_bulan_ini).length > 0)) && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail || {} })} 
+                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-blue-100 ${((summary.target_detail && Object.keys(summary.target_detail).length > 0) || (summary.pt_penjualan_bulan_ini && Object.keys(summary.pt_penjualan_bulan_ini).length > 0)) ? 'cursor-pointer' : ''}`}
                                     style={{ backgroundImage: getProgressBg(summary.capaian_target) }}
                                 >
                                     {/* Background Icon */}
@@ -1069,8 +1087,8 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
 
                         {(summary.target_tahunan || is_super_admin) && (
                                 <div 
-                                    onClick={() => summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0 && setDetailModal({ isOpen: true, title: 'Target Tahunan', type: 'target', data: summary.target_tahunan_detail })}
-                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-indigo-100 ${summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0 ? 'cursor-pointer' : ''}`}
+                                    onClick={() => ((summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0) || (summary.pt_penjualan_tahunan && Object.keys(summary.pt_penjualan_tahunan).length > 0)) && setDetailModal({ isOpen: true, title: 'Target Tahunan', type: 'target', data: summary.target_tahunan_detail || {} })}
+                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-indigo-100 ${((summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0) || (summary.pt_penjualan_tahunan && Object.keys(summary.pt_penjualan_tahunan).length > 0)) ? 'cursor-pointer' : ''}`}
                                     style={{ backgroundImage: getProgressBg(summary.capaian_tahunan) }}
                                 >
                                     {/* Background Icon */}
