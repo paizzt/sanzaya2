@@ -436,7 +436,8 @@ class ReportController extends Controller
                         stripos($tanggal, $monthIndo) !== false ||
                         strpos($tanggal, "-{$currentMonthNumStr}-") !== false ||
                         strpos($tanggal, "/{$currentMonthNumStr}/") !== false ||
-                        strpos($tanggal, "{$currentMonthNum}/") !== false ||
+                        strpos($tanggal, "-{$currentMonthNum}-") !== false ||
+                        strpos($tanggal, "/{$currentMonthNum}/") !== false ||
                         strpos($tanggal, "-{$shortMonthIndo}") !== false ||
                         strpos($tanggal, " {$shortMonthIndo}") !== false ||
                         strpos($tanggal, "-{$shortMonthEng}") !== false ||
@@ -790,10 +791,12 @@ class ReportController extends Controller
                 $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
                 
                 $summaryPesananQuery->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
-                    $q->where('tanggal', 'like', "%{$monthFilter}%")
+                    $q->where('sheet_name', 'like', "%{$monthFilter}%")
+                      ->orWhere('tanggal', 'like', "%{$monthFilter}%")
                       ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
                       ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
-                      ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                      ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+                      ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
                       ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
                       ->orWhere('tanggal', 'like', "% {$shortMonth}%")
                       ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
@@ -1034,10 +1037,12 @@ class ReportController extends Controller
                     $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
                     
                     $q->orWhere(function($subQ) use ($monthName, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
-                        $subQ->where('tanggal', 'like', "%{$monthName}%")
+                        $subQ->where('sheet_name', 'like', "%{$monthName}%")
+                          ->orWhere('tanggal', 'like', "%{$monthName}%")
                           ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
                           ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
-                          ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                          ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+                          ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
                           ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
                           ->orWhere('tanggal', 'like', "% {$shortMonth}%")
                           ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
@@ -1055,10 +1060,12 @@ class ReportController extends Controller
                     $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
                     
                     $q->orWhere(function($subQ) use ($monthName, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
-                        $subQ->where('tanggal', 'like', "%{$monthName}%")
+                        $subQ->where('sheet_name', 'like', "%{$monthName}%")
+                          ->orWhere('tanggal', 'like', "%{$monthName}%")
                           ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
                           ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
-                          ->orWhere('tanggal', 'like', "%{$monthNum}/%")
+                          ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+                          ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
                           ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
                           ->orWhere('tanggal', 'like', "% {$shortMonth}%")
                           ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
