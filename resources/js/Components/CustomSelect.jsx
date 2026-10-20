@@ -3,7 +3,13 @@ import { Listbox, Transition } from '@headlessui/react';
 import { Check, ChevronDown } from 'lucide-react';
 
 export default function CustomSelect({ value, onChange, options, placeholder = "Pilih...", className = "", icon: Icon, compact = false }) {
-    const selectedOption = options.find(opt => String(opt.value) === String(value)) || null;
+    const selectedOption = options.find(opt => String(opt.value) === String(value))
+        || options.find(opt => {
+            const oClean = String(opt.value).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const vClean = String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            return oClean && vClean && (oClean.includes(vClean) || vClean.includes(oClean));
+        })
+        || null;
 
     return (
         <div className={`relative ${className}`}>

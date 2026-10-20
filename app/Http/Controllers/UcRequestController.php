@@ -66,20 +66,28 @@ class UcRequestController extends Controller
             }
         }
 
-        if ($logoPath === public_path('img/logo.png')) {
-            if (str_contains($clean, 'harkes') && file_exists(public_path('storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png'))) {
-                $logoPath = public_path('storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png');
-            } elseif (str_contains($clean, 'meraki') && file_exists(public_path('storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png'))) {
-                $logoPath = public_path('storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png');
-            } elseif (str_contains($clean, 'msi') && file_exists(public_path('storage/company/CFKdTemIfTZwzwOD2L2og2U5OyUc2LCdwO9kBPqH.png'))) {
-                $logoPath = public_path('storage/company/CFKdTemIfTZwzwOD2L2og2U5OyUc2LCdwO9kBPqH.png');
-            } elseif (str_contains($clean, 'ruma') && file_exists(public_path('storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png'))) {
-                $logoPath = public_path('storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png');
-            }
+        if (str_contains($clean, 'harkes')) {
+            $logoPath = file_exists(public_path('img/company/harkes.png')) ? public_path('img/company/harkes.png') : public_path('img/logo.png');
+        } elseif (str_contains($clean, 'meraki')) {
+            $logoPath = file_exists(public_path('img/company/meraki.png')) ? public_path('img/company/meraki.png') : public_path('img/logo.png');
+        } elseif (str_contains($clean, 'msi')) {
+            $logoPath = file_exists(public_path('img/company/msi.png')) ? public_path('img/company/msi.png') : public_path('img/logo.png');
+        } elseif (str_contains($clean, 'ruma')) {
+            $logoPath = file_exists(public_path('img/company/ruma.png')) ? public_path('img/company/ruma.png') : public_path('img/logo.png');
+        } elseif (str_contains($clean, 'sanzaya')) {
+            $logoPath = public_path('img/logo.png');
+        } elseif ($company && $company->logo && file_exists(public_path('storage/' . $company->logo))) {
+            $logoPath = public_path('storage/' . $company->logo);
         }
 
         if (!$companyAddress) {
-            $companyAddress = "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id";
+            if (str_contains($clean, 'sanzaya')) {
+                $companyAddress = "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id";
+            } elseif (str_contains($clean, 'msi')) {
+                $companyAddress = 'Jl. Taman Makam Pahlawan, Makassar, Indonesia.';
+            } else {
+                $companyAddress = '';
+            }
         }
 
         $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'companyAddress'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));

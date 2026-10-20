@@ -46,6 +46,22 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
 
     const { flash } = usePage().props;
 
+    const companySelectOptions = companies && companies.length > 0
+        ? companies.map(c => {
+            const shortName = c.name.replace(/^(PT\.?|CV\.?)\s*/i, '');
+            return {
+                value: c.name,
+                label: `${c.name} (${shortName})`
+            };
+        })
+        : [
+            { value: 'PT. Sanzaya Medika Pratama', label: 'PT. Sanzaya Medika Pratama (Sanzaya)' },
+            { value: 'PT. Harkes', label: 'PT. Harkes (Harkes)' },
+            { value: 'CV. Meraki', label: 'CV. Meraki (Meraki)' },
+            { value: 'PT. MSI', label: 'PT. MSI (MSI)' },
+            { value: 'PT. Ruma', label: 'PT. Ruma (Ruma)' }
+        ];
+
     useEffect(() => {
         if (data.departure_date && data.return_date) {
             setData('estimated_days', calculateDays(data.departure_date, data.return_date));
@@ -133,13 +149,7 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
                                     <CustomSelect
                                         value={data.entity}
                                         onChange={(val) => setData('entity', val)}
-                                        options={[
-                                            { value: 'PT. Sanzaya Medika Pratama', label: 'PT. Sanzaya Medika Pratama (Sanzaya)' },
-                                            { value: 'PT. Harkes', label: 'PT. Harkes (Harkes)' },
-                                            { value: 'CV. Meraki', label: 'CV. Meraki (Meraki)' },
-                                            { value: 'PT. MSI', label: 'PT. MSI (MSI)' },
-                                            { value: 'PT. Ruma', label: 'PT. Ruma (Ruma)' }
-                                        ]}
+                                        options={companySelectOptions}
                                     />
                                 </div>
                             </div>

@@ -13,60 +13,47 @@ export default function UcPreview({ data, user, companies = [] }) {
     const getCompanyInfo = (entityName) => {
         const clean = (entityName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
+        let found = null;
         if (companies && companies.length > 0) {
-            const found = companies.find(c => {
+            found = companies.find(c => {
                 const cClean = (c.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
                 return clean.includes(cClean) || cClean.includes(clean);
             });
-            if (found) {
-                return {
-                    name: entityName || found.name,
-                    logo: clean.includes('sanzaya') ? '/img/logo.png' : (found.logo ? `/storage/${found.logo}` : '/img/logo.png'),
-                    address: found.address || ''
-                };
-            }
         }
 
+        // Dedicated logo resolution:
+        // Dedicated static assets in /img/company/ exist and work directly in production
+        let logoUrl = '/img/logo.png';
         if (clean.includes('harkes')) {
-            return {
-                name: entityName || 'PT. Harkes',
-                logo: '/storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png',
-                address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
-            };
+            logoUrl = '/img/company/harkes.png';
+        } else if (clean.includes('meraki')) {
+            logoUrl = '/img/company/meraki.png';
+        } else if (clean.includes('msi')) {
+            logoUrl = '/img/company/msi.png';
+        } else if (clean.includes('ruma')) {
+            logoUrl = '/img/company/ruma.png';
+        } else if (clean.includes('sanzaya')) {
+            logoUrl = '/img/logo.png';
+        } else if (found && found.logo) {
+            logoUrl = found.logo.startsWith('/') ? found.logo : `/storage/${found.logo}`;
         }
-        if (clean.includes('meraki')) {
-            return {
-                name: entityName || 'CV. Meraki',
-                logo: '/storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png',
-                address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
-            };
-        }
-        if (clean.includes('msi')) {
-            return {
-                name: entityName || 'PT. MSI',
-                logo: '/storage/company/CFKdTemIfTZwzwOD2L2og2U5OyUc2LCdwO9kBPqH.png',
-                address: 'Jl. Taman Makam Pahlawan, Makassar, Indonesia.'
-            };
-        }
-        if (clean.includes('ruma')) {
-            return {
-                name: entityName || 'PT. Ruma',
-                logo: '/storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png',
-                address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
-            };
-        }
-        if (clean.includes('sanzaya')) {
-            return {
-                name: entityName || 'PT. Sanzaya Medika Pratama',
-                logo: '/img/logo.png',
-                address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
-            };
+
+        // Determine Address from Data Perusahaan
+        let address = '';
+        if (found && found.address && found.address.trim()) {
+            address = found.address.trim();
+        } else if (clean.includes('sanzaya')) {
+            address = "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id";
+        } else if (clean.includes('msi')) {
+            address = 'Jl. Taman Makam Pahlawan, Makassar, Indonesia.';
+        } else {
+            address = '';
         }
 
         return {
-            name: entityName || 'PT. SANZAYA MEDIKA PRATAMA',
-            logo: '/img/logo.png',
-            address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
+            name: (found && found.name) ? found.name : (entityName || 'PT. SANZAYA MEDIKA PRATAMA'),
+            logo: logoUrl,
+            address: address
         };
     };
 
@@ -142,12 +129,18 @@ export default function UcPreview({ data, user, companies = [] }) {
             <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
                 <div className="mb-2 md:mb-0 w-1/3 flex items-center justify-start">
                     <img 
+                        key={currentCompany.logo}
                         src={currentCompany.logo} 
                         alt={currentCompany.name} 
                         className="max-h-12 max-w-[140px] object-contain" 
                         onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/img/logo.png';
+                            const clean = (data?.entity || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                            if (clean.includes('harkes')) e.currentTarget.src = '/img/company/harkes.png';
+                            else if (clean.includes('meraki')) e.currentTarget.src = '/img/company/meraki.png';
+                            else if (clean.includes('msi')) e.currentTarget.src = '/img/company/msi.png';
+                            else if (clean.includes('ruma')) e.currentTarget.src = '/img/company/ruma.png';
+                            else e.currentTarget.src = '/img/logo.png';
                         }}
                     />
                 </div>
@@ -155,9 +148,11 @@ export default function UcPreview({ data, user, companies = [] }) {
                     <h2 className="text-sm lg:text-base font-bold text-indigo-900 font-serif tracking-wide mb-1 uppercase">
                         {currentCompany.name}
                     </h2>
-                    <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight whitespace-pre-line">
-                        {addressText}
-                    </p>
+                    {addressText && (
+                        <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight whitespace-pre-line">
+                            {addressText}
+                        </p>
+                    )}
                 </div>
             </div>
             
