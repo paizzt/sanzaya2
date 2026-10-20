@@ -57,6 +57,84 @@ class ReportController extends Controller
         return (float) $s;
     }
 
+    /**
+     * Get sheet-name-to-PT mapping based on SpreadsheetConfiguration.
+     */
+    public static function getSheetToPtMap(): array
+    {
+        $sheetToPtMap = [];
+        $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
+        if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
+            foreach ($logistikConfig->sheets_config as $sc) {
+                $pt = trim((string)($sc['col_nama_pt'] ?? $sc['sheet_name'] ?? ''));
+                $sName = trim((string)($sc['sheet_name'] ?? ''));
+                if ($pt !== '' && $sName !== '') {
+                    $sheetToPtMap[strtolower($sName)] = $pt;
+                }
+            }
+        }
+        return $sheetToPtMap;
+    }
+
+    /**
+     * Apply accurate PT filter on a query for sync_logistik_data.
+     */
+    public static function applyPtFilter($query, array $targetPtNames)
+    {
+        $targetPtNames = array_values(array_filter(array_map('trim', $targetPtNames)));
+        if (empty($targetPtNames)) {
+            return $query;
+        }
+
+        $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
+        $targetPtNamesUpper = array_map('strtoupper', $targetPtNames);
+
+        $matchedSheetNames = [];
+        $matchedPtNames = [];
+
+        if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
+            foreach ($logistikConfig->sheets_config as $sc) {
+                $pt = trim((string)($sc['col_nama_pt'] ?? $sc['sheet_name'] ?? ''));
+                $sName = trim((string)($sc['sheet_name'] ?? ''));
+                
+                foreach ($targetPtNamesUpper as $tPt) {
+                    if (strtoupper($pt) === $tPt) {
+                        $matchedPtNames[] = $pt;
+                        if ($sName !== '') {
+                            $matchedSheetNames[] = $sName;
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($targetPtNames as $tPt) {
+            $matchedPtNames[] = $tPt;
+        }
+
+        $matchedPtNames = array_values(array_unique(array_filter($matchedPtNames)));
+        $matchedSheetNames = array_values(array_unique(array_filter($matchedSheetNames)));
+
+        return $query->where(function($q) use ($matchedPtNames, $matchedSheetNames) {
+            $q->whereIn('nama_pt', $matchedPtNames);
+
+            foreach ($matchedPtNames as $pt) {
+                $q->orWhere('nama_pt', 'PT ' . $pt)
+                  ->orWhere('nama_pt', 'PT. ' . $pt)
+                  ->orWhere('nama_pt', 'PT ' . $pt . ' MEDIKA PRATAMA')
+                  ->orWhere('nama_pt', 'PT. ' . $pt . ' MEDIKA PRATAMA');
+            }
+
+            if (!empty($matchedSheetNames)) {
+                $q->orWhere(function($sub) use ($matchedSheetNames) {
+                    $sub->where(function($s) {
+                        $s->whereNull('nama_pt')->orWhere('nama_pt', '')->orWhere('nama_pt', '-');
+                    })->whereIn('sheet_name', $matchedSheetNames);
+                });
+            }
+        });
+    }
+
     public function index(Request $request)
     {
         // Auto-fix missing columns for sync_logistik_data to prevent 500 errors
@@ -154,15 +232,7 @@ class ReportController extends Controller
             });
         }
         if (!empty($targetPtNamesToSearch)) {
-            $logistikBaseQuery->where(function($q) use ($targetPtNamesToSearch) {
-                foreach ($targetPtNamesToSearch as $pt) {
-                    $ptTrim = trim($pt);
-                    $ptClean = str_replace(' ', '', $ptTrim);
-                    $q->orWhere('nama_pt', 'like', '%' . $ptTrim . '%')
-                      ->orWhere('sheet_name', 'like', '%' . $ptTrim . '%')
-                      ->orWhere('sheet_name', 'like', '%' . $ptClean . '%');
-                }
-            });
+            self::applyPtFilter($logistikBaseQuery, $targetPtNamesToSearch);
         } else {
             $logistikBaseQuery->where(function($q) {
                 $q->whereNotNull('nama_pt')->where('nama_pt', '!=', '')->where('nama_pt', '!=', '-')
@@ -320,11 +390,29 @@ class ReportController extends Controller
             $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'sheet_name', 'no_faktur', 'tanggal', 'brand')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = []; $monthBreakdown = []; $brandBreakdown = [];
             $outletDetailsMap = [];
-            $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+            $sheetToPtMap = self::getSheetToPtMap();
             foreach ($logistikAll as $row) {
+                $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
+                if (isset($sheetToPtMap[strtolower($rowPt)])) {
+                    $rowPt = $sheetToPtMap[strtolower($rowPt)];
+                }
+
+                if (!empty($targetPtNamesToSearch)) {
+                    $matchedTargetPt = null;
+                    foreach ($targetPtNamesToSearch as $tPt) {
+                        if (strcasecmp($rowPt, $tPt) === 0) {
+                            $matchedTargetPt = $tPt;
+                            break;
+                        }
+                    }
+                    if ($matchedTargetPt === null) {
+                        continue;
+                    }
+                    $rowPt = $matchedTargetPt;
+                }
+
                 $val = self::parseCurrency($row->total);
                 $totalPenjualan += $val;
-                $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
 
                 // Month breakdown (calculated for ALL rows regardless of whether outlet is present)
                 $mName = null;
@@ -486,10 +574,26 @@ class ReportController extends Controller
                         strpos($tanggal, "-{$shortMonthEng}") !== false ||
                         strpos($tanggal, " {$shortMonthEng}") !== false
                     ) {
+                        $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
+                        if (isset($sheetToPtMap[strtolower($rowPt)])) {
+                            $rowPt = $sheetToPtMap[strtolower($rowPt)];
+                        }
+                        if (!empty($targetPtNamesToSearch)) {
+                            $matchedTargetPt = null;
+                            foreach ($targetPtNamesToSearch as $tPt) {
+                                if (strcasecmp($rowPt, $tPt) === 0) {
+                                    $matchedTargetPt = $tPt;
+                                    break;
+                                }
+                            }
+                            if ($matchedTargetPt === null) {
+                                continue;
+                            }
+                            $rowPt = $matchedTargetPt;
+                        }
+
                         $val = self::parseCurrency($row->total);
                         $refTotalPenjualan += $val;
-                        
-                        $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
                         $namaSales = strtoupper(trim((string)$row->nama_sales));
                         if (!$namaSales) {
                             if (stripos($rowPt, 'MSI') !== false || stripos($rowPt, 'MULTI SENTOSA') !== false) {
@@ -534,11 +638,12 @@ class ReportController extends Controller
                 $companyTargets = \App\Models\CompanyTarget::with('companies')->where(function($q) use ($targetPtNamesToSearch) {
                     $q->whereIn('name', $targetPtNamesToSearch);
                     foreach ($targetPtNamesToSearch as $pt) {
-                        $q->orWhere('name', 'like', '%' . $pt . '%');
-                        $q->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
+                        $q->orWhere('name', 'PT ' . $pt)
+                          ->orWhere('name', 'PT. ' . $pt);
                         $q->orWhereHas('companies', function($cq) use ($pt) {
-                            $cq->where('name', 'like', '%' . $pt . '%')
-                               ->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
+                            $cq->where('name', $pt)
+                               ->orWhere('name', 'PT ' . $pt)
+                               ->orWhere('name', 'PT. ' . $pt);
                         });
                     }
                 })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
@@ -656,17 +761,7 @@ class ReportController extends Controller
                 });
             }
             if (!empty($targetPtNamesToSearch)) {
-                $annualQuery->where(function($q) use ($targetPtNamesToSearch) {
-                    foreach ($targetPtNamesToSearch as $pt) {
-                        $q->orWhere('nama_pt', 'like', '%' . $pt . '%')
-                          ->orWhere('sheet_name', 'like', '%' . $pt . '%');
-                        $ptNoSpace = str_replace(' ', '', $pt);
-                        if ($ptNoSpace !== $pt) {
-                            $q->orWhere('sheet_name', 'like', '%' . $ptNoSpace . '%')
-                              ->orWhere('nama_pt', 'like', '%' . $ptNoSpace . '%');
-                        }
-                    }
-                });
+                self::applyPtFilter($annualQuery, $targetPtNamesToSearch);
             } else {
                 $annualQuery->where(function($q) {
                     $q->where(function($sub) {
@@ -713,9 +808,26 @@ class ReportController extends Controller
             $ptBreakdownAnnual = [];
             
             foreach ($logistikAnnual as $row) {
+                $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
+                if (isset($sheetToPtMap[strtolower($rowPt)])) {
+                    $rowPt = $sheetToPtMap[strtolower($rowPt)];
+                }
+                if (!empty($targetPtNamesToSearch)) {
+                    $matchedTargetPt = null;
+                    foreach ($targetPtNamesToSearch as $tPt) {
+                        if (strcasecmp($rowPt, $tPt) === 0) {
+                            $matchedTargetPt = $tPt;
+                            break;
+                        }
+                    }
+                    if ($matchedTargetPt === null) {
+                        continue;
+                    }
+                    $rowPt = $matchedTargetPt;
+                }
+
                 $val = self::parseCurrency($row->total);
                 $totalPenjualanAnnual += $val;
-                $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
                 if ($rowPt !== '' && $rowPt !== '-' && !in_array(strtolower($rowPt), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
                     $ptBreakdownAnnual[$rowPt] = ($ptBreakdownAnnual[$rowPt] ?? 0) + $val;
                 }
@@ -731,11 +843,12 @@ class ReportController extends Controller
                 $companyTargetsAnn = \App\Models\CompanyTarget::with('companies')->where(function($q) use ($targetPtNamesToSearch) {
                     $q->whereIn('name', $targetPtNamesToSearch);
                     foreach ($targetPtNamesToSearch as $pt) {
-                        $q->orWhere('name', 'like', '%' . $pt . '%');
-                        $q->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
+                        $q->orWhere('name', 'PT ' . $pt)
+                          ->orWhere('name', 'PT. ' . $pt);
                         $q->orWhereHas('companies', function($cq) use ($pt) {
-                            $cq->where('name', 'like', '%' . $pt . '%')
-                               ->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
+                            $cq->where('name', $pt)
+                               ->orWhere('name', 'PT ' . $pt)
+                               ->orWhere('name', 'PT. ' . $pt);
                         });
                     }
                 })->whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
@@ -1224,17 +1337,7 @@ class ReportController extends Controller
         }
 
         if (!empty($targetPtNamesToSearch)) {
-            $logistikQuery->where(function($q) use ($targetPtNamesToSearch) {
-                foreach ($targetPtNamesToSearch as $pt) {
-                    $q->orWhere('nama_pt', 'like', '%' . $pt . '%')
-                      ->orWhere('sheet_name', 'like', '%' . $pt . '%');
-                    $ptNoSpace = str_replace(' ', '', $pt);
-                    if ($ptNoSpace !== $pt) {
-                        $q->orWhere('sheet_name', 'like', '%' . $ptNoSpace . '%')
-                          ->orWhere('nama_pt', 'like', '%' . $ptNoSpace . '%');
-                    }
-                }
-            });
+            self::applyPtFilter($logistikQuery, $targetPtNamesToSearch);
             $title .= " (" . implode(', ', $targetPtNamesToSearch) . ")";
         } else {
             $logistikQuery->where(function($q) {
@@ -1340,6 +1443,8 @@ class ReportController extends Controller
         $monthPenjualan = [];
         $brandPenjualan = [];
 
+        $sheetToPtMap = self::getSheetToPtMap();
+
         if (!empty($targetPtNamesToSearch)) {
             foreach ($targetPtNamesToSearch as $tPt) {
                 if ($tPt !== '') {
@@ -1351,15 +1456,42 @@ class ReportController extends Controller
         $monthsIndo = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
 
         foreach ($logistik as $row) {
+            $rawPt = trim((string)$row->nama_pt);
+            if ($rawPt === '' || $rawPt === '-') {
+                $rawPt = trim((string)$row->sheet_name);
+            }
+            if (isset($sheetToPtMap[strtolower($rawPt)])) {
+                $rawPt = $sheetToPtMap[strtolower($rawPt)];
+            }
+            if (!$rawPt) {
+                $rawPt = 'Lainnya';
+            }
+
+            if (!empty($targetPtNamesToSearch)) {
+                $matchedTargetPt = null;
+                foreach ($targetPtNamesToSearch as $tPt) {
+                    if (strcasecmp($rawPt, $tPt) === 0) {
+                        $matchedTargetPt = $tPt;
+                        break;
+                    }
+                }
+                if ($matchedTargetPt === null) {
+                    continue;
+                }
+                $rawPt = $matchedTargetPt;
+            }
+
             $val = self::parseCurrency($row->total);
             $totalPenjualan += $val;
             
             // PT Breakdown
-            $rawPt = trim((string)($row->nama_pt ?: $row->sheet_name ?: 'Lainnya'));
             $ptPenjualan[$rawPt] = ($ptPenjualan[$rawPt] ?? 0) + $val;
 
             // Sales Breakdown
             $ptNameForSales = trim((string)($row->nama_pt ?: $row->sheet_name));
+            if (isset($sheetToPtMap[strtolower($ptNameForSales)])) {
+                $ptNameForSales = $sheetToPtMap[strtolower($ptNameForSales)];
+            }
             $salesName = strtoupper(trim((string)$row->nama_sales));
             if (!$salesName) {
                 if (stripos($ptNameForSales, 'MSI') !== false || stripos($ptNameForSales, 'MULTI SENTOSA') !== false) {
@@ -1461,11 +1593,12 @@ class ReportController extends Controller
             $companyTargets = \App\Models\CompanyTarget::where(function($q) use ($targetPtNamesToSearch) {
                 $q->whereIn('name', $targetPtNamesToSearch);
                 foreach ($targetPtNamesToSearch as $pt) {
-                    $q->orWhere('name', 'like', '%' . $pt . '%')
-                      ->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
+                    $q->orWhere('name', 'PT ' . $pt)
+                      ->orWhere('name', 'PT. ' . $pt);
                     $q->orWhereHas('companies', function($cq) use ($pt) {
-                        $cq->where('name', 'like', '%' . $pt . '%')
-                           ->orWhereRaw('? LIKE CONCAT("%", name, "%")', [$pt]);
+                        $cq->where('name', $pt)
+                           ->orWhere('name', 'PT ' . $pt)
+                           ->orWhere('name', 'PT. ' . $pt);
                     });
                 }
             })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
