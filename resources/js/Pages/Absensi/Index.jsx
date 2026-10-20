@@ -267,7 +267,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                     )}
                                     <div className="flex-1">
                                         <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
-                                        <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedIn ? `Berhasil: ${attendance.check_in_time}${attendance?.date ? ` (${attendance.date})` : ''}` : 'Belum Absen'}</p>
+                                        <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedIn ? `Berhasil: ${attendance.check_in_time}` : 'Belum Absen'}</p>
 
                                         {!hasCheckedIn && (
                                             <button
