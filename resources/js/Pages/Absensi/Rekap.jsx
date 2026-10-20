@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, Shield, Sun, Moon, UserCheck } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, Sun, Moon, UserCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -317,13 +317,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
                             }`}
                         >
-                            <Shield className="w-4 h-4" /> Satpam (Shift Siang / Malam)
+                            <Users className="w-4 h-4" /> Satpam (Shift Siang / Malam)
                         </button>
                     </div>
 
                     {roleTab === 'satpam' && (
                         <div className="text-xs text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5">
-                            <Shield className="w-4 h-4 text-amber-600 shrink-0" />
                             <span>Mode Khusus: Shift Siang (☀️) & Malam (🌙)</span>
                         </div>
                     )}
@@ -382,7 +381,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-indigo-500 border-indigo-500' : 'border-gray-100'}`}
                         >
                             <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                                <Shield className="w-6 h-6" />
+                                <CheckCircle2 className="w-6 h-6" />
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500 font-medium">Hadir Satpam</p>
@@ -522,7 +521,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                             {roleTab === 'satpam' ? (
                                 <>
-                                    <Shield className="w-5 h-5 text-amber-500"/> Ringkasan Kehadiran & Shift Personel Satpam
+                                    <Users className="w-5 h-5 text-amber-500"/> Ringkasan Kehadiran & Shift Personel Satpam
                                 </>
                             ) : (
                                 <>
@@ -560,12 +559,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 {filteredUserSummaries.length > 0 ? (
                                     filteredUserSummaries.map((u, idx) => (
                                         <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                            <td className="py-4 px-6 font-medium text-gray-900 flex items-center gap-2">
-                                                {u.is_satpam && (
-                                                    <span className="p-1 rounded-lg bg-indigo-50 text-indigo-600" title="Satpam">
-                                                        <Shield className="w-3.5 h-3.5" />
-                                                    </span>
-                                                )}
+                                            <td className="py-4 px-6 font-medium text-gray-900">
                                                 <span>{u.name}</span>
                                             </td>
                                             <td className="py-4 px-6 text-center font-bold text-blue-600">{u.hadir}</td>
