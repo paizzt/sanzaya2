@@ -359,27 +359,14 @@
                             <th width="33%">Disetujui Oleh</th>
                         </tr>
                         <tr>
-                            <td style="padding: 10px;">
-                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
+                            <td style="padding: 10px; height: 50px; vertical-align: bottom;">
                                 <div class="signature-name">{{ $uc->user->name ?? 'Staff Pegawai' }}</div>
                             </td>
-                            <td style="padding: 10px;">
-                                @if(in_array($uc->status, ['Disetujui', 'Selesai / Result Dikirim']))
-                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                    <div class="signature-name">{{ $uc->approver->name ?? 'Manager' }}</div>
-                                @else
-                                    <div style="height: 50px;"></div>
-                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
-                                @endif
+                            <td style="padding: 10px; height: 50px; vertical-align: bottom;">
+                                <div class="signature-name">{{ $uc->approver->name ?? 'Manajer' }}</div>
                             </td>
-                            <td style="padding: 10px;">
-                                @if(in_array($uc->status, ['Disetujui', 'Selesai / Result Dikirim']))
-                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                    <div class="signature-name">Finance</div>
-                                @else
-                                    <div style="height: 50px;"></div>
-                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
-                                @endif
+                            <td style="padding: 10px; height: 50px; vertical-align: bottom;">
+                                <div class="signature-name">Finance</div>
                             </td>
                         </tr>
                         <tr>
@@ -480,13 +467,11 @@
                             <th width="50%">Diterima Oleh</th>
                         </tr>
                         <tr>
-                            <td style="padding: 10px;">
-                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
+                            <td style="padding: 10px; height: 50px; vertical-align: bottom;">
                                 <div class="signature-name">{{ $uc->user->name ?? 'Staff Pegawai' }}</div>
                             </td>
-                            <td style="padding: 10px;">
-                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">Digital Signature</div>
+                            <td style="padding: 10px; height: 50px; vertical-align: bottom;">
+                                <div class="signature-name">{{ $uc->approver->name ?? 'Manajer' }}</div>
                             </td>
                         </tr>
                         <tr>

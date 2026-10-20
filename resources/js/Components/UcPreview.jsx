@@ -105,10 +105,10 @@ export default function UcPreview({ data, user, companies = [] }) {
                         <div className="font-bold underline">{user?.name || 'Staff Pegawai'}</div>
                     </td>
                     <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
-                        <div className="font-bold underline">Bapak Manajer</div>
+                        <div className="font-bold underline">Manajer</div>
                     </td>
                     <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
-                        <div className="font-bold underline">Ibu Finance</div>
+                        <div className="font-bold underline">Finance</div>
                     </td>
                 </tr>
                 <tr>
