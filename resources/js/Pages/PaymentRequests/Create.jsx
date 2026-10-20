@@ -71,8 +71,67 @@ export default function Create({ auth, vendors, companies, user }) {
     const vatAmount = data.vat_status === 'Belum Termasuk' ? subtotal * (data.vat_rate / 100) : 0;
     const grandTotal = subtotal - Number(data.discount) + Number(data.other_cost) + vatAmount;
 
+    const validateForm = () => {
+        const emptyFields = [];
+
+        if (!data.company_name || !data.company_name.trim()) emptyFields.push('Nama Perusahaan');
+        if (!data.transaction_date || !data.transaction_date.trim()) emptyFields.push('Tanggal Transaksi');
+        if (!data.payment_deadline || !data.payment_deadline.trim()) emptyFields.push('Batas Akhir Pembayaran');
+        if (!data.category || !data.category.trim()) emptyFields.push('Kategori Pengajuan');
+        if (!data.purpose || !data.purpose.trim()) emptyFields.push('Perihal / Tujuan');
+        if (!data.recipient_name || !data.recipient_name.trim()) emptyFields.push('Nama Penerima');
+
+        if (!data.items || data.items.length === 0) {
+            emptyFields.push('Rincian Anggaran (minimal 1 baris)');
+        } else {
+            data.items.forEach((item, idx) => {
+                const rowNum = idx + 1;
+                if (!item.description || !item.description.trim()) {
+                    emptyFields.push(`Uraian pada baris ke-${rowNum}`);
+                }
+                if (!item.quantity || Number(item.quantity) <= 0) {
+                    emptyFields.push(`Qty pada baris ke-${rowNum}`);
+                }
+                if (item.unit_price === '' || item.unit_price === null || item.unit_price === undefined || Number(item.unit_price) <= 0) {
+                    emptyFields.push(`Harga Satuan pada baris ke-${rowNum}`);
+                }
+            });
+        }
+
+        if (!data.payment_method || !data.payment_method.trim()) {
+            emptyFields.push('Metode Pembayaran');
+        } else if (data.payment_method !== 'Tunai') {
+            if (!data.bank_or_wallet || !data.bank_or_wallet.trim()) emptyFields.push('Bank / E-Wallet');
+            if (!data.account_number || !String(data.account_number).trim()) emptyFields.push('No. Rekening / QRIS');
+        }
+
+        if (!data.account_name || !data.account_name.trim()) emptyFields.push('Atas Nama Rekening / Penerima');
+
+        return emptyFields;
+    };
+
     const submit = (e) => {
         e.preventDefault();
+
+        const emptyFields = validateForm();
+        if (emptyFields.length > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Kolom Wajib Belum Terisi',
+                html: `
+                    <div class="text-left text-sm">
+                        <p class="mb-2 font-medium text-gray-700">Mohon lengkapi kolom berikut sebelum mengirim pengajuan:</p>
+                        <ul class="list-disc pl-5 space-y-1 text-red-600 font-medium max-h-60 overflow-y-auto">
+                            ${emptyFields.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                    </div>
+                `,
+                confirmButtonColor: '#4f46e5',
+                confirmButtonText: 'Mengerti'
+            });
+            return;
+        }
+
         post(route('payment-requests.store'), {
             onError: (errors) => {
                 console.error(errors);
@@ -140,7 +199,7 @@ export default function Create({ auth, vendors, companies, user }) {
                                     <InputError message={errors.letter_number} />
                                 </div>
                                 <div>
-                                    <InputLabel value="Nama Penerima / Vendor" />
+                                    <InputLabel value="Nama Penerima" />
                                     <TextInput value={data.recipient_name} onChange={e => setData('recipient_name', e.target.value)} className="w-full" required />
                                     <InputError message={errors.recipient_name} />
                                 </div>
@@ -271,11 +330,8 @@ export default function Create({ auth, vendors, companies, user }) {
 
                         {/* Section D: Lampiran */}
                         <div>
-                            <div className="flex items-center justify-between border-b pb-2 mb-4">
+                            <div className="border-b pb-2 mb-4">
                                 <h3 className="text-lg font-medium text-gray-900">Lampiran Tambahan</h3>
-                                <span className="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
-                                    Bisa lebih dari 1 gambar
-                                </span>
                             </div>
                             <div className="mt-2 space-y-4">
                                 <div className="border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-2xl p-6 text-center transition-colors bg-gray-50/50">
