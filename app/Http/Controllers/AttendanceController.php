@@ -82,6 +82,18 @@ class AttendanceController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
+        $activeDutySatpam = null;
+        if ($isSatpam) {
+            $activeDutySatpam = Attendance::with('user')
+                ->whereHas('user', function($q) use ($user) {
+                    $q->where('id', '!=', $user->id);
+                })
+                ->whereNotNull('check_in_time')
+                ->whereNull('check_out_time')
+                ->orderBy('date', 'desc')
+                ->first();
+        }
+
         return Inertia::render('Absensi/Index', [
             'attendance' => $attendance,
             'today' => Carbon::now()->isoFormat('dddd, D MMMM Y'),
@@ -91,6 +103,12 @@ class AttendanceController extends Controller
             'company' => $user->company,
             'isMarketing' => $user->hasRole(['Marketing', 'marketing']),
             'isSatpam' => $isSatpam,
+            'activeDutySatpam' => $activeDutySatpam ? [
+                'name' => $activeDutySatpam->user?->name ?? 'Petugas Satpam',
+                'shift' => $activeDutySatpam->shift ?? 'Shift Siang',
+                'check_in_time' => $activeDutySatpam->check_in_time,
+                'date' => $activeDutySatpam->date,
+            ] : null,
         ]);
     }
 
@@ -100,6 +118,7 @@ class AttendanceController extends Controller
             'type' => 'required|in:check_in,check_out',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'shift' => 'nullable|string|in:Shift Siang,Shift Malam',
         ]);
 
         $user = Auth::user();
@@ -145,7 +164,8 @@ class AttendanceController extends Controller
                     ->first();
                 if ($activeShift) {
                     $shiftDateStr = Carbon::parse($activeShift->date)->isoFormat('D MMMM Y');
-                    return redirect()->back()->with('error', "Anda masih memiliki shift aktif tanggal {$shiftDateStr} (Jam Masuk: {$activeShift->check_in_time}) yang belum absen pulang. Silakan lakukan Absen Pulang terlebih dahulu.");
+                    $shiftName = $activeShift->shift ? "({$activeShift->shift}) " : "";
+                    return redirect()->back()->with('error', "Anda masih memiliki shift aktif {$shiftName}tanggal {$shiftDateStr} (Jam Masuk: {$activeShift->check_in_time}) yang belum Keluar Shift. Silakan lakukan Keluar Shift terlebih dahulu.");
                 }
             }
 
@@ -155,11 +175,15 @@ class AttendanceController extends Controller
             );
 
             if ($attendance->check_in_time) {
-                return redirect()->back()->with('error', 'Anda sudah melakukan absensi masuk hari ini.');
+                return redirect()->back()->with('error', $user->isSatpam() ? 'Anda sudah melakukan Masuk Shift hari ini.' : 'Anda sudah melakukan absensi masuk hari ini.');
             }
             $attendance->check_in_time = $currentTime;
             $attendance->latitude = $userLat;
             $attendance->longitude = $userLon;
+            if ($user->isSatpam()) {
+                $defaultShift = (Carbon::now()->hour >= 7 && Carbon::now()->hour < 19) ? 'Shift Siang' : 'Shift Malam';
+                $attendance->shift = $request->shift ?: $defaultShift;
+            }
             if (!empty($request->photo_url)) {
                 $attendance->check_in_photo = $request->photo_url;
             }
@@ -173,7 +197,7 @@ class AttendanceController extends Controller
                 ->first();
 
             if (!$attendance) {
-                return redirect()->back()->with('error', 'Tidak ada absensi masuk yang bisa di-checkout.');
+                return redirect()->back()->with('error', $user->isSatpam() ? 'Tidak ada shift aktif yang bisa di-checkout.' : 'Tidak ada absensi masuk yang bisa di-checkout.');
             }
 
             $now = Carbon::now();
@@ -208,7 +232,7 @@ class AttendanceController extends Controller
                 $attendance->notes = $request->notes;
             } elseif ($user->isSatpam() && $isCrossDay) {
                 if (empty($attendance->notes)) {
-                    $attendance->notes = 'Shift malam (Lintas hari: selesai ' . $now->isoFormat('D MMM Y') . ' ' . $now->format('H:i') . ')';
+                    $attendance->notes = ($attendance->shift ?? 'Shift Malam') . ' (Lintas hari: selesai ' . $now->isoFormat('D MMM Y') . ' ' . $now->format('H:i') . ')';
                 }
             }
 
@@ -219,7 +243,9 @@ class AttendanceController extends Controller
             $attendance->save();
         }
 
-        $message = $request->type === 'check_in' ? 'Berhasil Absen Masuk!' : 'Berhasil Absen Pulang!';
+        $message = $request->type === 'check_in' 
+            ? ($user->isSatpam() ? 'Berhasil Masuk Shift!' : 'Berhasil Absen Masuk!') 
+            : ($user->isSatpam() ? 'Berhasil Keluar Shift (Pergantian Shift Selesai)!' : 'Berhasil Absen Pulang!');
         return redirect()->back()->with('success', $message);
     }
 
@@ -236,6 +262,7 @@ class AttendanceController extends Controller
             'check_in_time' => ['nullable', 'regex:/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
             'check_out_time' => ['nullable', 'regex:/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
             'notes' => ['nullable', 'string', 'max:255'],
+            'shift' => ['nullable', 'in:Shift Siang,Shift Malam'],
         ]);
 
         $checkIn = $request->check_in_time;
@@ -268,12 +295,16 @@ class AttendanceController extends Controller
             'request_check_in' => $request->check_in_time,
             'request_check_out' => $request->check_out_time,
             'notes' => $request->notes,
+            'shift' => $request->shift,
         ]);
 
         $attendance->check_in_time = $checkIn;
         $attendance->check_out_time = $checkOut;
         if ($request->has('notes')) {
             $attendance->notes = $request->notes;
+        }
+        if ($request->has('shift')) {
+            $attendance->shift = $request->shift;
         }
         $attendance->save();
 

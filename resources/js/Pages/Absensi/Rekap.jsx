@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, Shield, Sun, Moon, UserCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -114,15 +114,24 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             html: `
                 <div class="text-left mb-3">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Jam Masuk</label>
-                    <input type="time" step="1" id="swal-input-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_in || ''}">
+                    <input type="time" step="1" id="swal-input-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_in && item.check_in !== '-' ? item.check_in : ''}">
                 </div>
                 <div class="text-left mb-3">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Jam Keluar</label>
-                    <input type="time" step="1" id="swal-input-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_out || ''}">
+                    <input type="time" step="1" id="swal-input-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_out && item.check_out !== '-' ? item.check_out : ''}">
                 </div>
+                ${item.is_satpam ? `
+                <div class="text-left mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Shift (Khusus Satpam)</label>
+                    <select id="swal-input-shift" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="Shift Siang" ${item.shift === 'Shift Siang' ? 'selected' : ''}>☀️ Shift Siang</option>
+                        <option value="Shift Malam" ${item.shift === 'Shift Malam' ? 'selected' : ''}>🌙 Shift Malam</option>
+                    </select>
+                </div>
+                ` : ''}
                 <div class="text-left">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
-                    <textarea id="swal-input-notes" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" rows="2" placeholder="Masukkan keterangan tambahan...">${item.notes || ''}</textarea>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">${item.is_satpam ? 'Catatan Serah Terima / Keterangan' : 'Keterangan'}</label>
+                    <textarea id="swal-input-notes" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" rows="2" placeholder="Masukkan keterangan...">${item.notes || ''}</textarea>
                 </div>
             `,
             focusConfirm: false,
@@ -131,10 +140,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             cancelButtonText: 'Batal',
             confirmButtonColor: '#3b82f6',
             preConfirm: () => {
+                const shiftEl = document.getElementById('swal-input-shift');
                 return {
                     check_in_time: document.getElementById('swal-input-in').value || null,
                     check_out_time: document.getElementById('swal-input-out').value || null,
-                    notes: document.getElementById('swal-input-notes').value || null
+                    notes: document.getElementById('swal-input-notes').value || null,
+                    shift: shiftEl ? shiftEl.value : (item.shift || null)
                 }
             }
         }).then((result) => {
@@ -168,14 +179,41 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         return { value: y, label: y };
     });
 
-    const userOptions = [
-        { value: 'all', label: '-- Semua Karyawan --' },
-        ...users.map(u => ({ value: u.id.toString(), label: u.name }))
-    ];
-
+    const [roleTab, setRoleTab] = useState('all'); // 'all', 'regular', 'satpam'
     const [statusFilter, setStatusFilter] = useState('all');
 
-    const filteredUserSummaries = userSummaries?.filter(u => {
+    // Filter available users for dropdown based on active roleTab
+    const roleFilteredUsers = users.filter(u => {
+        const summaryMatch = userSummaries?.find(s => s.id === u.id);
+        const isSatpamUser = summaryMatch ? summaryMatch.is_satpam : false;
+        if (roleTab === 'satpam') return isSatpamUser;
+        if (roleTab === 'regular') return !isSatpamUser;
+        return true;
+    });
+
+    const userOptions = [
+        { value: 'all', label: roleTab === 'satpam' ? '-- Semua Satpam --' : roleTab === 'regular' ? '-- Semua Karyawan Reguler --' : '-- Semua Karyawan --' },
+        ...roleFilteredUsers.map(u => ({ value: u.id.toString(), label: u.name }))
+    ];
+
+    // Total Satpam data calculated from userSummaries
+    const satpamTotals = userSummaries?.filter(u => u.is_satpam).reduce((acc, u) => {
+        acc.hadir += u.hadir || 0;
+        acc.sakit += u.sakit || 0;
+        acc.izin += u.izin || 0;
+        acc.alpa += u.alpa || 0;
+        acc.shift_siang += u.shift_siang || 0;
+        acc.shift_malam += u.shift_malam || 0;
+        return acc;
+    }, { hadir: 0, sakit: 0, izin: 0, alpa: 0, shift_siang: 0, shift_malam: 0 }) || { hadir: 0, sakit: 0, izin: 0, alpa: 0, shift_siang: 0, shift_malam: 0 };
+
+    const roleFilteredUserSummaries = userSummaries?.filter(u => {
+        if (roleTab === 'satpam') return u.is_satpam;
+        if (roleTab === 'regular') return !u.is_satpam;
+        return true;
+    }) || [];
+
+    const filteredUserSummaries = roleFilteredUserSummaries.filter(u => {
         const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase());
         if (!matchesSearch) return false;
         
@@ -185,19 +223,29 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         if (statusFilter === 'Izin') return u.izin > 0;
         if (statusFilter === 'Alpa') return u.alpa > 0;
         if (statusFilter === 'Terlambat') return u.terlambat > 0;
+        if (statusFilter === 'Shift Siang') return (u.shift_siang || 0) > 0;
+        if (statusFilter === 'Shift Malam') return (u.shift_malam || 0) > 0;
         
+        return true;
+    });
+
+    const roleFilteredRecapList = recapList?.filter(item => {
+        if (roleTab === 'satpam') return item.is_satpam;
+        if (roleTab === 'regular') return !item.is_satpam;
         return true;
     }) || [];
 
-    const filteredRecapList = recapList?.filter(item => {
+    const filteredRecapList = roleFilteredRecapList.filter(item => {
         const matchesSearch = item.user_name.toLowerCase().includes(searchQuery.toLowerCase());
         if (!matchesSearch) return false;
         
         if (statusFilter === 'all') return true;
         if (statusFilter === 'Terlambat') return item.is_late === true || item.is_late === 1;
         if (statusFilter === 'Izin') return item.type === 'Izin' || item.type === 'Izin Khusus' || item.type === 'Cuti';
+        if (statusFilter === 'Shift Siang') return item.shift === 'Shift Siang';
+        if (statusFilter === 'Shift Malam') return item.shift === 'Shift Malam';
         return item.type === statusFilter;
-    }) || [];
+    });
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -205,7 +253,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, filters, statusFilter]);
+    }, [searchQuery, filters, statusFilter, roleTab]);
 
     const totalPages = Math.ceil(filteredRecapList.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -232,6 +280,52 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
             <div className="pb-6 pt-0 space-y-6">
                 
+                {/* Role Tabs Filter */}
+                <div className="flex flex-wrap items-center justify-between gap-4 bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-gray-100">
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            onClick={() => { setRoleTab('all'); setStatusFilter('all'); }}
+                            className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 ${
+                                roleTab === 'all'
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-100'
+                            }`}
+                        >
+                            <Users className="w-4 h-4" /> Semua Karyawan
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setRoleTab('regular'); setStatusFilter('all'); }}
+                            className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 ${
+                                roleTab === 'regular'
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-100'
+                            }`}
+                        >
+                            <UserCheck className="w-4 h-4" /> Karyawan Reguler
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setRoleTab('satpam'); setStatusFilter('all'); }}
+                            className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 ${
+                                roleTab === 'satpam'
+                                    ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600 text-white shadow-md shadow-amber-500/20'
+                                    : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
+                            }`}
+                        >
+                            <Shield className="w-4 h-4" /> Satpam (Shift Siang / Malam)
+                        </button>
+                    </div>
+
+                    {roleTab === 'satpam' && (
+                        <div className="text-xs text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5">
+                            <Shield className="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>Mode Khusus: Shift Siang (☀️) & Malam (🌙)</span>
+                        </div>
+                    )}
+                </div>
+
                 {/* Filter & Search Section */}
                 <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-end gap-4">
                     <div className="w-full lg:w-1/6">
@@ -251,7 +345,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         />
                     </div>
                     <div className="w-full lg:w-1/4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Karyawan</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {roleTab === 'satpam' ? 'Personel Satpam' : 'Karyawan'}
+                        </label>
                         <CustomSelect 
                             value={data.user_id} 
                             onChange={(val) => setData('user_id', val)} 
@@ -276,107 +372,239 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-6">
-                    <div 
-                        onClick={() => setStatusFilter(statusFilter === 'Hadir' ? 'all' : 'Hadir')}
-                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
-                    >
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
-                            <CheckCircle2 className="w-6 h-6" />
+                {roleTab === 'satpam' ? (
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Hadir' ? 'all' : 'Hadir')}
+                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-indigo-500 border-indigo-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                                <Shield className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-500 font-medium">Hadir Satpam</p>
+                                <h4 className="text-xl font-black text-gray-800">{summary.satpam_hadir ?? satpamTotals.hadir}</h4>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm text-gray-500 font-medium">Hadir</p>
-                            <h4 className="text-2xl font-black text-gray-800">{summary.hadir}</h4>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Shift Siang' ? 'all' : 'Shift Siang')}
+                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Shift Siang' ? 'ring-2 ring-amber-500 border-amber-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                                <Sun className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-amber-600 font-semibold">Shift Siang</p>
+                                <h4 className="text-xl font-black text-amber-700">{summary.shift_siang ?? satpamTotals.shift_siang}</h4>
+                            </div>
+                        </div>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Shift Malam' ? 'all' : 'Shift Malam')}
+                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Shift Malam' ? 'ring-2 ring-indigo-600 border-indigo-600' : 'border-gray-100'}`}
+                        >
+                            <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
+                                <Moon className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-indigo-600 font-semibold">Shift Malam</p>
+                                <h4 className="text-xl font-black text-indigo-800">{summary.shift_malam ?? satpamTotals.shift_malam}</h4>
+                            </div>
+                        </div>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Sakit' ? 'all' : 'Sakit')}
+                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Sakit' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+                                <AlertCircle className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-500 font-medium">Sakit</p>
+                                <h4 className="text-xl font-black text-gray-800">{satpamTotals.sakit}</h4>
+                            </div>
+                        </div>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Izin' ? 'all' : 'Izin')}
+                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Izin' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+                                <ClipboardCheck className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-500 font-medium">Izin</p>
+                                <h4 className="text-xl font-black text-gray-800">{satpamTotals.izin}</h4>
+                            </div>
+                        </div>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Alpa' ? 'all' : 'Alpa')}
+                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Alpa' ? 'ring-2 ring-red-500 border-red-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-11 h-11 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                                <AlertCircle className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-500 font-medium">Alpa</p>
+                                <h4 className="text-xl font-black text-gray-800">{satpamTotals.alpa}</h4>
+                            </div>
                         </div>
                     </div>
-                    <div 
-                        onClick={() => setStatusFilter(statusFilter === 'Sakit' ? 'all' : 'Sakit')}
-                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Sakit' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-100'}`}
-                    >
-                        <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
-                            <AlertCircle className="w-6 h-6" />
+                ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-6">
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Hadir' ? 'all' : 'Hadir')}
+                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                                <CheckCircle2 className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500 font-medium">Hadir</p>
+                                <h4 className="text-2xl font-black text-gray-800">{summary.hadir}</h4>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm text-gray-500 font-medium">Sakit</p>
-                            <h4 className="text-2xl font-black text-gray-800">{summary.sakit}</h4>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Sakit' ? 'all' : 'Sakit')}
+                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Sakit' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
+                                <AlertCircle className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500 font-medium">Sakit</p>
+                                <h4 className="text-2xl font-black text-gray-800">{summary.sakit}</h4>
+                            </div>
                         </div>
-                    </div>
-                    <div 
-                        onClick={() => setStatusFilter(statusFilter === 'Izin' ? 'all' : 'Izin')}
-                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Izin' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
-                    >
-                        <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                            <ClipboardCheck className="w-6 h-6" />
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Izin' ? 'all' : 'Izin')}
+                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Izin' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                                <ClipboardCheck className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500 font-medium">Izin</p>
+                                <h4 className="text-2xl font-black text-gray-800">{summary.izin}</h4>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm text-gray-500 font-medium">Izin</p>
-                            <h4 className="text-2xl font-black text-gray-800">{summary.izin}</h4>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Alpa' ? 'all' : 'Alpa')}
+                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Alpa' ? 'ring-2 ring-red-500 border-red-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
+                                <AlertCircle className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500 font-medium">Alpa</p>
+                                <h4 className="text-2xl font-black text-gray-800">{summary.alpa}</h4>
+                            </div>
                         </div>
-                    </div>
-                    <div 
-                        onClick={() => setStatusFilter(statusFilter === 'Alpa' ? 'all' : 'Alpa')}
-                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Alpa' ? 'ring-2 ring-red-500 border-red-500' : 'border-gray-100'}`}
-                    >
-                        <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
-                            <AlertCircle className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 font-medium">Alpa</p>
-                            <h4 className="text-2xl font-black text-gray-800">{summary.alpa}</h4>
-                        </div>
-                    </div>
 
-                    <div 
-                        onClick={() => setStatusFilter(statusFilter === 'Terlambat' ? 'all' : 'Terlambat')}
-                        className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Terlambat' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
-                    >
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
-                            <Clock className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 font-medium">Terlambat</p>
-                            <h4 className="text-2xl font-black text-gray-800">{summary.terlambat || 0}</h4>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Terlambat' ? 'all' : 'Terlambat')}
+                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Terlambat' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                                <Clock className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500 font-medium">Terlambat</p>
+                                <h4 className="text-2xl font-black text-gray-800">{summary.terlambat || 0}</h4>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* User Summaries Table */}
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                     <div className="p-6 border-b border-gray-50 flex justify-between items-center">
                         <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                            <Users className="w-5 h-5 text-blue-500"/> Ringkasan Kehadiran per Karyawan
+                            {roleTab === 'satpam' ? (
+                                <>
+                                    <Shield className="w-5 h-5 text-amber-500"/> Ringkasan Kehadiran & Shift Personel Satpam
+                                </>
+                            ) : (
+                                <>
+                                    <Users className="w-5 h-5 text-blue-500"/> Ringkasan Kehadiran per Karyawan
+                                </>
+                            )}
                         </h3>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
-                                    <th className="py-4 px-6 font-semibold">Nama Karyawan</th>
-                                    <th className="py-4 px-6 font-semibold text-center text-blue-600">Hadir</th>
-                                    <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
-                                    <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
-                                    <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
-                                    <th className="py-4 px-6 font-semibold text-center text-rose-600">Terlambat</th>
-                                    <th className="py-4 px-6 font-semibold text-center text-blue-600">Lembur</th>
-                                </tr>
+                                {roleTab === 'satpam' ? (
+                                    <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                                        <th className="py-4 px-6 font-semibold">Nama Satpam</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-blue-600">Total Hadir</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-amber-600">☀️ Shift Siang</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-indigo-600">🌙 Shift Malam</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
+                                    </tr>
+                                ) : (
+                                    <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                                        <th className="py-4 px-6 font-semibold">Nama Karyawan</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-blue-600">Hadir</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-rose-600">Terlambat</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-blue-600">Lembur</th>
+                                    </tr>
+                                )}
                             </thead>
                             <tbody className="text-sm text-gray-700">
                                 {filteredUserSummaries.length > 0 ? (
                                     filteredUserSummaries.map((u, idx) => (
                                         <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                            <td className="py-4 px-6 font-medium text-gray-900">{u.name}</td>
+                                            <td className="py-4 px-6 font-medium text-gray-900 flex items-center gap-2">
+                                                {u.is_satpam && (
+                                                    <span className="p-1 rounded-lg bg-indigo-50 text-indigo-600" title="Satpam">
+                                                        <Shield className="w-3.5 h-3.5" />
+                                                    </span>
+                                                )}
+                                                <span>{u.name}</span>
+                                            </td>
                                             <td className="py-4 px-6 text-center font-bold text-blue-600">{u.hadir}</td>
-                                            <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
-                                            <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
-                                            <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
-                                            <td className="py-4 px-6 text-center font-bold text-rose-600">{u.terlambat || 0}</td>
-                                            <td className="py-4 px-6 text-center font-bold text-blue-600">{u.lembur || 0}</td>
+                                            
+                                            {roleTab === 'satpam' ? (
+                                                <>
+                                                    <td className="py-4 px-6 text-center font-bold text-amber-600">
+                                                        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-0.5 rounded-full text-xs font-bold border border-amber-200">
+                                                            <Sun className="w-3 h-3 text-amber-500" /> {u.shift_siang || 0}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 px-6 text-center font-bold text-indigo-600">
+                                                        <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full text-xs font-bold border border-indigo-200">
+                                                            <Moon className="w-3 h-3 text-indigo-500" /> {u.shift_malam || 0}
+                                                        </span>
+                                                    </td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-rose-600">{u.terlambat || 0}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-blue-600">{u.lembur || 0}</td>
+                                                </>
+                                            )}
+
+                                            {roleTab === 'satpam' && (
+                                                <>
+                                                    <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
+                                                </>
+                                            )}
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="py-6 text-center text-gray-500">
-                                            Tidak ada data karyawan yang cocok dengan pencarian.
+                                        <td colSpan={roleTab === 'satpam' ? "7" : "7"} className="py-6 text-center text-gray-500">
+                                            {roleTab === 'satpam' 
+                                                ? 'Tidak ada data personel satpam yang cocok.' 
+                                                : 'Tidak ada data karyawan yang cocok dengan pencarian.'}
                                         </td>
                                     </tr>
                                 )}
@@ -389,7 +617,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                     <div className="p-6 border-b border-gray-50 flex justify-between items-center">
                         <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-blue-500"/> Rincian Kehadiran
+                            <FileText className="w-5 h-5 text-blue-500"/> 
+                            {roleTab === 'satpam' ? 'Rincian Kehadiran & Shift Satpam' : 'Rincian Kehadiran'}
                         </h3>
                         <ExportDropdown pdfRoute={route('absensi.rekap.export-pdf', { month: data.month, year: data.year, user_id: data.user_id })} trigger={
                             <button className="text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
@@ -404,23 +633,37 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     <th className="py-4 px-6 font-semibold">Karyawan</th>
                                     <th className="py-4 px-6 font-semibold">Tanggal / Periode</th>
                                     <th className="py-4 px-6 font-semibold">Tipe Absen</th>
-                                    <th className="py-4 px-6 font-semibold text-center">Jam Masuk</th>
-                                    <th className="py-4 px-6 font-semibold text-center">Jam Keluar</th>
-                                    <th className="py-4 px-6 font-semibold">Status</th>
+                                    <th className="py-4 px-6 font-semibold text-center">Shift</th>
+                                    <th className="py-4 px-6 font-semibold text-center">
+                                        {roleTab === 'satpam' ? 'Masuk Shift' : 'Jam Masuk'}
+                                    </th>
+                                    <th className="py-4 px-6 font-semibold text-center">
+                                        {roleTab === 'satpam' ? 'Keluar Shift' : 'Jam Keluar'}
+                                    </th>
+                                    <th className="py-4 px-6 font-semibold">Status & Catatan</th>
                                     {isSuperAdmin && <th className="py-4 px-6 font-semibold text-right">Aksi</th>}
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
                                 {paginatedList.length === 0 ? (
                                     <tr>
-                                        <td colSpan={isSuperAdmin ? "7" : "6"} className="py-8 text-center text-gray-500">
+                                        <td colSpan={isSuperAdmin ? "8" : "7"} className="py-8 text-center text-gray-500">
                                             Tidak ada riwayat absensi yang cocok dengan pencarian.
                                         </td>
                                     </tr>
                                 ) : (
                                     paginatedList.map((item, idx) => (
                                         <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                            <td className="py-4 px-6 font-medium">{item.user_name}</td>
+                                            <td className="py-4 px-6 font-medium">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span>{item.user_name}</span>
+                                                    {item.is_satpam && (
+                                                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                            SATPAM
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="py-4 px-6">{item.date}</td>
                                             <td className="py-4 px-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -432,10 +675,23 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     {item.type}
                                                 </span>
                                             </td>
+                                            <td className="py-4 px-6 text-center">
+                                                {item.shift === 'Shift Siang' ? (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                        <Sun className="w-3.5 h-3.5 text-amber-500" /> Shift Siang
+                                                    </span>
+                                                ) : item.shift === 'Shift Malam' ? (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                        <Moon className="w-3.5 h-3.5 text-indigo-500" /> Shift Malam
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400 text-xs">-</span>
+                                                )}
+                                            </td>
                                             <td className="py-4 px-6 text-center font-medium">
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span>{item.check_in || '-'}</span>
-                                                    {item.is_late && (
+                                                    {!item.is_satpam && item.is_late && (
                                                         <span className="text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">Terlambat</span>
                                                     )}
                                                     {item.check_in_photo && (
@@ -451,7 +707,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     {item.is_cross_day && (
                                                         <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">+1 Hari</span>
                                                     )}
-                                                    {item.is_lembur && (
+                                                    {!item.is_satpam && item.is_lembur && (
                                                         <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">Lembur</span>
                                                     )}
                                                     {item.check_out_photo && (
@@ -470,7 +726,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                         {item.status}
                                                     </span>
                                                     {item.notes ? (
-                                                        <div className="text-xs text-gray-500 italic max-w-[200px] break-words flex items-start gap-1 mt-1">
+                                                        <div className="text-xs text-gray-500 italic max-w-[220px] break-words flex items-start gap-1 mt-1">
                                                             <span>"{item.notes}"</span>
                                                             {isSuperAdmin && !item.id.startsWith('req_') && !item.id.startsWith('alpa_') && (
                                                                 <button onClick={() => handleEditAbsensi(item)} className="text-blue-400 hover:text-blue-600 p-0.5 shrink-0 transition-colors" title="Edit Keterangan">
@@ -481,7 +737,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     ) : (
                                                         isSuperAdmin && !item.id.startsWith('req_') && !item.id.startsWith('alpa_') && (
                                                             <button onClick={() => handleEditAbsensi(item)} className="text-[10px] text-blue-500 font-medium hover:underline mt-1 flex items-center gap-1">
-                                                                <Edit className="w-3 h-3" /> Tambah Keterangan
+                                                                <Edit className="w-3 h-3" /> {item.is_satpam ? 'Catatan Serah Terima' : 'Tambah Keterangan'}
                                                             </button>
                                                         )
                                                     )}

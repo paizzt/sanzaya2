@@ -102,13 +102,17 @@ class AttendanceRecapController extends Controller
         foreach ($usersToSummarize as $user) {
             $userWorkDays[$user->id] = $user->work_days_per_week ?? 6;
             $userSummaries[$user->id] = [
+                'id' => $user->id,
                 'name' => $user->name,
+                'is_satpam' => $user->isSatpam(),
                 'hadir' => 0,
                 'sakit' => 0,
                 'izin' => 0,
                 'alpa' => 0,
                 'lembur' => 0,
-                'terlambat' => 0
+                'terlambat' => 0,
+                'shift_siang' => 0,
+                'shift_malam' => 0,
             ];
         }
 
@@ -140,16 +144,29 @@ class AttendanceRecapController extends Controller
 
             if (!isset($userSummaries[$att->user_id])) {
                 $userSummaries[$att->user_id] = [
+                    'id' => $att->user_id,
                     'name' => $attUser?->name ?? 'Unknown',
-                    'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0
+                    'is_satpam' => $isUserSatpam,
+                    'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0,
+                    'shift_siang' => 0, 'shift_malam' => 0,
                 ];
             }
             if ($att->status == 'Hadir') {
                 $userSummaries[$att->user_id]['hadir']++;
                 
-                // Calculate Terlambat (Khusus SATPAM: TIDAK berlaku jam terlambat)
+                // Calculate Shift / Terlambat (Khusus SATPAM: TIDAK berlaku jam terlambat)
                 if ($isUserSatpam) {
                     $att->is_late = false;
+                    $shiftName = $att->shift;
+                    if (!$shiftName) {
+                        $hour = $att->check_in_time ? (int)substr($att->check_in_time, 0, 2) : 8;
+                        $shiftName = ($hour >= 7 && $hour < 19) ? 'Shift Siang' : 'Shift Malam';
+                    }
+                    if ($shiftName === 'Shift Siang') {
+                        $userSummaries[$att->user_id]['shift_siang']++;
+                    } else {
+                        $userSummaries[$att->user_id]['shift_malam']++;
+                    }
                 } else {
                     $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
                     $isLemburYesterday = isset($lemburMap[$att->user_id][$prevDate]);
@@ -233,9 +250,18 @@ class AttendanceRecapController extends Controller
             $isUserSatpam = $attUser ? $attUser->isSatpam() : false;
             $isCrossDay = ($att->check_in_time && $att->check_out_time && $att->check_out_time < $att->check_in_time);
 
+            $attShift = $att->shift;
+            if ($isUserSatpam && !$attShift) {
+                $hour = $att->check_in_time ? (int)substr($att->check_in_time, 0, 2) : 8;
+                $attShift = ($hour >= 7 && $hour < 19) ? 'Shift Siang' : 'Shift Malam';
+            }
+
             $recapList[] = [
                 'id' => 'att_' . $att->id,
+                'user_id' => $att->user_id,
                 'user_name' => $attUser?->name ?? 'Unknown',
+                'is_satpam' => $isUserSatpam,
+                'shift' => $attShift,
                 'date' => $att->date,
                 'type' => $att->status,
                 'check_in' => $att->check_in_time,
@@ -251,9 +277,15 @@ class AttendanceRecapController extends Controller
         }
 
         foreach ($attendanceRequests as $req) {
+            $reqUser = $req->user;
+            $isReqUserSatpam = $reqUser ? $reqUser->isSatpam() : false;
+
             $recapList[] = [
                 'id' => 'req_' . $req->id,
-                'user_name' => $req->user?->name ?? 'Unknown',
+                'user_id' => $req->user_id,
+                'user_name' => $reqUser?->name ?? 'Unknown',
+                'is_satpam' => $isReqUserSatpam,
+                'shift' => null,
                 'date' => $req->start_date . ' s/d ' . $req->end_date,
                 'type' => $req->type,
                 'check_in' => '-',
@@ -313,7 +345,10 @@ class AttendanceRecapController extends Controller
                     if (!isset($attendanceMap[$usr->id][$dateStr]) && !isset($requestMap[$usr->id][$dateStr])) {
                         $recapList[] = [
                             'id' => 'alpa_' . $usr->id . '_' . $dateStr,
+                            'user_id' => $usr->id,
                             'user_name' => $usr->name,
+                            'is_satpam' => $usr->isSatpam(),
+                            'shift' => null,
                             'date' => $dateStr,
                             'type' => 'Alpa',
                             'check_in' => '-',
@@ -360,7 +395,10 @@ class AttendanceRecapController extends Controller
             'izin' => 0,
             'alpa' => 0,
             'lembur' => $todayAttendances->where('status', 'Lembur')->count(),
-            'terlambat' => 0
+            'terlambat' => 0,
+            'satpam_hadir' => 0,
+            'shift_siang' => 0,
+            'shift_malam' => 0,
         ];
 
         foreach ($todayRequests as $req) {
@@ -378,7 +416,19 @@ class AttendanceRecapController extends Controller
             $isUserSatpam = $attUser ? $attUser->isSatpam() : false;
 
             if ($att->status == 'Hadir') {
-                if (!$isUserSatpam) {
+                if ($isUserSatpam) {
+                    $summary['satpam_hadir']++;
+                    $shiftName = $att->shift;
+                    if (!$shiftName) {
+                        $hour = $att->check_in_time ? (int)substr($att->check_in_time, 0, 2) : 8;
+                        $shiftName = ($hour >= 7 && $hour < 19) ? 'Shift Siang' : 'Shift Malam';
+                    }
+                    if ($shiftName === 'Shift Siang') {
+                        $summary['shift_siang']++;
+                    } else {
+                        $summary['shift_malam']++;
+                    }
+                } else {
                     $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
                     $isLemburYesterday = \App\Models\Attendance::where('user_id', $att->user_id)
                         ->where('date', $prevDate)

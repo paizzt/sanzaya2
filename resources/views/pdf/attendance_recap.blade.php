@@ -57,6 +57,9 @@
         <p>Alpa: <span class="status-alpa">{{ $summary['alpa'] }} hari</span></p>
         <p>Terlambat: <span class="status-terlambat">{{ $summary['terlambat'] ?? 0 }} hari</span></p>
         <p>Lembur: <span style="color:#8b5cf6; font-weight:bold;">{{ $summary['lembur'] ?? 0 }} hari</span></p>
+        @if(!empty($summary['shift_siang']) || !empty($summary['shift_malam']))
+        <p>Shift Satpam: <span style="color:#d97706; font-weight:bold;">Siang {{ $summary['shift_siang'] ?? 0 }}</span> | <span style="color:#4f46e5; font-weight:bold;">Malam {{ $summary['shift_malam'] ?? 0 }}</span></p>
+        @endif
     </div>
 
     @if(isset($userSummaries) && count($userSummaries) > 0)
@@ -77,7 +80,13 @@
             <tbody>
                 @foreach($userSummaries as $u)
                 <tr>
-                    <td>{{ $u['name'] }}</td>
+                    <td>
+                        {{ $u['name'] }}
+                        @if(!empty($u['is_satpam']))
+                            <small style="color: #4f46e5; font-weight: bold;">(Satpam)</small>
+                            <br><small style="color: #6b7280;">☀️ Siang: {{ $u['shift_siang'] ?? 0 }} | 🌙 Malam: {{ $u['shift_malam'] ?? 0 }}</small>
+                        @endif
+                    </td>
                     <td class="text-center status-hadir">{{ $u['hadir'] }}</td>
                     <td class="text-center status-sakit">{{ $u['sakit'] }}</td>
                     <td class="text-center status-izin">{{ $u['izin'] }}</td>
@@ -110,9 +119,19 @@
             @forelse($recapList as $index => $item)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $item['user_name'] }}</td>
+                    <td>
+                        {{ $item['user_name'] }}
+                        @if(!empty($item['is_satpam']))
+                            <small style="color: #4f46e5; font-weight: bold;">[SATPAM]</small>
+                        @endif
+                    </td>
                     <td>{{ $item['date'] }}</td>
-                    <td>{{ $item['type'] }}</td>
+                    <td>
+                        {{ $item['type'] }}
+                        @if(!empty($item['shift']))
+                            <br><small style="color: #d97706; font-weight: bold;">[{{ $item['shift'] }}]</small>
+                        @endif
+                    </td>
                     <td class="text-center">
                         {{ $item['check_in'] ?? '-' }}
                         @if(!empty($item['is_late']))
