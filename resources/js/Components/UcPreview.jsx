@@ -209,6 +209,12 @@ export default function UcPreview({ data, user, companies = [] }) {
                         </tr>
                         <tr className="align-top">
                             <td className="py-1.5">4.</td>
+                            <td className="py-1.5">Keterangan</td>
+                            <td className="py-1.5">:</td>
+                            <td className="py-1.5 whitespace-pre-wrap">{data.description || data.keterangan || '-'}</td>
+                        </tr>
+                        <tr className="align-top">
+                            <td className="py-1.5">5.</td>
                             <td className="py-1.5">Waktu (hari)</td>
                             <td className="py-1.5">:</td>
                             <td className="py-1.5">
@@ -216,7 +222,7 @@ export default function UcPreview({ data, user, companies = [] }) {
                             </td>
                         </tr>
                         <tr className="align-top">
-                            <td className="py-1.5">5.</td>
+                            <td className="py-1.5">6.</td>
                             <td className="py-1.5">Tanggal Berangkat</td>
                             <td className="py-1.5">:</td>
                             <td className="py-1.5">
@@ -224,7 +230,7 @@ export default function UcPreview({ data, user, companies = [] }) {
                             </td>
                         </tr>
                         <tr className="align-top">
-                            <td className="py-1.5">6.</td>
+                            <td className="py-1.5">7.</td>
                             <td className="py-1.5">Tanggal Pulang</td>
                             <td className="py-1.5">:</td>
                             <td className="py-1.5">
@@ -232,7 +238,7 @@ export default function UcPreview({ data, user, companies = [] }) {
                             </td>
                         </tr>
                         <tr className="align-top">
-                            <td className="py-1.5">7.</td>
+                            <td className="py-1.5">8.</td>
                             <td className="py-1.5">Nama & Jabatan<br/>Pendamping</td>
                             <td className="py-1.5">:<br/>&nbsp;</td>
                             <td className="py-1.5">
@@ -241,7 +247,7 @@ export default function UcPreview({ data, user, companies = [] }) {
                                     <div className="border border-black px-2 py-1 flex-1">
                                         {data.companions && data.companions[0] 
                                             ? (typeof data.companions[0] === 'string' ? data.companions[0] : (data.companions[0].name || '-')) 
-                                            : '-'}
+                                             : '-'}
                                         {data.companions && data.companions[0]?.position ? ` (${data.companions[0].position})` : ''}
                                     </div>
                                 </div>
@@ -250,14 +256,14 @@ export default function UcPreview({ data, user, companies = [] }) {
                                     <div className="border border-black px-2 py-1 flex-1">
                                         {data.companions && data.companions[1] 
                                             ? (typeof data.companions[1] === 'string' ? data.companions[1] : (data.companions[1].name || '-')) 
-                                            : '-'}
+                                             : '-'}
                                         {data.companions && data.companions[1]?.position ? ` (${data.companions[1].position})` : ''}
                                     </div>
                                 </div>
                             </td>
                         </tr>
                         <tr className="align-top">
-                            <td className="py-1.5">8.</td>
+                            <td className="py-1.5">9.</td>
                             <td className="py-1.5">Jenis Transportasi</td>
                             <td className="py-1.5">:</td>
                             <td className="py-1.5 flex flex-col gap-1">
@@ -273,7 +279,7 @@ export default function UcPreview({ data, user, companies = [] }) {
                             </td>
                         </tr>
                         <tr className="align-top">
-                            <td className="py-1.5">9.</td>
+                            <td className="py-1.5">10.</td>
                             <td className="py-1.5">No. Polisi</td>
                             <td className="py-1.5">:</td>
                             <td className="py-1.5">

@@ -13,12 +13,21 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 
 class UcRequestController extends Controller
 {
     public function index()
     {
+        try {
+            if (Schema::hasTable('uc_requests') && !Schema::hasColumn('uc_requests', 'description')) {
+                Schema::table('uc_requests', function ($table) {
+                    $table->text('description')->nullable()->after('destination_city');
+                });
+            }
+        } catch (\Throwable $e) {}
+
         $users = \App\Models\User::select('id', 'name')->orderBy('name')->get();
         $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
         $companies = \App\Models\Company::select('id', 'name', 'logo', 'address')->get();
@@ -96,10 +105,19 @@ class UcRequestController extends Controller
 
     public function store(Request $request)
     {
+        try {
+            if (Schema::hasTable('uc_requests') && !Schema::hasColumn('uc_requests', 'description')) {
+                Schema::table('uc_requests', function ($table) {
+                    $table->text('description')->nullable()->after('destination_city');
+                });
+            }
+        } catch (\Throwable $e) {}
+
         $request->validate([
             'entity' => 'required|string',
             'department' => 'required|string',
             'destination_city' => 'required|string',
+            'description' => 'nullable|string',
             'departure_date' => 'required|date',
             'return_date' => 'required|date|after_or_equal:departure_date',
             'estimated_days' => 'required|integer',
@@ -126,6 +144,7 @@ class UcRequestController extends Controller
             'entity' => $request->entity,
             'department' => $request->department,
             'destination_city' => $request->destination_city,
+            'description' => $request->description ?? $request->keterangan,
             'departure_date' => $request->departure_date,
             'return_date' => $request->return_date,
             'estimated_days' => $request->estimated_days,
@@ -209,6 +228,7 @@ class UcRequestController extends Controller
             'entity' => 'required|string',
             'department' => 'required|string',
             'destination_city' => 'required|string',
+            'description' => 'nullable|string',
             'departure_date' => 'required|date',
             'return_date' => 'required|date|after_or_equal:departure_date',
             'estimated_days' => 'required|integer',
@@ -232,6 +252,7 @@ class UcRequestController extends Controller
             'entity' => $request->entity,
             'department' => $request->department,
             'destination_city' => $request->destination_city,
+            'description' => $request->description ?? $request->keterangan,
             'departure_date' => $request->departure_date,
             'return_date' => $request->return_date,
             'estimated_days' => $request->estimated_days,
@@ -281,6 +302,7 @@ class UcRequestController extends Controller
                 'Entitas', 
                 'Kota Asal', 
                 'Kota Tujuan', 
+                'Keterangan',
                 'Tgl Berangkat', 
                 'Tgl Pulang', 
                 'Transportasi', 
@@ -295,6 +317,7 @@ class UcRequestController extends Controller
                     $item->entity,
                     $item->departure_city,
                     $item->destination_city,
+                    $item->description ?? '-',
                     date('d/m/Y', strtotime($item->departure_date)),
                     date('d/m/Y', strtotime($item->return_date)),
                     $item->transport_type,
@@ -321,6 +344,7 @@ class UcRequestController extends Controller
                 'Entitas', 
                 'Kota Asal', 
                 'Kota Tujuan', 
+                'Keterangan',
                 'Tgl Berangkat', 
                 'Tgl Pulang', 
                 'Transportasi', 
@@ -335,6 +359,7 @@ class UcRequestController extends Controller
                     $item->entity,
                     $item->departure_city,
                     $item->destination_city,
+                    $item->description ?? '-',
                     date('d/m/Y', strtotime($item->departure_date)),
                     date('d/m/Y', strtotime($item->return_date)),
                     $item->transport_type,

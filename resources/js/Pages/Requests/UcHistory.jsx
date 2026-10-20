@@ -157,6 +157,9 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                                         <div>
                                             <h4 className="font-bold text-lg text-gray-800">Tujuan: {req.destination_city}</h4>
+                                            {req.description && (
+                                                <p className="text-sm text-gray-600 mt-0.5"><span className="font-medium text-gray-500">Keterangan:</span> {req.description}</p>
+                                            )}
                                             <p className="text-sm text-gray-500 mt-1"><Calendar className="w-3 h-3 inline mr-1"/> {req.departure_date} s/d {req.return_date} ({req.estimated_days} Hari)</p>
                                         </div>
                                         <div className="flex items-center gap-2">

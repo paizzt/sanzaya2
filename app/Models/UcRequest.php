@@ -14,6 +14,16 @@ class UcRequest extends Model
         'companions' => 'array',
     ];
 
+    public function getKeteranganAttribute()
+    {
+        return $this->description;
+    }
+
+    public function setKeteranganAttribute($value)
+    {
+        $this->attributes['description'] = $value;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

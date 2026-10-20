@@ -206,6 +206,12 @@ export default function UcApproval({ requests, isAdmin }) {
                                     <span className="text-gray-500 block mb-1">Tujuan</span>
                                     <span className="font-semibold text-gray-900">{selectedRequest.destination_city}</span>
                                 </div>
+                                {selectedRequest.description && (
+                                    <div className="sm:col-span-2">
+                                        <span className="text-gray-500 block mb-1">Keterangan</span>
+                                        <span className="font-semibold text-gray-900 whitespace-pre-wrap">{selectedRequest.description}</span>
+                                    </div>
+                                )}
                                 <div>
                                     <span className="text-gray-500 block mb-1">Jadwal</span>
                                     <span className="font-semibold text-gray-900">{selectedRequest.departure_date} s/d {selectedRequest.return_date}</span>

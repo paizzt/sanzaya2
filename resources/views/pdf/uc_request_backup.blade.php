@@ -259,24 +259,30 @@
         </tr>
         <tr>
             <td>4.</td>
+            <td>Keterangan</td>
+            <td>:</td>
+            <td style="white-space: pre-wrap;">{{ $uc->description ?? $uc->keterangan ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>5.</td>
             <td>Waktu (hari)</td>
             <td>:</td>
             <td><div class="box-outline">{{ $uc->estimated_days }} Hari</div></td>
         </tr>
         <tr>
-            <td>5.</td>
+            <td>6.</td>
             <td>Tanggal Berangkat</td>
             <td>:</td>
             <td><div class="box-outline">{{ \Carbon\Carbon::parse($uc->departure_date)->format('d F Y') }}</div></td>
         </tr>
         <tr>
-            <td>6.</td>
+            <td>7.</td>
             <td>Tanggal Pulang</td>
             <td>:</td>
             <td><div class="box-outline">{{ \Carbon\Carbon::parse($uc->return_date)->format('d F Y') }}</div></td>
         </tr>
         <tr>
-            <td>7.</td>
+            <td>8.</td>
             <td>Nama & Jabatan<br>Pendamping</td>
             <td>:<br>&nbsp;</td>
             <td>
@@ -292,7 +298,7 @@
             </td>
         </tr>
         <tr>
-            <td>8.</td>
+            <td>9.</td>
             <td>Jenis Transportasi</td>
             <td>:</td>
             <td>
@@ -311,7 +317,7 @@
             </td>
         </tr>
         <tr>
-            <td>9.</td>
+            <td>10.</td>
             <td>No. Polisi</td>
             <td>:</td>
             <td><div class="box-outline">{{ $uc->vehicle_number ?: 'Sesuai Lampiran' }}</div></td>

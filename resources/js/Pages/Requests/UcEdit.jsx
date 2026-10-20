@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { PlaneTakeoff, Send, MapPin, Calendar, Users, Car, Loader2, X } from 'lucide-react';
+import { PlaneTakeoff, Send, MapPin, Calendar, Users, Car, Loader2, X, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -32,6 +32,7 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
         entity: ucRequest.entity || 'PT. Sanzaya Medika Pratama',
         department: ucRequest.department || 'Sales',
         destination_city: ucRequest.destination_city || '',
+        description: ucRequest.description || ucRequest.keterangan || '',
         departure_date: ucRequest.departure_date ? ucRequest.departure_date.substring(0,10) : '',
         return_date: ucRequest.return_date ? ucRequest.return_date.substring(0,10) : '',
         estimated_days: ucRequest.estimated_days || 0,
@@ -175,15 +176,28 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
                             </div>
                         </div>
 
-                        <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-50">
+                        <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-50 space-y-4">
                             <div>
                                 <InputLabel value="Kota Tujuan *" className="flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-500"/> Tujuan</InputLabel>
                                 <TextInput 
                                     className="mt-1 block w-full bg-white" 
                                     value={data.destination_city}
                                     onChange={(e) => setData('destination_city', e.target.value)}
+                                    placeholder="Contoh: Surabaya, Palu, dll..."
                                 />
                                 <InputError message={errors.destination_city} className="mt-2" />
+                            </div>
+
+                            <div>
+                                <InputLabel value="Keterangan" className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-500"/> Keterangan</InputLabel>
+                                <textarea 
+                                    className="mt-1 block w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm" 
+                                    rows="3"
+                                    value={data.description}
+                                    onChange={(e) => setData('description', e.target.value)}
+                                    placeholder="Tuliskan keterangan keperluan perjalanan dinas..."
+                                />
+                                <InputError message={errors.description} className="mt-2" />
                             </div>
                         </div>
 
