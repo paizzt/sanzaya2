@@ -30,6 +30,19 @@ class UserController extends Controller
             }
         } catch (\Throwable $e) {}
 
+        // Ensure SATPAM role, permissions, and division exist in the database
+        try {
+            $satpamRole = Role::firstOrCreate(['name' => 'SATPAM', 'guard_name' => 'web']);
+            $satpamPermissions = ['view absensi', 'create absensi', 'view rekap absensi', 'view pengajuan absensi', 'create pengajuan absensi'];
+            foreach ($satpamPermissions as $perm) {
+                $permissionModel = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+                if (!$satpamRole->hasPermissionTo($perm)) {
+                    $satpamRole->givePermissionTo($permissionModel);
+                }
+            }
+            Division::firstOrCreate(['name' => 'SATPAM']);
+        } catch (\Throwable $e) {}
+
         $users = User::with(['division', 'position', 'marketingAreas', 'roles', 'company'])->get();
         $divisions = Division::all();
         $positions = Position::all();
