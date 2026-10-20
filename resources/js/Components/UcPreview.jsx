@@ -31,14 +31,14 @@ export default function UcPreview({ data, user, companies = [] }) {
             return {
                 name: entityName || 'PT. Harkes',
                 logo: '/storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png',
-                address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
+                address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
             };
         }
         if (clean.includes('meraki')) {
             return {
                 name: entityName || 'CV. Meraki',
                 logo: '/storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png',
-                address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
+                address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
             };
         }
         if (clean.includes('msi')) {
@@ -52,44 +52,35 @@ export default function UcPreview({ data, user, companies = [] }) {
             return {
                 name: entityName || 'PT. Ruma',
                 logo: '/storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png',
-                address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
+                address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
             };
         }
         if (clean.includes('sanzaya')) {
             return {
                 name: entityName || 'PT. Sanzaya Medika Pratama',
                 logo: '/img/logo.png',
-                address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
+                address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
             };
         }
 
         return {
             name: entityName || 'PT. SANZAYA MEDIKA PRATAMA',
             logo: '/img/logo.png',
-            address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
+            address: "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id"
         };
     };
 
     const currentCompany = getCompanyInfo(data?.entity);
 
     const formatAddress = (addr) => {
-        const defaultContact = 'Telp/WA: +6281264304010 | Email: admin@Sanzaya.id';
         if (!addr || !addr.trim()) {
-            return {
-                addressText: 'Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235',
-                contactText: defaultContact
-            };
+            return '';
         }
         const text = addr.trim();
-        const hasContact = text.toLowerCase().includes('telp') || text.toLowerCase().includes('email') || text.toLowerCase().includes('wa:');
-        
-        return {
-            addressText: text.toLowerCase().startsWith('alamat') ? text : `Alamat: ${text}`,
-            contactText: hasContact ? null : defaultContact
-        };
+        return text.toLowerCase().startsWith('alamat') ? text : `Alamat: ${text}`;
     };
 
-    const { addressText, contactText } = formatAddress(currentCompany.address);
+    const addressText = formatAddress(currentCompany.address);
 
     const items = data.items || [];
     const totalCost = items.reduce((sum, item) => {
@@ -166,12 +157,6 @@ export default function UcPreview({ data, user, companies = [] }) {
                     </h2>
                     <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight whitespace-pre-line">
                         {addressText}
-                        {contactText && (
-                            <>
-                                <br />
-                                {contactText}
-                            </>
-                        )}
                     </p>
                 </div>
             </div>

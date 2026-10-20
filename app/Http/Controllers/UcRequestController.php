@@ -79,7 +79,7 @@ class UcRequestController extends Controller
         }
 
         if (!$companyAddress) {
-            $companyAddress = 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235';
+            $companyAddress = "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id";
         }
 
         $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'companyAddress'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));

@@ -217,14 +217,11 @@
                 <div class="kop-text">
                     @php
                         $cleanAddr = trim($companyAddress ?? '');
-                        if (!str_starts_with(strtolower($cleanAddr), 'alamat:')) {
+                        if (!empty($cleanAddr) && !str_starts_with(strtolower($cleanAddr), 'alamat:')) {
                             $cleanAddr = 'Alamat: ' . $cleanAddr;
                         }
                     @endphp
-                    {!! nl2br(e($cleanAddr)) !!}<br>
-                    @if(!str_contains(strtolower($cleanAddr), 'telp') && !str_contains(strtolower($cleanAddr), 'email'))
-                        Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
-                    @endif
+                    {!! nl2br(e($cleanAddr)) !!}
                 </div>
             </td>
         </tr>
@@ -349,14 +346,11 @@
                 <div class="kop-text">
                     @php
                         $cleanAddr = trim($companyAddress ?? '');
-                        if (!str_starts_with(strtolower($cleanAddr), 'alamat:')) {
+                        if (!empty($cleanAddr) && !str_starts_with(strtolower($cleanAddr), 'alamat:')) {
                             $cleanAddr = 'Alamat: ' . $cleanAddr;
                         }
                     @endphp
-                    {!! nl2br(e($cleanAddr)) !!}<br>
-                    @if(!str_contains(strtolower($cleanAddr), 'telp') && !str_contains(strtolower($cleanAddr), 'email'))
-                        Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
-                    @endif
+                    {!! nl2br(e($cleanAddr)) !!}
                 </div>
             </td>
         </tr>
@@ -465,14 +459,11 @@
                 <div class="kop-text">
                     @php
                         $cleanAddr = trim($companyAddress ?? '');
-                        if (!str_starts_with(strtolower($cleanAddr), 'alamat:')) {
+                        if (!empty($cleanAddr) && !str_starts_with(strtolower($cleanAddr), 'alamat:')) {
                             $cleanAddr = 'Alamat: ' . $cleanAddr;
                         }
                     @endphp
-                    {!! nl2br(e($cleanAddr)) !!}<br>
-                    @if(!str_contains(strtolower($cleanAddr), 'telp') && !str_contains(strtolower($cleanAddr), 'email'))
-                        Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
-                    @endif
+                    {!! nl2br(e($cleanAddr)) !!}
                 </div>
             </td>
         </tr>
