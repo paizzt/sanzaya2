@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
 import Webcam from 'react-webcam';
+import ClientPagination from '@/Components/ClientPagination';
 
 const dataURLtoFile = (dataurl, filename) => {
     var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
@@ -16,6 +17,11 @@ const dataURLtoFile = (dataurl, filename) => {
 };
 
 export default function Index({ attendance, today, currentTime, isOvertime, history = [], company, isMarketing, isSatpam }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedHistory = history.slice(startIndex, startIndex + itemsPerPage);
+
     const [isLocating, setIsLocating] = useState(false);
     const [showWebcamModal, setShowWebcamModal] = useState(false);
     const [pendingAttendance, setPendingAttendance] = useState(null);
@@ -348,37 +354,39 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {history.length > 0 ? history.map((item, index) => (
-                                    <tr key={item.id || index} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="px-4 py-3 font-medium text-gray-900">{new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td>
-                                        <td className="px-4 py-3 text-gray-600">
-                                            {item.check_in_time ? (
-                                                <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500"/> {item.check_in_time}</span>
-                                            ) : '-'}
-                                        </td>
-                                        <td className="px-4 py-3 text-gray-600">
-                                            {item.check_out_time ? (
-                                                <span className="inline-flex items-center gap-1.5">
-                                                    <Clock className="w-3.5 h-3.5 text-green-500"/> {item.check_out_time}
-                                                    {item.check_in_time && item.check_out_time < item.check_in_time && (
-                                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">+1 Hari</span>
-                                                    )}
+                                {paginatedHistory.length > 0 ? (
+                                    paginatedHistory.map((item, index) => (
+                                        <tr key={item.id || index} className="hover:bg-gray-50/50 transition-colors">
+                                            <td className="px-4 py-3 font-medium text-gray-900">{new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td>
+                                            <td className="px-4 py-3 text-gray-600">
+                                                {item.check_in_time ? (
+                                                    <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500"/> {item.check_in_time}</span>
+                                                ) : '-'}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-600">
+                                                {item.check_out_time ? (
+                                                    <span className="inline-flex items-center gap-1.5">
+                                                        <Clock className="w-3.5 h-3.5 text-green-500"/> {item.check_out_time}
+                                                        {item.check_in_time && item.check_out_time < item.check_in_time && (
+                                                            <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">+1 Hari</span>
+                                                        )}
+                                                    </span>
+                                                ) : '-'}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                                    item.status === 'Hadir' ? 'bg-green-100 text-green-700' :
+                                                    item.status === 'Izin' ? 'bg-yellow-100 text-yellow-700' :
+                                                    item.status === 'Sakit' ? 'bg-orange-100 text-orange-700' :
+                                                    item.status === 'Terlambat' ? 'bg-red-100 text-red-700' :
+                                                    'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                    {item.status || 'Hadir'}
                                                 </span>
-                                            ) : '-'}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                                                item.status === 'Hadir' ? 'bg-green-100 text-green-700' :
-                                                item.status === 'Izin' ? 'bg-yellow-100 text-yellow-700' :
-                                                item.status === 'Sakit' ? 'bg-orange-100 text-orange-700' :
-                                                item.status === 'Terlambat' ? 'bg-red-100 text-red-700' :
-                                                'bg-gray-100 text-gray-700'
-                                            }`}>
-                                                {item.status || 'Hadir'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                )) : (
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
                                     <tr>
                                         <td colSpan="4" className="px-4 py-8 text-center text-gray-500">Belum ada riwayat absensi bulan ini.</td>
                                     </tr>
@@ -386,6 +394,17 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                             </tbody>
                         </table>
                     </div>
+
+                    {history.length > 0 && (
+                        <div className="mt-4">
+                            <ClientPagination 
+                                total={history.length} 
+                                itemsPerPage={itemsPerPage} 
+                                currentPage={currentPage} 
+                                onPageChange={setCurrentPage} 
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 

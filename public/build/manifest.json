@@ -136,13 +136,14 @@
     "isDynamicEntry": true
   },
   "resources/js/Pages/Absensi/Index.jsx": {
-    "file": "assets/Index-IfWY2m9m.js",
+    "file": "assets/Index-BZDf8tVe.js",
     "name": "Index",
     "src": "resources/js/Pages/Absensi/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_vendor-DyBOUzfg.js",
       "_AuthenticatedLayout-C6EL2JuZ.js",
+      "_ClientPagination-DP3tWiFs.js",
       "_ApplicationLogo-oacWCAgq.js"
     ]
   },
@@ -842,7 +843,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-CaZ8HBqW.js",
+    "file": "assets/Index-CY_MRkpN.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -863,7 +864,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-C-2oDFRx.js",
+    "file": "assets/Show-BTlfAKVL.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1040,7 +1041,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-BDcgE_du.js",
+    "file": "assets/app-CF61OprV.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
