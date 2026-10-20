@@ -181,7 +181,7 @@
         <tr>
             <td width="50%">
                 <p class="company-name">PT. SANZAYA MEDIKA PRATAMA</p>
-                <p class="company-sub">MEDICAL & HEALTHCARE</p>
+                <p class="company-sub">Karena Anda Kami Ada</p>
                 
                 <p class="form-title">FORM PENGAJUAN BIAYA</p>
                 <p class="form-subtitle">UPCOUNTRY (UC)</p>
