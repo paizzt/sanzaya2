@@ -216,7 +216,7 @@
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>
-                    Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
+                    Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
                 </div>
             </td>
         </tr>
@@ -224,50 +224,9 @@
 
     <table class="header">
         <tr>
-            <td width="50%" style="vertical-align: middle;">
+            <td width="100%" style="vertical-align: middle;">
                 <p class="form-title" style="margin-top: 0;">FORM PENGAJUAN BIAYA</p>
                 <p class="form-subtitle">UPCOUNTRY (UC)</p>
-            </td>
-            <td width="50%" align="right">
-                <div class="signature-wrapper">
-                    <table class="signature-table">
-                        <tr>
-                            <th width="33%">Dibuat Oleh</th>
-                            <th width="33%">Diperiksa Oleh</th>
-                            <th width="33%">Disetujui Oleh</th>
-                        </tr>
-                        <tr>
-                        <tr>
-                            <td style="padding: 10px;">
-                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">{{ $uc->user->name ?? 'Staff Pegawai' }}</div>
-                            </td>
-                            <td style="padding: 10px;">
-                                @if(in_array($uc->status, ['Disetujui', 'Selesai / Result Dikirim']))
-                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                    <div class="signature-name">{{ $uc->approver->name ?? 'Manager' }}</div>
-                                @else
-                                    <div style="height: 50px;"></div>
-                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
-                                @endif
-                            </td>
-                            <td style="padding: 10px;">
-                                @if(in_array($uc->status, ['Disetujui', 'Selesai / Result Dikirim']))
-                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                    <div class="signature-name">Finance</div>
-                                @else
-                                    <div style="height: 50px;"></div>
-                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Dibuat (Staff)</td>
-                            <td>Diperiksa (Manager)</td>
-                            <td>Disetujui (Finance)</td>
-                        </tr>
-                    </table>
-                </div>
             </td>
         </tr>
     </table>
@@ -378,7 +337,7 @@
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>
-                    Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
+                    Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
                 </div>
             </td>
         </tr>
@@ -404,12 +363,22 @@
                                 <div class="signature-name">{{ $uc->user->name ?? 'Staff Pegawai' }}</div>
                             </td>
                             <td style="padding: 10px;">
-                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">Digital Signature</div>
+                                @if(in_array($uc->status, ['Disetujui', 'Selesai / Result Dikirim']))
+                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
+                                    <div class="signature-name">{{ $uc->approver->name ?? 'Manager' }}</div>
+                                @else
+                                    <div style="height: 50px;"></div>
+                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
+                                @endif
                             </td>
                             <td style="padding: 10px;">
-                                <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
-                                <div class="signature-name">Digital Signature</div>
+                                @if(in_array($uc->status, ['Disetujui', 'Selesai / Result Dikirim']))
+                                    <img src="data:image/svg+xml;base64, {!! $qrCode !!}" width="50" />
+                                    <div class="signature-name">Finance</div>
+                                @else
+                                    <div style="height: 50px;"></div>
+                                    <div class="signature-name" style="color: #999;">(Menunggu)</div>
+                                @endif
                             </td>
                         </tr>
                         <tr>
@@ -490,7 +459,7 @@
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>
-                    Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
+                    Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
                 </div>
             </td>
         </tr>

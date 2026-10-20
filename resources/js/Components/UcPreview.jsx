@@ -65,7 +65,7 @@ export default function UcPreview({ data, user }) {
         </table>
     );
 
-    const HeaderBlock = ({ title }) => (
+    const HeaderBlock = ({ title, showSignature = false }) => (
         <div className="flex flex-col mb-4">
             <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
                 <div className="mb-2 md:mb-0 w-1/3">
@@ -78,21 +78,23 @@ export default function UcPreview({ data, user }) {
                     <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight">
                         Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br />
                         Kota Makassar, Sulawesi Selatan 90235<br />
-                        Telp/WA: +62 822-9029-0519 | Email: ptharkes@gmail.com
+                        Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
                     </p>
                 </div>
             </div>
             
             <div className="flex justify-between items-start mt-2">
-                <div className="w-1/2">
+                <div className={showSignature ? "w-1/2" : "w-full"}>
                     <p className="font-bold text-xs lg:text-sm leading-tight mt-0">{title}</p>
                     <p className="font-bold text-sm lg:text-base leading-tight mt-0.5">UPCOUNTRY (UC)</p>
                 </div>
-                <div className="w-1/2 pl-4 flex justify-end">
-                    <div className="w-full max-w-[220px] lg:max-w-[280px]">
-                        <SignatureBlock />
+                {showSignature && (
+                    <div className="w-1/2 pl-4 flex justify-end">
+                        <div className="w-full max-w-[220px] lg:max-w-[280px]">
+                            <SignatureBlock />
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
@@ -102,7 +104,7 @@ export default function UcPreview({ data, user }) {
             
             {/* PAGE 1: FORM PENGAJUAN */}
             <PageContainer>
-                <HeaderBlock title="FORM PENGAJUAN BIAYA" />
+                <HeaderBlock title="FORM PENGAJUAN BIAYA" showSignature={false} />
 
                 <div className="text-right font-bold my-4">
                     Makassar, {formatDate(new Date().toISOString())}
@@ -205,7 +207,7 @@ export default function UcPreview({ data, user }) {
 
             {/* PAGE 2: LAMPIRAN */}
             <PageContainer>
-                <HeaderBlock title="LAMPIRAN PENGAJUAN" />
+                <HeaderBlock title="LAMPIRAN PENGAJUAN" showSignature={true} />
 
                 <table className="w-full border-collapse border border-black mt-6">
                     <thead>
