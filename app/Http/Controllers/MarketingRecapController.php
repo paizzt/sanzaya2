@@ -31,6 +31,14 @@ class MarketingRecapController extends Controller
         } elseif ($filterMonth) {
             $startDate = $filterMonth . '-01';
             $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
+        } elseif ($startDate && !$endDate) {
+            $endDate = $startDate;
+        } elseif (!$startDate && $endDate) {
+            $startDate = $endDate;
+        } elseif ($startDate && $endDate && $startDate > $endDate) {
+            $tmp = $startDate;
+            $startDate = $endDate;
+            $endDate = $tmp;
         }
 
         // Query Reports
@@ -67,7 +75,7 @@ class MarketingRecapController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $targetDate = $filterDate ?: date('Y-m-d');
+        $targetDate = $filterDate ?: ($startDate && $startDate === $endDate ? $startDate : date('Y-m-d'));
         $reportsTodayCount = MarketingDailyReport::where('visit_date', $targetDate)->count();
         
         $reportedUserStats = MarketingDailyReport::where('visit_date', $targetDate)
@@ -177,8 +185,8 @@ class MarketingRecapController extends Controller
             'sales_users' => $salesUsers,
             'filters' => [
                 'user_id' => $salesUserId,
-                'start_date' => $startDate,
-                'end_date' => $endDate,
+                'start_date' => $request->get('start_date') ?: ($filterDate ? $startDate : null),
+                'end_date' => $request->get('end_date') ?: ($filterDate ? $endDate : null),
                 'filter_date' => $filterDate,
                 'filter_month' => $filterMonth,
                 'period' => $request->get('period')
@@ -232,6 +240,14 @@ class MarketingRecapController extends Controller
         } elseif ($filterMonth) {
             $startDate = $filterMonth . '-01';
             $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
+        } elseif ($startDate && !$endDate) {
+            $endDate = $startDate;
+        } elseif (!$startDate && $endDate) {
+            $startDate = $endDate;
+        } elseif ($startDate && $endDate && $startDate > $endDate) {
+            $tmp = $startDate;
+            $startDate = $endDate;
+            $endDate = $tmp;
         }
 
         $data = [];
@@ -338,6 +354,14 @@ class MarketingRecapController extends Controller
         } elseif ($filterMonth) {
             $startDate = $filterMonth . '-01';
             $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
+        } elseif ($startDate && !$endDate) {
+            $endDate = $startDate;
+        } elseif (!$startDate && $endDate) {
+            $startDate = $endDate;
+        } elseif ($startDate && $endDate && $startDate > $endDate) {
+            $tmp = $startDate;
+            $startDate = $endDate;
+            $endDate = $tmp;
         }
 
         if ($type === 'laporan' || $type === 'kendala') {

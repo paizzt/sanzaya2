@@ -4,6 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Modal from '@/Components/Modal';
 import { ClipboardList, CalendarDays, Filter, Download, X, Users, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import CustomSelect from '@/Components/CustomSelect';
+import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ExportDropdown from '@/Components/ExportDropdown';
@@ -104,24 +105,65 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         );
     };
 
+    const isFilterActive = Boolean(
+        filters.start_date || filters.end_date || filters.filter_date || filters.filter_month || filters.user_id
+    );
+
+    const handleDateRangeChange = (range) => {
+        const start = range?.startDate || range?.start_date || '';
+        const end = range?.endDate || range?.end_date || '';
+
+        const newFilters = { ...filters };
+
+        if (start && end) {
+            newFilters.start_date = start;
+            newFilters.end_date = end;
+        } else {
+            delete newFilters.start_date;
+            delete newFilters.end_date;
+        }
+
+        delete newFilters.filter_date;
+        delete newFilters.filter_month;
+        delete newFilters.period;
+
+        router.get(route('marketing.recap.index'), newFilters, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
     const handleFilterChange = (key, value) => {
         const newFilters = { ...filters, [key]: value };
         
         if (key === 'filter_date') {
-            newFilters.filter_month = '';
-            newFilters.start_date = '';
-            newFilters.end_date = '';
-            newFilters.period = '';
+            delete newFilters.filter_month;
+            delete newFilters.start_date;
+            delete newFilters.end_date;
+            delete newFilters.period;
         }
         
         if (key === 'filter_month') {
-            newFilters.filter_date = '';
-            newFilters.start_date = '';
-            newFilters.end_date = '';
-            newFilters.period = '';
+            delete newFilters.filter_date;
+            delete newFilters.start_date;
+            delete newFilters.end_date;
+            delete newFilters.period;
+        }
+
+        if (!value) {
+            delete newFilters[key];
         }
 
         router.get(route('marketing.recap.index'), newFilters, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    const handleResetFilter = () => {
+        router.get(route('marketing.recap.index'), {}, {
             preserveState: true,
             preserveScroll: true,
             replace: true
@@ -134,6 +176,8 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         if (filters.user_id) url.searchParams.append('user_id', filters.user_id);
         if (filters.start_date) url.searchParams.append('start_date', filters.start_date);
         if (filters.end_date) url.searchParams.append('end_date', filters.end_date);
+        if (filters.filter_date) url.searchParams.append('filter_date', filters.filter_date);
+        if (filters.filter_month) url.searchParams.append('filter_month', filters.filter_month);
         return url.toString();
     };
 
@@ -189,34 +233,47 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                 </div>
 
                 {/* Filter Section */}
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                        <div className="bg-blue-100 p-3 rounded-full">
+                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full xl:w-auto">
+                        <div className="bg-blue-100 p-3 rounded-full shrink-0">
                             <Filter className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
                             <h3 className="font-bold text-gray-800">Filter Data Marketing</h3>
-                            <p className="text-sm text-gray-500">Pilih rentang tanggal dan nama sales.</p>
+                            <p className="text-sm text-gray-500">
+                                {filters.start_date && filters.end_date 
+                                    ? `Rentang aktif: ${filters.start_date} s/d ${filters.end_date}` 
+                                    : 'Pilih rentang tanggal dan nama sales.'}
+                            </p>
                         </div>
                     </div>
-                    <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                        <div className="w-full md:w-auto flex flex-col sm:flex-row items-center gap-3">
-                            <TextInput
-                                type="date"
-                                className="w-full md:w-40 text-sm"
-                                value={filters.filter_date || ''}
-                                onChange={(e) => handleFilterChange('filter_date', e.target.value)}
-                                title="Pilih Tanggal"
-                            />
-                            <TextInput
-                                type="month"
-                                className="w-full md:w-40 text-sm"
-                                value={filters.filter_month || ''}
-                                onChange={(e) => handleFilterChange('filter_month', e.target.value)}
-                                title="Pilih Bulan"
+                    <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full xl:w-auto">
+                        {/* Filter Rentang Tanggal (1 kali klik kalender untuk pilih rentang tgl 1 s/d 5) */}
+                        <div className="w-full sm:w-72">
+                            <CustomDateRangePicker
+                                value={{
+                                    startDate: filters.start_date || '',
+                                    endDate: filters.end_date || ''
+                                }}
+                                onChange={handleDateRangeChange}
+                                placeholder="Rentang Tanggal (cth: 1 s/d 5)..."
+                                primaryColor="blue"
                             />
                         </div>
-                        <div className="w-full md:w-64">
+
+                        {/* Filter Bulan Opsional */}
+                        <div className="w-full sm:w-36">
+                            <TextInput
+                                type="month"
+                                className="w-full text-sm"
+                                value={filters.filter_month || ''}
+                                onChange={(e) => handleFilterChange('filter_month', e.target.value)}
+                                title="Pilih Bulan Tertentu"
+                            />
+                        </div>
+
+                        {/* Filter Sales */}
+                        <div className="w-full sm:w-56">
                             <CustomSelect
                                 value={filters.user_id || ''}
                                 onChange={(val) => handleFilterChange('user_id', val)}
@@ -226,6 +283,18 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                 ]}
                             />
                         </div>
+
+                        {/* Tombol Reset Filter */}
+                        {isFilterActive && (
+                            <button
+                                type="button"
+                                onClick={handleResetFilter}
+                                className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors h-[42px] shrink-0"
+                                title="Reset Filter"
+                            >
+                                <X className="w-4 h-4" /> Reset
+                            </button>
+                        )}
                     </div>
                 </div>
 
