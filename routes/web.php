@@ -296,6 +296,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Payment Requests
     Route::middleware(['can:payment-request.view-own'])->group(function() {
         Route::post('payment-requests/{payment_request}/submit', [\App\Http\Controllers\PaymentRequestController::class, 'submit'])->name('payment-requests.submit');
+        Route::delete('payment-requests/attachments/{id}', [\App\Http\Controllers\PaymentRequestController::class, 'deleteAttachment'])->name('payment-requests.attachments.destroy');
         Route::resource('payment-requests', \App\Http\Controllers\PaymentRequestController::class);
     });
 

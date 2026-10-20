@@ -8,6 +8,7 @@ import InputError from '@/Components/InputError';
 import CurrencyInput from '@/Components/CurrencyInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
+import { UploadCloud, X, Trash2, RotateCcw } from 'lucide-react';
 
 export default function Edit({ auth, vendors, companies, paymentRequest, isApprovalView }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -34,8 +35,37 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
         discount: paymentRequest.discount || 0,
         other_cost: paymentRequest.other_cost || 0,
         items: paymentRequest.items && paymentRequest.items.length > 0 ? paymentRequest.items : [{ description: '', quantity: 1, unit: '', unit_price: 0 }],
-        lampiran_foto: null
+        lampiran_foto: [],
+        deleted_attachment_ids: []
     });
+
+    const [deletedIds, setDeletedIds] = useState([]);
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            setData('lampiran_foto', [...(data.lampiran_foto || []), ...files]);
+        }
+        e.target.value = '';
+    };
+
+    const removeNewFile = (index) => {
+        const updated = [...(data.lampiran_foto || [])];
+        updated.splice(index, 1);
+        setData('lampiran_foto', updated);
+    };
+
+    const handleDeleteExisting = (attId) => {
+        const updated = [...deletedIds, attId];
+        setDeletedIds(updated);
+        setData('deleted_attachment_ids', updated);
+    };
+
+    const handleRestoreExisting = (attId) => {
+        const updated = deletedIds.filter(id => id !== attId);
+        setDeletedIds(updated);
+        setData('deleted_attachment_ids', updated);
+    };
 
     const addItem = () => {
         setData('items', [...data.items, { description: '', quantity: 1, unit: '', unit_price: 0 }]);
@@ -273,33 +303,151 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
 
                         {/* Section D: Lampiran */}
                         <div>
-                            <h3 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Lampiran Tambahan</h3>
-                            <div className="mt-4">
-                                <InputLabel value="Lampiran Foto (Pilih file baru jika ingin mengubah foto lama)" />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={e => setData('lampiran_foto', e.target.files[0])}
-                                    className="mt-1 block w-full text-sm text-gray-500
-                                      file:mr-4 file:py-2 file:px-4
-                                      file:rounded-md file:border-0
-                                      file:text-sm file:font-medium
-                                      file:bg-indigo-50 file:text-indigo-700
-                                      hover:file:bg-indigo-100 border border-gray-300 rounded-md p-1"
-                                />
-                                <InputError message={errors.lampiran_foto} />
-                                {paymentRequest.attachments?.find(a => a.attachment_type === 'Lampiran Foto') && (() => {
-                                    const attachment = paymentRequest.attachments.find(a => a.attachment_type === 'Lampiran Foto');
-                                    const imgUrl = attachment.file_path.startsWith('http') ? attachment.file_path : `/storage/${attachment.file_path}`;
+                            <div className="flex items-center justify-between border-b pb-2 mb-4">
+                                <h3 className="text-lg font-medium text-gray-900">Lampiran Tambahan</h3>
+                                <span className="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
+                                    Bisa lebih dari 1 gambar
+                                </span>
+                            </div>
+
+                            <div className="mt-2 space-y-5">
+                                {/* Lampiran yang Saat Ini Terpasang */}
+                                {(() => {
+                                    const existingPhotos = paymentRequest.attachments?.filter(a => a.attachment_type === 'Lampiran Foto') || [];
+                                    if (existingPhotos.length === 0) return null;
                                     return (
-                                        <div className="mt-2 text-sm text-gray-600">
-                                            Saat ini ada lampiran terpasang: 
-                                            <a href={imgUrl} target="_blank" className="text-indigo-600 hover:underline ml-1">
-                                                Lihat Foto
-                                            </a>
+                                        <div className="space-y-2">
+                                            <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                                Foto Terpasang Saat Ini ({existingPhotos.length}):
+                                            </p>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                                {existingPhotos.map(att => {
+                                                    const isDeleted = deletedIds.includes(att.id);
+                                                    const imgUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
+                                                    return (
+                                                        <div 
+                                                            key={att.id} 
+                                                            className={`relative group border rounded-xl overflow-hidden p-2 flex flex-col items-center transition ${isDeleted ? 'bg-red-50 border-red-200 opacity-60' : 'bg-white shadow-sm'}`}
+                                                        >
+                                                            <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center mb-2">
+                                                                <img 
+                                                                    src={imgUrl} 
+                                                                    alt={att.original_name || 'Lampiran'} 
+                                                                    className={`w-full h-full object-cover ${isDeleted ? 'grayscale' : ''}`} 
+                                                                />
+                                                            </div>
+                                                            <p className="text-xs text-gray-700 truncate w-full font-medium" title={att.original_name}>
+                                                                {att.original_name || 'Lampiran Foto'}
+                                                            </p>
+                                                            <div className="mt-1 flex items-center justify-between w-full">
+                                                                <a 
+                                                                    href={imgUrl} 
+                                                                    target="_blank" 
+                                                                    rel="noopener noreferrer" 
+                                                                    className="text-[11px] text-indigo-600 hover:underline font-semibold"
+                                                                >
+                                                                    Lihat Foto
+                                                                </a>
+                                                                {isDeleted ? (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleRestoreExisting(att.id)}
+                                                                        className="inline-flex items-center gap-1 text-[11px] text-gray-600 hover:text-green-600 font-semibold"
+                                                                        title="Batal hapus"
+                                                                    >
+                                                                        <RotateCcw className="w-3 h-3" /> Batal
+                                                                    </button>
+                                                                ) : (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDeleteExisting(att.id)}
+                                                                        className="inline-flex items-center gap-1 text-[11px] text-red-500 hover:text-red-700 font-semibold"
+                                                                        title="Hapus foto ini"
+                                                                    >
+                                                                        <Trash2 className="w-3 h-3" /> Hapus
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                            {isDeleted && (
+                                                                <span className="absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                                                                    Akan Dihapus
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
                                     );
                                 })()}
+
+                                {/* Upload Foto Baru */}
+                                <div className="space-y-3">
+                                    <InputLabel value="Tambah Foto / Lampiran Baru" />
+                                    <div className="border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-2xl p-6 text-center transition-colors bg-gray-50/50">
+                                        <input
+                                            type="file"
+                                            id="lampiran-upload-edit"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                        <label htmlFor="lampiran-upload-edit" className="cursor-pointer flex flex-col items-center justify-center">
+                                            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-2 shadow-sm">
+                                                <UploadCloud className="w-6 h-6" />
+                                            </div>
+                                            <p className="text-sm font-semibold text-gray-700">
+                                                Klik untuk memilih gambar atau foto bukti baru
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                PNG, JPG, JPEG (Bisa pilih beberapa file sekaligus)
+                                            </p>
+                                        </label>
+                                    </div>
+                                    <InputError message={errors.lampiran_foto} />
+
+                                    {/* Preview File Baru yang Dipilih */}
+                                    {data.lampiran_foto && data.lampiran_foto.length > 0 && (
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                                    Foto Baru yang Akan Ditambahkan ({data.lampiran_foto.length}):
+                                                </p>
+                                                <label htmlFor="lampiran-upload-edit" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 cursor-pointer">
+                                                    + Tambah Gambar Lain
+                                                </label>
+                                            </div>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                                {data.lampiran_foto.map((file, idx) => (
+                                                    <div key={idx} className="relative group border rounded-xl overflow-hidden bg-white shadow-sm p-2 flex flex-col items-center">
+                                                        <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center mb-2">
+                                                            <img 
+                                                                src={URL.createObjectURL(file)} 
+                                                                alt={file.name} 
+                                                                className="w-full h-full object-cover" 
+                                                            />
+                                                        </div>
+                                                        <p className="text-xs text-gray-700 truncate w-full font-medium" title={file.name}>
+                                                            {file.name}
+                                                        </p>
+                                                        <span className="text-[10px] text-gray-400 w-full">
+                                                            {(file.size / 1024).toFixed(0)} KB
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeNewFile(idx)}
+                                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition shadow"
+                                                            title="Hapus foto ini"
+                                                        >
+                                                            <X className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

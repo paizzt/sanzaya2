@@ -8,6 +8,7 @@ import InputError from '@/Components/InputError';
 import CurrencyInput from '@/Components/CurrencyInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
+import { UploadCloud, X } from 'lucide-react';
 
 export default function Create({ auth, vendors, companies, user }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -33,8 +34,22 @@ export default function Create({ auth, vendors, companies, user }) {
         discount: 0,
         other_cost: 0,
         items: [{ description: '', quantity: 1, unit: '', unit_price: 0 }],
-        lampiran_foto: null
+        lampiran_foto: []
     });
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            setData('lampiran_foto', [...(data.lampiran_foto || []), ...files]);
+        }
+        e.target.value = '';
+    };
+
+    const removeFile = (index) => {
+        const updated = [...(data.lampiran_foto || [])];
+        updated.splice(index, 1);
+        setData('lampiran_foto', updated);
+    };
 
     const addItem = () => {
         setData('items', [...data.items, { description: '', quantity: 1, unit: '', unit_price: 0 }]);
@@ -261,21 +276,76 @@ export default function Create({ auth, vendors, companies, user }) {
 
                         {/* Section D: Lampiran */}
                         <div>
-                            <h3 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Lampiran Tambahan</h3>
-                            <div className="mt-4">
-                                <InputLabel value="Lampiran Foto" />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={e => setData('lampiran_foto', e.target.files[0])}
-                                    className="mt-1 block w-full text-sm text-gray-500
-                                      file:mr-4 file:py-2 file:px-4
-                                      file:rounded-md file:border-0
-                                      file:text-sm file:font-medium
-                                      file:bg-indigo-50 file:text-indigo-700
-                                      hover:file:bg-indigo-100 border border-gray-300 rounded-md p-1"
-                                />
+                            <div className="flex items-center justify-between border-b pb-2 mb-4">
+                                <h3 className="text-lg font-medium text-gray-900">Lampiran Tambahan</h3>
+                                <span className="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
+                                    Bisa lebih dari 1 gambar
+                                </span>
+                            </div>
+                            <div className="mt-2 space-y-4">
+                                <div className="border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-2xl p-6 text-center transition-colors bg-gray-50/50">
+                                    <input
+                                        type="file"
+                                        id="lampiran-upload-create"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+                                    <label htmlFor="lampiran-upload-create" className="cursor-pointer flex flex-col items-center justify-center">
+                                        <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-2 shadow-sm">
+                                            <UploadCloud className="w-6 h-6" />
+                                        </div>
+                                        <p className="text-sm font-semibold text-gray-700">
+                                            Klik untuk memilih gambar atau foto bukti
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            PNG, JPG, JPEG (Bisa pilih beberapa file sekaligus)
+                                        </p>
+                                    </label>
+                                </div>
                                 <InputError message={errors.lampiran_foto} />
+
+                                {/* Preview File yang Dipilih */}
+                                {data.lampiran_foto && data.lampiran_foto.length > 0 && (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                                File Terpilih ({data.lampiran_foto.length}):
+                                            </p>
+                                            <label htmlFor="lampiran-upload-create" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 cursor-pointer">
+                                                + Tambah Gambar Lain
+                                            </label>
+                                        </div>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                            {data.lampiran_foto.map((file, idx) => (
+                                                <div key={idx} className="relative group border rounded-xl overflow-hidden bg-white shadow-sm p-2 flex flex-col items-center">
+                                                    <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center mb-2">
+                                                        <img 
+                                                            src={URL.createObjectURL(file)} 
+                                                            alt={file.name} 
+                                                            className="w-full h-full object-cover" 
+                                                        />
+                                                    </div>
+                                                    <p className="text-xs text-gray-700 truncate w-full font-medium" title={file.name}>
+                                                        {file.name}
+                                                    </p>
+                                                    <span className="text-[10px] text-gray-400 w-full">
+                                                        {(file.size / 1024).toFixed(0)} KB
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeFile(idx)}
+                                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition shadow"
+                                                        title="Hapus foto ini"
+                                                    >
+                                                        <X className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

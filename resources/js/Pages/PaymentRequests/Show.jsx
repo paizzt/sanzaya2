@@ -4,6 +4,8 @@ import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
+import Modal from '@/Components/Modal';
+import { Eye, ExternalLink, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -26,6 +28,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
         : (currentAuth?.active_feature_names 
             ? currentAuth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
             : true);
+    const [selectedImage, setSelectedImage] = useState(null);
     const { post, processing } = useForm();
 
     const handleAction = (actionRoute) => {
@@ -393,20 +396,50 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                             </div>
 
                             {/* Lampiran Tambahan */}
-                            {paymentRequest.attachments?.find(a => a.attachment_type === 'Lampiran Foto') && (() => {
-                                const attachment = paymentRequest.attachments.find(a => a.attachment_type === 'Lampiran Foto');
-                                const imgUrl = attachment.file_path.startsWith('http') ? attachment.file_path : `/storage/${attachment.file_path}`;
+                            {(() => {
+                                const photoAttachments = paymentRequest.attachments?.filter(a => a.attachment_type === 'Lampiran Foto') || [];
+                                if (photoAttachments.length === 0) return null;
                                 return (
-                                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                                        <h3 className="text-lg font-bold border-b pb-2 mb-4">Lampiran Tambahan</h3>
-                                        <div>
-                                            <a href={imgUrl} target="_blank" rel="noopener noreferrer">
-                                                <img 
-                                                    src={imgUrl} 
-                                                    alt="Lampiran" 
-                                                    className="w-full max-w-md rounded-lg shadow-sm border"
-                                                />
-                                            </a>
+                                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                        <div className="flex items-center justify-between border-b pb-2 mb-4">
+                                            <h3 className="text-lg font-bold text-gray-800">
+                                                Lampiran Foto ({photoAttachments.length})
+                                            </h3>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {photoAttachments.map((att, idx) => {
+                                                const imgUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
+                                                return (
+                                                    <div key={att.id || idx} className="group border rounded-xl overflow-hidden bg-gray-50 flex flex-col justify-between hover:shadow-md transition">
+                                                        <div 
+                                                            onClick={() => setSelectedImage(imgUrl)}
+                                                            className="cursor-pointer overflow-hidden bg-gray-100 h-44 flex items-center justify-center relative"
+                                                        >
+                                                            <img 
+                                                                src={imgUrl} 
+                                                                alt={att.original_name || `Lampiran ${idx + 1}`} 
+                                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-2 font-medium text-xs">
+                                                                <Eye className="w-4 h-4" /> Perbesar
+                                                            </div>
+                                                        </div>
+                                                        <div className="p-3 bg-white border-t flex items-center justify-between gap-2">
+                                                            <span className="text-xs font-semibold text-gray-700 truncate" title={att.original_name}>
+                                                                {att.original_name || `Foto ${idx + 1}`}
+                                                            </span>
+                                                            <a 
+                                                                href={imgUrl} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg shrink-0 transition flex items-center gap-1"
+                                                            >
+                                                                <ExternalLink className="w-3 h-3" /> Buka
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 );
@@ -415,6 +448,24 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                     </div>
                 </div>
             </div>
+
+            {/* Modal Preview Gambar */}
+            <Modal show={!!selectedImage} onClose={() => setSelectedImage(null)} maxWidth="2xl">
+                <div className="relative bg-black rounded-xl overflow-hidden p-2">
+                    <button 
+                        onClick={() => setSelectedImage(null)} 
+                        className="absolute top-4 right-4 p-2 bg-black/60 text-white hover:bg-black/80 rounded-full transition z-10"
+                        title="Tutup"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                    {selectedImage && (
+                        <div className="flex items-center justify-center min-h-[300px] max-h-[85vh] p-2">
+                            <img src={selectedImage} alt="Lampiran" className="max-w-full max-h-[80vh] object-contain rounded-lg" />
+                        </div>
+                    )}
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

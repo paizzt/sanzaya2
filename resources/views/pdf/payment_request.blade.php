@@ -299,22 +299,30 @@
         Rek {{ $paymentRequest->bank_or_wallet ?? '...' }} A/N {{ $paymentRequest->recipient_name }} ({{ $paymentRequest->account_number ?? '...' }})
     </div>
 
-    @if($paymentRequest->attachments && $paymentRequest->attachments->count() > 0)
+    @php
+        $photoAttachments = $paymentRequest->attachments ? $paymentRequest->attachments->where('attachment_type', 'Lampiran Foto') : collect();
+    @endphp
+
+    @if($photoAttachments->count() > 0)
         <div class="page-break"></div>
         <div style="margin-top: 30px; font-size: 14px;">
-            <p style="font-weight: bold; margin-bottom: 10px;">Lampiran / Bukti Pendukung:</p>
+            <p style="font-weight: bold; margin-bottom: 15px;">Lampiran / Bukti Pendukung ({{ $photoAttachments->count() }} Foto):</p>
             <div>
-                @foreach($paymentRequest->attachments as $attachment)
-                    @if($attachment->attachment_type === 'Lampiran Foto')
-                        @php
-                            $isHttp = str_starts_with($attachment->file_path, 'http');
-                            $isValid = $isHttp || file_exists(public_path('storage/' . $attachment->file_path));
-                            $imgSrc = $isHttp ? $attachment->file_path : public_path('storage/' . $attachment->file_path);
-                        @endphp
-                        @if($isValid)
-                            <div style="margin-bottom: 15px; text-align: center;">
-                                <img src="{{ $imgSrc }}" style="max-width: 90%; max-height: 400px; border: 1px solid #ccc; padding: 5px;" />
+                @foreach($photoAttachments as $attachment)
+                    @php
+                        $isHttp = str_starts_with($attachment->file_path, 'http');
+                        $isValid = $isHttp || file_exists(public_path('storage/' . $attachment->file_path));
+                        $imgSrc = $isHttp ? $attachment->file_path : public_path('storage/' . $attachment->file_path);
+                    @endphp
+                    @if($isValid)
+                        <div style="margin-bottom: 25px; text-align: center;">
+                            <div style="font-size: 12px; color: #444; margin-bottom: 6px; font-weight: bold;">
+                                Lampiran {{ $loop->iteration }}{{ !empty($attachment->original_name) ? ': ' . $attachment->original_name : '' }}
                             </div>
+                            <img src="{{ $imgSrc }}" style="max-width: 90%; max-height: 420px; border: 1px solid #ddd; padding: 4px; border-radius: 4px;" />
+                        </div>
+                        @if(!$loop->last && $loop->iteration % 2 == 0)
+                            <div class="page-break"></div>
                         @endif
                     @endif
                 @endforeach

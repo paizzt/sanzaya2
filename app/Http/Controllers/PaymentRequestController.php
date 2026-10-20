@@ -275,33 +275,15 @@ class PaymentRequestController extends Controller
             $this->paymentService->checkCompleteness($paymentRequest);
 
             if ($request->hasFile('lampiran_foto')) {
-                $file = $request->file('lampiran_foto');
-                
-                $response = \Illuminate\Support\Facades\Http::attach(
-                    'image', 
-                    file_get_contents($file->getRealPath()), 
-                    $file->getClientOriginalName()
-                )->post('https://api.imgbb.com/1/upload', [
-                    'key' => '5950b44b24860057ff810fe73f58868b'
-                ]);
-
-                if ($response->successful()) {
-                    $path = $response->json('data.url');
-                } else {
-                    $path = $file->store('payment_requests', 'public');
+                $files = $request->file('lampiran_foto');
+                if (!is_array($files)) {
+                    $files = [$files];
                 }
-                \Illuminate\Support\Facades\DB::table('payment_request_attachments')->insert([
-                    'payment_request_id' => $paymentRequest->id,
-                    'attachment_type' => 'Lampiran Foto',
-                    'original_name' => $file->getClientOriginalName(),
-                    'stored_name' => basename($path),
-                    'file_path' => $path,
-                    'mime_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize(),
-                    'uploaded_by' => $user->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                foreach ($files as $file) {
+                    if ($file && $file->isValid()) {
+                        $this->uploadAttachmentFile($file, $paymentRequest->id, $user->id);
+                    }
+                }
             }
 
             DB::commit();
@@ -401,7 +383,7 @@ class PaymentRequestController extends Controller
 
     public function edit($id)
     {
-        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division'])->findOrFail($id);
+        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division', 'attachments'])->findOrFail($id);
         $user = Auth::user();
 
         // Only requester can edit their draft/waiting_ga, except SUPERADMIN can edit anytime
@@ -421,7 +403,7 @@ class PaymentRequestController extends Controller
 
     public function editApproval($id)
     {
-        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division'])->findOrFail($id);
+        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division', 'attachments'])->findOrFail($id);
         $user = Auth::user();
 
         if (!$user->hasRole('SUPERADMIN') && !$user->hasPermissionTo('payment-request.review')) {
@@ -529,56 +511,33 @@ class PaymentRequestController extends Controller
 
             $this->paymentService->checkCompleteness($paymentRequest);
 
-            if ($request->hasFile('lampiran_foto')) {
-                $file = $request->file('lampiran_foto');
-                
-                $response = \Illuminate\Support\Facades\Http::attach(
-                    'image', 
-                    file_get_contents($file->getRealPath()), 
-                    $file->getClientOriginalName()
-                )->post('https://api.imgbb.com/1/upload', [
-                    'key' => '5950b44b24860057ff810fe73f58868b'
-                ]);
-
-                if ($response->successful()) {
-                    $path = $response->json('data.url');
-                } else {
-                    $path = $file->store('payment_requests', 'public');
+            // Hapus lampiran yang ditandai untuk dihapus
+            if ($request->filled('deleted_attachment_ids')) {
+                $deletedIds = $request->deleted_attachment_ids;
+                if (!is_array($deletedIds)) {
+                    $deletedIds = explode(',', $deletedIds);
                 }
-                
-                $oldAttachment = \Illuminate\Support\Facades\DB::table('payment_request_attachments')
-                    ->where('payment_request_id', $paymentRequest->id)
-                    ->where('attachment_type', 'Lampiran Foto')
-                    ->first();
-                    
-                if ($oldAttachment) {
-                    if (!str_starts_with($oldAttachment->file_path, 'http')) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAttachment->file_path);
+                $toDelete = \App\Models\PaymentRequestAttachment::where('payment_request_id', $paymentRequest->id)
+                    ->whereIn('id', $deletedIds)
+                    ->get();
+                foreach ($toDelete as $att) {
+                    if (!str_starts_with($att->file_path, 'http')) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($att->file_path);
                     }
-                    \Illuminate\Support\Facades\DB::table('payment_request_attachments')
-                        ->where('id', $oldAttachment->id)
-                        ->update([
-                            'original_name' => $file->getClientOriginalName(),
-                            'stored_name' => basename($path),
-                            'file_path' => $path,
-                            'mime_type' => $file->getClientMimeType(),
-                            'file_size' => $file->getSize(),
-                            'uploaded_by' => $user->id,
-                            'updated_at' => now(),
-                        ]);
-                } else {
-                    \Illuminate\Support\Facades\DB::table('payment_request_attachments')->insert([
-                        'payment_request_id' => $paymentRequest->id,
-                        'attachment_type' => 'Lampiran Foto',
-                        'original_name' => $file->getClientOriginalName(),
-                        'stored_name' => basename($path),
-                        'file_path' => $path,
-                        'mime_type' => $file->getClientMimeType(),
-                        'file_size' => $file->getSize(),
-                        'uploaded_by' => $user->id,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                    $att->delete();
+                }
+            }
+
+            // Tambah lampiran foto baru (bisa lebih dari 1 gambar)
+            if ($request->hasFile('lampiran_foto')) {
+                $files = $request->file('lampiran_foto');
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    if ($file && $file->isValid()) {
+                        $this->uploadAttachmentFile($file, $paymentRequest->id, $user->id);
+                    }
                 }
             }
 
@@ -814,5 +773,63 @@ class PaymentRequestController extends Controller
             DB::rollback();
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus data.');
         }
+    }
+
+    /**
+     * Upload helper for payment request attachments
+     */
+    private function uploadAttachmentFile($file, $paymentRequestId, $userId)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->attach(
+                'image', 
+                file_get_contents($file->getRealPath()), 
+                $file->getClientOriginalName()
+            )->post('https://api.imgbb.com/1/upload', [
+                'key' => '5950b44b24860057ff810fe73f58868b'
+            ]);
+
+            if ($response->successful() && $response->json('data.url')) {
+                $path = $response->json('data.url');
+            } else {
+                $path = $file->store('payment_requests', 'public');
+            }
+        } catch (\Throwable $e) {
+            $path = $file->store('payment_requests', 'public');
+        }
+
+        \Illuminate\Support\Facades\DB::table('payment_request_attachments')->insert([
+            'payment_request_id' => $paymentRequestId,
+            'attachment_type' => 'Lampiran Foto',
+            'original_name' => $file->getClientOriginalName(),
+            'stored_name' => basename($path),
+            'file_path' => $path,
+            'mime_type' => $file->getClientMimeType(),
+            'file_size' => $file->getSize(),
+            'uploaded_by' => $userId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    /**
+     * Hapus satu file lampiran
+     */
+    public function deleteAttachment($id)
+    {
+        $attachment = \App\Models\PaymentRequestAttachment::findOrFail($id);
+        $user = Auth::user();
+        $pr = $attachment->paymentRequest;
+
+        if (!$user->hasRole('SUPERADMIN') && $pr->requester_id !== $user->id) {
+            abort(403);
+        }
+
+        if (!str_starts_with($attachment->file_path, 'http')) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($attachment->file_path);
+        }
+        $attachment->delete();
+
+        return redirect()->back()->with('success', 'Lampiran berhasil dihapus.');
     }
 }
