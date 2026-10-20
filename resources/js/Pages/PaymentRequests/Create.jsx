@@ -144,11 +144,6 @@ export default function Create({ auth, vendors, companies, user }) {
                                     <TextInput value={data.recipient_name} onChange={e => setData('recipient_name', e.target.value)} className="w-full" required />
                                     <InputError message={errors.recipient_name} />
                                 </div>
-                                <div>
-                                    <InputLabel value="Outlet / Proyek / Keterangan" />
-                                    <TextInput value={data.project_or_outlet} onChange={e => setData('project_or_outlet', e.target.value)} className="w-full" required />
-                                    <InputError message={errors.project_or_outlet} />
-                                </div>
                             </div>
                         </div>
 

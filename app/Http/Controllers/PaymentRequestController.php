@@ -190,7 +190,7 @@ class PaymentRequestController extends Controller
             'purpose' => 'required|string',
             'recipient_name' => 'required|string',
             'letter_number' => 'nullable|string',
-            'project_or_outlet' => 'required|string',
+            'project_or_outlet' => 'nullable|string',
             'payment_method' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string',
@@ -201,10 +201,12 @@ class PaymentRequestController extends Controller
         try {
             DB::beginTransaction();
 
-            $projectOrOutlet = $request->project_or_outlet;
-            $mapping = \App\Models\OutletMapping::where('raw_name', $projectOrOutlet)->with('outlet')->first();
-            if ($mapping && $mapping->outlet) {
-                $projectOrOutlet = $mapping->outlet->name;
+            $projectOrOutlet = $request->project_or_outlet ?: '-';
+            if ($projectOrOutlet !== '-') {
+                $mapping = \App\Models\OutletMapping::where('raw_name', $projectOrOutlet)->with('outlet')->first();
+                if ($mapping && $mapping->outlet) {
+                    $projectOrOutlet = $mapping->outlet->name;
+                }
             }
             
             // Create the record
@@ -438,7 +440,7 @@ class PaymentRequestController extends Controller
             'purpose' => 'required|string',
             'recipient_name' => 'required|string',
             'letter_number' => 'nullable|string',
-            'project_or_outlet' => 'required|string',
+            'project_or_outlet' => 'nullable|string',
             'payment_method' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string',
@@ -449,10 +451,12 @@ class PaymentRequestController extends Controller
         try {
             DB::beginTransaction();
             
-            $projectOrOutlet = $request->project_or_outlet;
-            $mapping = \App\Models\OutletMapping::where('raw_name', $projectOrOutlet)->with('outlet')->first();
-            if ($mapping && $mapping->outlet) {
-                $projectOrOutlet = $mapping->outlet->name;
+            $projectOrOutlet = $request->project_or_outlet ?: ($paymentRequest->project_or_outlet ?: '-');
+            if ($projectOrOutlet !== '-') {
+                $mapping = \App\Models\OutletMapping::where('raw_name', $projectOrOutlet)->with('outlet')->first();
+                if ($mapping && $mapping->outlet) {
+                    $projectOrOutlet = $mapping->outlet->name;
+                }
             }
 
             $paymentRequest->update([

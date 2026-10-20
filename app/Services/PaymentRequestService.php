@@ -111,7 +111,6 @@ class PaymentRequestService
         if (empty($request->category)) $missing[] = 'Kategori';
         if (empty($request->purpose)) $missing[] = 'Perihal atau tujuan';
         if (empty($request->recipient_name)) $missing[] = 'Nama penerima';
-        if (empty($request->project_or_outlet)) $missing[] = 'Outlet, instansi, proyek, atau keterangan';
         
         if ($request->items()->count() == 0) $missing[] = 'Minimal satu rincian anggaran';
         if ($request->grand_total <= 0) $missing[] = 'Total pembayaran harus lebih besar dari nol';
