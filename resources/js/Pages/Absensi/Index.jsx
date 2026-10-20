@@ -240,7 +240,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                     <ShieldCheck className="w-4 h-4" /> Shift Satpam (Lintas Hari & Bebas Keterlambatan/Lembur)
                                 </div>
                             )}
-                            <p className="text-blue-200 mt-4 max-w-xl mx-auto text-sm">Pastikan Anda berada di lokasi kantor (PT) saat melakukan absensi masuk maupun pulang.</p>
+                            <p className="text-blue-200 mt-4 max-w-xl mx-auto text-sm">Pastikan Anda berada di lokasi kantor saat melakukan absensi masuk maupun pulang.</p>
                         </div>
 
                         <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
