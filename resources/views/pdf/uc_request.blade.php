@@ -78,6 +78,7 @@
             font-size: 16px;
             font-weight: bold;
             margin-top: 3px;
+            margin-bottom: 0;
         }
         
         .signature-wrapper {
@@ -104,8 +105,8 @@
         .date-right {
             text-align: right;
             font-weight: bold;
-            margin-top: 5px;
-            margin-bottom: 10px;
+            margin-top: 2px;
+            margin-bottom: 8px;
         }
         .intro-text {
             margin-bottom: 10px;

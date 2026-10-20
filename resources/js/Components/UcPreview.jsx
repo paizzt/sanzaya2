@@ -124,8 +124,8 @@ export default function UcPreview({ data, user, companies = [] }) {
         </table>
     );
 
-    const HeaderBlock = ({ title, showSignature = false }) => (
-        <div className="flex flex-col mb-4">
+    const HeaderBlock = ({ title, showSignature = false, className = "mb-4" }) => (
+        <div className={`flex flex-col ${className}`}>
             <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
                 <div className="mb-2 md:mb-0 w-1/3 flex items-center justify-start">
                     <img 
@@ -177,9 +177,9 @@ export default function UcPreview({ data, user, companies = [] }) {
             
             {/* PAGE 1: FORM PENGAJUAN */}
             <PageContainer>
-                <HeaderBlock title="FORM PENGAJUAN BIAYA" showSignature={false} />
+                <HeaderBlock title="FORM PENGAJUAN BIAYA" showSignature={false} className="mb-1" />
 
-                <div className="text-right font-bold my-4">
+                <div className="text-right font-bold mt-1 mb-3">
                     Makassar, {formatDate(new Date().toISOString())}
                 </div>
 
