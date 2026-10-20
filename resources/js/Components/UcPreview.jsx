@@ -110,7 +110,7 @@ export default function UcPreview({ data, user }) {
                     Makassar, {formatDate(new Date().toISOString())}
                 </div>
 
-                <div className="mb-4 leading-normal">
+                <div className="mb-4 leading-normal text-justify">
                     Sehubungan dengan kebutuhan operasional guna memaksimalkan upaya pengembangan performa penjualan perusahaan, dengan ini kami mengajukan untuk melakukan perjalanan sebagai berikut:
                 </div>
 
