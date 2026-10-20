@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class AttendanceRecapController extends Controller
 {
@@ -30,6 +31,14 @@ class AttendanceRecapController extends Controller
 
     private function getRecapData(Request $request)
     {
+        try {
+            if (Schema::hasTable('attendances') && !Schema::hasColumn('attendances', 'shift')) {
+                Schema::table('attendances', function ($table) {
+                    $table->string('shift', 50)->nullable()->after('status');
+                });
+            }
+        } catch (\Throwable $e) {}
+
         $user = Auth::user();
         $isAdmin = $user->isAdminUser();
 

@@ -9,11 +9,20 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Schema;
 
 class AttendanceController extends Controller
 {
     public function index()
     {
+        try {
+            if (Schema::hasTable('attendances') && !Schema::hasColumn('attendances', 'shift')) {
+                Schema::table('attendances', function ($table) {
+                    $table->string('shift', 50)->nullable()->after('status');
+                });
+            }
+        } catch (\Throwable $e) {}
+
         $today = Carbon::today()->format('Y-m-d');
         $user = Auth::user();
         $isSatpam = $user->isSatpam();
@@ -114,6 +123,14 @@ class AttendanceController extends Controller
 
     public function store(Request $request)
     {
+        try {
+            if (Schema::hasTable('attendances') && !Schema::hasColumn('attendances', 'shift')) {
+                Schema::table('attendances', function ($table) {
+                    $table->string('shift', 50)->nullable()->after('status');
+                });
+            }
+        } catch (\Throwable $e) {}
+
         $request->validate([
             'type' => 'required|in:check_in,check_out',
             'latitude' => 'required|numeric',
