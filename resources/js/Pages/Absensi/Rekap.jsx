@@ -313,19 +313,13 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             onClick={() => { setRoleTab('satpam'); setStatusFilter('all'); }}
                             className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 ${
                                 roleTab === 'satpam'
-                                    ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600 text-white shadow-md shadow-amber-500/20'
-                                    : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-100'
                             }`}
                         >
-                            <Users className="w-4 h-4" /> Satpam (Shift Siang / Malam)
+                            <Users className="w-4 h-4" /> Satpam
                         </button>
                     </div>
-
-                    {roleTab === 'satpam' && (
-                        <div className="text-xs text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5">
-                            <span>Mode Khusus: Shift Siang (☀️) & Malam (🌙)</span>
-                        </div>
-                    )}
                 </div>
 
                 {/* Filter & Search Section */}
