@@ -219,6 +219,11 @@ class ReportController extends Controller
 
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        $monthsIndo = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
 
         $targetPtNamesToSearch = $ptFilter ? array_filter(array_map('trim', explode(',', $ptFilter))) : [];
 
@@ -555,10 +560,9 @@ class ReportController extends Controller
             
             if (empty($monthFilter)) {
                 $currentMonthNumStr = date('m');
-                $currentMonthNum = date('n');
+                $currentMonthNum = (int)date('n');
                 $shortMonthEng = date('M');
-                $monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                $monthIndo = $monthsIndo[$currentMonthNum - 1];
+                $monthIndo = $monthsIndo[$currentMonthNum] ?? 'Januari';
                 $shortMonthIndo = substr($monthIndo, 0, 3);
                 
                 foreach ($logistikAll as $row) {
@@ -635,16 +639,11 @@ class ReportController extends Controller
             };
 
             if (!empty($targetPtNamesToSearch)) {
-                $companyTargets = \App\Models\CompanyTarget::with('companies')->where(function($q) use ($targetPtNamesToSearch) {
+                $companyTargets = \App\Models\CompanyTarget::where(function($q) use ($targetPtNamesToSearch) {
                     $q->whereIn('name', $targetPtNamesToSearch);
                     foreach ($targetPtNamesToSearch as $pt) {
                         $q->orWhere('name', 'PT ' . $pt)
                           ->orWhere('name', 'PT. ' . $pt);
-                        $q->orWhereHas('companies', function($cq) use ($pt) {
-                            $cq->where('name', $pt)
-                               ->orWhere('name', 'PT ' . $pt)
-                               ->orWhere('name', 'PT. ' . $pt);
-                        });
                     }
                 })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
 
@@ -655,13 +654,11 @@ class ReportController extends Controller
                         $targetDetail[$ct->name] = 'Rp ' . number_format($ct->monthly_target, 0, ',', '.');
                         
                         $ptPenjualan = 0;
-                        foreach ($ct->companies as $companyModel) {
-                            $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
-                            foreach ($refPtBreakdown as $nPt => $val) {
-                                $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
-                                if (stripos($companyNameNormalized, $nPtNormalized) !== false || stripos($nPtNormalized, $companyNameNormalized) !== false) {
-                                    $ptPenjualan += $val;
-                                }
+                        $ctNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $ct->name));
+                        foreach ($refPtBreakdown as $nPt => $val) {
+                            $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
+                            if (strcasecmp($ctNameNormalized, $nPtNormalized) === 0 || stripos($nPtNormalized, $ctNameNormalized) !== false || stripos($ctNameNormalized, $nPtNormalized) !== false) {
+                                $ptPenjualan += $val;
                             }
                         }
                         if ($ptPenjualan == 0 && isset($refPtBreakdown[$ct->name])) {
@@ -693,7 +690,7 @@ class ReportController extends Controller
                     $capaianDetail[$userWithTarget->name] = $formatCapaian($userPenjualan, $targetBulanan);
                 }
             } else {
-                $companyTargets = \App\Models\CompanyTarget::with('companies')->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
+                $companyTargets = \App\Models\CompanyTarget::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
                 if ($companyTargets->count() > 0) {
                     $targetBulanan = $companyTargets->sum('monthly_target');
                     $totalTargetedPenjualan = 0;
@@ -701,13 +698,11 @@ class ReportController extends Controller
                         $targetDetail[$ct->name] = 'Rp ' . number_format($ct->monthly_target, 0, ',', '.');
                         
                         $ptPenjualan = 0;
-                        foreach ($ct->companies as $companyModel) {
-                            $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
-                            foreach ($refPtBreakdown as $nPt => $val) {
-                                $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
-                                if (stripos($companyNameNormalized, $nPtNormalized) !== false || stripos($nPtNormalized, $companyNameNormalized) !== false) {
-                                    $ptPenjualan += $val;
-                                }
+                        $ctNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $ct->name));
+                        foreach ($refPtBreakdown as $nPt => $val) {
+                            $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
+                            if (strcasecmp($ctNameNormalized, $nPtNormalized) === 0 || stripos($nPtNormalized, $ctNameNormalized) !== false || stripos($ctNameNormalized, $nPtNormalized) !== false) {
+                                $ptPenjualan += $val;
                             }
                         }
                         if ($ptPenjualan == 0 && isset($refPtBreakdown[$ct->name])) {
@@ -840,16 +835,11 @@ class ReportController extends Controller
             }
             
             if (!empty($targetPtNamesToSearch)) {
-                $companyTargetsAnn = \App\Models\CompanyTarget::with('companies')->where(function($q) use ($targetPtNamesToSearch) {
+                $companyTargetsAnn = \App\Models\CompanyTarget::where(function($q) use ($targetPtNamesToSearch) {
                     $q->whereIn('name', $targetPtNamesToSearch);
                     foreach ($targetPtNamesToSearch as $pt) {
                         $q->orWhere('name', 'PT ' . $pt)
                           ->orWhere('name', 'PT. ' . $pt);
-                        $q->orWhereHas('companies', function($cq) use ($pt) {
-                            $cq->where('name', $pt)
-                               ->orWhere('name', 'PT ' . $pt)
-                               ->orWhere('name', 'PT. ' . $pt);
-                        });
                     }
                 })->whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
 
@@ -859,13 +849,11 @@ class ReportController extends Controller
                     $totalTargetedPenjualanAnn = 0;
                     foreach ($companyTargetsAnn as $ct) {
                         $ptPenjualanAnn = 0;
-                        foreach ($ct->companies as $companyModel) {
-                            $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
-                            foreach ($ptBreakdownAnnual as $nPt => $val) {
-                                $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
-                                if (stripos($companyNameNormalized, $nPtNormalized) !== false || stripos($nPtNormalized, $companyNameNormalized) !== false) {
-                                    $ptPenjualanAnn += $val;
-                                }
+                        $ctNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $ct->name));
+                        foreach ($ptBreakdownAnnual as $nPt => $val) {
+                            $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
+                            if (strcasecmp($ctNameNormalized, $nPtNormalized) === 0 || stripos($nPtNormalized, $ctNameNormalized) !== false || stripos($ctNameNormalized, $nPtNormalized) !== false) {
+                                $ptPenjualanAnn += $val;
                             }
                         }
                         if ($ptPenjualanAnn == 0 && isset($ptBreakdownAnnual[$ct->name])) {
@@ -885,20 +873,18 @@ class ReportController extends Controller
                     $capaianTahunanDetail[$ptFilter] = '-';
                 }
             } else {
-                $companyTargetsAnn = \App\Models\CompanyTarget::with('companies')->whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
+                $companyTargetsAnn = \App\Models\CompanyTarget::whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
                 $targetTahunanVal = $companyTargetsAnn->sum('annual_target');
                 if ($targetTahunanVal > 0) {
                     $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
                     $totalTargetedPenjualanAnn = 0;
                     foreach ($companyTargetsAnn as $ct) {
                         $ptPenjualanAnn = 0;
-                        foreach ($ct->companies as $companyModel) {
-                            $companyNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $companyModel->name));
-                            foreach ($ptBreakdownAnnual as $nPt => $val) {
-                                $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
-                                if (stripos($companyNameNormalized, $nPtNormalized) !== false || stripos($nPtNormalized, $companyNameNormalized) !== false) {
-                                    $ptPenjualanAnn += $val;
-                                }
+                        $ctNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $ct->name));
+                        foreach ($ptBreakdownAnnual as $nPt => $val) {
+                            $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
+                            if (strcasecmp($ctNameNormalized, $nPtNormalized) === 0 || stripos($nPtNormalized, $ctNameNormalized) !== false || stripos($ctNameNormalized, $nPtNormalized) !== false) {
+                                $ptPenjualanAnn += $val;
                             }
                         }
                         if ($ptPenjualanAnn == 0 && isset($ptBreakdownAnnual[$ct->name])) {
@@ -1595,11 +1581,6 @@ class ReportController extends Controller
                 foreach ($targetPtNamesToSearch as $pt) {
                     $q->orWhere('name', 'PT ' . $pt)
                       ->orWhere('name', 'PT. ' . $pt);
-                    $q->orWhereHas('companies', function($cq) use ($pt) {
-                        $cq->where('name', $pt)
-                           ->orWhere('name', 'PT ' . $pt)
-                           ->orWhere('name', 'PT. ' . $pt);
-                    });
                 }
             })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
             $targetBulanan = (float)$companyTargets->sum('monthly_target');
