@@ -299,15 +299,31 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                             </div>
                             <div>
                                 <InputLabel value="No. Polisi Kendaraan (Jika Darat)" />
-                                <div className="mt-1">
-                                    <SearchableSelect 
-                                        value={data.vehicle_number}
-                                        onChange={(val) => setData('vehicle_number', val)}
-                                        options={(vehicles || []).map(v => ({ 
-                                            value: v.license_plate, 
-                                            label: `${v.license_plate} - ${v.brand_type || 'Kendaraan'}` 
-                                        }))}
+                                <div className="mt-1 flex items-center gap-1.5">
+                                    <div className="flex-1">
+                                        <SearchableSelect 
+                                            value={data.vehicle_number}
+                                            onChange={(val) => setData('vehicle_number', val)}
+                                            placeholder="Pilih Kendaraan..."
+                                            options={[
+                                                { value: 'Kendaraan Pribadi', label: 'Kendaraan Pribadi' },
+                                                ...(vehicles || []).map(v => ({ 
+                                                    value: v.license_plate, 
+                                                    label: `${v.license_plate} - ${v.brand_type || 'Kendaraan'}` 
+                                                }))
+                                            ]}
                                         />
+                                    </div>
+                                    {data.vehicle_number && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setData('vehicle_number', '')}
+                                            className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition"
+                                            title="Hapus Kendaraan"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
