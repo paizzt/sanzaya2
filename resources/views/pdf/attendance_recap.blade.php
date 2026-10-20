@@ -84,7 +84,7 @@
                         {{ $u['name'] }}
                         @if(!empty($u['is_satpam']))
                             <small style="color: #4f46e5; font-weight: bold;">(Satpam)</small>
-                            <br><small style="color: #6b7280;">☀️ Siang: {{ $u['shift_siang'] ?? 0 }} | 🌙 Malam: {{ $u['shift_malam'] ?? 0 }}</small>
+                            <br><small style="color: #6b7280;">Siang: {{ $u['shift_siang'] ?? 0 }} | Malam: {{ $u['shift_malam'] ?? 0 }}</small>
                         @endif
                     </td>
                     <td class="text-center status-hadir">{{ $u['hadir'] }}</td>

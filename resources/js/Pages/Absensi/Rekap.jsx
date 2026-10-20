@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, Sun, Moon, UserCheck } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -132,8 +132,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 <div class="text-left">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Shift (Khusus Satpam)</label>
                     <select id="swal-input-shift" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
-                        <option value="Shift Siang" ${item.shift === 'Shift Siang' ? 'selected' : ''}>☀️ Shift Siang</option>
-                        <option value="Shift Malam" ${item.shift === 'Shift Malam' ? 'selected' : ''}>🌙 Shift Malam</option>
+                        <option value="Shift Siang" ${item.shift === 'Shift Siang' ? 'selected' : ''}>Shift Siang</option>
+                        <option value="Shift Malam" ${item.shift === 'Shift Malam' ? 'selected' : ''}>Shift Malam</option>
                     </select>
                 </div>
                 ` : ''}
@@ -387,7 +387,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Shift Siang' ? 'ring-2 ring-amber-500 border-amber-500' : 'border-gray-100'}`}
                         >
                             <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-                                <Sun className="w-6 h-6" />
+                                <Clock className="w-6 h-6" />
                             </div>
                             <div>
                                 <p className="text-xs text-amber-600 font-semibold">Shift Siang</p>
@@ -399,7 +399,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Shift Malam' ? 'ring-2 ring-indigo-600 border-indigo-600' : 'border-gray-100'}`}
                         >
                             <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
-                                <Moon className="w-6 h-6" />
+                                <Clock className="w-6 h-6" />
                             </div>
                             <div>
                                 <p className="text-xs text-indigo-600 font-semibold">Shift Malam</p>
@@ -531,8 +531,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
                                         <th className="py-4 px-6 font-semibold">Nama Satpam</th>
                                         <th className="py-4 px-6 font-semibold text-center text-blue-600">Total Hadir</th>
-                                        <th className="py-4 px-6 font-semibold text-center text-amber-600">☀️ Shift Siang</th>
-                                        <th className="py-4 px-6 font-semibold text-center text-indigo-600">🌙 Shift Malam</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-amber-600">Shift Siang</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-indigo-600">Shift Malam</th>
                                         <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
                                         <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
                                         <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
@@ -561,13 +561,13 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             {roleTab === 'satpam' ? (
                                                 <>
                                                     <td className="py-4 px-6 text-center font-bold text-amber-600">
-                                                        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-0.5 rounded-full text-xs font-bold border border-amber-200">
-                                                            <Sun className="w-3 h-3 text-amber-500" /> {u.shift_siang || 0}
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                            {u.shift_siang || 0}
                                                         </span>
                                                     </td>
                                                     <td className="py-4 px-6 text-center font-bold text-indigo-600">
-                                                        <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full text-xs font-bold border border-indigo-200">
-                                                            <Moon className="w-3 h-3 text-indigo-500" /> {u.shift_malam || 0}
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                            {u.shift_malam || 0}
                                                         </span>
                                                     </td>
                                                 </>
@@ -668,12 +668,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             </td>
                                             <td className="py-4 px-6 text-center">
                                                 {item.shift === 'Shift Siang' ? (
-                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                                        <Sun className="w-3.5 h-3.5 text-amber-500" /> Shift Siang
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                        Shift Siang
                                                     </span>
                                                 ) : item.shift === 'Shift Malam' ? (
-                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                                        <Moon className="w-3.5 h-3.5 text-indigo-500" /> Shift Malam
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                        Shift Malam
                                                     </span>
                                                 ) : (
                                                     <span className="text-gray-400 text-xs">-</span>
