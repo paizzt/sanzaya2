@@ -16,10 +16,22 @@ class AttendanceController extends Controller
     public function index()
     {
         try {
-            if (Schema::hasTable('attendances') && !Schema::hasColumn('attendances', 'shift')) {
-                Schema::table('attendances', function ($table) {
-                    $table->string('shift', 50)->nullable()->after('status');
-                });
+            if (Schema::hasTable('attendances')) {
+                if (!Schema::hasColumn('attendances', 'shift')) {
+                    Schema::table('attendances', function ($table) {
+                        $table->string('shift', 50)->nullable()->after('status');
+                    });
+                }
+                if (!Schema::hasColumn('attendances', 'check_in_notes')) {
+                    Schema::table('attendances', function ($table) {
+                        $table->text('check_in_notes')->nullable()->after('notes');
+                    });
+                }
+                if (!Schema::hasColumn('attendances', 'check_out_notes')) {
+                    Schema::table('attendances', function ($table) {
+                        $table->text('check_out_notes')->nullable()->after('check_in_notes');
+                    });
+                }
             }
         } catch (\Throwable $e) {}
 
@@ -275,57 +287,56 @@ class AttendanceController extends Controller
             abort(403, 'Hanya superadmin yang dapat mengubah data absensi.');
         }
 
+        try {
+            if (Schema::hasTable('attendances')) {
+                if (!Schema::hasColumn('attendances', 'check_in_notes')) {
+                    Schema::table('attendances', function ($table) {
+                        $table->text('check_in_notes')->nullable()->after('notes');
+                    });
+                }
+                if (!Schema::hasColumn('attendances', 'check_out_notes')) {
+                    Schema::table('attendances', function ($table) {
+                        $table->text('check_out_notes')->nullable()->after('check_in_notes');
+                    });
+                }
+            }
+        } catch (\Throwable $e) {}
+
         $request->validate([
-            'check_in_time' => ['nullable', 'regex:/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
-            'check_out_time' => ['nullable', 'regex:/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/'],
-            'notes' => ['nullable', 'string', 'max:255'],
+            'check_in_notes' => ['nullable', 'string', 'max:500'],
+            'check_out_notes' => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:500'],
             'shift' => ['nullable', 'in:Shift Siang,Shift Malam'],
         ]);
 
-        $checkIn = $request->check_in_time;
-        if ($checkIn) {
-            // Pad left with 0 if it's 4 chars (e.g., 8:00 -> 08:00)
-            if (strlen($checkIn) === 4 && strpos($checkIn, ':') === 1) {
-                $checkIn = '0' . $checkIn;
-            }
-            if (strlen($checkIn) === 5) {
-                $checkIn .= ':00';
-            }
-        }
-        
-        $checkOut = $request->check_out_time;
-        if ($checkOut) {
-            // Pad left with 0 if it's 4 chars (e.g., 8:00 -> 08:00)
-            if (strlen($checkOut) === 4 && strpos($checkOut, ':') === 1) {
-                $checkOut = '0' . $checkOut;
-            }
-            if (strlen($checkOut) === 5) {
-                $checkOut .= ':00';
-            }
-        }
+        $checkInNotes = $request->has('check_in_notes') ? $request->check_in_notes : $attendance->check_in_notes;
+        $checkOutNotes = $request->has('check_out_notes') ? $request->check_out_notes : $attendance->check_out_notes;
 
-        \Illuminate\Support\Facades\Log::info('Updating Attendance ID ' . $id, [
-            'original_check_in' => $attendance->check_in_time,
-            'original_check_out' => $attendance->check_out_time,
-            'new_check_in' => $checkIn,
-            'new_check_out' => $checkOut,
-            'request_check_in' => $request->check_in_time,
-            'request_check_out' => $request->check_out_time,
-            'notes' => $request->notes,
-            'shift' => $request->shift,
-        ]);
+        $attendance->check_in_notes = $checkInNotes;
+        $attendance->check_out_notes = $checkOutNotes;
 
-        $attendance->check_in_time = $checkIn;
-        $attendance->check_out_time = $checkOut;
-        if ($request->has('notes')) {
+        // Gabungkan ke kolom notes agar rekap / export lama tetap sinkron
+        $combined = [];
+        if (!empty($checkInNotes)) {
+            $combined[] = 'Masuk: ' . trim($checkInNotes);
+        }
+        if (!empty($checkOutNotes)) {
+            $combined[] = 'Pulang: ' . trim($checkOutNotes);
+        }
+        if (!empty($combined)) {
+            $attendance->notes = implode(' | ', $combined);
+        } elseif ($request->has('notes')) {
             $attendance->notes = $request->notes;
+        } else {
+            $attendance->notes = null;
         }
+
         if ($request->has('shift')) {
             $attendance->shift = $request->shift;
         }
         $attendance->save();
 
-        return redirect()->back()->with('success', 'Data absensi berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Keterangan absensi berhasil diperbarui.');
     }
 
     public function destroy($id)

@@ -137,9 +137,22 @@
                         @if(!empty($item['is_late']))
                             <br><small class="status-terlambat">(Terlambat)</small>
                         @endif
+                        @if(!empty($item['check_in_notes']))
+                            <br><small style="color: #2563eb;">Masuk: {{ $item['check_in_notes'] }}</small>
+                        @endif
                     </td>
-                    <td class="text-center">{{ $item['check_out'] ?? '-' }}</td>
-                    <td class="text-center">{{ $item['status'] }}</td>
+                    <td class="text-center">
+                        {{ $item['check_out'] ?? '-' }}
+                        @if(!empty($item['check_out_notes']))
+                            <br><small style="color: #059669;">Pulang: {{ $item['check_out_notes'] }}</small>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        {{ $item['status'] }}
+                        @if(!empty($item['notes']) && empty($item['check_in_notes']) && empty($item['check_out_notes']))
+                            <br><small style="color: #6b7280; font-style: italic;">"{{ $item['notes'] }}"</small>
+                        @endif
+                    </td>
                 </tr>
             @empty
                 <tr>

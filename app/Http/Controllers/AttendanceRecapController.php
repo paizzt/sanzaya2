@@ -32,10 +32,22 @@ class AttendanceRecapController extends Controller
     private function getRecapData(Request $request)
     {
         try {
-            if (Schema::hasTable('attendances') && !Schema::hasColumn('attendances', 'shift')) {
-                Schema::table('attendances', function ($table) {
-                    $table->string('shift', 50)->nullable()->after('status');
-                });
+            if (Schema::hasTable('attendances')) {
+                if (!Schema::hasColumn('attendances', 'shift')) {
+                    Schema::table('attendances', function ($table) {
+                        $table->string('shift', 50)->nullable()->after('status');
+                    });
+                }
+                if (!Schema::hasColumn('attendances', 'check_in_notes')) {
+                    Schema::table('attendances', function ($table) {
+                        $table->text('check_in_notes')->nullable()->after('notes');
+                    });
+                }
+                if (!Schema::hasColumn('attendances', 'check_out_notes')) {
+                    Schema::table('attendances', function ($table) {
+                        $table->text('check_out_notes')->nullable()->after('check_in_notes');
+                    });
+                }
             }
         } catch (\Throwable $e) {}
 
@@ -265,6 +277,23 @@ class AttendanceRecapController extends Controller
                 $attShift = ($hour >= 7 && $hour < 19) ? 'Shift Siang' : 'Shift Malam';
             }
 
+            $checkInNotes = $att->check_in_notes ?? null;
+            $checkOutNotes = $att->check_out_notes ?? null;
+
+            // Fallback parsing jika sebelumnya disimpan dalam string notes
+            if (!$checkInNotes && !$checkOutNotes && !empty($att->notes)) {
+                if (str_contains($att->notes, 'Masuk:') || str_contains($att->notes, 'Pulang:')) {
+                    if (preg_match('/Masuk:\s*([^|]+)/', $att->notes, $mIn)) {
+                        $checkInNotes = trim($mIn[1]);
+                    }
+                    if (preg_match('/Pulang:\s*(.+)$/', $att->notes, $mOut)) {
+                        $checkOutNotes = trim($mOut[1]);
+                    }
+                } else {
+                    $checkOutNotes = $att->notes;
+                }
+            }
+
             $recapList[] = [
                 'id' => 'att_' . $att->id,
                 'user_id' => $att->user_id,
@@ -281,7 +310,9 @@ class AttendanceRecapController extends Controller
                 'is_lembur' => (!$isUserSatpam && $att->check_out_time && $att->check_out_time >= '20:00:00') ? true : false,
                 'is_cross_day' => $isCrossDay,
                 'status' => 'Selesai',
-                'notes' => $att->notes
+                'notes' => $att->notes,
+                'check_in_notes' => $checkInNotes,
+                'check_out_notes' => $checkOutNotes,
             ];
         }
 
@@ -302,7 +333,9 @@ class AttendanceRecapController extends Controller
                 'check_in_photo' => null,
                 'check_out_photo' => null,
                 'status' => $req->status,
-                'notes' => $req->reason
+                'notes' => $req->reason,
+                'check_in_notes' => null,
+                'check_out_notes' => null,
             ];
         }
 

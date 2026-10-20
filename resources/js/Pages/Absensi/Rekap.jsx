@@ -110,29 +110,33 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         const realId = item.id.toString().replace('att_', '');
 
         Swal.fire({
-            title: 'Edit Absensi',
+            title: 'Edit Keterangan Absensi',
             html: `
-                <div class="text-left mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Jam Masuk</label>
-                    <input type="time" step="1" id="swal-input-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_in && item.check_in !== '-' ? item.check_in : ''}">
+                <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl mb-4 text-left text-xs space-y-1">
+                    <p><strong class="text-gray-700">Karyawan:</strong> <span class="text-gray-900 font-semibold">${item.user_name}</span></p>
+                    <p><strong class="text-gray-700">Tanggal:</strong> <span class="text-gray-900">${item.date}</span></p>
+                    <div class="flex items-center gap-4 pt-1 font-medium text-gray-700">
+                        <span>Jam Masuk: <b class="text-blue-600">${item.check_in && item.check_in !== '-' ? item.check_in : '-'}</b></span>
+                        <span>Jam Keluar: <b class="text-green-600">${item.check_out && item.check_out !== '-' ? item.check_out : '-'}</b></span>
+                    </div>
                 </div>
                 <div class="text-left mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Jam Keluar</label>
-                    <input type="time" step="1" id="swal-input-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="${item.check_out && item.check_out !== '-' ? item.check_out : ''}">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Keterangan Masuk</label>
+                    <textarea id="swal-input-notes-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/keterangan saat masuk...">${item.check_in_notes || ''}</textarea>
+                </div>
+                <div class="text-left mb-3">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Keterangan Pulang</label>
+                    <textarea id="swal-input-notes-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/keterangan saat pulang...">${item.check_out_notes || ''}</textarea>
                 </div>
                 ${item.is_satpam ? `
-                <div class="text-left mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Shift (Khusus Satpam)</label>
-                    <select id="swal-input-shift" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <div class="text-left">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Shift (Khusus Satpam)</label>
+                    <select id="swal-input-shift" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
                         <option value="Shift Siang" ${item.shift === 'Shift Siang' ? 'selected' : ''}>☀️ Shift Siang</option>
                         <option value="Shift Malam" ${item.shift === 'Shift Malam' ? 'selected' : ''}>🌙 Shift Malam</option>
                     </select>
                 </div>
                 ` : ''}
-                <div class="text-left">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">${item.is_satpam ? 'Catatan Serah Terima / Keterangan' : 'Keterangan'}</label>
-                    <textarea id="swal-input-notes" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" rows="2" placeholder="Masukkan keterangan...">${item.notes || ''}</textarea>
-                </div>
             `,
             focusConfirm: false,
             showCancelButton: true,
@@ -142,9 +146,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             preConfirm: () => {
                 const shiftEl = document.getElementById('swal-input-shift');
                 return {
-                    check_in_time: document.getElementById('swal-input-in').value || null,
-                    check_out_time: document.getElementById('swal-input-out').value || null,
-                    notes: document.getElementById('swal-input-notes').value || null,
+                    check_in_notes: document.getElementById('swal-input-notes-in').value || null,
+                    check_out_notes: document.getElementById('swal-input-notes-out').value || null,
                     shift: shiftEl ? shiftEl.value : (item.shift || null)
                 }
             }
@@ -153,10 +156,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 router.put(route('absensi.update', realId), result.value, {
                     preserveScroll: true,
                     onSuccess: (page) => { 
-                        const msg = page.props.flash?.success || 'Data absensi berhasil diperbarui.';
+                        const msg = page.props.flash?.success || 'Keterangan absensi berhasil diperbarui.';
                         Swal.fire('Tersimpan!', msg, 'success'); 
                     },
-                    onError: () => { Swal.fire('Error!', 'Gagal memperbarui data. Pastikan format jam benar (HH:MM:SS).', 'error'); }
+                    onError: () => { Swal.fire('Error!', 'Gagal memperbarui keterangan absensi.', 'error'); }
                 });
             }
         });
@@ -718,29 +721,46 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6">
-                                                <div className="flex flex-col gap-2 items-start">
+                                                <div className="flex flex-col gap-1.5 items-start">
                                                     <span className={`px-2 py-1 rounded text-xs font-semibold ${
                                                         item.status === 'Selesai' || item.status === 'Disetujui' ? 'text-emerald-600 bg-emerald-50' :
                                                         item.status === 'Menunggu' ? 'text-orange-600 bg-orange-50' : 'text-red-600 bg-red-50'
                                                     }`}>
                                                         {item.status}
                                                     </span>
-                                                    {item.notes ? (
-                                                        <div className="text-xs text-gray-500 italic max-w-[220px] break-words flex items-start gap-1 mt-1">
-                                                            <span>"{item.notes}"</span>
-                                                            {isSuperAdmin && !item.id.startsWith('req_') && !item.id.startsWith('alpa_') && (
-                                                                <button onClick={() => handleEditAbsensi(item)} className="text-blue-400 hover:text-blue-600 p-0.5 shrink-0 transition-colors" title="Edit Keterangan">
-                                                                    <Edit className="w-3 h-3" />
-                                                                </button>
-                                                            )}
+
+                                                    {/* Keterangan Masuk */}
+                                                    {item.check_in_notes && (
+                                                        <div className="text-[11px] text-blue-800 bg-blue-50/80 border border-blue-200/60 rounded px-2 py-0.5 max-w-[240px] break-words">
+                                                            <span className="font-bold text-blue-900">Masuk:</span> {item.check_in_notes}
                                                         </div>
-                                                    ) : (
-                                                        isSuperAdmin && !item.id.startsWith('req_') && !item.id.startsWith('alpa_') && (
-                                                            <button onClick={() => handleEditAbsensi(item)} className="text-[10px] text-blue-500 font-medium hover:underline mt-1 flex items-center gap-1">
-                                                                <Edit className="w-3 h-3" /> {item.is_satpam ? 'Catatan Serah Terima' : 'Tambah Keterangan'}
-                                                            </button>
-                                                        )
                                                     )}
+
+                                                    {/* Keterangan Pulang */}
+                                                    {item.check_out_notes && (
+                                                        <div className="text-[11px] text-emerald-800 bg-emerald-50/80 border border-emerald-200/60 rounded px-2 py-0.5 max-w-[240px] break-words">
+                                                            <span className="font-bold text-emerald-900">Pulang:</span> {item.check_out_notes}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Fallback Legacy Notes */}
+                                                    {!item.check_in_notes && !item.check_out_notes && item.notes && (
+                                                        <div className="text-xs text-gray-500 italic max-w-[220px] break-words mt-0.5">
+                                                            "{item.notes}"
+                                                        </div>
+                                                    )}
+
+                                                    {isSuperAdmin && !item.id.startsWith('req_') && !item.id.startsWith('alpa_') && (
+                                                        <button 
+                                                            onClick={() => handleEditAbsensi(item)} 
+                                                            className="text-[11px] text-blue-600 hover:text-blue-800 font-medium hover:underline flex items-center gap-1 mt-0.5"
+                                                            title="Edit Keterangan Masuk & Pulang"
+                                                        >
+                                                            <Edit className="w-3 h-3" />
+                                                            {item.check_in_notes || item.check_out_notes || item.notes ? 'Ubah Keterangan' : 'Tambah Keterangan'}
+                                                        </button>
+                                                    )}
+
                                                     {(isAdmin || isSuperAdmin) && item.id.startsWith('req_') && item.status === 'Menunggu' && (
                                                         <div className="flex gap-1.5 mt-1">
                                                             <button 
@@ -765,7 +785,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                         <button 
                                                             onClick={() => handleEditAbsensi(item)}
                                                             className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                                                            title="Edit Data"
+                                                            title="Edit Keterangan"
                                                         >
                                                             <Edit className="w-4 h-4" />
                                                         </button>
