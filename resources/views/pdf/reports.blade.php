@@ -71,55 +71,55 @@
                 @if(in_array('logistik', $datasets ?? []))
                     @if(isset($summary['pt_penjualan']) && count($summary['pt_penjualan']) > 1)
                         @foreach($summary['pt_penjualan'] as $ptName => $ptTotal)
-                        <td style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 8px 10px; color: #166534; vertical-align: top;">
-                            <p style="font-size: 8px; margin: 0 0 3px 0; font-weight: bold; text-transform: uppercase;">{{ $ptName }}</p>
-                            <p style="font-size: 11px; font-weight: bold; margin: 0;">Rp {{ number_format($ptTotal, 0, ',', '.') }}</p>
+                        <td style="background-color: #ffffff; border: 1.5px solid #16a34a; border-radius: 6px; padding: 8px 10px; vertical-align: top;">
+                            <p style="font-size: 8px; margin: 0 0 3px 0; font-weight: bold; text-transform: uppercase; color: #15803d;">{{ $ptName }}</p>
+                            <p style="font-size: 11px; font-weight: bold; margin: 0; color: #166534;">Rp {{ number_format($ptTotal, 0, ',', '.') }}</p>
                         </td>
                         @endforeach
-                        <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 8px 10px; color: #0369a1; vertical-align: top;">
-                            <p style="font-size: 8px; margin: 0 0 3px 0; font-weight: bold; text-transform: uppercase;">TOTAL GABUNGAN</p>
-                            <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
+                        <td style="background-color: #ffffff; border: 1.5px solid #0284c7; border-radius: 6px; padding: 8px 10px; vertical-align: top;">
+                            <p style="font-size: 8px; margin: 0 0 3px 0; font-weight: bold; text-transform: uppercase; color: #0284c7;">TOTAL GABUNGAN</p>
+                            <p style="font-size: 12px; font-weight: bold; margin: 0; color: #0369a1;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
                         </td>
                     @else
-                        <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
-                            <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">
+                        <td style="background-color: #ffffff; border: 1.5px solid #0284c7; border-radius: 6px; padding: 10px; vertical-align: top;">
+                            <p style="font-size: 9px; margin: 0 0 4px 0; font-weight: bold; text-transform: uppercase; color: #0284c7;">
                                 {{ !empty($summary['pt_penjualan']) ? 'Total Penjualan (' . key($summary['pt_penjualan']) . ')' : 'Total Penjualan' }}
                             </p>
-                            <p style="font-size: 13px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
+                            <p style="font-size: 13px; font-weight: bold; margin: 0; color: #0369a1;">Rp {{ number_format($summary['total_penjualan'], 0, ',', '.') }}</p>
                         </td>
                     @endif
 
                     @if(isset($summary['target_bulanan']) && $summary['target_bulanan'] > 0)
-                    <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
-                        <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Target Bulanan</p>
-                        <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['target_bulanan'], 0, ',', '.') }}</p>
+                    <td style="background-color: #ffffff; border: 1.5px solid #6366f1; border-radius: 6px; padding: 10px; vertical-align: top;">
+                        <p style="font-size: 9px; margin: 0 0 4px 0; font-weight: bold; text-transform: uppercase; color: #4f46e5;">Target Bulanan</p>
+                        <p style="font-size: 12px; font-weight: bold; margin: 0; color: #3730a3;">Rp {{ number_format($summary['target_bulanan'], 0, ',', '.') }}</p>
                     </td>
-                    <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
-                        <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Capaian Target</p>
-                        <p style="font-size: 12px; font-weight: bold; margin: 0;">{{ number_format(($summary['total_penjualan'] / $summary['target_bulanan']) * 100, 1, ',', '.') }}%</p>
+                    <td style="background-color: #ffffff; border: 1.5px solid #ec4899; border-radius: 6px; padding: 10px; vertical-align: top;">
+                        <p style="font-size: 9px; margin: 0 0 4px 0; font-weight: bold; text-transform: uppercase; color: #db2777;">Capaian Target</p>
+                        <p style="font-size: 12px; font-weight: bold; margin: 0; color: #9d174d;">{{ number_format(($summary['total_penjualan'] / $summary['target_bulanan']) * 100, 1, ',', '.') }}%</p>
                     </td>
                     @endif
                 @endif
                 @if(in_array('piutang', $datasets ?? []))
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
-                    <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Total Piutang</p>
-                    <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_piutang'], 0, ',', '.') }}</p>
+                <td style="background-color: #ffffff; border: 1.5px solid #f59e0b; border-radius: 6px; padding: 10px; vertical-align: top;">
+                    <p style="font-size: 9px; margin: 0 0 4px 0; font-weight: bold; text-transform: uppercase; color: #d97706;">Total Piutang</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0; color: #b45309;">Rp {{ number_format($summary['total_piutang'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('hutang', $datasets ?? []))
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
-                    <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Total Hutang</p>
-                    <p style="font-size: 12px; font-weight: bold; margin: 0;">Rp {{ number_format($summary['total_hutang'], 0, ',', '.') }}</p>
+                <td style="background-color: #ffffff; border: 1.5px solid #ef4444; border-radius: 6px; padding: 10px; vertical-align: top;">
+                    <p style="font-size: 9px; margin: 0 0 4px 0; font-weight: bold; text-transform: uppercase; color: #dc2626;">Total Hutang</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0; color: #991b1b;">Rp {{ number_format($summary['total_hutang'], 0, ',', '.') }}</p>
                 </td>
                 @endif
                 @if(in_array('pesanan', $datasets ?? []))
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
-                    <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Pesanan Terkirim</p>
-                    <p style="font-size: 12px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_terkirim'], 0, ',', '.') }}</p>
+                <td style="background-color: #ffffff; border: 1.5px solid #10b981; border-radius: 6px; padding: 10px; vertical-align: top;">
+                    <p style="font-size: 9px; margin: 0 0 4px 0; font-weight: bold; text-transform: uppercase; color: #059669;">Pesanan Terkirim</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0; color: #047857;">{{ number_format($summary['pesanan_terkirim'], 0, ',', '.') }}</p>
                 </td>
-                <td style="background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; color: #0369a1; vertical-align: top;">
-                    <p style="font-size: 9px; margin: 0 0 4px 0; opacity: 0.9;">Belum Terkirim</p>
-                    <p style="font-size: 12px; font-weight: bold; margin: 0;">{{ number_format($summary['pesanan_belum'], 0, ',', '.') }}</p>
+                <td style="background-color: #ffffff; border: 1.5px solid #64748b; border-radius: 6px; padding: 10px; vertical-align: top;">
+                    <p style="font-size: 9px; margin: 0 0 4px 0; font-weight: bold; text-transform: uppercase; color: #475569;">Belum Terkirim</p>
+                    <p style="font-size: 12px; font-weight: bold; margin: 0; color: #334155;">{{ number_format($summary['pesanan_belum'], 0, ',', '.') }}</p>
                 </td>
                 @endif
             </tr>
