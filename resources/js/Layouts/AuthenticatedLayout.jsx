@@ -92,6 +92,7 @@ export default function Authenticated({ user, header, children }) {
                 timer: 3000,
                 showConfirmButton: false,
             });
+            flash.success = null;
         }
         if (flash?.error) {
             Swal.fire({
@@ -99,6 +100,7 @@ export default function Authenticated({ user, header, children }) {
                 title: 'Gagal',
                 text: flash.error,
             });
+            flash.error = null;
         }
     }, [flash]);
 

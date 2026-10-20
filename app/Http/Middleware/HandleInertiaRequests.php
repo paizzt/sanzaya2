@@ -96,8 +96,8 @@ class HandleInertiaRequests extends Middleware
                 'can_download_pdf' => $canDownloadPdf,
             ],
             'flash' => [
-                'success' => $request->session()->get('success'),
-                'error' => $request->session()->get('error'),
+                'success' => $request->session()->pull('success'),
+                'error' => $request->session()->pull('error'),
             ],
         ];
     }
