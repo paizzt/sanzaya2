@@ -258,11 +258,21 @@ export default function UcPreview({ data, user, companies = [] }) {
                             <td className="py-1.5">
                                 <div className="mb-1 flex items-center gap-1">
                                     <span>1.</span>
-                                    <div className="border border-black px-2 py-1 flex-1">{data.companions && data.companions[0] ? data.companions[0].name : '-'} {data.companions && data.companions[0]?.position ? `(${data.companions[0].position})` : ''}</div>
+                                    <div className="border border-black px-2 py-1 flex-1">
+                                        {data.companions && data.companions[0] 
+                                            ? (typeof data.companions[0] === 'string' ? data.companions[0] : (data.companions[0].name || '-')) 
+                                            : '-'}
+                                        {data.companions && data.companions[0]?.position ? ` (${data.companions[0].position})` : ''}
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <span>2.</span>
-                                    <div className="border border-black px-2 py-1 flex-1">{data.companions && data.companions[1] ? data.companions[1].name : '-'} {data.companions && data.companions[1]?.position ? `(${data.companions[1].position})` : ''}</div>
+                                    <div className="border border-black px-2 py-1 flex-1">
+                                        {data.companions && data.companions[1] 
+                                            ? (typeof data.companions[1] === 'string' ? data.companions[1] : (data.companions[1].name || '-')) 
+                                            : '-'}
+                                        {data.companions && data.companions[1]?.position ? ` (${data.companions[1].position})` : ''}
+                                    </div>
                                 </div>
                             </td>
                         </tr>

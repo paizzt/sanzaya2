@@ -95,7 +95,8 @@ class UcRequestController extends Controller
             'departure_date' => 'required|date',
             'return_date' => 'required|date|after_or_equal:departure_date',
             'estimated_days' => 'required|integer',
-            'companions' => 'nullable|array',
+            'companions' => 'nullable|array|max:2',
+            'companions.*' => 'nullable|string',
             'transportation_type' => 'required|string',
             'vehicle_number' => 'nullable|string',
             'items' => 'required|array|min:1',
@@ -108,6 +109,9 @@ class UcRequestController extends Controller
 
         $userId = (Auth::user()->isAdminUser() && $request->filled('user_id')) ? $request->user_id : Auth::id();
 
+        $companions = array_values(array_filter($request->companions ?? [], fn($c) => !empty(trim((string)$c))));
+        $companions = array_slice($companions, 0, 2);
+
         $ucRequest = UcRequest::create([
             'request_number' => 'UC-' . date('Ymd') . '-' . strtoupper(Str::random(5)),
             'user_id' => $userId,
@@ -117,7 +121,7 @@ class UcRequestController extends Controller
             'departure_date' => $request->departure_date,
             'return_date' => $request->return_date,
             'estimated_days' => $request->estimated_days,
-            'companions' => $request->companions,
+            'companions' => $companions,
             'transport_type' => $request->transportation_type,
             'vehicle_number' => $request->vehicle_number,
             'payment_option' => $request->payment_option,
@@ -200,7 +204,8 @@ class UcRequestController extends Controller
             'departure_date' => 'required|date',
             'return_date' => 'required|date|after_or_equal:departure_date',
             'estimated_days' => 'required|integer',
-            'companions' => 'nullable|array',
+            'companions' => 'nullable|array|max:2',
+            'companions.*' => 'nullable|string',
             'transportation_type' => 'required|string',
             'vehicle_number' => 'nullable|string',
             'items' => 'required|array|min:1',
@@ -212,6 +217,9 @@ class UcRequestController extends Controller
 
         $uc = UcRequest::findOrFail($id);
 
+        $companions = array_values(array_filter($request->companions ?? [], fn($c) => !empty(trim((string)$c))));
+        $companions = array_slice($companions, 0, 2);
+
         $uc->update([
             'entity' => $request->entity,
             'department' => $request->department,
@@ -219,7 +227,7 @@ class UcRequestController extends Controller
             'departure_date' => $request->departure_date,
             'return_date' => $request->return_date,
             'estimated_days' => $request->estimated_days,
-            'companions' => $request->companions,
+            'companions' => $companions,
             'transport_type' => $request->transportation_type,
             'vehicle_number' => $request->vehicle_number,
             'payment_option' => $request->payment_option,

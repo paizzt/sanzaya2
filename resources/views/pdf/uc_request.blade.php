@@ -291,12 +291,16 @@
             <td>
                 @php
                     $companions = is_array($uc->companions) ? $uc->companions : json_decode($uc->companions, true) ?? [];
+                    $comp1 = is_array($companions[0] ?? null) ? ($companions[0]['name'] ?? '-') : ($companions[0] ?? '-');
+                    $pos1 = !empty($companions[0]['position'] ?? null) ? '('.$companions[0]['position'].')' : '';
+                    $comp2 = is_array($companions[1] ?? null) ? ($companions[1]['name'] ?? '-') : ($companions[1] ?? '-');
+                    $pos2 = !empty($companions[1]['position'] ?? null) ? '('.$companions[1]['position'].')' : '';
                 @endphp
                 <div style="margin-bottom: 5px;">
-                    1. <div class="box-outline" style="display: inline-block; width: 90%;">{{ $companions[0]['name'] ?? '-' }} {{ isset($companions[0]['position']) ? '('.$companions[0]['position'].')' : '' }}</div>
+                    1. <div class="box-outline" style="display: inline-block; width: 90%;">{{ !empty($comp1) ? $comp1 : '-' }} {{ $pos1 }}</div>
                 </div>
                 <div>
-                    2. <div class="box-outline" style="display: inline-block; width: 90%;">{{ $companions[1]['name'] ?? '-' }} {{ isset($companions[1]['position']) ? '('.$companions[1]['position'].')' : '' }}</div>
+                    2. <div class="box-outline" style="display: inline-block; width: 90%;">{{ !empty($comp2) ? $comp2 : '-' }} {{ $pos2 }}</div>
                 </div>
             </td>
         </tr>

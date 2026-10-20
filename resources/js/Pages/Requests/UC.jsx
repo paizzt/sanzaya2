@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { PlaneTakeoff, Send, MapPin, Calendar, Users, Car, Loader2 } from 'lucide-react';
+import { PlaneTakeoff, Send, MapPin, Calendar, Users, Car, Loader2, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -69,9 +69,9 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
     };
 
     const handleCompanionChange = (index, value) => {
-        const newCompanions = [...(data.companions || [])];
+        const newCompanions = [data.companions?.[0] || '', data.companions?.[1] || ''];
         newCompanions[index] = value;
-        setData('companions', newCompanions.filter(c => c !== '')); // Remove empties
+        setData('companions', newCompanions);
     };
 
     const handleItemChange = (index, field, value) => {
@@ -205,23 +205,56 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                         </div>
 
                         <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                            <InputLabel value="Nama Pendamping (Opsional)" className="flex items-center gap-2 mb-3"><Users className="w-4 h-4 text-gray-500"/> Pendamping</InputLabel>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <SearchableSelect
-                                    value={data.companions?.[0] || ''}
-                                    onChange={(val) => handleCompanionChange(0, val)}
-                                    options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                    />
-                                <SearchableSelect
-                                    value={data.companions?.[1] || ''}
-                                    onChange={(val) => handleCompanionChange(1, val)}
-                                    options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                    />
-                                <SearchableSelect
-                                    value={data.companions?.[2] || ''}
-                                    onChange={(val) => handleCompanionChange(2, val)}
-                                    options={(users || []).map(u => ({ value: u.name, label: u.name }))}
-                                    />
+                            <InputLabel value="Nama Pendamping (Opsional - Maksimal 2)" className="flex items-center gap-2 mb-3">
+                                <Users className="w-4 h-4 text-gray-500"/> Pendamping (Maks. 2 Orang)
+                            </InputLabel>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <span className="text-xs font-medium text-gray-500 mb-1 block">Pendamping 1</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="flex-1">
+                                            <SearchableSelect
+                                                value={data.companions?.[0] || ''}
+                                                onChange={(val) => handleCompanionChange(0, val)}
+                                                options={(users || []).map(u => ({ value: u.name, label: u.name }))}
+                                                placeholder="Pilih Pendamping 1..."
+                                            />
+                                        </div>
+                                        {data.companions?.[0] && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleCompanionChange(0, '')}
+                                                className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition"
+                                                title="Hapus Pendamping 1"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span className="text-xs font-medium text-gray-500 mb-1 block">Pendamping 2</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="flex-1">
+                                            <SearchableSelect
+                                                value={data.companions?.[1] || ''}
+                                                onChange={(val) => handleCompanionChange(1, val)}
+                                                options={(users || []).map(u => ({ value: u.name, label: u.name }))}
+                                                placeholder="Pilih Pendamping 2..."
+                                            />
+                                        </div>
+                                        {data.companions?.[1] && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleCompanionChange(1, '')}
+                                                className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition"
+                                                title="Hapus Pendamping 2"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
