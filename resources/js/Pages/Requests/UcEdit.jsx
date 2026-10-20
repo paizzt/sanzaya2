@@ -14,7 +14,7 @@ import UcPreview from '@/Components/UcPreview';
 import CurrencyInput from '@/Components/CurrencyInput';
 
 
-export default function UcEdit({ ucRequest, users, vehicles, isAdmin }) {
+export default function UcEdit({ ucRequest, users, vehicles, companies = [], isAdmin }) {
     const user = usePage().props.auth.user;
     
     // Calculate Days Diff
@@ -359,7 +359,7 @@ export default function UcEdit({ ucRequest, users, vehicles, isAdmin }) {
                             <h3 className="font-bold text-lg text-gray-700 mb-4 flex items-center gap-2">
                                 Preview Cetakan
                             </h3>
-                            <UcPreview data={data} user={user} />
+                            <UcPreview data={data} user={user} companies={companies} />
                         </div>
                     </div>
                 </div>

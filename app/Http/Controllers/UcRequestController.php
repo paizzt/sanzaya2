@@ -21,10 +21,12 @@ class UcRequestController extends Controller
     {
         $users = \App\Models\User::select('id', 'name')->orderBy('name')->get();
         $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
+        $companies = \App\Models\Company::select('id', 'name', 'logo', 'address')->get();
             
         return Inertia::render('Requests/UC', [
             'users' => $users,
             'vehicles' => $vehicles,
+            'companies' => $companies,
             'isAdmin' => Auth::user()->isAdminUser()
         ]);
     }
@@ -47,7 +49,29 @@ class UcRequestController extends Controller
         $qrUrl = route('requests.uc.index'); // Can be a verification URL
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
         
-        $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $entityName = $uc->entity;
+        $logoPath = public_path('img/logo.png');
+        if ($entityName) {
+            $clean = strtolower(preg_replace('/[^a-z0-9]/', '', $entityName));
+            if (str_contains($clean, 'harkes') && file_exists(public_path('storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png'))) {
+                $logoPath = public_path('storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png');
+            } elseif (str_contains($clean, 'meraki') && file_exists(public_path('storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png'))) {
+                $logoPath = public_path('storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png');
+            } elseif (str_contains($clean, 'msi') && file_exists(public_path('storage/company/CFKdTemIfTZwzwOD2L2og2U5OyUc2LCdwO9kBPqH.png'))) {
+                $logoPath = public_path('storage/company/CFKdTemIfTZwzwOD2L2og2U5OyUc2LCdwO9kBPqH.png');
+            } elseif (str_contains($clean, 'ruma') && file_exists(public_path('storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png'))) {
+                $logoPath = public_path('storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png');
+            } elseif (str_contains($clean, 'sanzaya')) {
+                $logoPath = public_path('img/logo.png');
+            } else {
+                $company = \App\Models\Company::where('name', 'like', "%{$entityName}%")->first();
+                if ($company && $company->logo && file_exists(public_path('storage/' . $company->logo))) {
+                    $logoPath = public_path('storage/' . $company->logo);
+                }
+            }
+        }
+
+        $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf') : $pdf->download('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf');
     }
 
@@ -142,11 +166,13 @@ class UcRequestController extends Controller
 
         $users = \App\Models\User::select('id', 'name')->orderBy('name')->get();
         $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
+        $companies = \App\Models\Company::select('id', 'name', 'logo', 'address')->get();
 
         return Inertia::render('Requests/UcEdit', [
             'ucRequest' => $uc,
             'users' => $users,
-            'vehicles' => $vehicles
+            'vehicles' => $vehicles,
+            'companies' => $companies
         ]);
     }
 

@@ -210,10 +210,10 @@
     <table class="kop-table">
         <tr>
             <td width="35%">
-                <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
+                <img src="{{ $logoPath ?? public_path('img/logo.png') }}" style="max-height: 60px; max-width: 160px;" />
             </td>
             <td width="65%" align="center">
-                <div class="kop-title">{{ $paymentRequest->entity ?? 'PT. HARTA TAHTA KESEHATAN' }}</div>
+                <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>
@@ -331,10 +331,10 @@
     <table class="kop-table">
         <tr>
             <td width="35%">
-                <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
+                <img src="{{ $logoPath ?? public_path('img/logo.png') }}" style="max-height: 60px; max-width: 160px;" />
             </td>
             <td width="65%" align="center">
-                <div class="kop-title">{{ $paymentRequest->entity ?? 'PT. HARTA TAHTA KESEHATAN' }}</div>
+                <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>
@@ -453,10 +453,10 @@
     <table class="kop-table">
         <tr>
             <td width="35%">
-                <img src="{{ public_path('img/logo.png') }}" style="max-height: 60px;" />
+                <img src="{{ $logoPath ?? public_path('img/logo.png') }}" style="max-height: 60px; max-width: 160px;" />
             </td>
             <td width="65%" align="center">
-                <div class="kop-title">{{ $paymentRequest->entity ?? 'PT. HARTA TAHTA KESEHATAN' }}</div>
+                <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
                 <div class="kop-text">
                     Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
                     Kota Makassar, Sulawesi Selatan 90235<br>

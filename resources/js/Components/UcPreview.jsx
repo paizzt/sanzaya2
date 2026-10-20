@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function UcPreview({ data, user }) {
+export default function UcPreview({ data, user, companies = [] }) {
     const formatRupiah = (val) => new Intl.NumberFormat('id-ID').format(val || 0);
     
     const formatDate = (dateStr) => {
@@ -9,6 +9,61 @@ export default function UcPreview({ data, user }) {
         if (isNaN(d.getTime())) return '-';
         return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
     };
+
+    const getCompanyInfo = (entityName) => {
+        const clean = (entityName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        if (companies && companies.length > 0) {
+            const found = companies.find(c => {
+                const cClean = (c.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                return clean.includes(cClean) || cClean.includes(clean);
+            });
+            if (found && found.logo) {
+                return {
+                    name: entityName || found.name,
+                    logo: clean.includes('sanzaya') ? '/img/logo.png' : `/storage/${found.logo}`
+                };
+            }
+        }
+
+        if (clean.includes('harkes')) {
+            return {
+                name: entityName || 'PT. Harkes',
+                logo: '/storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png'
+            };
+        }
+        if (clean.includes('meraki')) {
+            return {
+                name: entityName || 'CV. Meraki',
+                logo: '/storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png'
+            };
+        }
+        if (clean.includes('msi')) {
+            return {
+                name: entityName || 'PT. MSI',
+                logo: '/storage/company/CFKdTemIfTZwzwOD2L2og2U5OyUc2LCdwO9kBPqH.png'
+            };
+        }
+        if (clean.includes('ruma')) {
+            return {
+                name: entityName || 'PT. Ruma',
+                logo: '/storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png'
+            };
+        }
+        if (clean.includes('sanzaya')) {
+            return {
+                name: entityName || 'PT. Sanzaya Medika Pratama',
+                logo: '/img/logo.png'
+            };
+        }
+
+        return {
+            name: entityName || 'PT. SANZAYA MEDIKA PRATAMA',
+            logo: '/img/logo.png'
+        };
+    };
+
+    const currentCompany = getCompanyInfo(data?.entity);
 
     const items = data.items || [];
     const totalCost = items.reduce((sum, item) => {
@@ -68,12 +123,20 @@ export default function UcPreview({ data, user }) {
     const HeaderBlock = ({ title, showSignature = false }) => (
         <div className="flex flex-col mb-4">
             <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
-                <div className="mb-2 md:mb-0 w-1/3">
-                    <img src="/img/logo.png" alt="Logo" className="max-h-12 object-contain" />
+                <div className="mb-2 md:mb-0 w-1/3 flex items-center justify-start">
+                    <img 
+                        src={currentCompany.logo} 
+                        alt={currentCompany.name} 
+                        className="max-h-12 max-w-[140px] object-contain" 
+                        onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/img/logo.png';
+                        }}
+                    />
                 </div>
                 <div className="text-center w-2/3">
                     <h2 className="text-sm lg:text-base font-bold text-indigo-900 font-serif tracking-wide mb-1 uppercase">
-                        {data.entity || 'PT. HARTA TAHTA KESEHATAN'}
+                        {currentCompany.name}
                     </h2>
                     <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight">
                         Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br />
