@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { CheckCircle2, Clock, MapPin, MapPinOff, CalendarDays, Loader2, ShieldCheck, Sun, Moon, LogIn, LogOut } from 'lucide-react';
+import { CheckCircle2, Clock, CalendarDays, Loader2, Sun, Moon } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
@@ -246,264 +246,115 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Status Section */}
                     <div className="lg:col-span-3 space-y-6">
-                        <div className={`rounded-3xl p-8 text-white shadow-xl text-center ${
-                            isSatpam 
-                                ? 'bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-900 shadow-indigo-900/25 border border-indigo-800/40' 
-                                : 'bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-500/20'
-                        }`}>
+                        <div className="rounded-3xl p-8 text-white shadow-xl text-center bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-500/20">
                             <p className="text-blue-100 text-lg font-medium">{today}</p>
                             <h2 className="text-6xl font-black mt-2 tracking-tighter tabular-nums">{liveTime}</h2>
-                            {isSatpam && (
-                                <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold text-white border border-white/10 shadow-sm">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-400" /> Presensi Pos Satpam &bull; Sistem Pertukaran Shift
-                                </div>
-                            )}
                             <p className="text-blue-200 mt-4 max-w-xl mx-auto text-sm">
-                                {isSatpam 
-                                    ? 'Pastikan Anda berada di lokasi kantor saat melakukan pertukaran shift masuk maupun keluar.'
-                                    : 'Pastikan Anda berada di lokasi kantor saat melakukan absensi masuk maupun pulang.'}
+                                Pastikan Anda berada di lokasi kantor saat melakukan absensi masuk maupun pulang.
                             </p>
                         </div>
 
-                        {/* MODE KHUSUS ROLE SATPAM */}
-                        {isSatpam ? (
-                            <div className="space-y-6">
-                                {/* Info Petugas Shift Sebelumnya (Jika Ada yang Masih Aktif) */}
-                                {activeDutySatpam && !hasCheckedIn && (
-                                    <div className="p-4 bg-blue-50/90 border border-blue-200/80 rounded-2xl flex items-center justify-between gap-4 text-blue-900 shadow-sm">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">
-                                                <ShieldCheck className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[11px] uppercase tracking-wider font-bold text-blue-600">Petugas Shift Sebelumnya / Sedang Berjalan</p>
-                                                <p className="font-bold text-sm text-gray-800">
-                                                    {activeDutySatpam.name} &bull; <span className="text-blue-700">{activeDutySatpam.shift}</span> (Masuk: {activeDutySatpam.check_in_time})
-                                                </p>
-                                            </div>
+                        {/* Card Absensi Masuk & Keluar (Sederhana untuk Semua Role Termasuk Satpam) */}
+                        <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* Check In Status */}
+                                <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
+                                    {hasCheckedIn && (
+                                        <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600">
+                                            <CheckCircle2 className="w-7 h-7" />
                                         </div>
-                                        <div className="hidden sm:block text-right">
-                                            <span className="text-xs px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full font-semibold">
-                                                Siap Serah Terima
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
+                                    )}
+                                    <div className="flex-1">
+                                        <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
+                                        <p className="text-sm font-medium text-gray-500 mt-1">
+                                            {hasCheckedIn 
+                                                ? `Berhasil: ${attendance.check_in_time}${attendance.shift ? ` (${attendance.shift})` : ''}` 
+                                                : 'Belum Absen'}
+                                        </p>
 
-                                {/* Card Utama Absensi Shift Satpam */}
-                                <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                    {!hasCheckedIn ? (
-                                        /* 1. Belum Masuk Shift: Pilih Shift & Klik Tombol Masuk Shift */
-                                        <div>
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
-                                                <div>
-                                                    <h3 className="text-lg font-bold text-gray-800">Pilih Shift Tugas Satpam</h3>
-                                                    <p className="text-sm text-gray-500">Pilih shift tugas yang akan Anda ambil sebelum Masuk Shift</p>
-                                                </div>
-                                                <span className="self-start sm:self-auto px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full border border-indigo-100">
-                                                    Pergantian Shift
-                                                </span>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                                {/* Pilihan Shift Siang */}
-                                                <div
+                                        {/* Pilihan Shift Sederhana untuk Satpam Sebelum Masuk */}
+                                        {isSatpam && !hasCheckedIn && (
+                                            <div className="flex items-center gap-2 mt-3">
+                                                <button
+                                                    type="button"
                                                     onClick={() => setSelectedShift('Shift Siang')}
-                                                    className={`cursor-pointer p-5 rounded-2xl border-2 transition-all flex items-center gap-4 ${
+                                                    className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
                                                         selectedShift === 'Shift Siang'
-                                                            ? 'border-amber-500 bg-amber-50/60 shadow-md shadow-amber-500/10'
-                                                            : 'border-gray-200 hover:border-amber-300 bg-white'
+                                                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                                                     }`}
                                                 >
-                                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                                                        selectedShift === 'Shift Siang' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-600'
-                                                    }`}>
-                                                        <Sun className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center justify-between">
-                                                            <h4 className="font-bold text-gray-800 text-base">Shift Siang</h4>
-                                                            {selectedShift === 'Shift Siang' && (
-                                                                <CheckCircle2 className="w-5 h-5 text-amber-600" />
-                                                            )}
-                                                        </div>
-                                                        <p className="text-xs text-gray-500 mt-0.5">Tugas Siang Hari</p>
-                                                    </div>
-                                                </div>
-
-                                                {/* Pilihan Shift Malam */}
-                                                <div
+                                                    <Sun className="w-3.5 h-3.5" /> Shift Siang
+                                                </button>
+                                                <button
+                                                    type="button"
                                                     onClick={() => setSelectedShift('Shift Malam')}
-                                                    className={`cursor-pointer p-5 rounded-2xl border-2 transition-all flex items-center gap-4 ${
+                                                    className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
                                                         selectedShift === 'Shift Malam'
-                                                            ? 'border-indigo-600 bg-indigo-50/60 shadow-md shadow-indigo-500/10'
-                                                            : 'border-gray-200 hover:border-indigo-300 bg-white'
+                                                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                                                     }`}
                                                 >
-                                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                                                        selectedShift === 'Shift Malam' ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-600'
-                                                    }`}>
-                                                        <Moon className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center justify-between">
-                                                            <h4 className="font-bold text-gray-800 text-base">Shift Malam</h4>
-                                                            {selectedShift === 'Shift Malam' && (
-                                                                <CheckCircle2 className="w-5 h-5 text-indigo-600" />
-                                                            )}
-                                                        </div>
-                                                        <p className="text-xs text-gray-500 mt-0.5">Tugas Malam Hari (Lintas Hari)</p>
-                                                    </div>
-                                                </div>
+                                                    <Moon className="w-3.5 h-3.5" /> Shift Malam
+                                                </button>
                                             </div>
+                                        )}
 
+                                        {!hasCheckedIn && (
                                             <button
                                                 onClick={() => submitAttendance('check_in')}
                                                 disabled={isLocating}
-                                                className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-500/25 text-base"
+                                                className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
                                             >
-                                                {isLocating ? (
-                                                    <><Loader2 className="w-5 h-5 animate-spin" /> Memeriksa Lokasi & Memproses...</>
-                                                ) : (
-                                                    <><LogIn className="w-5 h-5" /> Masuk Shift ({selectedShift})</>
-                                                )}
+                                                {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Masuk</>}
                                             </button>
-                                        </div>
-                                    ) : !hasCheckedOut ? (
-                                        /* 2. Sedang Berjalan: Status Aktif & Tombol Keluar Shift */
-                                        <div className="space-y-6">
-                                            <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl">
-                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 shrink-0">
-                                                            {attendance.shift === 'Shift Malam' ? <Moon className="w-7 h-7" /> : <Sun className="w-7 h-7" />}
-                                                        </div>
-                                                        <div>
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="px-2.5 py-0.5 bg-emerald-200 text-emerald-800 rounded-full text-xs font-bold uppercase tracking-wide">
-                                                                    Shift Aktif Berjalan
-                                                                </span>
-                                                                <span className="font-bold text-emerald-900 text-lg">
-                                                                    {attendance.shift || selectedShift}
-                                                                </span>
-                                                            </div>
-                                                            <p className="text-sm text-emerald-700 mt-1">
-                                                                Waktu Masuk: <span className="font-semibold text-gray-900">{attendance.date} pukul {attendance.check_in_time}</span>
-                                                            </p>
-                                                        </div>
-                                                    </div>
+                                        )}
+                                    </div>
+                                </div>
 
-                                                    <div className="text-left md:text-right">
-                                                        <p className="text-xs text-gray-500">Status Petugas Pos</p>
-                                                        <p className="font-bold text-emerald-700 flex items-center md:justify-end gap-1.5 mt-0.5">
-                                                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                            Sedang Bertugas
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-xs text-gray-600 flex items-center gap-2">
-                                                <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
-                                                <span>Saat giliran tugas Anda selesai atau hendak bertukar shift dengan satpam pengganti baru, klik tombol <b>Keluar Shift</b> di bawah.</span>
-                                            </div>
-
-                                            <button
-                                                onClick={() => submitAttendance('check_out')}
-                                                disabled={isLocating}
-                                                className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold py-4 rounded-2xl hover:from-red-700 hover:to-rose-700 transition-all disabled:opacity-50 shadow-xl shadow-red-500/25 text-base"
-                                            >
-                                                {isLocating ? (
-                                                    <><Loader2 className="w-5 h-5 animate-spin" /> Memeriksa Lokasi & Memproses...</>
-                                                ) : (
-                                                    <><LogOut className="w-5 h-5" /> Keluar Shift (Ganti Shift Selesai)</>
-                                                )}
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        /* 3. Shift Selesai */
-                                        <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl text-center space-y-3">
-                                            <div className="w-12 h-12 mx-auto rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                                                <CheckCircle2 className="w-6 h-6" />
-                                            </div>
-                                            <h4 className="text-lg font-bold text-gray-800">Tugas Shift Hari Ini Telah Selesai</h4>
-                                            <p className="text-sm text-gray-600">
-                                                {attendance.shift || 'Shift'}: Masuk <span className="font-semibold">{attendance.check_in_time}</span> &bull; Keluar <span className="font-semibold">{attendance.check_out_time}</span>
-                                            </p>
-                                            <p className="text-xs text-gray-500">Shift Anda telah diserahterimakan kepada petugas berikutnya.</p>
+                                {/* Check Out Status */}
+                                <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
+                                    {hasCheckedOut && (
+                                        <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600">
+                                            <CheckCircle2 className="w-7 h-7" />
                                         </div>
                                     )}
-                                </div>
-                            </div>
-                        ) : (
-                            /* MODE KARYAWAN REGULER (NON-SATPAM) */
-                            <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    {/* Check In Status */}
-                                    <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
-                                        {hasCheckedIn && (
-                                            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600">
-                                                <CheckCircle2 className="w-7 h-7" />
-                                            </div>
-                                        )}
-                                        <div className="flex-1">
-                                            <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
-                                            <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedIn ? `Berhasil: ${attendance.check_in_time}` : 'Belum Absen'}</p>
+                                    <div className="flex-1">
+                                        <p className="font-bold text-lg text-gray-800">Absen Pulang</p>
+                                        <p className="text-sm font-medium text-gray-500 mt-1">
+                                            {hasCheckedOut ? `Berhasil: ${attendance.check_out_time}` : 'Belum Absen'}
+                                        </p>
 
-                                            {!hasCheckedIn && (
+                                        {hasCheckedIn && !hasCheckedOut && (
+                                            <div className="mt-4 space-y-4">
+                                                {isOvertime && !isSatpam && (
+                                                    <div>
+                                                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                                            Catatan Lembur (Opsional)
+                                                        </label>
+                                                        <textarea
+                                                            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                            rows="2"
+                                                            value={data.notes}
+                                                            onChange={(e) => setData('notes', e.target.value)}
+                                                            placeholder="Jelaskan alasan lembur..."
+                                                        ></textarea>
+                                                        <p className="text-xs text-blue-500 mt-1">Isi catatan jika Anda terhitung lembur, kosongkan jika tidak lembur.</p>
+                                                    </div>
+                                                )}
                                                 <button
-                                                    onClick={() => submitAttendance('check_in')}
+                                                    onClick={() => submitAttendance('check_out')}
                                                     disabled={isLocating}
-                                                    className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
+                                                    className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
                                                 >
-                                                    {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Masuk</>}
+                                                    {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Keluar</>}
                                                 </button>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Check Out Status */}
-                                    <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
-                                        {hasCheckedOut && (
-                                            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600">
-                                                <CheckCircle2 className="w-7 h-7" />
                                             </div>
                                         )}
-                                        <div className="flex-1">
-                                            <p className="font-bold text-lg text-gray-800">Absen Pulang</p>
-                                            <p className="text-sm font-medium text-gray-500 mt-1">{hasCheckedOut ? `Berhasil: ${attendance.check_out_time}` : 'Belum Absen'}</p>
-
-                                            {hasCheckedIn && !hasCheckedOut && (
-                                                <div className="mt-4 space-y-4">
-                                                    {isOvertime && (
-                                                        <div>
-                                                            <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                                                Catatan Lembur (Opsional)
-                                                            </label>
-                                                            <textarea
-                                                                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
-                                                                rows="2"
-                                                                value={data.notes}
-                                                                onChange={(e) => setData('notes', e.target.value)}
-                                                                placeholder="Jelaskan alasan lembur..."
-                                                            ></textarea>
-                                                            <p className="text-xs text-blue-500 mt-1">Isi catatan jika Anda terhitung lembur, kosongkan jika tidak lembur.</p>
-                                                        </div>
-                                                    )}
-                                                    <button
-                                                        onClick={() => submitAttendance('check_out')}
-                                                        disabled={isLocating}
-                                                        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
-                                                    >
-                                                        {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Keluar</>}
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
 
@@ -514,8 +365,8 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                             <CalendarDays className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg text-gray-800">{isSatpam ? 'Riwayat Shift Bulan Ini' : 'Riwayat Absensi Bulan Ini'}</h3>
-                            <p className="text-sm text-gray-500">{isSatpam ? 'Rekapan kehadiran shift satpam Anda selama bulan ini' : 'Rekapan kehadiran Anda selama bulan ini'}</p>
+                            <h3 className="font-bold text-lg text-gray-800">Riwayat Absensi Bulan Ini</h3>
+                            <p className="text-sm text-gray-500">Rekapan kehadiran Anda selama bulan ini</p>
                         </div>
                     </div>
                     
@@ -525,8 +376,8 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                 <tr>
                                     <th className="px-4 py-3 font-medium rounded-l-xl">Tanggal</th>
                                     {isSatpam && <th className="px-4 py-3 font-medium">Shift</th>}
-                                    <th className="px-4 py-3 font-medium">{isSatpam ? 'Masuk Shift' : 'Jam Masuk'}</th>
-                                    <th className="px-4 py-3 font-medium">{isSatpam ? 'Keluar Shift' : 'Jam Keluar'}</th>
+                                    <th className="px-4 py-3 font-medium">Jam Masuk</th>
+                                    <th className="px-4 py-3 font-medium">Jam Keluar</th>
                                     <th className="px-4 py-3 font-medium rounded-r-xl">Status</th>
                                 </tr>
                             </thead>
