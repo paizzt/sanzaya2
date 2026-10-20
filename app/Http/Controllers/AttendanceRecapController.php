@@ -256,10 +256,15 @@ class AttendanceRecapController extends Controller
         }
 
         foreach ($userSummaries as $userId => &$uSum) {
-            $attended = $uSum['hadir'] + $uSum['sakit'] + $uSum['izin'];
-            $expectedDays = (isset($userWorkDays[$userId]) && $userWorkDays[$userId] == 5) ? $totalWorkingDays5 : $totalWorkingDays6;
-            $uSum['alpa'] = max(0, $expectedDays - $attended);
-            $summary['alpa'] += $uSum['alpa']; // add to total alpa summary
+            if (!empty($uSum['is_satpam'])) {
+                // Khusus SATPAM: Tidak ada istilah alpa
+                $uSum['alpa'] = 0;
+            } else {
+                $attended = $uSum['hadir'] + $uSum['sakit'] + $uSum['izin'];
+                $expectedDays = (isset($userWorkDays[$userId]) && $userWorkDays[$userId] == 5) ? $totalWorkingDays5 : $totalWorkingDays6;
+                $uSum['alpa'] = max(0, $expectedDays - $attended);
+                $summary['alpa'] += $uSum['alpa']; // add to total alpa summary
+            }
         }
 
         $userSummaries = array_values($userSummaries);
@@ -371,6 +376,11 @@ class AttendanceRecapController extends Controller
             
             foreach ($activeUsers as $usr) {
                 if ($selectedUserId !== 'all' && $usr->id != $selectedUserId) {
+                    continue;
+                }
+                
+                // Khusus Satpam: tidak ada istilah alpa
+                if ($usr->isSatpam()) {
                     continue;
                 }
                 
@@ -500,6 +510,11 @@ class AttendanceRecapController extends Controller
                     continue;
                 }
                 
+                // Khusus Satpam: tidak ada istilah alpa
+                if ($usr->isSatpam()) {
+                    continue;
+                }
+                
                 $workDays = $usr->work_days_per_week ?? 6;
                 $isWorkingDayForUser = false;
                 
@@ -513,7 +528,18 @@ class AttendanceRecapController extends Controller
                     $expectedUsers++;
                 }
             }
-            $attendedTodayCount = $summary['hadir'] + $summary['sakit'] + $summary['izin'];
+
+            $regularHadirCount = $todayAttendances->filter(function($att) {
+                return $att->status === 'Hadir' && (!$att->user || !$att->user->isSatpam());
+            })->count();
+            $regularSakitCount = $todayRequests->filter(function($req) {
+                return strtolower($req->type) === 'sakit' && (!$req->user || !$req->user->isSatpam());
+            })->count();
+            $regularIzinCount = $todayRequests->filter(function($req) {
+                return strtolower($req->type) !== 'sakit' && strtolower($req->type) !== 'lembur' && (!$req->user || !$req->user->isSatpam());
+            })->count();
+
+            $attendedTodayCount = $regularHadirCount + $regularSakitCount + $regularIzinCount;
             $summary['alpa'] = max(0, $expectedUsers - $attendedTodayCount);
         } else {
             $summary['alpa'] = 0;

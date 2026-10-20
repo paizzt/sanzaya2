@@ -90,9 +90,9 @@
                     <td class="text-center status-hadir">{{ $u['hadir'] }}</td>
                     <td class="text-center status-sakit">{{ $u['sakit'] }}</td>
                     <td class="text-center status-izin">{{ $u['izin'] }}</td>
-                    <td class="text-center status-alpa">{{ $u['alpa'] }}</td>
-                    <td class="text-center status-terlambat">{{ $u['terlambat'] ?? 0 }}</td>
-                      <td class="text-center" style="color:#8b5cf6; font-weight:bold;">{{ $u['lembur'] ?? 0 }}</td>
+                    <td class="text-center status-alpa">{{ !empty($u['is_satpam']) ? '-' : $u['alpa'] }}</td>
+                    <td class="text-center status-terlambat">{{ !empty($u['is_satpam']) ? '-' : ($u['terlambat'] ?? 0) }}</td>
+                      <td class="text-center" style="color:#8b5cf6; font-weight:bold;">{{ !empty($u['is_satpam']) ? '-' : ($u['lembur'] ?? 0) }}</td>
                 </tr>
                 @endforeach
             </tbody>

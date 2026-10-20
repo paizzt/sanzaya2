@@ -204,11 +204,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         acc.hadir += u.hadir || 0;
         acc.sakit += u.sakit || 0;
         acc.izin += u.izin || 0;
-        acc.alpa += u.alpa || 0;
         acc.shift_siang += u.shift_siang || 0;
         acc.shift_malam += u.shift_malam || 0;
         return acc;
-    }, { hadir: 0, sakit: 0, izin: 0, alpa: 0, shift_siang: 0, shift_malam: 0 }) || { hadir: 0, sakit: 0, izin: 0, alpa: 0, shift_siang: 0, shift_malam: 0 };
+    }, { hadir: 0, sakit: 0, izin: 0, shift_siang: 0, shift_malam: 0 }) || { hadir: 0, sakit: 0, izin: 0, shift_siang: 0, shift_malam: 0 };
 
     const roleFilteredUserSummaries = userSummaries?.filter(u => {
         if (roleTab === 'satpam') return u.is_satpam;
@@ -369,7 +368,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
                 {/* Summary Cards */}
                 {roleTab === 'satpam' ? (
-                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Hadir' ? 'all' : 'Hadir')}
                             className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-indigo-500 border-indigo-500' : 'border-gray-100'}`}
@@ -428,18 +427,6 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <div>
                                 <p className="text-xs text-gray-500 font-medium">Izin</p>
                                 <h4 className="text-xl font-black text-gray-800">{satpamTotals.izin}</h4>
-                            </div>
-                        </div>
-                        <div 
-                            onClick={() => setStatusFilter(statusFilter === 'Alpa' ? 'all' : 'Alpa')}
-                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Alpa' ? 'ring-2 ring-red-500 border-red-500' : 'border-gray-100'}`}
-                        >
-                            <div className="w-11 h-11 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                                <AlertCircle className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 font-medium">Alpa</p>
-                                <h4 className="text-xl font-black text-gray-800">{satpamTotals.alpa}</h4>
                             </div>
                         </div>
                     </div>
@@ -535,7 +522,6 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                         <th className="py-4 px-6 font-semibold text-center text-indigo-600">Shift Malam</th>
                                         <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
                                         <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
-                                        <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
                                     </tr>
                                 ) : (
                                     <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
@@ -585,14 +571,13 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 <>
                                                     <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
                                                     <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
-                                                    <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
                                                 </>
                                             )}
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={roleTab === 'satpam' ? "7" : "7"} className="py-6 text-center text-gray-500">
+                                        <td colSpan={roleTab === 'satpam' ? "6" : "7"} className="py-6 text-center text-gray-500">
                                             {roleTab === 'satpam' 
                                                 ? 'Tidak ada data personel satpam yang cocok.' 
                                                 : 'Tidak ada data karyawan yang cocok dengan pencarian.'}
