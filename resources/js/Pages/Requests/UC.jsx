@@ -229,8 +229,8 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                         </div>
 
                         <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                            <InputLabel value="Nama Pendamping (Opsional - Maksimal 2)" className="flex items-center gap-2 mb-3">
-                                <Users className="w-4 h-4 text-gray-500"/> Pendamping (Maks. 2 Orang)
+                            <InputLabel value="Nama Pendamping" className="flex items-center gap-2 mb-3">
+                                <Users className="w-4 h-4 text-gray-500"/> Nama Pendamping
                             </InputLabel>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
