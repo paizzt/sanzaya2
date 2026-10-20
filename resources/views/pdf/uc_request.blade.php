@@ -415,7 +415,7 @@
             @foreach($uc->items as $item)
             <tr>
                 <td class="text-center">{{ $itemCounter++ }}</td>
-                <td>BIAYA {{ strtoupper($item->item_name) }}</td>
+                <td>{{ str_starts_with(strtoupper($item->item_name), 'BIAYA ') ? strtoupper($item->item_name) : 'BIAYA ' . strtoupper($item->item_name) }}</td>
                 <td class="text-center">{{ $item->quantity }} x Rp. {{ number_format($item->estimated_cost, 0, ',', '.') }}</td>
                 <td class="text-right">Rp. {{ number_format($item->total_cost, 0, ',', '.') }}</td>
             </tr>

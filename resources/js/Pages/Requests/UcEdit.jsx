@@ -280,11 +280,14 @@ export default function UcEdit({ ucRequest, users, vehicles, isAdmin }) {
                                         )}
                                         <div className="w-full md:w-5/12">
                                             <InputLabel value="Nama Item" />
-                                            <SearchableSelect 
+                                            <TextInput 
+                                                type="text"
                                                 value={item.item_name}
-                                                onChange={(val) => handleItemChange(index, 'item_name', val)}
-                                                options={itemOptions}
-                                                />
+                                                onChange={(e) => handleItemChange(index, 'item_name', e.target.value)}
+                                                className="w-full"
+                                                placeholder="Ketik nama item (contoh: Bensin, dll)..."
+                                                required
+                                            />
                                             <InputError message={errors[`items.${index}.item_name`]} />
                                         </div>
                                         <div className="w-full md:w-2/12">

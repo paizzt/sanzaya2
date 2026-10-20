@@ -226,7 +226,11 @@ export default function UcPreview({ data, user }) {
                             return (
                                 <tr key={idx}>
                                     <td className="border border-black p-2 text-center">{itemCounter++}</td>
-                                    <td className="border border-black p-2">BIAYA {item.item_name?.toUpperCase() || '-'}</td>
+                                    <td className="border border-black p-2">
+                                        {item.item_name 
+                                            ? (item.item_name.toUpperCase().startsWith('BIAYA ') ? item.item_name.toUpperCase() : `BIAYA ${item.item_name.toUpperCase()}`) 
+                                            : '-'}
+                                    </td>
                                     <td className="border border-black p-2 text-center">{qty} x Rp. {formatRupiah(cost)}</td>
                                     <td className="border border-black p-2 text-right">Rp. {formatRupiah(subtotal)}</td>
                                 </tr>
