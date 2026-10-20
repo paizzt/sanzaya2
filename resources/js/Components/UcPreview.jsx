@@ -18,10 +18,11 @@ export default function UcPreview({ data, user, companies = [] }) {
                 const cClean = (c.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
                 return clean.includes(cClean) || cClean.includes(clean);
             });
-            if (found && found.logo) {
+            if (found) {
                 return {
                     name: entityName || found.name,
-                    logo: clean.includes('sanzaya') ? '/img/logo.png' : `/storage/${found.logo}`
+                    logo: clean.includes('sanzaya') ? '/img/logo.png' : (found.logo ? `/storage/${found.logo}` : '/img/logo.png'),
+                    address: found.address || ''
                 };
             }
         }
@@ -29,41 +30,66 @@ export default function UcPreview({ data, user, companies = [] }) {
         if (clean.includes('harkes')) {
             return {
                 name: entityName || 'PT. Harkes',
-                logo: '/storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png'
+                logo: '/storage/company/IUFdNWO9Qcih9qpBXkBDhjtMY46A4CsjVTbtrk0C.png',
+                address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
             };
         }
         if (clean.includes('meraki')) {
             return {
                 name: entityName || 'CV. Meraki',
-                logo: '/storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png'
+                logo: '/storage/company/UodzfHxiO5KnXHR1cywPUQxASq6Wl2BA6r41YjxH.png',
+                address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
             };
         }
         if (clean.includes('msi')) {
             return {
                 name: entityName || 'PT. MSI',
-                logo: '/storage/company/CFKdTemIfTZwzwOD2L2og2U5OyUc2LCdwO9kBPqH.png'
+                logo: '/storage/company/CFKdTemIfTZwzwOD2L2og2U5OyUc2LCdwO9kBPqH.png',
+                address: 'Jl. Taman Makam Pahlawan, Makassar, Indonesia.'
             };
         }
         if (clean.includes('ruma')) {
             return {
                 name: entityName || 'PT. Ruma',
-                logo: '/storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png'
+                logo: '/storage/company/WHkbgcStg5nbv1RctprbOosfi9qsE2klGxgBD4n0.png',
+                address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
             };
         }
         if (clean.includes('sanzaya')) {
             return {
                 name: entityName || 'PT. Sanzaya Medika Pratama',
-                logo: '/img/logo.png'
+                logo: '/img/logo.png',
+                address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
             };
         }
 
         return {
             name: entityName || 'PT. SANZAYA MEDIKA PRATAMA',
-            logo: '/img/logo.png'
+            logo: '/img/logo.png',
+            address: 'Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235'
         };
     };
 
     const currentCompany = getCompanyInfo(data?.entity);
+
+    const formatAddress = (addr) => {
+        const defaultContact = 'Telp/WA: +6281264304010 | Email: admin@Sanzaya.id';
+        if (!addr || !addr.trim()) {
+            return {
+                addressText: 'Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala, Kota Makassar, Sulawesi Selatan 90235',
+                contactText: defaultContact
+            };
+        }
+        const text = addr.trim();
+        const hasContact = text.toLowerCase().includes('telp') || text.toLowerCase().includes('email') || text.toLowerCase().includes('wa:');
+        
+        return {
+            addressText: text.toLowerCase().startsWith('alamat') ? text : `Alamat: ${text}`,
+            contactText: hasContact ? null : defaultContact
+        };
+    };
+
+    const { addressText, contactText } = formatAddress(currentCompany.address);
 
     const items = data.items || [];
     const totalCost = items.reduce((sum, item) => {
@@ -138,10 +164,14 @@ export default function UcPreview({ data, user, companies = [] }) {
                     <h2 className="text-sm lg:text-base font-bold text-indigo-900 font-serif tracking-wide mb-1 uppercase">
                         {currentCompany.name}
                     </h2>
-                    <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight">
-                        Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br />
-                        Kota Makassar, Sulawesi Selatan 90235<br />
-                        Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
+                    <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight whitespace-pre-line">
+                        {addressText}
+                        {contactText && (
+                            <>
+                                <br />
+                                {contactText}
+                            </>
+                        )}
                     </p>
                 </div>
             </div>

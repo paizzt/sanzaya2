@@ -215,9 +215,16 @@
             <td width="65%" align="center">
                 <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
                 <div class="kop-text">
-                    Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
-                    Kota Makassar, Sulawesi Selatan 90235<br>
-                    Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
+                    @php
+                        $cleanAddr = trim($companyAddress ?? '');
+                        if (!str_starts_with(strtolower($cleanAddr), 'alamat:')) {
+                            $cleanAddr = 'Alamat: ' . $cleanAddr;
+                        }
+                    @endphp
+                    {!! nl2br(e($cleanAddr)) !!}<br>
+                    @if(!str_contains(strtolower($cleanAddr), 'telp') && !str_contains(strtolower($cleanAddr), 'email'))
+                        Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
+                    @endif
                 </div>
             </td>
         </tr>
@@ -336,9 +343,16 @@
             <td width="65%" align="center">
                 <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
                 <div class="kop-text">
-                    Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
-                    Kota Makassar, Sulawesi Selatan 90235<br>
-                    Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
+                    @php
+                        $cleanAddr = trim($companyAddress ?? '');
+                        if (!str_starts_with(strtolower($cleanAddr), 'alamat:')) {
+                            $cleanAddr = 'Alamat: ' . $cleanAddr;
+                        }
+                    @endphp
+                    {!! nl2br(e($cleanAddr)) !!}<br>
+                    @if(!str_contains(strtolower($cleanAddr), 'telp') && !str_contains(strtolower($cleanAddr), 'email'))
+                        Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
+                    @endif
                 </div>
             </td>
         </tr>
@@ -445,9 +459,16 @@
             <td width="65%" align="center">
                 <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
                 <div class="kop-text">
-                    Alamat: Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,<br>
-                    Kota Makassar, Sulawesi Selatan 90235<br>
-                    Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
+                    @php
+                        $cleanAddr = trim($companyAddress ?? '');
+                        if (!str_starts_with(strtolower($cleanAddr), 'alamat:')) {
+                            $cleanAddr = 'Alamat: ' . $cleanAddr;
+                        }
+                    @endphp
+                    {!! nl2br(e($cleanAddr)) !!}<br>
+                    @if(!str_contains(strtolower($cleanAddr), 'telp') && !str_contains(strtolower($cleanAddr), 'email'))
+                        Telp/WA: +6281264304010 | Email: admin@Sanzaya.id
+                    @endif
                 </div>
             </td>
         </tr>
