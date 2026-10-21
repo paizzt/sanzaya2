@@ -83,12 +83,20 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+        $permissions = [];
+        if ($request->user()) {
+            $permissions = $request->user()->getAllPermissions()->pluck('name')->toArray();
+            if (in_array('Dashboard Laporan', $active_feature_names, true) && !in_array('view laporan finansial', $permissions, true)) {
+                $permissions[] = 'view laporan finansial';
+            }
+        }
+
         return [
             'vapid_public_key' => $setting ? $setting->vapid_public_key : null,
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user() ? $request->user()->load(['company', 'roles']) : null,
-                'permissions' => $request->user() ? $request->user()->getAllPermissions()->pluck('name') : [],
+                'permissions' => $permissions,
                 'notifications' => $request->user() ? $request->user()->unreadNotifications()->take(5)->get() : [],
                 'unread_count' => $request->user() ? $request->user()->unreadNotifications()->count() : 0,
                 'active_features' => $active_features,

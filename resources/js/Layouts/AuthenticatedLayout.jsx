@@ -286,13 +286,13 @@ export default function Authenticated({ user, header, children }) {
                 active: url.startsWith('/spreadsheet') || url.startsWith('/reports'),
                 children: [
                     { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: hasPermission('manage spreadsheet sync') },
-                    { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_feature_names?.includes('Dashboard Laporan') && hasPermission('view laporan finansial') },
+                    { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_feature_names?.includes('Dashboard Laporan') },
                 ]
             }] 
             : auth.active_feature_names?.includes('Dashboard Laporan') ? [{
                 name: 'Dashboard Laporan', href: route('reports.index'), icon: FileCheck,
                 active: url.startsWith('/reports'),
-                show: hasPermission('view laporan finansial')
+                show: true
             }] : []
         )
     ];

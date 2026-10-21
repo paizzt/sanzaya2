@@ -32,5 +32,27 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\UcRequest::observe(\App\Observers\NotificationObserver::class);
         \App\Models\BhpRequest::observe(\App\Observers\NotificationObserver::class);
         \App\Models\WbsReport::observe(\App\Observers\NotificationObserver::class);
+
+        // Authorization Gate for Dashboard Laporan
+        \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+            if ($user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+                return true;
+            }
+        });
+
+        \Illuminate\Support\Facades\Gate::define('view laporan finansial', function ($user) {
+            if ($user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+                return true;
+            }
+            if ($user->hasPermissionTo('view laporan finansial')) {
+                return true;
+            }
+            $feature = \App\Models\FeatureToggle::where('name', 'Dashboard Laporan')->first();
+            if ($feature) {
+                $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
+                return !in_array((string)$user->id, array_map('strval', (array)$disabledUsers), true);
+            }
+            return false;
+        });
     }
 }

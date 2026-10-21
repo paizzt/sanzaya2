@@ -158,11 +158,7 @@ class ReportController extends Controller
             $tab = 'logistik';
         }
         $search = $request->query('search', '');
-        $isSuperAdmin = auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']);
         $salesFilter = $request->query('sales_filter', '');
-        if (!$isSuperAdmin && auth()->user() && auth()->user()->spreadsheet_sales_name) {
-            $salesFilter = auth()->user()->spreadsheet_sales_name;
-        }
 
         $outletFilter = $request->query('outlet_filter', '');
         $monthFilter = $request->query('month_filter', '');
@@ -204,18 +200,6 @@ class ReportController extends Controller
             }
         }
         $ptNames = $ptNames->concat($configuredPtNames)->unique()->values();
-        
-        $userAllowedPtNames = auth()->user()?->getAllowedCompanyNames();
-        if ($userAllowedPtNames !== null) {
-            $ptNames = $ptNames->filter(function($pt) use ($userAllowedPtNames) {
-                foreach ($userAllowedPtNames as $allowed) {
-                    if (stripos($pt, trim($allowed)) !== false || stripos(trim($allowed), $pt) !== false) {
-                        return true;
-                    }
-                }
-                return false;
-            })->values();
-        }
 
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
         $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -228,14 +212,6 @@ class ReportController extends Controller
         $targetPtNamesToSearch = $ptFilter ? array_filter(array_map('trim', explode(',', $ptFilter))) : [];
 
         $logistikBaseQuery = SyncLogistikData::query();
-        if ($userAllowedPtNames !== null) {
-            $logistikBaseQuery->where(function($q) use ($userAllowedPtNames) {
-                foreach ($userAllowedPtNames as $allowed) {
-                    $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%')
-                      ->orWhere('sheet_name', 'like', '%' . trim($allowed) . '%');
-                }
-            });
-        }
         if (!empty($targetPtNamesToSearch)) {
             self::applyPtFilter($logistikBaseQuery, $targetPtNamesToSearch);
         } else {
@@ -1167,11 +1143,7 @@ class ReportController extends Controller
             $selectedOutlets = [$selectedOutlets];
         }
 
-        $isSuperAdmin = auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']);
         $salesFilter = $request->query('sales_filter', '');
-        if (!$isSuperAdmin && auth()->user() && auth()->user()->spreadsheet_sales_name) {
-            $salesFilter = auth()->user()->spreadsheet_sales_name;
-        }
         $outletFilter = $request->query('outlet_filter', '');
         $ptFilter = $request->query('pt_filter', '');
         $keteranganFilter = $request->query('keterangan_filter', '');
@@ -1312,15 +1284,6 @@ class ReportController extends Controller
         }
 
         $targetPtNamesToSearch = $ptFilter ? array_map('trim', explode(',', $ptFilter)) : [];
-
-        $userAllowedPtNames = auth()->user()?->getAllowedCompanyNames();
-        if ($userAllowedPtNames !== null) {
-            $logistikQuery->where(function($q) use ($userAllowedPtNames) {
-                foreach ($userAllowedPtNames as $allowed) {
-                    $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%');
-                }
-            });
-        }
 
         if (!empty($targetPtNamesToSearch)) {
             self::applyPtFilter($logistikQuery, $targetPtNamesToSearch);
