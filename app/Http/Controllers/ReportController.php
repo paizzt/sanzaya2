@@ -94,7 +94,7 @@ class ReportController extends Controller
     }
 
     /**
-     * Extract searchable PT keywords.
+     * Extract searchable PT keywords (kept for backwards compatibility).
      */
     public static function getPtKeywords(array $targetPtNames): array
     {
@@ -103,19 +103,13 @@ class ReportController extends Controller
             $norm = self::normalizePtString((string)$pt);
             if ($norm !== '') {
                 $keywords[] = $norm;
-                $parts = explode(' ', $norm);
-                foreach ($parts as $p) {
-                    if (strlen($p) >= 3 && !in_array($p, ['medika', 'pratama', 'farma', 'utama', 'megatrading', 'indonesia', 'sentosa'])) {
-                        $keywords[] = $p;
-                    }
-                }
             }
         }
         return array_values(array_unique(array_filter($keywords)));
     }
 
     /**
-     * Extract all possible PT aliases and sheet names.
+     * Extract all possible PT aliases and sheet names for exact matching.
      */
     public static function getPtAliases(array $targetPtNames): array
     {
@@ -129,6 +123,23 @@ class ReportController extends Controller
             $logistikConfig = null;
         }
 
+        // Also fetch company targets and linked companies
+        $companyMap = [];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('company_targets') && \Illuminate\Support\Facades\Schema::hasTable('companies')) {
+                $cts = \App\Models\CompanyTarget::with('companies')->get();
+                foreach ($cts as $ct) {
+                    $ctName = trim((string)$ct->name);
+                    foreach ($ct->companies as $comp) {
+                        $cName = trim((string)$comp->name);
+                        if ($cName !== '') {
+                            $companyMap[$ctName][] = $cName;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+
         foreach ($targetPtNames as $pt) {
             $ptTrim = trim((string)$pt);
             if ($ptTrim === '') continue;
@@ -141,13 +152,36 @@ class ReportController extends Controller
             $aliases[] = 'CV ' . $clean;
             $aliases[] = 'CV. ' . $clean;
 
+            // Check SpreadsheetConfiguration sheets_config
             if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
                 foreach ($logistikConfig->sheets_config as $sc) {
                     $cPt = trim((string)($sc['col_nama_pt'] ?? ''));
                     $sName = trim((string)($sc['sheet_name'] ?? ''));
-                    if (strcasecmp($cPt, $ptTrim) === 0 || strcasecmp($sName, $ptTrim) === 0 || stripos($cPt, $clean) !== false || stripos($sName, $clean) !== false) {
+                    $cPtClean = trim(preg_replace('/^(PT\.?|CV\.?)\s+/i', '', $cPt));
+
+                    // Only match if col_nama_pt or sheet_name cleanly matches this specific PT option
+                    if (
+                        strcasecmp($cPt, $ptTrim) === 0 ||
+                        strcasecmp($cPtClean, $clean) === 0 ||
+                        strcasecmp($sName, $ptTrim) === 0 ||
+                        strcasecmp($sName, $clean) === 0
+                    ) {
                         if ($cPt !== '') $aliases[] = $cPt;
                         if ($sName !== '') $aliases[] = $sName;
+                    }
+                }
+            }
+
+            // Check linked companies from CompanyTarget
+            foreach ($companyMap as $ctName => $cNames) {
+                $ctClean = trim(preg_replace('/^(PT\.?|CV\.?)\s+/i', '', $ctName));
+                if (strcasecmp($ctName, $ptTrim) === 0 || strcasecmp($ctClean, $clean) === 0) {
+                    foreach ($cNames as $cn) {
+                        $aliases[] = $cn;
+                        $cnClean = trim(preg_replace('/^(PT\.?|CV\.?)\s+/i', '', $cn));
+                        $aliases[] = $cnClean;
+                        $aliases[] = 'PT ' . $cnClean;
+                        $aliases[] = 'PT. ' . $cnClean;
                     }
                 }
             }
@@ -165,29 +199,72 @@ class ReportController extends Controller
 
         $rowPt = trim((string)$rowPt);
         $rowSheetName = trim((string)$rowSheetName);
-        $rowPtClean = self::normalizePtString($rowPt);
-        $rowSheetClean = self::normalizePtString($rowSheetName);
 
+        // 1. Resolve canonical PT from SpreadsheetConfiguration sheet mapping
         $sheetToPtMap = self::getSheetToPtMap();
-        $mappedPt = isset($sheetToPtMap[strtolower($rowSheetName)]) ? self::normalizePtString($sheetToPtMap[strtolower($rowSheetName)]) : '';
+        $canonicalFromSheet = isset($sheetToPtMap[strtolower($rowSheetName)]) ? $sheetToPtMap[strtolower($rowSheetName)] : '';
+        $canonicalFromPt = isset($sheetToPtMap[strtolower($rowPt)]) ? $sheetToPtMap[strtolower($rowPt)] : '';
 
-        $keywords = self::getPtKeywords($targetPtNames);
-        $aliases = self::getPtAliases($targetPtNames);
-
-        foreach ($aliases as $alias) {
-            if (strcasecmp($rowPt, $alias) === 0 || strcasecmp($rowSheetName, $alias) === 0) {
+        // If sheet or pt matches any target name directly
+        foreach ($targetPtNames as $tPt) {
+            $tPtTrim = trim((string)$tPt);
+            if ($canonicalFromSheet !== '' && strcasecmp($canonicalFromSheet, $tPtTrim) === 0) {
+                return true;
+            }
+            if ($canonicalFromPt !== '' && strcasecmp($canonicalFromPt, $tPtTrim) === 0) {
                 return true;
             }
         }
 
-        foreach ($keywords as $kw) {
-            if ($rowPtClean !== '' && (strpos($rowPtClean, $kw) !== false || strpos($kw, $rowPtClean) !== false)) {
+        // If the sheet belongs to another known configured PT that is NOT in targetPtNames, strictly exclude it!
+        if ($canonicalFromSheet !== '') {
+            $isTarget = false;
+            foreach ($targetPtNames as $tPt) {
+                if (strcasecmp($canonicalFromSheet, trim((string)$tPt)) === 0) {
+                    $isTarget = true;
+                    break;
+                }
+            }
+            if (!$isTarget) {
+                return false;
+            }
+        }
+        if ($canonicalFromPt !== '') {
+            $isTarget = false;
+            foreach ($targetPtNames as $tPt) {
+                if (strcasecmp($canonicalFromPt, trim((string)$tPt)) === 0) {
+                    $isTarget = true;
+                    break;
+                }
+            }
+            if (!$isTarget) {
+                return false;
+            }
+        }
+
+        // 2. Exact match against aliases
+        $aliases = self::getPtAliases($targetPtNames);
+        foreach ($aliases as $alias) {
+            if ($rowPt !== '' && strcasecmp($rowPt, $alias) === 0) {
                 return true;
             }
-            if ($rowSheetClean !== '' && (strpos($rowSheetClean, $kw) !== false || strpos($kw, $rowSheetClean) !== false)) {
+            if ($rowSheetName !== '' && strcasecmp($rowSheetName, $alias) === 0) {
                 return true;
             }
-            if ($mappedPt !== '' && (strpos($mappedPt, $kw) !== false || strpos($kw, $mappedPt) !== false)) {
+        }
+
+        // 3. Normalized exact comparison (ignoring PT/CV prefix)
+        $rowPtClean = self::normalizePtString($rowPt);
+        $rowSheetClean = self::normalizePtString($rowSheetName);
+
+        foreach ($targetPtNames as $tPt) {
+            $tClean = self::normalizePtString((string)$tPt);
+            if ($tClean === '') continue;
+
+            if ($rowPtClean !== '' && $rowPtClean === $tClean) {
+                return true;
+            }
+            if ($rowSheetClean !== '' && $rowSheetClean === $tClean) {
                 return true;
             }
         }
@@ -208,23 +285,32 @@ class ReportController extends Controller
                 return \App\Models\CompanyTarget::with('companies')->get();
             }
 
-            $keywords = self::getPtKeywords($targetPtNames);
             $aliases = self::getPtAliases($targetPtNames);
 
             $linkedTargetIds = [];
             if (\Illuminate\Support\Facades\Schema::hasTable('companies')) {
-                $linkedTargetIds = \App\Models\Company::where(function($q) use ($aliases, $keywords) {
+                $linkedTargetIds = \App\Models\Company::where(function($q) use ($aliases, $targetPtNames) {
                     $q->whereIn('name', $aliases);
-                    foreach ($keywords as $kw) {
-                        $q->orWhere('name', 'like', "%{$kw}%");
+                    foreach ($targetPtNames as $tPt) {
+                        $clean = trim(preg_replace('/^(PT\.?|CV\.?)\s+/i', '', (string)$tPt));
+                        if ($clean !== '') {
+                            $q->orWhere('name', $clean)
+                              ->orWhere('name', 'PT ' . $clean)
+                              ->orWhere('name', 'PT. ' . $clean);
+                        }
                     }
                 })->whereNotNull('company_target_id')->pluck('company_target_id')->toArray();
             }
 
-            return \App\Models\CompanyTarget::with('companies')->where(function($q) use ($aliases, $keywords, $linkedTargetIds) {
+            return \App\Models\CompanyTarget::with('companies')->where(function($q) use ($aliases, $targetPtNames, $linkedTargetIds) {
                 $q->whereIn('name', $aliases);
-                foreach ($keywords as $kw) {
-                    $q->orWhere('name', 'like', "%{$kw}%");
+                foreach ($targetPtNames as $tPt) {
+                    $clean = trim(preg_replace('/^(PT\.?|CV\.?)\s+/i', '', (string)$tPt));
+                    if ($clean !== '') {
+                        $q->orWhere('name', $clean)
+                          ->orWhere('name', 'PT ' . $clean)
+                          ->orWhere('name', 'PT. ' . $clean);
+                    }
                 }
                 if (!empty($linkedTargetIds)) {
                     $q->orWhereIn('id', $linkedTargetIds);
@@ -246,22 +332,25 @@ class ReportController extends Controller
         }
 
         $aliases = self::getPtAliases($targetPtNames);
-        $keywords = self::getPtKeywords($targetPtNames);
 
-        return $query->where(function($q) use ($aliases, $keywords) {
-            $q->where(function($sub) use ($aliases, $keywords) {
+        return $query->where(function($q) use ($aliases, $targetPtNames) {
+            $q->where(function($sub) use ($aliases, $targetPtNames) {
                 if (!empty($aliases)) {
                     $sub->whereIn('nama_pt', $aliases);
                 }
-                foreach ($keywords as $kw) {
-                    $sub->orWhere('nama_pt', 'like', "%{$kw}%");
+                foreach ($targetPtNames as $tPt) {
+                    $clean = trim(preg_replace('/^(PT\.?|CV\.?)\s+/i', '', (string)$tPt));
+                    if ($clean !== '') {
+                        $sub->orWhere('nama_pt', $clean)
+                            ->orWhere('nama_pt', 'PT ' . $clean)
+                            ->orWhere('nama_pt', 'PT. ' . $clean)
+                            ->orWhere('nama_pt', 'like', 'PT ' . $clean . ' %')
+                            ->orWhere('nama_pt', 'like', 'PT. ' . $clean . ' %');
+                    }
                 }
-            })->orWhere(function($sub) use ($aliases, $keywords) {
+            })->orWhere(function($sub) use ($aliases) {
                 if (!empty($aliases)) {
                     $sub->whereIn('sheet_name', $aliases);
-                }
-                foreach ($keywords as $kw) {
-                    $sub->orWhere('sheet_name', 'like', "%{$kw}%");
                 }
             });
         });
