@@ -214,6 +214,8 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                         let totalValue = null;
                                         if (detailModal.type === 'penjualan') totalValue = summary?.total_penjualan;
                                         else if (detailModal.type === 'target') totalValue = detailModal.title === 'Target Bulanan' ? summary?.total_penjualan_bulan_ini : summary?.total_penjualan;
+                                        else if (detailModal.type === 'outlet') totalValue = summary?.total_outlet || summary?.total_penjualan;
+                                        else if (detailModal.type === 'produk') totalValue = summary?.total_produk || summary?.total_penjualan;
                                         else if (detailModal.type === 'pesanan') totalValue = summary?.total_pesanan;
                                         else if (detailModal.type === 'faktur') totalValue = summaryPesanan?.total_faktur;
                                         else if (detailModal.type === 'terkirim') totalValue = summaryPesanan?.total_terkirim;
@@ -273,13 +275,55 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                             </div>
                                         );
                                     })()}
+                                    {(() => {
+                                        let salesData = null;
+                                        let salesTitle = 'Berdasarkan Sales';
+                                        if (detailModal.type === 'target' && detailModal.title === 'Target Bulanan') {
+                                            salesData = summary?.sales_penjualan_bulan_ini || summary?.penjualan_detail;
+                                            salesTitle = 'Total Penjualan per Sales (Bulan Ini)';
+                                        } else if (detailModal.type === 'target' && detailModal.title === 'Target Tahunan') {
+                                            salesData = summary?.sales_penjualan_tahunan || summary?.penjualan_detail;
+                                            salesTitle = 'Total Penjualan per Sales (Tahunan)';
+                                        }
+
+                                        if (!salesData || Object.keys(salesData).length === 0) return null;
+
+                                        return (
+                                            <div className="mb-4 pb-4 border-b-2 border-dashed border-gray-200">
+                                                <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">{salesTitle}</h4>
+                                                <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
+                                                    <span>Nama Sales</span>
+                                                    <span>Total (Rp)</span>
+                                                </div>
+                                                <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+                                                    {Object.entries(salesData || {}).map(([key, value], idx) => (
+                                                          <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-blue-50/30 hover:bg-blue-50/60 rounded-xl border border-blue-100 transition-colors gap-2">
+                                                              <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                                                                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
+                                                                      {idx + 1}
+                                                                  </div>
+                                                                  <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
+                                                              </div>
+                                                              <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
+                                                          </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
 
                                     <div>
                                         {detailModal.type === 'penjualan' && (
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Berdasarkan Sales</h4>
                                         )}
                                         {detailModal.type === 'target' && (
-                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Rincian Target Sales</h4>
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Rincian Target & Capaian</h4>
+                                        )}
+                                        {detailModal.type === 'outlet' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Peringkat Outlet Teratas</h4>
+                                        )}
+                                        {detailModal.type === 'produk' && (
+                                            <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Peringkat Produk Terlaris</h4>
                                         )}
                                         {detailModal.type === 'capaian' && (
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
@@ -288,44 +332,65 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                             <h4 className="text-sm font-bold text-gray-800 mb-4 px-1">Capaian per PT</h4>
                                         )}
                                         <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
-                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['target'].includes(detailModal.type) ? 'Nama PT / Sales' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama')))}</span>
+                                            <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['target'].includes(detailModal.type) ? 'Nama PT / Sales' : (['outlet'].includes(detailModal.type) ? 'Nama Outlet' : (['produk'].includes(detailModal.type) ? 'Nama Produk' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama')))))}</span>
                                             <span>{['penjualan', 'faktur'].includes(detailModal.type) ? 'Total (Rp)' : (['target'].includes(detailModal.type) ? 'Realisasi / Target' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai'))}</span>
                                         </div>
                                         <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-                                            {detailModal.type === 'outlet' ? (
+                                            {detailModal.type === 'outlet' || detailModal.type === 'produk' ? (
                                                 Object.entries(detailModal?.data || {}).map(([key, value], idx) => (
                                                     <div key={idx} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm mb-3">
-                                                        <div className="flex justify-between items-center border-b pb-3 mb-3">
-                                                           <div className="flex items-center gap-2">
-                                                               <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">{idx + 1}</div>
-                                                               <h5 className="font-bold text-gray-800 text-sm">{key}</h5>
+                                                        <div className="flex justify-between items-start border-b pb-3 mb-3 gap-2">
+                                                           <div className="flex items-start gap-2 min-w-0 flex-1">
+                                                               <div className={`w-6 h-6 rounded-full ${detailModal.type === 'outlet' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'} flex items-center justify-center text-xs font-bold shrink-0`}>
+                                                                   {idx + 1}
+                                                               </div>
+                                                               <div>
+                                                                   <h5 className="font-bold text-gray-800 text-sm break-words whitespace-normal leading-snug">{key}</h5>
+                                                                   {detailModal.type === 'produk' && typeof value === 'object' && value?.qty !== undefined && (
+                                                                       <p className="text-[11px] text-gray-500 mt-0.5">
+                                                                           Qty: <span className="font-semibold text-gray-700">{Number(value?.qty || 0).toLocaleString('id-ID')} {value?.satuan || ''}</span>
+                                                                           {value?.count && <span className="ml-2 text-gray-400">({value.count} transaksi)</span>}
+                                                                       </p>
+                                                                   )}
+                                                                   {detailModal.type === 'outlet' && typeof value === 'object' && value?.count && (
+                                                                       <p className="text-[11px] text-gray-400 mt-0.5">{value.count} transaksi</p>
+                                                                   )}
+                                                               </div>
                                                            </div>
-                                                           <span className="font-bold text-gray-900 text-sm">{value?.total_formatted || '-'}</span>
+                                                           <span className="font-bold text-gray-900 text-sm shrink-0 text-right">
+                                                               {typeof value === 'object' ? (value?.total_formatted || '-') : value}
+                                                           </span>
                                                         </div>
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                            <div>
-                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan PT</p>
-                                                                <div className="space-y-1">
-                                                                    {Object.entries(value?.pt || {}).map(([pt, val]) => (
-                                                                        <div key={pt} className="flex justify-between text-[11px] sm:text-xs">
-                                                                            <span className="text-gray-600">{pt}</span>
-                                                                            <span className="font-semibold text-gray-800">{val}</span>
+                                                        {typeof value === 'object' && (value?.pt || value?.bulan) && (
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                {value?.pt && Object.keys(value.pt).length > 0 && (
+                                                                    <div>
+                                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan PT</p>
+                                                                        <div className="space-y-1">
+                                                                            {Object.entries(value.pt).map(([pt, val]) => (
+                                                                                <div key={pt} className="flex justify-between text-[11px] sm:text-xs">
+                                                                                    <span className="text-gray-600 truncate mr-2" title={pt}>{pt}</span>
+                                                                                    <span className="font-semibold text-gray-800 shrink-0">{val}</span>
+                                                                                </div>
+                                                                            ))}
                                                                         </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan Bulan</p>
-                                                                <div className="space-y-1">
-                                                                    {Object.entries(value?.bulan || {}).map(([bln, val]) => (
-                                                                        <div key={bln} className="flex justify-between text-[11px] sm:text-xs">
-                                                                            <span className="text-gray-600">{bln}</span>
-                                                                            <span className="font-semibold text-gray-800">{val}</span>
+                                                                    </div>
+                                                                )}
+                                                                {value?.bulan && Object.keys(value.bulan).length > 0 && (
+                                                                    <div>
+                                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Berdasarkan Bulan</p>
+                                                                        <div className="space-y-1">
+                                                                            {Object.entries(value.bulan).map(([bln, val]) => (
+                                                                                <div key={bln} className="flex justify-between text-[11px] sm:text-xs">
+                                                                                    <span className="text-gray-600 truncate mr-2" title={bln}>{bln}</span>
+                                                                                    <span className="font-semibold text-gray-800 shrink-0">{val}</span>
+                                                                                </div>
+                                                                            ))}
                                                                         </div>
-                                                                    ))}
-                                                                </div>
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                        </div>
+                                                        )}
                                                     </div>
                                                 ))
                                             ) : (
@@ -1055,92 +1120,88 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                 {/* Summary Cards */}
                 {tab === 'logistik' && summary && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-                        {(summary.target_bulanan || is_super_admin) && (
-                                <div 
-                                    onClick={() => ((summary.target_detail && Object.keys(summary.target_detail).length > 0) || (summary.pt_penjualan_bulan_ini && Object.keys(summary.pt_penjualan_bulan_ini).length > 0)) && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail || {} })} 
-                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-blue-100 ${((summary.target_detail && Object.keys(summary.target_detail).length > 0) || (summary.pt_penjualan_bulan_ini && Object.keys(summary.pt_penjualan_bulan_ini).length > 0)) ? 'cursor-pointer' : ''}`}
-                                    style={{ backgroundImage: getProgressBg(summary.capaian_target) }}
-                                >
-                                    {/* Background Icon */}
-                                    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-                                        <Activity className="w-24 h-24 text-blue-600" />
-                                    </div>
+                        <div 
+                            onClick={() => ((summary.target_detail && Object.keys(summary.target_detail).length > 0) || (summary.pt_penjualan_bulan_ini && Object.keys(summary.pt_penjualan_bulan_ini).length > 0)) && setDetailModal({ isOpen: true, title: 'Target Bulanan', type: 'target', data: summary.target_detail || {} })} 
+                            className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-blue-100 cursor-pointer`}
+                            style={{ backgroundImage: getProgressBg(summary.capaian_target) }}
+                        >
+                            {/* Background Icon */}
+                            <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
+                                <Activity className="w-24 h-24 text-blue-600" />
+                            </div>
 
-                                    <div className="relative z-10 mb-4">
-                                        <div className="flex justify-between items-start">
-                                            <p className="text-sm font-semibold text-gray-500">Penjualan Bulanan</p>
-                                            <span className="text-xs font-bold text-pink-700 bg-pink-50 border border-pink-100 px-2.5 py-1 rounded-full shadow-sm">
-                                                {summary.capaian_target || '0%'}
-                                            </span>
-                                        </div>
-                                        <div className="mt-2">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs font-medium text-gray-500">Target:</span>
-                                                <span className="text-sm font-bold text-gray-600">{summary.target_bulanan || 'Rp 0'}</span>
-                                            </div>
-                                            <h4 className="text-base sm:text-lg xl:text-2xl leading-snug break-words font-extrabold text-blue-700" title={summary.total_penjualan_bulan_ini || 'Rp 0'}>{summary.total_penjualan_bulan_ini || 'Rp 0'}</h4>
-                                        </div>
-                                    </div>
-
+                            <div className="relative z-10 mb-4">
+                                <div className="flex justify-between items-start">
+                                    <p className="text-sm font-semibold text-gray-500">Penjualan Bulanan</p>
+                                    <span className="text-xs font-bold text-pink-700 bg-pink-50 border border-pink-100 px-2.5 py-1 rounded-full shadow-sm">
+                                        {summary.capaian_target || '0%'}
+                                    </span>
                                 </div>
-                        )}
-
-                        {(summary.target_tahunan || is_super_admin) && (
-                                <div 
-                                    onClick={() => ((summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0) || (summary.pt_penjualan_tahunan && Object.keys(summary.pt_penjualan_tahunan).length > 0)) && setDetailModal({ isOpen: true, title: 'Target Tahunan', type: 'target', data: summary.target_tahunan_detail || {} })}
-                                    className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-indigo-100 ${((summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0) || (summary.pt_penjualan_tahunan && Object.keys(summary.pt_penjualan_tahunan).length > 0)) ? 'cursor-pointer' : ''}`}
-                                    style={{ backgroundImage: getProgressBg(summary.capaian_tahunan) }}
-                                >
-                                    {/* Background Icon */}
-                                    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-                                        <svg className="w-24 h-24 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                <div className="mt-2">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-xs font-medium text-gray-500">Target:</span>
+                                        <span className="text-sm font-bold text-gray-600">{summary.target_bulanan || 'Rp 0'}</span>
                                     </div>
-
-                                    <div className="relative z-10 mb-4">
-                                        <div className="flex justify-between items-start">
-                                            <p className="text-sm font-semibold text-gray-500">Penjualan Tahunan</p>
-                                            <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full shadow-sm">
-                                                {summary.capaian_tahunan || '0%'}
-                                            </span>
-                                        </div>
-                                        <div className="mt-2">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs font-medium text-gray-500">Target:</span>
-                                                <span className="text-sm font-bold text-gray-600">{summary.target_tahunan || 'Rp 0'}</span>
-                                            </div>
-                                            <h4 className="text-base sm:text-lg xl:text-2xl leading-snug break-words font-extrabold text-indigo-700" title={summary.total_penjualan || 'Rp 0'}>{summary.total_penjualan || 'Rp 0'}</h4>
-                                        </div>
-                                    </div>
-
+                                    <h4 className="text-base sm:text-lg xl:text-2xl leading-snug break-words font-extrabold text-blue-700" title={summary.total_penjualan_bulan_ini || 'Rp 0'}>{summary.total_penjualan_bulan_ini || 'Rp 0'}</h4>
                                 </div>
-                        )}
-
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Outlet', type: 'outlet', data: summary.outlet_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
-                                {/* Background Icon */}
-    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-        <Store className="w-24 h-24 text-blue-600" />
-    </div>
-
-    <div className="relative z-10 mb-4">
-        <p className="text-sm font-semibold text-gray-500">Top Outlet</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.top_outlet}>{summary.top_outlet}</h4>
-    </div>
-    <div className="relative z-10">
-        <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
-    </div>
+                            </div>
                         </div>
 
-                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Produk', type: 'produk', data: summary.produk_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
-                                {/* Background Icon */}
-    <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
-        <Package className="w-24 h-24 text-orange-600" />
-    </div>
+                        <div 
+                            onClick={() => ((summary.target_tahunan_detail && Object.keys(summary.target_tahunan_detail).length > 0) || (summary.pt_penjualan_tahunan && Object.keys(summary.pt_penjualan_tahunan).length > 0)) && setDetailModal({ isOpen: true, title: 'Target Tahunan', type: 'target', data: summary.target_tahunan_detail || {} })}
+                            className={`bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg hover:border-indigo-100 cursor-pointer`}
+                            style={{ backgroundImage: getProgressBg(summary.capaian_tahunan) }}
+                        >
+                            {/* Background Icon */}
+                            <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
+                                <svg className="w-24 h-24 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            </div>
 
-    <div className="relative z-10 mb-4">
-        <p className="text-sm font-semibold text-gray-500">Top Produk</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summary.top_produk}>{summary.top_produk}</h4>
-    </div>
+                            <div className="relative z-10 mb-4">
+                                <div className="flex justify-between items-start">
+                                    <p className="text-sm font-semibold text-gray-500">Penjualan Tahunan</p>
+                                    <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full shadow-sm">
+                                        {summary.capaian_tahunan || '0%'}
+                                    </span>
+                                </div>
+                                <div className="mt-2">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-xs font-medium text-gray-500">Target:</span>
+                                        <span className="text-sm font-bold text-gray-600">{summary.target_tahunan || 'Rp 0'}</span>
+                                    </div>
+                                    <h4 className="text-base sm:text-lg xl:text-2xl leading-snug break-words font-extrabold text-indigo-700" title={summary.total_penjualan || 'Rp 0'}>{summary.total_penjualan || 'Rp 0'}</h4>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Outlet', type: 'outlet', data: summary.outlet_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-blue-100">
+                            {/* Background Icon */}
+                            <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
+                                <Store className="w-24 h-24 text-blue-600" />
+                            </div>
+
+                            <div className="relative z-10 mb-4">
+                                <p className="text-sm font-semibold text-gray-500">Top Outlet</p>
+                                <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-1" title={summary.top_outlet}>{summary.top_outlet}</h4>
+                            </div>
+                            <div className="relative z-10">
+                                <p className="text-xs text-gray-400">Outlet paling sering memesan</p>
+                            </div>
+                        </div>
+
+                        <div onClick={() => setDetailModal({ isOpen: true, title: 'Top Produk', type: 'produk', data: summary.produk_detail })} className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden group flex flex-col justify-between transition-all hover:-translate-y-1 cursor-pointer hover:shadow-lg hover:border-orange-100">
+                            {/* Background Icon */}
+                            <div className="absolute -right-4 -bottom-4 opacity-[0.08] group-hover:scale-110 group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none z-0">
+                                <Package className="w-24 h-24 text-orange-600" />
+                            </div>
+
+                            <div className="relative z-10 mb-4">
+                                <p className="text-sm font-semibold text-gray-500">Top Produk</p>
+                                <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-1" title={summary.top_produk}>{summary.top_produk}</h4>
+                            </div>
+                            <div className="relative z-10">
+                                <p className="text-xs text-gray-400">Produk paling sering dipesan</p>
+                            </div>
                         </div>
                     </div>
                 )}

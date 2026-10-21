@@ -77,6 +77,142 @@ class ReportController extends Controller
     }
 
     /**
+     * Normalize PT string for flexible comparison.
+     */
+    public static function normalizePtString(string $name): string
+    {
+        $name = trim($name);
+        $name = preg_replace('/^(PT\.?|CV\.?)\s+/i', '', $name);
+        $name = str_replace(['.', ',', '-', '_', '/', '\\'], ' ', $name);
+        return strtolower(trim(preg_replace('/\s+/', ' ', $name)));
+    }
+
+    /**
+     * Extract searchable PT keywords.
+     */
+    public static function getPtKeywords(array $targetPtNames): array
+    {
+        $keywords = [];
+        foreach ($targetPtNames as $pt) {
+            $norm = self::normalizePtString((string)$pt);
+            if ($norm !== '') {
+                $keywords[] = $norm;
+                $parts = explode(' ', $norm);
+                foreach ($parts as $p) {
+                    if (strlen($p) >= 3 && !in_array($p, ['medika', 'pratama', 'farma', 'utama', 'megatrading', 'indonesia', 'sentosa'])) {
+                        $keywords[] = $p;
+                    }
+                }
+            }
+        }
+        return array_values(array_unique(array_filter($keywords)));
+    }
+
+    /**
+     * Extract all possible PT aliases and sheet names.
+     */
+    public static function getPtAliases(array $targetPtNames): array
+    {
+        $aliases = [];
+        $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
+
+        foreach ($targetPtNames as $pt) {
+            $ptTrim = trim((string)$pt);
+            if ($ptTrim === '') continue;
+            $aliases[] = $ptTrim;
+            $clean = trim(preg_replace('/^(PT\.?|CV\.?)\s+/i', '', $ptTrim));
+            $aliases[] = $clean;
+            $aliases[] = 'PT ' . $clean;
+            $aliases[] = 'PT. ' . $clean;
+            $aliases[] = 'PT.' . $clean;
+            $aliases[] = 'CV ' . $clean;
+            $aliases[] = 'CV. ' . $clean;
+
+            if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
+                foreach ($logistikConfig->sheets_config as $sc) {
+                    $cPt = trim((string)($sc['col_nama_pt'] ?? ''));
+                    $sName = trim((string)($sc['sheet_name'] ?? ''));
+                    if (strcasecmp($cPt, $ptTrim) === 0 || strcasecmp($sName, $ptTrim) === 0 || stripos($cPt, $clean) !== false || stripos($sName, $clean) !== false) {
+                        if ($cPt !== '') $aliases[] = $cPt;
+                        if ($sName !== '') $aliases[] = $sName;
+                    }
+                }
+            }
+        }
+
+        return array_values(array_unique(array_filter($aliases)));
+    }
+
+    /**
+     * Check if a row matches the selected PT filter(s).
+     */
+    public static function matchesPtRow($rowPt, $rowSheetName, array $targetPtNames): bool
+    {
+        if (empty($targetPtNames)) return true;
+
+        $rowPt = trim((string)$rowPt);
+        $rowSheetName = trim((string)$rowSheetName);
+        $rowPtClean = self::normalizePtString($rowPt);
+        $rowSheetClean = self::normalizePtString($rowSheetName);
+
+        $sheetToPtMap = self::getSheetToPtMap();
+        $mappedPt = isset($sheetToPtMap[strtolower($rowSheetName)]) ? self::normalizePtString($sheetToPtMap[strtolower($rowSheetName)]) : '';
+
+        $keywords = self::getPtKeywords($targetPtNames);
+        $aliases = self::getPtAliases($targetPtNames);
+
+        foreach ($aliases as $alias) {
+            if (strcasecmp($rowPt, $alias) === 0 || strcasecmp($rowSheetName, $alias) === 0) {
+                return true;
+            }
+        }
+
+        foreach ($keywords as $kw) {
+            if ($rowPtClean !== '' && (strpos($rowPtClean, $kw) !== false || strpos($kw, $rowPtClean) !== false)) {
+                return true;
+            }
+            if ($rowSheetClean !== '' && (strpos($rowSheetClean, $kw) !== false || strpos($kw, $rowSheetClean) !== false)) {
+                return true;
+            }
+            if ($mappedPt !== '' && (strpos($mappedPt, $kw) !== false || strpos($kw, $mappedPt) !== false)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Find CompanyTarget records matching the target PT names.
+     */
+    public static function getCompanyTargetsForPt(array $targetPtNames)
+    {
+        if (empty($targetPtNames)) {
+            return \App\Models\CompanyTarget::with('companies')->get();
+        }
+
+        $keywords = self::getPtKeywords($targetPtNames);
+        $aliases = self::getPtAliases($targetPtNames);
+
+        $linkedTargetIds = \App\Models\Company::where(function($q) use ($aliases, $keywords) {
+            $q->whereIn('name', $aliases);
+            foreach ($keywords as $kw) {
+                $q->orWhere('name', 'like', "%{$kw}%");
+            }
+        })->whereNotNull('company_target_id')->pluck('company_target_id')->toArray();
+
+        return \App\Models\CompanyTarget::with('companies')->where(function($q) use ($aliases, $keywords, $linkedTargetIds) {
+            $q->whereIn('name', $aliases);
+            foreach ($keywords as $kw) {
+                $q->orWhere('name', 'like', "%{$kw}%");
+            }
+            if (!empty($linkedTargetIds)) {
+                $q->orWhereIn('id', $linkedTargetIds);
+            }
+        })->get();
+    }
+
+    /**
      * Apply accurate PT filter on a query for sync_logistik_data.
      */
     public static function applyPtFilter($query, array $targetPtNames)
@@ -86,52 +222,25 @@ class ReportController extends Controller
             return $query;
         }
 
-        $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
-        $targetPtNamesUpper = array_map('strtoupper', $targetPtNames);
+        $aliases = self::getPtAliases($targetPtNames);
+        $keywords = self::getPtKeywords($targetPtNames);
 
-        $matchedSheetNames = [];
-        $matchedPtNames = [];
-
-        if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
-            foreach ($logistikConfig->sheets_config as $sc) {
-                $pt = trim((string)($sc['col_nama_pt'] ?? $sc['sheet_name'] ?? ''));
-                $sName = trim((string)($sc['sheet_name'] ?? ''));
-                
-                foreach ($targetPtNamesUpper as $tPt) {
-                    if (strtoupper($pt) === $tPt) {
-                        $matchedPtNames[] = $pt;
-                        if ($sName !== '') {
-                            $matchedSheetNames[] = $sName;
-                        }
-                    }
+        return $query->where(function($q) use ($aliases, $keywords) {
+            $q->where(function($sub) use ($aliases, $keywords) {
+                if (!empty($aliases)) {
+                    $sub->whereIn('nama_pt', $aliases);
                 }
-            }
-        }
-
-        foreach ($targetPtNames as $tPt) {
-            $matchedPtNames[] = $tPt;
-        }
-
-        $matchedPtNames = array_values(array_unique(array_filter($matchedPtNames)));
-        $matchedSheetNames = array_values(array_unique(array_filter($matchedSheetNames)));
-
-        return $query->where(function($q) use ($matchedPtNames, $matchedSheetNames) {
-            $q->whereIn('nama_pt', $matchedPtNames);
-
-            foreach ($matchedPtNames as $pt) {
-                $q->orWhere('nama_pt', 'PT ' . $pt)
-                  ->orWhere('nama_pt', 'PT. ' . $pt)
-                  ->orWhere('nama_pt', 'PT ' . $pt . ' MEDIKA PRATAMA')
-                  ->orWhere('nama_pt', 'PT. ' . $pt . ' MEDIKA PRATAMA');
-            }
-
-            if (!empty($matchedSheetNames)) {
-                $q->orWhere(function($sub) use ($matchedSheetNames) {
-                    $sub->where(function($s) {
-                        $s->whereNull('nama_pt')->orWhere('nama_pt', '')->orWhere('nama_pt', '-');
-                    })->whereIn('sheet_name', $matchedSheetNames);
-                });
-            }
+                foreach ($keywords as $kw) {
+                    $sub->orWhere('nama_pt', 'like', "%{$kw}%");
+                }
+            })->orWhere(function($sub) use ($aliases, $keywords) {
+                if (!empty($aliases)) {
+                    $sub->whereIn('sheet_name', $aliases);
+                }
+                foreach ($keywords as $kw) {
+                    $sub->orWhere('sheet_name', 'like', "%{$kw}%");
+                }
+            });
         });
     }
 
@@ -368,28 +477,22 @@ class ReportController extends Controller
         $summary = null;
         if ($tab === 'logistik') {
             $summaryQuery = clone $logistikBaseQuery;
-            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'sheet_name', 'no_faktur', 'tanggal', 'brand')->get();
+            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'sheet_name', 'no_faktur', 'tanggal', 'brand', 'qty', 'satuan')->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = []; $monthBreakdown = []; $brandBreakdown = [];
             $outletDetailsMap = [];
+            $produkDetailsMap = [];
             $sheetToPtMap = self::getSheetToPtMap();
             foreach ($logistikAll as $row) {
+                if (!empty($targetPtNamesToSearch) && !self::matchesPtRow($row->nama_pt, $row->sheet_name, $targetPtNamesToSearch)) {
+                    continue;
+                }
+
                 $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
                 if (isset($sheetToPtMap[strtolower($rowPt)])) {
                     $rowPt = $sheetToPtMap[strtolower($rowPt)];
                 }
-
-                if (!empty($targetPtNamesToSearch)) {
-                    $matchedTargetPt = null;
-                    foreach ($targetPtNamesToSearch as $tPt) {
-                        if (strcasecmp($rowPt, $tPt) === 0) {
-                            $matchedTargetPt = $tPt;
-                            break;
-                        }
-                    }
-                    if ($matchedTargetPt === null) {
-                        continue;
-                    }
-                    $rowPt = $matchedTargetPt;
+                if ($rowPt === '' || $rowPt === '-') {
+                    $rowPt = 'Lainnya';
                 }
 
                 $val = self::parseCurrency($row->total);
@@ -437,9 +540,10 @@ class ReportController extends Controller
                     $outletCounts[$pel] = ($outletCounts[$pel] ?? 0) + 1;
                     
                     if (!isset($outletDetailsMap[$pel])) {
-                        $outletDetailsMap[$pel] = ['total' => 0, 'pt' => [], 'bulan' => []];
+                        $outletDetailsMap[$pel] = ['total' => 0, 'count' => 0, 'pt' => [], 'bulan' => []];
                     }
                     $outletDetailsMap[$pel]['total'] += $val;
+                    $outletDetailsMap[$pel]['count'] += 1;
                     
                     if ($rowPt) {
                         $outletDetailsMap[$pel]['pt'][$rowPt] = ($outletDetailsMap[$pel]['pt'][$rowPt] ?? 0) + $val;
@@ -455,11 +559,36 @@ class ReportController extends Controller
                 }
 
                 $prod = trim((string)$row->nama_produk);
-                if ($prod !== '' && !in_array(strtolower($prod), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya', 'nama produk', 'nama_produk', 'produk', 'item', 'nama barang', 'total'])) {
+                if ($prod === '' || in_array(strtolower($prod), ['-', '0', '#n/a', '#ref!', 'null', 'none', 'lainnya', 'nama produk', 'nama_produk', 'produk', 'item', 'nama barang', 'total'])) {
+                    if ($row->no_faktur) {
+                        $prod = 'Faktur ' . trim($row->no_faktur);
+                    } else {
+                        $prod = '';
+                    }
+                }
+
+                if ($prod !== '') {
                     $produkCounts[$prod] = ($produkCounts[$prod] ?? 0) + 1;
-                } elseif ($row->no_faktur) {
-                    $invName = 'Faktur ' . trim($row->no_faktur);
-                    $produkCounts[$invName] = ($produkCounts[$invName] ?? 0) + 1;
+                    $qtyVal = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->qty));
+                    if (!isset($produkDetailsMap[$prod])) {
+                        $produkDetailsMap[$prod] = [
+                            'total' => 0,
+                            'count' => 0,
+                            'qty' => 0,
+                            'satuan' => trim((string)$row->satuan) ?: 'Pcs',
+                            'pt' => [],
+                            'bulan' => []
+                        ];
+                    }
+                    $produkDetailsMap[$prod]['total'] += $val;
+                    $produkDetailsMap[$prod]['count'] += 1;
+                    $produkDetailsMap[$prod]['qty'] += $qtyVal;
+                    if ($rowPt) {
+                        $produkDetailsMap[$prod]['pt'][$rowPt] = ($produkDetailsMap[$prod]['pt'][$rowPt] ?? 0) + $val;
+                    }
+                    if ($mName) {
+                        $produkDetailsMap[$prod]['bulan'][$mName] = ($produkDetailsMap[$prod]['bulan'][$mName] ?? 0) + $val;
+                    }
                 }
 
                 $namaSales = strtoupper(trim((string)$row->nama_sales));
@@ -485,29 +614,69 @@ class ReportController extends Controller
             uasort($outletDetailsMap, function($a, $b) {
                 return $b['total'] <=> $a['total'];
             });
+
+            // Sort produkDetailsMap by total sales descending (or count if equal)
+            uasort($produkDetailsMap, function($a, $b) {
+                if ($b['total'] != $a['total']) {
+                    return $b['total'] <=> $a['total'];
+                }
+                return $b['count'] <=> $a['count'];
+            });
             
-            // Format top 10 outlets
-            $top10Outlets = array_slice($outletDetailsMap, 0, 10, true);
+            // Format top 15 outlets
+            $top15Outlets = array_slice($outletDetailsMap, 0, 15, true);
             $outletDetailFormatted = [];
+            $totalOutletNominal = 0;
+            foreach ($outletDetailsMap as $od) {
+                $totalOutletNominal += $od['total'];
+            }
             $monthOrder = ['Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4, 'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8, 'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12, 'Lainnya' => 13];
             
-            foreach ($top10Outlets as $outlet => $outletDetail) {
+            foreach ($top15Outlets as $outlet => $outletDetail) {
                 $ptFormatted = [];
                 arsort($outletDetail['pt']);
                 foreach ($outletDetail['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $bulanFormatted = [];
-                
                 uksort($outletDetail['bulan'], function($a, $b) use ($monthOrder) {
                     $orderA = $monthOrder[$a] ?? 99;
                     $orderB = $monthOrder[$b] ?? 99;
                     return $orderA <=> $orderB;
                 });
-                
                 foreach ($outletDetail['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
                 
                 $outletDetailFormatted[$outlet] = [
                     'total_formatted' => 'Rp ' . number_format($outletDetail['total'], 0, ',', '.'),
+                    'count' => $outletDetail['count'] ?? 1,
+                    'pt' => $ptFormatted,
+                    'bulan' => $bulanFormatted
+                ];
+            }
+
+            // Format top 15 products
+            $top15Produk = array_slice($produkDetailsMap, 0, 15, true);
+            $produkDetailFormatted = [];
+            $totalProdukNominal = 0;
+            foreach ($produkDetailsMap as $pd) {
+                $totalProdukNominal += $pd['total'];
+            }
+            foreach ($top15Produk as $prodName => $pd) {
+                $ptFormatted = [];
+                arsort($pd['pt']);
+                foreach ($pd['pt'] as $pt => $v) $ptFormatted[$pt] = 'Rp ' . number_format($v, 0, ',', '.');
+                
+                $bulanFormatted = [];
+                uksort($pd['bulan'], function($a, $b) use ($monthOrder) {
+                    return ($monthOrder[$a] ?? 99) <=> ($monthOrder[$b] ?? 99);
+                });
+                foreach ($pd['bulan'] as $b => $v) $bulanFormatted[$b] = 'Rp ' . number_format($v, 0, ',', '.');
+
+                $produkDetailFormatted[$prodName] = [
+                    'total_formatted' => 'Rp ' . number_format($pd['total'], 0, ',', '.'),
+                    'total_num' => $pd['total'],
+                    'count' => $pd['count'],
+                    'qty' => $pd['qty'],
+                    'satuan' => $pd['satuan'],
                     'pt' => $ptFormatted,
                     'bulan' => $bulanFormatted
                 ];
@@ -542,6 +711,10 @@ class ReportController extends Controller
                 $shortMonthIndo = substr($monthIndo, 0, 3);
                 
                 foreach ($logistikAll as $row) {
+                    if (!empty($targetPtNamesToSearch) && !self::matchesPtRow($row->nama_pt, $row->sheet_name, $targetPtNamesToSearch)) {
+                        continue;
+                    }
+
                     $tanggal = $row->tanggal ?? '';
                     if (
                         stripos($tanggal, $monthIndo) !== false ||
@@ -558,18 +731,8 @@ class ReportController extends Controller
                         if (isset($sheetToPtMap[strtolower($rowPt)])) {
                             $rowPt = $sheetToPtMap[strtolower($rowPt)];
                         }
-                        if (!empty($targetPtNamesToSearch)) {
-                            $matchedTargetPt = null;
-                            foreach ($targetPtNamesToSearch as $tPt) {
-                                if (strcasecmp($rowPt, $tPt) === 0) {
-                                    $matchedTargetPt = $tPt;
-                                    break;
-                                }
-                            }
-                            if ($matchedTargetPt === null) {
-                                continue;
-                            }
-                            $rowPt = $matchedTargetPt;
+                        if ($rowPt === '' || $rowPt === '-') {
+                            $rowPt = 'Lainnya';
                         }
 
                         $val = self::parseCurrency($row->total);
@@ -603,6 +766,12 @@ class ReportController extends Controller
                 $refPtBreakdownFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
             }
 
+            arsort($refSalesBreakdown);
+            $refSalesBreakdownFormatted = [];
+            foreach ($refSalesBreakdown as $s => $v) {
+                $refSalesBreakdownFormatted[$s] = 'Rp ' . number_format($v, 0, ',', '.');
+            }
+
             $targetBulanan = 0;
             $targetDetail = [];
             $capaianDetail = [];
@@ -614,40 +783,33 @@ class ReportController extends Controller
                 return ['sales' => $sales, 'percent' => number_format($capPercent, 1, ',', '.') . '%'];
             };
 
-            if (!empty($targetPtNamesToSearch)) {
-                $companyTargets = \App\Models\CompanyTarget::where(function($q) use ($targetPtNamesToSearch) {
-                    $q->whereIn('name', $targetPtNamesToSearch);
-                    foreach ($targetPtNamesToSearch as $pt) {
-                        $q->orWhere('name', 'PT ' . $pt)
-                          ->orWhere('name', 'PT. ' . $pt);
-                    }
-                })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
+            $companyTargets = self::getCompanyTargetsForPt($targetPtNamesToSearch);
+            if ($companyTargets->count() > 0) {
+                $targetBulanan = 0;
+                $totalTargetedPenjualan = 0;
+                foreach ($companyTargets as $ct) {
+                    $ctMonthlyTarget = ($ct->monthly_target > 0)
+                        ? (float)$ct->monthly_target
+                        : (($ct->annual_target > 0) ? round((float)$ct->annual_target / 12) : 0);
 
-                if ($companyTargets->count() > 0) {
-                    $targetBulanan = $companyTargets->sum('monthly_target');
-                    $totalTargetedPenjualan = 0;
-                    foreach ($companyTargets as $ct) {
-                        $targetDetail[$ct->name] = 'Rp ' . number_format($ct->monthly_target, 0, ',', '.');
-                        
-                        $ptPenjualan = 0;
-                        $ctNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $ct->name));
-                        foreach ($refPtBreakdown as $nPt => $val) {
-                            $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
-                            if (strcasecmp($ctNameNormalized, $nPtNormalized) === 0 || stripos($nPtNormalized, $ctNameNormalized) !== false || stripos($ctNameNormalized, $nPtNormalized) !== false) {
-                                $ptPenjualan += $val;
-                            }
+                    $targetBulanan += $ctMonthlyTarget;
+
+                    $ptPenjualan = 0;
+                    foreach ($refPtBreakdown as $nPt => $val) {
+                        if (self::matchesPtRow($nPt, '', [$ct->name])) {
+                            $ptPenjualan += $val;
                         }
-                        if ($ptPenjualan == 0 && isset($refPtBreakdown[$ct->name])) {
-                            $ptPenjualan = $refPtBreakdown[$ct->name];
-                        }
-                        $totalTargetedPenjualan += $ptPenjualan;
-                        $capaianDetail[$ct->name] = $formatCapaian($ptPenjualan, $ct->monthly_target);
                     }
-                    $refTotalPenjualan = $totalTargetedPenjualan;
-                } else {
-                    $targetBulanan = 0;
-                    $targetDetail[$ptFilter] = 'Tanpa Target';
-                    $capaianDetail[$ptFilter] = ['sales' => $refTotalPenjualan, 'percent' => '-'];
+                    if ($ptPenjualan == 0 && isset($refPtBreakdown[$ct->name])) {
+                        $ptPenjualan = $refPtBreakdown[$ct->name];
+                    }
+                    $totalTargetedPenjualan += $ptPenjualan;
+
+                    $targetDetail[$ct->name] = $ctMonthlyTarget > 0 ? 'Rp ' . number_format($ctMonthlyTarget, 0, ',', '.') : 'Tanpa Target';
+                    $capaianDetail[$ct->name] = $formatCapaian($ptPenjualan, $ctMonthlyTarget);
+                }
+                if (empty($targetPtNamesToSearch)) {
+                    $refTotalPenjualan = max($refTotalPenjualan, $totalTargetedPenjualan);
                 }
             } elseif ($salesFilter) {
                 $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
@@ -666,45 +828,20 @@ class ReportController extends Controller
                     $capaianDetail[$userWithTarget->name] = $formatCapaian($userPenjualan, $targetBulanan);
                 }
             } else {
-                $companyTargets = \App\Models\CompanyTarget::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
-                if ($companyTargets->count() > 0) {
-                    $targetBulanan = $companyTargets->sum('monthly_target');
-                    $totalTargetedPenjualan = 0;
-                    foreach ($companyTargets as $ct) {
-                        $targetDetail[$ct->name] = 'Rp ' . number_format($ct->monthly_target, 0, ',', '.');
-                        
-                        $ptPenjualan = 0;
-                        $ctNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $ct->name));
-                        foreach ($refPtBreakdown as $nPt => $val) {
-                            $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
-                            if (strcasecmp($ctNameNormalized, $nPtNormalized) === 0 || stripos($nPtNormalized, $ctNameNormalized) !== false || stripos($ctNameNormalized, $nPtNormalized) !== false) {
-                                $ptPenjualan += $val;
-                            }
+                $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
+                $targetBulanan = $usersWithTarget->sum('monthly_target');
+                foreach ($usersWithTarget as $u) {
+                    $targetDetail[$u->name] = 'Rp ' . number_format($u->monthly_target, 0, ',', '.');
+                    
+                    $salesKey = $u->spreadsheet_sales_name ?: $u->name;
+                    $userPenjualan = 0;
+                    foreach ($refSalesBreakdown as $key => $val) {
+                        if (strcasecmp(trim($key), trim($salesKey)) == 0) {
+                            $userPenjualan = $val;
+                            break;
                         }
-                        if ($ptPenjualan == 0 && isset($refPtBreakdown[$ct->name])) {
-                            $ptPenjualan = $refPtBreakdown[$ct->name];
-                        }
-                        $totalTargetedPenjualan += $ptPenjualan;
-                        
-                        $capaianDetail[$ct->name] = $formatCapaian($ptPenjualan, $ct->monthly_target);
                     }
-                    $refTotalPenjualan = max($refTotalPenjualan, $totalTargetedPenjualan);
-                } else {
-                    $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->orderByDesc('monthly_target')->get();
-                    $targetBulanan = $usersWithTarget->sum('monthly_target');
-                    foreach ($usersWithTarget as $u) {
-                        $targetDetail[$u->name] = 'Rp ' . number_format($u->monthly_target, 0, ',', '.');
-                        
-                        $salesKey = $u->spreadsheet_sales_name ?: $u->name;
-                        $userPenjualan = 0;
-                        foreach ($refSalesBreakdown as $key => $val) {
-                            if (strcasecmp(trim($key), trim($salesKey)) == 0) {
-                                $userPenjualan = $val;
-                                break;
-                            }
-                        }
-                        $capaianDetail[$u->name] = $formatCapaian($userPenjualan, $u->monthly_target);
-                    }
+                    $capaianDetail[$u->name] = $formatCapaian($userPenjualan, $u->monthly_target);
                 }
             }
 
@@ -777,31 +914,38 @@ class ReportController extends Controller
             $logistikAnnual = $annualQuery->select('total', 'nama_pt', 'sheet_name', 'nama_sales')->get();
             $totalPenjualanAnnual = 0;
             $ptBreakdownAnnual = [];
+            $salesBreakdownAnnual = [];
             
             foreach ($logistikAnnual as $row) {
+                if (!empty($targetPtNamesToSearch) && !self::matchesPtRow($row->nama_pt, $row->sheet_name, $targetPtNamesToSearch)) {
+                    continue;
+                }
+
                 $rowPt = trim((string)($row->nama_pt ?: $row->sheet_name));
                 if (isset($sheetToPtMap[strtolower($rowPt)])) {
                     $rowPt = $sheetToPtMap[strtolower($rowPt)];
                 }
-                if (!empty($targetPtNamesToSearch)) {
-                    $matchedTargetPt = null;
-                    foreach ($targetPtNamesToSearch as $tPt) {
-                        if (strcasecmp($rowPt, $tPt) === 0) {
-                            $matchedTargetPt = $tPt;
-                            break;
-                        }
-                    }
-                    if ($matchedTargetPt === null) {
-                        continue;
-                    }
-                    $rowPt = $matchedTargetPt;
+                if ($rowPt === '' || $rowPt === '-') {
+                    $rowPt = 'Lainnya';
                 }
 
                 $val = self::parseCurrency($row->total);
                 $totalPenjualanAnnual += $val;
-                if ($rowPt !== '' && $rowPt !== '-' && !in_array(strtolower($rowPt), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
+                if (!in_array(strtolower($rowPt), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya'])) {
                     $ptBreakdownAnnual[$rowPt] = ($ptBreakdownAnnual[$rowPt] ?? 0) + $val;
                 }
+
+                $nSales = strtoupper(trim((string)$row->nama_sales));
+                if (!$nSales) {
+                    if (stripos($rowPt, 'MSI') !== false || stripos($rowPt, 'MULTI SENTOSA') !== false) {
+                        $nSales = 'KANTOR MSI';
+                    } elseif (stripos($rowPt, 'SANZAYA') !== false) {
+                        $nSales = 'KANTOR SANZAYA';
+                    } else {
+                        $nSales = 'KANTOR ' . strtoupper($rowPt ?: 'PUSAT');
+                    }
+                }
+                $salesBreakdownAnnual[$nSales] = ($salesBreakdownAnnual[$nSales] ?? 0) + $val;
             }
             
             arsort($ptBreakdownAnnual);
@@ -809,71 +953,41 @@ class ReportController extends Controller
             foreach ($ptBreakdownAnnual as $p => $v) {
                 $ptBreakdownAnnualFormatted[$p] = 'Rp ' . number_format($v, 0, ',', '.');
             }
-            
-            if (!empty($targetPtNamesToSearch)) {
-                $companyTargetsAnn = \App\Models\CompanyTarget::where(function($q) use ($targetPtNamesToSearch) {
-                    $q->whereIn('name', $targetPtNamesToSearch);
-                    foreach ($targetPtNamesToSearch as $pt) {
-                        $q->orWhere('name', 'PT ' . $pt)
-                          ->orWhere('name', 'PT. ' . $pt);
-                    }
-                })->whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
 
-                if ($companyTargetsAnn->count() > 0) {
-                    $targetTahunanVal = $companyTargetsAnn->sum('annual_target');
-                    $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
-                    $totalTargetedPenjualanAnn = 0;
-                    foreach ($companyTargetsAnn as $ct) {
-                        $ptPenjualanAnn = 0;
-                        $ctNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $ct->name));
-                        foreach ($ptBreakdownAnnual as $nPt => $val) {
-                            $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
-                            if (strcasecmp($ctNameNormalized, $nPtNormalized) === 0 || stripos($nPtNormalized, $ctNameNormalized) !== false || stripos($ctNameNormalized, $nPtNormalized) !== false) {
-                                $ptPenjualanAnn += $val;
-                            }
+            arsort($salesBreakdownAnnual);
+            $salesBreakdownAnnualFormatted = [];
+            foreach ($salesBreakdownAnnual as $s => $v) {
+                $salesBreakdownAnnualFormatted[$s] = 'Rp ' . number_format($v, 0, ',', '.');
+            }
+            
+            $companyTargetsAnn = self::getCompanyTargetsForPt($targetPtNamesToSearch);
+            $targetTahunanVal = $companyTargetsAnn->sum('annual_target');
+            if ($targetTahunanVal > 0) {
+                $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
+                $totalTargetedPenjualanAnn = 0;
+                foreach ($companyTargetsAnn as $ct) {
+                    $ptPenjualanAnn = 0;
+                    foreach ($ptBreakdownAnnual as $nPt => $val) {
+                        if (self::matchesPtRow($nPt, '', [$ct->name])) {
+                            $ptPenjualanAnn += $val;
                         }
-                        if ($ptPenjualanAnn == 0 && isset($ptBreakdownAnnual[$ct->name])) {
-                            $ptPenjualanAnn = $ptBreakdownAnnual[$ct->name];
-                        }
-                        $totalTargetedPenjualanAnn += $ptPenjualanAnn;
-                        $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
-                        $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ptPenjualanAnn, 0, ',', '.') . ' / Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
-                        $capaianTahunanDetail[$ct->name] = number_format($capPercent, 1, ',', '.') . '%';
                     }
-                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalTargetedPenjualanAnn / $targetTahunanVal) * 100 : 0;
-                    $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
-                } else {
-                    $targetTahunan = 'Tanpa Target';
-                    $capaianTahunan = '-';
-                    $targetTahunanDetail[$ptFilter] = 'Rp ' . number_format($totalPenjualanAnnual, 0, ',', '.') . ' (Tanpa Target)';
-                    $capaianTahunanDetail[$ptFilter] = '-';
+                    if ($ptPenjualanAnn == 0 && isset($ptBreakdownAnnual[$ct->name])) {
+                        $ptPenjualanAnn = $ptBreakdownAnnual[$ct->name];
+                    }
+                    $totalTargetedPenjualanAnn += $ptPenjualanAnn;
+                    $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
+                    $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ptPenjualanAnn, 0, ',', '.') . ' / Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
+                    $capaianTahunanDetail[$ct->name] = number_format($capPercent, 1, ',', '.') . '%';
                 }
+                $effectiveAnnualSales = !empty($targetPtNamesToSearch) ? $totalPenjualanAnnual : max($totalPenjualanAnnual, $totalTargetedPenjualanAnn);
+                $capPercentTahunan = ($targetTahunanVal > 0) ? ($effectiveAnnualSales / $targetTahunanVal) * 100 : 0;
+                $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
             } else {
-                $companyTargetsAnn = \App\Models\CompanyTarget::whereNotNull('annual_target')->where('annual_target', '>', 0)->get();
-                $targetTahunanVal = $companyTargetsAnn->sum('annual_target');
-                if ($targetTahunanVal > 0) {
-                    $targetTahunan = 'Rp ' . number_format($targetTahunanVal, 0, ',', '.');
-                    $totalTargetedPenjualanAnn = 0;
-                    foreach ($companyTargetsAnn as $ct) {
-                        $ptPenjualanAnn = 0;
-                        $ctNameNormalized = trim(str_ireplace(['PT.', 'PT '], '', $ct->name));
-                        foreach ($ptBreakdownAnnual as $nPt => $val) {
-                            $nPtNormalized = trim(str_ireplace(['PT.', 'PT '], '', $nPt));
-                            if (strcasecmp($ctNameNormalized, $nPtNormalized) === 0 || stripos($nPtNormalized, $ctNameNormalized) !== false || stripos($ctNameNormalized, $nPtNormalized) !== false) {
-                                $ptPenjualanAnn += $val;
-                            }
-                        }
-                        if ($ptPenjualanAnn == 0 && isset($ptBreakdownAnnual[$ct->name])) {
-                            $ptPenjualanAnn = $ptBreakdownAnnual[$ct->name];
-                        }
-                        $totalTargetedPenjualanAnn += $ptPenjualanAnn;
-                        $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
-                        $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ptPenjualanAnn, 0, ',', '.') . ' / Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
-                        $capaianTahunanDetail[$ct->name] = number_format($capPercent, 1, ',', '.') . '%';
-                    }
-                    $capPercentTahunan = ($targetTahunanVal > 0) ? ($totalTargetedPenjualanAnn / $targetTahunanVal) * 100 : 0;
-                    $capaianTahunan = number_format($capPercentTahunan, 1, ',', '.') . '%';
-                }
+                $targetTahunan = 'Tanpa Target';
+                $capaianTahunan = '-';
+                $targetTahunanDetail[$ptFilter ?: 'Semua PT'] = 'Rp ' . number_format($totalPenjualanAnnual, 0, ',', '.') . ' (Tanpa Target)';
+                $capaianTahunanDetail[$ptFilter ?: 'Semua PT'] = '-';
             }
 
             $capaianTarget = null;
@@ -883,25 +997,32 @@ class ReportController extends Controller
             }
 
             $topOutletName = '-';
-            foreach ($outletCounts as $k => $cnt) {
-                $kTrim = trim((string)$k);
-                if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya', 'pelanggan', 'nama pelanggan', 'outlet', 'nama outlet', 'customer'])) {
-                    $topOutletName = $kTrim;
-                    break;
-                }
-            }
-            $topProdukName = '-';
-            foreach ($produkCounts as $k => $cnt) {
-                $kTrim = trim((string)$k);
-                if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya', 'nama produk', 'nama_produk', 'produk', 'item', 'nama barang', 'total'])) {
-                    $topProdukName = $kTrim;
-                    break;
+            if (!empty($outletDetailsMap)) {
+                $topOutletName = array_key_first($outletDetailsMap);
+            } else {
+                foreach ($outletCounts as $k => $cnt) {
+                    $kTrim = trim((string)$k);
+                    if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya', 'pelanggan', 'nama pelanggan', 'outlet', 'nama outlet', 'customer'])) {
+                        $topOutletName = $kTrim;
+                        break;
+                    }
                 }
             }
 
-            $displayAnnualTotal = (isset($totalTargetedPenjualanAnn) && $totalTargetedPenjualanAnn > 0)
-                ? max($totalTargetedPenjualanAnn, $totalPenjualanAnnual) 
-                : ($totalPenjualanAnnual ?: $totalPenjualan);
+            $topProdukName = '-';
+            if (!empty($produkDetailsMap)) {
+                $topProdukName = array_key_first($produkDetailsMap);
+            } else {
+                foreach ($produkCounts as $k => $cnt) {
+                    $kTrim = trim((string)$k);
+                    if ($kTrim !== '' && $kTrim !== '-' && !in_array(strtolower($kTrim), ['null', '0', '#n/a', '#ref!', 'none', 'lainnya', 'nama produk', 'nama_produk', 'produk', 'item', 'nama barang', 'total'])) {
+                        $topProdukName = $kTrim;
+                        break;
+                    }
+                }
+            }
+
+            $displayAnnualTotal = $totalPenjualanAnnual;
 
             $summary = [
                 'total_penjualan' => 'Rp ' . number_format($displayAnnualTotal, 0, ',', '.'),
@@ -917,14 +1038,18 @@ class ReportController extends Controller
                 'top_outlet' => $topOutletName,
                 'top_produk' => $topProdukName,
                 'total_pesanan' => $logistikAll->count(),
+                'total_outlet' => 'Rp ' . number_format($totalOutletNominal, 0, ',', '.'),
+                'total_produk' => 'Rp ' . number_format($totalProdukNominal, 0, ',', '.'),
                 'penjualan_detail' => $salesBreakdownFormatted,
+                'sales_penjualan_bulan_ini' => $refSalesBreakdownFormatted,
+                'sales_penjualan_tahunan' => $salesBreakdownAnnualFormatted,
                 'pt_penjualan_detail' => $ptBreakdownFormatted,
                 'pt_penjualan_bulan_ini' => $refPtBreakdownFormatted,
                 'pt_penjualan_tahunan' => $ptBreakdownAnnualFormatted,
                 'brand_detail' => $brandBreakdownFormatted,
                 'bulan_detail' => $monthBreakdownFormatted,
                 'outlet_detail' => $outletDetailFormatted,
-                'produk_detail' => $produkCounts,
+                'produk_detail' => $produkDetailFormatted,
                 'pesanan_sales' => $pesananSales
             ];
         }
@@ -1416,18 +1541,8 @@ class ReportController extends Controller
                 $rawPt = 'Lainnya';
             }
 
-            if (!empty($targetPtNamesToSearch)) {
-                $matchedTargetPt = null;
-                foreach ($targetPtNamesToSearch as $tPt) {
-                    if (strcasecmp($rawPt, $tPt) === 0) {
-                        $matchedTargetPt = $tPt;
-                        break;
-                    }
-                }
-                if ($matchedTargetPt === null) {
-                    continue;
-                }
-                $rawPt = $matchedTargetPt;
+            if (!empty($targetPtNamesToSearch) && !self::matchesPtRow($row->nama_pt, $row->sheet_name, $targetPtNamesToSearch)) {
+                continue;
             }
 
             $val = self::parseCurrency($row->total);
@@ -1538,28 +1653,22 @@ class ReportController extends Controller
         }
 
         $targetBulanan = 0;
-        if (!empty($targetPtNamesToSearch)) {
-            $companyTargets = \App\Models\CompanyTarget::where(function($q) use ($targetPtNamesToSearch) {
-                $q->whereIn('name', $targetPtNamesToSearch);
-                foreach ($targetPtNamesToSearch as $pt) {
-                    $q->orWhere('name', 'PT ' . $pt)
-                      ->orWhere('name', 'PT. ' . $pt);
-                }
-            })->whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
-            $targetBulanan = (float)$companyTargets->sum('monthly_target');
+        $companyTargets = self::getCompanyTargetsForPt($targetPtNamesToSearch);
+        if ($companyTargets->count() > 0) {
+            foreach ($companyTargets as $ct) {
+                $ctMonthlyTarget = ($ct->monthly_target > 0)
+                    ? (float)$ct->monthly_target
+                    : (($ct->annual_target > 0) ? round((float)$ct->annual_target / 12) : 0);
+                $targetBulanan += $ctMonthlyTarget;
+            }
         } elseif ($salesFilter) {
             $userWithTarget = \App\Models\User::where('spreadsheet_sales_name', $salesFilter)->first();
             if ($userWithTarget && $userWithTarget->monthly_target > 0) {
                 $targetBulanan = (float)$userWithTarget->monthly_target;
             }
         } else {
-            $companyTargets = \App\Models\CompanyTarget::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
-            $targetBulananPTs = $companyTargets->sum('monthly_target');
-            if ($targetBulananPTs > 0) {
-                $targetBulanan = (float)$targetBulananPTs;
-            } else {
-                $targetBulanan = (float)\App\Models\User::sum('monthly_target');
-            }
+            $usersWithTarget = \App\Models\User::whereNotNull('monthly_target')->where('monthly_target', '>', 0)->get();
+            $targetBulanan = (float)$usersWithTarget->sum('monthly_target');
         }
 
         $summary = [
