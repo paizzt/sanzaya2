@@ -63,15 +63,21 @@ class ReportController extends Controller
     public static function getSheetToPtMap(): array
     {
         $sheetToPtMap = [];
-        $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
-        if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
-            foreach ($logistikConfig->sheets_config as $sc) {
-                $pt = trim((string)($sc['col_nama_pt'] ?? $sc['sheet_name'] ?? ''));
-                $sName = trim((string)($sc['sheet_name'] ?? ''));
-                if ($pt !== '' && $sName !== '') {
-                    $sheetToPtMap[strtolower($sName)] = $pt;
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('spreadsheet_configurations')) {
+                $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
+                if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
+                    foreach ($logistikConfig->sheets_config as $sc) {
+                        $pt = trim((string)($sc['col_nama_pt'] ?? $sc['sheet_name'] ?? ''));
+                        $sName = trim((string)($sc['sheet_name'] ?? ''));
+                        if ($pt !== '' && $sName !== '') {
+                            $sheetToPtMap[strtolower($sName)] = $pt;
+                        }
+                    }
                 }
             }
+        } catch (\Throwable $e) {
+            // Fallback gracefully
         }
         return $sheetToPtMap;
     }
@@ -114,7 +120,14 @@ class ReportController extends Controller
     public static function getPtAliases(array $targetPtNames): array
     {
         $aliases = [];
-        $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
+        $logistikConfig = null;
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('spreadsheet_configurations')) {
+                $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
+            }
+        } catch (\Throwable $e) {
+            $logistikConfig = null;
+        }
 
         foreach ($targetPtNames as $pt) {
             $ptTrim = trim((string)$pt);
@@ -187,29 +200,39 @@ class ReportController extends Controller
      */
     public static function getCompanyTargetsForPt(array $targetPtNames)
     {
-        if (empty($targetPtNames)) {
-            return \App\Models\CompanyTarget::with('companies')->get();
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+                return collect([]);
+            }
+            if (empty($targetPtNames)) {
+                return \App\Models\CompanyTarget::with('companies')->get();
+            }
+
+            $keywords = self::getPtKeywords($targetPtNames);
+            $aliases = self::getPtAliases($targetPtNames);
+
+            $linkedTargetIds = [];
+            if (\Illuminate\Support\Facades\Schema::hasTable('companies')) {
+                $linkedTargetIds = \App\Models\Company::where(function($q) use ($aliases, $keywords) {
+                    $q->whereIn('name', $aliases);
+                    foreach ($keywords as $kw) {
+                        $q->orWhere('name', 'like', "%{$kw}%");
+                    }
+                })->whereNotNull('company_target_id')->pluck('company_target_id')->toArray();
+            }
+
+            return \App\Models\CompanyTarget::with('companies')->where(function($q) use ($aliases, $keywords, $linkedTargetIds) {
+                $q->whereIn('name', $aliases);
+                foreach ($keywords as $kw) {
+                    $q->orWhere('name', 'like', "%{$kw}%");
+                }
+                if (!empty($linkedTargetIds)) {
+                    $q->orWhereIn('id', $linkedTargetIds);
+                }
+            })->get();
+        } catch (\Throwable $e) {
+            return collect([]);
         }
-
-        $keywords = self::getPtKeywords($targetPtNames);
-        $aliases = self::getPtAliases($targetPtNames);
-
-        $linkedTargetIds = \App\Models\Company::where(function($q) use ($aliases, $keywords) {
-            $q->whereIn('name', $aliases);
-            foreach ($keywords as $kw) {
-                $q->orWhere('name', 'like', "%{$kw}%");
-            }
-        })->whereNotNull('company_target_id')->pluck('company_target_id')->toArray();
-
-        return \App\Models\CompanyTarget::with('companies')->where(function($q) use ($aliases, $keywords, $linkedTargetIds) {
-            $q->whereIn('name', $aliases);
-            foreach ($keywords as $kw) {
-                $q->orWhere('name', 'like', "%{$kw}%");
-            }
-            if (!empty($linkedTargetIds)) {
-                $q->orWhereIn('id', $linkedTargetIds);
-            }
-        })->get();
     }
 
     /**
@@ -249,16 +272,22 @@ class ReportController extends Controller
         // Auto-fix missing columns for sync_logistik_data to prevent 500 errors
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('sync_logistik_data')) {
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'pelanggan')) {
-                    \Illuminate\Support\Facades\Schema::table('sync_logistik_data', function ($table) {
-                        $table->string('pelanggan')->nullable();
-                        $table->string('nama_pt')->nullable();
-                        $table->string('jenis_pelanggan')->nullable();
-                        $table->string('no_faktur')->nullable();
+                $neededCols = ['pelanggan', 'nama_pt', 'jenis_pelanggan', 'no_faktur', 'total', 'brand', 'qty', 'satuan'];
+                $missingCols = [];
+                foreach ($neededCols as $col) {
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', $col)) {
+                        $missingCols[] = $col;
+                    }
+                }
+                if (!empty($missingCols)) {
+                    \Illuminate\Support\Facades\Schema::table('sync_logistik_data', function ($table) use ($missingCols) {
+                        foreach ($missingCols as $c) {
+                            $table->string($c)->nullable();
+                        }
                     });
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Ignore if it fails, fallback to normal execution
         }
 
@@ -299,15 +328,19 @@ class ReportController extends Controller
             ->values();
 
         $configuredPtNames = [];
-        $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
-        if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
-            foreach ($logistikConfig->sheets_config as $sc) {
-                $name = trim((string)($sc['col_nama_pt'] ?? $sc['sheet_name'] ?? ''));
-                if ($name !== '' && $name !== '-') {
-                    $configuredPtNames[] = $name;
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('spreadsheet_configurations')) {
+                $logistikConfig = \App\Models\SpreadsheetConfiguration::where('type', 'logistik')->first();
+                if ($logistikConfig && is_array($logistikConfig->sheets_config)) {
+                    foreach ($logistikConfig->sheets_config as $sc) {
+                        $name = trim((string)($sc['col_nama_pt'] ?? $sc['sheet_name'] ?? ''));
+                        if ($name !== '' && $name !== '-') {
+                            $configuredPtNames[] = $name;
+                        }
+                    }
                 }
             }
-        }
+        } catch (\Throwable $e) {}
         $ptNames = $ptNames->concat($configuredPtNames)->unique()->values();
 
         $keteranganNames = SyncPesananData::select('keterangan')->distinct()->whereNotNull('keterangan')->where('keterangan', '!=', '')->pluck('keterangan');
@@ -477,7 +510,13 @@ class ReportController extends Controller
         $summary = null;
         if ($tab === 'logistik') {
             $summaryQuery = clone $logistikBaseQuery;
-            $logistikAll = $summaryQuery->select('total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'sheet_name', 'no_faktur', 'tanggal', 'brand', 'qty', 'satuan')->get();
+            $selectCols = ['total', 'pelanggan', 'nama_produk', 'nama_sales', 'nama_pt', 'sheet_name', 'no_faktur', 'tanggal'];
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'brand')) $selectCols[] = 'brand';
+                if (\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'qty')) $selectCols[] = 'qty';
+                if (\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'satuan')) $selectCols[] = 'satuan';
+            } catch (\Throwable $e) {}
+            $logistikAll = $summaryQuery->select($selectCols)->get();
             $totalPenjualan = 0; $outletCounts = []; $produkCounts = []; $salesBreakdown = []; $pesananSales = []; $ptBreakdown = []; $monthBreakdown = []; $brandBreakdown = [];
             $outletDetailsMap = [];
             $produkDetailsMap = [];
@@ -860,14 +899,6 @@ class ReportController extends Controller
             
             // Hitung total tahunan (Year-To-Date) secara terpisah tanpa filter bulan
             $annualQuery = SyncLogistikData::query();
-            if ($userAllowedPtNames !== null) {
-                $annualQuery->where(function($q) use ($userAllowedPtNames) {
-                    foreach ($userAllowedPtNames as $allowed) {
-                        $q->orWhere('nama_pt', 'like', '%' . trim($allowed) . '%')
-                          ->orWhere('sheet_name', 'like', '%' . trim($allowed) . '%');
-                    }
-                });
-            }
             if (!empty($targetPtNamesToSearch)) {
                 self::applyPtFilter($annualQuery, $targetPtNamesToSearch);
             } else {
