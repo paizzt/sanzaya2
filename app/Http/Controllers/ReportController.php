@@ -977,7 +977,11 @@ class ReportController extends Controller
                 if (isset($capaianDetail[$key])) {
                     $salesVal = $capaianDetail[$key]['sales'] ?? 0;
                     $percentStr = $capaianDetail[$key]['percent'] ?? '0%';
-                    $targetDetail[$key] = 'Rp ' . number_format($salesVal, 0, ',', '.') . ' / ' . $val . ' (' . $percentStr . ')';
+                    if ($val === 'Tanpa Target' || $percentStr === 'Tanpa Target' || $percentStr === '-') {
+                        $targetDetail[$key] = 'Rp ' . number_format($salesVal, 0, ',', '.') . ' (Tanpa Target)';
+                    } else {
+                        $targetDetail[$key] = 'Rp ' . number_format($salesVal, 0, ',', '.') . ' (' . $percentStr . ')';
+                    }
                 }
             }
 
@@ -1097,7 +1101,7 @@ class ReportController extends Controller
                     }
                     $totalTargetedPenjualanAnn += $ptPenjualanAnn;
                     $capPercent = ($ct->annual_target > 0) ? ($ptPenjualanAnn / $ct->annual_target) * 100 : 0;
-                    $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ptPenjualanAnn, 0, ',', '.') . ' / Rp ' . number_format($ct->annual_target, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
+                    $targetTahunanDetail[$ct->name] = 'Rp ' . number_format($ptPenjualanAnn, 0, ',', '.') . ' (' . number_format($capPercent, 1, ',', '.') . '%)';
                     $capaianTahunanDetail[$ct->name] = number_format($capPercent, 1, ',', '.') . '%';
                 }
                 $effectiveAnnualSales = !empty($targetPtNamesToSearch) ? $totalPenjualanAnnual : max($totalPenjualanAnnual, $totalTargetedPenjualanAnn);

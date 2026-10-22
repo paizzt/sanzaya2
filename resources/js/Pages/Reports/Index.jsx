@@ -333,7 +333,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                         )}
                                         <div className="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-wider px-3 pb-2 border-b border-gray-100">
                                             <span>{['faktur', 'terkirim', 'belum_terkirim', 'total_surat', 'gabungan', 'sanzaya', 'ruma', 'hutang'].includes(detailModal.type) ? 'Nama Outlet / Penyedia' : (['penjualan', 'pesanan'].includes(detailModal.type) ? 'Nama Sales' : (['target'].includes(detailModal.type) ? 'Nama PT / Sales' : (['outlet'].includes(detailModal.type) ? 'Nama Outlet' : (['produk'].includes(detailModal.type) ? 'Nama Produk' : (['capaian_tahunan', 'capaian'].includes(detailModal.type) ? 'Nama PT' : 'Nama')))))}</span>
-                                            <span>{['penjualan', 'faktur'].includes(detailModal.type) ? 'Total (Rp)' : (['target'].includes(detailModal.type) ? 'Realisasi / Target' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai'))}</span>
+                                            <span>{['penjualan', 'faktur'].includes(detailModal.type) ? 'Total (Rp)' : (['target'].includes(detailModal.type) ? 'Realisasi (% Capaian)' : (['capaian', 'capaian_tahunan'].includes(detailModal.type) ? 'Capaian' : 'Nilai'))}</span>
                                         </div>
                                         <div className="space-y-3 mt-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
                                             {detailModal.type === 'outlet' || detailModal.type === 'produk' ? (
@@ -394,17 +394,22 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                                     </div>
                                                 ))
                                             ) : (
-                                                Object.entries(detailModal?.data || {}).map(([key, value], idx) => (
-                                                      <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
-                                                          <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
-                                                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
-                                                                  {idx + 1}
-                                                              </div>
-                                                              <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
-                                                          </div>
-                                                          <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{value}</span>
-                                                      </div>
-                                                ))
+                                                Object.entries(detailModal?.data || {}).map(([key, value], idx) => {
+                                                    const displayVal = typeof value === 'string' && detailModal.type === 'target'
+                                                        ? value.replace(/\s*\/\s*Rp\s*[\d\.,]+\s*(\([^\)]+\))/, ' $1')
+                                                        : value;
+                                                    return (
+                                                        <div key={idx} className="flex justify-between items-center sm:items-start p-3 bg-gray-50/50 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors gap-2">
+                                                            <div className="flex items-center sm:items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                                                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
+                                                                    {idx + 1}
+                                                                </div>
+                                                                <div className="text-[11px] sm:text-sm font-medium text-gray-700 break-words whitespace-normal leading-tight" title={key}>{key}</div>
+                                                            </div>
+                                                            <span className="text-[11px] sm:text-sm font-bold text-gray-900 shrink-0 text-right ml-1">{displayVal}</span>
+                                                        </div>
+                                                    );
+                                                })
                                             )}
                                         </div>
                                     </div>
