@@ -129,7 +129,7 @@ class WarehouseStockController extends Controller
             $rows = collect([]);
         } else {
             $allowed = ['name', 'code', 'category', 'quantity', 'unit', 'link'];
-            $headings = ['Nama Barang', 'Kode', 'Kategori', 'Stok', 'Satuan', 'Link E-Katalog'];
+            $headings = ['Nama Barang', 'AKL/AKD', 'Kategori', 'Stok', 'Satuan', 'Link E-Katalog'];
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) use ($allowed) {
@@ -155,7 +155,7 @@ class WarehouseStockController extends Controller
             $rows = collect([]);
         } else {
             $allowed = ['name', 'code', 'category', 'quantity', 'unit', 'link'];
-            $headings = ['Nama Barang', 'Kode', 'Kategori', 'Stok', 'Satuan', 'Link E-Katalog'];
+            $headings = ['Nama Barang', 'AKL/AKD', 'Kategori', 'Stok', 'Satuan', 'Link E-Katalog'];
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) use ($allowed) {

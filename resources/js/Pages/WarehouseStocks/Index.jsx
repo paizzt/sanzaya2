@@ -289,7 +289,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                             onChange={(e) => setSelectedColumns({...selectedColumns, [col]: e.target.checked})}
                                         />
                                         <span className="text-sm text-gray-600 capitalize">{
-                                            col === 'code' ? 'Kode/SKU' :
+                                            col === 'code' ? 'AKL/AKD' :
                                             col === 'name' ? 'Nama Barang' :
                                             col === 'category' ? 'Kategori' :
                                             col === 'quantity' ? 'Stok' :
@@ -328,7 +328,7 @@ export default function Index({ items, isShared, providers = [] }) {
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    <th className="px-6 py-4">Kode/SKU</th>
+                                    <th className="px-6 py-4">AKL/AKD</th>
                                     <th className="px-6 py-4">Nama Barang</th>
                                     <th className="px-6 py-4">Kategori</th>
                                     <th className="px-6 py-4">Stok</th>
@@ -440,7 +440,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                         </div>
 
                                         <div>
-                                            <InputLabel htmlFor="code" value="Kode/SKU" />
+                                            <InputLabel htmlFor="code" value="AKL/AKD" />
                                             <TextInput
                                                 id="code"
                                                 type="text"
@@ -573,7 +573,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                 <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
                                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
                                         <h4 className="font-bold text-blue-900 text-lg mb-1">{editingItem?.name}</h4>
-                                        <p className="text-blue-700 text-sm">SKU: {editingItem?.code || '-'}</p>
+                                        <p className="text-blue-700 text-sm">AKL/AKD: {editingItem?.code || '-'}</p>
                                     </div>
                                     
                                     <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">

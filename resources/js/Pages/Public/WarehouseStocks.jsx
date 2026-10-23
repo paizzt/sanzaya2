@@ -61,7 +61,7 @@ export default function WarehouseStocksPublic({ items, filters }) {
                         <table className="w-full text-sm text-left text-gray-600">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    {showCol('code') && <th scope="col" className="px-6 py-4">Kode/SKU</th>}
+                                    {showCol('code') && <th scope="col" className="px-6 py-4">AKL/AKD</th>}
                                     {showCol('name') && <th scope="col" className="px-6 py-4">Nama Barang</th>}
                                     {showCol('category') && <th scope="col" className="px-6 py-4">Kategori</th>}
                                     {showCol('quantity') && <th scope="col" className="px-6 py-4">Stok</th>}
