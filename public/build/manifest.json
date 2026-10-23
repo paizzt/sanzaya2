@@ -658,7 +658,7 @@
     ]
   },
   "resources/js/Pages/Public/WarehouseStocks.jsx": {
-    "file": "assets/WarehouseStocks-BPuBbTl_.js",
+    "file": "assets/WarehouseStocks-DxpLXGEf.js",
     "name": "WarehouseStocks",
     "src": "resources/js/Pages/Public/WarehouseStocks.jsx",
     "isDynamicEntry": true,
@@ -844,7 +844,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-CSEvLShT.js",
+    "file": "assets/Index-Do2q5JxI.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -865,7 +865,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-CHbv6BmB.js",
+    "file": "assets/Show-DqLxnqPW.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -976,7 +976,7 @@
     ]
   },
   "resources/js/Pages/WarehouseStocks/Index.jsx": {
-    "file": "assets/Index-D1WNILX4.js",
+    "file": "assets/Index-Dgk77yCr.js",
     "name": "Index",
     "src": "resources/js/Pages/WarehouseStocks/Index.jsx",
     "isDynamicEntry": true,
@@ -1042,7 +1042,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-DpRaphCG.js",
+    "file": "assets/app-180On-m5.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,

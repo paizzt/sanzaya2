@@ -128,14 +128,18 @@ class WarehouseStockController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['name', 'code', 'category', 'quantity', 'unit', 'link'];
-            $headings = ['Nama Barang', 'AKL/AKD', 'Kategori', 'Stok', 'Satuan', 'Link E-Katalog'];
+            $allowed = ['name', 'code', 'category', 'price', 'quantity', 'unit', 'link'];
+            $headings = ['Nama Barang', 'AKL/AKD', 'Kategori', 'Harga Satuan (Rp)', 'Stok', 'Satuan', 'Link E-Katalog'];
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) use ($allowed) {
                 $row = [$key + 1];
                 foreach ($allowed as $col) {
-                    $row[] = $item->$col;
+                    if ($col === 'price') {
+                        $row[] = $item->price ? 'Rp ' . number_format($item->price, 0, ',', '.') : '-';
+                    } else {
+                        $row[] = $item->$col;
+                    }
                 }
                 return $row;
             });
@@ -154,14 +158,18 @@ class WarehouseStockController extends Controller
             $headings = [];
             $rows = collect([]);
         } else {
-            $allowed = ['name', 'code', 'category', 'quantity', 'unit', 'link'];
-            $headings = ['Nama Barang', 'AKL/AKD', 'Kategori', 'Stok', 'Satuan', 'Link E-Katalog'];
+            $allowed = ['name', 'code', 'category', 'price', 'quantity', 'unit', 'link'];
+            $headings = ['Nama Barang', 'AKL/AKD', 'Kategori', 'Harga Satuan (Rp)', 'Stok', 'Satuan', 'Link E-Katalog'];
             array_unshift($headings, 'No');
 
             $rows = $items->map(function($item, $key) use ($allowed) {
                 $row = [$key + 1];
                 foreach ($allowed as $col) {
-                    $row[] = $item->$col;
+                    if ($col === 'price') {
+                        $row[] = $item->price ? (float)$item->price : 0;
+                    } else {
+                        $row[] = $item->$col;
+                    }
                 }
                 return $row;
             });

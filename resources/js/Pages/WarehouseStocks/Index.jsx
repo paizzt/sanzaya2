@@ -26,6 +26,7 @@ export default function Index({ items, isShared, providers = [] }) {
         code: true,
         name: true,
         category: true,
+        price: true,
         quantity: true,
         unit: true,
         link: true
@@ -292,6 +293,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                             col === 'code' ? 'AKL/AKD' :
                                             col === 'name' ? 'Nama Barang' :
                                             col === 'category' ? 'Kategori' :
+                                            col === 'price' ? 'Harga Satuan (Rp)' :
                                             col === 'quantity' ? 'Stok' :
                                             col === 'unit' ? 'Satuan' :
                                             col === 'link' ? 'Link E-Katalog' : col
@@ -331,6 +333,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                     <th className="px-6 py-4">AKL/AKD</th>
                                     <th className="px-6 py-4">Nama Barang</th>
                                     <th className="px-6 py-4">Kategori</th>
+                                    <th className="px-6 py-4">Harga Satuan (Rp)</th>
                                     <th className="px-6 py-4">Stok</th>
                                     <th className="px-6 py-4">Satuan</th>
                                     <th className="px-6 py-4">Link E-Katalog</th>
@@ -352,6 +355,11 @@ export default function Index({ items, isShared, providers = [] }) {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-gray-600">{item.category || '-'}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="font-medium text-gray-900">
+                                                {item.price ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price) : '-'}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`font-bold ${item.quantity <= item.minimum_stock ? 'text-red-600' : 'text-gray-900'}`}>

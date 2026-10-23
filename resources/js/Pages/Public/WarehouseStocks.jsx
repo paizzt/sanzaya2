@@ -64,6 +64,7 @@ export default function WarehouseStocksPublic({ items, filters }) {
                                     {showCol('code') && <th scope="col" className="px-6 py-4">AKL/AKD</th>}
                                     {showCol('name') && <th scope="col" className="px-6 py-4">Nama Barang</th>}
                                     {showCol('category') && <th scope="col" className="px-6 py-4">Kategori</th>}
+                                    {showCol('price') && <th scope="col" className="px-6 py-4">Harga Satuan (Rp)</th>}
                                     {showCol('quantity') && <th scope="col" className="px-6 py-4">Stok</th>}
                                     {showCol('unit') && <th scope="col" className="px-6 py-4">Satuan</th>}
                                     {showCol('link') && <th scope="col" className="px-6 py-4">Link E-Katalog</th>}
@@ -93,6 +94,11 @@ export default function WarehouseStocksPublic({ items, filters }) {
                                             {showCol('category') && (
                                                 <td className="px-6 py-4">
                                                     {item.category || '-'}
+                                                </td>
+                                            )}
+                                            {showCol('price') && (
+                                                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                                                    {item.price ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price) : '-'}
                                                 </td>
                                             )}
                                             {showCol('quantity') && (
