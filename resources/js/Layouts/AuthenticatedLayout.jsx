@@ -306,7 +306,7 @@ export default function Authenticated({ user, header, children }) {
     }).filter(item => item.show !== false);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-gray-50 flex overflow-x-hidden w-full max-w-full">
             {/* Sidebar Desktop */}
             <aside className={`hidden lg:flex flex-col bg-white border-r border-gray-100 shadow-[2px_0_8px_-4px_rgba(0,0,0,0.1)] fixed h-full z-20 transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
                 <div className="p-6 flex items-center justify-center h-28 border-b border-gray-50 mb-2">
@@ -344,19 +344,19 @@ export default function Authenticated({ user, header, children }) {
             </aside>
 
             {/* Main Content Area */}
-            <div className={`flex-1 min-w-0 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
+            <div className={`flex-1 min-w-0 max-w-full overflow-x-hidden flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
                 {/* Topbar */}
                 <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm transition-all duration-300">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
                         <div className="flex justify-between h-16">
                             <div className="flex items-center lg:hidden">
                                 <button
                                     onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
-                                    className="p-2 rounded-xl text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none transition duration-150 ease-in-out"
+                                    className="p-1.5 sm:p-2 rounded-xl text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none transition duration-150 ease-in-out"
                                 >
                                     {showingNavigationDropdown ? <X className="w-6 h-6" /> : <LucideMenu className="w-6 h-6" />}
                                 </button>
-                                <Link href={route("dashboard")} className="ml-3 relative flex items-center justify-center bg-white rounded-xl shadow-[0_2px_8px_-2px_rgba(6,81,237,0.1)] border border-gray-100 p-1.5 h-10 w-24">
+                                <Link href={route("dashboard")} className="ml-1.5 sm:ml-3 relative flex items-center justify-center bg-white rounded-xl shadow-[0_2px_8px_-2px_rgba(6,81,237,0.1)] border border-gray-100 p-1 sm:p-1.5 h-9 sm:h-10 w-20 sm:w-24 shrink-0">
                                     {auth.user?.company?.logo ? (
                                         <img 
                                             src={`/storage/${auth.user.company.logo}`} 
@@ -375,11 +375,11 @@ export default function Authenticated({ user, header, children }) {
                                 </div>
                             )}
 
-                            <div className="flex items-center ml-auto gap-4">
+                            <div className="flex items-center ml-auto gap-1.5 sm:gap-4 shrink-0">
                                 {isInstallable && (
                                     <button
                                         onClick={handleInstallClick}
-                                        className="md:hidden relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
+                                        className="md:hidden relative p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none"
                                         title="Install Aplikasi"
                                     >
                                         <Download className="w-5 h-5" />
@@ -394,10 +394,10 @@ export default function Authenticated({ user, header, children }) {
                                 </Link>
 
                                 <Menu as="div" className="relative">
-                                    <Menu.Button className="relative p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none">
+                                    <Menu.Button className="relative p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50 focus:outline-none">
                                         <Bell className="w-5 h-5" />
                                         {unreadCount > 0 && (
-                                            <span className="absolute top-1.5 right-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 border-2 border-white text-[10px] text-white font-bold">
+                                            <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-red-500 border-2 border-white text-[10px] text-white font-bold">
                                                 
                                             </span>
                                         )}
@@ -449,17 +449,17 @@ export default function Authenticated({ user, header, children }) {
                                     </Transition>
                                 </Menu>
                                 
-                                <div className="h-8 w-px bg-gray-200 mx-2"></div>
+                                <div className="h-6 sm:h-8 w-px bg-gray-200 mx-1 sm:mx-2"></div>
 
-                                <div className="flex items-center gap-3 cursor-pointer group">
+                                <div className="flex items-center gap-1.5 sm:gap-3 cursor-pointer group">
                                     <div className="text-right hidden md:block">
                                         <p className="text-sm font-semibold text-gray-700">{user.name}</p>
                                         <p className="text-xs text-gray-500">{user.roles?.length > 0 ? user.roles[0].name : 'Pengguna'}</p>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center border-2 border-white shadow-sm font-bold">
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center border-2 border-white shadow-sm font-bold text-xs sm:text-base shrink-0">
                                         {user.name.charAt(0)}
                                     </div>
-                                    <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-full hover:bg-red-50" title="Keluar">
+                                    <button onClick={handleLogout} className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 transition-colors rounded-full hover:bg-red-50 shrink-0" title="Keluar">
                                         <LogOut className="w-5 h-5" />
                                     </button>
                                 </div>
@@ -506,7 +506,7 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 )}
 
-                <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 lg:pt-4 pb-24 lg:pb-8 transition-all duration-300">
+                <main className="flex-1 min-w-0 max-w-full overflow-x-hidden px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 lg:pt-4 pb-24 lg:pb-8 transition-all duration-300">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>
@@ -514,7 +514,7 @@ export default function Authenticated({ user, header, children }) {
             </div>
             
             {/* Bottom Navigation for Mobile */}
-            <div className="lg:hidden fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe z-50 flex justify-around p-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 w-full max-w-full bg-white border-t border-gray-100 pb-safe z-50 flex justify-around p-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 {(() => {
                     const allItems = [];
                     baseNavItems.forEach(parent => {
