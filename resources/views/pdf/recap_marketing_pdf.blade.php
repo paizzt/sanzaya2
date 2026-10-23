@@ -156,27 +156,52 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th width="5%">No</th>
+                    <th width="5%" class="text-center">No</th>
                     <th width="20%">Nama Sales</th>
-                    <th width="15%">Tahun/Minggu</th>
-                    <th width="30%">Periode</th>
-                    <th width="15%" class="text-center">Target Outlet</th>
-                    <th width="15%" class="text-right">Target Nominal</th>
+                    <th width="15%" class="text-center">Bulan Tahun</th>
+                    <th width="45%">Outlet Target</th>
+                    <th width="15%" class="text-center">Capaian</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($targets as $index => $target)
+                @php
+                    $outletList = $target->target_outlet_names;
+                    $realized = $target->realized_visits ?? 0;
+                    $targetCount = $target->target_visits ?? (is_array($outletList) ? count($outletList) : 0);
+                    $percentage = $targetCount > 0 ? min(100, round(($realized / $targetCount) * 100)) : 0;
+                @endphp
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $target->user ? $target->user->name : '-' }}</td>
-                    <td>Tahun {{ $target->year ?? date('Y') }} <br> M-{{ $target->week_number }}</td>
-                    <td>{{ $target->start_date ? \Carbon\Carbon::parse($target->start_date)->format('d-m-Y') : '-' }} s/d {{ $target->end_date ? \Carbon\Carbon::parse($target->end_date)->format('d-m-Y') : '-' }}</td>
-                    <td class="text-center">{{ $target->target_visits }} Outlet</td>
-                    <td class="text-right">Rp {{ number_format($target->target_transactions, 0, ',', '.') }}</td>
+                    <td class="text-center" style="vertical-align: top;">{{ $index + 1 }}</td>
+                    <td style="vertical-align: top; font-weight: bold;">{{ $target->user ? $target->user->name : '-' }}</td>
+                    <td class="text-center" style="vertical-align: top;">
+                        {{ $target->start_date ? \Carbon\Carbon::parse($target->start_date)->locale('id')->translatedFormat('F Y') : '-' }}
+                    </td>
+                    <td style="vertical-align: top;">
+                        @if(!empty($outletList) && count($outletList) > 0)
+                            <ol style="margin: 0; padding-left: 18px; line-height: 1.4;">
+                                @foreach($outletList as $outletName)
+                                    <li>{{ $outletName }}</li>
+                                @endforeach
+                            </ol>
+                        @elseif($targetCount > 0)
+                            <span>{{ $targetCount }} Outlet</span>
+                        @else
+                            <span style="color: #999;">-</span>
+                        @endif
+                    </td>
+                    <td class="text-center" style="vertical-align: top;">
+                        <div style="font-weight: bold; font-size: 11px;">
+                            {{ $realized }} / {{ $targetCount }}
+                        </div>
+                        <div style="font-size: 11px; font-weight: bold; color: {{ $percentage >= 100 ? '#16a34a' : ($percentage >= 50 ? '#2563eb' : '#dc2626') }}; margin-top: 2px;">
+                            {{ $percentage }}%
+                        </div>
+                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center">Tidak ada data target.</td>
+                    <td colspan="5" class="text-center">Tidak ada data target.</td>
                 </tr>
                 @endforelse
             </tbody>

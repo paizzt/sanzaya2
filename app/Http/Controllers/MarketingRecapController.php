@@ -393,15 +393,20 @@ class MarketingRecapController extends Controller
             if ($endDate) $query->where('end_date', '<=', $endDate);
             $items = $query->get();
             
-            $headings = ['No', 'Sales', 'Periode', 'Target Kunjungan', 'Target Transaksi (Rp)', 'Realisasi Kunjungan'];
+            $headings = ['No', 'Nama Sales', 'Bulan Tahun', 'Outlet Target', 'Capaian'];
             $rows = $items->map(function($item, $key) {
+                $outletList = $item->target_outlet_names;
+                $realized = $item->realized_visits ?? 0;
+                $targetCount = $item->target_visits ?? (is_array($outletList) ? count($outletList) : 0);
+                $percentage = $targetCount > 0 ? min(100, round(($realized / $targetCount) * 100)) : 0;
+                $outletsStr = !empty($outletList) ? implode(', ', $outletList) : ($targetCount . ' Outlet');
+
                 return [
                     $key + 1,
                     $item->user->name ?? '-',
-                    ($item->start_date ? \Carbon\Carbon::parse($item->start_date)->format('d/m/Y') : '') . ' - ' . ($item->end_date ? \Carbon\Carbon::parse($item->end_date)->format('d/m/Y') : ''),
-                    ($item->target_visits ?? 0) . ' Outlet',
-                    $item->target_transactions ? (float)$item->target_transactions : 0,
-                    ($item->realized_visits ?? 0) . ' Outlet'
+                    $item->start_date ? \Carbon\Carbon::parse($item->start_date)->locale('id')->translatedFormat('F Y') : '-',
+                    $outletsStr,
+                    $realized . ' / ' . $targetCount . ' (' . $percentage . '%)'
                 ];
             });
             $title = 'Rekap_Target_Marketing';

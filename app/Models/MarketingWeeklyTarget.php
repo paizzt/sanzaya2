@@ -26,8 +26,15 @@ class MarketingWeeklyTarget extends Model
         $outletIds = $this->target_outlets ?? [];
         if (empty($outletIds)) return [];
         
-        // Return array of outlet names for the frontend
-        return \App\Models\Outlet::whereIn('id', $outletIds)->pluck('name')->toArray();
+        $numericIds = array_filter($outletIds, 'is_numeric');
+        $stringNames = array_values(array_filter($outletIds, fn($id) => !is_numeric($id)));
+
+        $fetchedNames = [];
+        if (!empty($numericIds)) {
+            $fetchedNames = \App\Models\Outlet::whereIn('id', $numericIds)->pluck('name')->toArray();
+        }
+
+        return array_values(array_unique(array_merge($fetchedNames, $stringNames)));
     }
 
     public function getRealizedVisitsAttribute()
