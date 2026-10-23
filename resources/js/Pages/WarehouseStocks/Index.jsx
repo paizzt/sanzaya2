@@ -5,7 +5,7 @@ import { Head, usePage, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Fuse from 'fuse.js';
 import { 
-    Plus, Search, Edit, Trash2, Box, X, Share2, Copy, CheckCircle, Info, DollarSign, Boxes
+    Plus, Search, Edit, Trash2, Box, X, Share2, Copy, CheckCircle, Info, DollarSign, Boxes, Banknote
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -70,6 +70,18 @@ export default function Index({ items, isShared, providers = [] }) {
         }
         return result;
     }, [fuse, searchTerm, items]);
+
+    const totalStock = useMemo(() => {
+        return items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+    }, [items]);
+
+    const totalNilaiGudang = useMemo(() => {
+        return items.reduce((sum, item) => {
+            const qty = Number(item.quantity) || 0;
+            const price = Number(item.price) || 0;
+            return sum + (qty * price);
+        }, 0);
+    }, [items]);
 
     React.useEffect(() => {
         setCurrentPage(1);
@@ -218,9 +230,23 @@ export default function Index({ items, isShared, providers = [] }) {
                         </div>
                         <p className="text-xs font-medium text-gray-500 mb-2">Total Stok Barang</p>
                         <h3 className="text-2xl font-bold text-gray-800">
-                            {new Intl.NumberFormat('id-ID').format(
-                                items.reduce((sum, item) => sum + (item.quantity || 0), 0)
-                            )}
+                            {new Intl.NumberFormat('id-ID').format(totalStock)}
+                        </h3>
+                    </div>
+
+                    {/* Total Nilai Gudang */}
+                    <div className="bg-white rounded-2xl py-6 px-4 shadow-[0_2px_10px_rgb(0,0,0,0.04)] border-2 border-emerald-200 flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                            <Banknote className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <p className="text-xs font-medium text-gray-500 mb-2">Total Nilai Gudang</p>
+                        <h3 className="text-2xl font-bold text-emerald-700">
+                            {new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
+                            }).format(totalNilaiGudang)}
                         </h3>
                     </div>
                 </div>
