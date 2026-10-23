@@ -374,7 +374,8 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                                 {existingPhotos.map(att => {
                                                     const isDeleted = deletedIds.includes(att.id);
-                                                    const imgUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
+                                                    const rawUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
+                                                    const imgUrl = rawUrl.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}` : rawUrl;
                                                     return (
                                                         <div 
                                                             key={att.id} 
@@ -385,6 +386,10 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                                                     src={imgUrl} 
                                                                     alt={att.original_name || 'Lampiran'} 
                                                                     className={`w-full h-full object-cover ${isDeleted ? 'grayscale' : ''}`} 
+                                                                    onError={(e) => {
+                                                                        e.target.onerror = null;
+                                                                        e.target.src = 'https://placehold.co/200x200/f1f5f9/64748b?text=Gagal+Muat';
+                                                                    }}
                                                                 />
                                                             </div>
                                                             <p className="text-xs text-gray-700 truncate w-full font-medium" title={att.original_name}>

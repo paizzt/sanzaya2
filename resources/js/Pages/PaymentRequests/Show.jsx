@@ -408,7 +408,8 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {photoAttachments.map((att, idx) => {
-                                                const imgUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
+                                                const rawUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
+                                                const imgUrl = rawUrl.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}` : rawUrl;
                                                 return (
                                                     <div key={att.id || idx} className="group border rounded-xl overflow-hidden bg-gray-50 flex flex-col justify-between hover:shadow-md transition">
                                                         <div 
@@ -419,6 +420,10 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                                                 src={imgUrl} 
                                                                 alt={att.original_name || `Lampiran ${idx + 1}`} 
                                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                                onError={(e) => {
+                                                                    e.target.onerror = null;
+                                                                    e.target.src = 'https://placehold.co/400x300/f1f5f9/64748b?text=Foto+Gagal+Dimuat';
+                                                                }}
                                                             />
                                                             <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-2 font-medium text-xs">
                                                                 <Eye className="w-4 h-4" /> Perbesar

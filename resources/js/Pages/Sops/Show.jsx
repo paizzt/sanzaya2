@@ -431,13 +431,18 @@ export default function Show({ auth, division }) {
                                                                     <p className="text-gray-700 leading-relaxed text-[15px] whitespace-pre-wrap">{text}</p>
                                                                 )}
                                                                 {image && (() => {
-                                                                    const imgSrc = image.startsWith('http') ? image : `/storage/${image}`;
+                                                                    const rawSrc = image.startsWith('http') ? image : `/storage/${image}`;
+                                                                    const imgSrc = rawSrc.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(rawSrc)}` : rawSrc;
                                                                     return (
                                                                     <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm inline-block max-w-full">
                                                                         <img 
                                                                             src={imgSrc} 
                                                                             alt={`Gambar tahap ${idx + 1}`}
                                                                             className="max-h-[300px] object-contain bg-gray-50"
+                                                                            onError={(e) => {
+                                                                                e.target.onerror = null;
+                                                                                e.target.src = 'https://placehold.co/400x300/f1f5f9/64748b?text=Foto+Gagal+Dimuat';
+                                                                            }}
                                                                         />
                                                                     </div>
                                                                     );
