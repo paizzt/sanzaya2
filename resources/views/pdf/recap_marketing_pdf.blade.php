@@ -169,8 +169,8 @@
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $target->user ? $target->user->name : '-' }}</td>
-                    <td>Tahun {{ $target->year }} <br> M-{{ $target->week_number }}</td>
-                    <td>{{ date('d-m-Y', strtotime($target->start_date)) }} s/d {{ date('d-m-Y', strtotime($target->end_date)) }}</td>
+                    <td>Tahun {{ $target->year ?? date('Y') }} <br> M-{{ $target->week_number }}</td>
+                    <td>{{ $target->start_date ? \Carbon\Carbon::parse($target->start_date)->format('d-m-Y') : '-' }} s/d {{ $target->end_date ? \Carbon\Carbon::parse($target->end_date)->format('d-m-Y') : '-' }}</td>
                     <td class="text-center">{{ $target->target_visits }} Outlet</td>
                     <td class="text-right">Rp {{ number_format($target->target_transactions, 0, ',', '.') }}</td>
                 </tr>

@@ -8,6 +8,7 @@ use App\Models\MarketingDailyReport;
 use App\Models\MarketingWeeklyTarget;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MarketingRecapController extends Controller
 {
@@ -311,7 +312,7 @@ class MarketingRecapController extends Controller
                 ];
             }
         } else {
-            $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc')->orderBy('week_number', 'desc');
+            $query = MarketingWeeklyTarget::with('user')->orderBy('start_date', 'desc')->orderBy('week_number', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
             if ($startDate) $query->where('start_date', '>=', $startDate);
             if ($endDate) $query->where('end_date', '<=', $endDate);
@@ -330,7 +331,7 @@ class MarketingRecapController extends Controller
             'filter_month' => $filterMonth,
         ];
 
-        $pdf = \PDF::loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $pdf = Pdf::loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf') : $pdf->download('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf');
     }
     public function exportExcel(Request $request)
@@ -386,15 +387,22 @@ class MarketingRecapController extends Controller
             });
             $title = $type === 'kendala' ? 'Rekap_Kendala_Marketing' : 'Rekap_Laporan_Marketing';
         } else {
-            $query = MarketingWeeklyTarget::with('user')->orderBy('year', 'desc');
+            $query = MarketingWeeklyTarget::with('user')->orderBy('start_date', 'desc')->orderBy('week_number', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
             if ($startDate) $query->where('start_date', '>=', $startDate);
             if ($endDate) $query->where('end_date', '<=', $endDate);
             $items = $query->get();
             
-            $headings = ['No', 'Sales', 'Periode', 'Target', 'Capaian'];
+            $headings = ['No', 'Sales', 'Periode', 'Target Kunjungan', 'Target Transaksi (Rp)', 'Realisasi Kunjungan'];
             $rows = $items->map(function($item, $key) {
-                return [$key+1, $item->user->name ?? '-', $item->start_date . ' - ' . $item->end_date, $item->target_amount, $item->achieved_amount];
+                return [
+                    $key + 1,
+                    $item->user->name ?? '-',
+                    ($item->start_date ? \Carbon\Carbon::parse($item->start_date)->format('d/m/Y') : '') . ' - ' . ($item->end_date ? \Carbon\Carbon::parse($item->end_date)->format('d/m/Y') : ''),
+                    ($item->target_visits ?? 0) . ' Outlet',
+                    $item->target_transactions ? (float)$item->target_transactions : 0,
+                    ($item->realized_visits ?? 0) . ' Outlet'
+                ];
             });
             $title = 'Rekap_Target_Marketing';
         }

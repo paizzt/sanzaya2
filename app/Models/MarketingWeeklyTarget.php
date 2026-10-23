@@ -14,7 +14,12 @@ class MarketingWeeklyTarget extends Model
         'end_date' => 'date',
     ];
 
-    protected $appends = ['target_outlet_names', 'realized_visits'];
+    protected $appends = ['target_outlet_names', 'realized_visits', 'year'];
+
+    public function getYearAttribute()
+    {
+        return $this->start_date ? \Carbon\Carbon::parse($this->start_date)->format('Y') : date('Y');
+    }
 
     public function getTargetOutletNamesAttribute()
     {
