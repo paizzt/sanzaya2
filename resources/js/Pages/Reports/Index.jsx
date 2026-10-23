@@ -3,7 +3,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import Modal from '@/Components/Modal';
 import { Head, usePage, router, Link, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2';
-import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown, PieChart } from 'lucide-react';
+import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown, PieChart, Table, MoveHorizontal } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
@@ -49,6 +49,8 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
     const [searchTerm, setSearchTerm] = useState(search || '');
     const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', type: '', data: null });
     const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
+    const [mobileBulanView, setMobileBulanView] = useState('chart'); // 'chart' | 'table'
+    const [mobileChartFormat, setMobileChartFormat] = useState('compact'); // 'compact' | 'full'
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -444,6 +446,8 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
 
         if (dataSales.length === 0 && dataBulan.length === 0 && dataBrand.length === 0) return null;
 
+        const maxBulanPenjualan = dataBulan.length > 0 ? Math.max(...dataBulan.map(d => d.Penjualan), 1) : 1;
+
         const chartOptions = {
             responsive: true,
             maintainAspectRatio: false,
@@ -464,7 +468,15 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                     border: { display: false },
                     ticks: {
                         font: { size: 11 }, color: '#6b7280',
-                        callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
+                        callback: function(value) {
+                            if (value >= 1000000000) {
+                                return 'Rp ' + (value / 1000000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' M';
+                            }
+                            if (value >= 1000000) {
+                                return 'Rp ' + (value / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 0 }) + ' Jt';
+                            }
+                            return 'Rp ' + value;
+                        }
                     }
                 }
             }
@@ -489,58 +501,194 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
             <div className="flex flex-col gap-6 mb-6">
                 {dataBulan.length > 0 && (
                     <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 w-full">
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-600"/> Penjualan Per Bulan</h4>
-                        <div className="h-72 w-full">
-                            <Bar 
-                                plugins={[ChartDataLabels]}
-                                data={{
-                                    labels: dataBulan.map(d => d.name),
-                                    datasets: [{
-                                        data: dataBulan.map(d => d.Penjualan),
-                                        backgroundColor: '#3b82f6',
-                                        borderRadius: 6
-                                    }]
-                                }} 
-                                options={{
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        legend: { display: false },
-                                        datalabels: {
-                                            anchor: 'end',
-                                            align: 'top',
-                                            color: '#3b82f6',
-                                            font: { weight: 'bold', size: 10 },
-                                            formatter: function(value) {
-                                                if (value === 0) return '';
-                                                return 'Rp ' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(value);
-                                            }
-                                        },
-                                        tooltip: {
-                                            callbacks: {
-                                                label: function(context) {
-                                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-gray-100 gap-2.5">
+                            <div className="flex items-center justify-between w-full sm:w-auto">
+                                <h4 className="font-bold text-gray-800 flex items-center gap-2">
+                                    <TrendingUp className="w-5 h-5 text-indigo-600"/> 
+                                    Penjualan Per Bulan
+                                </h4>
+                                
+                                {!isDesktop && (
+                                    <div className="inline-flex p-0.5 bg-gray-100 rounded-xl text-xs font-semibold">
+                                        <button
+                                            type="button"
+                                            onClick={() => setMobileBulanView('chart')}
+                                            className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 ${mobileBulanView === 'chart' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
+                                        >
+                                            <BarChart2 className="w-3.5 h-3.5" /> Grafik
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setMobileBulanView('table')}
+                                            className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 ${mobileBulanView === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
+                                        >
+                                            <Table className="w-3.5 h-3.5" /> Rincian
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {!isDesktop && mobileBulanView === 'chart' && (
+                                <div className="flex items-center justify-between gap-2 text-xs">
+                                    <div className="flex items-center gap-1 text-[11px] text-blue-600 bg-blue-50/80 px-2.5 py-1 rounded-full font-medium">
+                                        <MoveHorizontal className="w-3.5 h-3.5 animate-pulse" />
+                                        <span>Geser grafik ke samping</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setMobileChartFormat(prev => prev === 'compact' ? 'full' : 'compact')}
+                                        className="text-[11px] px-2.5 py-1 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg font-medium transition-colors border border-gray-200/60"
+                                    >
+                                        {mobileChartFormat === 'compact' ? 'Format: Singkat (M)' : 'Format: Penuh (Rp)'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {!isDesktop && mobileBulanView === 'table' ? (
+                            <div className="space-y-2.5">
+                                <div className="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-wider px-2 pb-1 border-b border-gray-100">
+                                    <span>Bulan</span>
+                                    <span>Total Penjualan</span>
+                                </div>
+                                <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+                                    {dataBulan.map((item, idx) => {
+                                        const isHighest = item.Penjualan === maxBulanPenjualan;
+                                        const percentOfMax = maxBulanPenjualan > 0 ? (item.Penjualan / maxBulanPenjualan) * 100 : 0;
+                                        return (
+                                            <div 
+                                                key={idx} 
+                                                className={`p-3 rounded-2xl border transition-all ${
+                                                    isHighest 
+                                                        ? 'bg-blue-50/60 border-blue-200 shadow-xs' 
+                                                        : 'bg-gray-50/50 hover:bg-gray-50 border-gray-100'
+                                                }`}
+                                            >
+                                                <div className="flex justify-between items-center mb-1.5">
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                                                            isHighest ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+                                                        }`}>
+                                                            {idx + 1}
+                                                        </div>
+                                                        <span className="font-bold text-sm text-gray-800">{item.name}</span>
+                                                        {isHighest && (
+                                                            <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md">
+                                                                Tertinggi ⭐
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span className="font-extrabold text-sm text-blue-700 text-right">
+                                                        {'Rp ' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(item.Penjualan)}
+                                                    </span>
+                                                </div>
+                                                <div className="w-full bg-gray-200/70 h-1.5 rounded-full overflow-hidden">
+                                                    <div 
+                                                        className={`h-full rounded-full ${isHighest ? 'bg-blue-600' : 'bg-blue-400'}`} 
+                                                        style={{ width: `${percentOfMax}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="w-full overflow-x-auto custom-scrollbar pb-2 -mx-1 px-1">
+                                <div 
+                                    className="h-72" 
+                                    style={{ 
+                                        minWidth: !isDesktop 
+                                            ? `${Math.max(dataBulan.length * (mobileChartFormat === 'full' ? 95 : 72), 640)}px` 
+                                            : '100%' 
+                                    }}
+                                >
+                                    <Bar 
+                                        plugins={[ChartDataLabels]}
+                                        data={{
+                                            labels: dataBulan.map(d => d.name),
+                                            datasets: [{
+                                                data: dataBulan.map(d => d.Penjualan),
+                                                backgroundColor: '#3b82f6',
+                                                borderRadius: 6
+                                            }]
+                                        }} 
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: { display: false },
+                                                datalabels: {
+                                                    anchor: 'end',
+                                                    align: 'top',
+                                                    offset: 2,
+                                                    color: '#2563eb',
+                                                    font: { weight: 'bold', size: !isDesktop ? (mobileChartFormat === 'full' ? 9 : 10) : 10 },
+                                                    formatter: function(value) {
+                                                        if (!value || value === 0) return '';
+                                                        if (!isDesktop) {
+                                                            if (mobileChartFormat === 'compact') {
+                                                                if (value >= 1000000000) {
+                                                                    const m = value / 1000000000;
+                                                                    return 'Rp ' + (m >= 10 ? m.toFixed(1) : m.toFixed(2)).replace('.', ',') + ' M';
+                                                                } else if (value >= 1000000) {
+                                                                    const jt = value / 1000000;
+                                                                    return 'Rp ' + (jt >= 10 ? jt.toFixed(1) : jt.toFixed(2)).replace('.', ',') + ' Jt';
+                                                                } else if (value >= 1000) {
+                                                                    return 'Rp ' + (value / 1000).toFixed(0) + ' Rb';
+                                                                }
+                                                                return 'Rp ' + value;
+                                                            } else {
+                                                                return 'Rp ' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(value);
+                                                            }
+                                                        }
+                                                        return 'Rp ' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(value);
+                                                    }
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function(context) {
+                                                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            layout: {
+                                                padding: { top: 32 }
+                                            },
+                                            scales: {
+                                                x: { 
+                                                    grid: { display: false }, 
+                                                    ticks: { 
+                                                        font: { size: !isDesktop ? 10 : 11 }, 
+                                                        color: '#6b7280',
+                                                        maxRotation: !isDesktop ? 45 : 0,
+                                                        autoSkip: false
+                                                    } 
+                                                },
+                                                y: {
+                                                    grid: { color: '#f0f0f0', drawBorder: false },
+                                                    border: { display: false },
+                                                    ticks: {
+                                                        font: { size: !isDesktop ? 10 : 11 }, 
+                                                        color: '#6b7280',
+                                                        callback: function(value) { 
+                                                            if (value >= 1000000000) {
+                                                                return 'Rp ' + (value / 1000000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' M';
+                                                            }
+                                                            if (value >= 1000000) {
+                                                                return 'Rp ' + (value / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 0 }) + ' Jt';
+                                                            }
+                                                            return 'Rp ' + value;
+                                                        }
+                                                    }
                                                 }
                                             }
-                                        }
-                                    },
-                                    layout: {
-                                        padding: { top: 25 }
-                                    },
-                                    scales: {
-                                        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
-                                        y: {
-                                            grid: { color: '#f0f0f0', drawBorder: false },
-                                            border: { display: false },
-                                            ticks: {
-                                                font: { size: 11 }, color: '#6b7280',
-                                                callback: function(value) { return 'Rp ' + (value / 1000000) + 'M'; }
-                                            }
-                                        }
-                                    }
-                                }} 
-                            />
-                        </div>
+                                        }} 
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
