@@ -3,7 +3,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import Modal from '@/Components/Modal';
 import { Head, usePage, router, Link, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2';
-import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown, PieChart, Table, MoveHorizontal } from 'lucide-react';
+import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown, PieChart, Table } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
@@ -529,11 +529,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                             </div>
 
                             {!isDesktop && mobileBulanView === 'chart' && (
-                                <div className="flex items-center justify-between gap-2 text-xs">
-                                    <div className="flex items-center gap-1 text-[11px] text-blue-600 bg-blue-50/80 px-2.5 py-1 rounded-full font-medium">
-                                        <MoveHorizontal className="w-3.5 h-3.5 animate-pulse" />
-                                        <span>Geser grafik ke samping</span>
-                                    </div>
+                                <div className="flex items-center justify-end text-xs">
                                     <button
                                         type="button"
                                         onClick={() => setMobileChartFormat(prev => prev === 'compact' ? 'full' : 'compact')}
@@ -553,30 +549,18 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                 </div>
                                 <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
                                     {dataBulan.map((item, idx) => {
-                                        const isHighest = item.Penjualan === maxBulanPenjualan;
                                         const percentOfMax = maxBulanPenjualan > 0 ? (item.Penjualan / maxBulanPenjualan) * 100 : 0;
                                         return (
                                             <div 
                                                 key={idx} 
-                                                className={`p-3 rounded-2xl border transition-all ${
-                                                    isHighest 
-                                                        ? 'bg-blue-50/60 border-blue-200 shadow-xs' 
-                                                        : 'bg-gray-50/50 hover:bg-gray-50 border-gray-100'
-                                                }`}
+                                                className="p-3 rounded-2xl border bg-gray-50/50 hover:bg-gray-50 border-gray-100 transition-all"
                                             >
                                                 <div className="flex justify-between items-center mb-1.5">
                                                     <div className="flex items-center gap-2 min-w-0">
-                                                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                                                            isHighest ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
-                                                        }`}>
+                                                        <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 bg-blue-100 text-blue-700">
                                                             {idx + 1}
                                                         </div>
                                                         <span className="font-bold text-sm text-gray-800">{item.name}</span>
-                                                        {isHighest && (
-                                                            <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md">
-                                                                Tertinggi ⭐
-                                                            </span>
-                                                        )}
                                                     </div>
                                                     <span className="font-extrabold text-sm text-blue-700 text-right">
                                                         {'Rp ' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(item.Penjualan)}
@@ -584,7 +568,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                                                 </div>
                                                 <div className="w-full bg-gray-200/70 h-1.5 rounded-full overflow-hidden">
                                                     <div 
-                                                        className={`h-full rounded-full ${isHighest ? 'bg-blue-600' : 'bg-blue-400'}`} 
+                                                        className="h-full rounded-full bg-blue-500" 
                                                         style={{ width: `${percentOfMax}%` }}
                                                     />
                                                 </div>
