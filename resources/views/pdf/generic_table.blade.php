@@ -3,7 +3,7 @@
 <head>
     <title>{{ $title }}</title>
     <style>
-        @page { margin: 1.27cm; } /* Maximize paper space */
+        @page { margin-top: 1.27cm; margin-left: 1.27cm; margin-right: 1.27cm; margin-bottom: 1.8cm; }
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; color: #374151; margin: 0; padding: 0; }
         .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
         .header h2 { margin: 0; padding: 0; font-size: 18px; color: #111827; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
@@ -49,11 +49,27 @@
         .text-center { text-align: center !important; }
         .nowrap { white-space: nowrap; }
         
-        .footer { text-align: right; margin-top: 30px; font-size: 9px; color: #94a3b8; font-style: italic; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+        .footer { 
+            position: fixed; 
+            bottom: -1.2cm; 
+            left: 0; 
+            right: 0; 
+            height: 20px; 
+            text-align: right; 
+            font-size: 8px; 
+            color: #94a3b8; 
+            font-style: italic; 
+            border-top: 1px solid #e2e8f0; 
+            padding-top: 5px; 
+        }
         .signature { margin-top: 30px; float: right; text-align: center; width: 200px; font-size: 10px; color: #334155; }
     </style>
 </head>
 <body>
+    <div class="footer">
+        * Dokumen ini di-generate secara otomatis oleh Sistem Sanzaya.
+    </div>
+
     <div class="header">
         <h2>{{ $title }}</h2>
         <p>Dicetak pada: {{ now()->format('d M Y H:i') }}</p>
@@ -220,10 +236,6 @@
         <p><strong>{{ auth()->user() ? auth()->user()->name : 'Admin / Manager' }}</strong></p>
     </div>
     <div style="clear: both;"></div>
-
-    <div class="footer">
-        * Dokumen ini di-generate secara otomatis oleh Sistem Sanzaya.
-    </div>
 </body>
 </html>
 
