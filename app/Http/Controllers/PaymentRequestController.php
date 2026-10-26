@@ -188,6 +188,7 @@ class PaymentRequestController extends Controller
             'transaction_date' => 'required|date',
             'category' => 'required|string',
             'purpose' => 'required|string',
+            'notes' => 'nullable|string',
             'recipient_name' => 'required|string',
             'letter_number' => 'nullable|string',
             'project_or_outlet' => 'nullable|string',
@@ -229,6 +230,15 @@ class PaymentRequestController extends Controller
                 }
             }
             
+            // Ensure notes column exists
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'notes')) {
+                try {
+                    \Illuminate\Support\Facades\Schema::table('payment_requests', function ($table) {
+                        $table->text('notes')->nullable()->after('purpose');
+                    });
+                } catch (\Throwable $e) {}
+            }
+
             // Create the record
             $paymentRequest = PaymentRequest::create([
                 'reference_number' => $this->paymentService->generateReferenceNumber($user->division_id),
@@ -239,6 +249,7 @@ class PaymentRequestController extends Controller
                 'transaction_date' => $request->transaction_date,
                 'category' => $request->category,
                 'purpose' => $request->purpose,
+                'notes' => $request->notes,
                 'recipient_name' => $request->recipient_name,
                 'letter_number' => $request->letter_number,
                 'vendor_id' => $request->vendor_id,
@@ -458,6 +469,7 @@ class PaymentRequestController extends Controller
             'transaction_date' => 'required|date',
             'category' => 'required|string',
             'purpose' => 'required|string',
+            'notes' => 'nullable|string',
             'recipient_name' => 'required|string',
             'letter_number' => 'nullable|string',
             'project_or_outlet' => 'nullable|string',
@@ -499,12 +511,22 @@ class PaymentRequestController extends Controller
                 }
             }
 
+            // Ensure notes column exists
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'notes')) {
+                try {
+                    \Illuminate\Support\Facades\Schema::table('payment_requests', function ($table) {
+                        $table->text('notes')->nullable()->after('purpose');
+                    });
+                } catch (\Throwable $e) {}
+            }
+
             $paymentRequest->update([
                 'company_name' => $request->company_name,
                 'payment_deadline' => $request->payment_deadline,
                 'transaction_date' => $request->transaction_date,
                 'category' => $request->category,
                 'purpose' => $request->purpose,
+                'notes' => $request->notes,
                 'recipient_name' => $request->recipient_name,
                 'letter_number' => $request->letter_number,
                 'vendor_id' => $request->vendor_id,

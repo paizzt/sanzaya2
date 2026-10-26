@@ -18,6 +18,7 @@ export default function Create({ auth, vendors, companies, user }) {
         category: '',
         purpose: '',
         letter_number: '',
+        notes: '',
         recipient_name: '',
         vendor_id: '',
         invoice_reference: '',
@@ -202,6 +203,17 @@ export default function Create({ auth, vendors, companies, user }) {
                                     <InputLabel value="Nama Penerima" />
                                     <TextInput value={data.recipient_name} onChange={e => setData('recipient_name', e.target.value)} className="w-full" required />
                                     <InputError message={errors.recipient_name} />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <InputLabel value="Keterangan (Opsional)" />
+                                    <textarea
+                                        value={data.notes}
+                                        onChange={e => setData('notes', e.target.value)}
+                                        className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                        rows="3"
+                                        placeholder="Masukkan keterangan atau catatan tambahan jika ada..."
+                                    />
+                                    <InputError message={errors.notes} />
                                 </div>
                             </div>
                         </div>

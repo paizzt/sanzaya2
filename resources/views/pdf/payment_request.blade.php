@@ -231,6 +231,14 @@
             <td>{{ $paymentRequest->letter_number }}</td>
         </tr>
         @endif
+        @if($paymentRequest->notes)
+        <tr>
+            <td>-</td>
+            <td>Keterangan</td>
+            <td>:</td>
+            <td>{{ $paymentRequest->notes }}</td>
+        </tr>
+        @endif
         <tr>
             <td>4.</td>
             <td>Bank / Dompet Digital</td>

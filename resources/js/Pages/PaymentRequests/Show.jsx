@@ -232,6 +232,12 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                             {paymentRequest.payment_deadline ? dayjs(paymentRequest.payment_deadline).format('DD MMMM YYYY') : '-'}
                                         </span>
                                     </div>
+                                    <div className="sm:col-span-2">
+                                        <span className="text-gray-500 block text-xs">Keterangan</span>
+                                        <span className="font-semibold text-gray-900 whitespace-pre-line">
+                                            {paymentRequest.notes || '-'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 

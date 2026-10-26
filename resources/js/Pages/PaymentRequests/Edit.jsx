@@ -19,6 +19,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
         category: paymentRequest.category || '',
         purpose: paymentRequest.purpose || '',
         letter_number: paymentRequest.letter_number || '',
+        notes: paymentRequest.notes || '',
         recipient_name: paymentRequest.recipient_name || '',
         vendor_id: paymentRequest.vendor_id || '',
         invoice_reference: paymentRequest.invoice_reference || '',
@@ -229,6 +230,17 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                     <InputLabel value="Nama Penerima" />
                                     <TextInput value={data.recipient_name} onChange={e => setData('recipient_name', e.target.value)} className="w-full" required />
                                     <InputError message={errors.recipient_name} />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <InputLabel value="Keterangan (Opsional)" />
+                                    <textarea
+                                        value={data.notes}
+                                        onChange={e => setData('notes', e.target.value)}
+                                        className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                        rows="3"
+                                        placeholder="Masukkan keterangan atau catatan tambahan jika ada..."
+                                    />
+                                    <InputError message={errors.notes} />
                                 </div>
                             </div>
                         </div>
