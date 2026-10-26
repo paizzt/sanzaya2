@@ -125,8 +125,11 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                     <textarea id="swal-input-notes-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/keterangan saat masuk...">${item.check_in_notes || ''}</textarea>
                 </div>
                 <div class="text-left mb-3">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Keterangan Pulang</label>
-                    <textarea id="swal-input-notes-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/keterangan saat pulang...">${item.check_out_notes || ''}</textarea>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        ${item.is_lembur ? 'Keterangan Pulang / Alasan Lembur <span class="text-red-500">*</span>' : 'Keterangan Pulang'}
+                    </label>
+                    <textarea id="swal-input-notes-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/alasan saat pulang atau lembur...">${item.check_out_notes || item.notes || ''}</textarea>
+                    ${item.is_lembur ? '<p class="text-[11px] text-blue-600 font-medium mt-1">Karyawan ini terhitung lembur, pastikan alasan lembur terisi.</p>' : ''}
                 </div>
                 ${item.is_satpam ? `
                 <div class="text-left">
@@ -684,7 +687,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                         <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">+1 Hari</span>
                                                     )}
                                                     {!item.is_satpam && item.is_lembur && (
-                                                        <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">Lembur</span>
+                                                        <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">
+                                                            Lembur {item.is_saturday ? '(Sabtu >14:00)' : '(>20:00)'}
+                                                        </span>
                                                     )}
                                                     {item.check_out_photo && (
                                                         <button onClick={() => handleShowPhoto(item.check_out_photo, 'Keluar')} className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1">
@@ -709,15 +714,29 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                         </div>
                                                     )}
 
-                                                    {/* Keterangan Pulang */}
-                                                    {item.check_out_notes && (
+                                                    {/* Alasan Lembur Khusus Jika Lembur */}
+                                                    {!item.is_satpam && item.is_lembur && (
+                                                        <div className="text-[11px] text-blue-900 bg-blue-50 border border-blue-200 rounded px-2 py-1 max-w-[260px] break-words">
+                                                            <span className="font-bold text-blue-950 flex items-center gap-1">
+                                                                <Clock className="w-3 h-3 text-blue-600 inline" /> Alasan Lembur:
+                                                            </span>{' '}
+                                                            <span className="text-gray-800">
+                                                                {item.check_out_notes || item.notes || (
+                                                                    <span className="text-amber-600 italic">Belum ada alasan lembur</span>
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Keterangan Pulang Biasa (Jika Tidak Lembur) */}
+                                                    {!item.is_lembur && item.check_out_notes && (
                                                         <div className="text-[11px] text-emerald-800 bg-emerald-50/80 border border-emerald-200/60 rounded px-2 py-0.5 max-w-[240px] break-words">
                                                             <span className="font-bold text-emerald-900">Pulang:</span> {item.check_out_notes}
                                                         </div>
                                                     )}
 
                                                     {/* Fallback Legacy Notes */}
-                                                    {!item.check_in_notes && !item.check_out_notes && item.notes && (
+                                                    {!item.is_lembur && !item.check_in_notes && !item.check_out_notes && item.notes && (
                                                         <div className="text-xs text-gray-500 italic max-w-[220px] break-words mt-0.5">
                                                             "{item.notes}"
                                                         </div>

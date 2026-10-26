@@ -16,7 +16,7 @@ const dataURLtoFile = (dataurl, filename) => {
     return new File([u8arr], filename, {type:mime});
 };
 
-export default function Index({ attendance, today, currentTime, isOvertime, history = [], company, isMarketing, isSatpam, activeDutySatpam }) {
+export default function Index({ attendance, today, currentTime, isOvertime, isSaturday, userWorkDays, history = [], company, isMarketing, isSatpam, activeDutySatpam }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -80,6 +80,23 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
     }, [flash]);
 
     const submitAttendance = (type) => {
+        if (type === 'check_out' && isOvertime && !isSatpam) {
+            if (!data.notes || !data.notes.trim()) {
+                const isSat = isSaturday || new Date().getDay() === 6;
+                Swal.fire({
+                    title: 'Alasan Lembur Wajib Diisi',
+                    text: isSat
+                        ? 'Hari Sabtu jam kerja normal hanya sampai 14:00 WITA. Anda terhitung lembur dan wajib mengisi alasan lembur sebelum absen pulang.'
+                        : 'Pukul 20:00 WITA ke atas terhitung lembur. Wajib mengisi alasan lembur sebelum absen pulang.',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6',
+                    confirmButtonText: 'Tulis Alasan',
+                    customClass: { popup: 'rounded-2xl' }
+                });
+                return;
+            }
+        }
+
         setIsLocating(true);
         if (!navigator.geolocation) {
             setIsLocating(false);
@@ -328,18 +345,24 @@ export default function Index({ attendance, today, currentTime, isOvertime, hist
                                         {hasCheckedIn && !hasCheckedOut && (
                                             <div className="mt-4 space-y-4">
                                                 {isOvertime && !isSatpam && (
-                                                    <div>
-                                                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                                            Catatan Lembur (Opsional)
+                                                    <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 space-y-2">
+                                                        <label className="block text-sm font-bold text-amber-900 flex items-center gap-1.5">
+                                                            <Clock className="w-4 h-4 text-amber-600" />
+                                                            Alasan Lembur <span className="text-red-500">*</span>
                                                         </label>
                                                         <textarea
-                                                            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                            className="w-full border border-amber-300 rounded-lg p-3 text-sm focus:ring-amber-500 focus:border-amber-500 bg-white"
                                                             rows="2"
                                                             value={data.notes}
                                                             onChange={(e) => setData('notes', e.target.value)}
-                                                            placeholder="Jelaskan alasan lembur..."
+                                                            placeholder="Tuliskan alasan lembur Anda secara detail..."
+                                                            required
                                                         ></textarea>
-                                                        <p className="text-xs text-blue-500 mt-1">Isi catatan jika Anda terhitung lembur, kosongkan jika tidak lembur.</p>
+                                                        <p className="text-xs text-amber-800 font-medium">
+                                                            {(isSaturday || new Date().getDay() === 6)
+                                                                ? 'Hari Sabtu jam kerja normal sampai 14:00 WITA. Anda terhitung lembur dan wajib menuliskan alasan lembur.'
+                                                                : 'Pukul 20:00 WITA ke atas terhitung lembur. Wajib menuliskan alasan lembur sebelum absen pulang.'}
+                                                        </p>
                                                     </div>
                                                 )}
                                                 <button

@@ -143,13 +143,21 @@
                     </td>
                     <td class="text-center">
                         {{ $item['check_out'] ?? '-' }}
-                        @if(!empty($item['check_out_notes']))
+                        @if(!empty($item['is_lembur']))
+                            <br><small style="color: #2563eb; font-weight: bold;">(Lembur{{ !empty($item['is_saturday']) ? ' Sabtu' : '' }})</small>
+                            @if(!empty($item['check_out_notes']) || !empty($item['notes']))
+                                <br><small style="color: #1e40af; font-weight: 500;">Alasan: {{ $item['check_out_notes'] ?? $item['notes'] }}</small>
+                            @endif
+                        @elseif(!empty($item['check_out_notes']))
                             <br><small style="color: #059669;">Pulang: {{ $item['check_out_notes'] }}</small>
                         @endif
                     </td>
                     <td class="text-center">
                         {{ $item['status'] }}
-                        @if(!empty($item['notes']) && empty($item['check_in_notes']) && empty($item['check_out_notes']))
+                        @if(!empty($item['is_lembur']) && $item['status'] === 'Hadir')
+                            <br><small style="color: #2563eb; font-weight: bold;">[Lembur]</small>
+                        @endif
+                        @if(!empty($item['notes']) && empty($item['check_in_notes']) && empty($item['check_out_notes']) && empty($item['is_lembur']))
                             <br><small style="color: #6b7280; font-style: italic;">"{{ $item['notes'] }}"</small>
                         @endif
                     </td>
