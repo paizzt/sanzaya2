@@ -432,9 +432,6 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                                                     {item.check_out_time ? (
                                                         <span className="inline-flex items-center gap-1.5">
                                                             <Clock className="w-3.5 h-3.5 text-green-500"/> {item.check_out_time}
-                                                            {item.check_in_time && item.check_out_time < item.check_in_time && (
-                                                                <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">+1 Hari</span>
-                                                            )}
                                                         </span>
                                                     ) : '-'}
                                                 </td>

@@ -637,8 +637,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 <div className="flex items-center gap-1.5">
                                                     <span>{item.user_name}</span>
                                                     {item.is_satpam && (
-                                                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                                            SATPAM
+                                                        <span className="text-xs text-gray-500 font-normal">
+                                                            (Satpam)
                                                         </span>
                                                     )}
                                                 </div>
@@ -655,13 +655,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 </span>
                                             </td>
                                             <td className="py-4 px-6 text-center">
-                                                {item.shift === 'Shift Siang' ? (
-                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                                        Shift Siang
-                                                    </span>
-                                                ) : item.shift === 'Shift Malam' ? (
-                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                                        Shift Malam
+                                                {item.shift ? (
+                                                    <span className="text-xs font-semibold text-gray-700">
+                                                        {item.shift}
                                                     </span>
                                                 ) : (
                                                     <span className="text-gray-400 text-xs">-</span>
@@ -683,9 +679,6 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6 text-center font-medium">
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span>{item.check_out || '-'}</span>
-                                                    {item.is_cross_day && (
-                                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">+1 Hari</span>
-                                                    )}
                                                     {!item.is_satpam && item.is_lembur && (
                                                         <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">
                                                             Lembur {item.is_saturday ? '(Sabtu >14:00)' : '(>20:00)'}
