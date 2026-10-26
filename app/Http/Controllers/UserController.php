@@ -129,6 +129,45 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $nullableFields = [
+            'password',
+            'position_id',
+            'company_id',
+            'monthly_target',
+            'salary',
+            'operational_allowance',
+            'nik',
+            'employee_id',
+            'start_date',
+            'address',
+            'phone',
+            'employment_status',
+            'education',
+            'emergency_contact',
+            'bpjs_kesehatan',
+            'bpjs_ketenagakerjaan',
+            'spreadsheet_sales_name',
+            'division_name',
+        ];
+
+        foreach ($nullableFields as $field) {
+            if ($request->has($field) && trim((string)$request->$field) === '') {
+                $request->merge([$field => null]);
+            }
+        }
+
+        if ($request->has('allowed_companies') && is_array($request->allowed_companies)) {
+            $request->merge([
+                'allowed_companies' => array_values(array_map('intval', array_filter($request->allowed_companies)))
+            ]);
+        }
+
+        if ($request->has('marketing_areas') && is_array($request->marketing_areas)) {
+            $request->merge([
+                'marketing_areas' => array_values(array_map('intval', array_filter($request->marketing_areas)))
+            ]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255|unique:users',
@@ -176,25 +215,25 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'division_id' => $division ? $division->id : null,
-            'position_id' => $request->position_id,
-            'company_id' => $request->company_id,
+            'position_id' => $request->position_id ?: null,
+            'company_id' => $request->company_id ?: null,
             'allowed_companies' => $allowedCompanies,
-            'spreadsheet_sales_name' => $request->spreadsheet_sales_name,
-            'monthly_target' => $request->monthly_target,
+            'spreadsheet_sales_name' => $request->spreadsheet_sales_name ?: null,
+            'monthly_target' => $request->monthly_target !== null && $request->monthly_target !== '' ? $request->monthly_target : null,
             'work_days_per_week' => $request->work_days_per_week ?? 6,
             
-            'nik' => $request->nik,
-            'start_date' => $request->start_date,
-            'address' => $request->address,
-            'employee_id' => $request->employee_id,
-            'phone' => $request->phone,
-            'salary' => $request->salary,
-            'operational_allowance' => $request->operational_allowance,
-            'employment_status' => $request->employment_status,
-            'education' => $request->education,
-            'emergency_contact' => $request->emergency_contact,
-            'bpjs_kesehatan' => $request->bpjs_kesehatan,
-            'bpjs_ketenagakerjaan' => $request->bpjs_ketenagakerjaan,
+            'nik' => $request->nik ?: null,
+            'start_date' => $request->start_date ?: null,
+            'address' => $request->address ?: null,
+            'employee_id' => $request->employee_id ?: null,
+            'phone' => $request->phone ?: null,
+            'salary' => $request->salary !== null && $request->salary !== '' ? $request->salary : null,
+            'operational_allowance' => $request->operational_allowance !== null && $request->operational_allowance !== '' ? $request->operational_allowance : null,
+            'employment_status' => $request->employment_status ?: null,
+            'education' => $request->education ?: null,
+            'emergency_contact' => $request->emergency_contact ?: null,
+            'bpjs_kesehatan' => $request->bpjs_kesehatan ?: null,
+            'bpjs_ketenagakerjaan' => $request->bpjs_ketenagakerjaan ?: null,
             'preferences' => $request->preferences,
         ]);
 
@@ -211,6 +250,45 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        $nullableFields = [
+            'password',
+            'position_id',
+            'company_id',
+            'monthly_target',
+            'salary',
+            'operational_allowance',
+            'nik',
+            'employee_id',
+            'start_date',
+            'address',
+            'phone',
+            'employment_status',
+            'education',
+            'emergency_contact',
+            'bpjs_kesehatan',
+            'bpjs_ketenagakerjaan',
+            'spreadsheet_sales_name',
+            'division_name',
+        ];
+
+        foreach ($nullableFields as $field) {
+            if ($request->has($field) && trim((string)$request->$field) === '') {
+                $request->merge([$field => null]);
+            }
+        }
+
+        if ($request->has('allowed_companies') && is_array($request->allowed_companies)) {
+            $request->merge([
+                'allowed_companies' => array_values(array_map('intval', array_filter($request->allowed_companies)))
+            ]);
+        }
+
+        if ($request->has('marketing_areas') && is_array($request->marketing_areas)) {
+            $request->merge([
+                'marketing_areas' => array_values(array_map('intval', array_filter($request->marketing_areas)))
+            ]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255|unique:users,email,' . $user->id,
@@ -252,7 +330,7 @@ class UserController extends Controller
         }
         
         if ($request->has('work_days_per_week')) {
-            $user->work_days_per_week = $request->work_days_per_week;
+            $user->work_days_per_week = $request->work_days_per_week ?: 6;
         }
 
         if ($request->has('allowed_companies')) {
@@ -268,23 +346,23 @@ class UserController extends Controller
             $user->division_id = null;
         }
 
-        $user->position_id = $request->position_id;
-        $user->company_id = $request->company_id;
-        $user->spreadsheet_sales_name = $request->spreadsheet_sales_name;
-        $user->monthly_target = $request->monthly_target;
+        $user->position_id = $request->position_id ?: null;
+        $user->company_id = $request->company_id ?: null;
+        $user->spreadsheet_sales_name = $request->spreadsheet_sales_name ?: null;
+        $user->monthly_target = $request->monthly_target !== null && $request->monthly_target !== '' ? $request->monthly_target : null;
         
-        $user->nik = $request->nik;
-        $user->start_date = $request->start_date;
-        $user->address = $request->address;
-        $user->employee_id = $request->employee_id;
-        $user->phone = $request->phone;
-        $user->salary = $request->salary;
-        $user->operational_allowance = $request->operational_allowance;
-        $user->employment_status = $request->employment_status;
-        $user->education = $request->education;
-        $user->emergency_contact = $request->emergency_contact;
-        $user->bpjs_kesehatan = $request->bpjs_kesehatan;
-        $user->bpjs_ketenagakerjaan = $request->bpjs_ketenagakerjaan;
+        $user->nik = $request->nik ?: null;
+        $user->start_date = $request->start_date ?: null;
+        $user->address = $request->address ?: null;
+        $user->employee_id = $request->employee_id ?: null;
+        $user->phone = $request->phone ?: null;
+        $user->salary = $request->salary !== null && $request->salary !== '' ? $request->salary : null;
+        $user->operational_allowance = $request->operational_allowance !== null && $request->operational_allowance !== '' ? $request->operational_allowance : null;
+        $user->employment_status = $request->employment_status ?: null;
+        $user->education = $request->education ?: null;
+        $user->emergency_contact = $request->emergency_contact ?: null;
+        $user->bpjs_kesehatan = $request->bpjs_kesehatan ?: null;
+        $user->bpjs_ketenagakerjaan = $request->bpjs_ketenagakerjaan ?: null;
         
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);

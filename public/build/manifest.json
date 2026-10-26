@@ -844,7 +844,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-ChnCkKKf.js",
+    "file": "assets/Index-UUA7Uc4H.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -865,7 +865,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-nr8RtiHQ.js",
+    "file": "assets/Show-BVhkqAZV.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -915,7 +915,7 @@
     ]
   },
   "resources/js/Pages/Users/Index.jsx": {
-    "file": "assets/Index-if9ES5Oj.js",
+    "file": "assets/Index-UdA5Argl.js",
     "name": "Index",
     "src": "resources/js/Pages/Users/Index.jsx",
     "isDynamicEntry": true,
@@ -1042,7 +1042,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-MgOCWXs0.js",
+    "file": "assets/app-ODYqy44I.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,

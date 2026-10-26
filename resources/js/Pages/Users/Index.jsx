@@ -44,6 +44,15 @@ export default function Index({ users = [], divisions = [], positions = [], area
         setTogglingUserId(targetUser.id);
         router.post(route('users.toggle-pdf', targetUser.id), {}, {
             preserveScroll: true,
+            onSuccess: (page) => {
+                const successMsg = page?.props?.flash?.success || 'Status Unduh PDF berhasil diperbarui.';
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: successMsg,
+                    icon: 'success',
+                    customClass: { popup: 'rounded-2xl' }
+                });
+            },
             onFinish: () => setTogglingUserId(null),
         });
     };
@@ -80,15 +89,10 @@ export default function Index({ users = [], divisions = [], positions = [], area
     });
 
     useEffect(() => {
-        if (flash.success) {
-            Swal.fire({ title: 'Berhasil!', text: flash.success, icon: 'success', customClass: { popup: 'rounded-2xl' } });
-            setIsModalOpen(false);
-            reset();
-        }
-        if (flash.error) {
+        if (flash?.error) {
             Swal.fire({ title: 'Gagal!', text: flash.error, icon: 'error', customClass: { popup: 'rounded-2xl' } });
         }
-    }, [flash]);
+    }, [flash?.error]);
 
     const openCreateModal = () => {
         setIsEditMode(false);
@@ -233,17 +237,64 @@ export default function Index({ users = [], divisions = [], positions = [], area
             customClass: { popup: 'rounded-2xl' }
         }).then((result) => {
             if (result.isConfirmed) {
-                destroy(route('users.destroy', id), { preserveScroll: true });
+                destroy(route('users.destroy', id), {
+                    preserveScroll: true,
+                    onSuccess: (page) => {
+                        const successMsg = page?.props?.flash?.success || 'Pengguna berhasil dihapus.';
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: successMsg,
+                            icon: 'success',
+                            customClass: { popup: 'rounded-2xl' }
+                        });
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: 'Gagal menghapus pengguna.',
+                            icon: 'error',
+                            customClass: { popup: 'rounded-2xl' }
+                        });
+                    }
+                });
             }
         });
     };
 
     const submitForm = (e) => {
         e.preventDefault();
+
+        const options = {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                setIsModalOpen(false);
+                reset();
+                const successMsg = page?.props?.flash?.success || (isEditMode ? 'Data pengguna berhasil diperbarui.' : 'Pengguna berhasil ditambahkan.');
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: successMsg,
+                    icon: 'success',
+                    customClass: { popup: 'rounded-2xl' }
+                });
+            },
+            onError: (errs) => {
+                const errorList = Object.values(errs || {});
+                const errorText = errorList.length > 0 
+                    ? errorList.join('\n') 
+                    : 'Terjadi kesalahan saat menyimpan data. Periksa kembali form yang Anda isi.';
+                Swal.fire({
+                    title: 'Gagal Menyimpan!',
+                    text: errorText,
+                    icon: 'error',
+                    customClass: { popup: 'rounded-2xl' }
+                });
+            }
+        };
+
         if (isEditMode) {
-            put(route('users.update', editingUser.id), { preserveScroll: true });
+            put(route('users.update', editingUser.id), options);
         } else {
-            post(route('users.store'), { preserveScroll: true });
+            post(route('users.store'), options);
         }
     };
 
@@ -465,8 +516,18 @@ export default function Index({ users = [], divisions = [], positions = [], area
 
                 {/* MODAL FORM */}
                 {isModalOpen && (
-                    <div className="fixed inset-0 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10 px-4 bg-gray-900/50 backdrop-blur-sm custom-scrollbar">
-                        <div className="bg-white rounded-3xl max-w-5xl w-full shadow-2xl transform transition-all my-auto">
+                    <div 
+                        className="fixed inset-0 z-50 overflow-y-auto flex justify-center items-start pt-10 pb-10 px-4 bg-gray-900/50 backdrop-blur-sm custom-scrollbar"
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) {
+                                setIsModalOpen(false);
+                            }
+                        }}
+                    >
+                        <div 
+                            className="bg-white rounded-3xl max-w-5xl w-full shadow-2xl transform transition-all my-auto"
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             <div className="flex justify-between items-center p-6 border-b border-gray-100">
                                 <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                     {isEditMode ? <Edit className="w-5 h-5 text-blue-600"/> : <Plus className="w-5 h-5 text-blue-600 mr-2"/>}
