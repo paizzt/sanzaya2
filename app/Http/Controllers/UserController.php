@@ -471,49 +471,149 @@ class UserController extends Controller
 
     public function exportPdf()
     {
-        $items = \App\Models\User::orderBy('id', 'desc')->get();
-        if ($items->isEmpty()) {
-            $headings = [];
-            $rows = collect([]);
-        } else {
-            $allowed = ['name', 'email', 'phone', 'level_id', 'status_employee', 'is_active'];
-            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
-            array_unshift($headings, 'No');
-
-            $rows = $items->map(function($item, $key) use ($allowed) {
-                $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $row[] = $item->$col;
-                }
-                return $row;
-            });
-        }
+        $items = \App\Models\User::with(['company', 'division'])->orderBy('name', 'asc')->get();
+        $headings = ['No', 'Nama', 'Nama PT', 'Email', 'Masa Kerja', 'Divisi'];
         
-        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Pengguna', 'headings' => $headings, 'rows' => $rows])->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
-        return request()->has('preview') ? $pdf->stream(str_replace(' ', '_', 'Pengguna') . '.pdf') : $pdf->download(str_replace(' ', '_', 'Pengguna') . '.pdf');
+        $companies = \App\Models\Company::all()->keyBy('id');
+
+        $rows = $items->map(function($item, $key) use ($companies) {
+            $companyName = '-';
+            if ($item->company) {
+                $companyName = $item->company->name;
+            } elseif (!empty($item->allowed_companies) && is_array($item->allowed_companies)) {
+                $names = [];
+                foreach ($item->allowed_companies as $cId) {
+                    if (isset($companies[$cId])) {
+                        $names[] = $companies[$cId]->name;
+                    }
+                }
+                if (!empty($names)) {
+                    $companyName = implode(', ', $names);
+                }
+            }
+
+            $masaKerja = '-';
+            if ($item->start_date) {
+                try {
+                    $start = \Carbon\Carbon::parse($item->start_date)->startOfDay();
+                    $now = \Carbon\Carbon::now()->startOfDay();
+
+                    if ($start->isFuture()) {
+                        $masaKerja = '0 bulan';
+                    } else {
+                        $diff = $start->diff($now);
+                        $years = $diff->y;
+                        $months = $diff->m;
+                        $days = $diff->d;
+
+                        $parts = [];
+                        if ($years > 0) {
+                            $parts[] = $years . ' tahun';
+                        }
+                        if ($months > 0) {
+                            $parts[] = $months . ' bulan';
+                        }
+
+                        if (empty($parts)) {
+                            $masaKerja = $days > 0 ? ($days . ' hari') : '0 bulan';
+                        } else {
+                            $masaKerja = implode(' ', $parts);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    $masaKerja = '-';
+                }
+            }
+
+            $divisionName = $item->division ? $item->division->name : ($item->division_name ?: '-');
+
+            return [
+                $key + 1,
+                $item->name ?: '-',
+                $companyName,
+                $item->email ?: '-',
+                $masaKerja,
+                $divisionName,
+            ];
+        });
+        
+        $pdf = Pdf::loadView('pdf.generic_table', ['title' => 'Data Pengguna', 'headings' => $headings, 'rows' => $rows])
+            ->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'portrait'));
+            
+        return request()->has('preview') ? $pdf->stream('Data_Pengguna.pdf') : $pdf->download('Data_Pengguna.pdf');
     }
 
     public function exportExcel()
     {
-        $items = \App\Models\User::orderBy('id', 'desc')->get();
-        if ($items->isEmpty()) {
-            $headings = [];
-            $rows = collect([]);
-        } else {
-            $allowed = ['name', 'email', 'phone', 'level_id', 'status_employee', 'is_active'];
-            $headings = array_map(function($h) { return ucwords(str_replace('_', ' ', $h)); }, $allowed);
-            array_unshift($headings, 'No');
-
-            $rows = $items->map(function($item, $key) use ($allowed) {
-                $row = [$key + 1];
-                foreach ($allowed as $col) {
-                    $row[] = $item->$col;
-                }
-                return $row;
-            });
-        }
+        $items = \App\Models\User::with(['company', 'division'])->orderBy('name', 'asc')->get();
+        $headings = ['No', 'Nama', 'Nama PT', 'Email', 'Masa Kerja', 'Divisi'];
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Pengguna') . '.xlsx');
+        $companies = \App\Models\Company::all()->keyBy('id');
+
+        $rows = $items->map(function($item, $key) use ($companies) {
+            $companyName = '-';
+            if ($item->company) {
+                $companyName = $item->company->name;
+            } elseif (!empty($item->allowed_companies) && is_array($item->allowed_companies)) {
+                $names = [];
+                foreach ($item->allowed_companies as $cId) {
+                    if (isset($companies[$cId])) {
+                        $names[] = $companies[$cId]->name;
+                    }
+                }
+                if (!empty($names)) {
+                    $companyName = implode(', ', $names);
+                }
+            }
+
+            $masaKerja = '-';
+            if ($item->start_date) {
+                try {
+                    $start = \Carbon\Carbon::parse($item->start_date)->startOfDay();
+                    $now = \Carbon\Carbon::now()->startOfDay();
+
+                    if ($start->isFuture()) {
+                        $masaKerja = '0 bulan';
+                    } else {
+                        $diff = $start->diff($now);
+                        $years = $diff->y;
+                        $months = $diff->m;
+                        $days = $diff->d;
+
+                        $parts = [];
+                        if ($years > 0) {
+                            $parts[] = $years . ' tahun';
+                        }
+                        if ($months > 0) {
+                            $parts[] = $months . ' bulan';
+                        }
+
+                        if (empty($parts)) {
+                            $masaKerja = $days > 0 ? ($days . ' hari') : '0 bulan';
+                        } else {
+                            $masaKerja = implode(' ', $parts);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    $masaKerja = '-';
+                }
+            }
+
+            $divisionName = $item->division ? $item->division->name : ($item->division_name ?: '-');
+
+            return [
+                $key + 1,
+                $item->name ?: '-',
+                $companyName,
+                $item->email ?: '-',
+                $masaKerja,
+                $divisionName,
+            ];
+        });
+        
+        return request()->has('preview') 
+            ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') 
+            : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), 'Data_Pengguna.xlsx');
     }
 
     public function downloadBarcode(Request $request, User $user)

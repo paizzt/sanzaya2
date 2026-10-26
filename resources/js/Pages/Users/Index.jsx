@@ -441,34 +441,6 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                         <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
                                                             {user.roles && user.roles.length > 0 ? user.roles[0].name : 'Tidak ada role'}
                                                         </span>
-                                                        {(() => {
-                                                            const isSuper = user.roles && user.roles.some(r => ['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'].includes(r.name));
-                                                            if (isSuper) {
-                                                                return (
-                                                                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 mt-0.5">
-                                                                        Semua PT (Superadmin)
-                                                                    </span>
-                                                                );
-                                                            }
-                                                            const allowed = Array.isArray(user.allowed_companies) ? user.allowed_companies : (user.company_id ? [user.company_id] : null);
-                                                            if (allowed && allowed.length > 0) {
-                                                                const allowedCount = allowed.length;
-                                                                const allowedNames = companies.filter(c => allowed.map(Number).includes(Number(c.id))).map(c => c.name);
-                                                                return (
-                                                                    <span 
-                                                                        className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 mt-0.5"
-                                                                        title={allowedNames.join(', ')}
-                                                                    >
-                                                                        Akses: {allowedCount} PT
-                                                                    </span>
-                                                                );
-                                                            }
-                                                            return (
-                                                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200 mt-0.5">
-                                                                    Semua PT (Bawaan)
-                                                                </span>
-                                                            );
-                                                        })()}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
