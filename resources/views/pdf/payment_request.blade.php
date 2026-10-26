@@ -310,16 +310,44 @@
             <div>
                 @foreach($photoAttachments as $attachment)
                     @php
-                        $isHttp = str_starts_with($attachment->file_path, 'http');
-                        $isValid = $isHttp || file_exists(public_path('storage/' . $attachment->file_path));
-                        $imgSrc = $isHttp ? $attachment->file_path : public_path('storage/' . $attachment->file_path);
+                        $imgSrc = $attachment->base64_src ?? null;
+                        if (!$imgSrc && !empty($attachment->file_path)) {
+                            $filePath = $attachment->file_path;
+                            $candidatePaths = [
+                                public_path('storage/' . $filePath),
+                                storage_path('app/public/' . $filePath),
+                                public_path($filePath),
+                                storage_path($filePath),
+                            ];
+                            foreach ($candidatePaths as $p) {
+                                if (file_exists($p) && is_file($p)) {
+                                    $data = @file_get_contents($p);
+                                    if ($data) {
+                                        $info = @getimagesizefromstring($data);
+                                        $mime = $info['mime'] ?? (mime_content_type($p) ?: 'image/jpeg');
+                                        if (str_contains($mime, ';')) {
+                                            $mime = explode(';', $mime)[0];
+                                        }
+                                        $imgSrc = 'data:' . trim($mime) . ';base64,' . base64_encode($data);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!$imgSrc) {
+                                if (str_starts_with($filePath, 'http://') || str_starts_with($filePath, 'https://')) {
+                                    $imgSrc = str_contains($filePath, 'i.ibb.co')
+                                        ? 'https://wsrv.nl/?url=' . urlencode($filePath)
+                                        : $filePath;
+                                }
+                            }
+                        }
                     @endphp
-                    @if($isValid)
+                    @if($imgSrc)
                         <div style="margin-bottom: 25px; text-align: center;">
                             <div style="font-size: 12px; color: #444; margin-bottom: 6px; font-weight: bold;">
                                 Lampiran {{ $loop->iteration }}{{ !empty($attachment->original_name) ? ': ' . $attachment->original_name : '' }}
                             </div>
-                            <img src="{{ $imgSrc }}" style="max-width: 90%; max-height: 420px; border: 1px solid #ddd; padding: 4px; border-radius: 4px;" />
+                            <img src="{{ $imgSrc }}" style="max-width: 90%; max-height: 380px; border: 1px solid #ddd; padding: 4px; border-radius: 4px;" />
                         </div>
                         @if(!$loop->last && $loop->iteration % 2 == 0)
                             <div class="page-break"></div>

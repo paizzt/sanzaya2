@@ -778,7 +778,13 @@ class PaymentRequestController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk melihat pengajuan ini.');
         }
 
-        $paymentRequest->load(['requester', 'division', 'vendor', 'items', 'approvals.approver']);
+        $paymentRequest->load(['requester', 'division', 'vendor', 'items', 'attachments', 'approvals.approver']);
+
+        if ($paymentRequest->attachments) {
+            foreach ($paymentRequest->attachments as $attachment) {
+                $attachment->base64_src = $this->resolveAttachmentBase64($attachment->file_path);
+            }
+        }
 
         $qrUrl = url('/payment-requests/' . $paymentRequest->id);
         $qrCode = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(100)->generate($qrUrl));
@@ -795,6 +801,80 @@ class PaymentRequestController extends Controller
             \Illuminate\Support\Facades\Log::error("PR PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
             return response("Terjadi kesalahan saat membuat PDF: " . $e->getMessage() . " (Baris " . $e->getLine() . ")", 500);
         }
+    }
+
+    /**
+     * Resolves an attachment file path (local or remote URL) into a base64 Data URI for DomPDF
+     */
+    private function resolveAttachmentBase64(?string $filePath): ?string
+    {
+        if (empty($filePath)) {
+            return null;
+        }
+
+        // 1. Check if file exists locally on server
+        $candidatePaths = [
+            public_path('storage/' . $filePath),
+            storage_path('app/public/' . $filePath),
+            public_path($filePath),
+            storage_path($filePath),
+        ];
+
+        foreach ($candidatePaths as $path) {
+            if (file_exists($path) && is_file($path)) {
+                try {
+                    $content = file_get_contents($path);
+                    if ($content !== false && !empty($content)) {
+                        $info = @getimagesizefromstring($content);
+                        $mime = $info['mime'] ?? (mime_content_type($path) ?: 'image/jpeg');
+                        if (str_contains($mime, ';')) {
+                            $mime = explode(';', $mime)[0];
+                        }
+                        return 'data:' . trim($mime) . ';base64,' . base64_encode($content);
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning("PR PDF Local image read error: " . $e->getMessage());
+                }
+            }
+        }
+
+        // 2. If it's a remote URL (e.g. imgbb i.ibb.co)
+        if (str_starts_with($filePath, 'http://') || str_starts_with($filePath, 'https://')) {
+            $urlsToTry = [$filePath];
+            if (str_contains($filePath, 'i.ibb.co')) {
+                // i.ibb.co often fails TLS 1.3 / OpenSSL handshake, so proxy via wsrv.nl first
+                array_unshift($urlsToTry, 'https://wsrv.nl/?url=' . urlencode($filePath));
+            } else {
+                $urlsToTry[] = 'https://wsrv.nl/?url=' . urlencode($filePath);
+            }
+
+            foreach ($urlsToTry as $url) {
+                try {
+                    $response = \Illuminate\Support\Facades\Http::timeout(10)
+                        ->withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                        ])
+                        ->withoutVerifying()
+                        ->get($url);
+
+                    if ($response->successful()) {
+                        $body = $response->body();
+                        if (!empty($body)) {
+                            $info = @getimagesizefromstring($body);
+                            $mime = $info['mime'] ?? $response->header('Content-Type') ?? 'image/jpeg';
+                            if (str_contains($mime, ';')) {
+                                $mime = explode(';', $mime)[0];
+                            }
+                            return 'data:' . trim($mime) . ';base64,' . base64_encode($body);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning("PR PDF Remote image fetch error ($url): " . $e->getMessage());
+                }
+            }
+        }
+
+        return null;
     }
 
     public function destroy($id)
