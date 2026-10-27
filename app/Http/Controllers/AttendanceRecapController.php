@@ -21,16 +21,34 @@ class AttendanceRecapController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $data = $this->getRecapData($request);
-        
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
-        
-        $fileName = 'Rekap_Absensi_' . $data['filters']['month'] . '_' . $data['filters']['year'] . '.pdf';
-        return request()->has('preview') ? $pdf->stream($fileName) : $pdf->download($fileName);
+        @ini_set('memory_limit', '-1');
+        @ini_set('max_execution_time', 300);
+
+        try {
+            $data = $this->getRecapData($request);
+            
+            $paper = $request->query('paper', 'a4');
+            $paperSize = ($paper === 'f4') ? [0, 0, 609.4488, 935.433] : $paper;
+            $orientation = $request->query('orientation', 'landscape');
+            
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.attendance_recap', $data)
+                ->setPaper($paperSize, $orientation);
+            
+            $fileName = 'Rekap_Absensi_' . ($data['filters']['month'] ?? date('m')) . '_' . ($data['filters']['year'] ?? date('Y')) . '.pdf';
+            return $request->has('preview') ? $pdf->stream($fileName) : $pdf->download($fileName);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Attendance Recap PDF Export Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return response()->json([
+                'error' => 'Gagal menghasilkan PDF: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     private function getRecapData(Request $request)
     {
+        @ini_set('memory_limit', '-1');
+        @ini_set('max_execution_time', 300);
+
         try {
             if (Schema::hasTable('attendances')) {
                 if (!Schema::hasColumn('attendances', 'shift')) {
@@ -52,15 +70,28 @@ class AttendanceRecapController extends Controller
         } catch (\Throwable $e) {}
 
         $user = Auth::user();
-        $isAdmin = $user->isAdminUser();
+        $isAdmin = $user ? $user->isAdminUser() : false;
 
         // Default filters
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
         $selectedUserId = $request->input('user_id', 'all');
 
+        // Fetch all users with relations once to avoid N+1 queries
+        $allUsers = \App\Models\User::with(['roles', 'division'])->get();
+        $userWorkDays = [];
+        $userIsSatpam = [];
+        $userNameMap = [];
+        foreach ($allUsers as $u) {
+            $userWorkDays[$u->id] = $u->work_days_per_week ?? 6;
+            $userIsSatpam[$u->id] = $u->isSatpam();
+            $userNameMap[$u->id] = $u->name;
+        }
+
         // Fetch users for dropdown filter (available to everyone)
-        $users = User::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $users = $allUsers->where('is_active', true)->sortBy('name')->values()->map(function($u) {
+            return ['id' => $u->id, 'name' => $u->name];
+        });
 
         // Build Queries
         $attendancesQuery = Attendance::with('user')
@@ -112,23 +143,15 @@ class AttendanceRecapController extends Controller
 
         // Calculate User Summaries
         $userSummaries = [];
-        $allUsers = \App\Models\User::all();
-        $userWorkDays = [];
-        foreach ($allUsers as $u) {
-            $userWorkDays[$u->id] = $u->work_days_per_week ?? 6;
-        }
-
-        $usersQuery = \App\Models\User::query();
-        if ($selectedUserId !== 'all') {
-            $usersQuery->where('id', $selectedUserId);
-        }
-        $usersToSummarize = $usersQuery->get();
+        $usersToSummarize = ($selectedUserId !== 'all') 
+            ? $allUsers->where('id', $selectedUserId) 
+            : $allUsers;
         
-        foreach ($usersToSummarize as $user) {
-            $userSummaries[$user->id] = [
-                'id' => $user->id,
-                'name' => $user->name,
-                'is_satpam' => $user->isSatpam(),
+        foreach ($usersToSummarize as $u) {
+            $userSummaries[$u->id] = [
+                'id' => $u->id,
+                'name' => $u->name,
+                'is_satpam' => $userIsSatpam[$u->id] ?? false,
                 'hadir' => 0,
                 'sakit' => 0,
                 'izin' => 0,
@@ -164,12 +187,13 @@ class AttendanceRecapController extends Controller
 
         foreach ($attendances as $att) {
             $attUser = $att->user;
-            $isUserSatpam = $attUser ? $attUser->isSatpam() : false;
+            $isUserSatpam = $userIsSatpam[$att->user_id] ?? ($attUser ? $attUser->isSatpam() : false);
+            $userName = $userNameMap[$att->user_id] ?? ($attUser?->name ?? 'Unknown');
 
             if (!isset($userSummaries[$att->user_id])) {
                 $userSummaries[$att->user_id] = [
                     'id' => $att->user_id,
-                    'name' => $attUser?->name ?? 'Unknown',
+                    'name' => $userName,
                     'is_satpam' => $isUserSatpam,
                     'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0,
                     'shift_siang' => 0, 'shift_malam' => 0,
@@ -193,7 +217,7 @@ class AttendanceRecapController extends Controller
                     }
                 } else {
                     $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
-                    $isLemburYesterday = isset($lemburMap[$att->user_id][$prevDate]);
+                    $isLemburYesterday = !empty($lemburMap[$att->user_id][$prevDate]);
                     $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
                     
                     $att->is_late = $att->check_in_time > $threshold;
@@ -231,8 +255,11 @@ class AttendanceRecapController extends Controller
             if ($req->status !== 'Ditolak') {
                 if (!isset($userSummaries[$req->user_id])) {
                     $userSummaries[$req->user_id] = [
-                        'name' => $req->user?->name ?? 'Unknown',
-                        'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0
+                        'id' => $req->user_id,
+                        'name' => $userNameMap[$req->user_id] ?? ($req->user?->name ?? 'Unknown'),
+                        'is_satpam' => $userIsSatpam[$req->user_id] ?? false,
+                        'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0,
+                        'shift_siang' => 0, 'shift_malam' => 0,
                     ];
                 }
                 $start = Carbon::parse($req->start_date);
@@ -284,7 +311,8 @@ class AttendanceRecapController extends Controller
         $recapList = [];
         foreach ($attendances as $att) {
             $attUser = $att->user;
-            $isUserSatpam = $attUser ? $attUser->isSatpam() : false;
+            $isUserSatpam = $userIsSatpam[$att->user_id] ?? ($attUser ? $attUser->isSatpam() : false);
+            $userName = $userNameMap[$att->user_id] ?? ($attUser?->name ?? 'Unknown');
             $isCrossDay = ($att->check_in_time && $att->check_out_time && $att->check_out_time < $att->check_in_time);
 
             $attShift = $att->shift;
@@ -321,7 +349,7 @@ class AttendanceRecapController extends Controller
             $recapList[] = [
                 'id' => 'att_' . $att->id,
                 'user_id' => $att->user_id,
-                'user_name' => $attUser?->name ?? 'Unknown',
+                'user_name' => $userName,
                 'is_satpam' => $isUserSatpam,
                 'shift' => $attShift,
                 'date' => $att->date,
@@ -343,13 +371,13 @@ class AttendanceRecapController extends Controller
         }
 
         foreach ($attendanceRequests as $req) {
-            $reqUser = $req->user;
-            $isReqUserSatpam = $reqUser ? $reqUser->isSatpam() : false;
+            $isReqUserSatpam = $userIsSatpam[$req->user_id] ?? false;
+            $userName = $userNameMap[$req->user_id] ?? ($req->user?->name ?? 'Unknown');
 
             $recapList[] = [
                 'id' => 'req_' . $req->id,
                 'user_id' => $req->user_id,
-                'user_name' => $reqUser?->name ?? 'Unknown',
+                'user_name' => $userName,
                 'is_satpam' => $isReqUserSatpam,
                 'shift' => null,
                 'date' => $req->start_date . ' s/d ' . $req->end_date,
@@ -358,6 +386,11 @@ class AttendanceRecapController extends Controller
                 'check_out' => '-',
                 'check_in_photo' => null,
                 'check_out_photo' => null,
+                'is_late' => false,
+                'is_lembur' => false,
+                'is_saturday' => false,
+                'overtime_threshold' => '20:00:00',
+                'is_cross_day' => false,
                 'status' => $req->status,
                 'notes' => $req->reason,
                 'check_in_notes' => null,
@@ -369,7 +402,7 @@ class AttendanceRecapController extends Controller
         $today = Carbon::today();
         $endLoop = $endOfMonth->isFuture() ? $today : $endOfMonth;
         
-        $activeUsers = \App\Models\User::where('is_active', true)->get();
+        $activeUsers = $allUsers->where('is_active', true);
         
         $attendanceMap = [];
         foreach ($attendances as $att) {
@@ -401,7 +434,7 @@ class AttendanceRecapController extends Controller
                 }
                 
                 // Khusus Satpam: tidak ada istilah alpa
-                if ($usr->isSatpam()) {
+                if (!empty($userIsSatpam[$usr->id])) {
                     continue;
                 }
                 
@@ -420,7 +453,7 @@ class AttendanceRecapController extends Controller
                             'id' => 'alpa_' . $usr->id . '_' . $dateStr,
                             'user_id' => $usr->id,
                             'user_name' => $usr->name,
-                            'is_satpam' => $usr->isSatpam(),
+                            'is_satpam' => false,
                             'shift' => null,
                             'date' => $dateStr,
                             'type' => 'Alpa',
@@ -429,8 +462,14 @@ class AttendanceRecapController extends Controller
                             'check_in_photo' => null,
                             'check_out_photo' => null,
                             'is_late' => false,
+                            'is_lembur' => false,
+                            'is_saturday' => $isSaturday,
+                            'overtime_threshold' => '20:00:00',
+                            'is_cross_day' => false,
                             'status' => 'Selesai',
-                            'notes' => null
+                            'notes' => null,
+                            'check_in_notes' => null,
+                            'check_out_notes' => null,
                         ];
                     }
                 }
@@ -485,8 +524,7 @@ class AttendanceRecapController extends Controller
         }
 
         foreach ($todayAttendances as $att) {
-            $attUser = $att->user;
-            $isUserSatpam = $attUser ? $attUser->isSatpam() : false;
+            $isUserSatpam = $userIsSatpam[$att->user_id] ?? false;
 
             if ($att->status == 'Hadir') {
                 if ($isUserSatpam) {
@@ -504,17 +542,8 @@ class AttendanceRecapController extends Controller
                 } else {
                     $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay();
                     $prevDateStr = $prevDate->format('Y-m-d');
-                    $isPrevSaturday = $prevDate->dayOfWeek === Carbon::SATURDAY;
-                    $prevUserWorkDays = $userWorkDays[$att->user_id] ?? 6;
-                    $prevOvertimeThreshold = ($isPrevSaturday && $prevUserWorkDays == 6) ? '14:00:00' : '20:00:00';
-
-                    $isLemburYesterday = \App\Models\Attendance::where('user_id', $att->user_id)
-                        ->where('date', $prevDateStr)
-                        ->where(function($q) use ($prevOvertimeThreshold) {
-                            $q->where('check_out_time', '>=', $prevOvertimeThreshold)
-                              ->orWhere('status', 'Lembur');
-                        })
-                        ->exists();
+                    
+                    $isLemburYesterday = !empty($lemburMap[$att->user_id][$prevDateStr]);
                     $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
                     
                     if ($att->check_in_time > $threshold) {
@@ -545,11 +574,11 @@ class AttendanceRecapController extends Controller
                 }
                 
                 // Khusus Satpam: tidak ada istilah alpa
-                if ($usr->isSatpam()) {
+                if (!empty($userIsSatpam[$usr->id])) {
                     continue;
                 }
                 
-                $workDays = $usr->work_days_per_week ?? 6;
+                $workDays = $userWorkDays[$usr->id] ?? 6;
                 $isWorkingDayForUser = false;
                 
                 if ($workDays == 5 && $isWeekday) {
@@ -563,14 +592,14 @@ class AttendanceRecapController extends Controller
                 }
             }
 
-            $regularHadirCount = $todayAttendances->filter(function($att) {
-                return $att->status === 'Hadir' && (!$att->user || !$att->user->isSatpam());
+            $regularHadirCount = $todayAttendances->filter(function($att) use ($userIsSatpam) {
+                return $att->status === 'Hadir' && empty($userIsSatpam[$att->user_id]);
             })->count();
-            $regularSakitCount = $todayRequests->filter(function($req) {
-                return strtolower($req->type) === 'sakit' && (!$req->user || !$req->user->isSatpam());
+            $regularSakitCount = $todayRequests->filter(function($req) use ($userIsSatpam) {
+                return strtolower($req->type) === 'sakit' && empty($userIsSatpam[$req->user_id]);
             })->count();
-            $regularIzinCount = $todayRequests->filter(function($req) {
-                return strtolower($req->type) !== 'sakit' && strtolower($req->type) !== 'lembur' && (!$req->user || !$req->user->isSatpam());
+            $regularIzinCount = $todayRequests->filter(function($req) use ($userIsSatpam) {
+                return strtolower($req->type) !== 'sakit' && strtolower($req->type) !== 'lembur' && empty($userIsSatpam[$req->user_id]);
             })->count();
 
             $attendedTodayCount = $regularHadirCount + $regularSakitCount + $regularIzinCount;
