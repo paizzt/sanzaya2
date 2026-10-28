@@ -86,28 +86,28 @@ export default function MySlip({ auth, slips = [], year, user }) {
                 </div>
 
                 {/* Employee Profile Quick Card */}
-                <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white p-5 sm:p-6 rounded-3xl shadow-lg relative overflow-hidden">
+                <div className="bg-blue-600 text-white p-5 sm:p-6 rounded-3xl shadow-md relative overflow-hidden">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-emerald-800 flex items-center justify-center font-black text-2xl border-2 border-white text-white shrink-0">
+                            <div className="w-14 h-14 rounded-2xl bg-blue-800 flex items-center justify-center font-black text-2xl border-2 border-white text-white shrink-0">
                                 {user?.name?.charAt(0) || 'U'}
                             </div>
                             <div>
                                 <h3 className="text-lg sm:text-xl font-black">{user?.name}</h3>
-                                <p className="text-xs text-emerald-100 flex items-center gap-2 mt-0.5">
+                                <p className="text-xs text-blue-100 flex items-center gap-2 mt-0.5">
                                     <span>{user?.employee_id || user?.nik || 'ID Karyawan'}</span>
                                     <span>&bull;</span>
                                     <span>{user?.position?.name || 'Karyawan'}</span>
                                 </p>
-                                <p className="text-xs text-emerald-100 mt-1 flex items-center gap-1.5">
+                                <p className="text-xs text-blue-100 mt-1 flex items-center gap-1.5">
                                     <Building2 className="w-3.5 h-3.5" />
                                     {user?.company?.name || 'Sanzaya Group'} &bull; Divisi {user?.division?.name || '-'}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="bg-emerald-800 px-4 py-2.5 rounded-2xl border border-emerald-500 text-right">
-                            <span className="text-[11px] font-bold text-emerald-100 uppercase tracking-wider block">Total Slip Tahun Ini</span>
+                        <div className="bg-blue-800 px-4 py-2.5 rounded-2xl border border-blue-400 text-right">
+                            <span className="text-[11px] font-bold text-blue-100 uppercase tracking-wider block">Total Slip Tahun Ini</span>
                             <span className="text-xl font-black">{slips.length} Bulan</span>
                         </div>
                     </div>

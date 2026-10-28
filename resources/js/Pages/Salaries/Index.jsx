@@ -547,7 +547,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         <p className="text-[10px] text-gray-400 mt-0.5">Ditanggung Kantor</p>
                     </div>
 
-                    <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-4 rounded-2xl shadow-md relative overflow-hidden">
+                    <div className="col-span-2 md:col-span-1 bg-blue-600 text-white p-4 rounded-2xl shadow-md relative overflow-hidden">
                         <div className="flex items-center justify-between">
                             <span className="text-[11px] font-bold text-blue-100 uppercase tracking-wider">Gaji Bersih (THP)</span>
                             <div className="w-8 h-8 rounded-xl bg-blue-800 text-white flex items-center justify-center">
