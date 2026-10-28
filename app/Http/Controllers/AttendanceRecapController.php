@@ -386,6 +386,7 @@ class AttendanceRecapController extends Controller
                 'check_out' => '-',
                 'check_in_photo' => null,
                 'check_out_photo' => null,
+                'attachment' => $req->attachment ? (str_starts_with($req->attachment, 'http') ? $req->attachment : asset('storage/' . $req->attachment)) : null,
                 'is_late' => false,
                 'is_lembur' => false,
                 'is_saturday' => false,

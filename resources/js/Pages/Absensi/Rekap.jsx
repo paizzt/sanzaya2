@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -28,7 +28,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
     const handleShowPhoto = (url, type) => {
         if (!url) {
-            Swal.fire('Tidak ada foto', `Foto ${type} tidak tersedia.`, 'info');
+            Swal.fire('Tidak ada foto / lampiran', `Dokumen ${type} tidak tersedia.`, 'info');
+            return;
+        }
+
+        if (url.toLowerCase().endsWith('.pdf') || url.toLowerCase().includes('.pdf?')) {
+            window.open(url, '_blank');
             return;
         }
 
@@ -699,6 +704,17 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     }`}>
                                                         {item.status}
                                                     </span>
+
+                                                    {item.attachment && (
+                                                        <button 
+                                                            onClick={() => handleShowPhoto(item.attachment, 'Lampiran Pengajuan')} 
+                                                            className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold hover:underline flex items-center gap-1 mt-0.5"
+                                                            title="Lihat lampiran pengajuan"
+                                                        >
+                                                            <Paperclip className="w-3 h-3 text-blue-500" />
+                                                            Lihat Lampiran
+                                                        </button>
+                                                    )}
 
                                                     {/* Keterangan Masuk */}
                                                     {item.check_in_notes && (
