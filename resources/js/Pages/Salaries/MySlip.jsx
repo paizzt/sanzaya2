@@ -59,18 +59,13 @@ export default function MySlip({ auth, slips = [], year, user }) {
             <div className="space-y-6 max-w-5xl mx-auto">
                 {/* Page Title & Filter Bar (In-page, not in header) */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
-                    <div className="flex items-center gap-3">
-                        <span className="p-2.5 bg-gradient-to-tr from-emerald-600 to-teal-600 text-white rounded-2xl shadow-md shrink-0">
-                            <Receipt className="w-6 h-6" />
-                        </span>
-                        <div>
-                            <h2 className="font-extrabold text-xl sm:text-2xl text-gray-900 tracking-tight">
-                                Slip Gaji Saya
-                            </h2>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                                Lihat rincian penerimaan, potongan BPJS, pajak, dan unduh dokumen slip gaji resmi Anda.
-                            </p>
-                        </div>
+                    <div>
+                        <h2 className="font-extrabold text-xl sm:text-2xl text-gray-900 tracking-tight">
+                            Slip Gaji Saya
+                        </h2>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                            Lihat rincian penerimaan, potongan BPJS, pajak, dan unduh dokumen slip gaji resmi Anda.
+                        </p>
                     </div>
 
                     <div className="flex items-center gap-2 self-start sm:self-auto bg-gray-100 px-3.5 py-1.5 rounded-2xl border border-gray-300">
