@@ -353,20 +353,24 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
     const currentMonthLabel = MONTHS.find(m => m.value === Number(month))?.label || month;
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
-                    <div>
-                        <h2 className="font-extrabold text-2xl text-gray-900 tracking-tight flex items-center gap-2">
-                            <span className="p-2 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-xl shadow-md">
-                                <DollarSign className="w-6 h-6" />
-                            </span>
-                            Manajemen Gaji Karyawan
-                        </h2>
-                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                            Kelola komponen penerimaan, potongan BPJS, pajak, dan cetak slip gaji karyawan.
-                        </p>
+        <AuthenticatedLayout user={auth.user}>
+            <Head title="Manajemen Gaji" />
+
+            <div className="space-y-6">
+                {/* Page Title & Action Buttons (In-page, not in header) */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-3">
+                        <span className="p-2.5 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-2xl shadow-md shrink-0">
+                            <DollarSign className="w-6 h-6" />
+                        </span>
+                        <div>
+                            <h2 className="font-extrabold text-xl sm:text-2xl text-gray-900 tracking-tight">
+                                Manajemen Gaji Karyawan
+                            </h2>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Kelola komponen penerimaan, potongan BPJS, pajak, dan cetak slip gaji karyawan.
+                            </p>
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
@@ -403,11 +407,6 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         </button>
                     </div>
                 </div>
-            }
-        >
-            <Head title="Manajemen Gaji" />
-
-            <div className="space-y-6">
 
                 {/* Filter Bar */}
                 <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-wrap items-center gap-3">
