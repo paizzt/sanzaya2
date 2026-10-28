@@ -31,7 +31,9 @@ import {
     AlertCircle, 
     Calendar,
     Printer,
-    FileSpreadsheet
+    FileSpreadsheet,
+    ChevronDown,
+    ChevronRight
 } from 'lucide-react';
 
 const MONTHS = [
@@ -56,10 +58,11 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
     const [divisionId, setDivisionId] = useState(filters.division_id || '');
     const [search, setSearch] = useState(filters.search || '');
 
-    // Modals
+    // Modals & Expansion
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingPayroll, setEditingPayroll] = useState(null);
     const [previewPayroll, setPreviewPayroll] = useState(null);
+    const [expandedId, setExpandedId] = useState(null);
     const [userAttendance, setUserAttendance] = useState(null);
     const [loadingAttendance, setLoadingAttendance] = useState(false);
 
@@ -561,7 +564,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                     <div className="p-5 border-b border-gray-100 flex items-center justify-between">
                         <div>
                             <h3 className="font-extrabold text-gray-900 text-base">Daftar Penggajian Karyawan</h3>
-                            <p className="text-xs text-gray-400 mt-0.5">Menampilkan data penggajian bulan {currentMonthLabel} {year}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Menampilkan data penggajian bulan {currentMonthLabel} {year} &bull; Klik pada baris karyawan untuk melihat rincian lengkap</p>
                         </div>
                         <span className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
                             {payrolls.length} Karyawan
@@ -573,26 +576,19 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                             <thead>
                                 <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 uppercase tracking-wider font-bold text-[10px]">
                                     <th className="py-3.5 px-4 text-center w-12">No</th>
-                                    <th className="py-3.5 px-4 min-w-[180px]">Karyawan</th>
-                                    <th className="py-3.5 px-4 text-right min-w-[120px]">Gaji Pokok</th>
-                                    <th className="py-3.5 px-4 text-right min-w-[110px]">Operasional</th>
-                                    <th className="py-3.5 px-4 text-right min-w-[120px]">Penerimaan Lain</th>
-                                    <th className="py-3.5 px-4 text-right font-black text-gray-700 min-w-[120px]">Total Penerimaan</th>
-                                    <th className="py-3.5 px-4 text-right min-w-[110px]">BPJS Karyawan</th>
-                                    <th className="py-3.5 px-4 text-right min-w-[110px]">Potongan Lain</th>
-                                    <th className="py-3.5 px-4 text-right font-black text-rose-600 min-w-[110px]">Total Potongan</th>
-                                    <th className="py-3.5 px-4 text-right min-w-[110px]">BPJS Kantor</th>
-                                    <th className="py-3.5 px-4 text-right font-black text-emerald-600 min-w-[130px]">Gaji Diterima (THP)</th>
-                                    <th className="py-3.5 px-4 text-center w-24">Status</th>
-                                    <th className="py-3.5 px-4 text-center w-36">Aksi</th>
+                                    <th className="py-3.5 px-4 min-w-[200px]">Karyawan</th>
+                                    <th className="py-3.5 px-4 text-right min-w-[130px]">Gaji Pokok</th>
+                                    <th className="py-3.5 px-4 text-right min-w-[130px]">Operasional</th>
+                                    <th className="py-3.5 px-4 text-right font-black text-rose-600 min-w-[130px]">Total Potongan</th>
+                                    <th className="py-3.5 px-4 text-right font-black text-emerald-600 min-w-[150px]">Gaji Diterima (THP)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {payrolls.length === 0 ? (
                                     <tr>
-                                        <td colSpan="13" className="py-12 text-center text-gray-400">
+                                        <td colSpan="6" className="py-12 text-center text-gray-400">
                                             <div className="flex flex-col items-center justify-center">
-                                                <DollarSign className="w-12 h-12 text-gray-300 stroke-1 mb-2" />
+                                                <Users className="w-12 h-12 text-gray-300 stroke-1 mb-2" />
                                                 <p className="font-semibold text-gray-600">Belum ada data gaji untuk periode ini</p>
                                                 <p className="text-xs text-gray-400 mt-1">Klik tombol "Buat Gaji" atau "Generate Massal" untuk membuat data penggajian.</p>
                                             </div>
@@ -600,92 +596,222 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                     </tr>
                                 ) : (
                                     payrolls.map((p, idx) => {
-                                        const otherEarnings = (p.tunjangan_jabatan || 0) + (p.thr || 0) + (p.lembur || 0);
-                                        const employeeBpjs = (p.bpjs_kesehatan || 0) + (p.bpjs_ketenagakerjaan || 0);
-                                        const otherDeductions = (p.pajak || 0) + (p.piutang || 0) + (p.potongan_absen || 0) + (p.potongan_lainnya || 0);
-
+                                        const isExpanded = expandedId === p.id;
                                         return (
-                                            <tr key={p.id} className="hover:bg-blue-50 transition-colors">
-                                                <td className="py-3.5 px-4 text-center text-gray-400 font-medium">{idx + 1}</td>
-                                                <td className="py-3.5 px-4">
-                                                    <div className="font-bold text-gray-900">{p.user?.name ?? '-'}</div>
-                                                    <div className="text-[11px] text-gray-400 flex items-center gap-1.5 mt-0.5">
-                                                        <span>{p.user?.employee_id || p.user?.nik || '-'}</span>
-                                                        <span>&bull;</span>
-                                                        <span className="text-blue-600 font-medium">{p.user?.division?.name || '-'}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="py-3.5 px-4 text-right font-semibold text-gray-800">{formatRp(p.gaji_pokok)}</td>
-                                                <td className="py-3.5 px-4 text-right font-medium text-gray-700">{formatRp(p.operasional)}</td>
-                                                <td className="py-3.5 px-4 text-right text-gray-600">
-                                                    {otherEarnings > 0 ? (
-                                                        <span className="font-semibold text-indigo-600" title={`Jabatan: ${formatRp(p.tunjangan_jabatan)}, THR: ${formatRp(p.thr)}, Lembur: ${formatRp(p.lembur)}`}>
-                                                            {formatRp(otherEarnings)}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-gray-300">-</span>
-                                                    )}
-                                                </td>
-                                                <td className="py-3.5 px-4 text-right font-extrabold text-gray-900 bg-gray-50">
-                                                    {formatRp(p.total_penerimaan)}
-                                                </td>
-                                                <td className="py-3.5 px-4 text-right text-rose-600 font-medium">
-                                                    {employeeBpjs > 0 ? formatRp(employeeBpjs) : '-'}
-                                                </td>
-                                                <td className="py-3.5 px-4 text-right text-rose-600 font-medium">
-                                                    {otherDeductions > 0 ? formatRp(otherDeductions) : '-'}
-                                                </td>
-                                                <td className="py-3.5 px-4 text-right font-bold text-rose-600 bg-rose-50">
-                                                    {formatRp(p.total_potongan)}
-                                                </td>
-                                                <td className="py-3.5 px-4 text-right text-indigo-600 font-medium">
-                                                    {formatRp(p.total_bpjs_perusahaan)}
-                                                </td>
-                                                <td className="py-3.5 px-4 text-right font-black text-emerald-600 bg-emerald-50 text-sm">
-                                                    {formatRp(p.total_diterima)}
-                                                </td>
-                                                <td className="py-3.5 px-4 text-center">
-                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                                                        p.status === 'paid' ? 'bg-emerald-600 text-white shadow-sm' :
-                                                        p.status === 'published' ? 'bg-blue-600 text-white shadow-sm' :
-                                                        'bg-gray-600 text-white shadow-sm'
-                                                    }`}>
-                                                        {p.status === 'paid' ? 'Dibayarkan' : p.status === 'published' ? 'Publik' : 'Draft'}
-                                                    </span>
-                                                </td>
-                                                <td className="py-3.5 px-4 text-center">
-                                                    <div className="flex items-center justify-center gap-1.5">
-                                                        <button
-                                                            onClick={() => setPreviewPayroll(p)}
-                                                            className="p-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-all"
-                                                            title="Lihat Slip Gaji"
-                                                        >
-                                                            <Eye className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <a
-                                                            href={route('salaries.slip.pdf', p.id)}
-                                                            className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-all"
-                                                            title="Unduh PDF Slip"
-                                                        >
-                                                            <Download className="w-3.5 h-3.5" />
-                                                        </a>
-                                                        <button
-                                                            onClick={() => openEditModal(p)}
-                                                            className="p-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-sm transition-all"
-                                                            title="Edit Gaji"
-                                                        >
-                                                            <Edit2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(p)}
-                                                            className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition-all"
-                                                            title="Hapus Gaji"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <>
+                                                <tr 
+                                                    key={p.id} 
+                                                    onClick={() => setExpandedId(isExpanded ? null : p.id)}
+                                                    className={`cursor-pointer transition-colors group ${
+                                                        isExpanded 
+                                                            ? 'bg-blue-50/80 font-medium' 
+                                                            : 'hover:bg-blue-50'
+                                                    }`}
+                                                    title="Klik untuk melihat / menutup rincian detail karyawan ini"
+                                                >
+                                                    <td className="py-4 px-4 text-center text-gray-500 font-bold">{idx + 1}</td>
+                                                    <td className="py-4 px-4">
+                                                        <div className="flex items-center justify-between gap-3">
+                                                            <div>
+                                                                <div className="font-extrabold text-gray-900 text-xs sm:text-sm group-hover:text-blue-700 transition-colors flex items-center gap-2">
+                                                                    <span>{p.user?.name ?? '-'}</span>
+                                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                                                        p.status === 'paid' ? 'bg-emerald-600 text-white' :
+                                                                        p.status === 'published' ? 'bg-blue-600 text-white' :
+                                                                        'bg-gray-600 text-white'
+                                                                    }`}>
+                                                                        {p.status === 'paid' ? 'Dibayarkan' : p.status === 'published' ? 'Publik' : 'Draft'}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-[11px] text-gray-500 flex items-center gap-1.5 mt-0.5">
+                                                                    <span>{p.user?.employee_id || p.user?.nik || '-'}</span>
+                                                                    <span>&bull;</span>
+                                                                    <span className="text-blue-700 font-semibold">{p.user?.position?.name || 'Karyawan'}</span>
+                                                                    <span>&bull;</span>
+                                                                    <span className="text-gray-600">{p.user?.division?.name || '-'}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div className={`p-1.5 rounded-lg transition-transform ${isExpanded ? 'bg-blue-600 text-white rotate-180' : 'bg-gray-200 text-gray-600'}`}>
+                                                                <ChevronDown className="w-4 h-4" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-4 text-right font-bold text-gray-800 text-xs sm:text-sm">
+                                                        {formatRp(p.gaji_pokok)}
+                                                    </td>
+                                                    <td className="py-4 px-4 text-right font-bold text-gray-800 text-xs sm:text-sm">
+                                                        {formatRp(p.operasional)}
+                                                    </td>
+                                                    <td className="py-4 px-4 text-right font-extrabold text-rose-600 bg-rose-50 text-xs sm:text-sm">
+                                                        {formatRp(p.total_potongan)}
+                                                    </td>
+                                                    <td className="py-4 px-4 text-right font-black text-emerald-700 bg-emerald-50 text-sm sm:text-base">
+                                                        {formatRp(p.total_diterima)}
+                                                    </td>
+                                                </tr>
+
+                                                {/* Detail Row ketika baris diklik */}
+                                                {isExpanded && (
+                                                    <tr key={`${p.id}-detail`} className="bg-blue-50 border-y-2 border-blue-300">
+                                                        <td colSpan="6" className="p-4 sm:p-6">
+                                                            <div className="bg-white p-5 rounded-2xl border-2 border-blue-200 shadow-sm space-y-4">
+                                                                {/* Header Info & Action Buttons */}
+                                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-200 gap-3">
+                                                                    <div>
+                                                                        <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider block">
+                                                                            Rincian Lengkap Penggajian
+                                                                        </span>
+                                                                        <h4 className="text-base font-black text-gray-900 mt-0.5">
+                                                                            {p.user?.name} &bull; Periode {MONTHS.find(m => m.value === p.period_month)?.label} {p.period_year}
+                                                                        </h4>
+                                                                        <p className="text-xs text-gray-500 mt-0.5">
+                                                                            Tanggal Pembayaran: <strong>{p.payment_date || '-'}</strong>
+                                                                            {p.notes && <span className="ml-2">&bull; Catatan: {p.notes}</span>}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div className="flex flex-wrap items-center gap-2">
+                                                                        <button
+                                                                            onClick={(e) => { e.stopPropagation(); setPreviewPayroll(p); }}
+                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+                                                                            title="Pratinjau Slip Gaji"
+                                                                        >
+                                                                            <Eye className="w-3.5 h-3.5" />
+                                                                            Lihat Slip
+                                                                        </button>
+                                                                        <a
+                                                                            href={route('salaries.slip.pdf', p.id)}
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+                                                                            title="Unduh PDF Dokumen"
+                                                                        >
+                                                                            <Download className="w-3.5 h-3.5" />
+                                                                            Unduh PDF
+                                                                        </a>
+                                                                        <button
+                                                                            onClick={(e) => { e.stopPropagation(); openEditModal(p); }}
+                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+                                                                            title="Edit Data Gaji"
+                                                                        >
+                                                                            <Edit2 className="w-3.5 h-3.5" />
+                                                                            Edit Gaji
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={(e) => { e.stopPropagation(); handleDelete(p); }}
+                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+                                                                            title="Hapus Data Gaji"
+                                                                        >
+                                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                                            Hapus
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* 3 Kolom Breakdown: Penerimaan, Potongan, BPJS Perusahaan & THP */}
+                                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                                                    {/* 1. Penerimaan */}
+                                                                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl space-y-2">
+                                                                        <h5 className="font-extrabold text-blue-900 border-b border-gray-200 pb-1.5 uppercase text-[11px] flex items-center justify-between">
+                                                                            <span>1. Penerimaan</span>
+                                                                            <span className="text-blue-700 font-black">{formatRp(p.total_penerimaan)}</span>
+                                                                        </h5>
+                                                                        <div className="space-y-1.5 text-gray-700">
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">Gaji Pokok:</span>
+                                                                                <strong className="text-gray-900">{formatRp(p.gaji_pokok)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">Operasional:</span>
+                                                                                <strong className="text-gray-900">{formatRp(p.operasional)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">Tunjangan Jabatan:</span>
+                                                                                <strong className="text-gray-900">{formatRp(p.tunjangan_jabatan)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">THR:</span>
+                                                                                <strong className="text-gray-900">{formatRp(p.thr)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">Lembur:</span>
+                                                                                <strong className="text-gray-900">{formatRp(p.lembur)}</strong>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* 2. Potongan */}
+                                                                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl space-y-2">
+                                                                        <h5 className="font-extrabold text-rose-900 border-b border-gray-200 pb-1.5 uppercase text-[11px] flex items-center justify-between">
+                                                                            <span>2. Potongan</span>
+                                                                            <span className="text-rose-600 font-black">{formatRp(p.total_potongan)}</span>
+                                                                        </h5>
+                                                                        <div className="space-y-1.5 text-gray-700">
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">BPJS Kesehatan ({p.bpjs_kesehatan_persen}%):</span>
+                                                                                <strong className="text-rose-600">{formatRp(p.bpjs_kesehatan)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">BPJS TK ({p.bpjs_ketenagakerjaan_persen}%):</span>
+                                                                                <strong className="text-rose-600">{formatRp(p.bpjs_ketenagakerjaan)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">Pajak (PPh 21):</span>
+                                                                                <strong className="text-rose-600">{formatRp(p.pajak)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">Piutang / Kasbon:</span>
+                                                                                <strong className="text-rose-600">{formatRp(p.piutang)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">Potongan Absen:</span>
+                                                                                <strong className="text-rose-600">{formatRp(p.potongan_absen)}</strong>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <span className="text-gray-500">Potongan Lainnya:</span>
+                                                                                <strong className="text-rose-600">{formatRp(p.potongan_lainnya)}</strong>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* 3. BPJS Perusahaan & THP */}
+                                                                    <div className="space-y-3">
+                                                                        <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl space-y-1.5">
+                                                                            <h5 className="font-extrabold text-indigo-900 border-b border-indigo-200 pb-1.5 uppercase text-[11px] flex items-center justify-between">
+                                                                                <span>BPJS Dibayar Kantor</span>
+                                                                                <span className="text-indigo-700 font-black">{formatRp(p.total_bpjs_perusahaan)}</span>
+                                                                            </h5>
+                                                                            <div className="text-[11px] space-y-1 text-indigo-900">
+                                                                                <div className="flex justify-between">
+                                                                                    <span>BPJS Kes ({p.bpjs_kesehatan_perusahaan_persen}%):</span>
+                                                                                    <strong>{formatRp(p.bpjs_kesehatan_perusahaan)}</strong>
+                                                                                </div>
+                                                                                <div className="flex justify-between">
+                                                                                    <span>BPJS TK ({p.bpjs_ketenagakerjaan_perusahaan_persen}%):</span>
+                                                                                    <strong>{formatRp(p.bpjs_ketenagakerjaan_perusahaan)}</strong>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="bg-emerald-50 border-2 border-emerald-300 p-4 rounded-xl">
+                                                                            <span className="text-[10px] font-extrabold text-emerald-900 uppercase block tracking-wider">
+                                                                                GAJI BERSIH DITERIMA (THP):
+                                                                            </span>
+                                                                            <span className="text-xl font-black text-emerald-700 block mt-1">
+                                                                                {formatRp(p.total_diterima)}
+                                                                            </span>
+                                                                            {p.terbilang && (
+                                                                                <span className="text-[10px] text-gray-600 italic block mt-1">
+                                                                                    Terbilang: {p.terbilang}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </>
                                         );
                                     })
                                 )}

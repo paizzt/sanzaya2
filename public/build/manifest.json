@@ -830,7 +830,7 @@
     ]
   },
   "resources/js/Pages/Salaries/Index.jsx": {
-    "file": "assets/Index-D-_nRKAX.js",
+    "file": "assets/Index-B6Rx7Pm1.js",
     "name": "Index",
     "src": "resources/js/Pages/Salaries/Index.jsx",
     "isDynamicEntry": true,
@@ -873,7 +873,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-D0_g4j-s.js",
+    "file": "assets/Index-C5D2u0wt.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -894,7 +894,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-BvWvwgA2.js",
+    "file": "assets/Show-Cm3yPWND.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1071,7 +1071,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-DawkB_Nq.js",
+    "file": "assets/app-DqcQ0e3W.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1141,7 +1141,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-7mV6C4ss.css"
+      "assets/app-DYgCF6f0.css"
     ]
   },
   "resources/js/assets/logo.png": {
