@@ -333,17 +333,6 @@ export default function Pengajuan({ requests, canApprove }) {
                                                                 <span>Lihat Lampiran {isAttachmentPdf ? '(PDF)' : ''}</span>
                                                                 <Eye className="w-3 h-3 opacity-60 ml-0.5" />
                                                             </button>
-
-                                                            <a
-                                                                href={attachmentUrl}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200 rounded-xl text-xs font-medium transition-colors"
-                                                                title="Buka lampiran di tab baru"
-                                                            >
-                                                                <ExternalLink className="w-3.5 h-3.5" />
-                                                                <span className="hidden sm:inline">Tab Baru</span>
-                                                            </a>
                                                         </div>
                                                     ) : (
                                                         <div className="mt-2.5 flex items-center gap-1.5 text-xs text-gray-400 italic">
