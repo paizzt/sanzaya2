@@ -59,6 +59,16 @@ class User extends Authenticatable
         return $this->belongsTo(Company::class);
     }
 
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
+    }
+
+    public function latestPayroll()
+    {
+        return $this->hasOne(Payroll::class)->latestOfMany();
+    }
+
     /**
      * Get list of allowed company IDs for this user.
      * Returns null if user is Super Admin or has unrestricted access.

@@ -16,6 +16,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\BhpRecapController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\PayrollController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -55,7 +56,9 @@ Route::get('/seed-features', function () {
             'Manajemen SOP',
             'Unduh PDF',
             'Lapor WBS',
-            'Riwayat Laporan Saya'
+            'Riwayat Laporan Saya',
+            'Manajemen Gaji',
+            'Slip Gaji'
         ];
         foreach ($features as $name) {
             \App\Models\FeatureToggle::firstOrCreate(['name' => $name], [
@@ -212,6 +215,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/users/{user}/toggle-pdf', [UserController::class, 'togglePdf'])->name('users.toggle-pdf');
         Route::resource('users', UserController::class);
     });
+
+    // Slip Gaji Karyawan (Self-Service untuk semua pengguna yang login)
+    Route::get('/slip-gaji', [PayrollController::class, 'mySlip'])->name('salaries.my-slip');
+    Route::get('/salaries/my-slip', [PayrollController::class, 'mySlip']);
+    Route::get('/salaries/{payroll}/slip-pdf', [PayrollController::class, 'slipPdf'])->name('salaries.slip.pdf');
+
+    // Manajemen Gaji
+    Route::get('/salaries', [PayrollController::class, 'index'])->name('salaries.index');
+    Route::post('/salaries', [PayrollController::class, 'store'])->name('salaries.store');
+    Route::post('/salaries/generate', [PayrollController::class, 'generate'])->name('salaries.generate');
+    Route::get('/salaries/user-summary', [PayrollController::class, 'userSummary'])->name('salaries.user-summary');
+    Route::post('/salaries/{payroll}', [PayrollController::class, 'update'])->name('salaries.update');
+    Route::put('/salaries/{payroll}', [PayrollController::class, 'update']);
+    Route::delete('/salaries/{payroll}', [PayrollController::class, 'destroy'])->name('salaries.destroy');
+    Route::get('/salaries-export-pdf', [PayrollController::class, 'exportPdf'])->name('salaries.export.pdf');
+    Route::get('/salaries-export-excel', [PayrollController::class, 'exportExcel'])->name('salaries.export.excel');
 
     Route::middleware(['can:manage company'])->group(function() {
         // Data Perusahaan

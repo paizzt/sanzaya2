@@ -367,8 +367,25 @@ class UserController extends Controller
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
-        
         $user->save();
+
+        // Two-way sync: Sync gaji pokok and operasional to current month payroll if exists
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('payrolls')) {
+                $curMonth = (int)date('n');
+                $curYear = (int)date('Y');
+                $payroll = \App\Models\Payroll::where('user_id', $user->id)
+                    ->where('period_month', $curMonth)
+                    ->where('period_year', $curYear)
+                    ->first();
+                if ($payroll) {
+                    $payroll->gaji_pokok = (float)($user->salary ?? 0);
+                    $payroll->operasional = (float)($user->operational_allowance ?? 0);
+                    $payroll->recalculate();
+                    $payroll->save();
+                }
+            }
+        } catch (\Throwable $e) {}
 
         $user->syncRoles([$request->role]);
         

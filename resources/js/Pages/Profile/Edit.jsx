@@ -1,11 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import DownloadBarcodeForm from './Partials/DownloadBarcodeForm';
 import UpdatePreferencesForm from './Partials/UpdatePreferencesForm';
-import { User, Lock, UserMinus, QrCode, Sliders } from 'lucide-react';
+import { User, Lock, UserMinus, QrCode, Sliders, Receipt } from 'lucide-react';
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
     return (
@@ -51,6 +51,29 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             </div>
                         </div>
                         <DownloadBarcodeForm user={auth.user} />
+                    </div>
+                </div>
+
+                {/* Slip Gaji Section */}
+                <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+                    <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                <Receipt className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-800">Slip Gaji Saya</h3>
+                                <p className="text-sm text-gray-500">Lihat dan unduh riwayat slip gaji bulanan Anda.</p>
+                            </div>
+                        </div>
+                        <Link
+                            href={route('salaries.my-slip')}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all"
+                        >
+                            <Receipt className="w-4 h-4" />
+                            Buka Slip Gaji
+                        </Link>
                     </div>
                 </div>
 
