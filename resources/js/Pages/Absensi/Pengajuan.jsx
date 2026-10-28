@@ -8,7 +8,6 @@ import {
     XCircle, 
     UploadCloud, 
     Paperclip, 
-    ExternalLink, 
     Download, 
     X, 
     Trash2, 
@@ -443,15 +442,6 @@ export default function Pengajuan({ requests, canApprove }) {
                             Sistem Sanzaya &bull; Dokumen Lampiran
                         </span>
                         <div className="flex items-center gap-2">
-                            <a
-                                href={previewModal.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-semibold transition-colors"
-                            >
-                                <ExternalLink className="w-4 h-4" />
-                                Buka di Tab Baru
-                            </a>
                             <a
                                 href={previewModal.url}
                                 download
