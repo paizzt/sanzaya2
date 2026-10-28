@@ -376,26 +376,26 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                     <div className="flex flex-wrap items-center gap-2">
                         <button
                             onClick={handleBatchGenerate}
-                            className="inline-flex items-center gap-2 px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm active:scale-95"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-indigo-600/20 transition-all active:scale-95"
                             title="Generate gaji semua karyawan untuk bulan ini"
                         >
-                            <Sparkles className="w-4 h-4 text-indigo-600" />
+                            <Sparkles className="w-4 h-4 text-white" />
                             Generate Massal
                         </button>
                         <a
                             href={route('salaries.export.pdf', { month, year, company_id: companyId })}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-rose-600/20 transition-all active:scale-95"
                             title="Ekspor Rekap PDF"
                         >
-                            <Download className="w-4 h-4 text-rose-600" />
+                            <Download className="w-4 h-4 text-white" />
                             PDF
                         </a>
                         <a
                             href={route('salaries.export.excel', { month, year, company_id: companyId })}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 transition-all active:scale-95"
                             title="Ekspor Rekap Excel"
                         >
-                            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                            <FileSpreadsheet className="w-4 h-4 text-white" />
                             Excel
                         </a>
                         <button
