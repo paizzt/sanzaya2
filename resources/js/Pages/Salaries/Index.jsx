@@ -376,7 +376,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                     <div className="flex flex-wrap items-center gap-2">
                         <button
                             onClick={handleBatchGenerate}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-indigo-600/20 transition-all active:scale-95"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
                             title="Generate gaji semua karyawan untuk bulan ini"
                         >
                             <Sparkles className="w-4 h-4 text-white" />
@@ -384,7 +384,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         </button>
                         <a
                             href={route('salaries.export.pdf', { month, year, company_id: companyId })}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-rose-600/20 transition-all active:scale-95"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
                             title="Ekspor Rekap PDF"
                         >
                             <Download className="w-4 h-4 text-white" />
@@ -392,7 +392,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         </a>
                         <a
                             href={route('salaries.export.excel', { month, year, company_id: companyId })}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 transition-all active:scale-95"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
                             title="Ekspor Rekap Excel"
                         >
                             <FileSpreadsheet className="w-4 h-4 text-white" />
@@ -400,7 +400,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         </a>
                         <button
                             onClick={openAddModal}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
                         >
                             <Plus className="w-4 h-4" />
                             Buat Gaji
@@ -549,10 +549,10 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         <p className="text-[10px] text-gray-400 mt-0.5">Ditanggung Kantor</p>
                     </div>
 
-                    <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-4 rounded-2xl shadow-md shadow-blue-500/20 relative overflow-hidden">
+                    <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-4 rounded-2xl shadow-md relative overflow-hidden">
                         <div className="flex items-center justify-between">
                             <span className="text-[11px] font-bold text-blue-100 uppercase tracking-wider">Gaji Bersih (THP)</span>
-                            <div className="w-8 h-8 rounded-xl bg-white/20 text-white flex items-center justify-center backdrop-blur-sm">
+                            <div className="w-8 h-8 rounded-xl bg-blue-800 text-white flex items-center justify-center">
                                 <Wallet className="w-4 h-4" />
                             </div>
                         </div>
@@ -568,7 +568,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                             <h3 className="font-extrabold text-gray-900 text-base">Daftar Penggajian Karyawan</h3>
                             <p className="text-xs text-gray-400 mt-0.5">Menampilkan data penggajian bulan {currentMonthLabel} {year}</p>
                         </div>
-                        <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-100">
+                        <span className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
                             {payrolls.length} Karyawan
                         </span>
                     </div>
@@ -576,7 +576,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse text-xs">
                             <thead>
-                                <tr className="bg-gray-50/75 border-b border-gray-100 text-gray-500 uppercase tracking-wider font-bold text-[10px]">
+                                <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 uppercase tracking-wider font-bold text-[10px]">
                                     <th className="py-3.5 px-4 text-center w-12">No</th>
                                     <th className="py-3.5 px-4 min-w-[180px]">Karyawan</th>
                                     <th className="py-3.5 px-4 text-right min-w-[120px]">Gaji Pokok</th>
@@ -610,7 +610,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                         const otherDeductions = (p.pajak || 0) + (p.piutang || 0) + (p.potongan_absen || 0) + (p.potongan_lainnya || 0);
 
                                         return (
-                                            <tr key={p.id} className="hover:bg-blue-50/30 transition-colors">
+                                            <tr key={p.id} className="hover:bg-blue-50 transition-colors">
                                                 <td className="py-3.5 px-4 text-center text-gray-400 font-medium">{idx + 1}</td>
                                                 <td className="py-3.5 px-4">
                                                     <div className="font-bold text-gray-900">{p.user?.name ?? '-'}</div>
@@ -631,7 +631,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                         <span className="text-gray-300">-</span>
                                                     )}
                                                 </td>
-                                                <td className="py-3.5 px-4 text-right font-extrabold text-gray-900 bg-gray-50/50">
+                                                <td className="py-3.5 px-4 text-right font-extrabold text-gray-900 bg-gray-50">
                                                     {formatRp(p.total_penerimaan)}
                                                 </td>
                                                 <td className="py-3.5 px-4 text-right text-rose-600 font-medium">
@@ -640,20 +640,20 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                 <td className="py-3.5 px-4 text-right text-rose-600 font-medium">
                                                     {otherDeductions > 0 ? formatRp(otherDeductions) : '-'}
                                                 </td>
-                                                <td className="py-3.5 px-4 text-right font-bold text-rose-600 bg-rose-50/20">
+                                                <td className="py-3.5 px-4 text-right font-bold text-rose-600 bg-rose-50">
                                                     {formatRp(p.total_potongan)}
                                                 </td>
                                                 <td className="py-3.5 px-4 text-right text-indigo-600 font-medium">
                                                     {formatRp(p.total_bpjs_perusahaan)}
                                                 </td>
-                                                <td className="py-3.5 px-4 text-right font-black text-emerald-600 bg-emerald-50/30 text-sm">
+                                                <td className="py-3.5 px-4 text-right font-black text-emerald-600 bg-emerald-50 text-sm">
                                                     {formatRp(p.total_diterima)}
                                                 </td>
                                                 <td className="py-3.5 px-4 text-center">
                                                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                                                        p.status === 'paid' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
-                                                        p.status === 'published' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-                                                        'bg-gray-100 text-gray-700 border border-gray-200'
+                                                        p.status === 'paid' ? 'bg-emerald-600 text-white shadow-sm' :
+                                                        p.status === 'published' ? 'bg-blue-600 text-white shadow-sm' :
+                                                        'bg-gray-600 text-white shadow-sm'
                                                     }`}>
                                                         {p.status === 'paid' ? 'Dibayarkan' : p.status === 'published' ? 'Publik' : 'Draft'}
                                                     </span>
@@ -662,28 +662,28 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                     <div className="flex items-center justify-center gap-1.5">
                                                         <button
                                                             onClick={() => setPreviewPayroll(p)}
-                                                            className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                                            className="p-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-all"
                                                             title="Lihat Slip Gaji"
                                                         >
                                                             <Eye className="w-3.5 h-3.5" />
                                                         </button>
                                                         <a
                                                             href={route('salaries.slip.pdf', p.id)}
-                                                            className="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors"
+                                                            className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-all"
                                                             title="Unduh PDF Slip"
                                                         >
                                                             <Download className="w-3.5 h-3.5" />
                                                         </a>
                                                         <button
                                                             onClick={() => openEditModal(p)}
-                                                            className="p-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg transition-colors"
+                                                            className="p-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-sm transition-all"
                                                             title="Edit Gaji"
                                                         >
                                                             <Edit2 className="w-3.5 h-3.5" />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(p)}
-                                                            className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                                                            className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition-all"
                                                             title="Hapus Gaji"
                                                         >
                                                             <Trash2 className="w-3.5 h-3.5" />
@@ -730,7 +730,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                     <div className="mt-5 space-y-6 max-h-[75vh] overflow-y-auto pr-1">
 
                         {/* Employee & Period Selector */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50/70 p-4 rounded-2xl border border-gray-100">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-200">
                             <div>
                                 <InputLabel value="Karyawan *" />
                                 {editingPayroll ? (
@@ -800,7 +800,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
 
                         {/* Attendance helper badge if available */}
                         {userAttendance && (
-                            <div className="bg-blue-50/60 border border-blue-200 p-3 rounded-2xl flex flex-wrap items-center justify-between text-xs text-blue-900 gap-2">
+                            <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl flex flex-wrap items-center justify-between text-xs text-blue-900 gap-2">
                                 <div className="flex items-center gap-2 font-bold">
                                     <Clock className="w-4 h-4 text-blue-600" />
                                     Rekap Absensi Bulan Ini:
@@ -1084,7 +1084,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         </div>
 
                         {/* TOTAL DITERIMA & STATUS */}
-                        <div className="bg-gradient-to-br from-emerald-50 to-green-100/80 p-5 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="bg-emerald-50 p-5 rounded-2xl border-2 border-emerald-300 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div>
                                 <span className="text-xs font-extrabold text-emerald-800 uppercase tracking-wider block">
                                     Total Yang Diterima (Take Home Pay)
@@ -1125,14 +1125,14 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         <button
                             type="button"
                             onClick={() => setIsFormOpen(false)}
-                            className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition-colors"
+                            className="px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={processing}
-                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all disabled:opacity-50"
+                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
                             {processing ? 'Menyimpan...' : editingPayroll ? 'Simpan Perubahan' : 'Buat Slip Gaji'}
                         </button>
@@ -1239,13 +1239,13 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                             </div>
 
                             {/* BPJS Kantor */}
-                            <div className="bg-indigo-50/70 p-2.5 rounded-xl text-[11px] text-indigo-900 flex justify-between items-center">
+                            <div className="bg-indigo-50 border border-indigo-200 p-2.5 rounded-xl text-[11px] text-indigo-900 flex justify-between items-center">
                                 <span>BPJS yang Dibayarkan Perusahaan (Kes {previewPayroll.bpjs_kesehatan_perusahaan_persen}% + TK {previewPayroll.bpjs_ketenagakerjaan_perusahaan_persen}%):</span>
                                 <strong className="font-bold">{formatRp(previewPayroll.total_bpjs_perusahaan)}</strong>
                             </div>
 
                             {/* Net Pay */}
-                            <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex justify-between items-center">
+                            <div className="bg-emerald-50 border-2 border-emerald-300 p-3 rounded-xl flex justify-between items-center">
                                 <span className="font-extrabold text-emerald-900 uppercase">Gaji Diterima (THP):</span>
                                 <span className="text-lg font-black text-emerald-700">{formatRp(previewPayroll.total_diterima)}</span>
                             </div>
@@ -1265,7 +1265,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                             </a>
                             <button
                                 onClick={() => setPreviewPayroll(null)}
-                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition-colors"
+                                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
                             >
                                 Tutup
                             </button>

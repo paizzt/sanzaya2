@@ -73,7 +73,7 @@ export default function MySlip({ auth, slips = [], year, user }) {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 self-start sm:self-auto bg-gray-50 px-3.5 py-1.5 rounded-2xl border border-gray-200/80">
+                    <div className="flex items-center gap-2 self-start sm:self-auto bg-gray-100 px-3.5 py-1.5 rounded-2xl border border-gray-300">
                         <span className="text-xs font-bold text-gray-600 flex items-center gap-1.5">
                             <Calendar className="w-4 h-4 text-emerald-600" />
                             Tahun:
@@ -81,7 +81,7 @@ export default function MySlip({ auth, slips = [], year, user }) {
                         <select
                             value={selectedYear}
                             onChange={(e) => handleYearChange(parseInt(e.target.value))}
-                            className="text-xs font-bold bg-transparent border-0 focus:ring-0 text-gray-800 py-1 pl-1 pr-6 cursor-pointer"
+                            className="text-xs font-bold bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-gray-800 py-1 px-2.5 cursor-pointer"
                         >
                             {[2024, 2025, 2026, 2027, 2028].map(y => (
                                 <option key={y} value={y}>{y}</option>
@@ -91,11 +91,10 @@ export default function MySlip({ auth, slips = [], year, user }) {
                 </div>
 
                 {/* Employee Profile Quick Card */}
-                <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white p-5 sm:p-6 rounded-3xl shadow-lg shadow-emerald-600/15 relative overflow-hidden">
-                    <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 transform skew-x-12"></div>
+                <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white p-5 sm:p-6 rounded-3xl shadow-lg relative overflow-hidden">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center font-black text-2xl border border-white/30 text-white shrink-0">
+                            <div className="w-14 h-14 rounded-2xl bg-emerald-800 flex items-center justify-center font-black text-2xl border-2 border-white text-white shrink-0">
                                 {user?.name?.charAt(0) || 'U'}
                             </div>
                             <div>
@@ -105,14 +104,14 @@ export default function MySlip({ auth, slips = [], year, user }) {
                                     <span>&bull;</span>
                                     <span>{user?.position?.name || 'Karyawan'}</span>
                                 </p>
-                                <p className="text-xs text-white/80 mt-1 flex items-center gap-1.5">
+                                <p className="text-xs text-emerald-100 mt-1 flex items-center gap-1.5">
                                     <Building2 className="w-3.5 h-3.5" />
                                     {user?.company?.name || 'Sanzaya Group'} &bull; Divisi {user?.division?.name || '-'}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/20 text-right">
+                        <div className="bg-emerald-800 px-4 py-2.5 rounded-2xl border border-emerald-500 text-right">
                             <span className="text-[11px] font-bold text-emerald-100 uppercase tracking-wider block">Total Slip Tahun Ini</span>
                             <span className="text-xl font-black">{slips.length} Bulan</span>
                         </div>
@@ -153,16 +152,16 @@ export default function MySlip({ auth, slips = [], year, user }) {
                                         </div>
 
                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                                            slip.status === 'paid' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
-                                            slip.status === 'published' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-                                            'bg-gray-100 text-gray-700 border border-gray-200'
+                                            slip.status === 'paid' ? 'bg-emerald-600 text-white shadow-sm' :
+                                            slip.status === 'published' ? 'bg-blue-600 text-white shadow-sm' :
+                                            'bg-gray-600 text-white shadow-sm'
                                         }`}>
                                             {slip.status === 'paid' ? 'Dibayarkan' : slip.status === 'published' ? 'Publik' : 'Draft'}
                                         </span>
                                     </div>
 
                                     {/* Financial Highlight */}
-                                    <div className="bg-emerald-50/70 border border-emerald-100 p-3.5 rounded-2xl my-3">
+                                    <div className="bg-emerald-50 border-2 border-emerald-300 p-3.5 rounded-2xl my-3">
                                         <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">
                                             Gaji Bersih Diterima (THP)
                                         </span>
@@ -195,7 +194,7 @@ export default function MySlip({ auth, slips = [], year, user }) {
                                     <div className="flex items-center gap-2 pt-2 border-t border-gray-50">
                                         <button
                                             onClick={() => setPreviewSlip(slip)}
-                                            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold transition-colors"
+                                            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
                                         >
                                             <Eye className="w-3.5 h-3.5" />
                                             Lihat Slip
@@ -315,7 +314,7 @@ export default function MySlip({ auth, slips = [], year, user }) {
                             </div>
 
                             {/* BPJS Ditanggung Perusahaan */}
-                            <div className="bg-indigo-50/70 p-2.5 rounded-xl text-[11px] text-indigo-900 flex justify-between items-center">
+                            <div className="bg-indigo-50 border border-indigo-200 p-2.5 rounded-xl text-[11px] text-indigo-900 flex justify-between items-center">
                                 <span>Total BPJS Dibayarkan Perusahaan (Kes {previewSlip.bpjs_kesehatan_perusahaan_persen}% + TK {previewSlip.bpjs_ketenagakerjaan_perusahaan_persen}%):</span>
                                 <strong className="font-bold">{formatRp(previewSlip.total_bpjs_perusahaan)}</strong>
                             </div>
@@ -349,7 +348,7 @@ export default function MySlip({ auth, slips = [], year, user }) {
                             </a>
                             <button
                                 onClick={() => setPreviewSlip(null)}
-                                className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition-colors"
+                                className="px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
                             >
                                 Tutup
                             </button>
