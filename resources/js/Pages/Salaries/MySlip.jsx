@@ -53,31 +53,35 @@ export default function MySlip({ auth, slips = [], year, user }) {
     };
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
-                    <div>
-                        <h2 className="font-extrabold text-2xl text-gray-900 tracking-tight flex items-center gap-2">
-                            <span className="p-2 bg-gradient-to-tr from-emerald-600 to-teal-600 text-white rounded-xl shadow-md">
-                                <Receipt className="w-6 h-6" />
-                            </span>
-                            Slip Gaji Saya
-                        </h2>
-                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                            Lihat rincian penerimaan, potongan BPJS, pajak, dan unduh dokumen slip gaji resmi Anda.
-                        </p>
+        <AuthenticatedLayout user={auth.user}>
+            <Head title="Slip Gaji Saya" />
+
+            <div className="space-y-6 max-w-5xl mx-auto">
+                {/* Page Title & Filter Bar (In-page, not in header) */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-3">
+                        <span className="p-2.5 bg-gradient-to-tr from-emerald-600 to-teal-600 text-white rounded-2xl shadow-md shrink-0">
+                            <Receipt className="w-6 h-6" />
+                        </span>
+                        <div>
+                            <h2 className="font-extrabold text-xl sm:text-2xl text-gray-900 tracking-tight">
+                                Slip Gaji Saya
+                            </h2>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Lihat rincian penerimaan, potongan BPJS, pajak, dan unduh dokumen slip gaji resmi Anda.
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-gray-500 flex items-center gap-1.5">
+                    <div className="flex items-center gap-2 self-start sm:self-auto bg-gray-50 px-3.5 py-1.5 rounded-2xl border border-gray-200/80">
+                        <span className="text-xs font-bold text-gray-600 flex items-center gap-1.5">
                             <Calendar className="w-4 h-4 text-emerald-600" />
                             Tahun:
                         </span>
                         <select
                             value={selectedYear}
                             onChange={(e) => handleYearChange(parseInt(e.target.value))}
-                            className="text-xs font-bold rounded-xl border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 py-2 pr-8"
+                            className="text-xs font-bold bg-transparent border-0 focus:ring-0 text-gray-800 py-1 pl-1 pr-6 cursor-pointer"
                         >
                             {[2024, 2025, 2026, 2027, 2028].map(y => (
                                 <option key={y} value={y}>{y}</option>
@@ -85,11 +89,6 @@ export default function MySlip({ auth, slips = [], year, user }) {
                         </select>
                     </div>
                 </div>
-            }
-        >
-            <Head title="Slip Gaji Saya" />
-
-            <div className="space-y-6 max-w-5xl mx-auto">
 
                 {/* Employee Profile Quick Card */}
                 <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white p-5 sm:p-6 rounded-3xl shadow-lg shadow-emerald-600/15 relative overflow-hidden">
