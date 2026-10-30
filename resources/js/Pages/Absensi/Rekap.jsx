@@ -131,7 +131,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 </div>
                 <div class="text-left mb-3">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        ${item.is_lembur ? 'Keterangan Pulang / Alasan Lembur <span class="text-xs font-normal text-gray-400">(Opsional)</span>' : 'Keterangan Pulang'}
+                        ${item.is_lembur ? 'Keterangan Pulang / Keterangan Jika Lembur' : 'Keterangan Pulang'}
                     </label>
                     <textarea id="swal-input-notes-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/alasan saat pulang atau lembur...">${item.check_out_notes || item.notes || ''}</textarea>
                     ${item.is_lembur ? '<p class="text-[11px] text-blue-600 font-medium mt-1">Jika terhitung lembur, isi keterangan lembur di sini. Kosongkan jika pulang biasa.</p>' : ''}

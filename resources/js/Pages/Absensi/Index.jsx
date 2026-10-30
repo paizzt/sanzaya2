@@ -331,7 +331,7 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                                                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-2">
                                                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-1.5">
                                                             <Clock className="w-4 h-4 text-gray-500" />
-                                                            Keterangan Lembur <span className="text-xs font-normal text-gray-400">(Opsional)</span>
+                                                            Keterangan Jika Lembur
                                                         </label>
                                                         <textarea
                                                             className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 placeholder-gray-400"
