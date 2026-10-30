@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { CheckCircle2, Clock, CalendarDays, Loader2, Sun, Moon } from 'lucide-react';
+import { CheckCircle2, Clock, CalendarDays, Loader2, Sun, Moon, Camera, AlertCircle } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
@@ -31,8 +31,11 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
     const [isLocating, setIsLocating] = useState(false);
     const [showWebcamModal, setShowWebcamModal] = useState(false);
     const [pendingAttendance, setPendingAttendance] = useState(null);
+    const [webcamReason, setWebcamReason] = useState('');
+    const [cameraError, setCameraError] = useState(false);
     const [facingMode, setFacingMode] = useState("user");
     const webcamRef = useRef(null);
+    const fileInputRef = useRef(null);
     
     const { data, setData, post, processing } = useForm({
         type: '',
@@ -83,7 +86,10 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
         setIsLocating(true);
         if (!navigator.geolocation) {
             setIsLocating(false);
-            Swal.fire('Error', 'GPS/Geolocation tidak didukung oleh browser atau perangkat ini.', 'error');
+            setPendingAttendance({ type, latitude: 0, longitude: 0, shift: selectedShift });
+            setWebcamReason('Perangkat atau browser tidak mendukung akses GPS. Silakan ambil foto bukti kehadiran langsung.');
+            setCameraError(false);
+            setShowWebcamModal(true);
             return;
         }
 
@@ -117,60 +123,29 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
 
                 if (isFar) {
                     setIsLocating(false);
-                    Swal.fire({
-                        title: 'Lokasi Anda Jauh',
-                        text: 'Sistem mendeteksi Anda di luar radius kantor PT. Anda harus mengambil foto langsung sebagai bukti.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Buka Kamera',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            setPendingAttendance({ type, latitude, longitude, shift: selectedShift });
-                            setShowWebcamModal(true);
-                        }
-                    });
+                    setPendingAttendance({ type, latitude, longitude, shift: selectedShift });
+                    setWebcamReason('Lokasi Anda di luar radius kantor PT. Silakan ambil foto langsung sebagai bukti kehadiran.');
+                    setCameraError(false);
+                    setShowWebcamModal(true);
                 } else {
                     sendAttendancePost(type, latitude, longitude, null, selectedShift);
                 }
             },
             (error) => {
                 setIsLocating(false);
-                if (error.code === 1) {
-                    Swal.fire({
-                        title: 'Akses Lokasi Ditolak',
-                        text: 'Karena akses lokasi ditolak oleh browser, Anda diwajibkan untuk melampirkan foto bukti kehadiran sebagai gantinya.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ambil Foto',
-                        cancelButtonText: 'Batal',
-                        confirmButtonColor: '#3b82f6',
-                        customClass: { popup: 'rounded-2xl' }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            setPendingAttendance({ type, latitude: 0, longitude: 0, shift: selectedShift });
-                            setShowWebcamModal(true);
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Error Lokasi',
-                        text: 'Gagal mendapatkan lokasi GPS. Pastikan GPS/Lokasi perangkat Anda aktif.',
-                        icon: 'error',
-                        showCancelButton: true,
-                        confirmButtonText: 'Coba Lagi',
-                        cancelButtonText: 'Tutup',
-                        confirmButtonColor: '#3b82f6',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            submitAttendance(type);
-                        }
-                    });
-                }
+                // Langsung minta foto absensi jika akses lokasi ditolak atau lokasi bermasalah
+                const reason = error.code === 1 
+                    ? 'Akses lokasi ditolak oleh browser/perangkat. Silakan ambil foto bukti kehadiran langsung.'
+                    : 'Lokasi/GPS bermasalah atau tidak terdeteksi. Silakan ambil foto bukti kehadiran langsung.';
+
+                setPendingAttendance({ type, latitude: 0, longitude: 0, shift: selectedShift });
+                setWebcamReason(reason);
+                setCameraError(false);
+                setShowWebcamModal(true);
             },
             {
                 enableHighAccuracy: true,
-                timeout: 15000,
+                timeout: 10000,
                 maximumAge: 0
             }
         );
@@ -190,9 +165,61 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
         });
     };
 
+    const handleFileInput = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !pendingAttendance) return;
+
+        setShowWebcamModal(false);
+        Swal.fire({
+            title: 'Memproses...',
+            text: 'Sedang mengunggah foto dan absensi',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const options = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1280,
+                useWebWorker: true
+            };
+            const compressedFile = await imageCompression(file, options);
+
+            const formData = new FormData();
+            formData.append('image', compressedFile);
+
+            const response = await fetch('https://api.imgbb.com/1/upload?key=5950b44b24860057ff810fe73f58868b', {
+                method: 'POST',
+                body: formData
+            });
+
+            const imgData = await response.json();
+
+            if (imgData.success) {
+                sendAttendancePost(
+                    pendingAttendance.type,
+                    pendingAttendance.latitude,
+                    pendingAttendance.longitude,
+                    imgData.data.url,
+                    pendingAttendance.shift
+                );
+            } else {
+                Swal.fire('Gagal!', 'Gagal mengunggah gambar.', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Gagal!', 'Terjadi kesalahan saat mengompres/mengunggah gambar.', 'error');
+        }
+    };
+
     const captureAndSubmit = async () => {
         const imageSrc = webcamRef.current?.getScreenshot();
-        if (!imageSrc) return;
+        if (!imageSrc) {
+            // Jika webcam tidak dapat mengambil gambar, panggil file input kamera HP
+            if (fileInputRef.current) {
+                fileInputRef.current.click();
+            }
+            return;
+        }
         
         setShowWebcamModal(false);
         Swal.fire({
@@ -456,51 +483,97 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
             {/* Webcam Modal */}
             {showWebcamModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        capture="user" 
+                        ref={fileInputRef} 
+                        onChange={handleFileInput} 
+                        className="hidden" 
+                    />
                     <div className="bg-white rounded-2xl overflow-hidden w-full max-w-md shadow-2xl flex flex-col">
-                        <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="font-bold text-gray-800">Ambil Foto Bukti Lokasi</h3>
-                            <button onClick={() => setShowWebcamModal(false)} className="text-gray-400 hover:text-red-500">
+                        <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-start gap-3">
+                            <div>
+                                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                                    <Camera className="w-5 h-5 text-blue-600" />
+                                    Foto Bukti Absensi
+                                </h3>
+                                {webcamReason && (
+                                    <p className="text-xs text-amber-700 font-medium mt-1 leading-snug">
+                                        {webcamReason}
+                                    </p>
+                                )}
+                            </div>
+                            <button onClick={() => setShowWebcamModal(false)} className="text-gray-400 hover:text-red-500 p-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
                         <div className="bg-black relative flex-1 flex flex-col items-center justify-center min-h-[300px]">
-                            <Webcam
-                                audio={false}
-                                ref={webcamRef}
-                                screenshotFormat="image/jpeg"
-                                videoConstraints={{ facingMode: facingMode }}
-                                mirrored={facingMode === "user"}
-                                className="w-full h-full object-cover"
-                            />
-                            <button
-                                onClick={() => setFacingMode(prev => prev === "user" ? "environment" : "user")}
-                                className="absolute bottom-4 right-4 bg-white/20 hover:bg-white/40 p-3 rounded-full backdrop-blur-sm text-white shadow-lg transition-colors"
-                                title="Flip Kamera"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                            </button>
+                            {cameraError ? (
+                                <div className="text-center p-6 text-white space-y-3">
+                                    <AlertCircle className="w-12 h-12 text-amber-400 mx-auto" />
+                                    <p className="text-sm font-medium">Kamera browser tidak dapat diakses langsung.</p>
+                                    <p className="text-xs text-gray-400">Silakan gunakan kamera HP langsung di bawah ini:</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md inline-flex items-center gap-1.5"
+                                    >
+                                        <Camera className="w-4 h-4" />
+                                        Buka Kamera HP
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <Webcam
+                                        audio={false}
+                                        ref={webcamRef}
+                                        screenshotFormat="image/jpeg"
+                                        videoConstraints={{ facingMode: facingMode }}
+                                        mirrored={facingMode === "user"}
+                                        onUserMediaError={() => setCameraError(true)}
+                                        onUserMedia={() => setCameraError(false)}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <button
+                                        onClick={() => setFacingMode(prev => prev === "user" ? "environment" : "user")}
+                                        className="absolute bottom-4 right-4 bg-white/20 hover:bg-white/40 p-3 rounded-full backdrop-blur-sm text-white shadow-lg transition-colors"
+                                        title="Flip Kamera"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </button>
+                                </>
+                            )}
                         </div>
-                        <div className="p-4 bg-white flex justify-between gap-3">
-                            <button
-                                onClick={() => setShowWebcamModal(false)}
-                                className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200"
-                            >
-                                Batal
-                            </button>
-                            <button
-                                onClick={captureAndSubmit}
-                                className="flex-1 py-3 px-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 flex items-center justify-center gap-2"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                Ambil & Absen
-                            </button>
+                        <div className="p-4 bg-white space-y-3">
+                            <div className="flex justify-between gap-3">
+                                <button
+                                    onClick={() => setShowWebcamModal(false)}
+                                    className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 text-sm"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    onClick={captureAndSubmit}
+                                    className="flex-1 py-3 px-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 flex items-center justify-center gap-2 text-sm shadow-md"
+                                >
+                                    <Camera className="w-4 h-4" />
+                                    Ambil & Absen
+                                </button>
+                            </div>
+                            <div className="text-center pt-1">
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="text-xs text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1 hover:underline"
+                                >
+                                    Gunakan Kamera HP / Upload File
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

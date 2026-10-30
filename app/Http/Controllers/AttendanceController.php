@@ -152,8 +152,8 @@ class AttendanceController extends Controller
 
         $request->validate([
             'type' => 'required|in:check_in,check_out',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
             'shift' => 'nullable|string|in:Shift Siang,Shift Malam',
         ]);
 
@@ -164,10 +164,10 @@ class AttendanceController extends Controller
             return redirect()->back()->with('error', 'PT Anda belum memiliki pengaturan lokasi. Silakan hubungi admin.');
         }
 
-        $userLat = $request->latitude;
-        $userLon = $request->longitude;
-        $compLat = $company->latitude;
-        $compLon = $company->longitude;
+        $userLat = (float)($request->latitude ?? 0);
+        $userLon = (float)($request->longitude ?? 0);
+        $compLat = (float)$company->latitude;
+        $compLon = (float)$company->longitude;
 
         // Haversine formula
         $earthRadius = 6371000; // Radius bumi dalam meter
@@ -180,10 +180,10 @@ class AttendanceController extends Controller
 
         // Bypass validasi radius untuk role Marketing karena kerja di lapangan
         if (!$user->hasRole(['Marketing', 'marketing'])) {
-            if ($distance > $maxRadius) {
+            if ($distance > $maxRadius || ($userLat == 0 && $userLon == 0)) {
                 if (empty($request->photo_url)) {
                     $formattedDistance = number_format($distance, 0, ',', '.');
-                    return redirect()->back()->with('error', "Anda berada di luar jangkauan area absen PT. Jarak Anda: {$formattedDistance} meter (Maksimal: {$maxRadius} meter). Wajib sertakan foto.");
+                    return redirect()->back()->with('error', "Lokasi GPS tidak terdeteksi atau berada di luar jangkauan area absen PT. Wajib sertakan foto bukti kehadiran.");
                 }
             }
         }
