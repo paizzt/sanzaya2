@@ -270,14 +270,8 @@ class AttendanceController extends Controller
             $attendance->latitude = $userLat;
             $attendance->longitude = $userLon;
             
-            if ($isOvertime) {
-                $notes = trim($request->notes ?? '');
-                if (empty($notes)) {
-                    $overtimeMsg = ($isSaturday && $userWorkDays == 6)
-                        ? 'Hari Sabtu jam kerja normal sampai 14:00 WITA. Anda terhitung lembur dan wajib menuliskan alasan lembur.'
-                        : 'Anda terhitung lembur (pukul 20:00 WITA ke atas). Wajib menuliskan alasan lembur.';
-                    return redirect()->back()->with('error', $overtimeMsg);
-                }
+            $notes = trim($request->notes ?? '');
+            if (!empty($notes)) {
                 $attendance->notes = $notes;
                 $attendance->check_out_notes = $notes;
             } elseif ($user->isSatpam() && $isCrossDay) {

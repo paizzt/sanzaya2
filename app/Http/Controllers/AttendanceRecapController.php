@@ -228,15 +228,16 @@ class AttendanceRecapController extends Controller
                 }
 
                 // Calculate Lembur (Khusus SATPAM: TIDAK berlaku jam lembur)
-                // Untuk karyawan yang masuk 6 hari dengan hari Sabtu: jam kerja Sabtu hanya sampai jam 14:00 WITA. Jika checkout >= 14:00:00, terhitung lembur.
-                // Untuk hari biasa (Senin-Jumat): checkout >= 20:00:00 terhitung lembur.
+                // Untuk karyawan yang masuk 6 hari dengan hari Sabtu: jam kerja Sabtu hanya sampai jam 14:00 WITA. Jika checkout >= 14:00:00 dan mengisi keterangan, terhitung lembur.
+                // Untuk hari biasa (Senin-Jumat): checkout >= 20:00:00 dan mengisi keterangan, terhitung lembur.
                 if (!$isUserSatpam) {
                     $attDate = Carbon::parse(substr($att->date, 0, 10));
                     $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
                     $workDays = $userWorkDays[$att->user_id] ?? 6;
                     $overtimeThreshold = ($isSaturday && $workDays == 6) ? '14:00:00' : '20:00:00';
 
-                    if ($att->check_out_time && $att->check_out_time >= $overtimeThreshold) {
+                    $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || !empty(trim($att->notes ?? ''));
+                    if ($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes) {
                         $userSummaries[$att->user_id]['lembur']++;
                         $summary['lembur']++;
                         $lemburMap[$att->user_id][substr($att->date, 0, 10)] = true;
@@ -344,7 +345,8 @@ class AttendanceRecapController extends Controller
             $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
             $workDays = $userWorkDays[$att->user_id] ?? 6;
             $overtimeThreshold = ($isSaturday && $workDays == 6) ? '14:00:00' : '20:00:00';
-            $isLembur = (!$isUserSatpam && (($att->check_out_time && $att->check_out_time >= $overtimeThreshold) || $att->status === 'Lembur'));
+            $hasOvertimeNotes = !empty(trim($checkOutNotes ?? '')) || (!empty(trim($att->notes ?? '')) && !str_starts_with($att->notes, 'Masuk:'));
+            $isLembur = (!$isUserSatpam && ((($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes)) || $att->status === 'Lembur'));
 
             $recapList[] = [
                 'id' => 'att_' . $att->id,
@@ -556,7 +558,8 @@ class AttendanceRecapController extends Controller
                     $workDays = $userWorkDays[$att->user_id] ?? 6;
                     $overtimeThreshold = ($isSaturday && $workDays == 6) ? '14:00:00' : '20:00:00';
 
-                    if (($att->check_out_time && $att->check_out_time >= $overtimeThreshold) || $att->status === 'Lembur') {
+                    $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || !empty(trim($att->notes ?? ''));
+                    if ((($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes)) || $att->status === 'Lembur') {
                         $summary['lembur']++;
                     }
                 }
