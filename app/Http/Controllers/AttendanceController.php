@@ -16,6 +16,7 @@ class AttendanceController extends Controller
     public function index()
     {
         try {
+            PayrollController::ensurePayrollTablesStatic();
             if (Schema::hasTable('attendances')) {
                 if (!Schema::hasColumn('attendances', 'shift')) {
                     Schema::table('attendances', function ($table) {
@@ -35,12 +36,19 @@ class AttendanceController extends Controller
             }
         } catch (\Throwable $e) {}
 
+        $settings = PayrollController::getPayrollSettings();
+        $autoCheckoutTime = substr($settings['jam_pulang_otomatis'] ?? '17:00', 0, 5) . ':00';
+        $jamMulaiWeekday = substr($settings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
+        $jamMulaiSabtu = substr($settings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
+
         $today = Carbon::today()->format('Y-m-d');
         $user = Auth::user();
         $isSatpam = $user->isSatpam();
+        $tanpaLembur = (bool)($user->tanpa_lembur ?? false);
+        $tanpaKeterlambatan = (bool)($user->tanpa_keterlambatan ?? false);
 
         // Cek apakah ada check-in hari sebelumnya yang belum check-out
-        // Untuk karyawan biasa, otomatis check-out di jam 17:00:00 pada hari tersebut agar tidak mengganggu absensi hari ini.
+        // Untuk karyawan biasa, otomatis check-out di jam pulang otomatis pada hari tersebut agar tidak mengganggu absensi hari ini.
         // Khusus SATPAM: TIDAK auto-checkout karena jam kerjanya bisa lintas hari (misal jam 22:00 malam s/d 08:00 pagi).
         if (!$isSatpam) {
             $uncompletedPast = Attendance::where('user_id', $user->id)
@@ -50,7 +58,7 @@ class AttendanceController extends Controller
                 ->get();
                 
             foreach ($uncompletedPast as $uncompleted) {
-                $uncompleted->check_out_time = '17:00:00';
+                $uncompleted->check_out_time = $autoCheckoutTime;
                 $uncompleted->notes = 'Auto checkout oleh sistem (Lupa absen pulang)';
                 $uncompleted->save();
             }
@@ -82,13 +90,13 @@ class AttendanceController extends Controller
         $isOvertime = false;
         $isSaturday = Carbon::now()->dayOfWeek === Carbon::SATURDAY;
         
-        // Khusus SATPAM: TIDAK berlaku jam lembur
-        if (!$isSatpam) {
+        // Khusus SATPAM atau pengguna dengan saklar Tanpa Lembur: TIDAK berlaku jam lembur
+        if (!$isSatpam && !$tanpaLembur) {
             if ($attendance && $attendance->check_in_time && !$attendance->check_out_time) {
                 $attDate = Carbon::parse($attendance->date);
                 $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
                 $userWorkDays = $user->work_days_per_week ?? 6;
-                $overtimeThreshold = ($isSaturday && $userWorkDays == 6) ? '14:00:00' : '20:00:00';
+                $overtimeThreshold = ($isSaturday && $userWorkDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
                 if ($now->isSameDay($attDate)) {
                     if ($now->format('H:i:s') >= $overtimeThreshold) {
@@ -127,6 +135,10 @@ class AttendanceController extends Controller
             'isOvertime' => $isOvertime,
             'isSaturday' => $isSaturday,
             'userWorkDays' => $user->work_days_per_week ?? 6,
+            'tanpaLembur' => $tanpaLembur,
+            'tanpaKeterlambatan' => $tanpaKeterlambatan,
+            'overtimeWeekdayStart' => substr($jamMulaiWeekday, 0, 5),
+            'overtimeSaturdayStart' => substr($jamMulaiSabtu, 0, 5),
             'history' => $history,
             'company' => $user->company,
             'isMarketing' => $user->hasRole(['Marketing', 'marketing']),
@@ -243,11 +255,16 @@ class AttendanceController extends Controller
             $isOvertime = false;
             $isSaturday = false;
             $userWorkDays = $user->work_days_per_week ?? 6;
+            $tanpaLembur = (bool)($user->tanpa_lembur ?? false);
 
-            // Khusus SATPAM: TIDAK berlaku jam lembur
-            if (!$user->isSatpam()) {
+            $settings = PayrollController::getPayrollSettings();
+            $jamMulaiWeekday = substr($settings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
+            $jamMulaiSabtu = substr($settings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
+
+            // Khusus SATPAM atau pengguna dengan saklar Tanpa Lembur: TIDAK berlaku jam lembur
+            if (!$user->isSatpam() && !$tanpaLembur) {
                 $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
-                $overtimeThreshold = ($isSaturday && $userWorkDays == 6) ? '14:00:00' : '20:00:00';
+                $overtimeThreshold = ($isSaturday && $userWorkDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
                 if ($now->isSameDay($attDate)) {
                     if ($now->format('H:i:s') >= $overtimeThreshold) {
@@ -271,9 +288,12 @@ class AttendanceController extends Controller
             $attendance->longitude = $userLon;
             
             $notes = trim($request->notes ?? '');
-            if (!empty($notes)) {
+            if (!$tanpaLembur && !empty($notes)) {
                 $attendance->notes = $notes;
                 $attendance->check_out_notes = $notes;
+                if ($isOvertime && !$user->isSatpam()) {
+                    $attendance->overtime_status = 'Menunggu';
+                }
             } elseif ($user->isSatpam() && $isCrossDay) {
                 if (empty($attendance->notes)) {
                     $attendance->notes = ($attendance->shift ?? 'Shift Malam') . ' (Lintas hari: selesai ' . $now->isoFormat('D MMM Y') . ' ' . $now->format('H:i') . ')';
@@ -380,5 +400,105 @@ class AttendanceController extends Controller
         PayrollController::syncUserPayrollFromAttendance($attUserId, (int)$attDate->month, (int)$attDate->year);
 
         return redirect()->back()->with('success', 'Data absensi berhasil dihapus.');
+    }
+
+    public function updateOvertimeStatus(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!$user || !$user->isAdminUser()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        PayrollController::ensurePayrollTablesStatic();
+
+        $request->validate([
+            'status' => ['required', 'in:Disetujui,Ditolak,Menunggu'],
+        ]);
+
+        $attendance = Attendance::findOrFail($id);
+        $attendance->overtime_status = $request->status;
+        $attendance->save();
+
+        $d = Carbon::parse($attendance->date);
+        PayrollController::syncUserPayrollFromAttendance((int)$attendance->user_id, (int)$d->month, (int)$d->year);
+
+        $msg = $request->status === 'Disetujui'
+            ? 'Alasan lembur berhasil diterima (Lembur Ter-ACC).'
+            : ($request->status === 'Ditolak' ? 'Alasan lembur ditolak.' : 'Status lembur diubah.');
+
+        return redirect()->back()->with('success', $msg);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || !$user->isAdminUser()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        PayrollController::ensurePayrollTablesStatic();
+
+        $request->validate([
+            'jam_pulang_otomatis' => ['required', 'string', 'max:10'],
+            'jam_mulai_lembur_weekday' => ['required', 'string', 'max:10'],
+            'jam_mulai_lembur_sabtu' => ['required', 'string', 'max:10'],
+            'jam_batas_terlambat' => ['required', 'string', 'max:10'],
+            'toleransi_terlambat_lembur_jam' => ['required', 'numeric', 'min:0', 'max:12'],
+            'month' => ['nullable', 'integer'],
+            'year' => ['nullable', 'integer'],
+        ]);
+
+        $jamPulang = substr(trim($request->jam_pulang_otomatis), 0, 5);
+        $jamWeekday = substr(trim($request->jam_mulai_lembur_weekday), 0, 5);
+        $jamSabtu = substr(trim($request->jam_mulai_lembur_sabtu), 0, 5);
+        $jamTerlambat = substr(trim($request->jam_batas_terlambat), 0, 5);
+        $toleransiJam = (float)$request->toleransi_terlambat_lembur_jam;
+
+        $row = \Illuminate\Support\Facades\DB::table('payroll_settings')->first();
+        if ($row) {
+            \Illuminate\Support\Facades\DB::table('payroll_settings')->where('id', $row->id)->update([
+                'jam_pulang_otomatis' => $jamPulang,
+                'jam_mulai_lembur_weekday' => $jamWeekday,
+                'jam_mulai_lembur_sabtu' => $jamSabtu,
+                'jam_batas_terlambat' => $jamTerlambat,
+                'toleransi_terlambat_lembur_jam' => $toleransiJam,
+                'updated_at' => now(),
+            ]);
+        } else {
+            \Illuminate\Support\Facades\DB::table('payroll_settings')->insert([
+                'tarif_potongan_terlambat' => 20000,
+                'tarif_lembur_weekday_pertama' => 30000,
+                'tarif_lembur_weekday_berikutnya' => 20000,
+                'tarif_lembur_sabtu' => 20000,
+                'jam_pulang_otomatis' => $jamPulang,
+                'jam_mulai_lembur_weekday' => $jamWeekday,
+                'jam_mulai_lembur_sabtu' => $jamSabtu,
+                'jam_batas_terlambat' => $jamTerlambat,
+                'toleransi_terlambat_lembur_jam' => $toleransiJam,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $targetMonth = (int)($request->input('month') ?: date('n'));
+        $targetYear = (int)($request->input('year') ?: date('Y'));
+
+        // Perbarui jam checkout pada absensi auto-checkout di bulan terkait
+        Attendance::whereMonth('date', $targetMonth)
+            ->whereYear('date', $targetYear)
+            ->where('notes', 'Auto checkout oleh sistem (Lupa absen pulang)')
+            ->update(['check_out_time' => $jamPulang . ':00']);
+
+        // Sinkronkan ulang data gaji bulan tersebut jika ada
+        try {
+            $payrolls = \App\Models\Payroll::where('period_month', $targetMonth)
+                ->where('period_year', $targetYear)
+                ->get();
+            foreach ($payrolls as $p) {
+                PayrollController::syncUserPayrollFromAttendance((int)$p->user_id, $targetMonth, $targetYear);
+            }
+        } catch (\Throwable $e) {}
+
+        return redirect()->back()->with('success', 'Pengaturan jam absensi, lembur, dan keterlambatan berhasil disimpan.');
     }
 }

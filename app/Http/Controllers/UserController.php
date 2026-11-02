@@ -23,6 +23,7 @@ class UserController extends Controller
     public function index()
     {
         try {
+            PayrollController::ensurePayrollTablesStatic();
             if (\Illuminate\Support\Facades\Schema::hasTable('users') && !\Illuminate\Support\Facades\Schema::hasColumn('users', 'allowed_companies')) {
                 \Illuminate\Support\Facades\Schema::table('users', function ($table) {
                     $table->json('allowed_companies')->nullable()->after('company_id');
@@ -210,6 +211,8 @@ class UserController extends Controller
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
             'preferences' => 'nullable|array',
             'work_days_per_week' => 'nullable|integer|in:5,6',
+            'tanpa_keterlambatan' => 'nullable|boolean',
+            'tanpa_lembur' => 'nullable|boolean',
         ]);
 
         $division = null;
@@ -220,6 +223,8 @@ class UserController extends Controller
         $allowedCompanies = $request->has('allowed_companies') && is_array($request->allowed_companies)
             ? array_values(array_map('intval', array_filter($request->allowed_companies)))
             : null;
+
+        PayrollController::ensurePayrollTablesStatic();
 
         $user = User::create([
             'name' => $request->name,
@@ -232,6 +237,8 @@ class UserController extends Controller
             'spreadsheet_sales_name' => $request->spreadsheet_sales_name ?: null,
             'monthly_target' => $request->monthly_target !== null && $request->monthly_target !== '' ? $request->monthly_target : null,
             'work_days_per_week' => $request->work_days_per_week ?? 6,
+            'tanpa_keterlambatan' => (bool)$request->boolean('tanpa_keterlambatan'),
+            'tanpa_lembur' => (bool)$request->boolean('tanpa_lembur'),
             
             'nik' => $request->nik ?: null,
             'start_date' => $request->start_date ?: null,
@@ -342,7 +349,11 @@ class UserController extends Controller
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
             'preferences' => 'nullable|array',
             'work_days_per_week' => 'nullable|integer|in:5,6',
+            'tanpa_keterlambatan' => 'nullable|boolean',
+            'tanpa_lembur' => 'nullable|boolean',
         ]);
+
+        PayrollController::ensurePayrollTablesStatic();
 
         $user->name = $request->name;
         $user->email = $request->email;
@@ -353,6 +364,13 @@ class UserController extends Controller
         
         if ($request->has('work_days_per_week')) {
             $user->work_days_per_week = $request->work_days_per_week ?: 6;
+        }
+
+        if ($request->has('tanpa_keterlambatan')) {
+            $user->tanpa_keterlambatan = (bool)$request->boolean('tanpa_keterlambatan');
+        }
+        if ($request->has('tanpa_lembur')) {
+            $user->tanpa_lembur = (bool)$request->boolean('tanpa_lembur');
         }
 
         if ($request->has('allowed_companies')) {
@@ -391,7 +409,7 @@ class UserController extends Controller
         }
         $user->save();
 
-        // Two-way sync: Sync gaji pokok and operasional to current month payroll if exists
+        // Two-way sync: Sync gaji pokok, operasional, keterlambatan, and lembur to current month payroll if exists
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('payrolls')) {
                 $curMonth = (int)date('n');
@@ -406,6 +424,7 @@ class UserController extends Controller
                     $payroll->recalculate();
                     $payroll->save();
                 }
+                PayrollController::syncUserPayrollFromAttendance($user->id, $curMonth, $curYear);
             }
         } catch (\Throwable $e) {}
 

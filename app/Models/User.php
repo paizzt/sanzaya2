@@ -34,6 +34,8 @@ class User extends Authenticatable
             'require_password_change' => 'boolean',
             'preferences' => 'array',
             'allowed_companies' => 'array',
+            'tanpa_keterlambatan' => 'boolean',
+            'tanpa_lembur' => 'boolean',
         ];
     }
 

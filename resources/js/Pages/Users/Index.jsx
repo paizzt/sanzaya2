@@ -85,6 +85,8 @@ export default function Index({ users = [], divisions = [], positions = [], area
         bpjs_kesehatan: '',
         bpjs_ketenagakerjaan: '',
         work_days_per_week: 6,
+        tanpa_keterlambatan: false,
+        tanpa_lembur: false,
         preferences: { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] },
     });
 
@@ -107,6 +109,8 @@ export default function Index({ users = [], divisions = [], positions = [], area
             company_id: '',
             allowed_companies: companies.map(c => Number(c.id)),
             feature_toggles: allFeatureIds,
+            tanpa_keterlambatan: false,
+            tanpa_lembur: false,
             preferences: { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] }
         }));
         setSearchTerm('');
@@ -164,6 +168,8 @@ export default function Index({ users = [], divisions = [], positions = [], area
             bpjs_kesehatan: user.bpjs_kesehatan || '',
             bpjs_ketenagakerjaan: user.bpjs_ketenagakerjaan || '',
             work_days_per_week: user.work_days_per_week || 6,
+            tanpa_keterlambatan: Boolean(user.tanpa_keterlambatan),
+            tanpa_lembur: Boolean(user.tanpa_lembur),
             preferences: user.preferences || { bottom_nav: ['dashboard', 'absensi', 'marketing', 'izin'], dashboard: ['attendance', 'marketing', 'uc', 'bhp'] },
         });
         setIsModalOpen(true);
@@ -929,6 +935,34 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                 {errors.allowed_companies && (
                                                     <p className="text-xs text-red-500 mt-2">{errors.allowed_companies}</p>
                                                 )}
+                                            </div>
+
+                                            {/* SAKLAR TANPA POTONGAN KETERLAMBATAN & TANPA UPAH LEMBUR */}
+                                            <div className="mb-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                                <h5 className="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+                                                    <div className="w-1.5 h-4 bg-indigo-500 rounded-full"></div>
+                                                    Tanpa Potongan Keterlambatan & Tanpa Upah Lembur
+                                                </h5>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                    <div
+                                                        onClick={() => setData('tanpa_keterlambatan', !data.tanpa_keterlambatan)}
+                                                        className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${data.tanpa_keterlambatan ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-gray-50 border-gray-200 opacity-70 hover:opacity-100 hover:border-indigo-300'}`}
+                                                    >
+                                                        <span className={`text-sm font-medium ${data.tanpa_keterlambatan ? 'text-indigo-900' : 'text-gray-600'}`}>Keterlambatan</span>
+                                                        <button type="button" className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${data.tanpa_keterlambatan ? 'bg-indigo-600' : 'bg-gray-300'}`}>
+                                                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${data.tanpa_keterlambatan ? 'translate-x-4' : 'translate-x-0'}`} />
+                                                        </button>
+                                                    </div>
+                                                    <div
+                                                        onClick={() => setData('tanpa_lembur', !data.tanpa_lembur)}
+                                                        className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${data.tanpa_lembur ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-gray-50 border-gray-200 opacity-70 hover:opacity-100 hover:border-indigo-300'}`}
+                                                    >
+                                                        <span className={`text-sm font-medium ${data.tanpa_lembur ? 'text-indigo-900' : 'text-gray-600'}`}>Lembur</span>
+                                                        <button type="button" className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${data.tanpa_lembur ? 'bg-indigo-600' : 'bg-gray-300'}`}>
+                                                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${data.tanpa_lembur ? 'translate-x-4' : 'translate-x-0'}`} />
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                             
                                             {(() => {

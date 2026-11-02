@@ -127,6 +127,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/absensi/rekap', [AttendanceRecapController::class, 'index'])->name('absensi.rekap');
         Route::get('/absensi/rekap/export-pdf', [AttendanceRecapController::class, 'exportPdf'])->name('absensi.rekap.export-pdf')->middleware('can.pdf');
         Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
+        Route::post('/absensi/settings', [AttendanceController::class, 'updateSettings'])->name('absensi.settings');
+        Route::patch('/absensi/{id}/overtime-status', [AttendanceController::class, 'updateOvertimeStatus'])->name('absensi.overtime-status');
         Route::put('/absensi/{id}', [AttendanceController::class, 'update'])->name('absensi.update');
         Route::delete('/absensi/{id}', [AttendanceController::class, 'destroy'])->name('absensi.destroy');
 

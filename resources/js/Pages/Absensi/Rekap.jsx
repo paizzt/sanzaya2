@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip, Wallet } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip, Wallet, Settings, X, Save } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
-export default function Rekap({ auth, recapList, summary, userSummaries, filters, users, isAdmin }) {
+export default function Rekap({ auth, recapList, summary, userSummaries, filters, users, isAdmin, payrollSettings = {} }) {
     const isSuperAdmin = auth?.user?.roles?.some(r => r.name.toLowerCase() === 'superadmin') || false;
     // Setup Filter Form
     const { data, setData } = useForm({
@@ -18,6 +18,75 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
     });
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [savingSettings, setSavingSettings] = useState(false);
+    const [settingsForm, setSettingsForm] = useState({
+        jam_pulang_otomatis: payrollSettings?.jam_pulang_otomatis || '17:00',
+        jam_mulai_lembur_weekday: payrollSettings?.jam_mulai_lembur_weekday || '20:00',
+        jam_mulai_lembur_sabtu: payrollSettings?.jam_mulai_lembur_sabtu || '14:00',
+        jam_batas_terlambat: payrollSettings?.jam_batas_terlambat || '08:15',
+        toleransi_terlambat_lembur_jam: payrollSettings?.toleransi_terlambat_lembur_jam ?? 1,
+    });
+
+    useEffect(() => {
+        if (payrollSettings) {
+            setSettingsForm({
+                jam_pulang_otomatis: payrollSettings.jam_pulang_otomatis || '17:00',
+                jam_mulai_lembur_weekday: payrollSettings.jam_mulai_lembur_weekday || '20:00',
+                jam_mulai_lembur_sabtu: payrollSettings.jam_mulai_lembur_sabtu || '14:00',
+                jam_batas_terlambat: payrollSettings.jam_batas_terlambat || '08:15',
+                toleransi_terlambat_lembur_jam: payrollSettings.toleransi_terlambat_lembur_jam ?? 1,
+            });
+        }
+    }, [payrollSettings]);
+
+    const handleSaveSettings = (e) => {
+        e.preventDefault();
+        setSavingSettings(true);
+        router.post(route('absensi.settings'), {
+            ...settingsForm,
+            month: data.month,
+            year: data.year,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setSavingSettings(false);
+                setShowSettingsModal(false);
+                Swal.fire({
+                    title: 'Berhasil',
+                    text: 'Pengaturan jam absensi & lembur berhasil disimpan.',
+                    icon: 'success',
+                    timer: 1800,
+                    showConfirmButton: false,
+                });
+            },
+            onError: () => {
+                setSavingSettings(false);
+                Swal.fire('Gagal', 'Periksa kembali format jam yang dimasukkan.', 'error');
+            },
+        });
+    };
+
+    const handleOvertimeStatus = (item, status) => {
+        const realId = item.raw_id || item.id.toString().replace('att_', '');
+        router.patch(route('absensi.overtime-status', realId), { status }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                Swal.fire({
+                    title: status === 'Disetujui' ? 'Lembur Ter-ACC!' : 'Lembur Ditolak',
+                    text: status === 'Disetujui'
+                        ? 'Alasan lembur diterima dan dihitung ke rekap absensi & manajemen gaji.'
+                        : 'Alasan lembur ditolak.',
+                    icon: 'success',
+                    timer: 1600,
+                    showConfirmButton: false,
+                });
+            },
+            onError: () => {
+                Swal.fire('Gagal!', 'Tidak dapat memperbarui status lembur.', 'error');
+            }
+        });
+    };
 
     const handleFilter = () => {
         router.get(route('absensi.rekap'), data, {
@@ -518,14 +587,24 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 </>
                             )}
                         </h3>
-                        {isAdmin && (
-                            <Link
-                                href={route('salaries.index', { month: data.month, year: data.year })}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all"
-                            >
-                                <Wallet className="w-4 h-4" />
-                                Gaji
-                            </Link>
+                        {(isAdmin || isSuperAdmin) && (
+                            <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowSettingsModal(true)}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold transition-all"
+                                >
+                                    <Settings className="w-4 h-4" />
+                                    Atur Jam
+                                </button>
+                                <Link
+                                    href={route('salaries.index', { month: data.month, year: data.year })}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all"
+                                >
+                                    <Wallet className="w-4 h-4" />
+                                    Gaji
+                                </Link>
+                            </div>
                         )}
                     </div>
                     <div className="overflow-x-auto">
@@ -694,8 +773,15 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span>{item.check_out || '-'}</span>
                                                     {!item.is_satpam && item.is_lembur && (
-                                                        <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">
-                                                            Lembur {item.is_saturday ? '(Sabtu >14:00)' : '(>20:00)'}
+                                                        <span className={`text-[10px] px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap ${
+                                                            item.overtime_status === 'Disetujui'
+                                                                ? 'bg-emerald-100 text-emerald-700'
+                                                                : item.overtime_status === 'Ditolak'
+                                                                ? 'bg-rose-100 text-rose-700 line-through'
+                                                                : 'bg-amber-100 text-amber-700'
+                                                        }`}>
+                                                            Lembur {item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`}
+                                                            {item.overtime_status === 'Disetujui' ? ' • Ter-ACC' : item.overtime_status === 'Ditolak' ? ' • Ditolak' : ' • Menunggu'}
                                                         </span>
                                                     )}
                                                     {item.check_out_photo && (
@@ -734,15 +820,54 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
                                                     {/* Alasan Lembur Khusus Jika Lembur */}
                                                     {!item.is_satpam && item.is_lembur && (
-                                                        <div className="text-[11px] text-blue-900 bg-blue-50 border border-blue-200 rounded px-2 py-1 max-w-[260px] break-words">
-                                                            <span className="font-bold text-blue-950 flex items-center gap-1">
-                                                                <Clock className="w-3 h-3 text-blue-600 inline" /> Alasan Lembur:
-                                                            </span>{' '}
-                                                            <span className="text-gray-800">
+                                                        <div className="text-[11px] text-blue-900 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 max-w-[280px] break-words space-y-1.5">
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <span className="font-bold text-blue-950 flex items-center gap-1">
+                                                                    <Clock className="w-3 h-3 text-blue-600 inline" /> Alasan Lembur:
+                                                                </span>
+                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                                                    item.overtime_status === 'Disetujui'
+                                                                        ? 'bg-emerald-100 text-emerald-700'
+                                                                        : item.overtime_status === 'Ditolak'
+                                                                        ? 'bg-rose-100 text-rose-700'
+                                                                        : 'bg-amber-100 text-amber-700'
+                                                                }`}>
+                                                                    {item.overtime_status === 'Disetujui' ? 'Lembur Ter-ACC' : item.overtime_status === 'Ditolak' ? 'Ditolak' : 'Menunggu ACC'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-gray-800">
                                                                 {item.check_out_notes || item.notes || (
                                                                     <span className="text-amber-600 italic">Belum ada alasan lembur</span>
                                                                 )}
-                                                            </span>
+                                                            </div>
+                                                            {(isAdmin || isSuperAdmin) && !item.id.toString().startsWith('req_') && !item.id.toString().startsWith('alpa_') && (
+                                                                <div className="flex items-center gap-1.5 pt-1 border-t border-blue-200/60">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleOvertimeStatus(item, 'Disetujui')}
+                                                                        disabled={item.overtime_status === 'Disetujui'}
+                                                                        className={`px-2.5 py-1 rounded text-[10px] font-bold transition-colors ${
+                                                                            item.overtime_status === 'Disetujui'
+                                                                                ? 'bg-emerald-100 text-emerald-700 cursor-default'
+                                                                                : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'
+                                                                        }`}
+                                                                    >
+                                                                        Terima
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleOvertimeStatus(item, 'Ditolak')}
+                                                                        disabled={item.overtime_status === 'Ditolak'}
+                                                                        className={`px-2.5 py-1 rounded text-[10px] font-bold transition-colors ${
+                                                                            item.overtime_status === 'Ditolak'
+                                                                                ? 'bg-rose-100 text-rose-700 cursor-default'
+                                                                                : 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm'
+                                                                        }`}
+                                                                    >
+                                                                        Tolak
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     )}
 
@@ -854,6 +979,134 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         </div>
                     )}
                 </div>
+
+                {showSettingsModal && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4"
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) setShowSettingsModal(false);
+                        }}
+                    >
+                        <div
+                            className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-gray-100 overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                    <Settings className="w-5 h-5 text-blue-600" />
+                                    Pengaturan Jam Absensi & Lembur
+                                </h3>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowSettingsModal(false)}
+                                    className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <form onSubmit={handleSaveSettings} className="p-6 space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 mb-1">
+                                        Absen Keluar Otomatis
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={settingsForm.jam_pulang_otomatis}
+                                        onChange={(e) => setSettingsForm({ ...settingsForm, jam_pulang_otomatis: e.target.value })}
+                                        required
+                                        className="w-full rounded-xl border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                    <p className="text-[11px] text-gray-500 mt-1">
+                                        Jam pulang otomatis jika karyawan belum absen keluar di hari sebelumnya.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                                            Lembur Senin-Jumat Dimulai
+                                        </label>
+                                        <input
+                                            type="time"
+                                            value={settingsForm.jam_mulai_lembur_weekday}
+                                            onChange={(e) => setSettingsForm({ ...settingsForm, jam_mulai_lembur_weekday: e.target.value })}
+                                            required
+                                            className="w-full rounded-xl border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                                            Lembur Sabtu Dimulai
+                                        </label>
+                                        <input
+                                            type="time"
+                                            value={settingsForm.jam_mulai_lembur_sabtu}
+                                            onChange={(e) => setSettingsForm({ ...settingsForm, jam_mulai_lembur_sabtu: e.target.value })}
+                                            required
+                                            className="w-full rounded-xl border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                                            Batas Keterlambatan Normal
+                                        </label>
+                                        <input
+                                            type="time"
+                                            value={settingsForm.jam_batas_terlambat}
+                                            onChange={(e) => setSettingsForm({ ...settingsForm, jam_batas_terlambat: e.target.value })}
+                                            required
+                                            className="w-full rounded-xl border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                                            Jika Lembur, Keterlambatan (Jam)
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max="12"
+                                                value={settingsForm.toleransi_terlambat_lembur_jam}
+                                                onChange={(e) => setSettingsForm({ ...settingsForm, toleransi_terlambat_lembur_jam: parseInt(e.target.value || '0', 10) })}
+                                                required
+                                                className="w-full rounded-xl border-gray-300 text-sm pr-12 focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500">
+                                                Jam
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-800">
+                                    Maksimal keterlambatan <b>{settingsForm.toleransi_terlambat_lembur_jam} jam</b> di hari esoknya bagi karyawan yang lembur mulai jam <b>{settingsForm.jam_mulai_lembur_weekday}</b> sampai selesai (dan lemburnya sudah Ter-ACC).
+                                </div>
+
+                                <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSettingsModal(false)}
+                                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition-colors"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={savingSettings}
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+                                    >
+                                        <Save className="w-4 h-4" />
+                                        {savingSettings ? 'Menyimpan...' : 'Simpan'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
 
             </div>
         </AuthenticatedLayout>

@@ -72,6 +72,21 @@ class AttendanceRecapController extends Controller
         $user = Auth::user();
         $isAdmin = $user ? $user->isAdminUser() : false;
 
+        PayrollController::ensurePayrollTablesStatic();
+        $payrollSettings = PayrollController::getPayrollSettings();
+
+        $jamPulangOtomatis = substr($payrollSettings['jam_pulang_otomatis'] ?? '17:00', 0, 5) . ':00';
+        $jamMulaiWeekday = substr($payrollSettings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
+        $jamMulaiSabtu = substr($payrollSettings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
+        $jamBatasTerlambat = substr($payrollSettings['jam_batas_terlambat'] ?? '08:15', 0, 5);
+        $toleransiLemburJam = (int)($payrollSettings['toleransi_terlambat_lembur_jam'] ?? 1);
+        $normalLateThreshold = $jamBatasTerlambat . ':00';
+        $overtimeLateThreshold = Carbon::createFromFormat('H:i', $jamBatasTerlambat)
+            ->addHours($toleransiLemburJam)
+            ->format('H:i:s');
+        $startWeekdayHour = (int)substr($jamMulaiWeekday, 0, 2);
+        $startSabtuHour = (int)substr($jamMulaiSabtu, 0, 2);
+
         // Default filters
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
@@ -82,11 +97,32 @@ class AttendanceRecapController extends Controller
         $userWorkDays = [];
         $userIsSatpam = [];
         $userNameMap = [];
+        $userTanpaKeterlambatan = [];
+        $userTanpaLembur = [];
         foreach ($allUsers as $u) {
             $userWorkDays[$u->id] = $u->work_days_per_week ?? 6;
             $userIsSatpam[$u->id] = $u->isSatpam();
             $userNameMap[$u->id] = $u->name;
+            $userTanpaKeterlambatan[$u->id] = (bool)($u->tanpa_keterlambatan ?? false);
+            $userTanpaLembur[$u->id] = (bool)($u->tanpa_lembur ?? false);
         }
+
+        // Auto-checkout past uncompleted non-Satpam attendances using configurable jam_pulang_otomatis
+        try {
+            $pastUnchecked = Attendance::where('date', '<', Carbon::today()->format('Y-m-d'))
+                ->whereNotNull('check_in_time')
+                ->whereNull('check_out_time')
+                ->get();
+            foreach ($pastUnchecked as $pu) {
+                if (empty($userIsSatpam[$pu->user_id])) {
+                    $pu->check_out_time = $jamPulangOtomatis;
+                    if (empty($pu->check_out_notes)) {
+                        $pu->check_out_notes = 'Otomatis keluar oleh sistem';
+                    }
+                    $pu->save();
+                }
+            }
+        } catch (\Throwable $e) {}
 
         // Fetch users for dropdown filter (available to everyone)
         $users = $allUsers->where('is_active', true)->sortBy('name')->values()->map(function($u) {
@@ -96,7 +132,8 @@ class AttendanceRecapController extends Controller
         // Build Queries
         $attendancesQuery = Attendance::with('user')
             ->whereMonth('date', $month)
-            ->whereYear('date', $year);
+            ->whereYear('date', $year)
+            ->orderBy('date', 'asc');
             
         $requestsQuery = AttendanceRequest::with('user')
             ->where(function ($q) use ($month, $year) {
@@ -120,7 +157,9 @@ class AttendanceRecapController extends Controller
             'sakit' => 0,
             'izin' => 0,
             'alpa' => 0,
-            'lembur' => $attendances->where('status', 'Lembur')->count(),
+            'lembur' => $attendances->filter(function ($a) use ($userTanpaLembur) {
+                return $a->status === 'Lembur' && empty($userTanpaLembur[$a->user_id]) && $a->overtime_status !== 'Ditolak';
+            })->count(),
             'terlambat' => 0
         ];
 
@@ -134,7 +173,9 @@ class AttendanceRecapController extends Controller
                 if (strtolower($req->type) === 'sakit') {
                     $summary['sakit'] += $days;
                 } elseif (strtolower($req->type) === 'lembur') {
-                    $summary['lembur'] += $days;
+                    if (empty($userTanpaLembur[$req->user_id])) {
+                        $summary['lembur'] += $days;
+                    }
                 } else {
                     $summary['izin'] += $days;
                 }
@@ -163,20 +204,28 @@ class AttendanceRecapController extends Controller
             ];
         }
 
-        // Build Lembur Map
+        // Build Lembur Map (Hanya lembur yang sudah Disetujui / Ter-ACC)
         $lemburMap = [];
         $startLimit = Carbon::create($year, $month, 1)->subDays(7);
         
-        $lemburAttendances = Attendance::where('status', 'Lembur')
+        $lemburAttendances = Attendance::where(function ($q) {
+                $q->where('status', 'Lembur')
+                  ->orWhere('overtime_status', 'Disetujui');
+            })
             ->where('date', '>=', $startLimit->format('Y-m-d'))->get();
         foreach ($lemburAttendances as $la) {
-            $lemburMap[$la->user_id][substr($la->date, 0, 10)] = true;
+            if (empty($userTanpaLembur[$la->user_id]) && $la->overtime_status !== 'Ditolak') {
+                $lemburMap[$la->user_id][substr($la->date, 0, 10)] = true;
+            }
         }
 
         $lemburRequests = AttendanceRequest::where('status', '!=', 'Ditolak')
             ->whereRaw('LOWER(type) = ?', ['lembur'])
             ->where('end_date', '>=', $startLimit->format('Y-m-d'))->get();
         foreach ($lemburRequests as $lr) {
+            if (!empty($userTanpaLembur[$lr->user_id])) {
+                continue;
+            }
             $st = Carbon::parse($lr->start_date);
             $en = Carbon::parse($lr->end_date);
             while ($st->lte($en)) {
@@ -188,6 +237,8 @@ class AttendanceRecapController extends Controller
         foreach ($attendances as $att) {
             $attUser = $att->user;
             $isUserSatpam = $userIsSatpam[$att->user_id] ?? ($attUser ? $attUser->isSatpam() : false);
+            $isUserTanpaTerlambat = $userTanpaKeterlambatan[$att->user_id] ?? false;
+            $isUserTanpaLembur = $userTanpaLembur[$att->user_id] ?? false;
             $userName = $userNameMap[$att->user_id] ?? ($attUser?->name ?? 'Unknown');
 
             if (!isset($userSummaries[$att->user_id])) {
@@ -202,7 +253,7 @@ class AttendanceRecapController extends Controller
             if ($att->status == 'Hadir') {
                 $userSummaries[$att->user_id]['hadir']++;
                 
-                // Calculate Shift / Terlambat (Khusus SATPAM: TIDAK berlaku jam terlambat)
+                // Calculate Shift / Terlambat (Khusus SATPAM atau saklar Tanpa Keterlambatan: TIDAK berlaku jam terlambat)
                 if ($isUserSatpam) {
                     $att->is_late = false;
                     $shiftName = $att->shift;
@@ -215,10 +266,12 @@ class AttendanceRecapController extends Controller
                     } else {
                         $userSummaries[$att->user_id]['shift_malam']++;
                     }
+                } elseif ($isUserTanpaTerlambat) {
+                    $att->is_late = false;
                 } else {
                     $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
                     $isLemburYesterday = !empty($lemburMap[$att->user_id][$prevDate]);
-                    $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
+                    $threshold = $isLemburYesterday ? $overtimeLateThreshold : $normalLateThreshold;
                     
                     $att->is_late = $att->check_in_time > $threshold;
                     if ($att->is_late) {
@@ -227,33 +280,31 @@ class AttendanceRecapController extends Controller
                     }
                 }
 
-                // Calculate Lembur (Khusus SATPAM: TIDAK berlaku jam lembur)
-                // Untuk karyawan yang masuk 6 hari dengan hari Sabtu: jam kerja Sabtu hanya sampai jam 14:00 WITA. Jika checkout >= 14:00:00 dan mengisi keterangan, terhitung lembur.
-                // Untuk hari biasa (Senin-Jumat): checkout >= 20:00:00 dan mengisi keterangan, terhitung lembur.
-                if (!$isUserSatpam) {
+                // Calculate Lembur (Hanya dihitung jika tidak saklar tanpa_lembur & status lembur Disetujui / Ter-ACC)
+                if (!$isUserSatpam && !$isUserTanpaLembur) {
                     $attDate = Carbon::parse(substr($att->date, 0, 10));
                     $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
                     $workDays = $userWorkDays[$att->user_id] ?? 6;
-                    $overtimeThreshold = ($isSaturday && $workDays == 6) ? '14:00:00' : '20:00:00';
+                    $overtimeThreshold = ($isSaturday && $workDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
-                    $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || !empty(trim($att->notes ?? ''));
-                    if ($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes) {
+                    $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || (!empty(trim($att->notes ?? '')) && !str_starts_with($att->notes, 'Masuk:'));
+                    if ($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes && $att->overtime_status === 'Disetujui') {
                         $userSummaries[$att->user_id]['lembur']++;
                         $summary['lembur']++;
                         $lemburMap[$att->user_id][substr($att->date, 0, 10)] = true;
                         $isCross = ($att->check_in_time && $att->check_out_time && $att->check_out_time < $att->check_in_time);
                         $coHour = ($isCross || $att->check_out_time >= '23:55:00') ? 24 : (int)substr($att->check_out_time, 0, 2);
                         if ($isSaturday) {
-                            $userSummaries[$att->user_id]['lembur_sabtu'] = ($userSummaries[$att->user_id]['lembur_sabtu'] ?? 0) + max(1, min(10, $coHour - 14));
+                            $userSummaries[$att->user_id]['lembur_sabtu'] = ($userSummaries[$att->user_id]['lembur_sabtu'] ?? 0) + max(1, min(24 - $startSabtuHour, $coHour - $startSabtuHour));
                         } else {
                             $userSummaries[$att->user_id]['lembur_weekday_pertama'] = ($userSummaries[$att->user_id]['lembur_weekday_pertama'] ?? 0) + 1;
-                            $userSummaries[$att->user_id]['lembur_weekday_berikutnya'] = ($userSummaries[$att->user_id]['lembur_weekday_berikutnya'] ?? 0) + max(0, min(4, $coHour - 20));
+                            $userSummaries[$att->user_id]['lembur_weekday_berikutnya'] = ($userSummaries[$att->user_id]['lembur_weekday_berikutnya'] ?? 0) + max(0, min(24 - $startWeekdayHour, $coHour - $startWeekdayHour));
                         }
                     }
                 }
 
             } elseif ($att->status == 'Lembur') {
-                if (!$isUserSatpam) {
+                if (!$isUserSatpam && !$isUserTanpaLembur && $att->overtime_status !== 'Ditolak') {
                     $userSummaries[$att->user_id]['lembur']++;
                     $lemburMap[$att->user_id][substr($att->date, 0, 10)] = true;
                 }
@@ -278,7 +329,9 @@ class AttendanceRecapController extends Controller
                 if (strtolower($req->type) === 'sakit') {
                     $userSummaries[$req->user_id]['sakit'] += $days;
                 } elseif (strtolower($req->type) === 'lembur') {
-                    $userSummaries[$req->user_id]['lembur'] += $days;
+                    if (empty($userTanpaLembur[$req->user_id])) {
+                        $userSummaries[$req->user_id]['lembur'] += $days;
+                    }
                 } else {
                     $userSummaries[$req->user_id]['izin'] += $days;
                 }
@@ -357,15 +410,20 @@ class AttendanceRecapController extends Controller
                 $checkOutNotes = $att->notes;
             }
 
+            $isUserTanpaTerlambat = $userTanpaKeterlambatan[$att->user_id] ?? false;
+            $isUserTanpaLembur = $userTanpaLembur[$att->user_id] ?? false;
+
             $attDate = Carbon::parse(substr($att->date, 0, 10));
             $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
             $workDays = $userWorkDays[$att->user_id] ?? 6;
-            $overtimeThreshold = ($isSaturday && $workDays == 6) ? '14:00:00' : '20:00:00';
+            $overtimeThreshold = ($isSaturday && $workDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
             $hasOvertimeNotes = !empty(trim($checkOutNotes ?? '')) || (!empty(trim($att->notes ?? '')) && !str_starts_with($att->notes, 'Masuk:'));
-            $isLembur = (!$isUserSatpam && ((($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes)) || $att->status === 'Lembur'));
+            $isLembur = (!$isUserSatpam && !$isUserTanpaLembur && ((($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes)) || $att->status === 'Lembur'));
+            $overtimeStatus = $isLembur ? ($att->overtime_status ?: ($att->status === 'Lembur' ? 'Disetujui' : 'Menunggu')) : null;
 
             $recapList[] = [
                 'id' => 'att_' . $att->id,
+                'raw_id' => $att->id,
                 'user_id' => $att->user_id,
                 'user_name' => $userName,
                 'is_satpam' => $isUserSatpam,
@@ -376,8 +434,9 @@ class AttendanceRecapController extends Controller
                 'check_out' => $att->check_out_time,
                 'check_in_photo' => $att->check_in_photo ? (str_starts_with($att->check_in_photo, 'http') ? $att->check_in_photo : asset('storage/' . $att->check_in_photo)) : null,
                 'check_out_photo' => $att->check_out_photo ? (str_starts_with($att->check_out_photo, 'http') ? $att->check_out_photo : asset('storage/' . $att->check_out_photo)) : null,
-                'is_late' => (!$isUserSatpam && ($att->is_late ?? false)),
+                'is_late' => (!$isUserSatpam && !$isUserTanpaTerlambat && ($att->is_late ?? false)),
                 'is_lembur' => $isLembur,
+                'overtime_status' => $overtimeStatus,
                 'is_saturday' => $isSaturday,
                 'overtime_threshold' => $overtimeThreshold,
                 'is_cross_day' => $isCrossDay,
@@ -394,6 +453,7 @@ class AttendanceRecapController extends Controller
 
             $recapList[] = [
                 'id' => 'req_' . $req->id,
+                'raw_id' => $req->id,
                 'user_id' => $req->user_id,
                 'user_name' => $userName,
                 'is_satpam' => $isReqUserSatpam,
@@ -407,8 +467,9 @@ class AttendanceRecapController extends Controller
                 'attachment' => $req->attachment ? (str_starts_with($req->attachment, 'http') ? $req->attachment : asset('storage/' . $req->attachment)) : null,
                 'is_late' => false,
                 'is_lembur' => false,
+                'overtime_status' => null,
                 'is_saturday' => false,
-                'overtime_threshold' => '20:00:00',
+                'overtime_threshold' => $jamMulaiWeekday,
                 'is_cross_day' => false,
                 'status' => $req->status,
                 'notes' => $req->reason,
@@ -470,6 +531,7 @@ class AttendanceRecapController extends Controller
                     if (!isset($attendanceMap[$usr->id][$dateStr]) && !isset($requestMap[$usr->id][$dateStr])) {
                         $recapList[] = [
                             'id' => 'alpa_' . $usr->id . '_' . $dateStr,
+                            'raw_id' => null,
                             'user_id' => $usr->id,
                             'user_name' => $usr->name,
                             'is_satpam' => false,
@@ -482,8 +544,9 @@ class AttendanceRecapController extends Controller
                             'check_out_photo' => null,
                             'is_late' => false,
                             'is_lembur' => false,
+                            'overtime_status' => null,
                             'is_saturday' => $isSaturday,
-                            'overtime_threshold' => '20:00:00',
+                            'overtime_threshold' => $jamMulaiWeekday,
                             'is_cross_day' => false,
                             'status' => 'Selesai',
                             'notes' => null,
@@ -525,7 +588,9 @@ class AttendanceRecapController extends Controller
             'sakit' => 0,
             'izin' => 0,
             'alpa' => 0,
-            'lembur' => $todayAttendances->where('status', 'Lembur')->count(),
+            'lembur' => $todayAttendances->filter(function ($a) use ($userTanpaLembur) {
+                return $a->status === 'Lembur' && empty($userTanpaLembur[$a->user_id]) && $a->overtime_status !== 'Ditolak';
+            })->count(),
             'terlambat' => 0,
             'satpam_hadir' => 0,
             'shift_siang' => 0,
@@ -536,7 +601,9 @@ class AttendanceRecapController extends Controller
             if (strtolower($req->type) === 'sakit') {
                 $summary['sakit']++;
             } elseif (strtolower($req->type) === 'lembur') {
-                $summary['lembur']++;
+                if (empty($userTanpaLembur[$req->user_id])) {
+                    $summary['lembur']++;
+                }
             } else {
                 $summary['izin']++;
             }
@@ -544,6 +611,8 @@ class AttendanceRecapController extends Controller
 
         foreach ($todayAttendances as $att) {
             $isUserSatpam = $userIsSatpam[$att->user_id] ?? false;
+            $isUserTanpaTerlambat = $userTanpaKeterlambatan[$att->user_id] ?? false;
+            $isUserTanpaLembur = $userTanpaLembur[$att->user_id] ?? false;
 
             if ($att->status == 'Hadir') {
                 if ($isUserSatpam) {
@@ -559,24 +628,28 @@ class AttendanceRecapController extends Controller
                         $summary['shift_malam']++;
                     }
                 } else {
-                    $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay();
-                    $prevDateStr = $prevDate->format('Y-m-d');
-                    
-                    $isLemburYesterday = !empty($lemburMap[$att->user_id][$prevDateStr]);
-                    $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
-                    
-                    if ($att->check_in_time > $threshold) {
-                        $summary['terlambat']++;
+                    if (!$isUserTanpaTerlambat) {
+                        $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay();
+                        $prevDateStr = $prevDate->format('Y-m-d');
+                        
+                        $isLemburYesterday = !empty($lemburMap[$att->user_id][$prevDateStr]);
+                        $threshold = $isLemburYesterday ? $overtimeLateThreshold : $normalLateThreshold;
+                        
+                        if ($att->check_in_time > $threshold) {
+                            $summary['terlambat']++;
+                        }
                     }
 
-                    $attDate = Carbon::parse(substr($att->date, 0, 10));
-                    $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
-                    $workDays = $userWorkDays[$att->user_id] ?? 6;
-                    $overtimeThreshold = ($isSaturday && $workDays == 6) ? '14:00:00' : '20:00:00';
+                    if (!$isUserTanpaLembur) {
+                        $attDate = Carbon::parse(substr($att->date, 0, 10));
+                        $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
+                        $workDays = $userWorkDays[$att->user_id] ?? 6;
+                        $overtimeThreshold = ($isSaturday && $workDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
-                    $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || !empty(trim($att->notes ?? ''));
-                    if ((($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes)) || $att->status === 'Lembur') {
-                        $summary['lembur']++;
+                        $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || !empty(trim($att->notes ?? ''));
+                        if ($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes && $att->overtime_status === 'Disetujui') {
+                            $summary['lembur']++;
+                        }
                     }
                 }
             }

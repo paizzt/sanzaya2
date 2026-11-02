@@ -67,7 +67,49 @@ class PayrollController extends Controller
                     $table->decimal('tarif_lembur_weekday_pertama', 15, 2)->default(30000);
                     $table->decimal('tarif_lembur_weekday_berikutnya', 15, 2)->default(20000);
                     $table->decimal('tarif_lembur_sabtu', 15, 2)->default(20000);
+                    $table->string('jam_pulang_otomatis', 10)->default('17:00');
+                    $table->string('jam_mulai_lembur_weekday', 10)->default('20:00');
+                    $table->string('jam_mulai_lembur_sabtu', 10)->default('14:00');
+                    $table->string('jam_batas_terlambat', 10)->default('08:15');
+                    $table->decimal('toleransi_terlambat_lembur_jam', 5, 2)->default(1);
                     $table->timestamps();
+                });
+            } else {
+                Schema::table('payroll_settings', function ($table) {
+                    if (!Schema::hasColumn('payroll_settings', 'jam_pulang_otomatis')) {
+                        $table->string('jam_pulang_otomatis', 10)->default('17:00')->after('tarif_lembur_sabtu');
+                    }
+                    if (!Schema::hasColumn('payroll_settings', 'jam_mulai_lembur_weekday')) {
+                        $table->string('jam_mulai_lembur_weekday', 10)->default('20:00')->after('jam_pulang_otomatis');
+                    }
+                    if (!Schema::hasColumn('payroll_settings', 'jam_mulai_lembur_sabtu')) {
+                        $table->string('jam_mulai_lembur_sabtu', 10)->default('14:00')->after('jam_mulai_lembur_weekday');
+                    }
+                    if (!Schema::hasColumn('payroll_settings', 'jam_batas_terlambat')) {
+                        $table->string('jam_batas_terlambat', 10)->default('08:15')->after('jam_mulai_lembur_sabtu');
+                    }
+                    if (!Schema::hasColumn('payroll_settings', 'toleransi_terlambat_lembur_jam')) {
+                        $table->decimal('toleransi_terlambat_lembur_jam', 5, 2)->default(1)->after('jam_batas_terlambat');
+                    }
+                });
+            }
+
+            if (Schema::hasTable('users')) {
+                Schema::table('users', function ($table) {
+                    if (!Schema::hasColumn('users', 'tanpa_keterlambatan')) {
+                        $table->boolean('tanpa_keterlambatan')->default(false);
+                    }
+                    if (!Schema::hasColumn('users', 'tanpa_lembur')) {
+                        $table->boolean('tanpa_lembur')->default(false);
+                    }
+                });
+            }
+
+            if (Schema::hasTable('attendances')) {
+                Schema::table('attendances', function ($table) {
+                    if (!Schema::hasColumn('attendances', 'overtime_status')) {
+                        $table->string('overtime_status', 30)->nullable()->after('status');
+                    }
                 });
             }
         } catch (\Throwable $e) {}
@@ -93,6 +135,11 @@ class PayrollController extends Controller
             'tarif_lembur_weekday_pertama' => 30000.0,
             'tarif_lembur_weekday_berikutnya' => 20000.0,
             'tarif_lembur_sabtu' => 20000.0,
+            'jam_pulang_otomatis' => '17:00',
+            'jam_mulai_lembur_weekday' => '20:00',
+            'jam_mulai_lembur_sabtu' => '14:00',
+            'jam_batas_terlambat' => '08:15',
+            'toleransi_terlambat_lembur_jam' => 1.0,
         ];
 
         try {
@@ -111,6 +158,11 @@ class PayrollController extends Controller
                     'tarif_lembur_weekday_pertama' => (float)($row->tarif_lembur_weekday_pertama ?? 30000),
                     'tarif_lembur_weekday_berikutnya' => (float)($row->tarif_lembur_weekday_berikutnya ?? 20000),
                     'tarif_lembur_sabtu' => (float)($row->tarif_lembur_sabtu ?? 20000),
+                    'jam_pulang_otomatis' => substr((string)($row->jam_pulang_otomatis ?? '17:00'), 0, 5),
+                    'jam_mulai_lembur_weekday' => substr((string)($row->jam_mulai_lembur_weekday ?? '20:00'), 0, 5),
+                    'jam_mulai_lembur_sabtu' => substr((string)($row->jam_mulai_lembur_sabtu ?? '14:00'), 0, 5),
+                    'jam_batas_terlambat' => substr((string)($row->jam_batas_terlambat ?? '08:15'), 0, 5),
+                    'toleransi_terlambat_lembur_jam' => (float)($row->toleransi_terlambat_lembur_jam ?? 1),
                 ];
             }
         } catch (\Throwable $e) {}
@@ -129,7 +181,19 @@ class PayrollController extends Controller
         $tarifWeekdayBerikutnya = isset($customRates['tarif_lembur_weekday_berikutnya']) ? (float)$customRates['tarif_lembur_weekday_berikutnya'] : $settings['tarif_lembur_weekday_berikutnya'];
         $tarifSabtu = isset($customRates['tarif_lembur_sabtu']) ? (float)$customRates['tarif_lembur_sabtu'] : $settings['tarif_lembur_sabtu'];
 
+        $jamMulaiWeekday = substr($settings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
+        $jamMulaiSabtu = substr($settings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
+        $hourMulaiWeekday = (int)substr($jamMulaiWeekday, 0, 2);
+        $hourMulaiSabtu = (int)substr($jamMulaiSabtu, 0, 2);
+
+        $baseLateCarbon = Carbon::createFromFormat('H:i', substr($settings['jam_batas_terlambat'] ?? '08:15', 0, 5));
+        $toleransiJam = (float)($settings['toleransi_terlambat_lembur_jam'] ?? 1);
+        $normalLateThreshold = $baseLateCarbon->format('H:i') . ':00';
+        $overtimeLateThreshold = $baseLateCarbon->copy()->addMinutes((int)round($toleransiJam * 60))->format('H:i:s');
+
         $isSatpam = $user->isSatpam();
+        $tanpaKeterlambatan = (bool)($user->tanpa_keterlambatan ?? false);
+        $tanpaLembur = (bool)($user->tanpa_lembur ?? false);
         $workDays = $user->work_days_per_week ?? 6;
 
         $attendances = Attendance::where('user_id', $user->id)
@@ -149,29 +213,33 @@ class PayrollController extends Controller
             })
             ->get();
 
-        // Build lemburMap starting 7 days prior to month start (for yesterday lembur check -> 09:00 threshold)
+        // Build lemburMap starting 7 days prior to month start (for yesterday lembur check)
         $lemburMap = [];
         $startLimit = Carbon::create($year, $month, 1)->subDays(7);
 
-        $lemburAttendances = Attendance::where('user_id', $user->id)
-            ->where('status', 'Lembur')
-            ->where('date', '>=', $startLimit->format('Y-m-d'))
-            ->get();
-        foreach ($lemburAttendances as $la) {
-            $lemburMap[substr($la->date, 0, 10)] = true;
-        }
+        if (!$tanpaLembur) {
+            $lemburAttendances = Attendance::where('user_id', $user->id)
+                ->where(function ($q) {
+                    $q->where('status', 'Lembur')->orWhere('overtime_status', 'Disetujui');
+                })
+                ->where('date', '>=', $startLimit->format('Y-m-d'))
+                ->get();
+            foreach ($lemburAttendances as $la) {
+                $lemburMap[substr($la->date, 0, 10)] = true;
+            }
 
-        $lemburRequests = AttendanceRequest::where('user_id', $user->id)
-            ->where('status', '!=', 'Ditolak')
-            ->whereRaw('LOWER(type) = ?', ['lembur'])
-            ->where('end_date', '>=', $startLimit->format('Y-m-d'))
-            ->get();
-        foreach ($lemburRequests as $lr) {
-            $st = Carbon::parse($lr->start_date);
-            $en = Carbon::parse($lr->end_date);
-            while ($st->lte($en)) {
-                $lemburMap[$st->format('Y-m-d')] = true;
-                $st->addDay();
+            $lemburRequests = AttendanceRequest::where('user_id', $user->id)
+                ->where('status', '!=', 'Ditolak')
+                ->whereRaw('LOWER(type) = ?', ['lembur'])
+                ->where('end_date', '>=', $startLimit->format('Y-m-d'))
+                ->get();
+            foreach ($lemburRequests as $lr) {
+                $st = Carbon::parse($lr->start_date);
+                $en = Carbon::parse($lr->end_date);
+                while ($st->lte($en)) {
+                    $lemburMap[$st->format('Y-m-d')] = true;
+                    $st->addDay();
+                }
             }
         }
 
@@ -212,11 +280,11 @@ class PayrollController extends Controller
             if ($att->status === 'Hadir') {
                 $hadir++;
 
-                if (!$isSatpam) {
+                if (!$isSatpam && !$tanpaKeterlambatan) {
                     // 1. Check Keterlambatan
                     $prevDateStr = $attDate->copy()->subDay()->format('Y-m-d');
                     $isLemburYesterday = !empty($lemburMap[$prevDateStr]);
-                    $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
+                    $threshold = $isLemburYesterday ? $overtimeLateThreshold : $normalLateThreshold;
 
                     if ($att->check_in_time && $att->check_in_time > $threshold) {
                         $terlambat++;
@@ -229,11 +297,12 @@ class PayrollController extends Controller
                 }
             }
 
-            // 2. Check Lembur
-            if (!$isSatpam) {
-                $overtimeThreshold = ($isSaturday && $workDays == 6) ? '14:00:00' : '20:00:00';
+            // 2. Check Lembur (hanya dihitung jika overtime_status === 'Disetujui' atau status === 'Lembur')
+            if (!$isSatpam && !$tanpaLembur) {
+                $overtimeThreshold = ($isSaturday && $workDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
                 $hasOvertimeNotes = !empty(trim($checkOutNotes ?? '')) || (!empty(trim($att->notes ?? '')) && !str_starts_with($att->notes, 'Masuk:'));
-                $isLembur = (($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes) || $att->status === 'Lembur');
+                $isApprovedOvertime = ($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes && $att->overtime_status === 'Disetujui');
+                $isLembur = ($isApprovedOvertime || ($att->status === 'Lembur' && $att->overtime_status !== 'Ditolak'));
 
                 if ($isLembur) {
                     $lemburMap[$dateStr] = true;
@@ -241,7 +310,7 @@ class PayrollController extends Controller
                     $lemburHari++;
 
                     // Determine checkout hour (up to 24:00 / 12:00 malam)
-                    $checkOutHour = 20;
+                    $checkOutHour = $hourMulaiWeekday;
                     if ($att->check_out_time) {
                         $isCrossDay = ($att->check_in_time && $att->check_out_time < $att->check_in_time);
                         if ($isCrossDay || $att->check_out_time >= '23:55:00') {
@@ -250,17 +319,17 @@ class PayrollController extends Controller
                             $checkOutHour = (int)substr($att->check_out_time, 0, 2);
                         }
                     } else {
-                        $checkOutHour = $isSaturday ? 15 : 20;
+                        $checkOutHour = $isSaturday ? ($hourMulaiSabtu + 1) : $hourMulaiWeekday;
                     }
 
                     if ($isSaturday) {
-                        // Sabtu: dihitung mulai jam 14:00 (jam 2 siang) = 20rb / jam
-                        $satHours = max(1, min(10, $checkOutHour - 14));
+                        // Sabtu: dihitung mulai jam mulai lembur Sabtu
+                        $satHours = max(1, min(24 - $hourMulaiSabtu, $checkOutHour - $hourMulaiSabtu));
                         $jumlahJamSabtu += $satHours;
                         $overtimeDetails[] = [
                             'date' => $dateStr,
-                            'day_type' => 'Sabtu (Mulai 14:00)',
-                            'check_out' => $att->check_out_time ? substr($att->check_out_time, 0, 5) : '15:00',
+                            'day_type' => 'Sabtu (Mulai ' . substr($jamMulaiSabtu, 0, 5) . ')',
+                            'check_out' => $att->check_out_time ? substr($att->check_out_time, 0, 5) : substr($jamMulaiSabtu, 0, 5),
                             'jam_pertama' => 0,
                             'jam_berikutnya' => 0,
                             'jam_sabtu' => $satHours,
@@ -268,14 +337,14 @@ class PayrollController extends Controller
                             'notes' => $checkOutNotes ?: ($att->notes ?? '-'),
                         ];
                     } else {
-                        // Senin - Jumat: jam 20:00 pertama (30rb) + 1 jam berikutnya (20rb/jam s/d jam 12:00 malam / 24:00)
-                        $extraHours = max(0, min(4, $checkOutHour - 20));
+                        // Senin - Jumat: jam pertama + jam berikutnya s/d jam 24:00
+                        $extraHours = max(0, min(max(0, 24 - $hourMulaiWeekday), $checkOutHour - $hourMulaiWeekday));
                         $jumlahWeekdayPertama += 1;
                         $jumlahJamWeekdayBerikutnya += $extraHours;
                         $overtimeDetails[] = [
                             'date' => $dateStr,
                             'day_type' => 'Senin-Jumat',
-                            'check_out' => $att->check_out_time ? ($att->check_out_time >= '23:55:00' ? '24:00' : substr($att->check_out_time, 0, 5)) : '20:00',
+                            'check_out' => $att->check_out_time ? ($att->check_out_time >= '23:55:00' ? '24:00' : substr($att->check_out_time, 0, 5)) : substr($jamMulaiWeekday, 0, 5),
                             'jam_pertama' => 1,
                             'jam_berikutnya' => $extraHours,
                             'jam_sabtu' => 0,
@@ -297,7 +366,7 @@ class PayrollController extends Controller
             if ($typeLower === 'sakit') {
                 $sakit += $days;
             } elseif ($typeLower === 'lembur') {
-                if (!$isSatpam) {
+                if (!$isSatpam && !$tanpaLembur) {
                     $cur = $start->copy();
                     while ($cur->lte($end)) {
                         $dStr = $cur->format('Y-m-d');
