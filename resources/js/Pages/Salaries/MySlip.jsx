@@ -337,7 +337,10 @@ export default function MySlip({ auth, slips = [], year, user }) {
                                         <div className="flex justify-between"><span>Iuran BPJS TK ({previewSlip.bpjs_ketenagakerjaan_persen}%):</span><strong className="text-red-600">{formatRp(previewSlip.bpjs_ketenagakerjaan)}</strong></div>
                                         <div className="flex justify-between"><span>Pajak (PPh 21):</span><strong className="text-red-600">{formatRp(previewSlip.pajak)}</strong></div>
                                         <div className="flex justify-between"><span>Piutang / Pinjaman:</span><strong className="text-red-600">{formatRp(previewSlip.piutang)}</strong></div>
-                                        <div className="flex justify-between"><span>Potongan Absen:</span><strong className="text-red-600">{formatRp(previewSlip.potongan_absen)}</strong></div>
+                                        <div className="flex justify-between">
+                                            <span>Pot. Terlambat / Operasional ({previewSlip.jumlah_terlambat || 0}x):</span>
+                                            <strong className="text-red-600">{formatRp(previewSlip.potongan_absen)}</strong>
+                                        </div>
                                         <div className="flex justify-between"><span>Potongan Lainnya:</span><strong className="text-red-600">{formatRp(previewSlip.potongan_lainnya)}</strong></div>
                                         <div className="flex justify-between border-t border-gray-200 pt-1.5 font-bold text-red-600">
                                             <span>Total Potongan:</span>

@@ -310,7 +310,7 @@
                             <td class="text-right">{{ number_format($payroll->piutang, 0, ',', '.') }}</td>
                         </tr>
                         <tr>
-                            <td>Potongan Absen</td>
+                            <td>Potongan Terlambat / Operasional ({{ $payroll->jumlah_terlambat ?? 0 }}x)</td>
                             <td class="text-right">{{ number_format($payroll->potongan_absen, 0, ',', '.') }}</td>
                         </tr>
                         <tr>

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Company;
 use App\Models\Division;
 use App\Models\Attendance;
+use App\Models\AttendanceRequest;
 use App\Models\FeatureToggle;
 use App\Exports\GenericExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -16,24 +17,492 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PayrollController extends Controller
 {
     /**
-     * Ensure database table and feature toggles exist (self-healing for shared hosting)
+     * Ensure database table, custom columns, settings table, and feature toggles exist (self-healing for shared hosting)
      */
-    protected function ensureTableAndFeatures(): void
+    public static function ensurePayrollTablesStatic(): void
     {
         try {
             if (!Schema::hasTable('payrolls')) {
                 Artisan::call('migrate', ['--force' => true]);
             }
+
+            if (Schema::hasTable('payrolls')) {
+                Schema::table('payrolls', function ($table) {
+                    if (!Schema::hasColumn('payrolls', 'jumlah_terlambat')) {
+                        $table->integer('jumlah_terlambat')->default(0)->after('potongan_absen');
+                    }
+                    if (!Schema::hasColumn('payrolls', 'tarif_potongan_terlambat')) {
+                        $table->decimal('tarif_potongan_terlambat', 15, 2)->default(20000)->after('jumlah_terlambat');
+                    }
+                    if (!Schema::hasColumn('payrolls', 'jumlah_lembur_weekday_pertama')) {
+                        $table->integer('jumlah_lembur_weekday_pertama')->default(0)->after('lembur');
+                    }
+                    if (!Schema::hasColumn('payrolls', 'tarif_lembur_weekday_pertama')) {
+                        $table->decimal('tarif_lembur_weekday_pertama', 15, 2)->default(30000)->after('jumlah_lembur_weekday_pertama');
+                    }
+                    if (!Schema::hasColumn('payrolls', 'jumlah_jam_lembur_weekday_berikutnya')) {
+                        $table->integer('jumlah_jam_lembur_weekday_berikutnya')->default(0)->after('tarif_lembur_weekday_pertama');
+                    }
+                    if (!Schema::hasColumn('payrolls', 'tarif_lembur_weekday_berikutnya')) {
+                        $table->decimal('tarif_lembur_weekday_berikutnya', 15, 2)->default(20000)->after('jumlah_jam_lembur_weekday_berikutnya');
+                    }
+                    if (!Schema::hasColumn('payrolls', 'jumlah_jam_lembur_sabtu')) {
+                        $table->integer('jumlah_jam_lembur_sabtu')->default(0)->after('tarif_lembur_weekday_berikutnya');
+                    }
+                    if (!Schema::hasColumn('payrolls', 'tarif_lembur_sabtu')) {
+                        $table->decimal('tarif_lembur_sabtu', 15, 2)->default(20000)->after('jumlah_jam_lembur_sabtu');
+                    }
+                });
+            }
+
+            if (!Schema::hasTable('payroll_settings')) {
+                Schema::create('payroll_settings', function ($table) {
+                    $table->id();
+                    $table->decimal('tarif_potongan_terlambat', 15, 2)->default(20000);
+                    $table->decimal('tarif_lembur_weekday_pertama', 15, 2)->default(30000);
+                    $table->decimal('tarif_lembur_weekday_berikutnya', 15, 2)->default(20000);
+                    $table->decimal('tarif_lembur_sabtu', 15, 2)->default(20000);
+                    $table->timestamps();
+                });
+            }
         } catch (\Throwable $e) {}
+    }
+
+    protected function ensureTableAndFeatures(): void
+    {
+        self::ensurePayrollTablesStatic();
 
         try {
             FeatureToggle::firstOrCreate(['name' => 'Manajemen Gaji'], ['is_active' => true, 'disabled_for_users' => json_encode([])]);
             FeatureToggle::firstOrCreate(['name' => 'Slip Gaji'], ['is_active' => true, 'disabled_for_users' => json_encode([])]);
         } catch (\Throwable $e) {}
+    }
+
+    /**
+     * Get global payroll settings (default rates for late deduction and overtime)
+     */
+    public static function getPayrollSettings(): array
+    {
+        $defaults = [
+            'tarif_potongan_terlambat' => 20000.0,
+            'tarif_lembur_weekday_pertama' => 30000.0,
+            'tarif_lembur_weekday_berikutnya' => 20000.0,
+            'tarif_lembur_sabtu' => 20000.0,
+        ];
+
+        try {
+            self::ensurePayrollTablesStatic();
+            if (Schema::hasTable('payroll_settings')) {
+                $row = DB::table('payroll_settings')->first();
+                if (!$row) {
+                    DB::table('payroll_settings')->insert(array_merge($defaults, [
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]));
+                    return $defaults;
+                }
+                return [
+                    'tarif_potongan_terlambat' => (float)($row->tarif_potongan_terlambat ?? 20000),
+                    'tarif_lembur_weekday_pertama' => (float)($row->tarif_lembur_weekday_pertama ?? 30000),
+                    'tarif_lembur_weekday_berikutnya' => (float)($row->tarif_lembur_weekday_berikutnya ?? 20000),
+                    'tarif_lembur_sabtu' => (float)($row->tarif_lembur_sabtu ?? 20000),
+                ];
+            }
+        } catch (\Throwable $e) {}
+
+        return $defaults;
+    }
+
+    /**
+     * Calculate attendance, late count, and overtime hours/amounts directly from Rekap Absensi rules
+     */
+    public static function calculateAttendanceMetrics(User $user, int $month, int $year, array $customRates = []): array
+    {
+        $settings = self::getPayrollSettings();
+        $tarifTerlambat = isset($customRates['tarif_potongan_terlambat']) ? (float)$customRates['tarif_potongan_terlambat'] : $settings['tarif_potongan_terlambat'];
+        $tarifWeekdayPertama = isset($customRates['tarif_lembur_weekday_pertama']) ? (float)$customRates['tarif_lembur_weekday_pertama'] : $settings['tarif_lembur_weekday_pertama'];
+        $tarifWeekdayBerikutnya = isset($customRates['tarif_lembur_weekday_berikutnya']) ? (float)$customRates['tarif_lembur_weekday_berikutnya'] : $settings['tarif_lembur_weekday_berikutnya'];
+        $tarifSabtu = isset($customRates['tarif_lembur_sabtu']) ? (float)$customRates['tarif_lembur_sabtu'] : $settings['tarif_lembur_sabtu'];
+
+        $isSatpam = $user->isSatpam();
+        $workDays = $user->work_days_per_week ?? 6;
+
+        $attendances = Attendance::where('user_id', $user->id)
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $attendanceRequests = AttendanceRequest::where('user_id', $user->id)
+            ->where('status', '!=', 'Ditolak')
+            ->where(function ($q) use ($month, $year) {
+                $q->where(function ($q2) use ($month, $year) {
+                    $q2->whereMonth('start_date', $month)->whereYear('start_date', $year);
+                })->orWhere(function ($q2) use ($month, $year) {
+                    $q2->whereMonth('end_date', $month)->whereYear('end_date', $year);
+                });
+            })
+            ->get();
+
+        // Build lemburMap starting 7 days prior to month start (for yesterday lembur check -> 09:00 threshold)
+        $lemburMap = [];
+        $startLimit = Carbon::create($year, $month, 1)->subDays(7);
+
+        $lemburAttendances = Attendance::where('user_id', $user->id)
+            ->where('status', 'Lembur')
+            ->where('date', '>=', $startLimit->format('Y-m-d'))
+            ->get();
+        foreach ($lemburAttendances as $la) {
+            $lemburMap[substr($la->date, 0, 10)] = true;
+        }
+
+        $lemburRequests = AttendanceRequest::where('user_id', $user->id)
+            ->where('status', '!=', 'Ditolak')
+            ->whereRaw('LOWER(type) = ?', ['lembur'])
+            ->where('end_date', '>=', $startLimit->format('Y-m-d'))
+            ->get();
+        foreach ($lemburRequests as $lr) {
+            $st = Carbon::parse($lr->start_date);
+            $en = Carbon::parse($lr->end_date);
+            while ($st->lte($en)) {
+                $lemburMap[$st->format('Y-m-d')] = true;
+                $st->addDay();
+            }
+        }
+
+        $hadir = 0;
+        $sakit = 0;
+        $izin = 0;
+        $terlambat = 0;
+        $lemburHari = 0;
+
+        $jumlahWeekdayPertama = 0;
+        $jumlahJamWeekdayBerikutnya = 0;
+        $jumlahJamSabtu = 0;
+
+        $lateDetails = [];
+        $overtimeDetails = [];
+        $lemburDatesCounted = [];
+
+        foreach ($attendances as $att) {
+            $dateStr = substr($att->date, 0, 10);
+            $attDate = Carbon::parse($dateStr);
+            $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
+
+            // Parse checkout notes (matching AttendanceRecapController)
+            $checkInNotes = $att->check_in_notes ?? null;
+            $checkOutNotes = $att->check_out_notes ?? null;
+            if (!$checkInNotes && !$checkOutNotes && !empty($att->notes)) {
+                if (str_contains($att->notes, 'Masuk:') || str_contains($att->notes, 'Pulang:')) {
+                    if (preg_match('/Pulang:\s*(.+)$/', $att->notes, $mOut)) {
+                        $checkOutNotes = trim($mOut[1]);
+                    }
+                } else {
+                    $checkOutNotes = $att->notes;
+                }
+            } elseif (!$checkOutNotes && !empty($att->notes)) {
+                $checkOutNotes = $att->notes;
+            }
+
+            if ($att->status === 'Hadir') {
+                $hadir++;
+
+                if (!$isSatpam) {
+                    // 1. Check Keterlambatan
+                    $prevDateStr = $attDate->copy()->subDay()->format('Y-m-d');
+                    $isLemburYesterday = !empty($lemburMap[$prevDateStr]);
+                    $threshold = $isLemburYesterday ? '09:00:00' : '08:15:00';
+
+                    if ($att->check_in_time && $att->check_in_time > $threshold) {
+                        $terlambat++;
+                        $lateDetails[] = [
+                            'date' => $dateStr,
+                            'check_in' => substr($att->check_in_time, 0, 5),
+                            'threshold' => substr($threshold, 0, 5),
+                        ];
+                    }
+                }
+            }
+
+            // 2. Check Lembur
+            if (!$isSatpam) {
+                $overtimeThreshold = ($isSaturday && $workDays == 6) ? '14:00:00' : '20:00:00';
+                $hasOvertimeNotes = !empty(trim($checkOutNotes ?? '')) || (!empty(trim($att->notes ?? '')) && !str_starts_with($att->notes, 'Masuk:'));
+                $isLembur = (($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes) || $att->status === 'Lembur');
+
+                if ($isLembur) {
+                    $lemburMap[$dateStr] = true;
+                    $lemburDatesCounted[$dateStr] = true;
+                    $lemburHari++;
+
+                    // Determine checkout hour (up to 24:00 / 12:00 malam)
+                    $checkOutHour = 20;
+                    if ($att->check_out_time) {
+                        $isCrossDay = ($att->check_in_time && $att->check_out_time < $att->check_in_time);
+                        if ($isCrossDay || $att->check_out_time >= '23:55:00') {
+                            $checkOutHour = 24;
+                        } else {
+                            $checkOutHour = (int)substr($att->check_out_time, 0, 2);
+                        }
+                    } else {
+                        $checkOutHour = $isSaturday ? 15 : 20;
+                    }
+
+                    if ($isSaturday) {
+                        // Sabtu: dihitung mulai jam 14:00 (jam 2 siang) = 20rb / jam
+                        $satHours = max(1, min(10, $checkOutHour - 14));
+                        $jumlahJamSabtu += $satHours;
+                        $overtimeDetails[] = [
+                            'date' => $dateStr,
+                            'day_type' => 'Sabtu (Mulai 14:00)',
+                            'check_out' => $att->check_out_time ? substr($att->check_out_time, 0, 5) : '15:00',
+                            'jam_pertama' => 0,
+                            'jam_berikutnya' => 0,
+                            'jam_sabtu' => $satHours,
+                            'nominal' => $satHours * $tarifSabtu,
+                            'notes' => $checkOutNotes ?: ($att->notes ?? '-'),
+                        ];
+                    } else {
+                        // Senin - Jumat: jam 20:00 pertama (30rb) + 1 jam berikutnya (20rb/jam s/d jam 12:00 malam / 24:00)
+                        $extraHours = max(0, min(4, $checkOutHour - 20));
+                        $jumlahWeekdayPertama += 1;
+                        $jumlahJamWeekdayBerikutnya += $extraHours;
+                        $overtimeDetails[] = [
+                            'date' => $dateStr,
+                            'day_type' => 'Senin-Jumat',
+                            'check_out' => $att->check_out_time ? ($att->check_out_time >= '23:55:00' ? '24:00' : substr($att->check_out_time, 0, 5)) : '20:00',
+                            'jam_pertama' => 1,
+                            'jam_berikutnya' => $extraHours,
+                            'jam_sabtu' => 0,
+                            'nominal' => $tarifWeekdayPertama + ($extraHours * $tarifWeekdayBerikutnya),
+                            'notes' => $checkOutNotes ?: ($att->notes ?? '-'),
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Count Sakit, Izin, and Lembur from AttendanceRequest
+        foreach ($attendanceRequests as $req) {
+            $start = Carbon::parse($req->start_date);
+            $end = Carbon::parse($req->end_date);
+            $days = $start->diffInDays($end) + 1;
+            $typeLower = strtolower($req->type);
+
+            if ($typeLower === 'sakit') {
+                $sakit += $days;
+            } elseif ($typeLower === 'lembur') {
+                if (!$isSatpam) {
+                    $cur = $start->copy();
+                    while ($cur->lte($end)) {
+                        $dStr = $cur->format('Y-m-d');
+                        if ((int)$cur->month === $month && (int)$cur->year === $year && empty($lemburDatesCounted[$dStr])) {
+                            $lemburDatesCounted[$dStr] = true;
+                            $lemburHari++;
+                            if ($cur->dayOfWeek === Carbon::SATURDAY) {
+                                $jumlahJamSabtu += 1;
+                                $overtimeDetails[] = [
+                                    'date' => $dStr,
+                                    'day_type' => 'Sabtu (Pengajuan Lembur)',
+                                    'check_out' => '-',
+                                    'jam_pertama' => 0,
+                                    'jam_berikutnya' => 0,
+                                    'jam_sabtu' => 1,
+                                    'nominal' => $tarifSabtu,
+                                    'notes' => $req->reason ?? 'Pengajuan Lembur',
+                                ];
+                            } else {
+                                $jumlahWeekdayPertama += 1;
+                                $overtimeDetails[] = [
+                                    'date' => $dStr,
+                                    'day_type' => 'Senin-Jumat (Pengajuan Lembur)',
+                                    'check_out' => '20:00',
+                                    'jam_pertama' => 1,
+                                    'jam_berikutnya' => 0,
+                                    'jam_sabtu' => 0,
+                                    'nominal' => $tarifWeekdayPertama,
+                                    'notes' => $req->reason ?? 'Pengajuan Lembur',
+                                ];
+                            }
+                        }
+                        $cur->addDay();
+                    }
+                }
+            } else {
+                $izin += $days;
+            }
+        }
+
+        // Calculate Alpa
+        $alpa = 0;
+        if (!$isSatpam) {
+            $startOfMonth = Carbon::create($year, $month, 1);
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+            $expectedDays = 0;
+            $tempDate = $startOfMonth->copy();
+            while ($tempDate->lte($endOfMonth)) {
+                if ($tempDate->isWeekday()) {
+                    $expectedDays++;
+                } elseif ($workDays == 6 && $tempDate->dayOfWeek === Carbon::SATURDAY) {
+                    $expectedDays++;
+                }
+                $tempDate->addDay();
+            }
+            $alpa = max(0, $expectedDays - ($hadir + $sakit + $izin));
+        }
+
+        $nominalPotonganTerlambat = $terlambat * $tarifTerlambat;
+        $nominalWeekdayPertama = $jumlahWeekdayPertama * $tarifWeekdayPertama;
+        $nominalWeekdayBerikutnya = $jumlahJamWeekdayBerikutnya * $tarifWeekdayBerikutnya;
+        $nominalSabtu = $jumlahJamSabtu * $tarifSabtu;
+        $totalNominalLembur = $nominalWeekdayPertama + $nominalWeekdayBerikutnya + $nominalSabtu;
+
+        return [
+            'hadir' => $hadir,
+            'terlambat' => $terlambat,
+            'izin' => $izin,
+            'sakit' => $sakit,
+            'absen' => $alpa,
+            'lembur_hari' => $lemburHari,
+            'total' => $attendances->count(),
+            'jumlah_terlambat' => $terlambat,
+            'tarif_potongan_terlambat' => $tarifTerlambat,
+            'nominal_potongan_terlambat' => $nominalPotonganTerlambat,
+            'jumlah_lembur_weekday_pertama' => $jumlahWeekdayPertama,
+            'tarif_lembur_weekday_pertama' => $tarifWeekdayPertama,
+            'nominal_lembur_weekday_pertama' => $nominalWeekdayPertama,
+            'jumlah_jam_lembur_weekday_berikutnya' => $jumlahJamWeekdayBerikutnya,
+            'tarif_lembur_weekday_berikutnya' => $tarifWeekdayBerikutnya,
+            'nominal_lembur_weekday_berikutnya' => $nominalWeekdayBerikutnya,
+            'jumlah_jam_lembur_sabtu' => $jumlahJamSabtu,
+            'tarif_lembur_sabtu' => $tarifSabtu,
+            'nominal_lembur_sabtu' => $nominalSabtu,
+            'total_nominal_lembur' => $totalNominalLembur,
+            'late_details' => $lateDetails,
+            'overtime_details' => $overtimeDetails,
+        ];
+    }
+
+    /**
+     * Automatically sync an existing Payroll record when attendance in Rekap Absensi changes
+     */
+    public static function syncUserPayrollFromAttendance(int $userId, int $month, int $year): void
+    {
+        try {
+            self::ensurePayrollTablesStatic();
+            $payroll = Payroll::where('user_id', $userId)
+                ->where('period_month', $month)
+                ->where('period_year', $year)
+                ->first();
+
+            if (!$payroll) {
+                return;
+            }
+
+            $user = User::find($userId);
+            if (!$user) {
+                return;
+            }
+
+            $settings = self::getPayrollSettings();
+            $customRates = [
+                'tarif_potongan_terlambat' => $payroll->tarif_potongan_terlambat > 0 ? $payroll->tarif_potongan_terlambat : $settings['tarif_potongan_terlambat'],
+                'tarif_lembur_weekday_pertama' => $payroll->tarif_lembur_weekday_pertama > 0 ? $payroll->tarif_lembur_weekday_pertama : $settings['tarif_lembur_weekday_pertama'],
+                'tarif_lembur_weekday_berikutnya' => $payroll->tarif_lembur_weekday_berikutnya > 0 ? $payroll->tarif_lembur_weekday_berikutnya : $settings['tarif_lembur_weekday_berikutnya'],
+                'tarif_lembur_sabtu' => $payroll->tarif_lembur_sabtu > 0 ? $payroll->tarif_lembur_sabtu : $settings['tarif_lembur_sabtu'],
+            ];
+
+            $metrics = self::calculateAttendanceMetrics($user, $month, $year, $customRates);
+
+            $payroll->jumlah_terlambat = $metrics['jumlah_terlambat'];
+            $payroll->tarif_potongan_terlambat = $metrics['tarif_potongan_terlambat'];
+            $payroll->potongan_absen = $metrics['nominal_potongan_terlambat'];
+
+            $payroll->jumlah_lembur_weekday_pertama = $metrics['jumlah_lembur_weekday_pertama'];
+            $payroll->tarif_lembur_weekday_pertama = $metrics['tarif_lembur_weekday_pertama'];
+            $payroll->jumlah_jam_lembur_weekday_berikutnya = $metrics['jumlah_jam_lembur_weekday_berikutnya'];
+            $payroll->tarif_lembur_weekday_berikutnya = $metrics['tarif_lembur_weekday_berikutnya'];
+            $payroll->jumlah_jam_lembur_sabtu = $metrics['jumlah_jam_lembur_sabtu'];
+            $payroll->tarif_lembur_sabtu = $metrics['tarif_lembur_sabtu'];
+            $payroll->lembur = $metrics['total_nominal_lembur'];
+
+            $payroll->recalculate();
+            $payroll->save();
+        } catch (\Throwable $e) {}
+    }
+
+    /**
+     * Update global overtime & late deduction tariff settings, and optionally sync current period payrolls from Rekap Absensi
+     */
+    public function updateSettings(Request $request)
+    {
+        $this->ensureTableAndFeatures();
+
+        $request->validate([
+            'tarif_potongan_terlambat' => 'required|numeric|min:0',
+            'tarif_lembur_weekday_pertama' => 'required|numeric|min:0',
+            'tarif_lembur_weekday_berikutnya' => 'required|numeric|min:0',
+            'tarif_lembur_sabtu' => 'required|numeric|min:0',
+            'month' => 'nullable|integer|between:1,12',
+            'year' => 'nullable|integer|min:2020|max:2050',
+            'sync_existing' => 'nullable|boolean',
+        ]);
+
+        $newSettings = [
+            'tarif_potongan_terlambat' => (float)$request->tarif_potongan_terlambat,
+            'tarif_lembur_weekday_pertama' => (float)$request->tarif_lembur_weekday_pertama,
+            'tarif_lembur_weekday_berikutnya' => (float)$request->tarif_lembur_weekday_berikutnya,
+            'tarif_lembur_sabtu' => (float)$request->tarif_lembur_sabtu,
+            'updated_at' => now(),
+        ];
+
+        $existing = DB::table('payroll_settings')->first();
+        if ($existing) {
+            DB::table('payroll_settings')->where('id', $existing->id)->update($newSettings);
+        } else {
+            $newSettings['created_at'] = now();
+            DB::table('payroll_settings')->insert($newSettings);
+        }
+
+        $syncedCount = 0;
+        if ($request->boolean('sync_existing', true)) {
+            $month = (int)$request->input('month', date('n'));
+            $year = (int)$request->input('year', date('Y'));
+
+            $payrolls = Payroll::with('user')
+                ->where('period_month', $month)
+                ->where('period_year', $year)
+                ->get();
+
+            foreach ($payrolls as $payroll) {
+                if (!$payroll->user) continue;
+
+                $metrics = self::calculateAttendanceMetrics($payroll->user, $month, $year, $newSettings);
+
+                $payroll->jumlah_terlambat = $metrics['jumlah_terlambat'];
+                $payroll->tarif_potongan_terlambat = $newSettings['tarif_potongan_terlambat'];
+                $payroll->potongan_absen = $metrics['nominal_potongan_terlambat'];
+
+                $payroll->jumlah_lembur_weekday_pertama = $metrics['jumlah_lembur_weekday_pertama'];
+                $payroll->tarif_lembur_weekday_pertama = $newSettings['tarif_lembur_weekday_pertama'];
+                $payroll->jumlah_jam_lembur_weekday_berikutnya = $metrics['jumlah_jam_lembur_weekday_berikutnya'];
+                $payroll->tarif_lembur_weekday_berikutnya = $newSettings['tarif_lembur_weekday_berikutnya'];
+                $payroll->jumlah_jam_lembur_sabtu = $metrics['jumlah_jam_lembur_sabtu'];
+                $payroll->tarif_lembur_sabtu = $newSettings['tarif_lembur_sabtu'];
+                $payroll->lembur = $metrics['total_nominal_lembur'];
+
+                $payroll->recalculate();
+                $payroll->save();
+                $syncedCount++;
+            }
+        }
+
+        return redirect()->back()->with('success', "Pengaturan tarif lembur & keterlambatan berhasil disimpan" . ($syncedCount > 0 ? " dan {$syncedCount} data gaji periode ini telah disinkronkan dengan Rekap Absensi." : "."));
     }
 
     /**
@@ -109,6 +578,7 @@ class PayrollController extends Controller
 
         $companies = Company::orderBy('name')->get();
         $divisions = Division::orderBy('name')->get();
+        $payrollSettings = self::getPayrollSettings();
 
         return Inertia::render('Salaries/Index', [
             'payrolls' => $payrolls,
@@ -116,6 +586,7 @@ class PayrollController extends Controller
             'users' => $users,
             'companies' => $companies,
             'divisions' => $divisions,
+            'payrollSettings' => $payrollSettings,
             'filters' => [
                 'month' => $curMonth,
                 'year' => $curYear,
@@ -150,10 +621,12 @@ class PayrollController extends Controller
     }
 
     /**
-     * Get user details and attendance summary for a given month
+     * Get user details and attendance + overtime/late summary for a given month from Rekap Absensi
      */
     public function userSummary(Request $request)
     {
+        $this->ensureTableAndFeatures();
+
         $userId = $request->input('user_id');
         $month = (int)$request->input('month', date('n'));
         $year = (int)$request->input('year', date('Y'));
@@ -162,33 +635,16 @@ class PayrollController extends Controller
             return response()->json(['error' => 'User ID diperlukan'], 422);
         }
 
-        $user = User::with(['division', 'position', 'company'])->find($userId);
+        $user = User::with(['division', 'position', 'company', 'roles'])->find($userId);
         if (!$user) {
             return response()->json(['error' => 'Pengguna tidak ditemukan'], 404);
         }
 
-        // Count attendances for that month
-        $attendances = Attendance::where('user_id', $userId)
-            ->whereMonth('date', $month)
-            ->whereYear('date', $year)
-            ->get();
-
-        $hadir = $attendances->where('status', 'Hadir')->count();
-        $terlambat = $attendances->where('status', 'Terlambat')->count();
-        $izin = $attendances->where('status', 'Izin')->count();
-        $sakit = $attendances->where('status', 'Sakit')->count();
-        $absen = $attendances->where('status', 'Absen')->count();
+        $metrics = self::calculateAttendanceMetrics($user, $month, $year);
 
         return response()->json([
             'user' => $user,
-            'attendance_count' => [
-                'hadir' => $hadir,
-                'terlambat' => $terlambat,
-                'izin' => $izin,
-                'sakit' => $sakit,
-                'absen' => $absen,
-                'total' => $attendances->count(),
-            ],
+            'attendance_count' => $metrics,
             'default_values' => [
                 'gaji_pokok' => (float)($user->salary ?? 0),
                 'operasional' => (float)($user->operational_allowance ?? 0),
@@ -196,6 +652,16 @@ class PayrollController extends Controller
                 'bpjs_ketenagakerjaan_persen' => 2.0,
                 'bpjs_kesehatan_perusahaan_persen' => 4.0,
                 'bpjs_ketenagakerjaan_perusahaan_persen' => 4.24,
+                'jumlah_terlambat' => $metrics['jumlah_terlambat'],
+                'tarif_potongan_terlambat' => $metrics['tarif_potongan_terlambat'],
+                'potongan_absen' => $metrics['nominal_potongan_terlambat'],
+                'jumlah_lembur_weekday_pertama' => $metrics['jumlah_lembur_weekday_pertama'],
+                'tarif_lembur_weekday_pertama' => $metrics['tarif_lembur_weekday_pertama'],
+                'jumlah_jam_lembur_weekday_berikutnya' => $metrics['jumlah_jam_lembur_weekday_berikutnya'],
+                'tarif_lembur_weekday_berikutnya' => $metrics['tarif_lembur_weekday_berikutnya'],
+                'jumlah_jam_lembur_sabtu' => $metrics['jumlah_jam_lembur_sabtu'],
+                'tarif_lembur_sabtu' => $metrics['tarif_lembur_sabtu'],
+                'lembur' => $metrics['total_nominal_lembur'],
             ]
         ]);
     }
@@ -221,6 +687,16 @@ class PayrollController extends Controller
             'thr' => 'nullable|numeric|min:0',
             'lembur' => 'nullable|numeric|min:0',
 
+            // Custom Lembur & Keterlambatan
+            'jumlah_terlambat' => 'nullable|integer|min:0',
+            'tarif_potongan_terlambat' => 'nullable|numeric|min:0',
+            'jumlah_lembur_weekday_pertama' => 'nullable|integer|min:0',
+            'tarif_lembur_weekday_pertama' => 'nullable|numeric|min:0',
+            'jumlah_jam_lembur_weekday_berikutnya' => 'nullable|integer|min:0',
+            'tarif_lembur_weekday_berikutnya' => 'nullable|numeric|min:0',
+            'jumlah_jam_lembur_sabtu' => 'nullable|integer|min:0',
+            'tarif_lembur_sabtu' => 'nullable|numeric|min:0',
+
             // Potongan
             'bpjs_kesehatan_persen' => 'nullable|numeric|min:0|max:100',
             'bpjs_kesehatan' => 'nullable|numeric|min:0',
@@ -241,6 +717,7 @@ class PayrollController extends Controller
         ]);
 
         $user = User::findOrFail($request->user_id);
+        $settings = self::getPayrollSettings();
 
         // Check if payroll already exists for this period, update it if so
         $payroll = Payroll::firstOrNew([
@@ -261,6 +738,16 @@ class PayrollController extends Controller
         $payroll->tunjangan_jabatan = (float)($request->tunjangan_jabatan ?? 0);
         $payroll->thr = (float)($request->thr ?? 0);
         $payroll->lembur = (float)($request->lembur ?? 0);
+
+        // Custom Lembur & Keterlambatan
+        $payroll->jumlah_terlambat = (int)($request->jumlah_terlambat ?? 0);
+        $payroll->tarif_potongan_terlambat = (float)($request->tarif_potongan_terlambat ?? $settings['tarif_potongan_terlambat']);
+        $payroll->jumlah_lembur_weekday_pertama = (int)($request->jumlah_lembur_weekday_pertama ?? 0);
+        $payroll->tarif_lembur_weekday_pertama = (float)($request->tarif_lembur_weekday_pertama ?? $settings['tarif_lembur_weekday_pertama']);
+        $payroll->jumlah_jam_lembur_weekday_berikutnya = (int)($request->jumlah_jam_lembur_weekday_berikutnya ?? 0);
+        $payroll->tarif_lembur_weekday_berikutnya = (float)($request->tarif_lembur_weekday_berikutnya ?? $settings['tarif_lembur_weekday_berikutnya']);
+        $payroll->jumlah_jam_lembur_sabtu = (int)($request->jumlah_jam_lembur_sabtu ?? 0);
+        $payroll->tarif_lembur_sabtu = (float)($request->tarif_lembur_sabtu ?? $settings['tarif_lembur_sabtu']);
 
         // Potongan
         $payroll->bpjs_kesehatan_persen = (float)($request->bpjs_kesehatan_persen ?? 1.0);
@@ -303,6 +790,8 @@ class PayrollController extends Controller
      */
     public function update(Request $request, Payroll $payroll)
     {
+        $this->ensureTableAndFeatures();
+
         $validated = $request->validate([
             'payment_date' => 'nullable|date',
             'status' => 'nullable|string|in:draft,published,paid',
@@ -313,6 +802,16 @@ class PayrollController extends Controller
             'tunjangan_jabatan' => 'nullable|numeric|min:0',
             'thr' => 'nullable|numeric|min:0',
             'lembur' => 'nullable|numeric|min:0',
+
+            // Custom Lembur & Keterlambatan
+            'jumlah_terlambat' => 'nullable|integer|min:0',
+            'tarif_potongan_terlambat' => 'nullable|numeric|min:0',
+            'jumlah_lembur_weekday_pertama' => 'nullable|integer|min:0',
+            'tarif_lembur_weekday_pertama' => 'nullable|numeric|min:0',
+            'jumlah_jam_lembur_weekday_berikutnya' => 'nullable|integer|min:0',
+            'tarif_lembur_weekday_berikutnya' => 'nullable|numeric|min:0',
+            'jumlah_jam_lembur_sabtu' => 'nullable|integer|min:0',
+            'tarif_lembur_sabtu' => 'nullable|numeric|min:0',
 
             // Potongan
             'bpjs_kesehatan_persen' => 'nullable|numeric|min:0|max:100',
@@ -343,6 +842,16 @@ class PayrollController extends Controller
         if ($request->has('tunjangan_jabatan')) $payroll->tunjangan_jabatan = (float)$request->tunjangan_jabatan;
         if ($request->has('thr')) $payroll->thr = (float)$request->thr;
         if ($request->has('lembur')) $payroll->lembur = (float)$request->lembur;
+
+        // Custom Lembur & Keterlambatan
+        if ($request->has('jumlah_terlambat')) $payroll->jumlah_terlambat = (int)$request->jumlah_terlambat;
+        if ($request->has('tarif_potongan_terlambat')) $payroll->tarif_potongan_terlambat = (float)$request->tarif_potongan_terlambat;
+        if ($request->has('jumlah_lembur_weekday_pertama')) $payroll->jumlah_lembur_weekday_pertama = (int)$request->jumlah_lembur_weekday_pertama;
+        if ($request->has('tarif_lembur_weekday_pertama')) $payroll->tarif_lembur_weekday_pertama = (float)$request->tarif_lembur_weekday_pertama;
+        if ($request->has('jumlah_jam_lembur_weekday_berikutnya')) $payroll->jumlah_jam_lembur_weekday_berikutnya = (int)$request->jumlah_jam_lembur_weekday_berikutnya;
+        if ($request->has('tarif_lembur_weekday_berikutnya')) $payroll->tarif_lembur_weekday_berikutnya = (float)$request->tarif_lembur_weekday_berikutnya;
+        if ($request->has('jumlah_jam_lembur_sabtu')) $payroll->jumlah_jam_lembur_sabtu = (int)$request->jumlah_jam_lembur_sabtu;
+        if ($request->has('tarif_lembur_sabtu')) $payroll->tarif_lembur_sabtu = (float)$request->tarif_lembur_sabtu;
 
         // Potongan
         if ($request->has('bpjs_kesehatan_persen')) $payroll->bpjs_kesehatan_persen = (float)$request->bpjs_kesehatan_persen;
@@ -393,7 +902,7 @@ class PayrollController extends Controller
     }
 
     /**
-     * Batch generate payroll for all active employees for given month & year
+     * Batch generate payroll for all active employees for given month & year (automatically pulling lembur & keterlambatan from Rekap Absensi)
      */
     public function generate(Request $request)
     {
@@ -405,7 +914,7 @@ class PayrollController extends Controller
 
         $allowedCompanyIds = auth()->user()?->getAllowedCompanyIds();
 
-        $userQuery = User::where('is_active', true);
+        $userQuery = User::with('roles')->where('is_active', true);
         if ($allowedCompanyIds !== null) {
             $userQuery->whereIn('company_id', $allowedCompanyIds);
         }
@@ -414,6 +923,7 @@ class PayrollController extends Controller
         }
 
         $users = $userQuery->get();
+        $settings = self::getPayrollSettings();
         $countCreated = 0;
         $countUpdated = 0;
 
@@ -434,6 +944,21 @@ class PayrollController extends Controller
             // Default salary components from user
             $payroll->gaji_pokok = (float)($user->salary ?? 0);
             $payroll->operasional = (float)($user->operational_allowance ?? 0);
+
+            // Calculate attendance metrics (late & overtime) from Rekap Absensi
+            $metrics = self::calculateAttendanceMetrics($user, $month, $year, $settings);
+
+            $payroll->jumlah_terlambat = $metrics['jumlah_terlambat'];
+            $payroll->tarif_potongan_terlambat = $metrics['tarif_potongan_terlambat'];
+            $payroll->potongan_absen = $metrics['nominal_potongan_terlambat'];
+
+            $payroll->jumlah_lembur_weekday_pertama = $metrics['jumlah_lembur_weekday_pertama'];
+            $payroll->tarif_lembur_weekday_pertama = $metrics['tarif_lembur_weekday_pertama'];
+            $payroll->jumlah_jam_lembur_weekday_berikutnya = $metrics['jumlah_jam_lembur_weekday_berikutnya'];
+            $payroll->tarif_lembur_weekday_berikutnya = $metrics['tarif_lembur_weekday_berikutnya'];
+            $payroll->jumlah_jam_lembur_sabtu = $metrics['jumlah_jam_lembur_sabtu'];
+            $payroll->tarif_lembur_sabtu = $metrics['tarif_lembur_sabtu'];
+            $payroll->lembur = $metrics['total_nominal_lembur'];
 
             // Default percentages
             $payroll->bpjs_kesehatan_persen = 1.0;
@@ -458,7 +983,7 @@ class PayrollController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', "Generate gaji berhasil: {$countCreated} data baru dibuat, {$countUpdated} data diperbarui.");
+        return redirect()->back()->with('success', "Generate & sinkronisasi gaji dengan Rekap Absensi berhasil: {$countCreated} data baru dibuat, {$countUpdated} data diperbarui.");
     }
 
     /**
@@ -612,13 +1137,17 @@ class PayrollController extends Controller
             'Operasional',
             'Tunjangan Jabatan',
             'THR',
-            'Lembur',
+            'Lembur Sen-Jum Jam 20:00 (Kali)',
+            'Lembur Sen-Jum Jam Berikutnya (Jam)',
+            'Lembur Sabtu (Jam)',
+            'Total Lembur (Rp)',
             'Total Penerimaan',
             'BPJS Kesehatan (Karyawan)',
             'BPJS TK (Karyawan)',
             'Pajak (PPh 21)',
             'Piutang',
-            'Potongan Absen',
+            'Jumlah Terlambat (Kali)',
+            'Potongan Terlambat / Operasional (Rp)',
             'Potongan Lainnya',
             'Total Potongan',
             'BPJS Kes (Perusahaan)',
@@ -642,12 +1171,16 @@ class PayrollController extends Controller
                 $p->operasional,
                 $p->tunjangan_jabatan,
                 $p->thr,
+                $p->jumlah_lembur_weekday_pertama ?? 0,
+                $p->jumlah_jam_lembur_weekday_berikutnya ?? 0,
+                $p->jumlah_jam_lembur_sabtu ?? 0,
                 $p->lembur,
                 $p->total_penerimaan,
                 $p->bpjs_kesehatan,
                 $p->bpjs_ketenagakerjaan,
                 $p->pajak,
                 $p->piutang,
+                $p->jumlah_terlambat ?? 0,
                 $p->potongan_absen,
                 $p->potongan_lainnya,
                 $p->total_potongan,

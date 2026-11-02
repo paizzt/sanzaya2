@@ -287,6 +287,11 @@ class AttendanceController extends Controller
             $attendance->save();
         }
 
+        if (isset($attendance) && $attendance->date) {
+            $d = Carbon::parse($attendance->date);
+            PayrollController::syncUserPayrollFromAttendance((int)$attendance->user_id, (int)$d->month, (int)$d->year);
+        }
+
         $message = $request->type === 'check_in' 
             ? ($user->isSatpam() ? 'Berhasil Masuk Shift!' : 'Berhasil Absen Masuk!') 
             : ($user->isSatpam() ? 'Berhasil Keluar Shift (Pergantian Shift Selesai)!' : 'Berhasil Absen Pulang!');
@@ -351,6 +356,9 @@ class AttendanceController extends Controller
         }
         $attendance->save();
 
+        $d = Carbon::parse($attendance->date);
+        PayrollController::syncUserPayrollFromAttendance((int)$attendance->user_id, (int)$d->month, (int)$d->year);
+
         return redirect()->back()->with('success', 'Keterangan absensi berhasil diperbarui.');
     }
 
@@ -366,7 +374,10 @@ class AttendanceController extends Controller
         // We no longer delete files from storage because they are in ImgBB
         // If we want, we can just delete the record directly.
         
+        $attUserId = (int)$attendance->user_id;
+        $attDate = Carbon::parse($attendance->date);
         $attendance->delete();
+        PayrollController::syncUserPayrollFromAttendance($attUserId, (int)$attDate->month, (int)$attDate->year);
 
         return redirect()->back()->with('success', 'Data absensi berhasil dihapus.');
     }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip } from 'lucide-react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip, Wallet } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -506,7 +506,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
                 {/* User Summaries Table */}
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
-                    <div className="p-6 border-b border-gray-50 flex justify-between items-center">
+                    <div className="p-6 border-b border-gray-50 flex flex-wrap justify-between items-center gap-3">
                         <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                             {roleTab === 'satpam' ? (
                                 <>
@@ -518,6 +518,15 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 </>
                             )}
                         </h3>
+                        {isAdmin && (
+                            <Link
+                                href={route('salaries.index', { month: data.month, year: data.year })}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all"
+                            >
+                                <Wallet className="w-4 h-4" />
+                                Buka & Sinkronkan Manajemen Gaji
+                            </Link>
+                        )}
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
@@ -538,8 +547,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                         <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
                                         <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
                                         <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
-                                        <th className="py-4 px-6 font-semibold text-center text-rose-600">Terlambat</th>
-                                        <th className="py-4 px-6 font-semibold text-center text-blue-600">Lembur</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-rose-600">Terlambat (Pot. Operasional)</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-blue-600">Lembur (Upah)</th>
                                     </tr>
                                 )}
                             </thead>
@@ -570,8 +579,22 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
                                                     <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
                                                     <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
-                                                    <td className="py-4 px-6 text-center font-bold text-rose-600">{u.terlambat || 0}</td>
-                                                    <td className="py-4 px-6 text-center font-bold text-blue-600">{u.lembur || 0}</td>
+                                                    <td className="py-4 px-6 text-center">
+                                                        <div className="font-bold text-rose-600">{u.terlambat || 0}x</div>
+                                                        {(u.nominal_potongan_terlambat > 0) && (
+                                                            <div className="text-[11px] font-semibold text-rose-500 whitespace-nowrap">
+                                                                -Rp {new Intl.NumberFormat('id-ID').format(Math.round(u.nominal_potongan_terlambat))}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-center">
+                                                        <div className="font-bold text-blue-600">{u.lembur || 0} hari</div>
+                                                        {(u.nominal_lembur > 0) && (
+                                                            <div className="text-[11px] font-semibold text-blue-600 whitespace-nowrap">
+                                                                +Rp {new Intl.NumberFormat('id-ID').format(Math.round(u.nominal_lembur))}
+                                                            </div>
+                                                        )}
+                                                    </td>
                                                 </>
                                             )}
 

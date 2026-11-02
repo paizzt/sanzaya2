@@ -39,6 +39,14 @@ class Payroll extends Model
             'bpjs_ketenagakerjaan_perusahaan' => 'float',
             'total_bpjs_perusahaan' => 'float',
             'total_diterima' => 'float',
+            'jumlah_terlambat' => 'integer',
+            'tarif_potongan_terlambat' => 'float',
+            'jumlah_lembur_weekday_pertama' => 'integer',
+            'tarif_lembur_weekday_pertama' => 'float',
+            'jumlah_jam_lembur_weekday_berikutnya' => 'integer',
+            'tarif_lembur_weekday_berikutnya' => 'float',
+            'jumlah_jam_lembur_sabtu' => 'integer',
+            'tarif_lembur_sabtu' => 'float',
         ];
     }
 

@@ -241,6 +241,14 @@ class AttendanceRecapController extends Controller
                         $userSummaries[$att->user_id]['lembur']++;
                         $summary['lembur']++;
                         $lemburMap[$att->user_id][substr($att->date, 0, 10)] = true;
+                        $isCross = ($att->check_in_time && $att->check_out_time && $att->check_out_time < $att->check_in_time);
+                        $coHour = ($isCross || $att->check_out_time >= '23:55:00') ? 24 : (int)substr($att->check_out_time, 0, 2);
+                        if ($isSaturday) {
+                            $userSummaries[$att->user_id]['lembur_sabtu'] = ($userSummaries[$att->user_id]['lembur_sabtu'] ?? 0) + max(1, min(10, $coHour - 14));
+                        } else {
+                            $userSummaries[$att->user_id]['lembur_weekday_pertama'] = ($userSummaries[$att->user_id]['lembur_weekday_pertama'] ?? 0) + 1;
+                            $userSummaries[$att->user_id]['lembur_weekday_berikutnya'] = ($userSummaries[$att->user_id]['lembur_weekday_berikutnya'] ?? 0) + max(0, min(4, $coHour - 20));
+                        }
                     }
                 }
 
@@ -294,7 +302,15 @@ class AttendanceRecapController extends Controller
             $tempDate->addDay();
         }
 
+        $payrollSettings = PayrollController::getPayrollSettings();
         foreach ($userSummaries as $userId => &$uSum) {
+            $uSum['lembur_weekday_pertama'] = $uSum['lembur_weekday_pertama'] ?? 0;
+            $uSum['lembur_weekday_berikutnya'] = $uSum['lembur_weekday_berikutnya'] ?? 0;
+            $uSum['lembur_sabtu'] = $uSum['lembur_sabtu'] ?? 0;
+            $uSum['nominal_potongan_terlambat'] = ($uSum['terlambat'] ?? 0) * $payrollSettings['tarif_potongan_terlambat'];
+            $uSum['nominal_lembur'] = ($uSum['lembur_weekday_pertama'] * $payrollSettings['tarif_lembur_weekday_pertama'])
+                + ($uSum['lembur_weekday_berikutnya'] * $payrollSettings['tarif_lembur_weekday_berikutnya'])
+                + ($uSum['lembur_sabtu'] * $payrollSettings['tarif_lembur_sabtu']);
             if (!empty($uSum['is_satpam'])) {
                 // Khusus SATPAM: Tidak ada istilah alpa
                 $uSum['alpa'] = 0;
@@ -622,7 +638,8 @@ class AttendanceRecapController extends Controller
                 'user_id' => $selectedUserId
             ],
             'users' => $users,
-            'isAdmin' => $isAdmin
+            'isAdmin' => $isAdmin,
+            'payrollSettings' => $payrollSettings,
         ];
     }
 }

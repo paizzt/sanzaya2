@@ -225,6 +225,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/salaries', [PayrollController::class, 'index'])->name('salaries.index');
     Route::post('/salaries', [PayrollController::class, 'store'])->name('salaries.store');
     Route::post('/salaries/generate', [PayrollController::class, 'generate'])->name('salaries.generate');
+    Route::post('/salaries/settings', [PayrollController::class, 'updateSettings'])->name('salaries.settings.update');
     Route::get('/salaries/user-summary', [PayrollController::class, 'userSummary'])->name('salaries.user-summary');
     Route::post('/salaries/{payroll}', [PayrollController::class, 'update'])->name('salaries.update');
     Route::put('/salaries/{payroll}', [PayrollController::class, 'update']);
