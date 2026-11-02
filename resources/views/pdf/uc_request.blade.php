@@ -523,7 +523,7 @@
         <p style="font-weight: bold; margin-bottom: 10px;">B. Lampiran Nota / Bukti Result:</p>
         <div>
             @foreach($receipts as $receipt)
-                @php $receiptSrc = str_starts_with($receipt, 'http') ? $receipt : (file_exists(public_path('storage/' . $receipt)) ? public_path('storage/' . $receipt) : null); if ($receiptSrc && str_starts_with($receiptSrc, 'http')) { try { $resp = \Illuminate\Support\Facades\Http::timeout(10)->get($receiptSrc); if ($resp->successful()) { $receiptSrc = 'data:' . ($resp->header('Content-Type') ?: 'image/jpeg') . ';base64,' . base64_encode($resp->body()); } } catch (\Throwable $e) {} } @endphp @if($receiptSrc)
+                @php $receiptSrc = \App\Helpers\PdfImageHelper::toPdfSrc($receipt, 700); @endphp @if($receiptSrc)
                     <div style="margin-bottom: 15px; text-align: center;">
                         <img src="{{ $receiptSrc }}" style="max-width: 90%; max-height: 400px; border: 1px solid #ccc; padding: 5px;" />
                     </div>

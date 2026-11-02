@@ -261,6 +261,38 @@ class MarketingRecapController extends Controller
             if ($endDate) $query->where('visit_date', '<=', $endDate);
             
             $allReports = $query->get();
+
+            @ini_set('max_execution_time', '300');
+            @ini_set('memory_limit', '512M');
+
+            $urlsToPreload = [];
+            foreach ($allReports as $rep) {
+                if (!empty($rep->photos)) {
+                    $photosArr = is_array($rep->photos)
+                        ? $rep->photos
+                        : (json_decode($rep->photos, true) ?: (is_string($rep->photos) && trim($rep->photos) !== '' ? [trim($rep->photos)] : []));
+                    if (!empty($photosArr[0])) {
+                        $urlsToPreload[] = $photosArr[0];
+                    }
+                }
+                if (!empty($rep->signature)) {
+                    $urlsToPreload[] = $rep->signature;
+                }
+            }
+
+            \App\Helpers\PdfImageHelper::preloadUrls($urlsToPreload, 240);
+
+            foreach ($allReports as $rep) {
+                $firstPhoto = null;
+                if (!empty($rep->photos)) {
+                    $photosArr = is_array($rep->photos)
+                        ? $rep->photos
+                        : (json_decode($rep->photos, true) ?: (is_string($rep->photos) && trim($rep->photos) !== '' ? [trim($rep->photos)] : []));
+                    $firstPhoto = $photosArr[0] ?? null;
+                }
+                $rep->photo_base64 = $firstPhoto ? \App\Helpers\PdfImageHelper::toPdfSrc($firstPhoto, 240) : '';
+                $rep->signature_base64 = !empty($rep->signature) ? \App\Helpers\PdfImageHelper::toPdfSrc($rep->signature, 240) : '';
+            }
             
             // Ambil semua laporan yang ada tanpa batasan filter
             $data['reports'] = $allReports;
@@ -331,7 +363,7 @@ class MarketingRecapController extends Controller
             'filter_month' => $filterMonth,
         ];
 
-        $pdf = Pdf::loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])->loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf') : $pdf->download('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf');
     }
     public function exportExcel(Request $request)

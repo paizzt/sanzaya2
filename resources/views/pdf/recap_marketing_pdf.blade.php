@@ -104,18 +104,14 @@
                     <td>{{ $report->visit_result ?: '-' }}</td>
                     <td class="text-center">
                         @if($report->photos)
-                            @php $photos = json_decode($report->photos, true); @endphp
+                            @php
+                                $photos = is_array($report->photos)
+                                    ? $report->photos
+                                    : (json_decode($report->photos, true) ?: (is_string($report->photos) && trim($report->photos) !== '' ? [trim($report->photos)] : []));
+                            @endphp
                             @if(is_array($photos) && count($photos) > 0)
                                 @php
-                                    $photoPath = storage_path('app/public/' . $photos[0]);
-                                    $base64 = '';
-                                    if(file_exists($photoPath)) {
-                                        $type = pathinfo($photoPath, PATHINFO_EXTENSION);
-                                        $data = file_get_contents($photoPath);
-                                        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                                    } else {
-                                        $base64 = str_starts_with($photos[0], 'http') ? $photos[0] : '';
-                                    }
+                                    $base64 = $report->photo_base64 ?? \App\Helpers\PdfImageHelper::toPdfSrc($photos[0], 240);
                                 @endphp
                                 @if($base64)
                                     <img src="{{ $base64 }}" style="max-width: 60px; max-height: 40px; margin-bottom: 2px; border-radius: 4px;">
@@ -129,15 +125,7 @@
                         @if($report->signature)
                             <div style="font-size: 10px; color: #666; border-top: 1px solid #eee; padding-top: 3px;">[Tanda Tangan PIC]</div>
                             @php
-                                $sigPath = storage_path('app/public/' . $report->signature);
-                                $sigBase64 = '';
-                                if(file_exists($sigPath)) {
-                                    $sigType = pathinfo($sigPath, PATHINFO_EXTENSION);
-                                    $sigData = file_get_contents($sigPath);
-                                    $sigBase64 = 'data:image/' . $sigType . ';base64,' . base64_encode($sigData);
-                                } else {
-                                    $sigBase64 = str_starts_with($report->signature, 'http') ? $report->signature : '';
-                                }
+                                $sigBase64 = $report->signature_base64 ?? \App\Helpers\PdfImageHelper::toPdfSrc($report->signature, 240);
                             @endphp
                             @if($sigBase64)
                                 <img src="{{ $sigBase64 }}" style="max-width: 60px; max-height: 40px; margin-top: 2px;">

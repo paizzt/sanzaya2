@@ -99,7 +99,7 @@ class UcRequestController extends Controller
             }
         }
 
-        $pdf = Pdf::loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'companyAddress'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])->loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'companyAddress'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf') : $pdf->download('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf');
     }
 
