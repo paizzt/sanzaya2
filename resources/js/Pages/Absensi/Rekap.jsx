@@ -9,7 +9,10 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
 export default function Rekap({ auth, recapList, summary, userSummaries, filters, users, isAdmin, payrollSettings = {} }) {
-    const isSuperAdmin = auth?.user?.roles?.some(r => r.name.toLowerCase() === 'superadmin') || false;
+    const isSuperAdmin = auth?.user?.roles?.some(r => {
+        const name = (r.name || '').toLowerCase().replace(/[\s_-]/g, '');
+        return name === 'superadmin';
+    }) || false;
     // Setup Filter Form
     const { data, setData } = useForm({
         month: filters.month.toString(),
@@ -184,6 +187,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         }
 
         const realId = item.id.toString().replace('att_', '');
+        const currentInNotes = item.check_in_notes || '';
+        const currentOutNotes = item.check_out_notes || (item.notes && !item.notes.startsWith('Masuk:') ? item.notes : '');
 
         Swal.fire({
             title: 'Edit Keterangan Absensi',
@@ -198,13 +203,13 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 </div>
                 <div class="text-left mb-3">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Keterangan Masuk</label>
-                    <textarea id="swal-input-notes-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/keterangan saat masuk...">${item.check_in_notes || ''}</textarea>
+                    <textarea id="swal-input-notes-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/keterangan saat masuk...">${currentInNotes}</textarea>
                 </div>
                 <div class="text-left mb-3">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         ${item.is_lembur ? 'Keterangan Pulang / Keterangan Jika Lembur' : 'Keterangan Pulang'}
                     </label>
-                    <textarea id="swal-input-notes-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/alasan saat pulang atau lembur...">${item.check_out_notes || item.notes || ''}</textarea>
+                    <textarea id="swal-input-notes-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/alasan saat pulang atau lembur...">${currentOutNotes}</textarea>
                     ${item.is_lembur ? '<p class="text-[11px] text-blue-600 font-medium mt-1">Jika terhitung lembur, isi keterangan lembur di sini. Kosongkan jika pulang biasa.</p>' : ''}
                 </div>
                 ${item.is_satpam ? `
@@ -225,20 +230,34 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             preConfirm: () => {
                 const shiftEl = document.getElementById('swal-input-shift');
                 return {
-                    check_in_notes: document.getElementById('swal-input-notes-in').value || null,
-                    check_out_notes: document.getElementById('swal-input-notes-out').value || null,
+                    check_in_notes: document.getElementById('swal-input-notes-in').value?.trim() ?? '',
+                    check_out_notes: document.getElementById('swal-input-notes-out').value?.trim() ?? '',
                     shift: shiftEl ? shiftEl.value : (item.shift || null)
-                }
+                };
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                router.put(route('absensi.update', realId), result.value, {
+                router.post(route('absensi.update', realId), {
+                    _method: 'put',
+                    ...result.value,
+                    month: data.month,
+                    year: data.year
+                }, {
                     preserveScroll: true,
                     onSuccess: (page) => { 
                         const msg = page.props.flash?.success || 'Keterangan absensi berhasil diperbarui.';
-                        Swal.fire('Tersimpan!', msg, 'success'); 
+                        Swal.fire({
+                            title: 'Tersimpan!',
+                            text: msg,
+                            icon: 'success',
+                            timer: 1600,
+                            showConfirmButton: false
+                        }); 
                     },
-                    onError: () => { Swal.fire('Error!', 'Gagal memperbarui keterangan absensi.', 'error'); }
+                    onError: (errors) => { 
+                        const errMsg = (errors && typeof errors === 'object') ? Object.values(errors).flat().join(', ') : 'Gagal memperbarui keterangan absensi.';
+                        Swal.fire('Error!', errMsg || 'Gagal memperbarui keterangan absensi.', 'error'); 
+                    }
                 });
             }
         });
@@ -715,13 +734,13 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                         {roleTab === 'satpam' ? 'Keluar Shift' : 'Jam Keluar'}
                                     </th>
                                     <th className="py-4 px-6 font-semibold">Status & Catatan</th>
-                                    {isSuperAdmin && <th className="py-4 px-6 font-semibold text-right">Aksi</th>}
+                                    {(isSuperAdmin || isAdmin) && <th className="py-4 px-6 font-semibold text-right">Aksi</th>}
                                 </tr>
                             </thead>
                             <tbody className="text-sm text-gray-700">
                                 {paginatedList.length === 0 ? (
                                     <tr>
-                                        <td colSpan={isSuperAdmin ? "8" : "7"} className="py-8 text-center text-gray-500">
+                                        <td colSpan={(isSuperAdmin || isAdmin) ? "8" : "7"} className="py-8 text-center text-gray-500">
                                             Tidak ada riwayat absensi yang cocok dengan pencarian.
                                         </td>
                                     </tr>
@@ -887,7 +906,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                         </div>
                                                     )}
 
-                                                    {isSuperAdmin && !item.id.startsWith('req_') && !item.id.startsWith('alpa_') && (
+                                                    {(isSuperAdmin || isAdmin) && !item.id.startsWith('req_') && (
                                                         <button 
                                                             onClick={() => handleEditAbsensi(item)} 
                                                             className="text-[11px] text-blue-600 hover:text-blue-800 font-medium hover:underline flex items-center gap-1 mt-0.5"
@@ -916,7 +935,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     )}
                                                 </div>
                                             </td>
-                                            {isSuperAdmin && (
+                                            {(isSuperAdmin || isAdmin) && (
                                                 <td className="py-4 px-6 text-right">
                                                     <div className="flex justify-end gap-1">
                                                         <button 
@@ -926,13 +945,15 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                         >
                                                             <Edit className="w-4 h-4" />
                                                         </button>
-                                                        <button 
-                                                            onClick={() => handleDeleteAbsensi(item.id)}
-                                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                            title="Hapus Data"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
+                                                        {!item.id.startsWith('alpa_') && (
+                                                            <button 
+                                                                onClick={() => handleDeleteAbsensi(item.id)}
+                                                                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                                title="Hapus Data"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             )}

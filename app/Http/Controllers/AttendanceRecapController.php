@@ -427,8 +427,21 @@ class AttendanceRecapController extends Controller
                 } else {
                     $checkOutNotes = $att->notes;
                 }
-            } elseif (!$checkOutNotes && !empty($att->notes)) {
-                $checkOutNotes = $att->notes;
+            } else {
+                if (!$checkInNotes && !empty($att->notes) && str_contains($att->notes, 'Masuk:')) {
+                    if (preg_match('/Masuk:\s*([^|]+)/', $att->notes, $mIn)) {
+                        $checkInNotes = trim($mIn[1]);
+                    }
+                }
+                if (!$checkOutNotes && !empty($att->notes)) {
+                    if (str_contains($att->notes, 'Pulang:')) {
+                        if (preg_match('/Pulang:\s*(.+)$/', $att->notes, $mOut)) {
+                            $checkOutNotes = trim($mOut[1]);
+                        }
+                    } elseif (!str_starts_with($att->notes, 'Masuk:')) {
+                        $checkOutNotes = $att->notes;
+                    }
+                }
             }
 
             $isUserTanpaTerlambat = $userTanpaKeterlambatan[$att->user_id] ?? false;

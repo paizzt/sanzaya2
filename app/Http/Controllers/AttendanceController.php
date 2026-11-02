@@ -322,13 +322,36 @@ class AttendanceController extends Controller
 
     public function update(Request $request, $id)
     {
-        $attendance = Attendance::findOrFail($id);
-        
         $user = Auth::user();
-        if (!$user->hasRole('Superadmin')) {
-            abort(403, 'Hanya superadmin yang dapat mengubah data absensi.');
+        $canEdit = $user && ($user->isAdminUser() || $user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']));
+        if (!$canEdit) {
+            abort(403, 'Hanya admin / superadmin yang dapat mengubah data absensi.');
         }
 
+        if (is_string($id) && str_starts_with($id, 'alpa_')) {
+            $parts = explode('_', $id);
+            $userId = $parts[1] ?? null;
+            $date = $parts[2] ?? null;
+            if ($userId && $date) {
+                $attendance = Attendance::firstOrNew([
+                    'user_id' => $userId,
+                    'date' => $date
+                ]);
+                if (!$attendance->exists) {
+                    $attendance->status = 'Hadir';
+                    $attendance->check_in_time = '08:00:00';
+                    $attendance->check_out_time = '17:00:00';
+                }
+            } else {
+                abort(404, 'Data absensi tidak ditemukan.');
+            }
+        } else {
+            $realId = is_string($id) ? str_replace('att_', '', $id) : $id;
+            $attendance = Attendance::findOrFail($realId);
+        }
+
+        $hasInCol = false;
+        $hasOutCol = false;
         try {
             if (Schema::hasTable('attendances')) {
                 if (!Schema::hasColumn('attendances', 'check_in_notes')) {
@@ -341,6 +364,8 @@ class AttendanceController extends Controller
                         $table->text('check_out_notes')->nullable()->after('check_in_notes');
                     });
                 }
+                $hasInCol = Schema::hasColumn('attendances', 'check_in_notes');
+                $hasOutCol = Schema::hasColumn('attendances', 'check_out_notes');
             }
         } catch (\Throwable $e) {}
 
@@ -348,38 +373,68 @@ class AttendanceController extends Controller
             'check_in_notes' => ['nullable', 'string', 'max:500'],
             'check_out_notes' => ['nullable', 'string', 'max:500'],
             'notes' => ['nullable', 'string', 'max:500'],
-            'shift' => ['nullable', 'in:Shift Siang,Shift Malam'],
+            'shift' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $checkInNotes = $request->has('check_in_notes') ? $request->check_in_notes : $attendance->check_in_notes;
-        $checkOutNotes = $request->has('check_out_notes') ? $request->check_out_notes : $attendance->check_out_notes;
+        $rawIn = $request->input('check_in_notes');
+        $rawOut = $request->input('check_out_notes');
 
-        $attendance->check_in_notes = $checkInNotes;
-        $attendance->check_out_notes = $checkOutNotes;
+        $checkInNotes = ($rawIn !== null && trim((string)$rawIn) !== '') ? trim((string)$rawIn) : null;
+        $checkOutNotes = ($rawOut !== null && trim((string)$rawOut) !== '') ? trim((string)$rawOut) : null;
+
+        if ($hasInCol) {
+            $attendance->check_in_notes = $checkInNotes;
+        }
+        if ($hasOutCol) {
+            $attendance->check_out_notes = $checkOutNotes;
+        }
 
         // Gabungkan ke kolom notes agar rekap / export lama tetap sinkron
         $combined = [];
         if (!empty($checkInNotes)) {
-            $combined[] = 'Masuk: ' . trim($checkInNotes);
+            $combined[] = 'Masuk: ' . $checkInNotes;
         }
         if (!empty($checkOutNotes)) {
-            $combined[] = 'Pulang: ' . trim($checkOutNotes);
+            $combined[] = 'Pulang: ' . $checkOutNotes;
         }
         if (!empty($combined)) {
             $attendance->notes = implode(' | ', $combined);
-        } elseif ($request->has('notes')) {
-            $attendance->notes = $request->notes;
+        } elseif ($request->filled('notes')) {
+            $attendance->notes = trim((string)$request->notes);
         } else {
             $attendance->notes = null;
         }
 
         if ($request->has('shift')) {
-            $attendance->shift = $request->shift;
+            $attendance->shift = $request->shift ?: null;
         }
+
+        // Update overtime status jika relevan
+        try {
+            PayrollController::ensurePayrollTablesStatic();
+            $payrollSettings = PayrollController::getPayrollSettings();
+            $attDate = Carbon::parse(substr($attendance->date, 0, 10));
+            $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
+            $userWorkDays = $attendance->user?->work_days_per_week ?? 6;
+            $jamMulaiWeekday = substr($payrollSettings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
+            $jamMulaiSabtu = substr($payrollSettings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
+            $overtimeThreshold = ($isSaturday && $userWorkDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
+
+            if ($attendance->check_out_time && $attendance->check_out_time >= $overtimeThreshold && !empty($checkOutNotes)) {
+                if (empty($attendance->overtime_status)) {
+                    $attendance->overtime_status = 'Menunggu';
+                }
+            } elseif (empty($checkOutNotes) && $attendance->status !== 'Lembur') {
+                $attendance->overtime_status = null;
+            }
+        } catch (\Throwable $e) {}
+
         $attendance->save();
 
-        $d = Carbon::parse($attendance->date);
-        PayrollController::syncUserPayrollFromAttendance((int)$attendance->user_id, (int)$d->month, (int)$d->year);
+        try {
+            $d = Carbon::parse($attendance->date);
+            PayrollController::syncUserPayrollFromAttendance((int)$attendance->user_id, (int)$d->month, (int)$d->year);
+        } catch (\Throwable $e) {}
 
         return redirect()->back()->with('success', 'Keterangan absensi berhasil diperbarui.');
     }
