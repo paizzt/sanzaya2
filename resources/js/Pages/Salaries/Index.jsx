@@ -5,7 +5,13 @@ import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
+import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import CustomSelect from '@/Components/CustomSelect';
+import CustomDatePicker from '@/Components/CustomDatePicker';
 import CurrencyInput from '@/Components/CurrencyInput';
+import ExportDropdown from '@/Components/ExportDropdown';
+import ClientPagination from '@/Components/ClientPagination';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { 
@@ -16,24 +22,17 @@ import {
     Plus, 
     Sparkles, 
     Search, 
-    Filter, 
-    Edit2, 
+    Edit, 
     Trash2, 
     Eye, 
     TrendingUp, 
     TrendingDown, 
     ShieldCheck, 
     Wallet, 
-    Building2, 
+    Building, 
     X, 
     Clock, 
-    CheckCircle2, 
-    AlertCircle, 
-    Calendar,
-    Printer,
-    FileSpreadsheet,
-    ChevronDown,
-    ChevronRight
+    ChevronDown
 } from 'lucide-react';
 
 const MONTHS = [
@@ -52,11 +51,15 @@ const MONTHS = [
 ];
 
 export default function Index({ auth, payrolls = [], summary = {}, users = [], companies = [], divisions = [], filters = {} }) {
-    const [month, setMonth] = useState(filters.month || new Date().getMonth() + 1);
-    const [year, setYear] = useState(filters.year || new Date().getFullYear());
+    const [month, setMonth] = useState(Number(filters.month) || new Date().getMonth() + 1);
+    const [year, setYear] = useState(Number(filters.year) || new Date().getFullYear());
     const [companyId, setCompanyId] = useState(filters.company_id || '');
     const [divisionId, setDivisionId] = useState(filters.division_id || '');
     const [search, setSearch] = useState(filters.search || '');
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
 
     // Modals & Expansion
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -65,6 +68,10 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
     const [expandedId, setExpandedId] = useState(null);
     const [userAttendance, setUserAttendance] = useState(null);
     const [loadingAttendance, setLoadingAttendance] = useState(false);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [month, year, companyId, divisionId, search]);
 
     // Form
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
@@ -129,7 +136,6 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
 
         const totalPenerimaan = gajiPokok + operasional + tunjanganJabatan + thr + lembur;
 
-        // Auto BPJS deductions based on percentage unless explicitly overridden
         const kesPercent = parseFloat(data.bpjs_kesehatan_persen) || 0;
         const tkPercent = parseFloat(data.bpjs_ketenagakerjaan_persen) || 0;
         const kesCoPercent = parseFloat(data.bpjs_kesehatan_perusahaan_persen) || 0;
@@ -193,7 +199,6 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                 };
             });
 
-            // Fetch attendance summary
             fetchAttendanceSummary(selectedUserId, data.period_month, data.period_year);
         }
     };
@@ -286,7 +291,6 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Fill calculated values before submit if empty
         const payload = {
             ...data,
             bpjs_kesehatan: data.bpjs_kesehatan !== '' ? data.bpjs_kesehatan : computedTotals.bpjsKes,
@@ -318,8 +322,8 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
             text: `Sistem akan otomatis membuat/memperbarui data gaji seluruh karyawan aktif berdasarkan Gaji Pokok & Operasional dari Data Pengguna.`,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#2563eb',
-            cancelButtonColor: '#94a3b8',
+            confirmButtonColor: '#3b82f6',
+            cancelButtonColor: '#9ca3af',
             confirmButtonText: 'Ya, Generate Semua',
             cancelButtonText: 'Batal',
             customClass: { popup: 'rounded-2xl' }
@@ -342,8 +346,8 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#94a3b8',
-            confirmButtonText: 'Ya, Hapus',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Ya, Hapus!',
             cancelButtonText: 'Batal',
             customClass: { popup: 'rounded-2xl' }
         }).then((res) => {
@@ -354,51 +358,102 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
     };
 
     const currentMonthLabel = MONTHS.find(m => m.value === Number(month))?.label || month;
+    const paginatedPayrolls = payrolls.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
-        <AuthenticatedLayout user={auth.user}>
+        <AuthenticatedLayout
+            user={auth.user}
+            header={<h2 className="font-bold text-2xl text-gray-800 leading-tight">Manajemen Gaji</h2>}
+        >
             <Head title="Manajemen Gaji" />
 
-            <div className="space-y-6">
-                {/* Page Title & Action Buttons (In-page, not in header) */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+            <div className="pb-6 pt-0 space-y-6">
+                {/* Summary Stat Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl shrink-0">
+                            <Users className="w-6 h-6" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-xs text-gray-500 font-medium">Total Karyawan</p>
+                            <h4 className="text-xl font-bold text-gray-900 truncate">{summary.total_karyawan || 0}</h4>
+                            <p className="text-[11px] text-gray-400">Periode {currentMonthLabel} {year}</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl shrink-0">
+                            <TrendingUp className="w-6 h-6" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-xs text-gray-500 font-medium">Total Penerimaan</p>
+                            <h4 className="text-base font-bold text-gray-900 truncate">{formatRp(summary.total_penerimaan)}</h4>
+                            <p className="text-[11px] text-emerald-600 font-medium">Gaji Kotor</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-red-50 text-red-600 rounded-2xl shrink-0">
+                            <TrendingDown className="w-6 h-6" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-xs text-gray-500 font-medium">Total Potongan</p>
+                            <h4 className="text-base font-bold text-red-600 truncate">{formatRp(summary.total_potongan)}</h4>
+                            <p className="text-[11px] text-gray-400">BPJS, Pajak, Absen</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl shrink-0">
+                            <ShieldCheck className="w-6 h-6" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-xs text-gray-500 font-medium">BPJS Perusahaan</p>
+                            <h4 className="text-base font-bold text-indigo-600 truncate">{formatRp(summary.total_bpjs_perusahaan)}</h4>
+                            <p className="text-[11px] text-gray-400">Ditanggung Kantor</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-3xl p-5 border border-emerald-200 bg-emerald-50/30 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-4">
+                        <div className="p-3 bg-emerald-100 text-emerald-700 rounded-2xl shrink-0">
+                            <Wallet className="w-6 h-6" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-xs text-emerald-700 font-semibold">Gaji Bersih (THP)</p>
+                            <h4 className="text-base font-extrabold text-emerald-700 truncate">{formatRp(summary.total_diterima)}</h4>
+                            <p className="text-[11px] text-emerald-600">Total Diterima</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Page Heading & Actions */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h2 className="font-extrabold text-xl sm:text-2xl text-gray-900 tracking-tight">
-                            Manajemen Gaji Karyawan
-                        </h2>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
+                            <Wallet className="w-8 h-8 text-blue-600" />
+                            Daftar Penggajian Karyawan
+                        </h1>
+                        <p className="mt-2 text-sm text-gray-500 max-w-2xl">
                             Kelola komponen penerimaan, potongan BPJS, pajak, dan cetak slip gaji karyawan.
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                        <ExportDropdown
+                            pdfRoute={route('salaries.export.pdf', { month, year, company_id: companyId })}
+                            excelRoute={route('salaries.export.excel', { month, year, company_id: companyId })}
+                        />
                         <button
                             onClick={handleBatchGenerate}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
+                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg whitespace-nowrap"
                             title="Generate gaji semua karyawan untuk bulan ini"
                         >
-                            <Sparkles className="w-4 h-4 text-white" />
+                            <Sparkles className="w-4 h-4" />
                             Generate Massal
                         </button>
-                        <a
-                            href={route('salaries.export.pdf', { month, year, company_id: companyId })}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
-                            title="Ekspor Rekap PDF"
-                        >
-                            <Download className="w-4 h-4 text-white" />
-                            PDF
-                        </a>
-                        <a
-                            href={route('salaries.export.excel', { month, year, company_id: companyId })}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
-                            title="Ekspor Rekap Excel"
-                        >
-                            <FileSpreadsheet className="w-4 h-4 text-white" />
-                            Excel
-                        </a>
                         <button
                             onClick={openAddModal}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
+                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg whitespace-nowrap"
                         >
                             <Plus className="w-4 h-4" />
                             Buat Gaji
@@ -406,262 +461,215 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                     </div>
                 </div>
 
-                {/* Filter Bar */}
-                <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-2 text-gray-500 font-semibold text-xs sm:text-sm mr-1">
-                        <Filter className="w-4 h-4 text-blue-600" />
-                        Filter:
-                    </div>
+                {/* Main Card: Filter + Table + Pagination */}
+                <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                    {/* Filter Bar */}
+                    <div className="p-4 border-b border-gray-100 flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-gray-50/50">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 flex-1">
+                            {/* Search */}
+                            <div className="relative sm:col-span-2 lg:col-span-1">
+                                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input
+                                    type="text"
+                                    placeholder="Cari nama / NIK..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            applyFilter(month, year, companyId, divisionId, search);
+                                        }
+                                    }}
+                                    className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border-gray-200 bg-white focus:border-blue-500 focus:ring-blue-500"
+                                />
+                            </div>
 
-                    {/* Month */}
-                    <div className="w-36">
-                        <select
-                            value={month}
-                            onChange={(e) => {
-                                const val = parseInt(e.target.value);
-                                setMonth(val);
-                                applyFilter(val, year, companyId, divisionId, search);
-                            }}
-                            className="w-full text-xs font-semibold rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-2"
-                        >
-                            {MONTHS.map(m => (
-                                <option key={m.value} value={m.value}>{m.label}</option>
-                            ))}
-                        </select>
-                    </div>
+                            {/* Month */}
+                            <div>
+                                <CustomSelect
+                                    value={month}
+                                    onChange={(val) => {
+                                        const m = parseInt(val);
+                                        setMonth(m);
+                                        applyFilter(m, year, companyId, divisionId, search);
+                                    }}
+                                    options={MONTHS.map(m => ({ value: m.value, label: m.label }))}
+                                />
+                            </div>
 
-                    {/* Year */}
-                    <div className="w-28">
-                        <select
-                            value={year}
-                            onChange={(e) => {
-                                const val = parseInt(e.target.value);
-                                setYear(val);
-                                applyFilter(month, val, companyId, divisionId, search);
-                            }}
-                            className="w-full text-xs font-semibold rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-2"
-                        >
-                            {[2024, 2025, 2026, 2027, 2028].map(y => (
-                                <option key={y} value={y}>{y}</option>
-                            ))}
-                        </select>
-                    </div>
+                            {/* Year */}
+                            <div>
+                                <CustomSelect
+                                    value={year}
+                                    onChange={(val) => {
+                                        const y = parseInt(val);
+                                        setYear(y);
+                                        applyFilter(month, y, companyId, divisionId, search);
+                                    }}
+                                    options={[2024, 2025, 2026, 2027, 2028].map(y => ({ value: y, label: String(y) }))}
+                                />
+                            </div>
 
-                    {/* Company */}
-                    <div className="w-44">
-                        <select
-                            value={companyId}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                setCompanyId(val);
-                                applyFilter(month, year, val, divisionId, search);
-                            }}
-                            className="w-full text-xs font-semibold rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-2"
-                        >
-                            <option value="">Semua Perusahaan</option>
-                            {companies.map(c => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
-                    </div>
+                            {/* Company */}
+                            <div>
+                                <CustomSelect
+                                    value={companyId}
+                                    onChange={(val) => {
+                                        setCompanyId(val);
+                                        applyFilter(month, year, val, divisionId, search);
+                                    }}
+                                    options={[
+                                        { value: '', label: 'Semua Perusahaan' },
+                                        ...companies.map(c => ({ value: c.id, label: c.name }))
+                                    ]}
+                                />
+                            </div>
 
-                    {/* Division */}
-                    <div className="w-40">
-                        <select
-                            value={divisionId}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                setDivisionId(val);
-                                applyFilter(month, year, companyId, val, search);
-                            }}
-                            className="w-full text-xs font-semibold rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-2"
-                        >
-                            <option value="">Semua Divisi</option>
-                            {divisions.map(d => (
-                                <option key={d.id} value={d.id}>{d.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Search */}
-                    <div className="relative flex-1 min-w-[200px]">
-                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input
-                            type="text"
-                            placeholder="Cari nama karyawan / NIK..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    applyFilter(month, year, companyId, divisionId, search);
-                                }
-                            }}
-                            className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                        />
-                    </div>
-                </div>
-
-                {/* Summary Stat Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
-                    <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Karyawan</span>
-                            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                <Users className="w-4 h-4" />
+                            {/* Division */}
+                            <div>
+                                <CustomSelect
+                                    value={divisionId}
+                                    onChange={(val) => {
+                                        setDivisionId(val);
+                                        applyFilter(month, year, companyId, val, search);
+                                    }}
+                                    options={[
+                                        { value: '', label: 'Semua Divisi' },
+                                        ...divisions.map(d => ({ value: d.id, label: d.name }))
+                                    ]}
+                                />
                             </div>
                         </div>
-                        <p className="text-xl sm:text-2xl font-black text-gray-900 mt-2">{summary.total_karyawan || 0}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">Periode {currentMonthLabel} {year}</p>
-                    </div>
 
-                    <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Penerimaan</span>
-                            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                <TrendingUp className="w-4 h-4" />
-                            </div>
+                        <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm shrink-0 text-center">
+                            Total Data: <span className="text-gray-900 font-bold">{payrolls.length}</span>
                         </div>
-                        <p className="text-sm sm:text-lg font-black text-gray-900 mt-2">{formatRp(summary.total_penerimaan)}</p>
-                        <p className="text-[10px] text-emerald-600 font-medium mt-0.5">Total Gaji Kotor</p>
                     </div>
 
-                    <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Potongan</span>
-                            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                                <TrendingDown className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <p className="text-sm sm:text-lg font-black text-rose-600 mt-2">{formatRp(summary.total_potongan)}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">BPJS, Pajak, Absen dll</p>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">BPJS Perusahaan</span>
-                            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                                <ShieldCheck className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <p className="text-sm sm:text-lg font-black text-indigo-600 mt-2">{formatRp(summary.total_bpjs_perusahaan)}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">Ditanggung Kantor</p>
-                    </div>
-
-                    <div className="col-span-2 md:col-span-1 bg-blue-600 text-white p-4 rounded-2xl shadow-md relative overflow-hidden">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-blue-100 uppercase tracking-wider">Gaji Bersih (THP)</span>
-                            <div className="w-8 h-8 rounded-xl bg-blue-800 text-white flex items-center justify-center">
-                                <Wallet className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <p className="text-base sm:text-xl font-black text-white mt-2">{formatRp(summary.total_diterima)}</p>
-                        <p className="text-[10px] text-blue-100 mt-0.5">Total Diterima Karyawan</p>
-                    </div>
-                </div>
-
-                {/* Payroll Table */}
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                        <div>
-                            <h3 className="font-extrabold text-gray-900 text-base">Daftar Penggajian Karyawan</h3>
-                            <p className="text-xs text-gray-500 mt-0.5">Menampilkan data penggajian bulan {currentMonthLabel} {year} &bull; Klik pada baris karyawan untuk melihat rincian lengkap</p>
-                        </div>
-                        <span className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
-                            {payrolls.length} Karyawan
-                        </span>
-                    </div>
-
+                    {/* Payroll Table */}
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 uppercase tracking-wider font-bold text-[10px]">
-                                    <th className="py-3.5 px-4 text-center w-12">No</th>
-                                    <th className="py-3.5 px-4 min-w-[200px]">Karyawan</th>
-                                    <th className="py-3.5 px-4 text-right min-w-[130px]">Gaji Pokok</th>
-                                    <th className="py-3.5 px-4 text-right min-w-[130px]">Operasional</th>
-                                    <th className="py-3.5 px-4 text-right font-black text-rose-600 min-w-[130px]">Total Potongan</th>
-                                    <th className="py-3.5 px-4 text-right font-black text-emerald-600 min-w-[150px]">Gaji Diterima (THP)</th>
+                        <table className="w-full text-sm text-left text-gray-500">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th className="px-6 py-4">Nama Karyawan</th>
+                                    <th className="px-6 py-4">Jabatan & Divisi</th>
+                                    <th className="px-6 py-4 text-right">Gaji Pokok</th>
+                                    <th className="px-6 py-4 text-right">Operasional</th>
+                                    <th className="px-6 py-4 text-right">Total Potongan</th>
+                                    <th className="px-6 py-4 text-right">Gaji Bersih (THP)</th>
+                                    <th className="px-6 py-4 text-center">Status</th>
+                                    <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {payrolls.length === 0 ? (
+                            <tbody>
+                                {paginatedPayrolls.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="py-12 text-center text-gray-400">
-                                            <div className="flex flex-col items-center justify-center">
-                                                <Users className="w-12 h-12 text-gray-300 stroke-1 mb-2" />
-                                                <p className="font-semibold text-gray-600">Belum ada data gaji untuk periode ini</p>
-                                                <p className="text-xs text-gray-400 mt-1">Klik tombol "Buat Gaji" atau "Generate Massal" untuk membuat data penggajian.</p>
-                                            </div>
+                                        <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
+                                            Belum ada data gaji untuk periode {currentMonthLabel} {year}. Klik tombol "Buat Gaji" atau "Generate Massal".
                                         </td>
                                     </tr>
                                 ) : (
-                                    payrolls.map((p, idx) => {
+                                    paginatedPayrolls.map((p) => {
                                         const isExpanded = expandedId === p.id;
                                         return (
                                             <>
                                                 <tr 
                                                     key={p.id} 
                                                     onClick={() => setExpandedId(isExpanded ? null : p.id)}
-                                                    className={`cursor-pointer transition-colors group ${
-                                                        isExpanded 
-                                                            ? 'bg-blue-50/80 font-medium' 
-                                                            : 'hover:bg-blue-50'
+                                                    className={`border-b border-gray-50 transition-colors cursor-pointer ${
+                                                        isExpanded ? 'bg-blue-50/60' : 'bg-white hover:bg-blue-50'
                                                     }`}
-                                                    title="Klik untuk melihat / menutup rincian detail karyawan ini"
                                                 >
-                                                    <td className="py-4 px-4 text-center text-gray-500 font-bold">{idx + 1}</td>
-                                                    <td className="py-4 px-4">
-                                                        <div className="flex items-center justify-between gap-3">
-                                                            <div>
-                                                                <div className="font-extrabold text-gray-900 text-xs sm:text-sm group-hover:text-blue-700 transition-colors flex items-center gap-2">
-                                                                    <span>{p.user?.name ?? '-'}</span>
-                                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                                                        p.status === 'paid' ? 'bg-emerald-600 text-white' :
-                                                                        p.status === 'published' ? 'bg-blue-600 text-white' :
-                                                                        'bg-gray-600 text-white'
-                                                                    }`}>
-                                                                        {p.status === 'paid' ? 'Dibayarkan' : p.status === 'published' ? 'Publik' : 'Draft'}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="text-[11px] text-gray-500 flex items-center gap-1.5 mt-0.5">
-                                                                    <span>{p.user?.employee_id || p.user?.nik || '-'}</span>
-                                                                    <span>&bull;</span>
-                                                                    <span className="text-blue-700 font-semibold">{p.user?.position?.name || 'Karyawan'}</span>
-                                                                    <span>&bull;</span>
-                                                                    <span className="text-gray-600">{p.user?.division?.name || '-'}</span>
-                                                                </div>
+                                                    <td className="px-6 py-4 font-semibold text-gray-900">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 flex-shrink-0 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                                                                {(p.user?.name || 'K').charAt(0).toUpperCase()}
                                                             </div>
-                                                            <div className={`p-1.5 rounded-lg transition-transform ${isExpanded ? 'bg-blue-600 text-white rotate-180' : 'bg-gray-200 text-gray-600'}`}>
-                                                                <ChevronDown className="w-4 h-4" />
+                                                            <div>
+                                                                <div className="text-gray-900 font-semibold flex items-center gap-1.5">
+                                                                    {p.user?.name ?? '-'}
+                                                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180 text-blue-600' : ''}`} />
+                                                                </div>
+                                                                <div className="text-xs text-gray-500 font-normal">
+                                                                    {p.user?.employee_id || p.user?.nik || '-'}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="py-4 px-4 text-right font-bold text-gray-800 text-xs sm:text-sm">
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold text-gray-700">{p.user?.position?.name || 'Karyawan'}</span>
+                                                            <span className="text-xs text-gray-500">{p.user?.division?.name || '-'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right font-medium text-gray-900 whitespace-nowrap">
                                                         {formatRp(p.gaji_pokok)}
                                                     </td>
-                                                    <td className="py-4 px-4 text-right font-bold text-gray-800 text-xs sm:text-sm">
+                                                    <td className="px-6 py-4 text-right font-medium text-gray-900 whitespace-nowrap">
                                                         {formatRp(p.operasional)}
                                                     </td>
-                                                    <td className="py-4 px-4 text-right font-extrabold text-rose-600 bg-rose-50 text-xs sm:text-sm">
+                                                    <td className="px-6 py-4 text-right font-semibold text-red-600 whitespace-nowrap">
                                                         {formatRp(p.total_potongan)}
                                                     </td>
-                                                    <td className="py-4 px-4 text-right font-black text-emerald-700 bg-emerald-50 text-sm sm:text-base">
+                                                    <td className="px-6 py-4 text-right font-bold text-emerald-600 whitespace-nowrap">
                                                         {formatRp(p.total_diterima)}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center whitespace-nowrap">
+                                                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                                                            p.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                            p.status === 'published' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                            'bg-gray-100 text-gray-700 border-gray-200'
+                                                        }`}>
+                                                            {p.status === 'paid' ? 'Dibayarkan' : p.status === 'published' ? 'Publik' : 'Draft'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <div className="flex justify-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setPreviewPayroll(p)}
+                                                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                title="Lihat Slip Gaji"
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                            </button>
+                                                            <a
+                                                                href={route('salaries.slip.pdf', p.id)}
+                                                                className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                                title="Unduh Slip PDF"
+                                                            >
+                                                                <Download className="w-4 h-4" />
+                                                            </a>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => openEditModal(p)}
+                                                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                title="Edit Gaji"
+                                                            >
+                                                                <Edit className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleDelete(p)}
+                                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                                title="Hapus Gaji"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
 
                                                 {/* Detail Row ketika baris diklik */}
                                                 {isExpanded && (
-                                                    <tr key={`${p.id}-detail`} className="bg-blue-50 border-y-2 border-blue-300">
-                                                        <td colSpan="6" className="p-4 sm:p-6">
-                                                            <div className="bg-white p-5 rounded-2xl border-2 border-blue-200 shadow-sm space-y-4">
-                                                                {/* Header Info & Action Buttons */}
-                                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-200 gap-3">
+                                                    <tr key={`${p.id}-detail`} className="bg-gray-50/70 border-b border-gray-100">
+                                                        <td colSpan="8" className="p-4 sm:p-6">
+                                                            <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-100 gap-3">
                                                                     <div>
-                                                                        <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider block">
+                                                                        <span className="text-xs font-bold text-blue-600 uppercase tracking-wider block">
                                                                             Rincian Lengkap Penggajian
                                                                         </span>
-                                                                        <h4 className="text-base font-black text-gray-900 mt-0.5">
+                                                                        <h4 className="text-base font-bold text-gray-900 mt-0.5">
                                                                             {p.user?.name} &bull; Periode {MONTHS.find(m => m.value === p.period_month)?.label} {p.period_year}
                                                                         </h4>
                                                                         <p className="text-xs text-gray-500 mt-0.5">
@@ -669,118 +677,82 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                                             {p.notes && <span className="ml-2">&bull; Catatan: {p.notes}</span>}
                                                                         </p>
                                                                     </div>
-
-                                                                    <div className="flex flex-wrap items-center gap-2">
-                                                                        <button
-                                                                            onClick={(e) => { e.stopPropagation(); setPreviewPayroll(p); }}
-                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
-                                                                            title="Pratinjau Slip Gaji"
-                                                                        >
-                                                                            <Eye className="w-3.5 h-3.5" />
-                                                                            Lihat Slip
-                                                                        </button>
-                                                                        <a
-                                                                            href={route('salaries.slip.pdf', p.id)}
-                                                                            onClick={(e) => e.stopPropagation()}
-                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
-                                                                            title="Unduh PDF Dokumen"
-                                                                        >
-                                                                            <Download className="w-3.5 h-3.5" />
-                                                                            Unduh PDF
-                                                                        </a>
-                                                                        <button
-                                                                            onClick={(e) => { e.stopPropagation(); openEditModal(p); }}
-                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
-                                                                            title="Edit Data Gaji"
-                                                                        >
-                                                                            <Edit2 className="w-3.5 h-3.5" />
-                                                                            Edit Gaji
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={(e) => { e.stopPropagation(); handleDelete(p); }}
-                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
-                                                                            title="Hapus Data Gaji"
-                                                                        >
-                                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                                            Hapus
-                                                                        </button>
-                                                                    </div>
                                                                 </div>
 
-                                                                {/* 3 Kolom Breakdown: Penerimaan, Potongan, BPJS Perusahaan & THP */}
+                                                                {/* 3 Kolom Breakdown */}
                                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                                                                     {/* 1. Penerimaan */}
-                                                                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl space-y-2">
-                                                                        <h5 className="font-extrabold text-blue-900 border-b border-gray-200 pb-1.5 uppercase text-[11px] flex items-center justify-between">
+                                                                    <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl space-y-2">
+                                                                        <h5 className="font-bold text-gray-800 border-b border-gray-200 pb-2 uppercase text-xs flex items-center justify-between">
                                                                             <span>1. Penerimaan</span>
-                                                                            <span className="text-blue-700 font-black">{formatRp(p.total_penerimaan)}</span>
+                                                                            <span className="text-blue-600 font-bold">{formatRp(p.total_penerimaan)}</span>
                                                                         </h5>
-                                                                        <div className="space-y-1.5 text-gray-700">
+                                                                        <div className="space-y-1.5 text-gray-600">
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">Gaji Pokok:</span>
+                                                                                <span>Gaji Pokok:</span>
                                                                                 <strong className="text-gray-900">{formatRp(p.gaji_pokok)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">Operasional:</span>
+                                                                                <span>Operasional:</span>
                                                                                 <strong className="text-gray-900">{formatRp(p.operasional)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">Tunjangan Jabatan:</span>
+                                                                                <span>Tunjangan Jabatan:</span>
                                                                                 <strong className="text-gray-900">{formatRp(p.tunjangan_jabatan)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">THR:</span>
+                                                                                <span>THR:</span>
                                                                                 <strong className="text-gray-900">{formatRp(p.thr)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">Lembur:</span>
+                                                                                <span>Lembur:</span>
                                                                                 <strong className="text-gray-900">{formatRp(p.lembur)}</strong>
                                                                             </div>
                                                                         </div>
                                                                     </div>
 
                                                                     {/* 2. Potongan */}
-                                                                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl space-y-2">
-                                                                        <h5 className="font-extrabold text-rose-900 border-b border-gray-200 pb-1.5 uppercase text-[11px] flex items-center justify-between">
+                                                                    <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl space-y-2">
+                                                                        <h5 className="font-bold text-gray-800 border-b border-gray-200 pb-2 uppercase text-xs flex items-center justify-between">
                                                                             <span>2. Potongan</span>
-                                                                            <span className="text-rose-600 font-black">{formatRp(p.total_potongan)}</span>
+                                                                            <span className="text-red-600 font-bold">{formatRp(p.total_potongan)}</span>
                                                                         </h5>
-                                                                        <div className="space-y-1.5 text-gray-700">
+                                                                        <div className="space-y-1.5 text-gray-600">
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">BPJS Kesehatan ({p.bpjs_kesehatan_persen}%):</span>
-                                                                                <strong className="text-rose-600">{formatRp(p.bpjs_kesehatan)}</strong>
+                                                                                <span>BPJS Kesehatan ({p.bpjs_kesehatan_persen}%):</span>
+                                                                                <strong className="text-red-600">{formatRp(p.bpjs_kesehatan)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">BPJS TK ({p.bpjs_ketenagakerjaan_persen}%):</span>
-                                                                                <strong className="text-rose-600">{formatRp(p.bpjs_ketenagakerjaan)}</strong>
+                                                                                <span>BPJS TK ({p.bpjs_ketenagakerjaan_persen}%):</span>
+                                                                                <strong className="text-red-600">{formatRp(p.bpjs_ketenagakerjaan)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">Pajak (PPh 21):</span>
-                                                                                <strong className="text-rose-600">{formatRp(p.pajak)}</strong>
+                                                                                <span>Pajak (PPh 21):</span>
+                                                                                <strong className="text-red-600">{formatRp(p.pajak)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">Piutang / Kasbon:</span>
-                                                                                <strong className="text-rose-600">{formatRp(p.piutang)}</strong>
+                                                                                <span>Piutang / Kasbon:</span>
+                                                                                <strong className="text-red-600">{formatRp(p.piutang)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">Potongan Absen:</span>
-                                                                                <strong className="text-rose-600">{formatRp(p.potongan_absen)}</strong>
+                                                                                <span>Potongan Absen:</span>
+                                                                                <strong className="text-red-600">{formatRp(p.potongan_absen)}</strong>
                                                                             </div>
                                                                             <div className="flex justify-between">
-                                                                                <span className="text-gray-500">Potongan Lainnya:</span>
-                                                                                <strong className="text-rose-600">{formatRp(p.potongan_lainnya)}</strong>
+                                                                                <span>Potongan Lainnya:</span>
+                                                                                <strong className="text-red-600">{formatRp(p.potongan_lainnya)}</strong>
                                                                             </div>
                                                                         </div>
                                                                     </div>
 
                                                                     {/* 3. BPJS Perusahaan & THP */}
                                                                     <div className="space-y-3">
-                                                                        <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl space-y-1.5">
-                                                                            <h5 className="font-extrabold text-indigo-900 border-b border-indigo-200 pb-1.5 uppercase text-[11px] flex items-center justify-between">
+                                                                        <div className="bg-indigo-50/60 border border-indigo-100 p-4 rounded-2xl space-y-1.5">
+                                                                            <h5 className="font-bold text-indigo-900 border-b border-indigo-100 pb-1.5 uppercase text-xs flex items-center justify-between">
                                                                                 <span>BPJS Dibayar Kantor</span>
-                                                                                <span className="text-indigo-700 font-black">{formatRp(p.total_bpjs_perusahaan)}</span>
+                                                                                <span className="text-indigo-700 font-bold">{formatRp(p.total_bpjs_perusahaan)}</span>
                                                                             </h5>
-                                                                            <div className="text-[11px] space-y-1 text-indigo-900">
+                                                                            <div className="text-xs space-y-1 text-indigo-900">
                                                                                 <div className="flex justify-between">
                                                                                     <span>BPJS Kes ({p.bpjs_kesehatan_perusahaan_persen}%):</span>
                                                                                     <strong>{formatRp(p.bpjs_kesehatan_perusahaan)}</strong>
@@ -792,15 +764,15 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                                             </div>
                                                                         </div>
 
-                                                                        <div className="bg-emerald-50 border-2 border-emerald-300 p-4 rounded-xl">
-                                                                            <span className="text-[10px] font-extrabold text-emerald-900 uppercase block tracking-wider">
-                                                                                GAJI BERSIH DITERIMA (THP):
+                                                                        <div className="bg-emerald-50/70 border border-emerald-200 p-4 rounded-2xl">
+                                                                            <span className="text-[11px] font-bold text-emerald-800 uppercase block tracking-wider">
+                                                                                Gaji Bersih Diterima (THP):
                                                                             </span>
-                                                                            <span className="text-xl font-black text-emerald-700 block mt-1">
+                                                                            <span className="text-xl font-bold text-emerald-700 block mt-1">
                                                                                 {formatRp(p.total_diterima)}
                                                                             </span>
                                                                             {p.terbilang && (
-                                                                                <span className="text-[10px] text-gray-600 italic block mt-1">
+                                                                                <span className="text-[11px] text-gray-500 italic block mt-1">
                                                                                     Terbilang: {p.terbilang}
                                                                                 </span>
                                                                             )}
@@ -818,8 +790,20 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                             </tbody>
                         </table>
                     </div>
-                </div>
 
+                    {payrolls.length > 0 && (
+                        <div className="border-t border-gray-100">
+                            <ClientPagination
+                                total={payrolls.length}
+                                itemsPerPage={itemsPerPage}
+                                currentPage={currentPage}
+                                onPageChange={setCurrentPage}
+                                onItemsPerPageChange={setItemsPerPage}
+                                alwaysShow={true}
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Modal: Tambah / Edit Gaji */}
@@ -831,10 +815,10 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                 <DollarSign className="w-5 h-5" />
                             </div>
                             <div>
-                                <h3 className="font-extrabold text-gray-900 text-lg">
+                                <h3 className="font-bold text-gray-900 text-lg">
                                     {editingPayroll ? 'Edit Data Gaji Karyawan' : 'Input Data Gaji Baru'}
                                 </h3>
-                                <p className="text-xs text-gray-400 mt-0.5">
+                                <p className="text-xs text-gray-500 mt-0.5">
                                     Gaji Pokok & Operasional tersinkronisasi otomatis dengan Data Pengguna.
                                 </p>
                             </div>
@@ -842,36 +826,33 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         <button
                             type="button"
                             onClick={() => setIsFormOpen(false)}
-                            className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100"
+                            className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
-                    <div className="mt-5 space-y-6 max-h-[75vh] overflow-y-auto pr-1">
-
+                    <div className="mt-5 space-y-6 max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar">
                         {/* Employee & Period Selector */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                             <div>
                                 <InputLabel value="Karyawan *" />
                                 {editingPayroll ? (
-                                    <div className="mt-1 p-2.5 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 text-sm">
+                                    <div className="mt-1 p-2.5 bg-white border border-gray-200 rounded-xl font-semibold text-gray-900 text-sm">
                                         {editingPayroll.user?.name}
                                     </div>
                                 ) : (
-                                    <select
-                                        value={data.user_id}
-                                        onChange={(e) => handleUserChange(e.target.value)}
-                                        className="mt-1 w-full text-xs font-semibold rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-2.5"
-                                        required
-                                    >
-                                        <option value="">-- Pilih Karyawan --</option>
-                                        {users.map(u => (
-                                            <option key={u.id} value={u.id}>
-                                                {u.name} {u.division?.name ? `(${u.division.name})` : ''}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className="mt-1">
+                                        <CustomSelect
+                                            value={data.user_id}
+                                            onChange={(val) => handleUserChange(val)}
+                                            options={users.map(u => ({
+                                                value: u.id,
+                                                label: `${u.name}${u.division?.name ? ` (${u.division.name})` : ''}`
+                                            }))}
+                                            placeholder="-- Pilih Karyawan --"
+                                        />
+                                    </div>
                                 )}
                                 <InputError message={errors.user_id} className="mt-1" />
                             </div>
@@ -879,71 +860,63 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                             <div>
                                 <InputLabel value="Periode Bulan & Tahun *" />
                                 <div className="grid grid-cols-2 gap-2 mt-1">
-                                    <select
+                                    <CustomSelect
                                         value={data.period_month}
-                                        onChange={(e) => {
-                                            const m = parseInt(e.target.value);
+                                        onChange={(val) => {
+                                            const m = parseInt(val);
                                             setData('period_month', m);
                                             if (data.user_id) fetchAttendanceSummary(data.user_id, m, data.period_year);
                                         }}
-                                        className="w-full text-xs font-semibold rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-2.5"
-                                    >
-                                        {MONTHS.map(m => (
-                                            <option key={m.value} value={m.value}>{m.label}</option>
-                                        ))}
-                                    </select>
-                                    <select
+                                        options={MONTHS.map(m => ({ value: m.value, label: m.label }))}
+                                    />
+                                    <CustomSelect
                                         value={data.period_year}
-                                        onChange={(e) => {
-                                            const y = parseInt(e.target.value);
+                                        onChange={(val) => {
+                                            const y = parseInt(val);
                                             setData('period_year', y);
                                             if (data.user_id) fetchAttendanceSummary(data.user_id, data.period_month, y);
                                         }}
-                                        className="w-full text-xs font-semibold rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-2.5"
-                                    >
-                                        {[2024, 2025, 2026, 2027, 2028].map(y => (
-                                            <option key={y} value={y}>{y}</option>
-                                        ))}
-                                    </select>
+                                        options={[2024, 2025, 2026, 2027, 2028].map(y => ({ value: y, label: String(y) }))}
+                                    />
                                 </div>
                             </div>
 
                             <div>
                                 <InputLabel value="Tanggal Pembayaran" />
-                                <TextInput
-                                    type="date"
-                                    value={data.payment_date}
-                                    onChange={(e) => setData('payment_date', e.target.value)}
-                                    className="mt-1 block w-full text-xs"
-                                />
+                                <div className="mt-1">
+                                    <CustomDatePicker
+                                        value={data.payment_date}
+                                        onChange={(val) => setData('payment_date', val)}
+                                    />
+                                </div>
                             </div>
                         </div>
 
                         {/* Attendance helper badge if available */}
                         {userAttendance && (
-                            <div className="bg-blue-50 border border-blue-200 p-3 rounded-2xl flex flex-wrap items-center justify-between text-xs text-blue-900 gap-2">
-                                <div className="flex items-center gap-2 font-bold">
+                            <div className="bg-blue-50 border border-blue-100 p-3.5 rounded-2xl flex flex-wrap items-center justify-between text-xs text-blue-900 gap-2">
+                                <div className="flex items-center gap-2 font-semibold">
                                     <Clock className="w-4 h-4 text-blue-600" />
                                     Rekap Absensi Bulan Ini:
                                 </div>
-                                <div className="flex items-center gap-3 font-semibold text-[11px]">
+                                <div className="flex items-center gap-3 font-medium">
                                     <span className="text-emerald-700">Hadir: <strong>{userAttendance.hadir}</strong></span>
                                     <span className="text-amber-700">Terlambat: <strong>{userAttendance.terlambat}</strong></span>
                                     <span className="text-blue-700">Izin: <strong>{userAttendance.izin}</strong></span>
                                     <span className="text-purple-700">Sakit: <strong>{userAttendance.sakit}</strong></span>
-                                    <span className="text-rose-700">Absen: <strong>{userAttendance.absen}</strong></span>
+                                    <span className="text-red-600">Absen: <strong>{userAttendance.absen}</strong></span>
                                 </div>
                             </div>
                         )}
 
                         {/* SECTION 1: PENERIMAAN */}
-                        <div className="bg-white p-4 rounded-2xl border border-blue-100 shadow-sm">
-                            <div className="flex items-center justify-between mb-3 border-b border-blue-50 pb-2">
-                                <h4 className="font-extrabold text-blue-900 text-sm flex items-center gap-1.5 uppercase tracking-wider">
+                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                            <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
+                                <h4 className="font-bold text-gray-800 text-sm flex items-center gap-1.5">
                                     <TrendingUp className="w-4 h-4 text-blue-600" />
                                     1. Penerimaan
                                 </h4>
-                                <span className="text-xs font-black text-blue-700">
+                                <span className="text-xs font-bold text-blue-600">
                                     Subtotal: {formatRp(computedTotals.totalPenerimaan)}
                                 </span>
                             </div>
@@ -954,13 +927,11 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                     <CurrencyInput
                                         className="mt-1 block w-full"
                                         value={data.gaji_pokok}
-                                        onChange={(val) => {
-                                            setData('gaji_pokok', val);
-                                        }}
+                                        onChange={(val) => setData('gaji_pokok', val)}
                                         placeholder="0"
                                         required
                                     />
-                                    <p className="text-[10px] text-gray-400 mt-0.5">Tersinkron ke Data Pengguna</p>
+                                    <p className="text-[11px] text-gray-400 mt-0.5">Tersinkron ke Data Pengguna</p>
                                 </div>
 
                                 <div>
@@ -971,7 +942,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                         onChange={(val) => setData('operasional', val)}
                                         placeholder="0"
                                     />
-                                    <p className="text-[10px] text-gray-400 mt-0.5">Tersinkron ke Data Pengguna</p>
+                                    <p className="text-[11px] text-gray-400 mt-0.5">Tersinkron ke Data Pengguna</p>
                                 </div>
 
                                 <div>
@@ -1007,13 +978,13 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         </div>
 
                         {/* SECTION 2: POTONGAN */}
-                        <div className="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm">
-                            <div className="flex items-center justify-between mb-3 border-b border-rose-50 pb-2">
-                                <h4 className="font-extrabold text-rose-900 text-sm flex items-center gap-1.5 uppercase tracking-wider">
-                                    <TrendingDown className="w-4 h-4 text-rose-600" />
+                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                            <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
+                                <h4 className="font-bold text-gray-800 text-sm flex items-center gap-1.5">
+                                    <TrendingDown className="w-4 h-4 text-red-600" />
                                     2. Potongan
                                 </h4>
-                                <span className="text-xs font-black text-rose-700">
+                                <span className="text-xs font-bold text-red-600">
                                     Subtotal: {formatRp(computedTotals.totalPotongan)}
                                 </span>
                             </div>
@@ -1038,14 +1009,13 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                         setData(prev => ({ ...prev, bpjs_kesehatan_persen: pct, bpjs_kesehatan: val }));
                                                     }
                                                 }}
-                                                className="w-14 text-[11px] font-bold py-0.5 px-1 rounded-lg border-gray-300 text-right"
-                                                title="Persentase BPJS Kesehatan Karyawan"
+                                                className="w-14 text-xs font-semibold py-0.5 px-1.5 rounded-lg border-gray-300 text-right"
                                             />
-                                            <span className="text-[11px] font-bold text-gray-500">%</span>
+                                            <span className="text-xs font-semibold text-gray-500">%</span>
                                         </div>
                                     </div>
                                     <CurrencyInput
-                                        className="mt-1 block w-full text-rose-700"
+                                        className="mt-1 block w-full"
                                         value={data.bpjs_kesehatan !== '' ? data.bpjs_kesehatan : computedTotals.bpjsKes}
                                         onChange={(val) => setData('bpjs_kesehatan', val)}
                                         placeholder="0"
@@ -1071,14 +1041,13 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                         setData(prev => ({ ...prev, bpjs_ketenagakerjaan_persen: pct, bpjs_ketenagakerjaan: val }));
                                                     }
                                                 }}
-                                                className="w-14 text-[11px] font-bold py-0.5 px-1 rounded-lg border-gray-300 text-right"
-                                                title="Persentase BPJS Ketenagakerjaan Karyawan"
+                                                className="w-14 text-xs font-semibold py-0.5 px-1.5 rounded-lg border-gray-300 text-right"
                                             />
-                                            <span className="text-[11px] font-bold text-gray-500">%</span>
+                                            <span className="text-xs font-semibold text-gray-500">%</span>
                                         </div>
                                     </div>
                                     <CurrencyInput
-                                        className="mt-1 block w-full text-rose-700"
+                                        className="mt-1 block w-full"
                                         value={data.bpjs_ketenagakerjaan !== '' ? data.bpjs_ketenagakerjaan : computedTotals.bpjsTk}
                                         onChange={(val) => setData('bpjs_ketenagakerjaan', val)}
                                         placeholder="0"
@@ -1088,7 +1057,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                 <div>
                                     <InputLabel value="Pajak (PPh 21)" />
                                     <CurrencyInput
-                                        className="mt-1 block w-full text-rose-700"
+                                        className="mt-1 block w-full"
                                         value={data.pajak}
                                         onChange={(val) => setData('pajak', val)}
                                         placeholder="0"
@@ -1098,7 +1067,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                 <div>
                                     <InputLabel value="Piutang / Pinjaman" />
                                     <CurrencyInput
-                                        className="mt-1 block w-full text-rose-700"
+                                        className="mt-1 block w-full"
                                         value={data.piutang}
                                         onChange={(val) => setData('piutang', val)}
                                         placeholder="0"
@@ -1108,7 +1077,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                 <div>
                                     <InputLabel value="Potongan Absen" />
                                     <CurrencyInput
-                                        className="mt-1 block w-full text-rose-700"
+                                        className="mt-1 block w-full"
                                         value={data.potongan_absen}
                                         onChange={(val) => setData('potongan_absen', val)}
                                         placeholder="0"
@@ -1118,7 +1087,7 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                 <div>
                                     <InputLabel value="Potongan Lainnya" />
                                     <CurrencyInput
-                                        className="mt-1 block w-full text-rose-700"
+                                        className="mt-1 block w-full"
                                         value={data.potongan_lainnya}
                                         onChange={(val) => setData('potongan_lainnya', val)}
                                         placeholder="0"
@@ -1128,13 +1097,13 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         </div>
 
                         {/* SECTION 3: BPJS PERUSAHAAN */}
-                        <div className="bg-white p-4 rounded-2xl border border-indigo-100 shadow-sm">
-                            <div className="flex items-center justify-between mb-3 border-b border-indigo-50 pb-2">
-                                <h4 className="font-extrabold text-indigo-900 text-sm flex items-center gap-1.5 uppercase tracking-wider">
+                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                            <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
+                                <h4 className="font-bold text-gray-800 text-sm flex items-center gap-1.5">
                                     <ShieldCheck className="w-4 h-4 text-indigo-600" />
                                     3. BPJS yang Dibayarkan Perusahaan
                                 </h4>
-                                <span className="text-xs font-black text-indigo-700">
+                                <span className="text-xs font-bold text-indigo-600">
                                     Subtotal: {formatRp(computedTotals.totalBpjsPerusahaan)}
                                 </span>
                             </div>
@@ -1158,13 +1127,13 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                         setData(prev => ({ ...prev, bpjs_kesehatan_perusahaan_persen: pct, bpjs_kesehatan_perusahaan: val }));
                                                     }
                                                 }}
-                                                className="w-14 text-[11px] font-bold py-0.5 px-1 rounded-lg border-gray-300 text-right"
+                                                className="w-14 text-xs font-semibold py-0.5 px-1.5 rounded-lg border-gray-300 text-right"
                                             />
-                                            <span className="text-[11px] font-bold text-gray-500">%</span>
+                                            <span className="text-xs font-semibold text-gray-500">%</span>
                                         </div>
                                     </div>
                                     <CurrencyInput
-                                        className="mt-1 block w-full text-indigo-700"
+                                        className="mt-1 block w-full"
                                         value={data.bpjs_kesehatan_perusahaan !== '' ? data.bpjs_kesehatan_perusahaan : computedTotals.bpjsKesCo}
                                         onChange={(val) => setData('bpjs_kesehatan_perusahaan', val)}
                                         placeholder="0"
@@ -1189,13 +1158,13 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                                         setData(prev => ({ ...prev, bpjs_ketenagakerjaan_perusahaan_persen: pct, bpjs_ketenagakerjaan_perusahaan: val }));
                                                     }
                                                 }}
-                                                className="w-14 text-[11px] font-bold py-0.5 px-1 rounded-lg border-gray-300 text-right"
+                                                className="w-14 text-xs font-semibold py-0.5 px-1.5 rounded-lg border-gray-300 text-right"
                                             />
-                                            <span className="text-[11px] font-bold text-gray-500">%</span>
+                                            <span className="text-xs font-semibold text-gray-500">%</span>
                                         </div>
                                     </div>
                                     <CurrencyInput
-                                        className="mt-1 block w-full text-indigo-700"
+                                        className="mt-1 block w-full"
                                         value={data.bpjs_ketenagakerjaan_perusahaan !== '' ? data.bpjs_ketenagakerjaan_perusahaan : computedTotals.bpjsTkCo}
                                         onChange={(val) => setData('bpjs_ketenagakerjaan_perusahaan', val)}
                                         placeholder="0"
@@ -1205,27 +1174,29 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                         </div>
 
                         {/* TOTAL DITERIMA & STATUS */}
-                        <div className="bg-emerald-50 p-5 rounded-2xl border-2 border-emerald-300 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="bg-emerald-50/70 p-5 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div>
-                                <span className="text-xs font-extrabold text-emerald-800 uppercase tracking-wider block">
+                                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block">
                                     Total Yang Diterima (Take Home Pay)
                                 </span>
-                                <span className="text-2xl sm:text-3xl font-black text-emerald-700">
+                                <span className="text-2xl font-extrabold text-emerald-700">
                                     {formatRp(computedTotals.totalDiterima)}
                                 </span>
                             </div>
 
-                            <div className="w-full sm:w-44">
+                            <div className="w-full sm:w-56">
                                 <InputLabel value="Status Slip" />
-                                <select
-                                    value={data.status}
-                                    onChange={(e) => setData('status', e.target.value)}
-                                    className="mt-1 w-full text-xs font-bold rounded-xl border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 py-2"
-                                >
-                                    <option value="published">Publik (Terlihat Karyawan)</option>
-                                    <option value="paid">Dibayarkan</option>
-                                    <option value="draft">Draft (Draf Rahasia)</option>
-                                </select>
+                                <div className="mt-1">
+                                    <CustomSelect
+                                        value={data.status}
+                                        onChange={(val) => setData('status', val)}
+                                        options={[
+                                            { value: 'published', label: 'Publik (Terlihat Karyawan)' },
+                                            { value: 'paid', label: 'Dibayarkan' },
+                                            { value: 'draft', label: 'Draft (Rahasia)' },
+                                        ]}
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -1236,27 +1207,18 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                 value={data.notes}
                                 onChange={(e) => setData('notes', e.target.value)}
                                 placeholder="Contoh: Termasuk lembur project akhir bulan..."
-                                className="mt-1 block w-full text-xs"
+                                className="mt-1 block w-full text-sm"
                             />
                         </div>
-
                     </div>
 
                     <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                        <button
-                            type="button"
-                            onClick={() => setIsFormOpen(false)}
-                            className="px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
-                        >
+                        <SecondaryButton type="button" onClick={() => setIsFormOpen(false)} className="rounded-xl px-5 py-2.5">
                             Batal
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        >
+                        </SecondaryButton>
+                        <PrimaryButton disabled={processing}>
                             {processing ? 'Menyimpan...' : editingPayroll ? 'Simpan Perubahan' : 'Buat Slip Gaji'}
-                        </button>
+                        </PrimaryButton>
                     </div>
                 </form>
             </Modal>
@@ -1266,74 +1228,71 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                 {previewPayroll && (
                     <div className="p-6">
                         <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-                            <h3 className="font-extrabold text-gray-900 text-lg flex items-center gap-2">
+                            <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
                                 <FileText className="w-5 h-5 text-blue-600" />
                                 Pratinjau Slip Gaji
                             </h3>
                             <button
                                 onClick={() => setPreviewPayroll(null)}
-                                className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100"
+                                className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        {/* Slip Design Mockup */}
                         <div className="mt-4 p-5 bg-white border border-gray-200 rounded-2xl shadow-sm text-xs space-y-4">
                             <div className="flex justify-between items-start border-b border-gray-100 pb-3">
                                 <div>
-                                    <h4 className="font-extrabold text-blue-900 text-sm uppercase">
+                                    <h4 className="font-bold text-blue-900 text-sm uppercase">
                                         {previewPayroll.company?.name || previewPayroll.user?.company?.name || 'SANZAYA GROUP'}
                                     </h4>
                                     <p className="text-[11px] text-gray-500">
-                                        {previewPayroll.company?.address || 'Kalimantan Timur, Indonesia'}
+                                        {previewPayroll.company?.address || 'Indonesia'}
                                     </p>
                                 </div>
                                 <div className="text-right">
-                                    <span className="font-black text-gray-900 text-sm block">SLIP GAJI</span>
-                                    <span className="text-blue-600 font-bold">
+                                    <span className="font-bold text-gray-900 text-sm block">SLIP GAJI</span>
+                                    <span className="text-blue-600 font-semibold">
                                         {MONTHS.find(m => m.value === previewPayroll.period_month)?.label} {previewPayroll.period_year}
                                     </span>
                                 </div>
                             </div>
 
-                            {/* Employee info */}
-                            <div className="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl">
+                            <div className="grid grid-cols-2 gap-2 bg-gray-50 p-3.5 rounded-xl border border-gray-100">
                                 <div>
                                     <span className="text-gray-400 block text-[10px]">Nama Karyawan</span>
-                                    <span className="font-bold text-gray-900">{previewPayroll.user?.name}</span>
+                                    <span className="font-semibold text-gray-900">{previewPayroll.user?.name}</span>
                                 </div>
                                 <div>
                                     <span className="text-gray-400 block text-[10px]">Jabatan / Divisi</span>
-                                    <span className="font-bold text-gray-900">
+                                    <span className="font-semibold text-gray-900">
                                         {previewPayroll.user?.position?.name || '-'} / {previewPayroll.user?.division?.name || '-'}
                                     </span>
                                 </div>
                                 <div>
                                     <span className="text-gray-400 block text-[10px]">NIK / ID</span>
-                                    <span className="font-bold text-gray-900">
+                                    <span className="font-semibold text-gray-900">
                                         {previewPayroll.user?.employee_id || previewPayroll.user?.nik || '-'}
                                     </span>
                                 </div>
                                 <div>
                                     <span className="text-gray-400 block text-[10px]">Tanggal Bayar</span>
-                                    <span className="font-bold text-gray-900">{previewPayroll.payment_date || '-'}</span>
+                                    <span className="font-semibold text-gray-900">{previewPayroll.payment_date || '-'}</span>
                                 </div>
                             </div>
 
-                            {/* Breakdown */}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <h5 className="font-extrabold text-blue-900 border-b border-blue-100 pb-1 mb-2 uppercase text-[11px]">
+                                    <h5 className="font-bold text-gray-800 border-b border-gray-100 pb-1 mb-2 uppercase text-[11px]">
                                         Penerimaan
                                     </h5>
-                                    <div className="space-y-1.5">
+                                    <div className="space-y-1.5 text-gray-600">
                                         <div className="flex justify-between"><span>Gaji Pokok:</span><strong className="text-gray-900">{formatRp(previewPayroll.gaji_pokok)}</strong></div>
                                         <div className="flex justify-between"><span>Operasional:</span><strong className="text-gray-900">{formatRp(previewPayroll.operasional)}</strong></div>
                                         <div className="flex justify-between"><span>T. Jabatan:</span><strong className="text-gray-900">{formatRp(previewPayroll.tunjangan_jabatan)}</strong></div>
                                         <div className="flex justify-between"><span>THR:</span><strong className="text-gray-900">{formatRp(previewPayroll.thr)}</strong></div>
                                         <div className="flex justify-between"><span>Lembur:</span><strong className="text-gray-900">{formatRp(previewPayroll.lembur)}</strong></div>
-                                        <div className="flex justify-between border-t border-gray-200 pt-1.5 font-bold text-blue-900">
+                                        <div className="flex justify-between border-t border-gray-200 pt-1.5 font-bold text-blue-600">
                                             <span>Total Penerimaan:</span>
                                             <span>{formatRp(previewPayroll.total_penerimaan)}</span>
                                         </div>
@@ -1341,17 +1300,17 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                 </div>
 
                                 <div>
-                                    <h5 className="font-extrabold text-rose-900 border-b border-rose-100 pb-1 mb-2 uppercase text-[11px]">
+                                    <h5 className="font-bold text-gray-800 border-b border-gray-100 pb-1 mb-2 uppercase text-[11px]">
                                         Potongan
                                     </h5>
-                                    <div className="space-y-1.5">
-                                        <div className="flex justify-between"><span>BPJS Kesehatan ({previewPayroll.bpjs_kesehatan_persen}%):</span><strong className="text-rose-600">{formatRp(previewPayroll.bpjs_kesehatan)}</strong></div>
-                                        <div className="flex justify-between"><span>BPJS TK ({previewPayroll.bpjs_ketenagakerjaan_persen}%):</span><strong className="text-rose-600">{formatRp(previewPayroll.bpjs_ketenagakerjaan)}</strong></div>
-                                        <div className="flex justify-between"><span>Pajak (PPh 21):</span><strong className="text-rose-600">{formatRp(previewPayroll.pajak)}</strong></div>
-                                        <div className="flex justify-between"><span>Piutang:</span><strong className="text-rose-600">{formatRp(previewPayroll.piutang)}</strong></div>
-                                        <div className="flex justify-between"><span>Pot. Absen:</span><strong className="text-rose-600">{formatRp(previewPayroll.potongan_absen)}</strong></div>
-                                        <div className="flex justify-between"><span>Lainnya:</span><strong className="text-rose-600">{formatRp(previewPayroll.potongan_lainnya)}</strong></div>
-                                        <div className="flex justify-between border-t border-gray-200 pt-1.5 font-bold text-rose-700">
+                                    <div className="space-y-1.5 text-gray-600">
+                                        <div className="flex justify-between"><span>BPJS Kesehatan ({previewPayroll.bpjs_kesehatan_persen}%):</span><strong className="text-red-600">{formatRp(previewPayroll.bpjs_kesehatan)}</strong></div>
+                                        <div className="flex justify-between"><span>BPJS TK ({previewPayroll.bpjs_ketenagakerjaan_persen}%):</span><strong className="text-red-600">{formatRp(previewPayroll.bpjs_ketenagakerjaan)}</strong></div>
+                                        <div className="flex justify-between"><span>Pajak (PPh 21):</span><strong className="text-red-600">{formatRp(previewPayroll.pajak)}</strong></div>
+                                        <div className="flex justify-between"><span>Piutang:</span><strong className="text-red-600">{formatRp(previewPayroll.piutang)}</strong></div>
+                                        <div className="flex justify-between"><span>Pot. Absen:</span><strong className="text-red-600">{formatRp(previewPayroll.potongan_absen)}</strong></div>
+                                        <div className="flex justify-between"><span>Lainnya:</span><strong className="text-red-600">{formatRp(previewPayroll.potongan_lainnya)}</strong></div>
+                                        <div className="flex justify-between border-t border-gray-200 pt-1.5 font-bold text-red-600">
                                             <span>Total Potongan:</span>
                                             <span>{formatRp(previewPayroll.total_potongan)}</span>
                                         </div>
@@ -1359,37 +1318,28 @@ export default function Index({ auth, payrolls = [], summary = {}, users = [], c
                                 </div>
                             </div>
 
-                            {/* BPJS Kantor */}
-                            <div className="bg-indigo-50 border border-indigo-200 p-2.5 rounded-xl text-[11px] text-indigo-900 flex justify-between items-center">
+                            <div className="bg-indigo-50/60 border border-indigo-100 p-3 rounded-xl text-[11px] text-indigo-900 flex justify-between items-center">
                                 <span>BPJS yang Dibayarkan Perusahaan (Kes {previewPayroll.bpjs_kesehatan_perusahaan_persen}% + TK {previewPayroll.bpjs_ketenagakerjaan_perusahaan_persen}%):</span>
                                 <strong className="font-bold">{formatRp(previewPayroll.total_bpjs_perusahaan)}</strong>
                             </div>
 
-                            {/* Net Pay */}
-                            <div className="bg-emerald-50 border-2 border-emerald-300 p-3 rounded-xl flex justify-between items-center">
-                                <span className="font-extrabold text-emerald-900 uppercase">Gaji Diterima (THP):</span>
-                                <span className="text-lg font-black text-emerald-700">{formatRp(previewPayroll.total_diterima)}</span>
+                            <div className="bg-emerald-50/70 border border-emerald-200 p-3.5 rounded-xl flex justify-between items-center">
+                                <span className="font-bold text-emerald-900 uppercase">Gaji Diterima (THP):</span>
+                                <span className="text-lg font-extrabold text-emerald-700">{formatRp(previewPayroll.total_diterima)}</span>
                             </div>
-
-                            <p className="text-[10px] text-center text-gray-400 pt-2 border-t border-gray-100">
-                                Dokumen ini di-generate secara otomatis oleh Sistem Sanzaya.
-                            </p>
                         </div>
 
                         <div className="mt-5 flex items-center justify-end gap-2">
+                            <SecondaryButton type="button" onClick={() => setPreviewPayroll(null)} className="rounded-xl px-4 py-2">
+                                Tutup
+                            </SecondaryButton>
                             <a
                                 href={route('salaries.slip.pdf', previewPayroll.id)}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold uppercase tracking-widest transition-all shadow-md"
                             >
                                 <Download className="w-4 h-4" />
                                 Unduh PDF
                             </a>
-                            <button
-                                onClick={() => setPreviewPayroll(null)}
-                                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
-                            >
-                                Tutup
-                            </button>
                         </div>
                     </div>
                 )}
