@@ -57,14 +57,14 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="email" value="Alamat Email" className="mb-1 text-gray-700 font-medium" />
+                    <InputLabel htmlFor="email" value="Username / Email" className="mb-1 text-gray-700 font-medium" />
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <Mail className="h-5 w-5 text-gray-400" />
                         </div>
                         <TextInput
                             id="email"
-                            type="email"
+                            type="text"
                             className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-blue-500 transition-all"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}

@@ -100,11 +100,11 @@ export default function Login({ status, canResetPassword }) {
 
             <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="email" value="EMAIL PERUSAHAAN" className="text-[11px] font-bold text-gray-500 tracking-widest mb-1.5" />
+                    <InputLabel htmlFor="email" value="USERNAME / EMAIL" className="text-[11px] font-bold text-gray-500 tracking-widest mb-1.5" />
 
                     <TextInput
                         id="email"
-                        type="email"
+                        type="text" placeholder="Masukkan username atau email"
                         name="email"
                         value={data.email}
                         className="mt-1 block w-full px-4 py-3.5 rounded-xl border-gray-200/80 bg-white/50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] transition-all duration-300 text-sm"

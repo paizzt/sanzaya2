@@ -489,7 +489,7 @@ class UserController extends Controller
     public function exportPdf()
     {
         $items = \App\Models\User::with(['company', 'division'])->orderBy('name', 'asc')->get();
-        $headings = ['No', 'Nama', 'Nama PT', 'Email', 'Masa Kerja', 'Divisi'];
+        $headings = ['No', 'Nama', 'Nama PT', 'Username / Email', 'Masa Kerja', 'Divisi'];
         
         $companies = \App\Models\Company::all()->keyBy('id');
 
@@ -563,7 +563,7 @@ class UserController extends Controller
     public function exportExcel()
     {
         $items = \App\Models\User::with(['company', 'division'])->orderBy('name', 'asc')->get();
-        $headings = ['No', 'Nama', 'Nama PT', 'Email', 'Masa Kerja', 'Divisi'];
+        $headings = ['No', 'Nama', 'Nama PT', 'Username / Email', 'Masa Kerja', 'Divisi'];
         
         $companies = \App\Models\Company::all()->keyBy('id');
 

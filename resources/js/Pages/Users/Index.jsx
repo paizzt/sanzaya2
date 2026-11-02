@@ -528,8 +528,9 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     <InputLabel value="Username / Email *" />
                                                     <div className="relative">
                                                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                        <TextInput type="text" className="mt-1 block w-full pl-9" value={data.email} onChange={e => setData('email', e.target.value)} required />
+                                                        <TextInput type="text" className="mt-1 block w-full pl-9" value={data.email} onChange={e => setData('email', e.target.value)} placeholder="Ketik username atau email..." required />
                                                     </div>
+                                                    <p className="text-xs text-gray-500 mt-1">Tidak wajib menggunakan email, bisa diisi username saja atau alamat email.</p>
                                                     <InputError message={errors.email} className="mt-1" />
                                                 </div>
                                                 <div>
@@ -567,28 +568,30 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     <InputError message={errors.role} className="mt-1" />
                                                 </div>
                                                 
-                                                <div>
-                                                    <InputLabel value="Tautkan ke Nama Sales Spreadsheet (Opsional)" />
-                                                    <CustomSelect 
-                                                        value={data.spreadsheet_sales_name}
-                                                        onChange={val => setData('spreadsheet_sales_name', val)}
-                                                        options={spreadsheetSalesNames.map((name) => ({ value: name, label: name }))}
-                                                        />
-                                                    <InputError message={errors.spreadsheet_sales_name} className="mt-1" />
-                                                    <p className="text-xs text-gray-500 mt-1">Pilih nama ini untuk mengaitkan akun dengan data logistik di spreadsheet.</p>
-                                                </div>
-
                                                 {data.role && (data.role.toLowerCase() === 'sales' || data.role.toLowerCase() === 'marketing') && (
-                                                    <div>
-                                                        <InputLabel value="Target Bulanan (Rp) (Opsional)" />
-                                                        <CurrencyInput 
-                                                            className="mt-1 block w-full" 
-                                                            value={data.monthly_target} 
-                                                            onChange={val => setData('monthly_target', val)} 
-                                                        />
-                                                        <InputError message={errors.monthly_target} className="mt-1" />
-                                                        <p className="text-xs text-gray-500 mt-1">Isi hanya angka, tanpa titik atau koma.</p>
-                                                    </div>
+                                                    <>
+                                                        <div>
+                                                            <InputLabel value="Tautkan ke Nama Sales Spreadsheet (Opsional)" />
+                                                            <CustomSelect 
+                                                                value={data.spreadsheet_sales_name}
+                                                                onChange={val => setData('spreadsheet_sales_name', val)}
+                                                                options={spreadsheetSalesNames.map((name) => ({ value: name, label: name }))}
+                                                            />
+                                                            <InputError message={errors.spreadsheet_sales_name} className="mt-1" />
+                                                            <p className="text-xs text-gray-500 mt-1">Pilih nama ini untuk mengaitkan akun dengan data logistik di spreadsheet.</p>
+                                                        </div>
+
+                                                        <div>
+                                                            <InputLabel value="Target Bulanan (Rp) (Opsional)" />
+                                                            <CurrencyInput 
+                                                                className="mt-1 block w-full" 
+                                                                value={data.monthly_target} 
+                                                                onChange={val => setData('monthly_target', val)} 
+                                                            />
+                                                            <InputError message={errors.monthly_target} className="mt-1" />
+                                                            <p className="text-xs text-gray-500 mt-1">Isi hanya angka, tanpa titik atau koma.</p>
+                                                        </div>
+                                                    </>
                                                 )}
                                                 
                                                 <>

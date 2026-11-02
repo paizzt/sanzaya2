@@ -27,7 +27,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-gray-800">Informasi Profil</h3>
-                                <p className="text-sm text-gray-500">Perbarui nama dan alamat email akun Anda.</p>
+                                <p className="text-sm text-gray-500">Perbarui nama dan username / email akun Anda.</p>
                             </div>
                         </div>
                         <UpdateProfileInformationForm
