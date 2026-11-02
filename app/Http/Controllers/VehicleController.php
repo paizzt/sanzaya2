@@ -8,11 +8,33 @@ use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 
 class VehicleController extends Controller
 {
+    private function uploadToImgBB($file, $fallbackFolder = 'vehicles')
+    {
+        try {
+            $response = Http::withoutVerifying()->timeout(15)->attach(
+                'image',
+                file_get_contents($file->getRealPath()),
+                $file->getClientOriginalName()
+            )->post('https://api.imgbb.com/1/upload', [
+                'key' => '5950b44b24860057ff810fe73f58868b'
+            ]);
+
+            if ($response->successful() && $response->json('data.url')) {
+                return $response->json('data.url');
+            }
+        } catch (\Throwable $e) {
+            // Fallback to local storage if ImgBB fails
+        }
+
+        return $file->store($fallbackFolder, 'public');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -47,7 +69,7 @@ class VehicleController extends Controller
             'manufacture_year' => 'nullable|integer',
             'color' => 'nullable|string|max:255',
             'capacity' => 'nullable|string|max:255',
-            'photo' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+            'photo' => 'nullable|file|mimes:jpeg,png,jpg,webp|max:5120',
             'annual_tax_date' => 'nullable|date',
             'five_year_tax_date' => 'nullable|date',
             'plate_replacement_date' => 'nullable|date',
@@ -72,8 +94,7 @@ class VehicleController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('vehicles', 'public');
-            $validated['photo'] = $path;
+            $validated['photo'] = $this->uploadToImgBB($request->file('photo'), 'vehicles');
         }
 
         Vehicle::create($validated);
@@ -111,7 +132,7 @@ class VehicleController extends Controller
             'manufacture_year' => 'nullable|integer',
             'color' => 'nullable|string|max:255',
             'capacity' => 'nullable|string|max:255',
-            'photo' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+            'photo' => 'nullable|file|mimes:jpeg,png,jpg,webp|max:5120',
             'annual_tax_date' => 'nullable|date',
             'five_year_tax_date' => 'nullable|date',
             'plate_replacement_date' => 'nullable|date',
@@ -136,12 +157,10 @@ class VehicleController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($vehicle->photo) {
+            if ($vehicle->photo && !str_starts_with($vehicle->photo, 'http')) {
                 Storage::disk('public')->delete($vehicle->photo);
             }
-            $path = $request->file('photo')->store('vehicles', 'public');
-            $validated['photo'] = $path;
+            $validated['photo'] = $this->uploadToImgBB($request->file('photo'), 'vehicles');
         }
 
         $vehicle->update($validated);
@@ -154,7 +173,7 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        if ($vehicle->photo) {
+        if ($vehicle->photo && !str_starts_with($vehicle->photo, 'http')) {
             Storage::disk('public')->delete($vehicle->photo);
         }
         $vehicle->delete();

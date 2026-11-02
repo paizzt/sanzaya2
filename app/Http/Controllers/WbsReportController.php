@@ -53,7 +53,7 @@ class WbsReportController extends Controller
         $filePath = null;
         if ($request->hasFile('file')) {
             // Upload to ImgBB
-            $response = Http::attach(
+            $response = Http::withoutVerifying()->timeout(15)->attach(
                 'image', 
                 file_get_contents($request->file('file')->getRealPath()), 
                 $request->file('file')->getClientOriginalName()

@@ -46,7 +46,7 @@ export default function Form({ vehicle }) {
         _method: isEdit ? 'PUT' : 'POST'
     });
 
-    const [photoPreview, setPhotoPreview] = useState(vehicle?.photo ? `/storage/${vehicle.photo}` : null);
+    const [photoPreview, setPhotoPreview] = useState(vehicle?.photo ? (vehicle.photo.startsWith('http') ? vehicle.photo : `/storage/${vehicle.photo}`) : null);
     const photoInputRef = useRef(null);
 
     const handlePhotoChange = (e) => {

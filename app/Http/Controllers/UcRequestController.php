@@ -184,7 +184,23 @@ class UcRequestController extends Controller
         $photos = [];
         if ($request->hasFile('receipt_photos')) {
             foreach ($request->file('receipt_photos') as $file) {
-                $path = $file->store('uc_receipts', 'public');
+                try {
+                    $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->attach(
+                        'image',
+                        file_get_contents($file->getRealPath()),
+                        $file->getClientOriginalName()
+                    )->post('https://api.imgbb.com/1/upload', [
+                        'key' => '5950b44b24860057ff810fe73f58868b'
+                    ]);
+
+                    if ($response->successful() && $response->json('data.url')) {
+                        $path = $response->json('data.url');
+                    } else {
+                        $path = $file->store('uc_receipts', 'public');
+                    }
+                } catch (\Throwable $e) {
+                    $path = $file->store('uc_receipts', 'public');
+                }
                 $photos[] = $path;
             }
         }

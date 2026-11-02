@@ -927,7 +927,7 @@ class PaymentRequestController extends Controller
     private function uploadAttachmentFile($file, $paymentRequestId, $userId)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(10)->attach(
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->attach(
                 'image', 
                 file_get_contents($file->getRealPath()), 
                 $file->getClientOriginalName()

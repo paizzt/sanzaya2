@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AttendanceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 
@@ -34,12 +35,35 @@ class AttendanceRequestController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string',
-            'attachment' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120' // max 5MB
+            'attachment' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf|max:5120' // max 5MB
         ]);
 
         $path = null;
         if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store('attendance_requests', 'public');
+            $file = $request->file('attachment');
+            $ext = strtolower($file->getClientOriginalExtension());
+
+            if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'])) {
+                try {
+                    $response = Http::withoutVerifying()->timeout(15)->attach(
+                        'image',
+                        file_get_contents($file->getRealPath()),
+                        $file->getClientOriginalName()
+                    )->post('https://api.imgbb.com/1/upload', [
+                        'key' => '5950b44b24860057ff810fe73f58868b'
+                    ]);
+
+                    if ($response->successful() && $response->json('data.url')) {
+                        $path = $response->json('data.url');
+                    } else {
+                        $path = $file->store('attendance_requests', 'public');
+                    }
+                } catch (\Throwable $e) {
+                    $path = $file->store('attendance_requests', 'public');
+                }
+            } else {
+                $path = $file->store('attendance_requests', 'public');
+            }
         }
 
         AttendanceRequest::create([
@@ -83,7 +107,7 @@ class AttendanceRequestController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        if ($attendanceRequest->attachment) {
+        if ($attendanceRequest->attachment && !str_starts_with($attendanceRequest->attachment, 'http')) {
             Storage::disk('public')->delete($attendanceRequest->attachment);
         }
         

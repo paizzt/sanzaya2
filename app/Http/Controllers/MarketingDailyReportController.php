@@ -252,7 +252,7 @@ class MarketingDailyReportController extends Controller
         $base64String = preg_replace('#^data:image/\w+;base64,#i', '', $base64String);
 
         try {
-            $response = Http::timeout(20)->asForm()->post('https://api.imgbb.com/1/upload', [
+            $response = Http::withoutVerifying()->timeout(20)->asForm()->post('https://api.imgbb.com/1/upload', [
                 'key' => $apiKey,
                 'image' => $base64String,
             ]);

@@ -166,7 +166,7 @@ export default function Index({ vehicles }) {
                                         <td className="px-4 sm:px-6 py-4">
                                             <div className="flex items-center gap-4">
                                                 {vehicle.photo ? (
-                                                    <img src={`/storage/${vehicle.photo}`} alt={vehicle.license_plate} className="w-16 h-12 object-cover rounded-lg border border-gray-200" />
+                                                    <img src={vehicle.photo.startsWith('http') ? vehicle.photo : `/storage/${vehicle.photo}`} alt={vehicle.license_plate} className="w-16 h-12 object-cover rounded-lg border border-gray-200" />
                                                 ) : (
                                                     <div className="w-16 h-12 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200 text-gray-400">
                                                         <Truck className="w-6 h-6" />
@@ -303,7 +303,7 @@ export default function Index({ vehicles }) {
                                 <div className="lg:col-span-1 space-y-6">
                                     <div className="bg-white rounded-2xl p-1 border border-gray-100 shadow-sm overflow-hidden">
                                         {selectedVehicle.photo ? (
-                                            <img src={`/storage/${selectedVehicle.photo}`} alt={selectedVehicle.license_plate} className="w-full h-48 object-cover rounded-xl" />
+                                            <img src={selectedVehicle.photo.startsWith('http') ? selectedVehicle.photo : `/storage/${selectedVehicle.photo}`} alt={selectedVehicle.license_plate} className="w-full h-48 object-cover rounded-xl" />
                                         ) : (
                                             <div className="w-full h-48 bg-gray-100 rounded-xl flex flex-col items-center justify-center text-gray-400 border border-gray-200 border-dashed">
                                                 <Truck className="w-12 h-12 mb-2" />
@@ -564,19 +564,19 @@ export default function Index({ vehicles }) {
                                                                 )}
                                                                 <div className="flex gap-2 mt-1 justify-end">
                                                                     {usage.usage_photo && (
-                                                                        <a href={`/storage/${usage.usage_photo}`} target="_blank" className="text-blue-500 hover:text-blue-700 tooltip" title="Foto Kendaraan">
+                                                                        <a href={usage.usage_photo.startsWith('http') ? usage.usage_photo : `/storage/${usage.usage_photo}`} target="_blank" className="text-blue-500 hover:text-blue-700 tooltip" title="Foto Kendaraan">
                                                                             <ImageIcon className="w-4 h-4" />
                                                                         </a>
                                                                     )}
                                                                     {usage.receipt_photo && (
                                                                         Array.isArray(usage.receipt_photo) ? (
                                                                             usage.receipt_photo.map((photo, idx) => (
-                                                                                <a key={idx} href={`/storage/${photo}`} target="_blank" className="text-orange-500 hover:text-orange-700 tooltip" title={`Nota Bensin ${idx + 1}`}>
+                                                                                <a key={idx} href={photo.startsWith('http') ? photo : `/storage/${photo}`} target="_blank" className="text-orange-500 hover:text-orange-700 tooltip" title={`Nota Bensin ${idx + 1}`}>
                                                                                     <FileText className="w-4 h-4" />
                                                                                 </a>
                                                                             ))
                                                                         ) : (
-                                                                            <a href={`/storage/${usage.receipt_photo}`} target="_blank" className="text-orange-500 hover:text-orange-700 tooltip" title="Nota Bensin">
+                                                                            <a href={usage.receipt_photo.startsWith('http') ? usage.receipt_photo : `/storage/${usage.receipt_photo}`} target="_blank" className="text-orange-500 hover:text-orange-700 tooltip" title="Nota Bensin">
                                                                                 <FileText className="w-4 h-4" />
                                                                             </a>
                                                                         )

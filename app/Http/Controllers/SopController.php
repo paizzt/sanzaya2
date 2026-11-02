@@ -103,7 +103,7 @@ class SopController extends Controller
                 }
 
                 $file = $request->file("step_images.$index");
-                $response = \Illuminate\Support\Facades\Http::attach(
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->attach(
                     'image', 
                     file_get_contents($file->getRealPath()), 
                     $file->getClientOriginalName()

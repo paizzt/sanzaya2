@@ -126,19 +126,19 @@ export default function Usages({ usages, vehicles, filters }) {
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center items-center gap-2">
                                                 {usage.usage_photo && (
-                                                    <a href={`/storage/${usage.usage_photo}`} target="_blank" className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg tooltip transition-colors" title="Lihat Foto Kendaraan">
+                                                    <a href={usage.usage_photo.startsWith('http') ? usage.usage_photo : `/storage/${usage.usage_photo}`} target="_blank" className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg tooltip transition-colors" title="Lihat Foto Kendaraan">
                                                         <ImageIcon className="w-4 h-4" />
                                                     </a>
                                                 )}
                                                 {usage.receipt_photo && (
                                                     Array.isArray(usage.receipt_photo) ? (
                                                         usage.receipt_photo.map((photo, idx) => (
-                                                            <a key={idx} href={`/storage/${photo}`} target="_blank" className="p-2 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg tooltip transition-colors" title={`Lihat Nota Bensin ${idx + 1}`}>
+                                                            <a key={idx} href={photo.startsWith('http') ? photo : `/storage/${photo}`} target="_blank" className="p-2 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg tooltip transition-colors" title={`Lihat Nota Bensin ${idx + 1}`}>
                                                                 <FileText className="w-4 h-4" />
                                                             </a>
                                                         ))
                                                     ) : (
-                                                        <a href={`/storage/${usage.receipt_photo}`} target="_blank" className="p-2 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg tooltip transition-colors" title="Lihat Nota Bensin">
+                                                        <a href={usage.receipt_photo.startsWith('http') ? usage.receipt_photo : `/storage/${usage.receipt_photo}`} target="_blank" className="p-2 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg tooltip transition-colors" title="Lihat Nota Bensin">
                                                             <FileText className="w-4 h-4" />
                                                         </a>
                                                     )

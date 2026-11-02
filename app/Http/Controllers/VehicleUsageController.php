@@ -5,11 +5,33 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\VehicleUsage;
 use App\Models\Vehicle;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class VehicleUsageController extends Controller
 {
+    private function uploadToImgBB($file, $fallbackFolder = 'vehicle_usages')
+    {
+        try {
+            $response = Http::withoutVerifying()->timeout(15)->attach(
+                'image',
+                file_get_contents($file->getRealPath()),
+                $file->getClientOriginalName()
+            )->post('https://api.imgbb.com/1/upload', [
+                'key' => '5950b44b24860057ff810fe73f58868b'
+            ]);
+
+            if ($response->successful() && $response->json('data.url')) {
+                return $response->json('data.url');
+            }
+        } catch (\Throwable $e) {
+            // Fallback to local storage if ImgBB fails
+        }
+
+        return $file->store($fallbackFolder, 'public');
+    }
+
     public function index(Request $request)
     {
         $query = VehicleUsage::with(['vehicle', 'user'])->orderBy('created_at', 'desc');
@@ -42,7 +64,7 @@ class VehicleUsageController extends Controller
         $data['status'] = 'in_use';
 
         if ($request->hasFile('usage_photo')) {
-            $data['usage_photo'] = $request->file('usage_photo')->store('vehicle_usages', 'public');
+            $data['usage_photo'] = $this->uploadToImgBB($request->file('usage_photo'), 'vehicle_usages');
         }
 
         VehicleUsage::create($data);
@@ -72,7 +94,7 @@ class VehicleUsageController extends Controller
         if ($request->hasFile('receipt_photo')) {
             $receiptPhotos = is_array($usage->receipt_photo) ? $usage->receipt_photo : [];
             foreach ($request->file('receipt_photo') as $photo) {
-                $receiptPhotos[] = $photo->store('vehicle_usages', 'public');
+                $receiptPhotos[] = $this->uploadToImgBB($photo, 'vehicle_usages');
             }
             $data['receipt_photo'] = $receiptPhotos;
         }
@@ -91,16 +113,17 @@ class VehicleUsageController extends Controller
     {
         $usage = VehicleUsage::findOrFail($id);
         
-        if ($usage->usage_photo) {
+        if ($usage->usage_photo && !str_starts_with($usage->usage_photo, 'http')) {
             Storage::disk('public')->delete($usage->usage_photo);
         }
         
         if ($usage->receipt_photo && is_array($usage->receipt_photo)) {
             foreach ($usage->receipt_photo as $photo) {
-                Storage::disk('public')->delete($photo);
+                if (!str_starts_with($photo, 'http')) {
+                    Storage::disk('public')->delete($photo);
+                }
             }
-        } elseif ($usage->receipt_photo) {
-            // Fallback if it was stored as a single string previously
+        } elseif ($usage->receipt_photo && !str_starts_with($usage->receipt_photo, 'http')) {
             Storage::disk('public')->delete($usage->receipt_photo);
         }
         
