@@ -524,7 +524,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all"
                             >
                                 <Wallet className="w-4 h-4" />
-                                Buka & Sinkronkan Manajemen Gaji
+                                Gaji
                             </Link>
                         )}
                     </div>
