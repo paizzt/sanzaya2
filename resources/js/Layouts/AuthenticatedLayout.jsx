@@ -254,18 +254,19 @@ export default function Authenticated({ user, header, children }) {
                 { name: 'Data Produk', href: route('products.index'), active: url.startsWith('/products'), show: auth.active_feature_names?.includes('Data Produk') && hasPermission('manage master data') },
                 { name: 'Kebutuhan Barang', href: route('item-requirements.index'), active: url.startsWith('/item-requirements'), show: auth.active_feature_names?.includes('Kebutuhan Barang') && hasPermission('manage master data') },
                 { name: 'Data Outlet', href: route('outlets.index'), active: url.startsWith('/outlets'), show: auth.active_feature_names?.includes('Data Outlet') && hasPermission('manage master data') },
-                { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: hasPermission('manage master data') },
+                { name: 'Stok Gudang', href: route('warehouse-stocks.index'), active: url.startsWith('/warehouse-stocks'), show: auth.active_feature_names?.includes('Stok Gudang') && hasPermission('manage master data') },
             ]
         },
         {
             name: 'Manajemen', icon: Database,
-            active: url.startsWith('/vehicles') || url.startsWith('/company') || url.startsWith('/users') || (url.startsWith('/salaries') && !url.startsWith('/salaries/my-slip')) || url.startsWith('/sops') || url.startsWith('/absensi/rekap') || (url.startsWith('/wbs-reports') && !url.startsWith('/wbs-reports/my-reports')),
+            active: url.startsWith('/vehicles') || url.startsWith('/vehicle-usages') || url.startsWith('/company') || url.startsWith('/users') || (url.startsWith('/salaries') && !url.startsWith('/salaries/my-slip')) || url.startsWith('/sops') || url.startsWith('/absensi/rekap') || (url.startsWith('/wbs-reports') && !url.startsWith('/wbs-reports/my-reports')),
             children: [
                 { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url === '/wbs-reports', show: auth.active_feature_names?.includes('Laporan WBS') },
                 { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: auth.active_feature_names?.includes('Data Armada') && hasPermission('manage master data') },
+                { name: 'Penggunaan Kendaraan', href: route('vehicle-usages.index'), active: url.startsWith('/vehicle-usages'), show: auth.active_feature_names?.includes('Penggunaan Kendaraan') },
                 { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: auth.active_feature_names?.includes('Data Perusahaan') && hasPermission('manage company') },
                 { name: 'Data Pengguna', href: route('users.index'), active: url.startsWith('/users'), show: auth.active_feature_names?.includes('Data Pengguna') && hasPermission('view users') },
-                { name: 'Manajemen Gaji', href: route('salaries.index'), active: url.startsWith('/salaries') && !url.startsWith('/salaries/my-slip'), show: (auth.active_feature_names?.includes('Manajemen Gaji') || !auth.active_features?.length) && (hasPermission('view users') || hasPermission('manage master data') || hasPermission('view salaries')) },
+                { name: 'Manajemen Gaji', href: route('salaries.index'), active: url.startsWith('/salaries') && !url.startsWith('/salaries/my-slip'), show: auth.active_feature_names?.includes('Manajemen Gaji') && (hasPermission('view users') || hasPermission('manage master data') || hasPermission('view salaries')) },
                 { name: 'Manajemen SOP', href: route('sops.index'), active: url.startsWith('/sops'), show: auth.active_feature_names?.includes('Manajemen SOP') && hasPermission('manage master data') },
                 { name: 'Rekap Absensi', href: route('absensi.rekap'), active: url.startsWith('/absensi/rekap'), show: auth.active_feature_names?.includes('Rekap Absensi') && hasPermission('view absensi') },
             ]
@@ -274,7 +275,7 @@ export default function Authenticated({ user, header, children }) {
             name: 'Sistem', icon: Settings,
             active: url.startsWith('/activity-logs') || url.startsWith('/settings') || url.startsWith('/profile') || url.startsWith('/salaries/my-slip') || url.startsWith('/slip-gaji') || url.startsWith('/wbs-reports/my-reports') || url === '/lapor-wbs' || url.startsWith('/mappings'),
             children: [
-                { name: 'Slip Gaji', href: route('salaries.my-slip'), active: url.startsWith('/salaries/my-slip') || url.startsWith('/slip-gaji'), show: true },
+                { name: 'Slip Gaji', href: route('salaries.my-slip'), active: url.startsWith('/salaries/my-slip') || url.startsWith('/slip-gaji'), show: auth.active_feature_names?.includes('Slip Gaji') },
                 { name: 'Pemetaan', href: route('mappings.index'), active: url.startsWith('/mappings'), show: auth.active_feature_names?.includes('Pemetaan Outlet') && hasPermission('manage master data') },
                 { name: 'Lapor WBS', href: route('wbs-reports.my-reports'), active: url.startsWith('/wbs-reports/my-reports') || url === '/lapor-wbs', show: auth.active_feature_names?.includes('Riwayat Laporan Saya') || auth.active_feature_names?.includes('Lapor WBS') },
                 { name: 'Riwayat Perubahan', href: route('system.activity-logs'), active: url.startsWith('/activity-logs'), show: auth.active_feature_names?.includes('Riwayat Perubahan') && hasPermission('view activity log') },
@@ -287,7 +288,7 @@ export default function Authenticated({ user, header, children }) {
                 name: 'Spreadsheet', icon: FileCheck,
                 active: url.startsWith('/spreadsheet') || url.startsWith('/reports'),
                 children: [
-                    { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: hasPermission('manage spreadsheet sync') },
+                    { name: 'Data Laporan Tersinkronisasi', href: route('spreadsheet.index'), active: url.startsWith('/spreadsheet'), show: auth.active_feature_names?.includes('Data Laporan Tersinkronisasi') && hasPermission('manage spreadsheet sync') },
                     { name: 'Dashboard Laporan', href: route('reports.index'), active: url.startsWith('/reports'), show: auth.active_feature_names?.includes('Dashboard Laporan') },
                 ]
             }] 

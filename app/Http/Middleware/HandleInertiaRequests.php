@@ -36,6 +36,7 @@ class HandleInertiaRequests extends Middleware
         $canDownloadPdf = true;
 
         if ($request->user()) {
+            \App\Models\FeatureToggle::ensureAllFeaturesExist();
             $userIdStr = (string)$request->user()->id;
 
             // Check if Unduh PDF is disabled for this user

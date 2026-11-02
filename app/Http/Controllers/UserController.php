@@ -51,9 +51,8 @@ class UserController extends Controller
         $roles = Role::all();
         $companies = Company::orderBy('name')->get();
 
-        // Ensure new WBS features and Unduh PDF exist in the database so they appear in the UI toggle
-        FeatureToggle::firstOrCreate(['name' => 'Lapor WBS']);
-        FeatureToggle::firstOrCreate(['name' => 'Riwayat Laporan Saya']);
+        // Ensure all menu & feature toggles exist in the database so they appear in the UI switches
+        FeatureToggle::ensureAllFeaturesExist();
         
         $pdfToggle = FeatureToggle::firstOrCreate(
             ['name' => 'Unduh PDF'],
@@ -450,42 +449,12 @@ class UserController extends Controller
 
     private function syncFeatureToggles($userId, $enabledFeatureIds)
     {
+        FeatureToggle::ensureAllFeaturesExist();
         $features = FeatureToggle::all();
         $user = \App\Models\User::find($userId);
         
-        // Map feature IDs to their required Spatie permissions
-        $featurePermissions = [
-            1 => ['manage spreadsheet sync'],
-            2 => ['view absensi'],
-            3 => ['view marketing', 'export marketing'],
-            4 => ['view uc requests'],
-            5 => ['view bhp requests'],
-            6 => ['view users'],
-            7 => ['view laporan finansial'],
-            8 => ['approve uc requests'],
-            9 => ['manage master data'],
-            10 => ['view marketing', 'export marketing'],
-            11 => ['manage master data'],
-            12 => ['manage master data'],
-            16 => ['manage master data'],
-            17 => ['view purchase orders'],
-            18 => ['view purchase orders'],
-            19 => ['view receivables'],
-            20 => ['view payables'],
-            21 => ['manage company'],
-            22 => ['manage master data'],
-            23 => ['manage master data'],
-            24 => ['approve bhp requests'],
-            25 => ['payment-request.view-own', 'payment-request.create', 'payment-request.update-own', 'payment-request.submit', 'payment-request.delete-draft'],
-            26 => ['payment-request.view-all', 'payment-request.review'],
-            27 => ['view activity log'],
-            28 => ['manage master data'],
-            29 => ['view marketing', 'export marketing'],
-            30 => ['view absensi'],
-            31 => ['view absensi'],
-            33 => ['view uc requests'],
-            34 => ['view absensi'],
-        ];
+        $featurePermissionsByName = FeatureToggle::featurePermissionMap();
+        $enabledIdsInt = array_map('intval', (array)$enabledFeatureIds);
 
         // We will collect all permissions that should be granted directly to the user via features
         $permissionsToGrant = [];
@@ -494,14 +463,15 @@ class UserController extends Controller
             $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
             $disabledUserIds = array_map('strval', (array)$disabledUsers);
             $userIdStr = (string)$userId;
+            $featureNameKey = strtolower(trim((string)$feature->name));
             
-            if (in_array($feature->id, $enabledFeatureIds)) {
+            if (in_array((int)$feature->id, $enabledIdsInt, true)) {
                 // Feature is ENABLED for this user -> Remove user from disabled list
                 $disabledUserIds = array_values(array_diff($disabledUserIds, [$userIdStr]));
                 
-                // Collect permissions to grant
-                if (isset($featurePermissions[$feature->id])) {
-                    $permissionsToGrant = array_merge($permissionsToGrant, $featurePermissions[$feature->id]);
+                // Collect permissions to grant by feature name
+                if (isset($featurePermissionsByName[$featureNameKey])) {
+                    $permissionsToGrant = array_merge($permissionsToGrant, $featurePermissionsByName[$featureNameKey]);
                 }
             } else {
                 // Feature is DISABLED for this user -> Add user to disabled list
@@ -516,13 +486,12 @@ class UserController extends Controller
 
         // Sync the direct permissions to the user based on the features they have enabled
         if ($user) {
-            // First get all unique permissions to grant
-            $permissionsToGrant = array_unique($permissionsToGrant);
-            
-            // We use syncPermissions to replace the user's direct permissions
-            // Note: This does NOT remove permissions granted via Roles, which is perfect.
-            // But wait! syncPermissions replaces all direct permissions. If they had other direct permissions, they'd be lost.
-            // Since this app relies purely on Roles and Feature Toggles, it's safe to sync.
+            $permissionsToGrant = array_values(array_unique($permissionsToGrant));
+            foreach ($permissionsToGrant as $permName) {
+                try {
+                    \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $permName, 'guard_name' => 'web']);
+                } catch (\Throwable $e) {}
+            }
             $user->syncPermissions($permissionsToGrant);
         }
     }
