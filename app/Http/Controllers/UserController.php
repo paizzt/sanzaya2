@@ -168,6 +168,17 @@ class UserController extends Controller
             ]);
         }
 
+        if (!$request->filled('email') && $request->filled('name')) {
+            $baseUsername = strtolower(preg_replace('/[^a-zA-Z0-9._-]/', '', (string) $request->name)) ?: 'user';
+            $candidateUsername = $baseUsername;
+            $counter = 1;
+            while (User::where('email', $candidateUsername)->exists()) {
+                $candidateUsername = $baseUsername . $counter;
+                $counter++;
+            }
+            $request->merge(['email' => $candidateUsername]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255|unique:users',
@@ -287,6 +298,17 @@ class UserController extends Controller
             $request->merge([
                 'marketing_areas' => array_values(array_map('intval', array_filter($request->marketing_areas)))
             ]);
+        }
+
+        if (!$request->filled('email') && $request->filled('name')) {
+            $baseUsername = strtolower(preg_replace('/[^a-zA-Z0-9._-]/', '', (string) $request->name)) ?: 'user';
+            $candidateUsername = $baseUsername;
+            $counter = 1;
+            while (User::where('email', $candidateUsername)->where('id', '!=', $user->id)->exists()) {
+                $candidateUsername = $baseUsername . $counter;
+                $counter++;
+            }
+            $request->merge(['email' => $candidateUsername]);
         }
 
         $request->validate([

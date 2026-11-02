@@ -508,7 +508,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="w-5 h-5" /></button>
                             </div>
 
-                            <form onSubmit={submitForm} className="p-6">
+                            <form onSubmit={submitForm} className="p-6" noValidate>
                                 <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
                                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                         
@@ -525,10 +525,10 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     <InputError message={errors.name} className="mt-1" />
                                                 </div>
                                                 <div>
-                                                    <InputLabel value="Username / Email *" />
+                                                    <InputLabel value="Username / Email (Tidak Wajib Email)" />
                                                     <div className="relative">
                                                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                        <TextInput type="text" className="mt-1 block w-full pl-9" value={data.email} onChange={e => setData('email', e.target.value)} placeholder="Ketik username atau email..." required />
+                                                        <TextInput type="text" className="mt-1 block w-full pl-9" value={data.email} onChange={e => setData('email', e.target.value)} placeholder="Ketik username atau email..." />
                                                     </div>
                                                     <p className="text-xs text-gray-500 mt-1">Tidak wajib menggunakan email, bisa diisi username saja atau alamat email.</p>
                                                     <InputError message={errors.email} className="mt-1" />

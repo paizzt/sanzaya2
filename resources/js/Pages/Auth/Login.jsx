@@ -98,7 +98,7 @@ export default function Login({ status, canResetPassword }) {
 
             </div>
 
-            <form onSubmit={submit} className="space-y-5">
+            <form onSubmit={submit} className="space-y-5" noValidate>
                 <div>
                     <InputLabel htmlFor="email" value="USERNAME / EMAIL" className="text-[11px] font-bold text-gray-500 tracking-widest mb-1.5" />
 

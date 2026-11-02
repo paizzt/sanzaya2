@@ -6,8 +6,8 @@ use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -31,16 +31,32 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $login = trim((string) $this->input('email'));
+        $loginLower = mb_strtolower($login);
         $password = (string) $this->input('password');
         $remember = $this->boolean('remember');
 
-        $authenticated = Auth::attempt(['email' => $login, 'password' => $password], $remember);
+        // Cari kandidat user berdasarkan:
+        // 1. Kolom email sama persis (bisa berisi email maupun username)
+        // 2. Kolom name (nama lengkap / username) sama persis (case-insensitive)
+        // 3. Jika input tanpa '@', cocokkan juga dengan bagian depan email sebelum '@' (misal: "faiz" cocok dengan "faiz@gmail.com")
+        $candidates = User::where(function ($query) use ($loginLower) {
+            $query->whereRaw('LOWER(email) = ?', [$loginLower])
+                  ->orWhereRaw('LOWER(name) = ?', [$loginLower]);
 
-        if (! $authenticated) {
-            $authenticated = Auth::attempt(['name' => $login, 'password' => $password], $remember);
+            if (! str_contains($loginLower, '@')) {
+                $query->orWhereRaw('LOWER(email) LIKE ?', [$loginLower . '@%']);
+            }
+        })->get();
+
+        $matchedUser = null;
+        foreach ($candidates as $candidate) {
+            if (Hash::check($password, $candidate->password)) {
+                $matchedUser = $candidate;
+                break;
+            }
         }
 
-        if (! $authenticated) {
+        if (! $matchedUser) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -48,16 +64,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        $user = Auth::user();
-
-        if (! $user->is_active) {
-            Auth::logout();
+        if (! $matchedUser->is_active) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => 'Akun Anda telah dinonaktifkan.',
             ]);
         }
+
+        Auth::login($matchedUser, $remember);
 
         RateLimiter::clear($this->throttleKey());
     }
