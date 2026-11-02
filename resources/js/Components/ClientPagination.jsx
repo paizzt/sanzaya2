@@ -1,7 +1,8 @@
 import React from 'react';
 
-export default function ClientPagination({ total, itemsPerPage, currentPage, onPageChange, onItemsPerPageChange, perPageOptions = [20, 50, 100] }) {
-    if (total <= itemsPerPage && !onItemsPerPageChange) return null;
+export default function ClientPagination({ total, itemsPerPage, currentPage, onPageChange, onItemsPerPageChange, perPageOptions = [20, 50, 100], alwaysShow = false }) {
+    if (total === 0) return null;
+    if (!alwaysShow && total <= itemsPerPage && !onItemsPerPageChange) return null;
 
     const totalPages = Math.ceil(total / itemsPerPage);
     const start = (currentPage - 1) * itemsPerPage + 1;

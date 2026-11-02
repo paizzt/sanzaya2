@@ -23,8 +23,22 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
 import CustomDatePicker from '@/Components/CustomDatePicker';
 import Modal from '@/Components/Modal';
+import ClientPagination from '@/Components/ClientPagination';
 
-export default function Pengajuan({ requests, canApprove }) {
+export default function Pengajuan({ requests = [], canApprove }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+    const totalPages = Math.max(1, Math.ceil(requests.length / itemsPerPage));
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [requests.length, currentPage, totalPages]);
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedRequests = requests.slice(startIndex, startIndex + itemsPerPage);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         type: 'Sakit',
         start_date: '',
@@ -62,6 +76,7 @@ export default function Pengajuan({ requests, canApprove }) {
         e.preventDefault();
         post(route('absensi.pengajuan.store'), {
             preserveScroll: true,
+            onSuccess: () => setCurrentPage(1),
         });
     };
 
@@ -279,110 +294,122 @@ export default function Pengajuan({ requests, canApprove }) {
                                     <p className="text-xs text-gray-400 mt-1">Formulir yang Anda ajukan akan muncul di sini.</p>
                                 </div>
                             ) : (
-                                <div className="space-y-4">
-                                    {requests.map(req => {
-                                        const attachmentUrl = getAttachmentUrl(req);
-                                        const hasAttachment = Boolean(req.attachment);
-                                        const isAttachmentPdf = isPdf(req.attachment || attachmentUrl);
-                                        const isOwner = currentUser && req.user_id === currentUser.id;
-                                        const canDelete = canApprove || (isOwner && req.status === 'Menunggu');
+                                <>
+                                    <div className="space-y-4">
+                                        {paginatedRequests.map(req => {
+                                            const attachmentUrl = getAttachmentUrl(req);
+                                            const hasAttachment = Boolean(req.attachment);
+                                            const isAttachmentPdf = isPdf(req.attachment || attachmentUrl);
+                                            const isOwner = currentUser && req.user_id === currentUser.id;
+                                            const canDelete = canApprove || (isOwner && req.status === 'Menunggu');
 
-                                        return (
-                                            <div 
-                                                key={req.id} 
-                                                className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-white hover:border-blue-100 hover:shadow-[0_4px_20px_rgb(0,0,0,0.04)] transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
-                                            >
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                                                        <span className={`px-2.5 py-0.5 text-xs font-bold rounded-lg ${
-                                                            req.type === 'Sakit' ? 'bg-red-50 text-red-600 border border-red-200' : 
-                                                            req.type === 'Cuti' ? 'bg-purple-50 text-purple-600 border border-purple-200' :
-                                                            'bg-blue-50 text-blue-600 border border-blue-200'
-                                                        }`}>
-                                                            {req.type}
-                                                        </span>
-                                                        <span className="text-sm font-semibold text-gray-800">
-                                                            {req.start_date} {req.start_date !== req.end_date ? ` s/d ${req.end_date}` : ''}
-                                                        </span>
-                                                        {canApprove && (
-                                                            <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
-                                                                {req.user?.name || 'User'}
+                                            return (
+                                                <div 
+                                                    key={req.id} 
+                                                    className="p-4 md:p-5 rounded-2xl border border-gray-100 bg-white hover:border-blue-100 hover:shadow-[0_4px_20px_rgb(0,0,0,0.04)] transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
+                                                >
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                                                            <span className={`px-2.5 py-0.5 text-xs font-bold rounded-lg ${
+                                                                req.type === 'Sakit' ? 'bg-red-50 text-red-600 border border-red-200' : 
+                                                                req.type === 'Cuti' ? 'bg-purple-50 text-purple-600 border border-purple-200' :
+                                                                'bg-blue-50 text-blue-600 border border-blue-200'
+                                                            }`}>
+                                                                {req.type}
                                                             </span>
+                                                            <span className="text-sm font-semibold text-gray-800">
+                                                                {req.start_date} {req.start_date !== req.end_date ? ` s/d ${req.end_date}` : ''}
+                                                            </span>
+                                                            {canApprove && (
+                                                                <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                                                                    {req.user?.name || 'User'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        <p className="text-sm text-gray-600 mt-1 whitespace-pre-line break-words">
+                                                            {req.reason}
+                                                        </p>
+
+                                                        {/* Lampiran Section */}
+                                                        {hasAttachment ? (
+                                                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleOpenPreview(req)}
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 rounded-xl text-xs font-semibold transition-all hover:shadow-sm"
+                                                                    title="Pratinjau lampiran"
+                                                                >
+                                                                    {isAttachmentPdf ? (
+                                                                        <FileText className="w-3.5 h-3.5 text-rose-600" />
+                                                                    ) : (
+                                                                        <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
+                                                                    )}
+                                                                    <span>Lihat Lampiran {isAttachmentPdf ? '(PDF)' : ''}</span>
+                                                                    <Eye className="w-3 h-3 opacity-60 ml-0.5" />
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-gray-400 italic">
+                                                                <Paperclip className="w-3 h-3 opacity-40" />
+                                                                <span>Tidak ada lampiran</span>
+                                                            </div>
                                                         )}
                                                     </div>
 
-                                                    <p className="text-sm text-gray-600 mt-1 whitespace-pre-line break-words">
-                                                        {req.reason}
-                                                    </p>
+                                                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-2 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-gray-50">
+                                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-100">
+                                                            {getStatusIcon(req.status)}
+                                                            <span className={`text-xs font-bold ${
+                                                                req.status === 'Menunggu' ? 'text-orange-600' : 
+                                                                req.status === 'Disetujui' ? 'text-green-600' : 'text-red-600'
+                                                            }`}>
+                                                                {req.status}
+                                                            </span>
+                                                        </div>
 
-                                                    {/* Lampiran Section */}
-                                                    {hasAttachment ? (
-                                                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                                                        {canApprove && req.status === 'Menunggu' && (
+                                                            <div className="flex gap-1.5 mt-1">
+                                                                <button 
+                                                                    onClick={() => handleUpdateStatus(req.id, 'Disetujui')}
+                                                                    className="text-xs px-2.5 py-1 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 shadow-sm transition-colors"
+                                                                >
+                                                                    Setujui
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => handleUpdateStatus(req.id, 'Ditolak')}
+                                                                    className="text-xs px-2.5 py-1 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 shadow-sm transition-colors"
+                                                                >
+                                                                    Tolak
+                                                                </button>
+                                                            </div>
+                                                        )}
+
+                                                        {canDelete && (
                                                             <button
-                                                                type="button"
-                                                                onClick={() => handleOpenPreview(req)}
-                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 rounded-xl text-xs font-semibold transition-all hover:shadow-sm"
-                                                                title="Pratinjau lampiran"
+                                                                onClick={() => handleDelete(req.id)}
+                                                                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-0.5"
+                                                                title="Hapus Pengajuan"
                                                             >
-                                                                {isAttachmentPdf ? (
-                                                                    <FileText className="w-3.5 h-3.5 text-rose-600" />
-                                                                ) : (
-                                                                    <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
-                                                                )}
-                                                                <span>Lihat Lampiran {isAttachmentPdf ? '(PDF)' : ''}</span>
-                                                                <Eye className="w-3 h-3 opacity-60 ml-0.5" />
+                                                                <Trash2 className="w-4 h-4" />
                                                             </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-gray-400 italic">
-                                                            <Paperclip className="w-3 h-3 opacity-40" />
-                                                            <span>Tidak ada lampiran</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-2 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-gray-50">
-                                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-100">
-                                                        {getStatusIcon(req.status)}
-                                                        <span className={`text-xs font-bold ${
-                                                            req.status === 'Menunggu' ? 'text-orange-600' : 
-                                                            req.status === 'Disetujui' ? 'text-green-600' : 'text-red-600'
-                                                        }`}>
-                                                            {req.status}
-                                                        </span>
+                                                        )}
                                                     </div>
-
-                                                    {canApprove && req.status === 'Menunggu' && (
-                                                        <div className="flex gap-1.5 mt-1">
-                                                            <button 
-                                                                onClick={() => handleUpdateStatus(req.id, 'Disetujui')}
-                                                                className="text-xs px-2.5 py-1 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 shadow-sm transition-colors"
-                                                            >
-                                                                Setujui
-                                                            </button>
-                                                            <button 
-                                                                onClick={() => handleUpdateStatus(req.id, 'Ditolak')}
-                                                                className="text-xs px-2.5 py-1 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 shadow-sm transition-colors"
-                                                            >
-                                                                Tolak
-                                                            </button>
-                                                        </div>
-                                                    )}
-
-                                                    {canDelete && (
-                                                        <button
-                                                            onClick={() => handleDelete(req.id)}
-                                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-0.5"
-                                                            title="Hapus Pengajuan"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    )}
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <ClientPagination 
+                                            total={requests.length} 
+                                            itemsPerPage={itemsPerPage} 
+                                            currentPage={currentPage} 
+                                            onPageChange={setCurrentPage}
+                                            alwaysShow={true}
+                                        />
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>
