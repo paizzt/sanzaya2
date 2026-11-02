@@ -15,7 +15,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
         >
             <Head title="Pengaturan" />
 
-            <div className="pb-6 pt-0 space-y-6 max-w-4xl mx-auto">
+            <div className="pb-6 pt-0 space-y-6 w-full">
                 
                 {/* Profile Information Section */}
                 <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative">
@@ -124,7 +124,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 <p className="text-sm text-gray-500">Setelah akun Anda dihapus, semua data akan hilang permanen.</p>
                             </div>
                         </div>
-                        <DeleteUserForm className="max-w-xl" />
+                        <DeleteUserForm className="w-full" />
                     </div>
                 </div>
 
