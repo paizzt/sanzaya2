@@ -111,7 +111,7 @@
                             @endphp
                             @if(is_array($photos) && count($photos) > 0)
                                 @php
-                                    $base64 = $report->photo_base64 ?? \App\Helpers\PdfImageHelper::toPdfSrc($photos[0], 240);
+                                    $base64 = $report->photo_base64 ?? \App\Helpers\PdfImageHelper::toPdfSrc($photos[0], 160);
                                 @endphp
                                 @if($base64)
                                     <img src="{{ $base64 }}" style="max-width: 60px; max-height: 40px; margin-bottom: 2px; border-radius: 4px;">
@@ -125,7 +125,7 @@
                         @if($report->signature)
                             <div style="font-size: 10px; color: #666; border-top: 1px solid #eee; padding-top: 3px;">[Tanda Tangan PIC]</div>
                             @php
-                                $sigBase64 = $report->signature_base64 ?? \App\Helpers\PdfImageHelper::toPdfSrc($report->signature, 240);
+                                $sigBase64 = $report->signature_base64 ?? \App\Helpers\PdfImageHelper::toPdfSrc($report->signature, 160);
                             @endphp
                             @if($sigBase64)
                                 <img src="{{ $sigBase64 }}" style="max-width: 60px; max-height: 40px; margin-top: 2px;">

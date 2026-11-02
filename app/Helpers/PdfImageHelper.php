@@ -2,9 +2,8 @@
 
 namespace App\Helpers;
 
-use Illuminate\Http\Client\Pool;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Utils;
 use Illuminate\Support\Facades\Log;
 
 class PdfImageHelper
@@ -12,23 +11,43 @@ class PdfImageHelper
     private static array $memoryCache = [];
 
     /**
-     * Preload multiple remote image URLs in parallel using Http::pool
-     * and store their base64 data URIs in cache so PDF generation is fast.
+     * Normalize ImgBB URLs from blocked/dead i.ibb.co to active i.ibb.co.com CDN
      */
-    public static function preloadUrls(array $pathsOrUrls, int $maxWidth = 300): void
+    public static function normalizeUrl(string $url): string
     {
+        $url = trim($url);
+        if (str_contains($url, '://i.ibb.co/')) {
+            $url = str_replace('://i.ibb.co/', '://i.ibb.co.com/', $url);
+        }
+        return $url;
+    }
+
+    /**
+     * Preload multiple remote image URLs in parallel using Guzzle async promises
+     * with IPv4 resolution, local file caching, and a strict time budget so
+     * LiteSpeed / web servers never time out.
+     */
+    public static function preloadUrls(array $pathsOrUrls, int $maxWidth = 240, float $maxBudgetSeconds = 15.0): void
+    {
+        $startTime = microtime(true);
         $remoteUrls = [];
 
         foreach ($pathsOrUrls as $item) {
             if (empty($item) || !is_string($item)) {
                 continue;
             }
-            $item = trim($item);
-            if (str_starts_with($item, 'http://') || str_starts_with($item, 'https://')) {
-                $cacheKey = self::getCacheKey($item, $maxWidth);
-                if (!isset(self::$memoryCache[$cacheKey]) && !self::safeCacheHas($cacheKey)) {
-                    $remoteUrls[$item] = $item;
+            $origUrl = trim($item);
+            if (str_starts_with($origUrl, 'http://') || str_starts_with($origUrl, 'https://')) {
+                $cacheKey = self::getCacheKey($origUrl, $maxWidth);
+                if (array_key_exists($cacheKey, self::$memoryCache)) {
+                    continue;
                 }
+                $diskCached = self::readDiskCache($cacheKey);
+                if ($diskCached !== null) {
+                    self::$memoryCache[$cacheKey] = $diskCached;
+                    continue;
+                }
+                $remoteUrls[$origUrl] = self::normalizeUrl($origUrl);
             }
         }
 
@@ -36,68 +55,73 @@ class PdfImageHelper
             return;
         }
 
-        foreach (array_chunk($remoteUrls, 25, true) as $chunk) {
-            try {
-                $responses = Http::pool(function (Pool $pool) use ($chunk, $maxWidth) {
-                    foreach ($chunk as $originalUrl) {
-                        $proxyUrl = 'https://wsrv.nl/?url=' . urlencode($originalUrl)
-                            . ($maxWidth > 0 ? '&w=' . $maxWidth : '');
+        $client = self::createHttpClient(4.5);
 
-                        $pool->as($originalUrl)
-                            ->withoutVerifying()
-                            ->timeout(8)
-                            ->withHeaders([
-                                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                            ])
-                            ->get($proxyUrl);
-                    }
-                });
-
-                foreach ($chunk as $originalUrl) {
-                    $resp = $responses[$originalUrl] ?? null;
-                    if ($resp instanceof \Illuminate\Http\Client\Response && $resp->successful()) {
-                        $dataUri = self::bytesToDataUri($resp->body(), $maxWidth);
-                        if ($dataUri) {
-                            $cacheKey = self::getCacheKey($originalUrl, $maxWidth);
-                            self::$memoryCache[$cacheKey] = $dataUri;
-                            self::safeCachePut($cacheKey, $dataUri);
-                        }
+        // Fetch in parallel batches of 20
+        foreach (array_chunk($remoteUrls, 20, true) as $chunk) {
+            if ((microtime(true) - $startTime) >= $maxBudgetSeconds) {
+                // Time budget reached: mark remaining as empty in memory so toBase64 won't block sequentially
+                foreach ($chunk as $origUrl => $normUrl) {
+                    $ck = self::getCacheKey($origUrl, $maxWidth);
+                    if (!array_key_exists($ck, self::$memoryCache)) {
+                        self::$memoryCache[$ck] = '';
                     }
                 }
+                continue;
+            }
+
+            try {
+                $promises = [];
+                foreach ($chunk as $origUrl => $normUrl) {
+                    $promises[$origUrl] = $client->getAsync($normUrl);
+                }
+
+                $results = Utils::settle($promises)->wait();
+
+                foreach ($chunk as $origUrl => $normUrl) {
+                    $cacheKey = self::getCacheKey($origUrl, $maxWidth);
+                    $res = $results[$origUrl] ?? null;
+
+                    if ($res && ($res['state'] ?? '') === 'fulfilled' && isset($res['value'])) {
+                        $body = (string) $res['value']->getBody();
+                        $dataUri = self::bytesToDataUri($body, $maxWidth);
+                        if ($dataUri !== '') {
+                            self::$memoryCache[$cacheKey] = $dataUri;
+                            self::writeDiskCache($cacheKey, $dataUri);
+                            continue;
+                        }
+                    }
+
+                    // Mark as empty in memory so we do NOT retry sequentially during PDF rendering
+                    self::$memoryCache[$cacheKey] = '';
+                }
             } catch (\Throwable $e) {
-                Log::warning('PdfImageHelper preload pool error: ' . $e->getMessage());
+                Log::warning('PdfImageHelper preload batch error: ' . $e->getMessage());
+                foreach ($chunk as $origUrl => $normUrl) {
+                    $ck = self::getCacheKey($origUrl, $maxWidth);
+                    if (!array_key_exists($ck, self::$memoryCache)) {
+                        self::$memoryCache[$ck] = '';
+                    }
+                }
             }
         }
     }
 
     /**
      * Resolve a local storage path, remote URL (e.g. ImgBB), or existing data URI
-     * into a DomPDF-safe base64 data URI string (with remote proxy fallback).
+     * into a DomPDF-safe base64 data URI string.
+     * Always returns either 'data:image/...;base64,...' or '' (never a slow remote URL).
      */
-    public static function toPdfSrc(?string $pathOrUrl, int $maxWidth = 300): string
+    public static function toPdfSrc(?string $pathOrUrl, int $maxWidth = 240): string
     {
-        $base64 = self::toBase64($pathOrUrl, $maxWidth);
-        if (!empty($base64)) {
-            return $base64;
-        }
-
-        if (!empty($pathOrUrl) && is_string($pathOrUrl)) {
-            $trimmed = trim($pathOrUrl);
-            if (str_starts_with($trimmed, 'http://') || str_starts_with($trimmed, 'https://')) {
-                return str_contains($trimmed, 'i.ibb.co')
-                    ? 'https://wsrv.nl/?url=' . urlencode($trimmed) . ($maxWidth > 0 ? '&w=' . $maxWidth : '')
-                    : $trimmed;
-            }
-        }
-
-        return '';
+        return self::toBase64($pathOrUrl, $maxWidth);
     }
 
     /**
      * Resolve a local storage path, remote URL (e.g. ImgBB), or existing data URI
      * into a DomPDF-safe base64 data URI string.
      */
-    public static function toBase64(?string $pathOrUrl, int $maxWidth = 300): string
+    public static function toBase64(?string $pathOrUrl, int $maxWidth = 240): string
     {
         if (empty($pathOrUrl) || !is_string($pathOrUrl)) {
             return '';
@@ -125,7 +149,7 @@ class PdfImageHelper
                     $bytes = @file_get_contents($localPath);
                     if ($bytes !== false && !empty($bytes)) {
                         $dataUri = self::bytesToDataUri($bytes, $maxWidth);
-                        if ($dataUri) {
+                        if ($dataUri !== '') {
                             return $dataUri;
                         }
                     }
@@ -139,54 +163,74 @@ class PdfImageHelper
         if (str_starts_with($pathOrUrl, 'http://') || str_starts_with($pathOrUrl, 'https://')) {
             $cacheKey = self::getCacheKey($pathOrUrl, $maxWidth);
 
-            if (isset(self::$memoryCache[$cacheKey])) {
+            if (array_key_exists($cacheKey, self::$memoryCache)) {
                 return self::$memoryCache[$cacheKey];
             }
 
-            $cached = self::safeCacheGet($cacheKey);
-            if (!empty($cached) && is_string($cached)) {
-                self::$memoryCache[$cacheKey] = $cached;
-                return $cached;
+            $diskCached = self::readDiskCache($cacheKey);
+            if ($diskCached !== null) {
+                self::$memoryCache[$cacheKey] = $diskCached;
+                return $diskCached;
             }
 
-            $proxyUrl = 'https://wsrv.nl/?url=' . urlencode($pathOrUrl)
-                . ($maxWidth > 0 ? '&w=' . $maxWidth : '');
+            $normUrl = self::normalizeUrl($pathOrUrl);
+            $urlsToTry = [$normUrl];
+            if ($normUrl !== $pathOrUrl) {
+                $urlsToTry[] = $pathOrUrl;
+            }
 
-            $urlsToTry = str_contains($pathOrUrl, 'i.ibb.co')
-                ? [$proxyUrl, $pathOrUrl]
-                : [$pathOrUrl, $proxyUrl];
+            $client = self::createHttpClient(4.5);
 
             foreach ($urlsToTry as $tryUrl) {
                 try {
-                    $response = Http::withoutVerifying()
-                        ->timeout(10)
-                        ->withHeaders([
-                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                        ])
-                        ->get($tryUrl);
-
-                    if ($response->successful() && !empty($response->body())) {
-                        $dataUri = self::bytesToDataUri($response->body(), $maxWidth);
-                        if ($dataUri) {
-                            self::$memoryCache[$cacheKey] = $dataUri;
-                            self::safeCachePut($cacheKey, $dataUri);
-                            return $dataUri;
+                    $response = $client->get($tryUrl);
+                    if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+                        $body = (string) $response->getBody();
+                        if (!empty($body)) {
+                            $dataUri = self::bytesToDataUri($body, $maxWidth);
+                            if ($dataUri !== '') {
+                                self::$memoryCache[$cacheKey] = $dataUri;
+                                self::writeDiskCache($cacheKey, $dataUri);
+                                return $dataUri;
+                            }
                         }
                     }
                 } catch (\Throwable $e) {
-                    Log::warning("PdfImageHelper remote fetch error ($tryUrl): " . $e->getMessage());
+                    // Continue to next candidate
                 }
             }
+
+            self::$memoryCache[$cacheKey] = '';
         }
 
         return '';
     }
 
+    private static function createHttpClient(float $timeoutSeconds = 4.5): Client
+    {
+        $curlOptions = [];
+        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
+            $curlOptions[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+        }
+
+        return new Client([
+            'verify' => false,
+            'timeout' => $timeoutSeconds,
+            'connect_timeout' => 3.0,
+            'http_errors' => false,
+            'curl' => $curlOptions,
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept' => 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+            ],
+        ]);
+    }
+
     /**
-     * Validate raw image bytes and convert to a DomPDF-compatible base64 data URI.
-     * Automatically converts WebP to PNG/JPEG if GD is available so DomPDF never fails.
+     * Validate raw image bytes, resize to thumbnail so DomPDF renders fast,
+     * and convert to a DomPDF-compatible base64 data URI.
      */
-    private static function bytesToDataUri(string $bytes, int $maxWidth = 300): string
+    private static function bytesToDataUri(string $bytes, int $maxWidth = 240): string
     {
         if (empty($bytes)) {
             return '';
@@ -201,7 +245,8 @@ class PdfImageHelper
         $width = $info[0] ?? 0;
         $height = $info[1] ?? 0;
 
-        $needsGdConversion = ($mime === 'image/webp') || ($maxWidth > 0 && $width > ($maxWidth * 2));
+        // Resize larger images or convert WebP via GD so DomPDF processes them in milliseconds
+        $needsGdConversion = ($mime === 'image/webp') || ($maxWidth > 0 && $width > $maxWidth);
         if ($needsGdConversion && function_exists('imagecreatefromstring')) {
             $srcImg = @imagecreatefromstring($bytes);
             if ($srcImg !== false) {
@@ -214,18 +259,24 @@ class PdfImageHelper
                 }
 
                 $dstImg = imagecreatetruecolor($targetW, $targetH);
-                imagealphablending($dstImg, false);
-                imagesavealpha($dstImg, true);
-                $transparent = imagecolorallocatealpha($dstImg, 255, 255, 255, 127);
-                imagefilledrectangle($dstImg, 0, 0, $targetW, $targetH, $transparent);
+                if ($mime === 'image/png' || $mime === 'image/webp' || $mime === 'image/gif') {
+                    imagealphablending($dstImg, false);
+                    imagesavealpha($dstImg, true);
+                    $transparent = imagecolorallocatealpha($dstImg, 255, 255, 255, 127);
+                    imagefilledrectangle($dstImg, 0, 0, $targetW, $targetH, $transparent);
+                } else {
+                    $white = imagecolorallocate($dstImg, 255, 255, 255);
+                    imagefilledrectangle($dstImg, 0, 0, $targetW, $targetH, $white);
+                }
+
                 imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $targetW, $targetH, $width, $height);
 
                 ob_start();
                 if ($mime === 'image/png' || $mime === 'image/webp' || $mime === 'image/gif') {
-                    imagepng($dstImg, null, 7);
+                    imagepng($dstImg, null, 6);
                     $outMime = 'image/png';
                 } else {
-                    imagejpeg($dstImg, null, 82);
+                    imagejpeg($dstImg, null, 78);
                     $outMime = 'image/jpeg';
                 }
                 $convertedBytes = ob_get_clean();
@@ -247,34 +298,44 @@ class PdfImageHelper
 
     private static function getCacheKey(string $url, int $maxWidth): string
     {
-        return 'pdf_img_b64_v2_' . md5($url . '_' . $maxWidth);
+        return md5(self::normalizeUrl($url) . '_' . $maxWidth);
     }
 
-    private static function safeCacheHas(string $key): bool
+    private static function getCacheFilePath(string $cacheKey): string
     {
-        try {
-            return Cache::has($key);
-        } catch (\Throwable $e) {
-            return false;
+        $dir = storage_path('framework/cache/pdf_img');
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
         }
+        return $dir . DIRECTORY_SEPARATOR . $cacheKey . '.b64';
     }
 
-    private static function safeCacheGet(string $key): ?string
+    private static function readDiskCache(string $cacheKey): ?string
     {
         try {
-            $val = Cache::get($key);
-            return is_string($val) ? $val : null;
+            $file = self::getCacheFilePath($cacheKey);
+            if (is_file($file)) {
+                // Valid for 7 days
+                if ((time() - @filemtime($file)) < 604800) {
+                    $content = @file_get_contents($file);
+                    if (is_string($content) && str_starts_with($content, 'data:image/')) {
+                        return $content;
+                    }
+                }
+            }
         } catch (\Throwable $e) {
-            return null;
+            // Ignore disk cache read error
         }
+        return null;
     }
 
-    private static function safeCachePut(string $key, string $value): void
+    private static function writeDiskCache(string $cacheKey, string $dataUri): void
     {
         try {
-            Cache::put($key, $value, now()->addHours(24));
+            $file = self::getCacheFilePath($cacheKey);
+            @file_put_contents($file, $dataUri);
         } catch (\Throwable $e) {
-            // Ignore cache storage errors
+            // Ignore disk cache write error
         }
     }
 }

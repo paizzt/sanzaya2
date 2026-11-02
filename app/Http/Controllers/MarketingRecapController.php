@@ -280,7 +280,7 @@ class MarketingRecapController extends Controller
                 }
             }
 
-            \App\Helpers\PdfImageHelper::preloadUrls($urlsToPreload, 240);
+            \App\Helpers\PdfImageHelper::preloadUrls($urlsToPreload, 160, 12.0);
 
             foreach ($allReports as $rep) {
                 $firstPhoto = null;
@@ -290,8 +290,8 @@ class MarketingRecapController extends Controller
                         : (json_decode($rep->photos, true) ?: (is_string($rep->photos) && trim($rep->photos) !== '' ? [trim($rep->photos)] : []));
                     $firstPhoto = $photosArr[0] ?? null;
                 }
-                $rep->photo_base64 = $firstPhoto ? \App\Helpers\PdfImageHelper::toPdfSrc($firstPhoto, 240) : '';
-                $rep->signature_base64 = !empty($rep->signature) ? \App\Helpers\PdfImageHelper::toPdfSrc($rep->signature, 240) : '';
+                $rep->photo_base64 = $firstPhoto ? \App\Helpers\PdfImageHelper::toPdfSrc($firstPhoto, 160) : '';
+                $rep->signature_base64 = !empty($rep->signature) ? \App\Helpers\PdfImageHelper::toPdfSrc($rep->signature, 160) : '';
             }
             
             // Ambil semua laporan yang ada tanpa batasan filter
@@ -363,7 +363,7 @@ class MarketingRecapController extends Controller
             'filter_month' => $filterMonth,
         ];
 
-        $pdf = Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])->loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => false, 'isHtml5ParserEnabled' => true])->loadView('pdf.recap_marketing_pdf', $data)->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf') : $pdf->download('Rekap_Marketing_' . ucfirst($type) . '_' . date('YmdHis') . '.pdf');
     }
     public function exportExcel(Request $request)
