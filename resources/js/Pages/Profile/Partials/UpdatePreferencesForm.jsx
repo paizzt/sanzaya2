@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 import { LayoutDashboard, PanelBottom } from 'lucide-react';
@@ -13,7 +12,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
 
     const currentPreferences = user.preferences || defaultPreferences;
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+    const { data, setData, patch, processing, recentlySuccessful } = useForm({
         preferences: {
             bottom_nav: currentPreferences.bottom_nav || defaultPreferences.bottom_nav,
             dashboard: currentPreferences.dashboard || defaultPreferences.dashboard,
@@ -64,83 +63,87 @@ export default function UpdatePreferencesForm({ className = '' }) {
     return (
         <section className={className}>
             <form onSubmit={submit} className="space-y-6">
-                <div>
-                    <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-                        <PanelBottom className="w-5 h-5 text-blue-500" /> Pintasan Navigasi Bawah (Mobile)
-                    </h4>
-                    <p className="text-sm text-gray-500 mb-4">Pilih menu apa saja yang ingin ditampilkan sebagai pintasan cepat di bagian bawah layar HP Anda (Maksimal 4 Menu).</p>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-64 overflow-y-auto pr-2 custom-scrollbar">
-                        {ALL_MENUS.map(opt => {
-                            const isChecked = data.preferences.bottom_nav.includes(opt.key) || 
-                                (opt.key === 'Dashboard' && data.preferences.bottom_nav.includes('dashboard')) ||
-                                (opt.key === 'Ambil Absensi' && data.preferences.bottom_nav.includes('absensi')) ||
-                                (opt.key === 'Form Marketing' && data.preferences.bottom_nav.includes('marketing')) ||
-                                (opt.key === 'Izin/Sakit' && data.preferences.bottom_nav.includes('izin'));
-                            
-                            const isDisabled = !isChecked && (data.preferences.bottom_nav.length >= 4);
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Kolom Kiri: Pintasan Navigasi Bawah (Mobile) */}
+                    <div className="bg-gray-50/60 p-4 sm:p-5 rounded-2xl border border-gray-100">
+                        <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-1.5">
+                            <PanelBottom className="w-5 h-5 text-blue-500 shrink-0" /> Pintasan Navigasi Bawah (Mobile)
+                        </h4>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-4">Pilih menu pintasan cepat di bagian bawah layar HP Anda (Maksimal 4 Menu).</p>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 h-64 overflow-y-auto pr-1.5 custom-scrollbar">
+                            {ALL_MENUS.map(opt => {
+                                const isChecked = data.preferences.bottom_nav.includes(opt.key) || 
+                                    (opt.key === 'Dashboard' && data.preferences.bottom_nav.includes('dashboard')) ||
+                                    (opt.key === 'Ambil Absensi' && data.preferences.bottom_nav.includes('absensi')) ||
+                                    (opt.key === 'Form Marketing' && data.preferences.bottom_nav.includes('marketing')) ||
+                                    (opt.key === 'Izin/Sakit' && data.preferences.bottom_nav.includes('izin'));
+                                
+                                const isDisabled = !isChecked && (data.preferences.bottom_nav.length >= 4);
 
-                            return (
-                                <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-50' : 'border-gray-200 cursor-pointer hover:bg-gray-50'}`}>
-                                    <input 
-                                        type="checkbox" 
-                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50 shrink-0"
-                                        checked={isChecked}
-                                        disabled={isDisabled}
-                                        onChange={(e) => {
-                                            const current = data.preferences.bottom_nav;
-                                            const currentClean = current.filter(k => !['dashboard', 'absensi', 'marketing', 'izin'].includes(k) || (k === 'dashboard' && opt.key !== 'Dashboard') || (k === 'absensi' && opt.key !== 'Ambil Absensi') || (k === 'marketing' && opt.key !== 'Form Marketing') || (k === 'izin' && opt.key !== 'Izin/Sakit'));
-                                            
-                                            const updated = e.target.checked 
-                                                ? [...currentClean, opt.key] 
-                                                : currentClean.filter(k => k !== opt.key);
-                                            setData('preferences', { ...data.preferences, bottom_nav: updated });
-                                        }}
-                                    />
-                                    <span className="text-sm font-medium text-gray-700 leading-tight">{opt.label}</span>
-                                </label>
-                            );
-                        })}
+                                return (
+                                    <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-100/60' : 'border-gray-200 bg-white cursor-pointer hover:border-blue-300 hover:bg-blue-50/30'}`}>
+                                        <input 
+                                            type="checkbox" 
+                                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50 shrink-0"
+                                            checked={isChecked}
+                                            disabled={isDisabled}
+                                            onChange={(e) => {
+                                                const current = data.preferences.bottom_nav;
+                                                const currentClean = current.filter(k => !['dashboard', 'absensi', 'marketing', 'izin'].includes(k) || (k === 'dashboard' && opt.key !== 'Dashboard') || (k === 'absensi' && opt.key !== 'Ambil Absensi') || (k === 'marketing' && opt.key !== 'Form Marketing') || (k === 'izin' && opt.key !== 'Izin/Sakit'));
+                                                
+                                                const updated = e.target.checked 
+                                                    ? [...currentClean, opt.key] 
+                                                    : currentClean.filter(k => k !== opt.key);
+                                                setData('preferences', { ...data.preferences, bottom_nav: updated });
+                                            }}
+                                        />
+                                        <span className="text-sm font-medium text-gray-700 leading-tight">{opt.label}</span>
+                                    </label>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
 
-                <div className="pt-4 border-t border-gray-100">
-                    <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-                        <LayoutDashboard className="w-5 h-5 text-blue-500" /> Widget Dashboard Beranda
-                    </h4>
-                    <p className="text-sm text-gray-500 mb-4">Pilih kotak informasi atau pintasan yang ingin ditampilkan di bagian atas halaman beranda (Maksimal 10 Menu).</p>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-64 overflow-y-auto pr-2 custom-scrollbar">
-                        {ALL_MENUS.map(opt => {
-                            const isChecked = data.preferences.dashboard.includes(opt.key) || 
-                                (opt.key === 'Ambil Absensi' && data.preferences.dashboard.includes('attendance')) ||
-                                (opt.key === 'Form Marketing' && data.preferences.dashboard.includes('marketing')) ||
-                                (opt.key === 'Form UC' && data.preferences.dashboard.includes('uc')) ||
-                                (opt.key === 'Input BHP' && data.preferences.dashboard.includes('bhp'));
-                            
-                            const isDisabled = !isChecked && (data.preferences.dashboard.length >= 10);
+                    {/* Kolom Kanan: Widget Dashboard Beranda */}
+                    <div className="bg-gray-50/60 p-4 sm:p-5 rounded-2xl border border-gray-100">
+                        <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-1.5">
+                            <LayoutDashboard className="w-5 h-5 text-blue-500 shrink-0" /> Widget Dashboard Beranda
+                        </h4>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-4">Pilih kotak informasi atau pintasan di bagian atas halaman beranda (Maksimal 10 Menu).</p>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 h-64 overflow-y-auto pr-1.5 custom-scrollbar">
+                            {ALL_MENUS.map(opt => {
+                                const isChecked = data.preferences.dashboard.includes(opt.key) || 
+                                    (opt.key === 'Ambil Absensi' && data.preferences.dashboard.includes('attendance')) ||
+                                    (opt.key === 'Form Marketing' && data.preferences.dashboard.includes('marketing')) ||
+                                    (opt.key === 'Form UC' && data.preferences.dashboard.includes('uc')) ||
+                                    (opt.key === 'Input BHP' && data.preferences.dashboard.includes('bhp'));
+                                
+                                const isDisabled = !isChecked && (data.preferences.dashboard.length >= 10);
 
-                            return (
-                                <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-50' : 'border-gray-200 cursor-pointer hover:bg-gray-50'}`}>
-                                    <input 
-                                        type="checkbox" 
-                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50 shrink-0"
-                                        checked={isChecked}
-                                        disabled={isDisabled}
-                                        onChange={(e) => {
-                                            const current = data.preferences.dashboard;
-                                            const currentClean = current.filter(k => !['attendance', 'marketing', 'uc', 'bhp'].includes(k) || (k === 'attendance' && opt.key !== 'Ambil Absensi') || (k === 'marketing' && opt.key !== 'Form Marketing') || (k === 'uc' && opt.key !== 'Form UC') || (k === 'bhp' && opt.key !== 'Input BHP'));
-                                            
-                                            const updated = e.target.checked 
-                                                ? [...currentClean, opt.key] 
-                                                : currentClean.filter(k => k !== opt.key);
-                                            setData('preferences', { ...data.preferences, dashboard: updated });
-                                        }}
-                                    />
-                                    <span className="text-sm font-medium text-gray-700 leading-tight">{opt.label}</span>
-                                </label>
-                            );
-                        })}
+                                return (
+                                    <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-100/60' : 'border-gray-200 bg-white cursor-pointer hover:border-blue-300 hover:bg-blue-50/30'}`}>
+                                        <input 
+                                            type="checkbox" 
+                                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50 shrink-0"
+                                            checked={isChecked}
+                                            disabled={isDisabled}
+                                            onChange={(e) => {
+                                                const current = data.preferences.dashboard;
+                                                const currentClean = current.filter(k => !['attendance', 'marketing', 'uc', 'bhp'].includes(k) || (k === 'attendance' && opt.key !== 'Ambil Absensi') || (k === 'marketing' && opt.key !== 'Form Marketing') || (k === 'uc' && opt.key !== 'Form UC') || (k === 'bhp' && opt.key !== 'Input BHP'));
+                                                
+                                                const updated = e.target.checked 
+                                                    ? [...currentClean, opt.key] 
+                                                    : currentClean.filter(k => k !== opt.key);
+                                                setData('preferences', { ...data.preferences, dashboard: updated });
+                                            }}
+                                        />
+                                        <span className="text-sm font-medium text-gray-700 leading-tight">{opt.label}</span>
+                                    </label>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
 

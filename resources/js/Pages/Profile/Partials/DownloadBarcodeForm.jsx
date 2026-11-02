@@ -45,10 +45,10 @@ export default function DownloadBarcodeForm({ user }) {
     };
 
     return (
-        <section className="space-y-6">
+        <section className="flex-1 flex flex-col justify-between">
             <header>
-                <p className="mt-1 text-sm text-gray-600">
-                    Unduh QR Code Tanda Tangan Digital Anda. Anda dapat menggunakannya untuk ditempel pada laporan atau dokumen lain.
+                <p className="text-sm text-gray-600 mb-6">
+                    Unduh QR Code Tanda Tangan Digital Anda. Anda dapat menggunakannya untuk ditempel pada laporan atau dokumen resmi perusahaan.
                 </p>
             </header>
 
@@ -56,9 +56,9 @@ export default function DownloadBarcodeForm({ user }) {
                 <button
                     type="button"
                     onClick={() => setBarcodeModalOpen(true)}
-                    className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 gap-2"
+                    className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all gap-2"
                 >
-                    <QrCode className="w-4 h-4" /> Unduh
+                    <QrCode className="w-4 h-4" /> Unduh Barcode
                 </button>
             </div>
 
