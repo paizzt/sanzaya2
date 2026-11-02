@@ -37,7 +37,8 @@ class AttendanceController extends Controller
         } catch (\Throwable $e) {}
 
         $settings = PayrollController::getPayrollSettings();
-        $autoCheckoutTime = substr($settings['jam_pulang_otomatis'] ?? '17:00', 0, 5) . ':00';
+        $autoCheckoutTimeWeekday = substr($settings['jam_pulang_otomatis'] ?? '17:00', 0, 5) . ':00';
+        $autoCheckoutTimeSabtu = substr($settings['jam_pulang_otomatis_sabtu'] ?? '13:00', 0, 5) . ':00';
         $jamMulaiWeekday = substr($settings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
         $jamMulaiSabtu = substr($settings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
 
@@ -48,7 +49,7 @@ class AttendanceController extends Controller
         $tanpaKeterlambatan = (bool)($user->tanpa_keterlambatan ?? false);
 
         // Cek apakah ada check-in hari sebelumnya yang belum check-out
-        // Untuk karyawan biasa, otomatis check-out di jam pulang otomatis pada hari tersebut agar tidak mengganggu absensi hari ini.
+        // Untuk karyawan biasa, otomatis check-out di jam pulang otomatis (Senin-Jumat 17:00, Sabtu 13:00) pada hari tersebut agar tidak mengganggu absensi hari ini.
         // Khusus SATPAM: TIDAK auto-checkout karena jam kerjanya bisa lintas hari (misal jam 22:00 malam s/d 08:00 pagi).
         if (!$isSatpam) {
             $uncompletedPast = Attendance::where('user_id', $user->id)
@@ -58,7 +59,8 @@ class AttendanceController extends Controller
                 ->get();
                 
             foreach ($uncompletedPast as $uncompleted) {
-                $uncompleted->check_out_time = $autoCheckoutTime;
+                $isSatDate = Carbon::parse(substr($uncompleted->date, 0, 10))->dayOfWeek === Carbon::SATURDAY;
+                $uncompleted->check_out_time = $isSatDate ? $autoCheckoutTimeSabtu : $autoCheckoutTimeWeekday;
                 $uncompleted->notes = 'Auto checkout oleh sistem (Lupa absen pulang)';
                 $uncompleted->save();
             }
@@ -440,6 +442,7 @@ class AttendanceController extends Controller
 
         $request->validate([
             'jam_pulang_otomatis' => ['required', 'string', 'max:10'],
+            'jam_pulang_otomatis_sabtu' => ['nullable', 'string', 'max:10'],
             'jam_mulai_lembur_weekday' => ['required', 'string', 'max:10'],
             'jam_mulai_lembur_sabtu' => ['required', 'string', 'max:10'],
             'jam_batas_terlambat' => ['required', 'string', 'max:10'],
@@ -449,6 +452,7 @@ class AttendanceController extends Controller
         ]);
 
         $jamPulang = substr(trim($request->jam_pulang_otomatis), 0, 5);
+        $jamPulangSabtu = substr(trim($request->input('jam_pulang_otomatis_sabtu', '13:00') ?: '13:00'), 0, 5);
         $jamWeekday = substr(trim($request->jam_mulai_lembur_weekday), 0, 5);
         $jamSabtu = substr(trim($request->jam_mulai_lembur_sabtu), 0, 5);
         $jamTerlambat = substr(trim($request->jam_batas_terlambat), 0, 5);
@@ -458,6 +462,7 @@ class AttendanceController extends Controller
         if ($row) {
             \Illuminate\Support\Facades\DB::table('payroll_settings')->where('id', $row->id)->update([
                 'jam_pulang_otomatis' => $jamPulang,
+                'jam_pulang_otomatis_sabtu' => $jamPulangSabtu,
                 'jam_mulai_lembur_weekday' => $jamWeekday,
                 'jam_mulai_lembur_sabtu' => $jamSabtu,
                 'jam_batas_terlambat' => $jamTerlambat,
@@ -471,6 +476,7 @@ class AttendanceController extends Controller
                 'tarif_lembur_weekday_berikutnya' => 20000,
                 'tarif_lembur_sabtu' => 20000,
                 'jam_pulang_otomatis' => $jamPulang,
+                'jam_pulang_otomatis_sabtu' => $jamPulangSabtu,
                 'jam_mulai_lembur_weekday' => $jamWeekday,
                 'jam_mulai_lembur_sabtu' => $jamSabtu,
                 'jam_batas_terlambat' => $jamTerlambat,
@@ -483,11 +489,20 @@ class AttendanceController extends Controller
         $targetMonth = (int)($request->input('month') ?: date('n'));
         $targetYear = (int)($request->input('year') ?: date('Y'));
 
-        // Perbarui jam checkout pada absensi auto-checkout di bulan terkait
-        Attendance::whereMonth('date', $targetMonth)
+        // Perbarui jam checkout pada absensi auto-checkout di bulan terkait (Senin-Jumat vs Sabtu)
+        $autoCheckouts = Attendance::whereMonth('date', $targetMonth)
             ->whereYear('date', $targetYear)
-            ->where('notes', 'Auto checkout oleh sistem (Lupa absen pulang)')
-            ->update(['check_out_time' => $jamPulang . ':00']);
+            ->where(function ($q) {
+                $q->where('notes', 'Auto checkout oleh sistem (Lupa absen pulang)')
+                  ->orWhere('check_out_notes', 'Otomatis keluar oleh sistem');
+            })
+            ->get();
+
+        foreach ($autoCheckouts as $ac) {
+            $isSatDate = Carbon::parse(substr($ac->date, 0, 10))->dayOfWeek === Carbon::SATURDAY;
+            $ac->check_out_time = ($isSatDate ? $jamPulangSabtu : $jamPulang) . ':00';
+            $ac->save();
+        }
 
         // Sinkronkan ulang data gaji bulan tersebut jika ada
         try {

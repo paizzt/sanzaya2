@@ -22,6 +22,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
     const [savingSettings, setSavingSettings] = useState(false);
     const [settingsForm, setSettingsForm] = useState({
         jam_pulang_otomatis: payrollSettings?.jam_pulang_otomatis || '17:00',
+        jam_pulang_otomatis_sabtu: payrollSettings?.jam_pulang_otomatis_sabtu || '13:00',
         jam_mulai_lembur_weekday: payrollSettings?.jam_mulai_lembur_weekday || '20:00',
         jam_mulai_lembur_sabtu: payrollSettings?.jam_mulai_lembur_sabtu || '14:00',
         jam_batas_terlambat: payrollSettings?.jam_batas_terlambat || '08:15',
@@ -32,6 +33,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         if (payrollSettings) {
             setSettingsForm({
                 jam_pulang_otomatis: payrollSettings.jam_pulang_otomatis || '17:00',
+                jam_pulang_otomatis_sabtu: payrollSettings.jam_pulang_otomatis_sabtu || '13:00',
                 jam_mulai_lembur_weekday: payrollSettings.jam_mulai_lembur_weekday || '20:00',
                 jam_mulai_lembur_sabtu: payrollSettings.jam_mulai_lembur_sabtu || '14:00',
                 jam_batas_terlambat: payrollSettings.jam_batas_terlambat || '08:15',
@@ -1005,21 +1007,35 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 </button>
                             </div>
                             <form onSubmit={handleSaveSettings} className="p-6 space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 mb-1">
-                                        Absen Keluar Otomatis
-                                    </label>
-                                    <input
-                                        type="time"
-                                        value={settingsForm.jam_pulang_otomatis}
-                                        onChange={(e) => setSettingsForm({ ...settingsForm, jam_pulang_otomatis: e.target.value })}
-                                        required
-                                        className="w-full rounded-xl border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                    <p className="text-[11px] text-gray-500 mt-1">
-                                        Jam pulang otomatis jika karyawan belum absen keluar di hari sebelumnya.
-                                    </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                                            Absen Keluar Otomatis (Senin-Jumat)
+                                        </label>
+                                        <input
+                                            type="time"
+                                            value={settingsForm.jam_pulang_otomatis}
+                                            onChange={(e) => setSettingsForm({ ...settingsForm, jam_pulang_otomatis: e.target.value })}
+                                            required
+                                            className="w-full rounded-xl border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                                            Absen Keluar Otomatis (Sabtu)
+                                        </label>
+                                        <input
+                                            type="time"
+                                            value={settingsForm.jam_pulang_otomatis_sabtu}
+                                            onChange={(e) => setSettingsForm({ ...settingsForm, jam_pulang_otomatis_sabtu: e.target.value })}
+                                            required
+                                            className="w-full rounded-xl border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
                                 </div>
+                                <p className="text-[11px] text-gray-500 -mt-2">
+                                    Jam pulang otomatis jika karyawan belum absen keluar di hari sebelumnya (Senin-Jumat default 17:00, Sabtu default 13:00).
+                                </p>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>

@@ -75,7 +75,8 @@ class AttendanceRecapController extends Controller
         PayrollController::ensurePayrollTablesStatic();
         $payrollSettings = PayrollController::getPayrollSettings();
 
-        $jamPulangOtomatis = substr($payrollSettings['jam_pulang_otomatis'] ?? '17:00', 0, 5) . ':00';
+        $jamPulangOtomatisWeekday = substr($payrollSettings['jam_pulang_otomatis'] ?? '17:00', 0, 5) . ':00';
+        $jamPulangOtomatisSabtu = substr($payrollSettings['jam_pulang_otomatis_sabtu'] ?? '13:00', 0, 5) . ':00';
         $jamMulaiWeekday = substr($payrollSettings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
         $jamMulaiSabtu = substr($payrollSettings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
         $jamBatasTerlambat = substr($payrollSettings['jam_batas_terlambat'] ?? '08:15', 0, 5);
@@ -107,7 +108,7 @@ class AttendanceRecapController extends Controller
             $userTanpaLembur[$u->id] = (bool)($u->tanpa_lembur ?? false);
         }
 
-        // Auto-checkout past uncompleted non-Satpam attendances using configurable jam_pulang_otomatis
+        // Auto-checkout past uncompleted non-Satpam attendances using configurable jam_pulang_otomatis (Senin-Jumat 17:00, Sabtu 13:00)
         try {
             $pastUnchecked = Attendance::where('date', '<', Carbon::today()->format('Y-m-d'))
                 ->whereNotNull('check_in_time')
@@ -115,11 +116,31 @@ class AttendanceRecapController extends Controller
                 ->get();
             foreach ($pastUnchecked as $pu) {
                 if (empty($userIsSatpam[$pu->user_id])) {
-                    $pu->check_out_time = $jamPulangOtomatis;
+                    $isSatDate = Carbon::parse(substr($pu->date, 0, 10))->dayOfWeek === Carbon::SATURDAY;
+                    $pu->check_out_time = $isSatDate ? $jamPulangOtomatisSabtu : $jamPulangOtomatisWeekday;
                     if (empty($pu->check_out_notes)) {
                         $pu->check_out_notes = 'Otomatis keluar oleh sistem';
                     }
                     $pu->save();
+                }
+            }
+
+            // Sinkronkan juga absensi auto-checkout hari Sabtu di bulan ini yang sebelumnya tercatat 17:00:00
+            $monthAutoCheckouts = Attendance::whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->where(function ($q) {
+                    $q->where('notes', 'Auto checkout oleh sistem (Lupa absen pulang)')
+                      ->orWhere('check_out_notes', 'Otomatis keluar oleh sistem');
+                })
+                ->get();
+            foreach ($monthAutoCheckouts as $mac) {
+                if (empty($userIsSatpam[$mac->user_id])) {
+                    $isSatDate = Carbon::parse(substr($mac->date, 0, 10))->dayOfWeek === Carbon::SATURDAY;
+                    $expectedAutoTime = $isSatDate ? $jamPulangOtomatisSabtu : $jamPulangOtomatisWeekday;
+                    if ($mac->check_out_time !== $expectedAutoTime) {
+                        $mac->check_out_time = $expectedAutoTime;
+                        $mac->save();
+                    }
                 }
             }
         } catch (\Throwable $e) {}

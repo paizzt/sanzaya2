@@ -68,6 +68,7 @@ class PayrollController extends Controller
                     $table->decimal('tarif_lembur_weekday_berikutnya', 15, 2)->default(20000);
                     $table->decimal('tarif_lembur_sabtu', 15, 2)->default(20000);
                     $table->string('jam_pulang_otomatis', 10)->default('17:00');
+                    $table->string('jam_pulang_otomatis_sabtu', 10)->default('13:00');
                     $table->string('jam_mulai_lembur_weekday', 10)->default('20:00');
                     $table->string('jam_mulai_lembur_sabtu', 10)->default('14:00');
                     $table->string('jam_batas_terlambat', 10)->default('08:15');
@@ -79,8 +80,11 @@ class PayrollController extends Controller
                     if (!Schema::hasColumn('payroll_settings', 'jam_pulang_otomatis')) {
                         $table->string('jam_pulang_otomatis', 10)->default('17:00')->after('tarif_lembur_sabtu');
                     }
+                    if (!Schema::hasColumn('payroll_settings', 'jam_pulang_otomatis_sabtu')) {
+                        $table->string('jam_pulang_otomatis_sabtu', 10)->default('13:00')->after('jam_pulang_otomatis');
+                    }
                     if (!Schema::hasColumn('payroll_settings', 'jam_mulai_lembur_weekday')) {
-                        $table->string('jam_mulai_lembur_weekday', 10)->default('20:00')->after('jam_pulang_otomatis');
+                        $table->string('jam_mulai_lembur_weekday', 10)->default('20:00')->after('jam_pulang_otomatis_sabtu');
                     }
                     if (!Schema::hasColumn('payroll_settings', 'jam_mulai_lembur_sabtu')) {
                         $table->string('jam_mulai_lembur_sabtu', 10)->default('14:00')->after('jam_mulai_lembur_weekday');
@@ -136,6 +140,7 @@ class PayrollController extends Controller
             'tarif_lembur_weekday_berikutnya' => 20000.0,
             'tarif_lembur_sabtu' => 20000.0,
             'jam_pulang_otomatis' => '17:00',
+            'jam_pulang_otomatis_sabtu' => '13:00',
             'jam_mulai_lembur_weekday' => '20:00',
             'jam_mulai_lembur_sabtu' => '14:00',
             'jam_batas_terlambat' => '08:15',
@@ -159,6 +164,7 @@ class PayrollController extends Controller
                     'tarif_lembur_weekday_berikutnya' => (float)($row->tarif_lembur_weekday_berikutnya ?? 20000),
                     'tarif_lembur_sabtu' => (float)($row->tarif_lembur_sabtu ?? 20000),
                     'jam_pulang_otomatis' => substr((string)($row->jam_pulang_otomatis ?? '17:00'), 0, 5),
+                    'jam_pulang_otomatis_sabtu' => substr((string)($row->jam_pulang_otomatis_sabtu ?? '13:00'), 0, 5),
                     'jam_mulai_lembur_weekday' => substr((string)($row->jam_mulai_lembur_weekday ?? '20:00'), 0, 5),
                     'jam_mulai_lembur_sabtu' => substr((string)($row->jam_mulai_lembur_sabtu ?? '14:00'), 0, 5),
                     'jam_batas_terlambat' => substr((string)($row->jam_batas_terlambat ?? '08:15'), 0, 5),
