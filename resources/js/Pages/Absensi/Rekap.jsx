@@ -547,8 +547,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                         <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
                                         <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
                                         <th className="py-4 px-6 font-semibold text-center text-red-600">Alpa</th>
-                                        <th className="py-4 px-6 font-semibold text-center text-rose-600">Terlambat (Pot. Operasional)</th>
-                                        <th className="py-4 px-6 font-semibold text-center text-blue-600">Lembur (Upah)</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-rose-600">Terlambat</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-blue-600">Lembur</th>
                                     </tr>
                                 )}
                             </thead>
@@ -579,22 +579,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
                                                     <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
                                                     <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
-                                                    <td className="py-4 px-6 text-center">
-                                                        <div className="font-bold text-rose-600">{u.terlambat || 0}x</div>
-                                                        {(u.nominal_potongan_terlambat > 0) && (
-                                                            <div className="text-[11px] font-semibold text-rose-500 whitespace-nowrap">
-                                                                -Rp {new Intl.NumberFormat('id-ID').format(Math.round(u.nominal_potongan_terlambat))}
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                    <td className="py-4 px-6 text-center">
-                                                        <div className="font-bold text-blue-600">{u.lembur || 0} hari</div>
-                                                        {(u.nominal_lembur > 0) && (
-                                                            <div className="text-[11px] font-semibold text-blue-600 whitespace-nowrap">
-                                                                +Rp {new Intl.NumberFormat('id-ID').format(Math.round(u.nominal_lembur))}
-                                                            </div>
-                                                        )}
-                                                    </td>
+                                                    <td className="py-4 px-6 text-center font-bold text-rose-600">{u.terlambat || 0}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-blue-600">{u.lembur || 0}</td>
                                                 </>
                                             )}
 
