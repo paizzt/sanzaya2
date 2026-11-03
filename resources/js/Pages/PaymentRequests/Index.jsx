@@ -218,6 +218,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                 <thead className="bg-gray-50 text-gray-700">
                                     <tr>
                                         <th className="px-4 py-3 font-semibold">Tanggal</th>
+                                        <th className="px-4 py-3 font-semibold">Tujuan Pembayaran</th>
                                         <th className="px-4 py-3 font-semibold">Pengaju / Divisi</th>
                                         <th className="px-4 py-3 font-semibold">Penerima</th>
                                         <th className="px-4 py-3 font-semibold">Keterangan</th>
@@ -257,6 +258,9 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                             </span>
                                                         )}
                                                     </div>
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[250px] break-words font-medium text-gray-800">
+                                                    {pr.purpose || '-'}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="font-medium">{pr.requester?.name}</div>
@@ -319,7 +323,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+                                            <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
                                                 Tidak ada data pengajuan pembayaran.
                                             </td>
                                         </tr>
