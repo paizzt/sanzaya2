@@ -221,7 +221,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                         <th className="px-4 py-3 font-semibold">Tujuan Pembayaran</th>
                                         <th className="px-4 py-3 font-semibold">Pengaju / Divisi</th>
                                         <th className="px-4 py-3 font-semibold">Penerima</th>
-                                        <th className="px-4 py-3 font-semibold">Keterangan</th>
+                                        {!isApprovalView && <th className="px-4 py-3 font-semibold">Keterangan</th>}
                                         <th className="px-4 py-3 font-semibold text-right">Grand Total</th>
                                         <th className="px-4 py-3 font-semibold">Status</th>
                                         <th className="px-4 py-3 font-semibold text-center">Aksi</th>
@@ -263,9 +263,11 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                 <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[250px] break-words">
                                                     {pr.recipient_name}
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[220px] break-words text-xs text-gray-600">
-                                                    {pr.notes || '-'}
-                                                </td>
+                                                {!isApprovalView && (
+                                                    <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[220px] break-words text-xs text-gray-600">
+                                                        {pr.notes || '-'}
+                                                    </td>
+                                                )}
                                                 <td className="px-4 py-3 text-right font-medium">
                                                     {formatCurrency(pr.grand_total)}
                                                 </td>
@@ -317,7 +319,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                                            <td colSpan={isApprovalView ? 7 : 8} className="px-4 py-8 text-center text-gray-500">
                                                 Tidak ada data pengajuan pembayaran.
                                             </td>
                                         </tr>
