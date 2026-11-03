@@ -76,11 +76,14 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
     const getStatusInfo = (req) => {
         const s = req.status || 'Menunggu';
-        if (s === 'Selesai / Result Dikirim' || (req.result_report && s === 'Disetujui')) {
-            return { label: 'Selesai', color: 'text-emerald-700' };
+        if (s === 'Selesai') {
+            return { label: 'ACC (Selesai)', color: 'text-emerald-700' };
+        }
+        if (s === 'Selesai / Result Dikirim') {
+            return { label: 'Result Dikirim', color: 'text-indigo-600' };
         }
         if (s === 'Disetujui' || s === 'ACC') {
-            return { label: 'ACC (Disetujui)', color: 'text-emerald-700' };
+            return { label: req.result_report ? 'Result Dikirim' : 'ACC (Disetujui)', color: req.result_report ? 'text-indigo-600' : 'text-emerald-700' };
         }
         if (s === 'Ditolak' || s === 'Tolak') {
             return { label: 'Ditolak', color: 'text-rose-600' };
@@ -96,20 +99,20 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
     const counts = {
         semua: requests.length,
-        menunggu: requests.filter(r => (r.status || 'Menunggu') === 'Menunggu').length,
+        menunggu: requests.filter(r => !r.status || r.status === 'Menunggu' || r.status === 'Pending').length,
         disetujui: requests.filter(r => (r.status === 'Disetujui' || r.status === 'ACC') && !r.result_report).length,
         direvisi: requests.filter(r => r.status === 'Direvisi' || r.status === 'Revisi').length,
         ditolak: requests.filter(r => r.status === 'Ditolak' || r.status === 'Tolak').length,
-        selesai: requests.filter(r => r.status === 'Selesai / Result Dikirim' || (r.result_report && (r.status === 'Disetujui' || r.status === 'Selesai'))).length,
+        selesai: requests.filter(r => r.status === 'Selesai' || r.status === 'Selesai / Result Dikirim' || (Boolean(r.result_report) && (r.status === 'Disetujui' || r.status === 'ACC'))).length,
     };
 
     const filteredRequests = requests.filter(req => {
         const s = req.status || 'Menunggu';
-        if (selectedTab === 'Menunggu') return s === 'Menunggu';
+        if (selectedTab === 'Menunggu') return !req.status || s === 'Menunggu' || s === 'Pending';
         if (selectedTab === 'Disetujui') return (s === 'Disetujui' || s === 'ACC') && !req.result_report;
         if (selectedTab === 'Direvisi') return s === 'Direvisi' || s === 'Revisi';
         if (selectedTab === 'Ditolak') return s === 'Ditolak' || s === 'Tolak';
-        if (selectedTab === 'Selesai') return s === 'Selesai / Result Dikirim' || (req.result_report && (s === 'Disetujui' || s === 'Selesai'));
+        if (selectedTab === 'Selesai') return s === 'Selesai' || s === 'Selesai / Result Dikirim' || (Boolean(req.result_report) && (s === 'Disetujui' || s === 'ACC'));
         return true;
     });
 
@@ -285,7 +288,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                 const isAcc = req.status === 'Disetujui' || req.status === 'ACC';
                                 const isTolak = req.status === 'Ditolak' || req.status === 'Tolak';
                                 const isRevisi = req.status === 'Direvisi' || req.status === 'Revisi';
-                                const isSelesai = req.status === 'Selesai / Result Dikirim' || (req.result_report && isAcc);
+                                const isSelesai = req.status === 'Selesai' || req.status === 'Selesai / Result Dikirim' || (Boolean(req.result_report) && isAcc);
 
                                 let photos = [];
                                 try {

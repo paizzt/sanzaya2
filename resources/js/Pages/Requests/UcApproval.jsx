@@ -16,6 +16,7 @@ export default function UcApproval({ requests, isAdmin }) {
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState(null);
+    const [modalSource, setModalSource] = useState('uc');
 
     const { data, setData, post, processing, reset, errors, transform } = useForm({
         status: '',
@@ -47,8 +48,36 @@ export default function UcApproval({ requests, isAdmin }) {
                (parseFloat(req.ship_ticket_cost) || 0);
     };
 
-    const openModal = (req) => {
+    const isCompletedResult = (req) => {
+        if (!req) return false;
+        return req.status === 'Selesai';
+    };
+
+    const isUcInitialPending = (req) => {
+        if (!req) return false;
+        if (isCompletedResult(req)) return false;
+        if (req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Selesai / Result Dikirim') {
+            return false;
+        }
+        if (req.result_report && req.result_report.trim().length > 0) {
+            return false;
+        }
+        return true;
+    };
+
+    const isResultPending = (req) => {
+        if (!req) return false;
+        return !isCompletedResult(req) && !isUcInitialPending(req);
+    };
+
+    const ucRequests = (requests || []).filter(isUcInitialPending);
+    const pendingResultRequests = (requests || []).filter(isResultPending);
+    const completedResultRequests = (requests || []).filter(isCompletedResult);
+
+    const openModal = (req, defaultStatus = null, source = null) => {
         setSelectedRequest(req);
+        const determinedSource = source || (isCompletedResult(req) ? 'completed' : (isResultPending(req) ? 'result' : 'uc'));
+        setModalSource(determinedSource);
 
         let initialItems = [];
         if (req.items && req.items.length > 0) {
@@ -78,9 +107,18 @@ export default function UcApproval({ requests, isAdmin }) {
             }
         }
 
-        const initialStatus = (req.status === 'Ditolak' || req.status === 'Tolak') 
-            ? 'Ditolak' 
-            : ((req.status === 'Direvisi' || req.status === 'Revisi') ? 'Direvisi' : 'Disetujui');
+        let initialStatus = defaultStatus;
+        if (!initialStatus) {
+            if (req.status === 'Ditolak' || req.status === 'Tolak') {
+                initialStatus = 'Ditolak';
+            } else if (req.status === 'Direvisi' || req.status === 'Revisi') {
+                initialStatus = 'Direvisi';
+            } else if (determinedSource === 'result' || req.status === 'Selesai') {
+                initialStatus = 'Selesai';
+            } else {
+                initialStatus = 'Disetujui';
+            }
+        }
 
         setData({
             status: initialStatus,
@@ -122,7 +160,11 @@ export default function UcApproval({ requests, isAdmin }) {
     }, 0);
 
     const submitApproval = (statusChoice) => {
-        const finalStatus = statusChoice || data.status || 'Disetujui';
+        let finalStatus = statusChoice || data.status || 'Disetujui';
+
+        if (modalSource === 'result' && (finalStatus === 'Disetujui' || finalStatus === 'ACC')) {
+            finalStatus = 'Selesai';
+        }
 
         setData('status', finalStatus);
         transform((currData) => ({
@@ -134,9 +176,14 @@ export default function UcApproval({ requests, isAdmin }) {
             preserveScroll: true,
             onSuccess: () => {
                 closeModal();
-                const label = (finalStatus === 'Disetujui' || finalStatus === 'ACC')
-                    ? 'disetujui (ACC)'
-                    : ((finalStatus === 'Direvisi' || finalStatus === 'Revisi') ? 'diminta revisi' : 'ditolak');
+                let label = 'disetujui (ACC)';
+                if (finalStatus === 'Selesai') {
+                    label = 'disetujui selesai (ACC)';
+                } else if (finalStatus === 'Direvisi' || finalStatus === 'Revisi') {
+                    label = 'diminta revisi';
+                } else if (finalStatus === 'Ditolak' || finalStatus === 'Tolak') {
+                    label = 'ditolak';
+                }
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil!',
@@ -170,32 +217,27 @@ export default function UcApproval({ requests, isAdmin }) {
         });
     };
 
-    const isResult = (req) => {
-        if (!req) return false;
-        const hasReport = Boolean(req.result_report && req.result_report.trim().length > 0);
-        let hasReceipts = false;
-        try {
-            if (req.result_receipts) {
-                const parsed = JSON.parse(req.result_receipts);
-                if (Array.isArray(parsed) && parsed.length > 0) hasReceipts = true;
+    const getStatusText = (req, context = 'uc') => {
+        if (!req) return { label: '-', color: 'text-gray-500 font-bold' };
+        const s = typeof req === 'string' ? req : (req.status || 'Menunggu');
+
+        if (context === 'completed' || s === 'Selesai') {
+            return { label: 'ACC (Selesai)', color: 'text-emerald-700 font-bold' };
+        }
+        if (context === 'result' || (typeof req === 'object' && isResultPending(req))) {
+            if (s === 'Selesai / Result Dikirim') {
+                return { label: 'Result Dikirim', color: 'text-indigo-600 font-bold' };
             }
-        } catch (e) {}
-        const isResultStatus = req.status === 'Selesai / Result Dikirim' || (req.status && req.status.toLowerCase().includes('result'));
-        return hasReport || hasReceipts || isResultStatus;
-    };
-
-    const isResultCompleted = (req) => {
-        return isResult(req) && (req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Selesai');
-    };
-
-    const ucRequests = (requests || []).filter(req => !isResult(req));
-    const pendingResultRequests = (requests || []).filter(req => isResult(req) && !isResultCompleted(req));
-    const completedResultRequests = (requests || []).filter(req => isResultCompleted(req));
-
-    const getStatusText = (status) => {
-        const s = status || 'Menunggu';
-        if (s.includes('Selesai') || s.toLowerCase().includes('result')) {
-            return { label: 'Result Dikirim', color: 'text-indigo-600 font-bold' };
+            if (s === 'Direvisi' || s === 'Revisi') {
+                return { label: 'Result Direvisi', color: 'text-amber-600 font-bold' };
+            }
+            if (s === 'Ditolak' || s === 'Tolak') {
+                return { label: 'Result Ditolak', color: 'text-rose-600 font-bold' };
+            }
+            if (typeof req === 'object' && req.result_report && req.result_report.trim().length > 0) {
+                return { label: 'Result Dikirim', color: 'text-indigo-600 font-bold' };
+            }
+            return { label: 'ACC (Menunggu Result)', color: 'text-blue-600 font-bold' };
         }
         if (s === 'Disetujui' || s === 'ACC') {
             return { label: 'ACC', color: 'text-emerald-700 font-bold' };
@@ -212,20 +254,27 @@ export default function UcApproval({ requests, isAdmin }) {
         return { label: s, color: 'text-amber-600 font-bold' };
     };
 
-    const handleRowAction = (req, actionType) => {
-        const isResultReq = !!req.result_report;
-        const reqLabel = isResultReq ? 'Result UC' : 'Pengajuan UC';
+    const handleRowAction = (req, actionType, source = 'uc') => {
+        const isResultSource = source === 'result';
+        const reqLabel = isResultSource ? 'Result UC' : 'Pengajuan UC';
 
         if (actionType === 'Disetujui') {
+            const nextStatus = isResultSource ? 'Selesai' : 'Disetujui';
+            const actionTitle = isResultSource ? 'ACC Result UC?' : 'ACC Pengajuan UC?';
+            const actionText = isResultSource 
+                ? 'Result UC akan disetujui dan dipindahkan ke Daftar UC Selesai (ACC).'
+                : 'Pengajuan UC akan disetujui dan dipindahkan ke Daftar Pengajuan Result.';
+
             Swal.fire({
-                title: `ACC ${reqLabel}?`,
+                title: actionTitle,
                 html: `
                     <div class="text-left text-sm space-y-1.5 p-3 bg-gray-50 rounded-xl border border-gray-200">
                         <p><span class="text-gray-500">No. Request:</span> <strong>${req.request_number}</strong></p>
                         <p><span class="text-gray-500">Pengaju:</span> <strong>${req.user?.name || '-'}</strong> (${req.department || '-'})</p>
                         <p><span class="text-gray-500">Tujuan:</span> <strong>${req.destination_city || '-'}</strong></p>
                         <p><span class="text-gray-500">Total Biaya:</span> <strong>${formatRupiah(req.approved_gas_cost || getRequestTotal(req))}</strong></p>
-                        ${isResultReq && req.result_report ? `<p><span class="text-gray-500">Laporan:</span> <span class="italic text-gray-700 block mt-0.5 line-clamp-2">${req.result_report}</span></p>` : ''}
+                        ${req.result_report ? `<p><span class="text-gray-500">Laporan:</span> <span class="italic text-gray-700 block mt-0.5 line-clamp-2">${req.result_report}</span></p>` : ''}
+                        <p class="text-xs text-blue-600 font-medium pt-1">${actionText}</p>
                     </div>
                 `,
                 icon: 'question',
@@ -240,7 +289,7 @@ export default function UcApproval({ requests, isAdmin }) {
             }).then((result) => {
                 if (result.isConfirmed) {
                     router.post(route('requests.uc.approval.update', req.id), {
-                        status: 'Disetujui',
+                        status: nextStatus,
                         items: req.items && req.items.length > 0 ? req.items : undefined,
                         approved_gas_cost: req.approved_gas_cost || getRequestTotal(req),
                         finance_note: req.finance_note || '',
@@ -257,7 +306,7 @@ export default function UcApproval({ requests, isAdmin }) {
                         }
                     });
                 } else if (result.isDenied) {
-                    openModal(req, 'Disetujui');
+                    openModal(req, nextStatus, source);
                 }
             });
         } else if (actionType === 'Ditolak') {
@@ -396,13 +445,13 @@ export default function UcApproval({ requests, isAdmin }) {
                                     <tbody className="divide-y divide-gray-50">
                                         {ucRequests.map((req) => {
                                             const totalEst = getRequestTotal(req);
-                                            const st = getStatusText(req.status);
+                                            const st = getStatusText(req, 'uc');
                                             return (
                                                 <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
                                                     <td className="px-3.5 py-3">
                                                         <button 
                                                             type="button" 
-                                                            onClick={() => openModal(req)} 
+                                                            onClick={() => openModal(req, null, 'uc')} 
                                                             className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
                                                             title="Klik untuk lihat detail & rincian biaya"
                                                         >
@@ -440,21 +489,21 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         <div className="flex flex-col items-stretch gap-1 w-full max-w-[64px] mx-auto">
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Disetujui')} 
+                                                                onClick={() => handleRowAction(req, 'Disetujui', 'uc')} 
                                                                 className="w-full py-1 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 ACC
                                                             </button>
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Ditolak')} 
+                                                                onClick={() => handleRowAction(req, 'Ditolak', 'uc')} 
                                                                 className="w-full py-1 px-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Tolak
                                                             </button>
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Direvisi')} 
+                                                                onClick={() => handleRowAction(req, 'Direvisi', 'uc')} 
                                                                 className="w-full py-1 px-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Revisi
@@ -507,7 +556,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                     <tbody className="divide-y divide-gray-50">
                                         {pendingResultRequests.map((req) => {
                                             const totalEst = getRequestTotal(req);
-                                            const st = getStatusText(req.status);
+                                            const st = getStatusText(req, 'result');
                                             let photos = [];
                                             try {
                                                 if (req.result_receipts) {
@@ -521,7 +570,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                                     <td className="px-3.5 py-3">
                                                         <button 
                                                             type="button" 
-                                                            onClick={() => openModal(req)} 
+                                                            onClick={() => openModal(req, null, 'result')} 
                                                             className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
                                                             title="Klik untuk lihat detail & rincian"
                                                         >
@@ -540,7 +589,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                                                 {req.result_report}
                                                             </p>
                                                         ) : (
-                                                            <span className="text-xs text-gray-400 italic block mb-1">Tidak ada keterangan</span>
+                                                            <span className="text-xs text-gray-400 italic block mb-1">Menunggu laporan hasil dinas & nota dari pengaju</span>
                                                         )}
                                                         {photos.length > 0 && (
                                                             <div className="flex items-center gap-1.5 flex-wrap">
@@ -572,21 +621,21 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         <div className="flex flex-col items-stretch gap-1 w-full max-w-[64px] mx-auto">
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Disetujui')} 
+                                                                onClick={() => handleRowAction(req, 'Disetujui', 'result')} 
                                                                 className="w-full py-1 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 ACC
                                                             </button>
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Ditolak')} 
+                                                                onClick={() => handleRowAction(req, 'Ditolak', 'result')} 
                                                                 className="w-full py-1 px-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Tolak
                                                             </button>
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Direvisi')} 
+                                                                onClick={() => handleRowAction(req, 'Direvisi', 'result')} 
                                                                 className="w-full py-1 px-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Revisi
@@ -656,7 +705,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                                 <td className="px-4 py-3.5">
                                                     <button 
                                                         type="button" 
-                                                        onClick={() => openModal(req)} 
+                                                        onClick={() => openModal(req, null, 'completed')} 
                                                         className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
                                                         title="Klik untuk lihat detail"
                                                     >
@@ -859,45 +908,62 @@ export default function UcApproval({ requests, isAdmin }) {
                             </div>
 
                             <div className="space-y-4">
-                                <div>
-                                    <InputLabel value="Status Persetujuan" className="mb-2 font-semibold text-gray-700" />
-                                    <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => setData('status', 'Disetujui')}
-                                            className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
-                                                data.status === 'Disetujui' || data.status === 'ACC'
-                                                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-200'
-                                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-emerald-50 hover:text-emerald-700'
-                                            }`}
-                                        >
-                                            <CheckCircle className="w-4 h-4" /> ACC
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setData('status', 'Ditolak')}
-                                            className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
-                                                data.status === 'Ditolak' || data.status === 'Tolak'
-                                                    ? 'bg-rose-600 text-white border-rose-600 shadow-sm ring-2 ring-rose-200'
-                                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-rose-50 hover:text-rose-700'
-                                            }`}
-                                        >
-                                            <XCircle className="w-4 h-4" /> Tolak
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setData('status', 'Direvisi')}
-                                            className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
-                                                data.status === 'Direvisi' || data.status === 'Revisi'
-                                                    ? 'bg-amber-500 text-white border-amber-500 shadow-sm ring-2 ring-amber-200'
-                                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-amber-50 hover:text-amber-700'
-                                            }`}
-                                        >
-                                            <RotateCcw className="w-4 h-4" /> Revisi
-                                        </button>
+                                {modalSource !== 'completed' ? (
+                                    <div>
+                                        <InputLabel value="Status Persetujuan" className="mb-2 font-semibold text-gray-700" />
+                                        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setData('status', modalSource === 'result' ? 'Selesai' : 'Disetujui')}
+                                                className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
+                                                    data.status === 'Disetujui' || data.status === 'ACC' || data.status === 'Selesai'
+                                                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-200'
+                                                        : 'bg-white text-gray-700 border-gray-200 hover:bg-emerald-50 hover:text-emerald-700'
+                                                }`}
+                                            >
+                                                <CheckCircle className="w-4 h-4" /> {modalSource === 'result' ? 'ACC Result' : 'ACC'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setData('status', 'Ditolak')}
+                                                className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
+                                                    data.status === 'Ditolak' || data.status === 'Tolak'
+                                                        ? 'bg-rose-600 text-white border-rose-600 shadow-sm ring-2 ring-rose-200'
+                                                        : 'bg-white text-gray-700 border-gray-200 hover:bg-rose-50 hover:text-rose-700'
+                                                }`}
+                                            >
+                                                <XCircle className="w-4 h-4" /> Tolak
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setData('status', 'Direvisi')}
+                                                className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
+                                                    data.status === 'Direvisi' || data.status === 'Revisi'
+                                                        ? 'bg-amber-500 text-white border-amber-500 shadow-sm ring-2 ring-amber-200'
+                                                        : 'bg-white text-gray-700 border-gray-200 hover:bg-amber-50 hover:text-amber-700'
+                                                }`}
+                                            >
+                                                <RotateCcw className="w-4 h-4" /> Revisi
+                                            </button>
+                                        </div>
+                                        <InputError message={errors.status} />
                                     </div>
-                                    <InputError message={errors.status} />
-                                </div>
+                                ) : (
+                                    <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                        <div className="flex items-center gap-2 text-emerald-800 text-sm font-bold">
+                                            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                            <span>Pengajuan UC ini telah Selesai (ACC)</span>
+                                        </div>
+                                        <a 
+                                            href={route('requests.uc.pdf', selectedRequest.id)} 
+                                            target="_blank" 
+                                            rel="noreferrer"
+                                            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0"
+                                        >
+                                            <FileText className="w-3.5 h-3.5" /> Unduh PDF
+                                        </a>
+                                    </div>
+                                )}
 
                                 {/* Estimasi Biaya Disetujui (Mengikuti Form UC) */}
                                 <div className="p-4 bg-gray-50 border border-gray-200 rounded-2xl">
@@ -1007,47 +1073,59 @@ export default function UcApproval({ requests, isAdmin }) {
                                 >
                                     Batal
                                 </button>
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <button
-                                        type="button"
-                                        disabled={processing}
-                                        onClick={() => submitApproval('Ditolak')}
-                                        className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
-                                            data.status === 'Ditolak' || data.status === 'Tolak'
-                                                ? 'bg-rose-600 hover:bg-rose-700 text-white ring-2 ring-rose-200'
-                                                : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
-                                        }`}
-                                    >
-                                        {processing && (data.status === 'Ditolak' || data.status === 'Tolak') ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                                        Tolak
-                                    </button>
-                                    <button
-                                        type="button"
-                                        disabled={processing}
-                                        onClick={() => submitApproval('Direvisi')}
-                                        className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
-                                            data.status === 'Direvisi' || data.status === 'Revisi'
-                                                ? 'bg-amber-500 hover:bg-amber-600 text-white ring-2 ring-amber-200'
-                                                : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
-                                        }`}
-                                    >
-                                        {processing && (data.status === 'Direvisi' || data.status === 'Revisi') ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
-                                        Revisi
-                                    </button>
-                                    <button
-                                        type="button"
-                                        disabled={processing}
-                                        onClick={() => submitApproval('Disetujui')}
-                                        className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
-                                            data.status === 'Disetujui' || data.status === 'ACC'
-                                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-200'
-                                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
-                                        }`}
-                                    >
-                                        {processing && (data.status === 'Disetujui' || data.status === 'ACC') ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                        ACC
-                                    </button>
-                                </div>
+                                {modalSource !== 'completed' ? (
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <button
+                                            type="button"
+                                            disabled={processing}
+                                            onClick={() => submitApproval('Ditolak')}
+                                            className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
+                                                data.status === 'Ditolak' || data.status === 'Tolak'
+                                                    ? 'bg-rose-600 hover:bg-rose-700 text-white ring-2 ring-rose-200'
+                                                    : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                                            }`}
+                                        >
+                                            {processing && (data.status === 'Ditolak' || data.status === 'Tolak') ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                                            Tolak
+                                        </button>
+                                        <button
+                                            type="button"
+                                            disabled={processing}
+                                            onClick={() => submitApproval('Direvisi')}
+                                            className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
+                                                data.status === 'Direvisi' || data.status === 'Revisi'
+                                                    ? 'bg-amber-500 hover:bg-amber-600 text-white ring-2 ring-amber-200'
+                                                    : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
+                                            }`}
+                                        >
+                                            {processing && (data.status === 'Direvisi' || data.status === 'Revisi') ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                                            Revisi
+                                        </button>
+                                        <button
+                                            type="button"
+                                            disabled={processing}
+                                            onClick={() => submitApproval(modalSource === 'result' ? 'Selesai' : 'Disetujui')}
+                                            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
+                                                data.status === 'Disetujui' || data.status === 'ACC' || data.status === 'Selesai'
+                                                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-200'
+                                                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                            }`}
+                                        >
+                                            {processing && (data.status === 'Disetujui' || data.status === 'ACC' || data.status === 'Selesai') ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                                            {modalSource === 'result' ? 'ACC Result' : 'ACC'}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            type="button" 
+                                            onClick={closeModal} 
+                                            className="px-5 py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl font-bold text-sm transition-colors shadow-sm"
+                                        >
+                                            Tutup
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </form>
                     </div>

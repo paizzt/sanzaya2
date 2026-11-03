@@ -29,6 +29,7 @@ class RequestStatus
             self::DISETUJUI,
             self::DITOLAK,
             self::DIREVISI,
+            self::SELESAI,
             'ACC',
             'Tolak',
             'Revisi',
