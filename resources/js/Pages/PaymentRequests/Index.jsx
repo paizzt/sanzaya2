@@ -39,22 +39,39 @@ const getStatusBadge = (status) => {
     }
 };
 
-const renderCategoryBadge = (category) => {
+const renderCategoryBadge = (category, purpose = '') => {
     if (!category) return null;
-    const catLower = category.toLowerCase();
-    let colorClass = 'bg-gray-100 text-gray-800 border-gray-200';
-    if (catLower.includes('support')) {
-        colorClass = 'bg-blue-100 text-blue-800 border-blue-200';
-    } else if (catLower.includes('entertain')) {
-        colorClass = 'bg-purple-100 text-purple-800 border-purple-200';
-    } else if (catLower.includes('purchasing')) {
-        colorClass = 'bg-amber-100 text-amber-800 border-amber-200';
+    const catLower = category.toLowerCase().trim();
+    const purpLower = (purpose || '').toLowerCase().trim();
+
+    // Jangan tampilkan jika isi category sama persis dengan purpose (duplikat/data lama) atau kategori umum
+    if (catLower === purpLower || catLower === 'pengajuan umum' || catLower === 'umum') {
+        return null;
     }
-    return (
-        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider border ${colorClass}`}>
-            {category}
-        </span>
-    );
+
+    if (catLower.includes('support')) {
+        return (
+            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider border bg-blue-100 text-blue-800 border-blue-200">
+                Support
+            </span>
+        );
+    }
+    if (catLower.includes('entertain')) {
+        return (
+            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider border bg-purple-100 text-purple-800 border-purple-200">
+                Entertaint
+            </span>
+        );
+    }
+    if (catLower.includes('purchasing')) {
+        return (
+            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider border bg-amber-100 text-amber-800 border-amber-200">
+                Purchasing
+            </span>
+        );
+    }
+
+    return null;
 };
 
 export default function Index({ auth, paymentRequests, summary, filters, isApprovalView = false }) {
@@ -270,7 +287,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     <span className="text-xs font-semibold text-gray-600">
                                                         {pr.submission_date ? dayjs(pr.submission_date).format('DD MMM YYYY') : '-'}
                                                     </span>
-                                                    {renderCategoryBadge(pr.category)}
+                                                    {renderCategoryBadge(pr.category, pr.purpose)}
                                                 </div>
                                                 <span className={`px-2.5 py-0.5 inline-flex text-[11px] font-bold rounded-full shrink-0 ${badge.color}`}>
                                                     {badge.text}
@@ -389,7 +406,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     </td>
                                                     <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[250px] break-words">
                                                         <div className="font-medium text-gray-800">{pr.purpose || '-'}</div>
-                                                        {renderCategoryBadge(pr.category)}
+                                                        {renderCategoryBadge(pr.category, pr.purpose)}
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <div className="font-medium">{pr.requester?.name}</div>
