@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
-import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink } from 'lucide-react';
+import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -170,6 +170,79 @@ export default function UcApproval({ requests, isAdmin }) {
         });
     };
 
+    const isResult = (req) => {
+        if (!req) return false;
+        const hasReport = Boolean(req.result_report && req.result_report.trim().length > 0);
+        let hasReceipts = false;
+        try {
+            if (req.result_receipts) {
+                const parsed = JSON.parse(req.result_receipts);
+                if (Array.isArray(parsed) && parsed.length > 0) hasReceipts = true;
+            }
+        } catch (e) {}
+        const isResultStatus = req.status === 'Selesai / Result Dikirim' || (req.status && req.status.toLowerCase().includes('result'));
+        return hasReport || hasReceipts || isResultStatus;
+    };
+
+    const ucRequests = (requests || []).filter(req => !isResult(req));
+    const resultRequests = (requests || []).filter(req => isResult(req));
+
+    const getStatusBadge = (status) => {
+        const s = status || 'Menunggu';
+        if (s.includes('Selesai') || s.toLowerCase().includes('result')) {
+            return { label: 'Result Dikirim', bg: 'bg-indigo-100 text-indigo-700 border-indigo-200' };
+        }
+        if (s === 'Disetujui' || s === 'ACC') {
+            return { label: 'ACC', bg: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+        }
+        if (s === 'Ditolak' || s === 'Tolak') {
+            return { label: 'Tolak', bg: 'bg-rose-100 text-rose-700 border-rose-200' };
+        }
+        if (s === 'Direvisi' || s === 'Revisi') {
+            return { label: 'Revisi', bg: 'bg-amber-100 text-amber-700 border-amber-200' };
+        }
+        if (s === 'Dicairkan') {
+            return { label: 'Dicairkan', bg: 'bg-blue-100 text-blue-700 border-blue-200' };
+        }
+        return { label: s, bg: 'bg-yellow-100 text-yellow-700 border-yellow-200' };
+    };
+
+    const quickAction = (req, statusChoice) => {
+        const label = statusChoice === 'Disetujui' ? 'menyetujui (ACC)' : (statusChoice === 'Direvisi' ? 'meminta revisi' : 'menolak');
+        const color = statusChoice === 'Disetujui' ? '#059669' : (statusChoice === 'Direvisi' ? '#f59e0b' : '#e11d48');
+        
+        Swal.fire({
+            title: `Konfirmasi ${statusChoice === 'Disetujui' ? 'ACC' : (statusChoice === 'Direvisi' ? 'Revisi' : 'Tolak')}?`,
+            text: `Apakah Anda yakin ingin ${label} pengajuan ${req.request_number} dari ${req.user?.name || '-'}?`,
+            icon: statusChoice === 'Disetujui' ? 'question' : 'warning',
+            showCancelButton: true,
+            confirmButtonColor: color,
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: `Ya, ${statusChoice === 'Disetujui' ? 'ACC' : (statusChoice === 'Direvisi' ? 'Revisi' : 'Tolak')}!`,
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route('requests.uc.approval.update', req.id), {
+                    status: statusChoice,
+                    items: req.items && req.items.length > 0 ? req.items : undefined,
+                    approved_gas_cost: req.approved_gas_cost || getRequestTotal(req),
+                    finance_note: req.finance_note || '',
+                }, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: `Status pengajuan berhasil diperbarui`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                });
+            }
+        });
+    };
+
     return (
         <AuthenticatedLayout
             user={user}
@@ -177,52 +250,79 @@ export default function UcApproval({ requests, isAdmin }) {
         >
             <Head title="Persetujuan UC" />
 
-            <div className="">
-                <div className="">
-                    <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                        <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
-                            <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
-                                <FileCheck className="text-blue-500" /> Daftar Pengajuan UC
-                            </h3>
-                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                                <ExportDropdown pdfRoute={route('requests.uc.approval.export.pdf')} excelRoute={route('requests.uc.approval.export.excel')} />
+            <div className="space-y-6">
+                {/* Header Action Bar */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                    <div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                            <FileCheck className="text-blue-600 w-6 h-6" /> Persetujuan UC
+                        </h2>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Kelola dan setujui pengajuan biaya dinas UC serta laporan result perjalanan</p>
+                    </div>
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                        <ExportDropdown pdfRoute={route('requests.uc.approval.export.pdf')} excelRoute={route('requests.uc.approval.export.excel')} />
+                    </div>
+                </div>
+
+                {/* 2 Card Containers Grid */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                    
+                    {/* CONTAINER 1 (Kiri): DAFTAR PENGAJUAN UC */}
+                    <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col min-w-0">
+                        <div className="flex justify-between items-center mb-5 pb-4 border-b border-gray-100">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                                    <PlaneTakeoff className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-base sm:text-lg text-gray-800">Daftar Pengajuan UC</h3>
+                                    <p className="text-xs text-gray-400">Pengajuan biaya perjalanan sebelum berangkat</p>
+                                </div>
                             </div>
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100 shrink-0">
+                                {ucRequests.length} Pengajuan
+                            </span>
                         </div>
-                        
-                        {!requests || requests.length === 0 ? (
-                            <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                <FileCheck className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                                <p>Belum ada data pengajuan UC.</p>
+
+                        {ucRequests.length === 0 ? (
+                            <div className="text-center py-12 text-gray-400 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
+                                <PlaneTakeoff className="w-10 h-10 mx-auto mb-2 opacity-25" />
+                                <p className="text-sm font-medium">Belum ada data pengajuan biaya UC.</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-left">
-                                    <thead className="text-xs text-gray-500 uppercase bg-gray-50 rounded-xl">
+                                    <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 rounded-xl">
                                         <tr>
-                                            <th className="px-6 py-4 rounded-l-xl">No. Request</th>
-                                            <th className="px-6 py-4">Pengaju</th>
-                                            <th className="px-6 py-4">Tujuan</th>
-                                            <th className="px-6 py-4">Tgl Berangkat</th>
-                                            <th className="px-6 py-4">Est. Biaya</th>
-                                            <th className="px-6 py-4">Status</th>
-                                            <th className="px-6 py-4 rounded-r-xl">Aksi</th>
+                                            <th className="px-3.5 py-3 rounded-l-xl">No. / Pengaju</th>
+                                            <th className="px-3.5 py-3">Tujuan & Jadwal</th>
+                                            <th className="px-3.5 py-3">Est. Biaya</th>
+                                            <th className="px-3.5 py-3">Status</th>
+                                            <th className="px-3.5 py-3 rounded-r-xl text-center">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        {(requests || []).map((req) => {
+                                    <tbody className="divide-y divide-gray-50">
+                                        {ucRequests.map((req) => {
                                             const totalEst = getRequestTotal(req);
+                                            const badge = getStatusBadge(req.status);
                                             return (
-                                                <tr key={req.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                                    <td className="px-6 py-4 font-medium text-gray-900">{req.request_number}</td>
-                                                    <td className="px-6 py-4">{req.user?.name} <br/><span className="text-xs text-gray-400">{req.department}</span></td>
-                                                    <td className="px-6 py-4">{req.destination_city}</td>
-                                                    <td className="px-6 py-4">{req.departure_date} <br/><span className="text-xs text-gray-400">({req.estimated_days} Hari)</span></td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="font-semibold text-gray-900">
+                                                <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
+                                                    <td className="px-3.5 py-3">
+                                                        <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.request_number}</span>
+                                                        <span className="text-xs text-gray-600 block">{req.user?.name}</span>
+                                                        <span className="text-[11px] text-gray-400 block">{req.department}</span>
+                                                    </td>
+                                                    <td className="px-3.5 py-3">
+                                                        <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
+                                                        <span className="text-xs text-gray-500 block">{req.departure_date}</span>
+                                                        <span className="text-[11px] text-gray-400 block">({req.estimated_days} Hari)</span>
+                                                    </td>
+                                                    <td className="px-3.5 py-3">
+                                                        <div className="font-bold text-gray-900 text-xs sm:text-sm">
                                                             {formatRupiah(totalEst)}
                                                         </div>
                                                         {req.payment_option && (
-                                                            <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                                                            <span className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
                                                                 req.payment_option === 'PANJAR BIAYA 50%' 
                                                                     ? 'bg-amber-100 text-amber-800 border border-amber-200' 
                                                                     : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
@@ -231,47 +331,201 @@ export default function UcApproval({ requests, isAdmin }) {
                                                             </span>
                                                         )}
                                                         {req.approved_gas_cost && req.approved_gas_cost != totalEst && (
-                                                            <div className="text-xs text-green-600 font-semibold mt-1">
+                                                            <div className="text-[11px] text-green-600 font-semibold mt-0.5">
                                                                 Rev: {formatRupiah(req.approved_gas_cost)}
                                                             </div>
                                                         )}
                                                     </td>
-                                                    <td className="px-6 py-4">
-                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                                            req.status?.includes('Selesai') ? 'bg-indigo-100 text-indigo-700' :
-                                                            (req.status === 'Disetujui' || req.status === 'ACC') ? 'bg-green-100 text-green-700' :
-                                                            (req.status === 'Ditolak' || req.status === 'Tolak') ? 'bg-red-100 text-red-700' :
-                                                            req.status === 'Direvisi' ? 'bg-orange-100 text-orange-700' :
-                                                            req.status === 'Dicairkan' ? 'bg-blue-100 text-blue-700' :
-                                                            'bg-yellow-100 text-yellow-700'
-                                                        }`}>
-                                                            {req.status === 'Disetujui' ? 'ACC' : req.status === 'Ditolak' ? 'Tolak' : req.status}
+                                                    <td className="px-3.5 py-3">
+                                                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${badge.bg}`}>
+                                                            {badge.label}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex flex-wrap gap-2">
+                                                    <td className="px-3.5 py-3">
+                                                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
                                                             <button 
                                                                 onClick={() => openModal(req)}
-                                                                className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                                                                className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg flex items-center gap-1 text-xs font-bold transition-colors"
+                                                                title="Review Detail"
                                                             >
-                                                                <Edit3 className="w-4 h-4" /> Review
+                                                                <Edit3 className="w-3.5 h-3.5" /> Review
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => quickAction(req, 'Disetujui')}
+                                                                className="text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-emerald-200"
+                                                                title="ACC Pengajuan"
+                                                            >
+                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => openModal(req, 'Direvisi')}
+                                                                className="text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-amber-200"
+                                                                title="Revisi Pengajuan"
+                                                            >
+                                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => openModal(req, 'Ditolak')}
+                                                                className="text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-rose-200"
+                                                                title="Tolak Pengajuan"
+                                                            >
+                                                                <XCircle className="w-3.5 h-3.5" />
                                                             </button>
                                                             {isAdmin && (
                                                                 <>
                                                                     <Link 
                                                                         href={route('uc-requests.edit', req.id)}
-                                                                        className="text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                                                                        className="text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 p-1.5 rounded-lg transition-colors"
+                                                                        title="Edit"
                                                                     >
-                                                                        <Edit className="w-4 h-4" /> Edit
+                                                                        <Edit className="w-3.5 h-3.5" />
                                                                     </Link>
                                                                     <button 
                                                                         onClick={() => deleteRequest(req.id)}
-                                                                        className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                                                                        className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg transition-colors"
+                                                                        title="Hapus"
                                                                     >
-                                                                        <Trash2 className="w-4 h-4" /> Delete
+                                                                        <Trash2 className="w-3.5 h-3.5" />
                                                                     </button>
                                                                 </>
                                                             )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* CONTAINER 2 (Kanan): DAFTAR PENGAJUAN RESULT */}
+                    <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col min-w-0">
+                        <div className="flex justify-between items-center mb-5 pb-4 border-b border-gray-100">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                                    <FileText className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-base sm:text-lg text-gray-800">Daftar Pengajuan Result</h3>
+                                    <p className="text-xs text-gray-400">Hasil kunjungan perjalanan dinas & nota</p>
+                                </div>
+                            </div>
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
+                                {resultRequests.length} Result
+                            </span>
+                        </div>
+
+                        {resultRequests.length === 0 ? (
+                            <div className="text-center py-12 text-gray-400 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
+                                <FileText className="w-10 h-10 mx-auto mb-2 opacity-25" />
+                                <p className="text-sm font-medium">Belum ada pengajuan result atau nota yang dikirim.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 rounded-xl">
+                                        <tr>
+                                            <th className="px-3.5 py-3 rounded-l-xl">No. / Pengaju</th>
+                                            <th className="px-3.5 py-3">Tujuan</th>
+                                            <th className="px-3.5 py-3">Hasil & Bukti Nota</th>
+                                            <th className="px-3.5 py-3">Status</th>
+                                            <th className="px-3.5 py-3 rounded-r-xl text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50">
+                                        {resultRequests.map((req) => {
+                                            const totalEst = getRequestTotal(req);
+                                            const badge = getStatusBadge(req.status);
+                                            let photos = [];
+                                            try {
+                                                if (req.result_receipts) {
+                                                    const parsed = JSON.parse(req.result_receipts);
+                                                    if (Array.isArray(parsed)) photos = parsed;
+                                                }
+                                            } catch(e) {}
+
+                                            return (
+                                                <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
+                                                    <td className="px-3.5 py-3">
+                                                        <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.request_number}</span>
+                                                        <span className="text-xs text-gray-600 block">{req.user?.name}</span>
+                                                        <span className="text-[11px] text-gray-400 block">{req.department}</span>
+                                                    </td>
+                                                    <td className="px-3.5 py-3">
+                                                        <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
+                                                        <span className="text-xs text-gray-500 block">{req.departure_date}</span>
+                                                    </td>
+                                                    <td className="px-3.5 py-3 max-w-[200px]">
+                                                        {req.result_report ? (
+                                                            <p className="text-xs text-gray-700 line-clamp-2 mb-1.5" title={req.result_report}>
+                                                                {req.result_report}
+                                                            </p>
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400 italic block mb-1">Tidak ada keterangan</span>
+                                                        )}
+                                                        {photos.length > 0 && (
+                                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                                {photos.map((photo, i) => {
+                                                                    const photoUrl = photo.startsWith('http')
+                                                                        ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
+                                                                        : `/storage/${photo}`;
+                                                                    return (
+                                                                        <button 
+                                                                            key={i} 
+                                                                            type="button"
+                                                                            onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${req.destination_city || ''})` })}
+                                                                            className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                                                                            title="Klik untuk lihat nota pop-up"
+                                                                        >
+                                                                            <FileImage className="w-3 h-3" /> Nota {i + 1}
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-3.5 py-3">
+                                                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${badge.bg}`}>
+                                                            {badge.label}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-3.5 py-3">
+                                                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                                            <button 
+                                                                onClick={() => openModal(req)}
+                                                                className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg flex items-center gap-1 text-xs font-bold transition-colors"
+                                                                title="Review Result"
+                                                            >
+                                                                <Edit3 className="w-3.5 h-3.5" /> Review
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => quickAction(req, 'Disetujui')}
+                                                                className="text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-emerald-200"
+                                                                title="ACC Result"
+                                                            >
+                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => openModal(req, 'Direvisi')}
+                                                                className="text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-amber-200"
+                                                                title="Revisi Result"
+                                                            >
+                                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => openModal(req, 'Ditolak')}
+                                                                className="text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-rose-200"
+                                                                title="Tolak Result"
+                                                            >
+                                                                <XCircle className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            <ExportDropdown pdfRoute={route('requests.uc.pdf', req.id)} trigger={
+                                                                <button className="text-rose-600 hover:text-rose-900 p-1.5 hover:bg-rose-50 rounded-lg transition-colors" title="Unduh PDF">
+                                                                    <FileText className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            } />
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -290,7 +544,9 @@ export default function UcApproval({ requests, isAdmin }) {
                 <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 px-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto pb-10">
                     <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl relative my-auto">
                         <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                            <h3 className="text-xl font-bold text-gray-900">Review Pengajuan UC</h3>
+                            <h3 className="text-xl font-bold text-gray-900">
+                                {isResult(selectedRequest) ? 'Review Pengajuan Result UC' : 'Review Pengajuan Biaya UC'}
+                            </h3>
                             <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-xl transition-colors">
                                 <X className="w-5 h-5" />
                             </button>
