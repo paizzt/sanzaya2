@@ -217,7 +217,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                             <table className="w-full whitespace-nowrap text-left text-sm text-gray-500">
                                 <thead className="bg-gray-50 text-gray-700">
                                     <tr>
-                                        <th className="px-4 py-3 font-semibold">Referensi & Tanggal</th>
+                                        <th className="px-4 py-3 font-semibold">Tanggal</th>
                                         <th className="px-4 py-3 font-semibold">Pengaju / Divisi</th>
                                         <th className="px-4 py-3 font-semibold">Penerima</th>
                                         <th className="px-4 py-3 font-semibold">Keterangan</th>
@@ -240,7 +240,9 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                             >
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="font-medium text-gray-900">{pr.reference_number}</span>
+                                                        <span className="font-medium text-gray-900">
+                                                            {pr.submission_date ? dayjs(pr.submission_date).format('DD MMM YYYY') : '-'}
+                                                        </span>
                                                         {pr.category && (
                                                             <span className={`px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider ${
                                                                 pr.category.toLowerCase().includes('support') 
@@ -254,9 +256,6 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                                 {pr.category}
                                                             </span>
                                                         )}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500 mt-1">
-                                                        {pr.submission_date ? dayjs(pr.submission_date).format('DD MMM YYYY') : '-'}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3">
