@@ -68,10 +68,9 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
 
     const nominalOptions = [
         { value: '', label: 'Semua Nominal' },
-        { value: 'under_1m', label: 'Di Bawah 1 Juta (< 1 Jt)' },
-        { value: '1m_to_10m', label: '1 Juta - 10 Juta' },
-        { value: 'under_10m', label: 'Di Bawah 10 Juta (< 10 Jt)' },
-        { value: 'above_10m', label: 'Di Atas 10 Juta (> 10 Jt)' }
+        { value: 'under_1m', label: '< 1 Juta' },
+        { value: 'under_10m', label: '< 10 Juta' },
+        { value: 'above_10m', label: '> 10 Juta' }
     ];
 
     const categoryFilterOptions = [
