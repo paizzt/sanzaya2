@@ -11,6 +11,14 @@ import Swal from 'sweetalert2';
 import { UploadCloud, X, Trash2, RotateCcw, FileText, File } from 'lucide-react';
 
 export default function Edit({ auth, vendors, companies, paymentRequest, isApprovalView }) {
+    const defaultCategories = ['Pengajuan Umum', 'Entertaint', 'Support'];
+    const categoryOptions = [
+        ...defaultCategories.map(c => ({ value: c, label: c })),
+        ...(paymentRequest.category && !defaultCategories.includes(paymentRequest.category)
+            ? [{ value: paymentRequest.category, label: paymentRequest.category }]
+            : [])
+    ];
+
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         company_name: paymentRequest.company_name || '',
@@ -213,7 +221,12 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                 </div>
                                 <div>
                                     <InputLabel value="Kategori Pengajuan" />
-                                    <TextInput value={data.category} onChange={e => setData('category', e.target.value)} className="w-full" required />
+                                    <CustomSelect
+                                        value={data.category}
+                                        onChange={(val) => setData('category', val)}
+                                        options={categoryOptions}
+                                        className="w-full"
+                                    />
                                     <InputError message={errors.category} />
                                 </div>
                                 <div>

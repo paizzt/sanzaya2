@@ -11,11 +11,17 @@ import Swal from 'sweetalert2';
 import { UploadCloud, X, FileText, File } from 'lucide-react';
 
 export default function Create({ auth, vendors, companies, user }) {
+    const categoryOptions = [
+        { value: 'Pengajuan Umum', label: 'Pengajuan Umum' },
+        { value: 'Entertaint', label: 'Entertaint' },
+        { value: 'Support', label: 'Support' },
+    ];
+
     const { data, setData, post, processing, errors } = useForm({
         company_name: '',
         payment_deadline: '',
         transaction_date: '',
-        category: '',
+        category: 'Pengajuan Umum',
         purpose: '',
         letter_number: '',
         notes: '',
@@ -186,7 +192,12 @@ export default function Create({ auth, vendors, companies, user }) {
                                 </div>
                                 <div>
                                     <InputLabel value="Kategori Pengajuan" />
-                                    <TextInput value={data.category} onChange={e => setData('category', e.target.value)} className="w-full" required />
+                                    <CustomSelect
+                                        value={data.category}
+                                        onChange={(val) => setData('category', val)}
+                                        options={categoryOptions}
+                                        className="w-full"
+                                    />
                                     <InputError message={errors.category} />
                                 </div>
                                 <div>

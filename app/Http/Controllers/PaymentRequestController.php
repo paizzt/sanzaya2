@@ -47,11 +47,35 @@ class PaymentRequestController extends Controller
             }
         }
 
+        if ($request->filled('nominal')) {
+            $nominal = $request->nominal;
+            if ($nominal === 'under_1m') {
+                $query->where('grand_total', '<', 1000000);
+            } elseif ($nominal === '1m_to_10m') {
+                $query->where('grand_total', '>=', 1000000)->where('grand_total', '<=', 10000000);
+            } elseif ($nominal === 'under_10m') {
+                $query->where('grand_total', '<', 10000000);
+            } elseif ($nominal === 'above_10m') {
+                $query->where('grand_total', '>', 10000000);
+            }
+        }
+
+        if ($request->filled('category')) {
+            $cat = $request->category;
+            if ($cat === 'Entertaint' || $cat === 'Entertain') {
+                $query->where(function($q) {
+                    $q->where('category', 'like', '%Entertain%');
+                });
+            } else {
+                $query->where('category', 'like', "%{$cat}%");
+            }
+        }
+
         $paymentRequests = $query->paginate(15)->withQueryString();
 
         return Inertia::render('PaymentRequests/Index', [
             'paymentRequests' => $paymentRequests,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status', 'nominal', 'category']),
             'summary' => Inertia::defer(fn () => [
                 'total' => PaymentRequest::where('requester_id', $user->id)->count(),
                 'draft' => PaymentRequest::where('requester_id', $user->id)->where('workflow_status', 'draft')->count(),
@@ -133,11 +157,35 @@ class PaymentRequestController extends Controller
             }
         }
 
+        if ($request->filled('nominal')) {
+            $nominal = $request->nominal;
+            if ($nominal === 'under_1m') {
+                $query->where('grand_total', '<', 1000000);
+            } elseif ($nominal === '1m_to_10m') {
+                $query->where('grand_total', '>=', 1000000)->where('grand_total', '<=', 10000000);
+            } elseif ($nominal === 'under_10m') {
+                $query->where('grand_total', '<', 10000000);
+            } elseif ($nominal === 'above_10m') {
+                $query->where('grand_total', '>', 10000000);
+            }
+        }
+
+        if ($request->filled('category')) {
+            $cat = $request->category;
+            if ($cat === 'Entertaint' || $cat === 'Entertain') {
+                $query->where(function($q) {
+                    $q->where('category', 'like', '%Entertain%');
+                });
+            } else {
+                $query->where('category', 'like', "%{$cat}%");
+            }
+        }
+
         $paymentRequests = $query->paginate(15)->withQueryString();
 
         return Inertia::render('PaymentRequests/Index', [
             'paymentRequests' => $paymentRequests,
-            'filters' => $request->only(['search', 'status', 'deadline']),
+            'filters' => $request->only(['search', 'status', 'deadline', 'nominal', 'category']),
             'isApprovalView' => true,
             'summary' => Inertia::defer(function () use ($query, $allowedStatuses) {
                 $summaryData = (clone $query)->get(['id', 'payment_deadline', 'workflow_status']);

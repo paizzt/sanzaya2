@@ -26,6 +26,8 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || '');
     const [deadline, setDeadline] = useState(filters.deadline || '');
+    const [nominal, setNominal] = useState(filters.nominal || '');
+    const [categoryFilter, setCategoryFilter] = useState(filters.category || '');
     
     const isSuperAdmin = currentAuth?.user?.roles?.some(r => r.name === 'SUPERADMIN');
     const canDownloadPdf = currentAuth?.can_download_pdf !== undefined
@@ -64,17 +66,42 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
         { value: 'paid', label: 'Selesai' }
     ];
 
+    const nominalOptions = [
+        { value: '', label: 'Semua Nominal' },
+        { value: 'under_1m', label: 'Di Bawah 1 Juta (< 1 Jt)' },
+        { value: '1m_to_10m', label: '1 Juta - 10 Juta' },
+        { value: 'under_10m', label: 'Di Bawah 10 Juta (< 10 Jt)' },
+        { value: 'above_10m', label: 'Di Atas 10 Juta (> 10 Jt)' }
+    ];
+
+    const categoryFilterOptions = [
+        { value: '', label: 'Semua Kategori' },
+        { value: 'Pengajuan Umum', label: 'Pengajuan Umum' },
+        { value: 'Entertaint', label: 'Entertaint' },
+        { value: 'Support', label: 'Support' }
+    ];
+
     const handleSearch = (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
-        router.get(route(routeName), { search, status, deadline }, { preserveState: true });
+        router.get(route(routeName), { search, status, deadline, nominal, category: categoryFilter }, { preserveState: true });
+    };
+
+    const handleReset = () => {
+        setSearch('');
+        setStatus('');
+        setDeadline('');
+        setNominal('');
+        setCategoryFilter('');
+        const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
+        router.get(route(routeName), {}, { preserveState: true });
     };
 
     const handleFilterCard = (newStatus, newDeadline = '') => {
         setStatus(newStatus);
         setDeadline(newDeadline);
         const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
-        router.get(route(routeName), { search, status: newStatus, deadline: newDeadline }, { preserveState: true });
+        router.get(route(routeName), { search, status: newStatus, deadline: newDeadline, nominal, category: categoryFilter }, { preserveState: true });
     };
 
     return (
@@ -132,28 +159,55 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                     )}
 
                     <div className="bg-white overflow-visible shadow-sm sm:rounded-lg p-6">
-                        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 w-full md:max-w-lg">
-                                <TextInput
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="block w-full"
-                                    placeholder="Cari..."
-                                />
-                                <div className="w-full sm:w-auto sm:min-w-[200px]">
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                            <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-2 w-full lg:max-w-4xl">
+                                <div className="w-full sm:w-48">
+                                    <TextInput
+                                        type="text"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        className="block w-full text-sm"
+                                        placeholder="Cari..."
+                                    />
+                                </div>
+                                <div className="w-full sm:w-36">
                                     <CustomSelect 
                                         value={status}
                                         onChange={(val) => setStatus(val)}
                                         options={statusOptions}
                                     />
                                 </div>
-                                <PrimaryButton type="submit" >Filter</PrimaryButton>
+                                <div className="w-full sm:w-48">
+                                    <CustomSelect 
+                                        value={nominal}
+                                        onChange={(val) => setNominal(val)}
+                                        options={nominalOptions}
+                                    />
+                                </div>
+                                <div className="w-full sm:w-40">
+                                    <CustomSelect 
+                                        value={categoryFilter}
+                                        onChange={(val) => setCategoryFilter(val)}
+                                        options={categoryFilterOptions}
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <PrimaryButton type="submit">Filter</PrimaryButton>
+                                    {(search || status || nominal || categoryFilter || deadline) && (
+                                        <button
+                                            type="button"
+                                            onClick={handleReset}
+                                            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm font-medium transition"
+                                        >
+                                            Reset
+                                        </button>
+                                    )}
+                                </div>
                             </form>
 
                             {!isApprovalView && (
-                                <Link href={route('payment-requests.create')} className="w-full md:w-auto">
-                                    <PrimaryButton >Buat Baru</PrimaryButton>
+                                <Link href={route('payment-requests.create')} className="w-full lg:w-auto shrink-0">
+                                    <PrimaryButton>Buat Baru</PrimaryButton>
                                 </Link>
                             )}
                         </div>
@@ -184,7 +238,20 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                 className="hover:bg-gray-100 cursor-pointer transition-colors"
                                             >
                                                 <td className="px-4 py-3">
-                                                    <div className="font-medium text-gray-900">{pr.reference_number}</div>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="font-medium text-gray-900">{pr.reference_number}</span>
+                                                        {pr.category && (
+                                                            <span className={`px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider ${
+                                                                pr.category.toLowerCase().includes('support') 
+                                                                    ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                                                    : pr.category.toLowerCase().includes('entertain')
+                                                                        ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                                                        : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                                            }`}>
+                                                                {pr.category}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <div className="text-xs text-gray-500 mt-1">
                                                         {pr.submission_date ? dayjs(pr.submission_date).format('DD MMM YYYY') : '-'}
                                                     </div>

@@ -155,13 +155,22 @@
     </div>
 
     <!-- PAGE 1: FORM PENGAJUAN -->
+    @php
+        $catUpper = strtoupper(trim($paymentRequest->category ?? ''));
+        $pdfTitle = 'FORM PENGAJUAN PEMBAYARAN';
+        if (str_contains($catUpper, 'SUPPORT')) {
+            $pdfTitle = 'LAPORAN BIAYA SUPPORT';
+        } elseif (str_contains($catUpper, 'ENTERTAIN')) {
+            $pdfTitle = 'LAPORAN BIAYA ENTERTAIN';
+        }
+    @endphp
     <table class="header">
         <tr>
             <td width="50%">
                 <p class="company-name">PT. SANZAYA MEDIKA PRATAMA</p>
                 <p class="company-sub">Karena Anda Kami Ada</p>
                 
-                <p class="form-title">FORM PENGAJUAN PEMBAYARAN</p>
+                <p class="form-title">{{ $pdfTitle }}</p>
                 <p class="form-subtitle">{{ $paymentRequest->reference_number }}</p>
             </td>
             <td width="50%" align="right">
