@@ -27,7 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->header('X-Inertia')) {
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface && $e->getStatusCode() === 403) {
                     $fallback = $request->header('referer') ? redirect()->back() : redirect()->route('dashboard');
-                    return $fallback->with('error', '403 - Akses ditolak. Anda tidak memiliki izin untuk halaman ini.');
+                    $msg = ($e->getMessage() && $e->getMessage() !== 'This action is unauthorized.')
+                        ? $e->getMessage()
+                        : '403 - Akses ditolak. Anda tidak memiliki izin untuk halaman ini.';
+                    return $fallback->with('error', $msg);
                 }
                 if ($e instanceof \Illuminate\Session\TokenMismatchException || (method_exists($e, 'getStatusCode') && $e->getStatusCode() === 419)) {
                     return \Inertia\Inertia::location(route('login'));

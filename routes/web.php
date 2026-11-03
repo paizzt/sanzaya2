@@ -43,30 +43,12 @@ Route::get('/run-migrations', function () {
     }
 });
 
-// Route to seed new features
+// Route to seed new features and deduplicate
 Route::get('/seed-features', function () {
     try {
-        $features = [
-            'Stok Gudang',
-            'Penggunaan Kendaraan',
-            'Kebutuhan Barang',
-            'Data Armada',
-            'Data Piutang',
-            'Data Hutang',
-            'Manajemen SOP',
-            'Unduh PDF',
-            'Lapor WBS',
-            'Riwayat Laporan Saya',
-            'Manajemen Gaji',
-            'Slip Gaji'
-        ];
-        foreach ($features as $name) {
-            \App\Models\FeatureToggle::firstOrCreate(['name' => $name], [
-                'is_active' => true,
-                'disabled_for_users' => json_encode([])
-            ]);
-        }
-        return 'Data Fitur Berhasil Ditambahkan!';
+        \App\Models\FeatureToggle::deduplicateFeatures();
+        \App\Models\FeatureToggle::ensureAllFeaturesExist();
+        return 'Data Fitur Berhasil Ditambahkan & Duplikasi Dibersihkan!';
     } catch (\Exception $e) {
         return 'Error: ' . $e->getMessage();
     }
@@ -121,24 +103,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-    Route::middleware(['can:view absensi'])->group(function() {
-        // Absensi
-        Route::get('/absensi', [AttendanceController::class, 'index'])->name('absensi.index');
-        Route::get('/absensi/rekap', [AttendanceRecapController::class, 'index'])->name('absensi.rekap');
-        Route::get('/absensi/rekap/export-pdf', [AttendanceRecapController::class, 'exportPdf'])->name('absensi.rekap.export-pdf')->middleware('can.pdf');
-        Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
-        Route::post('/absensi/settings', [AttendanceController::class, 'updateSettings'])->name('absensi.settings');
-        Route::match(['patch', 'post'], '/absensi/{id}/overtime-status', [AttendanceController::class, 'updateOvertimeStatus'])->name('absensi.overtime-status');
-        Route::match(['put', 'post'], '/absensi/{id}', [AttendanceController::class, 'update'])->name('absensi.update');
-        Route::post('/absensi/{id}/update', [AttendanceController::class, 'update'])->name('absensi.update.post');
-        Route::delete('/absensi/{id}', [AttendanceController::class, 'destroy'])->name('absensi.destroy');
+    // Modul Absensi (Otorisasi ditangani di controller via FeatureToggle)
+    Route::get('/absensi', [AttendanceController::class, 'index'])->name('absensi.index');
+    Route::get('/absensi/rekap', [AttendanceRecapController::class, 'index'])->name('absensi.rekap');
+    Route::get('/absensi/rekap/export-pdf', [AttendanceRecapController::class, 'exportPdf'])->name('absensi.rekap.export-pdf')->middleware('can.pdf');
+    Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
+    Route::post('/absensi/settings', [AttendanceController::class, 'updateSettings'])->name('absensi.settings');
+    Route::match(['patch', 'post'], '/absensi/{id}/overtime-status', [AttendanceController::class, 'updateOvertimeStatus'])->name('absensi.overtime-status');
+    Route::match(['put', 'post'], '/absensi/{id}', [AttendanceController::class, 'update'])->name('absensi.update');
+    Route::post('/absensi/{id}/update', [AttendanceController::class, 'update'])->name('absensi.update.post');
+    Route::delete('/absensi/{id}', [AttendanceController::class, 'destroy'])->name('absensi.destroy');
 
-        // Pengajuan Izin/Sakit
-        Route::get('/absensi/pengajuan', [AttendanceRequestController::class, 'index'])->name('absensi.pengajuan');
-        Route::post('/absensi/pengajuan', [AttendanceRequestController::class, 'store'])->name('absensi.pengajuan.store');
-        Route::put('/absensi/pengajuan/{id}/status', [AttendanceRequestController::class, 'updateStatus'])->name('absensi.pengajuan.status');
-        Route::delete('/absensi/pengajuan/{id}', [AttendanceRequestController::class, 'destroy'])->name('absensi.pengajuan.destroy');
-    });
+    // Pengajuan Izin/Sakit
+    Route::get('/absensi/pengajuan', [AttendanceRequestController::class, 'index'])->name('absensi.pengajuan');
+    Route::post('/absensi/pengajuan', [AttendanceRequestController::class, 'store'])->name('absensi.pengajuan.store');
+    Route::put('/absensi/pengajuan/{id}/status', [AttendanceRequestController::class, 'updateStatus'])->name('absensi.pengajuan.status');
+    Route::delete('/absensi/pengajuan/{id}', [AttendanceRequestController::class, 'destroy'])->name('absensi.pengajuan.destroy');
 
     // Rekap Marketing (Authorization handled in controller to support feature toggles)
     Route::get('/marketing/recap-all', [\App\Http\Controllers\MarketingRecapController::class, 'index'])->name('marketing.recap.index');

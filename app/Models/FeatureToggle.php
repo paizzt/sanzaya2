@@ -117,9 +117,15 @@ class FeatureToggle extends Model
             return false;
         }
 
+        // Superadmin and Admin always have access
+        if (method_exists($user, 'isSuperAdminUser') && $user->isSuperAdminUser()) {
+            return true;
+        }
+
         static $featuresCache = null;
         if ($featuresCache === null) {
             try {
+                self::deduplicateFeatures();
                 $featuresCache = self::all();
             } catch (\Throwable $e) {
                 return true;
@@ -129,14 +135,89 @@ class FeatureToggle extends Model
         $normTarget = self::normalizeFeatureKey($featureName);
         $userIdStr = (string)$user->id;
 
+        $hasMatchingFeature = false;
+        $isExplicitlyDisabled = false;
+
         foreach ($featuresCache as $feature) {
             if (self::normalizeFeatureKey($feature->name) === $normTarget) {
+                $hasMatchingFeature = true;
                 $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
-                return !in_array($userIdStr, array_map('strval', (array)$disabledUsers), true);
+                $disabledUserIds = array_map('strval', (array)$disabledUsers);
+
+                // If user is NOT in disabled list for this matching feature, user HAS this feature enabled!
+                if (!in_array($userIdStr, $disabledUserIds, true)) {
+                    return true;
+                }
+                $isExplicitlyDisabled = true;
             }
         }
 
+        // Only return false if matching feature exists and explicitly disables this user
+        if ($hasMatchingFeature && $isExplicitlyDisabled) {
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * Clean up and deduplicate duplicate feature toggle rows in database.
+     */
+    public static function deduplicateFeatures(): void
+    {
+        static $alreadyDeduplicated = false;
+        if ($alreadyDeduplicated) {
+            return;
+        }
+        $alreadyDeduplicated = true;
+
+        try {
+            if (!Schema::hasTable('feature_toggles')) {
+                return;
+            }
+
+            $canonicalNames = [];
+            foreach (self::allFeatureNames() as $canName) {
+                $canonicalNames[self::normalizeFeatureKey($canName)] = $canName;
+            }
+
+            $all = self::all();
+            $grouped = [];
+            foreach ($all as $item) {
+                $norm = self::normalizeFeatureKey($item->name);
+                $grouped[$norm][] = $item;
+            }
+
+            foreach ($grouped as $norm => $items) {
+                $primary = $items[0];
+                if (isset($canonicalNames[$norm])) {
+                    $primary->name = $canonicalNames[$norm];
+                }
+                $primary->is_active = true;
+
+                if (count($items) > 1) {
+                    $allDisabledLists = [];
+                    foreach ($items as $it) {
+                        $dis = json_decode($it->disabled_for_users, true) ?? [];
+                        $allDisabledLists[] = array_map('strval', (array)$dis);
+                    }
+
+                    // User is disabled only if disabled across ALL duplicates
+                    $mergedDisabled = !empty($allDisabledLists)
+                        ? call_user_func_array('array_intersect', $allDisabledLists)
+                        : [];
+
+                    $primary->disabled_for_users = json_encode(array_values(array_unique($mergedDisabled)));
+                    $primary->save();
+
+                    for ($i = 1; $i < count($items); $i++) {
+                        $items[$i]->delete();
+                    }
+                } else {
+                    $primary->save();
+                }
+            }
+        } catch (\Throwable $e) {}
     }
 
     /**
@@ -194,6 +275,7 @@ class FeatureToggle extends Model
             if (!Schema::hasTable('feature_toggles')) {
                 return;
             }
+            self::deduplicateFeatures();
             $existing = self::pluck('name')
                 ->map(fn($n) => self::normalizeFeatureKey((string)$n))
                 ->toArray();

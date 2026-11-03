@@ -587,7 +587,7 @@ class PayrollController extends Controller
     {
         $user = auth()->user();
         if ($user && !$user->isSuperAdminUser() && !$user->isAdminUser() && !\App\Models\FeatureToggle::userHasFeature($user, 'Manajemen Gaji')) {
-            abort(403, 'Akses ditolak. Fitur Manajemen Gaji dinonaktifkan untuk akun Anda.');
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Manajemen Gaji dinonaktifkan untuk akun Anda.');
         }
 
         $this->ensureTableAndFeatures();

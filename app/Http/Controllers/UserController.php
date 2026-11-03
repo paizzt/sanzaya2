@@ -449,12 +449,22 @@ class UserController extends Controller
 
     private function syncFeatureToggles($userId, $enabledFeatureIds)
     {
+        FeatureToggle::deduplicateFeatures();
         FeatureToggle::ensureAllFeaturesExist();
         $features = FeatureToggle::all();
         $user = \App\Models\User::find($userId);
         
         $featurePermissionsByName = FeatureToggle::featurePermissionMap();
         $enabledIdsInt = array_map('intval', (array)$enabledFeatureIds);
+
+        // Find which normalized feature keys are enabled
+        $enabledNormKeys = [];
+        foreach ($features as $f) {
+            if (in_array((int)$f->id, $enabledIdsInt, true)) {
+                $enabledNormKeys[] = FeatureToggle::normalizeFeatureKey($f->name);
+            }
+        }
+        $enabledNormKeys = array_unique($enabledNormKeys);
 
         // We will collect all permissions that should be granted directly to the user via features
         $permissionsToGrant = [];
@@ -463,14 +473,15 @@ class UserController extends Controller
             $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
             $disabledUserIds = array_map('strval', (array)$disabledUsers);
             $userIdStr = (string)$userId;
-            $featureNameKey = strtolower(trim((string)$feature->name));
+            $normFeatureKey = FeatureToggle::normalizeFeatureKey($feature->name);
             
-            if (in_array((int)$feature->id, $enabledIdsInt, true)) {
+            $isFeatureEnabled = in_array((int)$feature->id, $enabledIdsInt, true) || in_array($normFeatureKey, $enabledNormKeys, true);
+
+            if ($isFeatureEnabled) {
                 // Feature is ENABLED for this user -> Remove user from disabled list
                 $disabledUserIds = array_values(array_diff($disabledUserIds, [$userIdStr]));
                 
                 // Collect permissions to grant by feature name
-                $normFeatureKey = FeatureToggle::normalizeFeatureKey($feature->name);
                 foreach ($featurePermissionsByName as $k => $perms) {
                     if (FeatureToggle::normalizeFeatureKey($k) === $normFeatureKey) {
                         $permissionsToGrant = array_merge($permissionsToGrant, $perms);

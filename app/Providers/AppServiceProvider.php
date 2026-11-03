@@ -39,7 +39,8 @@ class AppServiceProvider extends ServiceProvider
                 return null;
             }
 
-            if (method_exists($user, 'isSuperAdminUser') && $user->isSuperAdminUser()) {
+            if ((method_exists($user, 'isSuperAdminUser') && $user->isSuperAdminUser()) ||
+                (method_exists($user, 'isAdminUser') && $user->isAdminUser())) {
                 return true;
             }
 
@@ -52,7 +53,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \Illuminate\Support\Facades\Gate::define('view laporan finansial', function ($user) {
-            if (method_exists($user, 'isSuperAdminUser') && $user->isSuperAdminUser()) {
+            if ((method_exists($user, 'isSuperAdminUser') && $user->isSuperAdminUser()) ||
+                (method_exists($user, 'isAdminUser') && $user->isAdminUser())) {
                 return true;
             }
             if (\App\Models\FeatureToggle::userHasFeature($user, 'Dashboard Laporan')) {

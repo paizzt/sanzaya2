@@ -44,6 +44,9 @@ class AttendanceController extends Controller
 
         $today = Carbon::today()->format('Y-m-d');
         $user = Auth::user();
+        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Ambil Absensi') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Ambil Absensi dinonaktifkan untuk akun Anda.');
+        }
         $isSatpam = $user->isSatpam();
         $tanpaLembur = (bool)($user->tanpa_lembur ?? false);
         $tanpaKeterlambatan = (bool)($user->tanpa_keterlambatan ?? false);

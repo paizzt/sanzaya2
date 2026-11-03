@@ -15,7 +15,7 @@ class WbsReportController extends Controller
     {
         $user = Auth::user();
         if ($user && !$user->isSuperAdminUser() && !$user->isAdminUser() && !\App\Models\FeatureToggle::userHasFeature($user, 'Laporan WBS')) {
-            abort(403, 'Akses ditolak. Fitur Laporan WBS dinonaktifkan untuk akun Anda.');
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Laporan WBS dinonaktifkan untuk akun Anda.');
         }
 
         if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages') || !\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'user_id')) {

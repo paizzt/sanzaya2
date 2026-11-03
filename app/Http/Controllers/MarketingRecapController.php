@@ -16,7 +16,7 @@ class MarketingRecapController extends Controller
     {
         $user = Auth::user();
         if (!$this->canAccessMarketingRecap($user)) {
-            abort(403, 'Unauthorized access.');
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Rekap Marketing dinonaktifkan untuk akun Anda.');
         }
 
         $salesUserId = $request->get('user_id');
@@ -212,7 +212,7 @@ class MarketingRecapController extends Controller
     {
         $user = Auth::user();
         if (!$this->canAccessMarketingRecap($user)) {
-            return abort(403, 'Unauthorized access.');
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Rekap Marketing dinonaktifkan untuk akun Anda.');
         }
 
         $type = $request->get('type', 'laporan'); // 'laporan' or 'target'
@@ -358,7 +358,7 @@ class MarketingRecapController extends Controller
     {
         $user = Auth::user();
         if (!$this->canAccessMarketingRecap($user)) {
-            return abort(403, 'Unauthorized access.');
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Rekap Marketing dinonaktifkan untuk akun Anda.');
         }
 
         $type = $request->get('type', 'laporan');

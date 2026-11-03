@@ -15,6 +15,11 @@ class AttendanceRecapController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Rekap Absensi') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Rekap Absensi dinonaktifkan untuk akun Anda.');
+        }
+
         $data = $this->getRecapData($request);
         return Inertia::render('Absensi/Rekap', $data);
     }

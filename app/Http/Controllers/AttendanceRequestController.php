@@ -15,7 +15,7 @@ class AttendanceRequestController extends Controller
     {
         $user = Auth::user();
         if (!\App\Models\FeatureToggle::userHasFeature($user, 'Izin / Sakit') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
-            abort(403, 'Akses ditolak. Fitur Izin/Sakit dinonaktifkan untuk akun Anda.');
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Izin/Sakit dinonaktifkan untuk akun Anda.');
         }
 
         $canApprove = $user->can('approve pengajuan absensi') || $user->isAdminUser() || $user->isSuperAdminUser();
@@ -36,7 +36,7 @@ class AttendanceRequestController extends Controller
     {
         $user = Auth::user();
         if (!\App\Models\FeatureToggle::userHasFeature($user, 'Izin / Sakit') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
-            abort(403, 'Akses ditolak. Fitur Izin/Sakit dinonaktifkan untuk akun Anda.');
+            return redirect()->back()->with('error', 'Akses ditolak: Fitur Izin/Sakit dinonaktifkan untuk akun Anda.');
         }
 
         $request->validate([
@@ -113,7 +113,7 @@ class AttendanceRequestController extends Controller
         
         $user = Auth::user();
         if (!$user->isAdminUser() && !$user->isSuperAdminUser() && $attendanceRequest->user_id !== $user->id) {
-            abort(403, 'Unauthorized action.');
+            return redirect()->back()->with('error', 'Akses ditolak: Anda tidak memiliki izin untuk menghapus pengajuan ini.');
         }
 
         if ($attendanceRequest->attachment && !str_starts_with($attendanceRequest->attachment, 'http')) {
