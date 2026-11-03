@@ -70,6 +70,11 @@ export default function UcApproval({ requests, isAdmin }) {
         return !isCompletedResult(req) && !isUcInitialPending(req);
     };
 
+    const isResult = (req) => {
+        if (!req) return false;
+        return isResultPending(req) || isCompletedResult(req) || Boolean(req.result_report);
+    };
+
     const ucRequests = (requests || []).filter(isUcInitialPending);
     const pendingResultRequests = (requests || []).filter(isResultPending);
     const completedResultRequests = (requests || []).filter(isCompletedResult);
@@ -780,7 +785,7 @@ export default function UcApproval({ requests, isAdmin }) {
                     <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl relative my-auto">
                         <div className="flex justify-between items-center p-6 border-b border-gray-100">
                             <h3 className="text-xl font-bold text-gray-900">
-                                {isResult(selectedRequest) ? 'Review Pengajuan Result UC' : 'Review Pengajuan Biaya UC'}
+                                {modalSource === 'result' || selectedRequest.result_report ? 'Review Pengajuan Result UC' : (modalSource === 'completed' ? 'Detail Pengajuan UC (Selesai)' : 'Review Pengajuan Biaya UC')}
                             </h3>
                             <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-xl transition-colors">
                                 <X className="w-5 h-5" />
