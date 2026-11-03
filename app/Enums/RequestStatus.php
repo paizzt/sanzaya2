@@ -27,6 +27,8 @@ class RequestStatus
             self::MENUNGGU,
             self::DISETUJUI,
             self::DITOLAK,
+            'ACC',
+            'Tolak',
             'Diproses',
             'Selesai / Result Dikirim',
         ];

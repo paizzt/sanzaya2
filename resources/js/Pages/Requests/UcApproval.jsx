@@ -77,8 +77,10 @@ export default function UcApproval({ requests, isAdmin }) {
             }
         }
 
+        const initialStatus = (req.status === 'Ditolak' || req.status === 'Tolak') ? 'Ditolak' : 'Disetujui';
+
         setData({
-            status: req.status === 'Menunggu' ? 'Disetujui' : req.status,
+            status: initialStatus,
             items: initialItems,
             approved_gas_cost: req.approved_gas_cost || '',
             approved_meals_cost: req.approved_meals_cost || '',
@@ -222,15 +224,15 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         )}
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                                             req.status?.includes('Selesai') ? 'bg-indigo-100 text-indigo-700' :
-                                                            req.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
-                                                            req.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                                                            (req.status === 'Disetujui' || req.status === 'ACC') ? 'bg-green-100 text-green-700' :
+                                                            (req.status === 'Ditolak' || req.status === 'Tolak') ? 'bg-red-100 text-red-700' :
                                                             req.status === 'Direvisi' ? 'bg-orange-100 text-orange-700' :
                                                             req.status === 'Dicairkan' ? 'bg-blue-100 text-blue-700' :
                                                             'bg-yellow-100 text-yellow-700'
                                                         }`}>
-                                                            {req.status}
+                                                            {req.status === 'Disetujui' ? 'ACC' : req.status === 'Ditolak' ? 'Tolak' : req.status}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4">
@@ -366,12 +368,8 @@ export default function UcApproval({ requests, isAdmin }) {
                                         value={data.status}
                                         onChange={val => setData('status', val)}
                                         options={[
-                                            { value: 'Menunggu', label: 'Menunggu' },
-                                            { value: 'Disetujui', label: 'Disetujui' },
-                                            { value: 'Direvisi', label: 'Direvisi' },
-                                            { value: 'Dicairkan', label: 'Dicairkan' },
-                                            { value: 'Ditolak', label: 'Ditolak' },
-                                            { value: 'Selesai / Result Dikirim', label: 'Selesai / Result Dikirim' },
+                                            { value: 'Disetujui', label: 'ACC' },
+                                            { value: 'Ditolak', label: 'Tolak' },
                                         ]}
                                     />
                                     <InputError message={errors.status} />

@@ -26,6 +26,12 @@ class UcApprovalController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($request->status === 'ACC' || $request->status === 'acc') {
+            $request->merge(['status' => 'Disetujui']);
+        } elseif ($request->status === 'Tolak' || $request->status === 'tolak') {
+            $request->merge(['status' => 'Ditolak']);
+        }
+
         $request->validate([
             'status' => 'required|string|in:' . implode(',', \App\Enums\RequestStatus::ucStatuses()),
             'items' => 'nullable|array',
