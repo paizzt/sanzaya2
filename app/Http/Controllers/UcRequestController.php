@@ -42,12 +42,26 @@ class UcRequestController extends Controller
     
     public function history()
     {
-        $requests = UcRequest::where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
+        $user = Auth::user();
+        $query = UcRequest::with(['user', 'items', 'approver'])->orderBy('created_at', 'desc');
+
+        if (!$user->isSuperAdminUser() && !$user->isAdminUser() && !$user->can('approve uc')) {
+            $query->where('user_id', $user->id);
+        }
+
+        $requests = $query->get();
+
+        $today = now()->toDateString();
+        $activeUcs = UcRequest::with(['user', 'approver'])
+            ->where('departure_date', '<=', $today)
+            ->where('return_date', '>=', $today)
+            ->whereIn('status', ['Disetujui', 'Selesai / Result Dikirim', 'Dicairkan'])
             ->get();
-            
+
         return Inertia::render('Requests/UcHistory', [
             'requests' => $requests,
+            'activeUcs' => $activeUcs,
+            'isAdmin' => $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc'),
         ]);
     }
     
