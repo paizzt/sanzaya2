@@ -398,7 +398,6 @@ export default function UcApproval({ requests, isAdmin }) {
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
                             <FileCheck className="text-blue-600 w-6 h-6" /> Persetujuan UC
                         </h2>
-                        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Kelola dan setujui pengajuan biaya dinas UC serta laporan result perjalanan</p>
                     </div>
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                         <ExportDropdown pdfRoute={route('requests.uc.approval.export.pdf')} excelRoute={route('requests.uc.approval.export.excel')} />
@@ -447,23 +446,19 @@ export default function UcApproval({ requests, isAdmin }) {
                                             const totalEst = getRequestTotal(req);
                                             const st = getStatusText(req, 'uc');
                                             return (
-                                                <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
+                                                <tr 
+                                                    key={req.id} 
+                                                    onClick={() => openModal(req, null, 'uc')}
+                                                    className="hover:bg-blue-50/50 cursor-pointer transition-colors"
+                                                    title="Klik baris untuk Review Pengajuan"
+                                                >
                                                     <td className="px-3.5 py-3">
-                                                        <button 
-                                                            type="button" 
-                                                            onClick={() => openModal(req, null, 'uc')} 
-                                                            className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
-                                                            title="Klik untuk lihat detail & rincian biaya"
-                                                        >
-                                                            {req.request_number}
-                                                        </button>
-                                                        <span className="text-xs text-gray-700 block font-medium">{req.user?.name}</span>
-                                                        <span className="text-[11px] text-gray-400 block">{req.department}</span>
+                                                        <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.user?.name || '-'}</span>
+                                                        <span className="text-[11px] text-gray-500 block">{req.department || '-'}</span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
                                                         <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
-                                                        <span className="text-xs text-gray-500 block">{req.departure_date}</span>
-                                                        <span className="text-[11px] text-gray-400 block">({req.estimated_days} Hari)</span>
+                                                        <span className="text-xs text-gray-500 block">{req.estimated_days} Hari</span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
                                                         <div className="font-bold text-gray-900 text-xs sm:text-sm">
@@ -485,25 +480,25 @@ export default function UcApproval({ requests, isAdmin }) {
                                                             {st.label}
                                                         </span>
                                                     </td>
-                                                    <td className="px-3.5 py-3">
+                                                    <td className="px-3.5 py-3" onClick={(e) => e.stopPropagation()}>
                                                         <div className="flex flex-col items-stretch gap-1 w-full max-w-[64px] mx-auto">
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Disetujui', 'uc')} 
+                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Disetujui', 'uc'); }} 
                                                                 className="w-full py-1 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 ACC
                                                             </button>
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Ditolak', 'uc')} 
+                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Ditolak', 'uc'); }} 
                                                                 className="w-full py-1 px-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Tolak
                                                             </button>
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Direvisi', 'uc')} 
+                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Direvisi', 'uc'); }} 
                                                                 className="w-full py-1 px-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Revisi
@@ -566,24 +561,21 @@ export default function UcApproval({ requests, isAdmin }) {
                                             } catch(e) {}
 
                                             return (
-                                                <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
+                                                <tr 
+                                                    key={req.id} 
+                                                    onClick={() => openModal(req, null, 'result')}
+                                                    className="hover:bg-amber-50/50 cursor-pointer transition-colors"
+                                                    title="Klik baris untuk Review Pengajuan"
+                                                >
                                                     <td className="px-3.5 py-3">
-                                                        <button 
-                                                            type="button" 
-                                                            onClick={() => openModal(req, null, 'result')} 
-                                                            className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
-                                                            title="Klik untuk lihat detail & rincian"
-                                                        >
-                                                            {req.request_number}
-                                                        </button>
-                                                        <span className="text-xs text-gray-700 block font-medium">{req.user?.name}</span>
-                                                        <span className="text-[11px] text-gray-400 block">{req.department}</span>
+                                                        <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.user?.name || '-'}</span>
+                                                        <span className="text-[11px] text-gray-500 block">{req.department || '-'}</span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
                                                         <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
-                                                        <span className="text-xs text-gray-500 block">{req.departure_date}</span>
+                                                        <span className="text-xs text-gray-500 block">{req.estimated_days} Hari</span>
                                                     </td>
-                                                    <td className="px-3.5 py-3 max-w-[200px]">
+                                                    <td className="px-3.5 py-3 max-w-[200px]" onClick={(e) => e.stopPropagation()}>
                                                         {req.result_report ? (
                                                             <p className="text-xs text-gray-700 line-clamp-2 mb-1.5" title={req.result_report}>
                                                                 {req.result_report}
@@ -601,7 +593,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                                                         <button 
                                                                             key={i} 
                                                                             type="button"
-                                                                            onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${req.destination_city || ''})` })}
+                                                                            onClick={(e) => { e.stopPropagation(); setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${req.destination_city || ''})` }); }}
                                                                             className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                                                                             title="Klik untuk lihat nota pop-up"
                                                                         >
@@ -617,25 +609,25 @@ export default function UcApproval({ requests, isAdmin }) {
                                                             {st.label}
                                                         </span>
                                                     </td>
-                                                    <td className="px-3.5 py-3">
+                                                    <td className="px-3.5 py-3" onClick={(e) => e.stopPropagation()}>
                                                         <div className="flex flex-col items-stretch gap-1 w-full max-w-[64px] mx-auto">
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Disetujui', 'result')} 
+                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Disetujui', 'result'); }} 
                                                                 className="w-full py-1 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 ACC
                                                             </button>
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Ditolak', 'result')} 
+                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Ditolak', 'result'); }} 
                                                                 className="w-full py-1 px-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Tolak
                                                             </button>
                                                             <button 
                                                                 type="button" 
-                                                                onClick={() => handleRowAction(req, 'Direvisi', 'result')} 
+                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Direvisi', 'result'); }} 
                                                                 className="w-full py-1 px-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Revisi
@@ -663,7 +655,6 @@ export default function UcApproval({ requests, isAdmin }) {
                                 <h3 className="font-bold text-base sm:text-lg text-gray-800">
                                     Daftar UC Selesai (ACC)
                                 </h3>
-                                <p className="text-xs text-gray-400">Pengajuan UC yang laporan hasil perjalanan & bukti nota-nya telah selesai disetujui</p>
                             </div>
                         </div>
                         <span className="text-xs font-bold text-gray-500 shrink-0">
@@ -701,23 +692,19 @@ export default function UcApproval({ requests, isAdmin }) {
                                         } catch(e) {}
 
                                         return (
-                                            <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
+                                            <tr 
+                                                key={req.id} 
+                                                onClick={() => openModal(req, null, 'completed')}
+                                                className="hover:bg-emerald-50/50 cursor-pointer transition-colors"
+                                                title="Klik baris untuk Review Pengajuan"
+                                            >
                                                 <td className="px-4 py-3.5">
-                                                    <button 
-                                                        type="button" 
-                                                        onClick={() => openModal(req, null, 'completed')} 
-                                                        className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
-                                                        title="Klik untuk lihat detail"
-                                                    >
-                                                        {req.request_number}
-                                                    </button>
-                                                    <span className="text-xs text-gray-700 block font-medium">{req.user?.name}</span>
-                                                    <span className="text-[11px] text-gray-400 block">{req.department}</span>
+                                                    <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.user?.name || '-'}</span>
+                                                    <span className="text-[11px] text-gray-500 block">{req.department || '-'}</span>
                                                 </td>
                                                 <td className="px-4 py-3.5">
                                                     <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
-                                                    <span className="text-xs text-gray-500 block">{req.departure_date} s/d {req.return_date}</span>
-                                                    <span className="text-[11px] text-gray-400 block">({req.estimated_days} Hari)</span>
+                                                    <span className="text-xs text-gray-500 block">{req.estimated_days} Hari</span>
                                                 </td>
                                                 <td className="px-4 py-3.5">
                                                     <div className="font-bold text-gray-900 text-xs sm:text-sm">
@@ -729,7 +716,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-3.5 max-w-xs">
+                                                <td className="px-4 py-3.5 max-w-xs" onClick={(e) => e.stopPropagation()}>
                                                     {req.result_report ? (
                                                         <p className="text-xs text-gray-700 line-clamp-2 mb-1.5" title={req.result_report}>
                                                             {req.result_report}
@@ -747,7 +734,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                                                     <button 
                                                                         key={i} 
                                                                         type="button"
-                                                                        onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${req.destination_city || ''})` })}
+                                                                        onClick={(e) => { e.stopPropagation(); setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${req.destination_city || ''})` }); }}
                                                                         className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                                                                         title="Lihat Nota"
                                                                     >
@@ -763,16 +750,19 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         ACC (Selesai)
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3.5 text-center">
-                                                    <a 
-                                                        href={route('requests.uc.pdf', req.id)} 
-                                                        target="_blank" 
-                                                        rel="noreferrer"
-                                                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all inline-flex items-center justify-center gap-1.5"
-                                                        title="Unduh PDF"
-                                                    >
-                                                        <FileText className="w-3.5 h-3.5" /> Unduh PDF
-                                                    </a>
+                                                <td className="px-4 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                                                    <ExportDropdown 
+                                                        pdfRoute={route('requests.uc.pdf', req.id)}
+                                                        trigger={
+                                                            <button 
+                                                                type="button"
+                                                                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                                                                title="Unduh PDF Formulir & Bukti UC"
+                                                            >
+                                                                <FileText className="w-3.5 h-3.5" /> Unduh PDF
+                                                            </button>
+                                                        }
+                                                    />
                                                 </td>
                                             </tr>
                                         );
@@ -954,14 +944,17 @@ export default function UcApproval({ requests, isAdmin }) {
                                             <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
                                             <span>Pengajuan UC ini telah Selesai (ACC)</span>
                                         </div>
-                                        <a 
-                                            href={route('requests.uc.pdf', selectedRequest.id)} 
-                                            target="_blank" 
-                                            rel="noreferrer"
-                                            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0"
-                                        >
-                                            <FileText className="w-3.5 h-3.5" /> Unduh PDF
-                                        </a>
+                                        <ExportDropdown 
+                                            pdfRoute={route('requests.uc.pdf', selectedRequest.id)} 
+                                            trigger={
+                                                <button 
+                                                    type="button"
+                                                    className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                                                >
+                                                    <FileText className="w-3.5 h-3.5" /> Unduh PDF
+                                                </button>
+                                            }
+                                        />
                                     </div>
                                 )}
 
