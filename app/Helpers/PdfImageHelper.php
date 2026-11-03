@@ -137,20 +137,37 @@ class PdfImageHelper
         // 2. Check local filesystem paths
         $cleanRel = ltrim($pathOrUrl, '/\\');
         $candidatePaths = [
+            $pathOrUrl,
             storage_path('app/public/' . $cleanRel),
             public_path('storage/' . $cleanRel),
             public_path($cleanRel),
             storage_path($cleanRel),
+            base_path($cleanRel),
+            base_path('public/' . $cleanRel),
         ];
 
         foreach ($candidatePaths as $localPath) {
-            if (file_exists($localPath) && is_file($localPath)) {
+            if (!empty($localPath) && is_string($localPath) && file_exists($localPath) && is_file($localPath)) {
                 try {
                     $bytes = @file_get_contents($localPath);
                     if ($bytes !== false && !empty($bytes)) {
                         $dataUri = self::bytesToDataUri($bytes, $maxWidth);
                         if ($dataUri !== '') {
                             return $dataUri;
+                        }
+
+                        // Fallback mime from file extension if GD or getimagesize didn't return
+                        $ext = strtolower(pathinfo($localPath, PATHINFO_EXTENSION));
+                        $mimeMap = [
+                            'png' => 'image/png',
+                            'jpg' => 'image/jpeg',
+                            'jpeg' => 'image/jpeg',
+                            'gif' => 'image/gif',
+                            'webp' => 'image/webp',
+                            'svg' => 'image/svg+xml',
+                        ];
+                        if (isset($mimeMap[$ext])) {
+                            return 'data:' . $mimeMap[$ext] . ';base64,' . base64_encode($bytes);
                         }
                     }
                 } catch (\Throwable $e) {

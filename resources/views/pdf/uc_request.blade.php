@@ -203,6 +203,18 @@
     </style>
 </head>
 <body>
+    @php
+        $logoSrc = !empty($logoPath) && str_starts_with($logoPath, 'data:image')
+            ? $logoPath
+            : \App\Helpers\PdfImageHelper::toPdfSrc($logoPath ?? public_path('img/logo.png'), 400);
+
+        if (empty($logoSrc) && file_exists(public_path('img/logo.png'))) {
+            $fbBytes = @file_get_contents(public_path('img/logo.png'));
+            if (!empty($fbBytes)) {
+                $logoSrc = 'data:image/png;base64,' . base64_encode($fbBytes);
+            }
+        }
+    @endphp
     <div class="footer">
         Make a Different
     </div>
@@ -211,7 +223,9 @@
     <table class="kop-table">
         <tr>
             <td width="35%">
-                <img src="{{ $logoPath ?? public_path('img/logo.png') }}" style="max-height: 60px; max-width: 160px;" />
+                @if(!empty($logoSrc))
+                    <img src="{{ $logoSrc }}" style="max-height: 60px; max-width: 160px;" />
+                @endif
             </td>
             <td width="65%" align="center">
                 <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
@@ -346,7 +360,9 @@
     <table class="kop-table">
         <tr>
             <td width="35%">
-                <img src="{{ $logoPath ?? public_path('img/logo.png') }}" style="max-height: 60px; max-width: 160px;" />
+                @if(!empty($logoSrc))
+                    <img src="{{ $logoSrc }}" style="max-height: 60px; max-width: 160px;" />
+                @endif
             </td>
             <td width="65%" align="center">
                 <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
@@ -464,7 +480,9 @@
     <table class="kop-table">
         <tr>
             <td width="35%">
-                <img src="{{ $logoPath ?? public_path('img/logo.png') }}" style="max-height: 60px; max-width: 160px;" />
+                @if(!empty($logoSrc))
+                    <img src="{{ $logoSrc }}" style="max-height: 60px; max-width: 160px;" />
+                @endif
             </td>
             <td width="65%" align="center">
                 <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
