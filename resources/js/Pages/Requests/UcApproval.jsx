@@ -359,6 +359,37 @@ export default function UcApproval({ requests, isAdmin }) {
                                         </div>
                                     </div>
                                 )}
+
+                                {selectedRequest.result_report && (
+                                    <div className="sm:col-span-2 pt-3 border-t border-gray-200">
+                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Hasil Perjalanan / Result:</span>
+                                        <div className="p-3 bg-white rounded-xl border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap">
+                                            {selectedRequest.result_report}
+                                        </div>
+                                        {selectedRequest.result_receipts && (() => {
+                                            try {
+                                                const photos = JSON.parse(selectedRequest.result_receipts);
+                                                if (Array.isArray(photos) && photos.length > 0) {
+                                                    return (
+                                                        <div className="mt-2.5 flex gap-2 flex-wrap">
+                                                            {photos.map((photo, i) => {
+                                                                const photoUrl = photo.startsWith('http')
+                                                                    ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
+                                                                    : `/storage/${photo}`;
+                                                                return (
+                                                                    <a key={i} href={photoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-bold text-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+                                                                        Lihat Nota {i + 1}
+                                                                    </a>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    );
+                                                }
+                                            } catch (e) {}
+                                            return null;
+                                        })()}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-4">

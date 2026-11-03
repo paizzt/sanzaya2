@@ -777,7 +777,7 @@
     ]
   },
   "resources/js/Pages/Requests/UcApproval.jsx": {
-    "file": "assets/UcApproval-BykYLFbN.js",
+    "file": "assets/UcApproval-D7TE0ZfW.js",
     "name": "UcApproval",
     "src": "resources/js/Pages/Requests/UcApproval.jsx",
     "isDynamicEntry": true,
@@ -816,7 +816,7 @@
     ]
   },
   "resources/js/Pages/Requests/UcHistory.jsx": {
-    "file": "assets/UcHistory-DYWeekK_.js",
+    "file": "assets/UcHistory-BRz8gDiY.js",
     "name": "UcHistory",
     "src": "resources/js/Pages/Requests/UcHistory.jsx",
     "isDynamicEntry": true,
@@ -884,7 +884,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-CYQlsrsn.js",
+    "file": "assets/Index-DgI5qsW3.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -905,7 +905,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-CjqCGqmJ.js",
+    "file": "assets/Show-DJDzNNCQ.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1082,7 +1082,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-CIA8HRLF.js",
+    "file": "assets/app-DoRoaqs4.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,

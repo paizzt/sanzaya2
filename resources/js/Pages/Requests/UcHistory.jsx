@@ -256,11 +256,16 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                             <p className="text-sm font-semibold text-gray-700 mb-1">Hasil UC:</p>
                                             <p className="text-sm text-gray-600">{req.result_report}</p>
                                             <div className="mt-3 flex gap-2 flex-wrap">
-                                                {req.result_receipts && JSON.parse(req.result_receipts).map((photo, i) => (
-                                                    <a key={i} href={photo.startsWith('http') ? photo : `/storage/${photo}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100">
-                                                        <FileImage className="w-3 h-3" /> Lihat Nota {i+1}
-                                                    </a>
-                                                ))}
+                                                {req.result_receipts && JSON.parse(req.result_receipts).map((photo, i) => {
+                                                    const photoUrl = photo.startsWith('http') 
+                                                        ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
+                                                        : `/storage/${photo}`;
+                                                    return (
+                                                        <a key={i} href={photoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
+                                                            <FileImage className="w-3 h-3" /> Lihat Nota {i+1}
+                                                        </a>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}
