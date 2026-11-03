@@ -3,7 +3,7 @@
 -- Sumber File: RINCIAN PIUTANG SANZAYA GROUP 2026 - Google Spreadsheet.pdf
 -- Target Perusahaan: PT Sanzaya, PT Ruma, PT Harkes
 -- KEAMANAN: Data PT lain (seperti PT MSI, CV Meraki, PT BUMA, dll) 100% AMAN & TIDAK DIHAPUS
--- Tanggal Update: 26 Oktober 2026
+-- Tanggal Update: 3 November 2026
 -- ============================================================================
 
 START TRANSACTION;
@@ -49,7 +49,7 @@ INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `creat
 -- [7] RSUD Wonomulyo Kab Polewali
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD Wonomulyo Kab Polewali', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD Wonomulyo Kab Polewali');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD Wonomulyo Kab Polewali' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_ruma, '[{"year": "2025", "amount": "9646780.00"}]', 9646780.00, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_ruma, '[{"year": "2025", "amount": "4896300.00"}]', 4896300.00, NOW(), NOW());
 
 -- [8] RSUD. BATARA SIANG PANGKEP
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD. BATARA SIANG PANGKEP', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD. BATARA SIANG PANGKEP');
@@ -64,7 +64,7 @@ INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `creat
 -- [12] Rumah Sakit Umum Daerah I Lagaligo
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'Rumah Sakit Umum Daerah I Lagaligo', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'Rumah Sakit Umum Daerah I Lagaligo');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'Rumah Sakit Umum Daerah I Lagaligo' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "941685534.13"}]', 941685534.13, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "817349727.75"}]', 817349727.75, NOW(), NOW());
 
 -- [13] RSUD Arifin NU'mang
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD Arifin NU''mang', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD Arifin NU''mang');
@@ -79,14 +79,14 @@ INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `creat
 -- [16] RSUD. Prof Dr. H.M Anwar Makkatutu KAB.BANTAENG
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD. Prof Dr. H.M Anwar Makkatutu KAB.BANTAENG', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD. Prof Dr. H.M Anwar Makkatutu KAB.BANTAENG');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD. Prof Dr. H.M Anwar Makkatutu KAB.BANTAENG' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "96725400.00"}]', 96725400.00, NOW(), NOW());
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_ruma, '[{"year": "2026", "amount": "125306679.00"}]', 125306679.00, NOW(), NOW());
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_harkes, '[{"year": "2026", "amount": "794535876.27"}]', 794535876.27, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "104469648.00"}]', 104469648.00, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_ruma, '[{"year": "2026", "amount": "281266063.50"}]', 281266063.50, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_harkes, '[{"year": "2026", "amount": "1862868723.90"}]', 1862868723.90, NOW(), NOW());
 
 -- [17] RSUD H PADJONGA DG NGALLE KABUPATEN TAKALAR
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD H PADJONGA DG NGALLE KABUPATEN TAKALAR', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD H PADJONGA DG NGALLE KABUPATEN TAKALAR');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD H PADJONGA DG NGALLE KABUPATEN TAKALAR' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2025", "amount": "27305728.05"}, {"year": "2026", "amount": "160502309.12"}]', 187808037.17, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "128416943.60"}]', 128416943.60, NOW(), NOW());
 
 -- [19] KLINIK UTAMA DOI 79 BANTAYAN KAB.BANTAENG
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'KLINIK UTAMA DOI 79 BANTAYAN KAB.BANTAENG', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'KLINIK UTAMA DOI 79 BANTAYAN KAB.BANTAENG');
@@ -102,18 +102,18 @@ INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `creat
 -- [21] RSU WISATA UIT
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSU WISATA UIT', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSU WISATA UIT');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSU WISATA UIT' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "31985375.12"}]', 31985375.12, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "32891375.24"}]', 32891375.24, NOW(), NOW());
 
 -- [22] RSIA ANANDA MAKASSAR
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSIA ANANDA MAKASSAR', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSIA ANANDA MAKASSAR');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSIA ANANDA MAKASSAR' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "229510832.95"}]', 229510832.95, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "231201183.13"}]', 231201183.13, NOW(), NOW());
 INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_ruma, '[{"year": "2025", "amount": "34845350.00"}, {"year": "2026", "amount": "31085106.00"}]', 65930456.00, NOW(), NOW());
 
 -- [23] RSIA Kartini
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSIA Kartini', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSIA Kartini');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSIA Kartini' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "2620360.13"}]', 2620360.13, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "7609960.13"}]', 7609960.13, NOW(), NOW());
 
 -- [24] RSU BAHAGIA
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSU BAHAGIA', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSU BAHAGIA');
@@ -128,7 +128,7 @@ INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `creat
 -- [27] PT. Medical Solution Indonesia
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'PT. Medical Solution Indonesia', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'PT. Medical Solution Indonesia');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'PT. Medical Solution Indonesia' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "853226164.42"}]', 853226164.42, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "905290414.72"}]', 905290414.72, NOW(), NOW());
 
 -- [28] PT.Haura Abadi Jaya
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'PT.Haura Abadi Jaya', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'PT.Haura Abadi Jaya');
@@ -143,27 +143,22 @@ INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `creat
 -- [30] APOTEK YUNI FARMA
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'APOTEK YUNI FARMA', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'APOTEK YUNI FARMA');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'APOTEK YUNI FARMA' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "4260448.31"}]', 4260448.31, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "1388450.16"}]', 1388450.16, NOW(), NOW());
 
 -- [31] DINAS KESEHATAN KAB. TAKALAR
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'DINAS KESEHATAN KAB. TAKALAR', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'DINAS KESEHATAN KAB. TAKALAR');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'DINAS KESEHATAN KAB. TAKALAR' LIMIT 1);
 INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2024", "amount": "659866800.00"}, {"year": "2026", "amount": "128538000.00"}]', 788404800.00, NOW(), NOW());
 
--- [33] SPPG TAMALATE BAROMBONG
-INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'SPPG TAMALATE BAROMBONG', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'SPPG TAMALATE BAROMBONG');
-SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'SPPG TAMALATE BAROMBONG' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "870000.00"}]', 870000.00, NOW(), NOW());
-
 -- [35] RSUD AMPANA
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD AMPANA', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD AMPANA');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD AMPANA' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "154311011.71"}]', 154311011.71, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "160471011.77"}]', 160471011.77, NOW(), NOW());
 
 -- [36] PT ANUGRAH SALMAN MEDIKA
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'PT ANUGRAH SALMAN MEDIKA', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'PT ANUGRAH SALMAN MEDIKA');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'PT ANUGRAH SALMAN MEDIKA' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "20000000.00"}]', 20000000.00, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "40000000.00"}]', 40000000.00, NOW(), NOW());
 
 -- [38] RSUD PENDAU TAMBU
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD PENDAU TAMBU', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD PENDAU TAMBU');
@@ -183,7 +178,12 @@ INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `creat
 -- [51] PT RUMA UTAMA MEGATRADING
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'PT RUMA UTAMA MEGATRADING', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'PT RUMA UTAMA MEGATRADING');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'PT RUMA UTAMA MEGATRADING' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "136678185.00"}]', 136678185.00, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "154319415.00"}]', 154319415.00, NOW(), NOW());
+
+-- [53] RSUD RUMBIA JENEPONTO
+INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD RUMBIA JENEPONTO', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD RUMBIA JENEPONTO');
+SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD RUMBIA JENEPONTO' LIMIT 1);
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "769896.00"}]', 769896.00, NOW(), NOW());
 
 -- [54] RS TK III DR Sindhu Trisno
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RS TK III DR Sindhu Trisno', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RS TK III DR Sindhu Trisno');
@@ -193,37 +193,27 @@ INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `creat
 -- [56] APOTEK A3 MEDIKA
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'APOTEK A3 MEDIKA', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'APOTEK A3 MEDIKA');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'APOTEK A3 MEDIKA' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "3273372.43"}]', 3273372.43, NOW(), NOW());
-
--- [57] RS MITRA HUSADA
-INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RS MITRA HUSADA', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RS MITRA HUSADA');
-SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RS MITRA HUSADA' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "586799.28"}]', 586799.28, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "2767472.48"}]', 2767472.48, NOW(), NOW());
 
 -- [60] SPPG Salohe Sinaji Timur
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'SPPG Salohe Sinaji Timur', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'SPPG Salohe Sinaji Timur');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'SPPG Salohe Sinaji Timur' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "6150000.06"}]', 6150000.06, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "4650000.06"}]', 4650000.06, NOW(), NOW());
 
 -- [67] PUSKESMAS EMBO
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'PUSKESMAS EMBO', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'PUSKESMAS EMBO');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'PUSKESMAS EMBO' LIMIT 1);
 INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "2053500.00"}]', 2053500.00, NOW(), NOW());
 
--- [68] RSUD Lakipadada
-INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD Lakipadada', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD Lakipadada');
-SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD Lakipadada' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "1998000.00"}]', 1998000.00, NOW(), NOW());
-
 -- [70] PT HARTA TAHTA KESEHATAN
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'PT HARTA TAHTA KESEHATAN', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'PT HARTA TAHTA KESEHATAN');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'PT HARTA TAHTA KESEHATAN' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "1459983867.82"}]', 1459983867.82, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "1804125865.52"}]', 1804125865.52, NOW(), NOW());
 
 -- [72] RSUD SIWA, KABUPATEN WAJO
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD SIWA, KABUPATEN WAJO', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD SIWA, KABUPATEN WAJO');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD SIWA, KABUPATEN WAJO' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "10172040.00"}]', 10172040.00, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "155400.00"}]', 155400.00, NOW(), NOW());
 
 -- [73] RS HASRI AINUN HABIBIE
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RS HASRI AINUN HABIBIE', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RS HASRI AINUN HABIBIE');
@@ -240,20 +230,15 @@ INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD Hayyung Selayar' LIMIT 1);
 INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "243289800.00"}]', 243289800.00, NOW(), NOW());
 
--- [76] SPPG BARA BALANDAI 03
-INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'SPPG BARA BALANDAI 03', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'SPPG BARA BALANDAI 03');
-SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'SPPG BARA BALANDAI 03' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "3193890.25"}]', 3193890.25, NOW(), NOW());
-
 -- [78] RSUD LUWUK
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD LUWUK', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD LUWUK');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'RSUD LUWUK' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "355686709.84"}]', 355686709.84, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "395575914.78"}]', 395575914.78, NOW(), NOW());
 
 -- [79] DINAS KESEHATAN KOTA MAKASSAR
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'DINAS KESEHATAN KOTA MAKASSAR', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'DINAS KESEHATAN KOTA MAKASSAR');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'DINAS KESEHATAN KOTA MAKASSAR' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "38739000.00"}]', 38739000.00, NOW(), NOW());
+INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "77478000.00"}]', 77478000.00, NOW(), NOW());
 
 -- [80] RSUD DR. MUHAMMAD ZEIN PAINAN
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'RSUD DR. MUHAMMAD ZEIN PAINAN', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'RSUD DR. MUHAMMAD ZEIN PAINAN');
@@ -290,21 +275,6 @@ INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'BALAI BESAR VETERINER MAROS' LIMIT 1);
 INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "160167.00"}]', 160167.00, NOW(), NOW());
 
--- [90] SPPG To'bulung 01
-INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'SPPG To''bulung 01', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'SPPG To''bulung 01');
-SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'SPPG To''bulung 01' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "2516400.25"}]', 2516400.25, NOW(), NOW());
-
--- [91] SPPG Wara Utara Pattene
-INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'SPPG Wara Utara Pattene', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'SPPG Wara Utara Pattene');
-SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'SPPG Wara Utara Pattene' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "2865364.23"}]', 2865364.23, NOW(), NOW());
-
--- [92] SPPG Polres Palopo
-INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'SPPG Polres Palopo', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'SPPG Polres Palopo');
-SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'SPPG Polres Palopo' LIMIT 1);
-INSERT INTO `receivables` (`outlet_id`, `company_id`, `details`, `total`, `created_at`, `updated_at`) VALUES (@outlet_id, @id_sanzaya, '[{"year": "2026", "amount": "2129260.16"}]', 2129260.16, NOW(), NOW());
-
 -- [93] SPPG BAROMBONG 05
 INSERT INTO `outlets` (`name`, `is_pending`, `created_at`, `updated_at`) SELECT 'SPPG BAROMBONG 05', 0, NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `outlets` WHERE `name` = 'SPPG BAROMBONG 05');
 SET @outlet_id = (SELECT `id` FROM `outlets` WHERE `name` = 'SPPG BAROMBONG 05' LIMIT 1);
@@ -321,36 +291,36 @@ INSERT INTO `sync_piutang_data` (`sheet_name`, `nama_outlet`, `tahun_1`, `tahun_
 ('piutang', 'RSUD Anuntaloko Parigi', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'RSUD LA TEMMAMALA KAB. SOPPENG', '-', '-', '9.135.002,80', '-', '9.135.002,80', '-', '-', '-', '-', '9.135.002,80', NOW(), NOW()),
 ('piutang', 'RSUD SYEKH YUSUF KAB.GOWA', '-', '273.468.880,71', '-', '-', '273.468.880,71', '247.431.000,00', '-', '-', '247.431.000,00', '520.899.880,71', NOW(), NOW()),
-('piutang', 'RSUD Wonomulyo Kab Polewali', '-', '-', '-', '-', '-', '9.646.780,00', '-', '-', '9.646.780,00', '9.646.780,00', NOW(), NOW()),
+('piutang', 'RSUD Wonomulyo Kab Polewali', '-', '-', '-', '-', '-', '4.896.300,00', '-', '-', '4.896.300,00', '4.896.300,00', NOW(), NOW()),
 ('piutang', 'RSUD. BATARA SIANG PANGKEP', '-', '-', '16.987.463,00', '-', '16.987.463,00', '-', '-', '-', '-', '16.987.463,00', NOW(), NOW()),
 ('piutang', 'RSUD BANYORANG KAB. BANTAENG', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'RUMKIT BHAYANGKARA MAKASSAR', '-', '-', '154.281.859,00', '-', '154.281.859,00', '-', '-', '-', '-', '154.281.859,00', NOW(), NOW()),
 ('piutang', 'RS PALEMMAI TANDI', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'Rumah Sakit Umum Daerah I Lagaligo', '-', '-', '941.685.534,13', '-', '941.685.534,13', '-', '-', '-', '-', '941.685.534,13', NOW(), NOW()),
+('piutang', 'Rumah Sakit Umum Daerah I Lagaligo', '-', '-', '817.349.727,75', '-', '817.349.727,75', '-', '-', '-', '-', '817.349.727,75', NOW(), NOW()),
 ('piutang', 'RSUD Arifin NU''mang', '-', '-', '2.920.000,01', '-', '2.920.000,01', '-', '-', '-', '-', '2.920.000,01', NOW(), NOW()),
 ('piutang', 'RSUD LASINRANG KAB. PINRANG', '-', '-', '324.195.105,93', '-', '324.195.105,93', '-', '-', '-', '-', '324.195.105,93', NOW(), NOW()),
 ('piutang', 'RSUD NENE MALLOMO KAB.SIDRAP', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'RSUD. Prof Dr. H.M Anwar Makkatutu KAB.BANTAENG', '-', '-', '96.725.400,00', '-', '96.725.400,00', '-', '125.306.679,00', '-', '125.306.679,00', '1.016.567.955,27', NOW(), NOW()),
-('piutang', 'RSUD H PADJONGA DG NGALLE KABUPATEN TAKALAR', '-', '27.305.728,05', '160.502.309,12', '-', '187.808.037,17', '-', '-', '-', '-', '187.808.037,17', NOW(), NOW()),
+('piutang', 'RSUD. Prof Dr. H.M Anwar Makkatutu KAB.BANTAENG', '-', '-', '104.469.648,00', '-', '104.469.648,00', '-', '281.266.063,50', '-', '281.266.063,50', '2.248.604.435,40', NOW(), NOW()),
+('piutang', 'RSUD H PADJONGA DG NGALLE KABUPATEN TAKALAR', '-', '-', '128.416.943,60', '-', '128.416.943,60', '-', '-', '-', '-', '128.416.943,60', NOW(), NOW()),
 ('piutang', 'RSUD BATARA GURU BELOPA', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'KLINIK UTAMA DOI 79 BANTAYAN KAB.BANTAENG', '23.388.441,14', '-', '-', '-', '23.388.441,14', '9.080.944,00', '-', '-', '9.080.944,00', '32.469.385,14', NOW(), NOW()),
 ('piutang', 'Apotek Al Mujarab', '-', '-', '-', '-', '-', '159.960,00', '-', '-', '159.960,00', '159.960,00', NOW(), NOW()),
-('piutang', 'RSU WISATA UIT', '-', '-', '31.985.375,12', '-', '31.985.375,12', '-', '-', '-', '-', '31.985.375,12', NOW(), NOW()),
-('piutang', 'RSIA ANANDA MAKASSAR', '-', '-', '229.510.832,95', '-', '229.510.832,95', '34.845.350,00', '31.085.106,00', '-', '65.930.456,00', '295.441.288,95', NOW(), NOW()),
-('piutang', 'RSIA Kartini', '-', '-', '2.620.360,13', '-', '2.620.360,13', '-', '-', '-', '-', '2.620.360,13', NOW(), NOW()),
+('piutang', 'RSU WISATA UIT', '-', '-', '32.891.375,24', '-', '32.891.375,24', '-', '-', '-', '-', '32.891.375,24', NOW(), NOW()),
+('piutang', 'RSIA ANANDA MAKASSAR', '-', '-', '231.201.183,13', '-', '231.201.183,13', '34.845.350,00', '31.085.106,00', '-', '65.930.456,00', '297.131.639,13', NOW(), NOW()),
+('piutang', 'RSIA Kartini', '-', '-', '7.609.960,13', '-', '7.609.960,13', '-', '-', '-', '-', '7.609.960,13', NOW(), NOW()),
 ('piutang', 'RSU BAHAGIA', '-', '-', '-', '-', '-', '3.605.075,00', '-', '-', '3.605.075,00', '3.605.075,00', NOW(), NOW()),
 ('piutang', 'YAYASAN MUJAISYAH SEJAHTERA', '-', '-', '53.642.628,04', '-', '53.642.628,04', '-', '-', '-', '-', '53.642.628,04', NOW(), NOW()),
 ('piutang', 'RUMAH SAKIT HAPSAH', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'PT. Medical Solution Indonesia', '-', '-', '853.226.164,42', '-', '853.226.164,42', '-', '-', '-', '-', '853.226.164,42', NOW(), NOW()),
+('piutang', 'PT. Medical Solution Indonesia', '-', '-', '905.290.414,72', '-', '905.290.414,72', '-', '-', '-', '-', '905.290.414,72', NOW(), NOW()),
 ('piutang', 'PT.Haura Abadi Jaya', '-', '6.358.900,00', '-', '-', '6.358.900,00', '-', '-', '-', '-', '6.358.900,00', NOW(), NOW()),
 ('piutang', 'RS MEGA BUANA', '-', '-', '1.877.455,61', '-', '1.877.455,61', '-', '-', '-', '-', '1.877.455,61', NOW(), NOW()),
-('piutang', 'APOTEK YUNI FARMA', '-', '-', '4.260.448,31', '-', '4.260.448,31', '-', '-', '-', '-', '4.260.448,31', NOW(), NOW()),
+('piutang', 'APOTEK YUNI FARMA', '-', '-', '1.388.450,16', '-', '1.388.450,16', '-', '-', '-', '-', '1.388.450,16', NOW(), NOW()),
 ('piutang', 'DINAS KESEHATAN KAB. TAKALAR', '659.866.800,00', '-', '128.538.000,00', '-', '788.404.800,00', '-', '-', '-', '-', '788.404.800,00', NOW(), NOW()),
 ('piutang', 'DINAS KESEHATAN KAB. BANTAENG', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'SPPG TAMALATE BAROMBONG', '-', '-', '870.000,00', '-', '870.000,00', '-', '-', '-', '-', '870.000,00', NOW(), NOW()),
+('piutang', 'SPPG TAMALATE BAROMBONG', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'SPPG HAJI BAU', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'RSUD AMPANA', '-', '-', '154.311.011,71', '-', '154.311.011,71', '-', '-', '-', '-', '154.311.011,71', NOW(), NOW()),
-('piutang', 'PT ANUGRAH SALMAN MEDIKA', '-', '-', '20.000.000,00', '-', '20.000.000,00', '-', '-', '-', '-', '20.000.000,00', NOW(), NOW()),
+('piutang', 'RSUD AMPANA', '-', '-', '160.471.011,77', '-', '160.471.011,77', '-', '-', '-', '-', '160.471.011,77', NOW(), NOW()),
+('piutang', 'PT ANUGRAH SALMAN MEDIKA', '-', '-', '40.000.000,00', '-', '40.000.000,00', '-', '-', '-', '-', '40.000.000,00', NOW(), NOW()),
 ('piutang', 'RSUD MASSENREMPULU Enrekang', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'RSUD PENDAU TAMBU', '-', '-', '52.896.520,02', '-', '52.896.520,02', '-', '-', '-', '-', '52.896.520,02', NOW(), NOW()),
 ('piutang', 'RS. UNIVERSITAS HASANUDDIN MAKASSAR', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
@@ -365,16 +335,16 @@ INSERT INTO `sync_piutang_data` (`sheet_name`, `nama_outlet`, `tahun_1`, `tahun_
 ('piutang', 'RSUD LANTO DG. PASEWANG KAB. JENEPONTO', '-', '-', '62.140.122,70', '-', '62.140.122,70', '-', '-', '-', '-', '62.140.122,70', NOW(), NOW()),
 ('piutang', 'RSIA PERTIWI MAKASSAR', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'ANDI AIDA BONE', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'PT RUMA UTAMA MEGATRADING', '-', '-', '136.678.185,00', '-', '136.678.185,00', '-', '-', '-', '-', '136.678.185,00', NOW(), NOW()),
+('piutang', 'PT RUMA UTAMA MEGATRADING', '-', '-', '154.319.415,00', '-', '154.319.415,00', '-', '-', '-', '-', '154.319.415,00', NOW(), NOW()),
 ('piutang', 'RSUD MOKOPIDO KAB TOLI-TOLI', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'RSUD RUMBIA JENEPONTO', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
+('piutang', 'RSUD RUMBIA JENEPONTO', '-', '-', '769.896,00', '-', '769.896,00', '-', '-', '-', '-', '769.896,00', NOW(), NOW()),
 ('piutang', 'RS TK III DR Sindhu Trisno', '-', '-', '54.844.419,85', '-', '54.844.419,85', '-', '-', '-', '-', '54.844.419,85', NOW(), NOW()),
 ('piutang', 'DINAS KESEHATAN KAB SIGI', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'APOTEK A3 MEDIKA', '-', '-', '3.273.372,43', '-', '3.273.372,43', '-', '-', '-', '-', '3.273.372,43', NOW(), NOW()),
-('piutang', 'RS MITRA HUSADA', '-', '-', '586.799,28', '-', '586.799,28', '-', '-', '-', '-', '586.799,28', NOW(), NOW()),
+('piutang', 'APOTEK A3 MEDIKA', '-', '-', '2.767.472,48', '-', '2.767.472,48', '-', '-', '-', '-', '2.767.472,48', NOW(), NOW()),
+('piutang', 'RS MITRA HUSADA', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'RS PKU Muhammadiyah Unismuh Makassar', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'SPPG Bara Rampoang', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'SPPG Salohe Sinaji Timur', '-', '-', '6.150.000,06', '-', '6.150.000,06', '-', '-', '-', '-', '6.150.000,06', NOW(), NOW()),
+('piutang', 'SPPG Salohe Sinaji Timur', '-', '-', '4.650.000,06', '-', '4.650.000,06', '-', '-', '-', '-', '4.650.000,06', NOW(), NOW()),
 ('piutang', 'RS.Dr. TADJUDDIN CHALID MAKASSAR', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'SPPG To''bulung 02', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'SPPG Bangkala 3', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
@@ -382,18 +352,18 @@ INSERT INTO `sync_piutang_data` (`sheet_name`, `nama_outlet`, `tahun_1`, `tahun_
 ('piutang', 'Ibu Habiba', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'DINAS KESEHATAN KAB SOPPENG', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'PUSKESMAS EMBO', '-', '-', '2.053.500,00', '-', '2.053.500,00', '-', '-', '-', '-', '2.053.500,00', NOW(), NOW()),
-('piutang', 'RSUD Lakipadada', '-', '-', '1.998.000,00', '-', '1.998.000,00', '-', '-', '-', '-', '1.998.000,00', NOW(), NOW()),
+('piutang', 'RSUD Lakipadada', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'BBKK MAKASSAR', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'PT HARTA TAHTA KESEHATAN', '-', '-', '1.459.983.867,82', '-', '1.459.983.867,82', '-', '-', '-', '-', '1.459.983.867,82', NOW(), NOW()),
+('piutang', 'PT HARTA TAHTA KESEHATAN', '-', '-', '1.804.125.865,52', '-', '1.804.125.865,52', '-', '-', '-', '-', '1.804.125.865,52', NOW(), NOW()),
 ('piutang', 'DR. Ayudini', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'RSUD SIWA, KABUPATEN WAJO', '-', '-', '10.172.040,00', '-', '10.172.040,00', '-', '-', '-', '-', '10.172.040,00', NOW(), NOW()),
+('piutang', 'RSUD SIWA, KABUPATEN WAJO', '-', '-', '155.400,00', '-', '155.400,00', '-', '-', '-', '-', '155.400,00', NOW(), NOW()),
 ('piutang', 'RS HASRI AINUN HABIBIE', '-', '-', '56.170.085,00', '-', '56.170.085,00', '-', '-', '-', '-', '56.170.085,00', NOW(), NOW()),
 ('piutang', 'DINAS KESEHATAN KAB PINRANG', '-', '-', '358.747.338,00', '-', '358.747.338,00', '-', '-', '-', '-', '358.747.338,00', NOW(), NOW()),
 ('piutang', 'RSUD Hayyung Selayar', '-', '-', '243.289.800,00', '-', '243.289.800,00', '-', '-', '-', '-', '243.289.800,00', NOW(), NOW()),
-('piutang', 'SPPG BARA BALANDAI 03', '-', '-', '3.193.890,25', '-', '3.193.890,25', '-', '-', '-', '-', '3.193.890,25', NOW(), NOW()),
+('piutang', 'SPPG BARA BALANDAI 03', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'SPPG BAROMBONG 03', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'RSUD LUWUK', '-', '-', '355.686.709,84', '-', '355.686.709,84', '-', '-', '-', '-', '355.686.709,84', NOW(), NOW()),
-('piutang', 'DINAS KESEHATAN KOTA MAKASSAR', '-', '-', '38.739.000,00', '-', '38.739.000,00', '-', '-', '-', '-', '38.739.000,00', NOW(), NOW()),
+('piutang', 'RSUD LUWUK', '-', '-', '395.575.914,78', '-', '395.575.914,78', '-', '-', '-', '-', '395.575.914,78', NOW(), NOW()),
+('piutang', 'DINAS KESEHATAN KOTA MAKASSAR', '-', '-', '77.478.000,00', '-', '77.478.000,00', '-', '-', '-', '-', '77.478.000,00', NOW(), NOW()),
 ('piutang', 'RSUD DR. MUHAMMAD ZEIN PAINAN', '-', '-', '76.265.281,00', '-', '76.265.281,00', '-', '-', '-', '-', '76.265.281,00', NOW(), NOW()),
 ('piutang', 'RSUD MOHAMMAD NATSIR', '-', '-', '821.400,00', '-', '821.400,00', '-', '-', '-', '-', '821.400,00', NOW(), NOW()),
 ('piutang', 'NDF PRINTING', '-', '-', '516.000,02', '-', '516.000,02', '-', '-', '-', '-', '516.000,02', NOW(), NOW()),
@@ -404,9 +374,9 @@ INSERT INTO `sync_piutang_data` (`sheet_name`, `nama_outlet`, `tahun_1`, `tahun_
 ('piutang', 'DINAS KESEHATAN LUWU UTARA', '-', '-', '137.640.000,00', '-', '137.640.000,00', '-', '-', '-', '-', '137.640.000,00', NOW(), NOW()),
 ('piutang', 'BALAI BESAR VETERINER MAROS', '-', '-', '160.167,00', '-', '160.167,00', '-', '-', '-', '-', '160.167,00', NOW(), NOW()),
 ('piutang', 'Sppg Wara Utara Luminda', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
-('piutang', 'SPPG To''bulung 01', '-', '-', '2.516.400,25', '-', '2.516.400,25', '-', '-', '-', '-', '2.516.400,25', NOW(), NOW()),
-('piutang', 'SPPG Wara Utara Pattene', '-', '-', '2.865.364,23', '-', '2.865.364,23', '-', '-', '-', '-', '2.865.364,23', NOW(), NOW()),
-('piutang', 'SPPG Polres Palopo', '-', '-', '2.129.260,16', '-', '2.129.260,16', '-', '-', '-', '-', '2.129.260,16', NOW(), NOW()),
+('piutang', 'SPPG To''bulung 01', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
+('piutang', 'SPPG Wara Utara Pattene', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
+('piutang', 'SPPG Polres Palopo', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', NOW(), NOW()),
 ('piutang', 'SPPG BAROMBONG 05', '-', '-', '1.160.000,00', '-', '1.160.000,00', '-', '-', '-', '-', '1.160.000,00', NOW(), NOW());
 
 COMMIT;
@@ -419,14 +389,14 @@ COMMIT;
 -- WHERE c.id IN (@id_sanzaya, @id_ruma, @id_harkes)
 -- GROUP BY c.id, c.name;
 
--- Ringkasan Total Sesuai File PDF:
--- PT Sanzaya: Rp 7.275.796.105,55
+-- Ringkasan Total Sesuai File PDF (3 November 2026):
+-- PT Sanzaya: Rp 7.597.750.730,63
 --   * 2024:   Rp 691.455.241,14
---   * 2025:   Rp 307.133.508,76
---   * 2026:   Rp 6.277.207.355,65
--- PT Ruma:    Rp 482.184.894,00
---   * 2025:   Rp 325.793.109,00
---   * 2026:   Rp 156.391.785,00
--- PT Harkes:  Rp 794.535.876,27
--- GRAND TOTAL GABUNGAN: Rp 8.552.516.875,82
+--   * 2025:   Rp 279.827.780,71
+--   * 2026:   Rp 6.626.467.708,78
+-- PT Ruma:    Rp 633.393.798,50
+--   * 2025:   Rp 321.042.629,00
+--   * 2026:   Rp 312.351.169,50
+-- PT Harkes:  Rp 1.862.868.723,90
+-- GRAND TOTAL GABUNGAN: Rp 10.094.013.253,03
 -- ============================================================================
