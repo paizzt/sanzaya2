@@ -2,7 +2,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { 
     FileText, 
-    Send, 
     Clock, 
     CheckCircle2, 
     XCircle, 
@@ -265,10 +264,13 @@ export default function Pengajuan({ requests = [], canApprove }) {
                                 </div>
 
                                 <div className="pt-4 flex justify-center">
-                                    <PrimaryButton disabled={processing} className="w-full justify-center">
-                                        <Send className="w-4 h-4 mr-2" />
-                                        {processing ? 'Mengirim...' : 'Kirim Pengajuan'}
-                                    </PrimaryButton>
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="w-full flex items-center justify-center bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-sky-500/20 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    >
+                                        {processing ? 'Mengirim...' : 'Kirim'}
+                                    </button>
                                 </div>
                             </form>
                         </div>
