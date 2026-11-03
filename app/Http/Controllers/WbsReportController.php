@@ -13,6 +13,11 @@ class WbsReportController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+        if ($user && !$user->isSuperAdminUser() && !$user->isAdminUser() && !\App\Models\FeatureToggle::userHasFeature($user, 'Laporan WBS')) {
+            abort(403, 'Akses ditolak. Fitur Laporan WBS dinonaktifkan untuk akun Anda.');
+        }
+
         if (!\Illuminate\Support\Facades\Schema::hasTable('wbs_messages') || !\Illuminate\Support\Facades\Schema::hasColumn('wbs_reports', 'user_id')) {
             try {
                 \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
@@ -184,21 +189,17 @@ class WbsReportController extends Controller
 
         $report = WbsReport::findOrFail($id);
         
-        $isAdmin = false;
-        // Check if user has WBS admin privileges based on feature name logic in the app
-        $activeFeatures = $request->user()->roles->flatMap->features->pluck('name')->unique();
-        if ($activeFeatures->contains('Laporan WBS') || $request->user()->roles->contains('name', 'Superadmin')) {
-            $isAdmin = true;
-        }
+        $user = $request->user();
+        $isAdmin = $user && ($user->isSuperAdminUser() || $user->isAdminUser() || \App\Models\FeatureToggle::userHasFeature($user, 'Laporan WBS'));
 
         // If not admin, verify ownership
-        if (!$isAdmin && $report->user_id !== $request->user()->id) {
+        if (!$isAdmin && $report->user_id !== $user->id) {
             abort(403, 'Unauthorized action.');
         }
 
         WbsMessage::create([
             'wbs_report_id' => $report->id,
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'message' => $request->message,
             'is_admin' => $isAdmin
         ]);

@@ -14,11 +14,11 @@ class AttendanceRequestController extends Controller
     public function index()
     {
         $user = Auth::user();
-        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Izin / Sakit') && !$user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Izin / Sakit') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
             abort(403, 'Akses ditolak. Fitur Izin/Sakit dinonaktifkan untuk akun Anda.');
         }
 
-        $canApprove = $user->can('approve pengajuan absensi') || $user->isAdminUser();
+        $canApprove = $user->can('approve pengajuan absensi') || $user->isAdminUser() || $user->isSuperAdminUser();
         
         $query = AttendanceRequest::with('user')->orderBy('created_at', 'desc');
         
@@ -35,7 +35,7 @@ class AttendanceRequestController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Izin / Sakit') && !$user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Izin / Sakit') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
             abort(403, 'Akses ditolak. Fitur Izin/Sakit dinonaktifkan untuk akun Anda.');
         }
 
@@ -91,7 +91,7 @@ class AttendanceRequestController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $user = Auth::user();
-        if (!$user->can('approve pengajuan absensi') && !$user->isAdminUser()) {
+        if (!$user->can('approve pengajuan absensi') && !$user->isAdminUser() && !$user->isSuperAdminUser()) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses.');
         }
 
@@ -112,7 +112,7 @@ class AttendanceRequestController extends Controller
         $attendanceRequest = AttendanceRequest::findOrFail($id);
         
         $user = Auth::user();
-        if (!$user->isAdminUser() && $attendanceRequest->user_id !== $user->id) {
+        if (!$user->isAdminUser() && !$user->isSuperAdminUser() && $attendanceRequest->user_id !== $user->id) {
             abort(403, 'Unauthorized action.');
         }
 

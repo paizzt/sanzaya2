@@ -266,6 +266,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Pemetaan Outlet
         Route::get('/mappings', [\App\Http\Controllers\MappingController::class, 'index'])->name('mappings.index');
+        Route::get('/outlet-mappings', fn() => redirect()->route('mappings.index'))->name('outlet-mappings.index');
         
         Route::post('/outlet-mappings', [\App\Http\Controllers\MappingController::class, 'storeOutlet'])->name('outlet-mappings.store');
         Route::delete('/outlet-mappings/{id}', [\App\Http\Controllers\MappingController::class, 'destroyOutlet'])->name('outlet-mappings.destroy');

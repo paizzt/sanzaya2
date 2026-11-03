@@ -585,6 +585,11 @@ class PayrollController extends Controller
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+        if ($user && !$user->isSuperAdminUser() && !$user->isAdminUser() && !\App\Models\FeatureToggle::userHasFeature($user, 'Manajemen Gaji')) {
+            abort(403, 'Akses ditolak. Fitur Manajemen Gaji dinonaktifkan untuk akun Anda.');
+        }
+
         $this->ensureTableAndFeatures();
 
         $curMonth = (int)$request->input('month', date('n'));
@@ -1068,7 +1073,7 @@ class PayrollController extends Controller
     {
         // Authorization check: User can download their own slip, or user with view permission
         $currentUser = auth()->user();
-        if ($payroll->user_id !== $currentUser->id && !$currentUser->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']) && !$currentUser->can('view users') && !$currentUser->can('view salaries')) {
+        if ($payroll->user_id !== $currentUser->id && !$currentUser->isSuperAdminUser() && !$currentUser->isAdminUser() && !$currentUser->can('view users') && !$currentUser->can('view salaries') && !\App\Models\FeatureToggle::userHasFeature($currentUser, 'Manajemen Gaji')) {
             abort(403, 'Anda tidak memiliki hak akses untuk mengunduh slip gaji ini.');
         }
 

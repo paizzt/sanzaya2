@@ -17,7 +17,7 @@ class CompanyController extends Controller
     {
         $companies = Company::all();
         $companyTargets = \App\Models\CompanyTarget::with('companies')->get();
-        $is_super_admin = auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']);
+        $is_super_admin = auth()->check() && (auth()->user()->isSuperAdminUser() || auth()->user()->isAdminUser());
 
         return Inertia::render('Company/Index', [
             'companies' => $companies,

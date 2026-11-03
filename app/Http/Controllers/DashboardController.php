@@ -19,6 +19,10 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if ($user && !$user->isSuperAdminUser() && !$user->isAdminUser() && !\App\Models\FeatureToggle::userHasFeature($user, 'Dashboard')) {
+            return redirect()->route('profile.edit');
+        }
+
         $today = Carbon::today();
         
         $isAdmin = $user->isAdminUser();

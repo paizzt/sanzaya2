@@ -218,7 +218,7 @@ class UcRequestController extends Controller
     {
         $uc = UcRequest::with('items')->findOrFail($id);
         
-        if (!Auth::user()->hasRole('SUPERADMIN')) {
+        if (!Auth::user()->isSuperAdminUser() && !Auth::user()->isAdminUser()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -236,7 +236,7 @@ class UcRequestController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->hasRole('SUPERADMIN')) {
+        if (!Auth::user()->isSuperAdminUser() && !Auth::user()->isAdminUser()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -293,7 +293,7 @@ class UcRequestController extends Controller
 
     public function destroy($id)
     {
-        if (!Auth::user()->hasRole('SUPERADMIN')) {
+        if (!Auth::user()->isSuperAdminUser() && !Auth::user()->isAdminUser()) {
             abort(403, 'Akses ditolak.');
         }
 

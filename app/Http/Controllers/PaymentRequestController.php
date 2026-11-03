@@ -70,14 +70,24 @@ class PaymentRequestController extends Controller
 
         // RBAC for approvals
         $allowedStatuses = [];
-        if ($user->hasRole('MANAJEMEN')) {
-            $allowedStatuses[] = 'waiting_supervisor';
-        }
-        if ($user->hasRole('FINANCE')) {
-            $allowedStatuses[] = 'waiting_ga';
-        }
-        if ($user->hasRole('SUPERADMIN')) {
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $isManajemen = $user->hasRoleCaseInsensitive(['MANAJEMEN', 'Manajemen', 'Manager', 'Direktur']);
+        $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
+
+        if ($isSuperAdmin || $isAdmin) {
             $allowedStatuses = ['waiting_supervisor', 'waiting_ga'];
+        } else {
+            if ($isManajemen) {
+                $allowedStatuses[] = 'waiting_supervisor';
+            }
+            if ($isFinance) {
+                $allowedStatuses[] = 'waiting_ga';
+            }
+            if ($hasReviewFeature && empty($allowedStatuses)) {
+                $allowedStatuses = ['waiting_supervisor', 'waiting_ga'];
+            }
         }
 
         if (empty($allowedStatuses)) {
@@ -342,7 +352,13 @@ class PaymentRequestController extends Controller
         $user = Auth::user();
         
         // Check Access
-        if (!$user->hasRole('SUPERADMIN') && !$user->hasPermissionTo('payment-request.view-all')) {
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $isManajemen = $user->hasRoleCaseInsensitive(['MANAJEMEN', 'Manajemen', 'Manager', 'Direktur']);
+        $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
+
+        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->hasPermissionTo('payment-request.view-all')) {
             if ($user->hasPermissionTo('payment-request.view-division') && $paymentRequest->division_id !== $user->division_id) {
                 abort(403);
             }
@@ -356,13 +372,13 @@ class PaymentRequestController extends Controller
         $canApprove = false;
         $canReject = false;
 
-        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && ($isManajemen || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isFinance))) {
             $canApprove = true;
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && ($isFinance || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isManajemen))) {
             $canApprove = true;
             $canReject = true;
-        } elseif ($user->hasRole('SUPERADMIN') && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga'])) {
+        } elseif (($isSuperAdmin || $isAdmin || $hasReviewFeature) && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga'])) {
             $canApprove = true;
             $canReject = true;
         }
@@ -385,7 +401,13 @@ class PaymentRequestController extends Controller
 
         $user = Auth::user();
         
-        if (!$user->hasRole('SUPERADMIN') && !$user->hasPermissionTo('payment-request.review')) {
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $isManajemen = $user->hasRoleCaseInsensitive(['MANAJEMEN', 'Manajemen', 'Manager', 'Direktur']);
+        $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
+
+        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->hasPermissionTo('payment-request.review')) {
             abort(403);
         }
 
@@ -394,13 +416,13 @@ class PaymentRequestController extends Controller
         $canApprove = false;
         $canReject = false;
 
-        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && ($isManajemen || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isFinance))) {
             $canApprove = true;
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && ($isFinance || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isManajemen))) {
             $canApprove = true;
             $canReject = true;
-        } elseif ($user->hasRole('SUPERADMIN') && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga'])) {
+        } elseif (($isSuperAdmin || $isAdmin || $hasReviewFeature) && in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga'])) {
             $canApprove = true;
             $canReject = true;
         }
@@ -419,8 +441,8 @@ class PaymentRequestController extends Controller
         $paymentRequest = PaymentRequest::with(['items', 'requester', 'division', 'attachments'])->findOrFail($id);
         $user = Auth::user();
 
-        // Only requester can edit their draft/waiting_ga, except SUPERADMIN can edit anytime
-        if (!$user->hasRole('SUPERADMIN') && ($paymentRequest->requester_id !== $user->id || !in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga']))) {
+        // Only requester can edit their draft/waiting_ga, except SUPERADMIN/Admin can edit anytime
+        if (!$user->isSuperAdminUser() && !$user->isAdminUser() && ($paymentRequest->requester_id !== $user->id || !in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga']))) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
@@ -439,7 +461,11 @@ class PaymentRequestController extends Controller
         $paymentRequest = PaymentRequest::with(['items', 'requester', 'division', 'attachments'])->findOrFail($id);
         $user = Auth::user();
 
-        if (!$user->hasRole('SUPERADMIN') && !$user->hasPermissionTo('payment-request.review')) {
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
+
+        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->hasPermissionTo('payment-request.review')) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
@@ -459,7 +485,7 @@ class PaymentRequestController extends Controller
         $paymentRequest = PaymentRequest::findOrFail($id);
         $user = Auth::user();
 
-        if (!$user->hasRole('SUPERADMIN') && ($paymentRequest->requester_id !== $user->id || !in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga']))) {
+        if (!$user->isSuperAdminUser() && !$user->isAdminUser() && ($paymentRequest->requester_id !== $user->id || !in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga']))) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
@@ -652,15 +678,21 @@ class PaymentRequestController extends Controller
         $nextStatus = '';
         $approvedField = '';
 
-        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $isManajemen = $user->hasRoleCaseInsensitive(['MANAJEMEN', 'Manajemen', 'Manager', 'Direktur']);
+        $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
+
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && ($isManajemen || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isFinance))) {
             $canApprove = true;
             $nextStatus = 'waiting_ga';
             $approvedField = 'supervisor_approved_at';
-        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && ($isFinance || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isManajemen))) {
             $canApprove = true;
             $nextStatus = 'approved';
             $approvedField = 'finance_verified_at';
-        } elseif ($user->hasRole('SUPERADMIN')) {
+        } elseif ($isSuperAdmin || $isAdmin || $hasReviewFeature) {
             $canApprove = true;
             if ($paymentRequest->workflow_status === 'waiting_supervisor') {
                 $nextStatus = 'waiting_ga';
@@ -705,12 +737,17 @@ class PaymentRequestController extends Controller
         $user = Auth::user();
 
         $canReject = false;
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $isManajemen = $user->hasRoleCaseInsensitive(['MANAJEMEN', 'Manajemen', 'Manager', 'Direktur']);
+        $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
 
-        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && ($isManajemen || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isFinance))) {
             $canReject = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && ($isFinance || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isManajemen))) {
             $canReject = true;
-        } elseif ($user->hasRole('SUPERADMIN')) {
+        } elseif ($isSuperAdmin || $isAdmin || $hasReviewFeature) {
             $canReject = in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga']);
         }
 
@@ -745,12 +782,17 @@ class PaymentRequestController extends Controller
         $user = Auth::user();
 
         $canRevise = false;
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $isManajemen = $user->hasRoleCaseInsensitive(['MANAJEMEN', 'Manajemen', 'Manager', 'Direktur']);
+        $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
 
-        if ($paymentRequest->workflow_status === 'waiting_supervisor' && $user->hasRole('MANAJEMEN')) {
+        if ($paymentRequest->workflow_status === 'waiting_supervisor' && ($isManajemen || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isFinance))) {
             $canRevise = true;
-        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && $user->hasRole('FINANCE')) {
+        } elseif ($paymentRequest->workflow_status === 'waiting_ga' && ($isFinance || $isSuperAdmin || $isAdmin || ($hasReviewFeature && !$isManajemen))) {
             $canRevise = true;
-        } elseif ($user->hasRole('SUPERADMIN')) {
+        } elseif ($isSuperAdmin || $isAdmin || $hasReviewFeature) {
             $canRevise = in_array($paymentRequest->workflow_status, ['waiting_supervisor', 'waiting_ga']);
         }
 
@@ -783,13 +825,19 @@ class PaymentRequestController extends Controller
         
         // Basic authorization check
         $canView = false;
-        if ($user->hasRole('SUPERADMIN') || $user->hasPermissionTo('payment-request.view-all')) {
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $isManajemen = $user->hasRoleCaseInsensitive(['MANAJEMEN', 'Manajemen', 'Manager', 'Direktur']);
+        $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
+
+        if ($isSuperAdmin || $isAdmin || $hasReviewFeature || $user->hasPermissionTo('payment-request.view-all')) {
             $canView = true;
         } elseif ($user->hasPermissionTo('payment-request.view-division') && $paymentRequest->division_id == $user->division_id) {
             $canView = true;
         } elseif ($paymentRequest->requester_id == $user->id) {
             $canView = true;
-        } elseif ($user->hasRole('MANAJEMEN') || $user->hasRole('FINANCE')) {
+        } elseif ($isManajemen || $isFinance) {
             // Approvers can view
             $canView = true;
         } elseif ($paymentRequest->approvals()->where('approver_id', $user->id)->exists()) {
@@ -838,8 +886,8 @@ class PaymentRequestController extends Controller
     {
         $paymentRequest = PaymentRequest::findOrFail($id);
         
-        if (!Auth::user()->hasRole('SUPERADMIN')) {
-            abort(403, 'Hanya superadmin yang dapat menghapus pengajuan.');
+        if (!Auth::user()->isSuperAdminUser() && !Auth::user()->isAdminUser()) {
+            abort(403, 'Hanya superadmin / admin yang dapat menghapus pengajuan.');
         }
 
         DB::beginTransaction();
@@ -902,7 +950,7 @@ class PaymentRequestController extends Controller
         $user = Auth::user();
         $pr = $attachment->paymentRequest;
 
-        if (!$user->hasRole('SUPERADMIN') && $pr->requester_id !== $user->id) {
+        if (!$user->isSuperAdminUser() && !$user->isAdminUser() && $pr->requester_id !== $user->id) {
             abort(403);
         }
 

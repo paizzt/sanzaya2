@@ -143,7 +143,7 @@ class AttendanceController extends Controller
             'overtimeSaturdayStart' => substr($jamMulaiSabtu, 0, 5),
             'history' => $history,
             'company' => $user->company,
-            'isMarketing' => $user->hasRole(['Marketing', 'marketing']),
+            'isMarketing' => $user->hasRoleCaseInsensitive(['Marketing', 'Sales']),
             'isSatpam' => $isSatpam,
             'activeDutySatpam' => $activeDutySatpam ? [
                 'name' => $activeDutySatpam->user?->name ?? 'Petugas Satpam',
@@ -193,7 +193,7 @@ class AttendanceController extends Controller
         $maxRadius = $company->radius ?? 300;
 
         // Bypass validasi radius untuk role Marketing karena kerja di lapangan
-        if (!$user->hasRole(['Marketing', 'marketing'])) {
+        if (!$user->hasRoleCaseInsensitive(['Marketing', 'Sales'])) {
             if ($distance > $maxRadius || ($userLat == 0 && $userLon == 0)) {
                 if (empty($request->photo_url)) {
                     $formattedDistance = number_format($distance, 0, ',', '.');
@@ -323,7 +323,7 @@ class AttendanceController extends Controller
     public function update(Request $request, $id)
     {
         $user = Auth::user();
-        $canEdit = $user && ($user->isAdminUser() || $user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']));
+        $canEdit = $user && ($user->isAdminUser() || $user->isSuperAdminUser());
         if (!$canEdit) {
             abort(403, 'Hanya admin / superadmin yang dapat mengubah data absensi.');
         }
@@ -444,7 +444,7 @@ class AttendanceController extends Controller
         $attendance = Attendance::findOrFail($id);
         
         $user = Auth::user();
-        if (!$user->isAdminUser() && $attendance->user_id !== $user->id) {
+        if (!$user->isAdminUser() && !$user->isSuperAdminUser() && $attendance->user_id !== $user->id) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -462,7 +462,7 @@ class AttendanceController extends Controller
     public function updateOvertimeStatus(Request $request, $id)
     {
         $user = Auth::user();
-        if (!$user || !$user->isAdminUser()) {
+        if (!$user || (!$user->isAdminUser() && !$user->isSuperAdminUser())) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -489,7 +489,7 @@ class AttendanceController extends Controller
     public function updateSettings(Request $request)
     {
         $user = Auth::user();
-        if (!$user || !$user->isAdminUser()) {
+        if (!$user || (!$user->isAdminUser() && !$user->isSuperAdminUser())) {
             abort(403, 'Unauthorized action.');
         }
 

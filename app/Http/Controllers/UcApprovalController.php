@@ -20,7 +20,7 @@ class UcApprovalController extends Controller
         
         return Inertia::render('Requests/UcApproval', [
             'requests' => $requests,
-            'isAdmin' => Auth::user()->hasRole('SUPERADMIN')
+            'isAdmin' => Auth::user()->isSuperAdminUser() || Auth::user()->isAdminUser()
         ]);
     }
 

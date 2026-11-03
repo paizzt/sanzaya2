@@ -20,7 +20,7 @@ class SopController extends Controller
 
     public function storeDivision(Request $request)
     {
-        if (!auth()->user()->can('manage master data')) {
+        if (!auth()->user()->can('manage master data') && !auth()->user()->isSuperAdminUser() && !auth()->user()->isAdminUser()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -35,7 +35,7 @@ class SopController extends Controller
 
     public function destroyDivision(SopDivision $sop_division)
     {
-        if (!auth()->user()->can('manage master data')) {
+        if (!auth()->user()->can('manage master data') && !auth()->user()->isSuperAdminUser() && !auth()->user()->isAdminUser()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -67,7 +67,7 @@ class SopController extends Controller
 
     public function update(Request $request, Sop $sop)
     {
-        if (!auth()->user()->can('manage master data')) {
+        if (!auth()->user()->can('manage master data') && !auth()->user()->isSuperAdminUser() && !auth()->user()->isAdminUser()) {
             abort(403, 'Unauthorized action.');
         }
 

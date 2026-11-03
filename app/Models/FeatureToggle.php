@@ -195,11 +195,11 @@ class FeatureToggle extends Model
                 return;
             }
             $existing = self::pluck('name')
-                ->map(fn($n) => strtolower(trim((string)$n)))
+                ->map(fn($n) => self::normalizeFeatureKey((string)$n))
                 ->toArray();
 
             foreach (self::allFeatureNames() as $name) {
-                if (!in_array(strtolower(trim($name)), $existing, true)) {
+                if (!in_array(self::normalizeFeatureKey($name), $existing, true)) {
                     self::create([
                         'name' => $name,
                         'is_active' => true,

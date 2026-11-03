@@ -201,23 +201,11 @@ class MarketingRecapController extends Controller
             return false;
         }
 
-        if ($user->hasRole(['SUPERADMIN', 'Superadmin', 'superadmin'])) {
+        if ($user->isSuperAdminUser() || $user->isAdminUser()) {
             return true;
         }
 
-        if ($user->can('export marketing') || $user->can('view marketing')) {
-            return true;
-        }
-
-        $feature = \App\Models\FeatureToggle::where('name', 'Rekap Marketing')->first();
-        if ($feature) {
-            $disabledUsers = json_decode($feature->disabled_for_users, true) ?? [];
-            if (!in_array($user->id, $disabledUsers)) {
-                return true;
-            }
-        }
-
-        return false;
+        return \App\Models\FeatureToggle::userHasFeature($user, 'Rekap Marketing');
     }
 
     public function exportPdf(Request $request)

@@ -1344,7 +1344,7 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/Index', [
             'tab' => $tab,
-            'is_super_admin' => auth()->check() && auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN']),
+            'is_super_admin' => auth()->check() && (auth()->user()->isSuperAdminUser() || auth()->user()->isAdminUser()),
             'search' => $search,
             'salesFilter' => $salesFilter,
             'outletFilter' => $outletFilter,
@@ -2089,7 +2089,8 @@ class ReportController extends Controller
 
     public function updateTarget(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+        $user = auth()->user();
+        if (!$user || (!$user->isSuperAdminUser() && !$user->isAdminUser())) {
             abort(403, 'Unauthorized action.');
         }
 

@@ -1040,7 +1040,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                 Object.keys(groups).forEach(groupName => {
                                                     groupedFeatures[groupName] = [];
                                                     groups[groupName].forEach(item => {
-                                                        let f = featureToggles.find(x => x.name.toLowerCase() === item.db.toLowerCase());
+                                                        let f = featureToggles.find(x => (x.name || '').toLowerCase().replace(/[^a-z0-9]/g, '') === item.db.toLowerCase().replace(/[^a-z0-9]/g, ''));
                                                         if (!f && item.db.toLowerCase() === 'unduh pdf' && resolvedPdfFeatureId) {
                                                             f = { id: resolvedPdfFeatureId, name: 'Unduh PDF' };
                                                         }

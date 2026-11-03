@@ -103,12 +103,60 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user has role case-insensitively, handling various formats (e.g. 'super_admin', 'Superadmin', 'SUPERADMIN').
+     */
+    public function hasRoleCaseInsensitive($roles): bool
+    {
+        if (empty($roles)) {
+            return false;
+        }
+
+        $roles = is_array($roles) ? $roles : [$roles];
+        $normTargets = array_map(function ($r) {
+            return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string)$r));
+        }, $roles);
+
+        $this->loadMissing('roles');
+        foreach ($this->roles as $role) {
+            $normRole = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string)$role->name));
+            if (in_array($normRole, $normTargets, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user is Superadmin (case-insensitive across all naming variations).
+     */
+    public function isSuperAdminUser(): bool
+    {
+        return $this->hasRoleCaseInsensitive([
+            'Super Admin', 'super_admin', 'super-admin', 'Superadmin',
+            'superadmin', 'SUPERADMIN', 'SUPER ADMIN', 'super admin'
+        ]);
+    }
+
+    /**
      * Check if user has admin-level role.
      * Centralized helper to avoid hardcoded role arrays across controllers.
      */
     public function isAdminUser(): bool
     {
-        return $this->hasAnyRole(['Superadmin', 'Admin', 'Manager', 'Direktur']);
+        return $this->isSuperAdminUser() || $this->hasRoleCaseInsensitive([
+            'Admin', 'Manager', 'Direktur', 'Manajemen', 'ADMIN', 'MANAGER', 'DIREKTUR', 'MANAJEMEN'
+        ]);
+    }
+
+    /**
+     * Check if user is marketing manager / admin.
+     */
+    public function isAdminMarketing(): bool
+    {
+        return $this->isAdminUser() || $this->hasRoleCaseInsensitive([
+            'Manager Marketing', 'Supervisor Marketing', 'Head of Marketing', 'Admin Marketing', 'Marketing Manager'
+        ]);
     }
 
     /**
