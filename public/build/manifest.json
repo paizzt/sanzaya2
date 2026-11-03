@@ -777,7 +777,7 @@
     ]
   },
   "resources/js/Pages/Requests/UcApproval.jsx": {
-    "file": "assets/UcApproval-D7TE0ZfW.js",
+    "file": "assets/UcApproval-DQl0257l.js",
     "name": "UcApproval",
     "src": "resources/js/Pages/Requests/UcApproval.jsx",
     "isDynamicEntry": true,
@@ -787,8 +787,6 @@
       "_ExportDropdown-BTTiOHwJ.js",
       "_InputLabel-BjZutC1X.js",
       "_TextInput-_auZJ-gU.js",
-      "_PrimaryButton-bv0Yef1X.js",
-      "_CustomSelect-B9HsAfkk.js",
       "_CurrencyInput-CKCgumgH.js",
       "_InputError-DmIpHU45.js",
       "_ApplicationLogo-DBBLP6Y3.js",
@@ -884,7 +882,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-DvoHDlqb.js",
+    "file": "assets/Index-B978lI0o.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -905,7 +903,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-BoSuY2yi.js",
+    "file": "assets/Show-C99JNRet.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1082,7 +1080,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-5nfCI_kS.js",
+    "file": "assets/app-fkfQfUn_.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1152,7 +1150,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-Sfkh0rNn.css"
+      "assets/app-DNfaLRLb.css"
     ]
   },
   "resources/js/assets/logo.png": {

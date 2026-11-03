@@ -30,6 +30,8 @@ class UcApprovalController extends Controller
             $request->merge(['status' => 'Disetujui']);
         } elseif ($request->status === 'Tolak' || $request->status === 'tolak') {
             $request->merge(['status' => 'Ditolak']);
+        } elseif ($request->status === 'Revisi' || $request->status === 'revisi') {
+            $request->merge(['status' => 'Direvisi']);
         }
 
         $request->validate([

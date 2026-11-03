@@ -7,6 +7,7 @@ class RequestStatus
     const MENUNGGU = 'Menunggu';
     const DISETUJUI = 'Disetujui';
     const DITOLAK = 'Ditolak';
+    const DIREVISI = 'Direvisi';
     const SELESAI = 'Selesai';
     const PENDING = 'Pending';
 
@@ -15,7 +16,7 @@ class RequestStatus
      */
     public static function approvalStatuses(): array
     {
-        return [self::DISETUJUI, self::DITOLAK];
+        return [self::DISETUJUI, self::DITOLAK, self::DIREVISI];
     }
 
     /**
@@ -27,8 +28,10 @@ class RequestStatus
             self::MENUNGGU,
             self::DISETUJUI,
             self::DITOLAK,
+            self::DIREVISI,
             'ACC',
             'Tolak',
+            'Revisi',
             'Diproses',
             'Selesai / Result Dikirim',
         ];

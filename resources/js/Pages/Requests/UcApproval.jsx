@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
-import { FileCheck, Edit3, X, Loader2, Trash2, Edit } from 'lucide-react';
+import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -16,7 +16,7 @@ export default function UcApproval({ requests, isAdmin }) {
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { data, setData, post, processing, reset, errors } = useForm({
+    const { data, setData, post, processing, reset, errors, transform } = useForm({
         status: '',
         items: [],
         approved_gas_cost: '',
@@ -77,7 +77,9 @@ export default function UcApproval({ requests, isAdmin }) {
             }
         }
 
-        const initialStatus = (req.status === 'Ditolak' || req.status === 'Tolak') ? 'Ditolak' : 'Disetujui';
+        const initialStatus = (req.status === 'Ditolak' || req.status === 'Tolak') 
+            ? 'Ditolak' 
+            : ((req.status === 'Direvisi' || req.status === 'Revisi') ? 'Direvisi' : 'Disetujui');
 
         setData({
             status: initialStatus,
@@ -118,16 +120,26 @@ export default function UcApproval({ requests, isAdmin }) {
         return sum + (qty * cost);
     }, 0);
 
-    const submitApproval = (e) => {
-        e.preventDefault();
+    const submitApproval = (statusChoice) => {
+        const finalStatus = statusChoice || data.status || 'Disetujui';
+
+        setData('status', finalStatus);
+        transform((currData) => ({
+            ...currData,
+            status: finalStatus,
+        }));
+
         post(route('requests.uc.approval.update', selectedRequest.id), {
             preserveScroll: true,
             onSuccess: () => {
                 closeModal();
+                const label = (finalStatus === 'Disetujui' || finalStatus === 'ACC')
+                    ? 'disetujui (ACC)'
+                    : ((finalStatus === 'Direvisi' || finalStatus === 'Revisi') ? 'diminta revisi' : 'ditolak');
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil!',
-                    text: 'Status pengajuan berhasil diperbarui',
+                    text: `Pengajuan UC berhasil ${label}`,
                     timer: 1500,
                     showConfirmButton: false
                 });
@@ -282,7 +294,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <form onSubmit={submitApproval} className="p-6">
+                        <form onSubmit={(e) => { e.preventDefault(); submitApproval(); }} className="p-6">
                             
                             {/* Ringkasan Data Pengajuan */}
                             <div className="bg-gray-50 p-4 rounded-2xl mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-4 border border-gray-100">
@@ -394,15 +406,42 @@ export default function UcApproval({ requests, isAdmin }) {
 
                             <div className="space-y-4">
                                 <div>
-                                    <InputLabel value="Status Persetujuan" />
-                                    <CustomSelect
-                                        value={data.status}
-                                        onChange={val => setData('status', val)}
-                                        options={[
-                                            { value: 'Disetujui', label: 'ACC' },
-                                            { value: 'Ditolak', label: 'Tolak' },
-                                        ]}
-                                    />
+                                    <InputLabel value="Status Persetujuan" className="mb-2 font-semibold text-gray-700" />
+                                    <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setData('status', 'Disetujui')}
+                                            className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
+                                                data.status === 'Disetujui' || data.status === 'ACC'
+                                                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-200'
+                                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-emerald-50 hover:text-emerald-700'
+                                            }`}
+                                        >
+                                            <CheckCircle className="w-4 h-4" /> ACC
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setData('status', 'Ditolak')}
+                                            className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
+                                                data.status === 'Ditolak' || data.status === 'Tolak'
+                                                    ? 'bg-rose-600 text-white border-rose-600 shadow-sm ring-2 ring-rose-200'
+                                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-rose-50 hover:text-rose-700'
+                                            }`}
+                                        >
+                                            <XCircle className="w-4 h-4" /> Tolak
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setData('status', 'Direvisi')}
+                                            className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 border ${
+                                                data.status === 'Direvisi' || data.status === 'Revisi'
+                                                    ? 'bg-amber-500 text-white border-amber-500 shadow-sm ring-2 ring-amber-200'
+                                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-amber-50 hover:text-amber-700'
+                                            }`}
+                                        >
+                                            <RotateCcw className="w-4 h-4" /> Revisi
+                                        </button>
+                                    </div>
                                     <InputError message={errors.status} />
                                 </div>
 
@@ -505,14 +544,56 @@ export default function UcApproval({ requests, isAdmin }) {
                                 </div>
                             </div>
 
-                            <div className="mt-8 flex justify-end gap-3">
-                                <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors">
+                            <div className="mt-8 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                                <button 
+                                    type="button" 
+                                    onClick={closeModal} 
+                                    disabled={processing}
+                                    className="px-4 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors"
+                                >
                                     Batal
                                 </button>
-                                <PrimaryButton disabled={processing} >
-                                    {processing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                    {processing ? 'Menyimpan...' : 'Simpan'}
-                                </PrimaryButton>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <button
+                                        type="button"
+                                        disabled={processing}
+                                        onClick={() => submitApproval('Ditolak')}
+                                        className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
+                                            data.status === 'Ditolak' || data.status === 'Tolak'
+                                                ? 'bg-rose-600 hover:bg-rose-700 text-white ring-2 ring-rose-200'
+                                                : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                                        }`}
+                                    >
+                                        {processing && (data.status === 'Ditolak' || data.status === 'Tolak') ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                                        Tolak
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={processing}
+                                        onClick={() => submitApproval('Direvisi')}
+                                        className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
+                                            data.status === 'Direvisi' || data.status === 'Revisi'
+                                                ? 'bg-amber-500 hover:bg-amber-600 text-white ring-2 ring-amber-200'
+                                                : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
+                                        }`}
+                                    >
+                                        {processing && (data.status === 'Direvisi' || data.status === 'Revisi') ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                                        Revisi
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={processing}
+                                        onClick={() => submitApproval('Disetujui')}
+                                        className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 ${
+                                            data.status === 'Disetujui' || data.status === 'ACC'
+                                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-200'
+                                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                        }`}
+                                    >
+                                        {processing && (data.status === 'Disetujui' || data.status === 'ACC') ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                                        ACC
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
