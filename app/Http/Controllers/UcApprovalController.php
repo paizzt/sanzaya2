@@ -15,8 +15,8 @@ class UcApprovalController extends Controller
 {
     public function index()
     {
-        // Get all UC requests with user relationship
-        $requests = UcRequest::with('user')->orderBy('created_at', 'desc')->get();
+        // Get all UC requests with user and items relationships
+        $requests = UcRequest::with(['user', 'items'])->orderBy('created_at', 'desc')->get();
         
         return Inertia::render('Requests/UcApproval', [
             'requests' => $requests,
@@ -28,29 +28,54 @@ class UcApprovalController extends Controller
     {
         $request->validate([
             'status' => 'required|string|in:' . implode(',', \App\Enums\RequestStatus::ucStatuses()),
+            'items' => 'nullable|array',
+            'items.*.item_name' => 'required_with:items|string',
+            'items.*.quantity' => 'required_with:items|integer|min:1',
+            'items.*.estimated_cost' => 'required_with:items|numeric|min:0',
             'approved_gas_cost' => 'nullable|numeric',
             'approved_meals_cost' => 'nullable|numeric',
             'approved_accommodation_cost' => 'nullable|numeric',
             'finance_note' => 'nullable|string',
         ]);
 
-        $uc = UcRequest::findOrFail($id);
+        $uc = UcRequest::with('items')->findOrFail($id);
 
-        $uc->update([
+        $updateData = [
             'status' => $request->status,
-            'approved_gas_cost' => $request->approved_gas_cost,
-            'approved_meals_cost' => $request->approved_meals_cost,
-            'approved_accommodation_cost' => $request->approved_accommodation_cost,
             'finance_note' => $request->finance_note,
             'approved_by' => Auth::id(),
-        ]);
+        ];
+
+        if ($request->has('items') && is_array($request->items)) {
+            $uc->items()->delete();
+            $totalApproved = 0;
+            foreach ($request->items as $item) {
+                $qty = (int)($item['quantity'] ?? 1);
+                $cost = (float)($item['estimated_cost'] ?? 0);
+                $subtotal = $qty * $cost;
+                $totalApproved += $subtotal;
+                $uc->items()->create([
+                    'item_name' => $item['item_name'],
+                    'quantity' => $qty,
+                    'estimated_cost' => $cost,
+                    'total_cost' => $subtotal,
+                ]);
+            }
+            $updateData['approved_gas_cost'] = $totalApproved;
+        } else {
+            if ($request->has('approved_gas_cost')) $updateData['approved_gas_cost'] = $request->approved_gas_cost;
+            if ($request->has('approved_meals_cost')) $updateData['approved_meals_cost'] = $request->approved_meals_cost;
+            if ($request->has('approved_accommodation_cost')) $updateData['approved_accommodation_cost'] = $request->approved_accommodation_cost;
+        }
+
+        $uc->update($updateData);
 
         return redirect()->back()->with('success', 'Status pengajuan UC berhasil diperbarui!');
     }
 
     public function exportPdf()
     {
-        $items = \App\Models\UcRequest::with('user')->orderBy('id', 'desc')->get();
+        $items = \App\Models\UcRequest::with(['user', 'items'])->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -92,7 +117,7 @@ class UcApprovalController extends Controller
 
     public function exportExcel()
     {
-        $items = \App\Models\UcRequest::with('user')->orderBy('id', 'desc')->get();
+        $items = \App\Models\UcRequest::with(['user', 'items'])->orderBy('id', 'desc')->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
