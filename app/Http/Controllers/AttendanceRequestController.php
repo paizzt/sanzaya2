@@ -14,6 +14,10 @@ class AttendanceRequestController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Izin / Sakit') && !$user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+            abort(403, 'Akses ditolak. Fitur Izin/Sakit dinonaktifkan untuk akun Anda.');
+        }
+
         $canApprove = $user->can('approve pengajuan absensi') || $user->isAdminUser();
         
         $query = AttendanceRequest::with('user')->orderBy('created_at', 'desc');
@@ -30,6 +34,11 @@ class AttendanceRequestController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Izin / Sakit') && !$user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+            abort(403, 'Akses ditolak. Fitur Izin/Sakit dinonaktifkan untuk akun Anda.');
+        }
+
         $request->validate([
             'type' => 'required|in:Sakit,Izin,Izin Khusus,Cuti',
             'start_date' => 'required|date',
@@ -82,7 +91,7 @@ class AttendanceRequestController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $user = Auth::user();
-        if (!$user->can('approve pengajuan absensi')) {
+        if (!$user->can('approve pengajuan absensi') && !$user->isAdminUser()) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses.');
         }
 

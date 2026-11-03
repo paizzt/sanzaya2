@@ -87,8 +87,20 @@ class HandleInertiaRequests extends Middleware
         $permissions = [];
         if ($request->user()) {
             $permissions = $request->user()->getAllPermissions()->pluck('name')->toArray();
-            if (in_array('Dashboard Laporan', $active_feature_names, true) && !in_array('view laporan finansial', $permissions, true)) {
-                $permissions[] = 'view laporan finansial';
+            
+            // Add all permissions granted by active feature toggles for this user
+            $featurePermissionsByName = \App\Models\FeatureToggle::featurePermissionMap();
+            foreach ($active_feature_names as $actFeature) {
+                $normAct = \App\Models\FeatureToggle::normalizeFeatureKey($actFeature);
+                foreach ($featurePermissionsByName as $featKey => $perms) {
+                    if (\App\Models\FeatureToggle::normalizeFeatureKey($featKey) === $normAct) {
+                        foreach ($perms as $p) {
+                            if (!in_array($p, $permissions, true)) {
+                                $permissions[] = $p;
+                            }
+                        }
+                    }
+                }
             }
         }
 

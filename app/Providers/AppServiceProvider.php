@@ -33,11 +33,22 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\BhpRequest::observe(\App\Observers\NotificationObserver::class);
         \App\Models\WbsReport::observe(\App\Observers\NotificationObserver::class);
 
-        // Authorization Gate for Dashboard Laporan
+        // Authorization Gate tied to Superadmin & FeatureToggle switches
         \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+            if (!$user) {
+                return null;
+            }
+
             if ($user->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
                 return true;
             }
+
+            // Check if ability is granted via any active FeatureToggle for this user
+            if (\App\Models\FeatureToggle::userHasPermissionViaFeature($user, (string)$ability)) {
+                return true;
+            }
+
+            return null;
         });
 
         \Illuminate\Support\Facades\Gate::define('view laporan finansial', function ($user) {

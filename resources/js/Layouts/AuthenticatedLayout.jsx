@@ -79,7 +79,10 @@ export default function Authenticated({ user, header, children }) {
 
 
     const hasPermission = (permission) => {
-        if (auth.user?.roles?.some(r => r.name === 'Superadmin')) return true;
+        if (auth.user?.roles?.some(r => {
+            const name = (r.name || '').toLowerCase().replace(/[\s_-]/g, '');
+            return name === 'superadmin';
+        })) return true;
         return auth.permissions?.includes(permission);
     };
 
@@ -211,7 +214,7 @@ export default function Authenticated({ user, header, children }) {
             active: url.startsWith('/absensi') && !url.startsWith('/absensi/rekap'),
             children: [
                 { name: 'Ambil Absensi', href: route('absensi.index'), active: url === '/absensi', show: auth.active_feature_names?.includes('Ambil Absensi') && hasPermission('view absensi') },
-                { name: 'Izin/Sakit', href: route('absensi.pengajuan'), active: url.startsWith('/absensi/pengajuan'), show: auth.active_feature_names?.includes('Izin / Sakit') && hasPermission('view absensi') },
+                { name: 'Izin/Sakit', href: route('absensi.pengajuan'), active: url.startsWith('/absensi/pengajuan'), show: (auth.active_feature_names?.includes('Izin / Sakit') || auth.active_feature_names?.includes('Izin/Sakit')) && hasPermission('view absensi') },
             ]
         },
         { 

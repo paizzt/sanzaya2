@@ -470,8 +470,11 @@ class UserController extends Controller
                 $disabledUserIds = array_values(array_diff($disabledUserIds, [$userIdStr]));
                 
                 // Collect permissions to grant by feature name
-                if (isset($featurePermissionsByName[$featureNameKey])) {
-                    $permissionsToGrant = array_merge($permissionsToGrant, $featurePermissionsByName[$featureNameKey]);
+                $normFeatureKey = FeatureToggle::normalizeFeatureKey($feature->name);
+                foreach ($featurePermissionsByName as $k => $perms) {
+                    if (FeatureToggle::normalizeFeatureKey($k) === $normFeatureKey) {
+                        $permissionsToGrant = array_merge($permissionsToGrant, $perms);
+                    }
                 }
             } else {
                 // Feature is DISABLED for this user -> Add user to disabled list
@@ -493,6 +496,9 @@ class UserController extends Controller
                 } catch (\Throwable $e) {}
             }
             $user->syncPermissions($permissionsToGrant);
+            try {
+                app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+            } catch (\Throwable $e) {}
         }
     }
 
