@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
-import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText } from 'lucide-react';
+import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -184,8 +184,13 @@ export default function UcApproval({ requests, isAdmin }) {
         return hasReport || hasReceipts || isResultStatus;
     };
 
+    const isResultCompleted = (req) => {
+        return isResult(req) && (req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Selesai');
+    };
+
     const ucRequests = (requests || []).filter(req => !isResult(req));
-    const resultRequests = (requests || []).filter(req => isResult(req));
+    const pendingResultRequests = (requests || []).filter(req => isResult(req) && !isResultCompleted(req));
+    const completedResultRequests = (requests || []).filter(req => isResultCompleted(req));
 
     const getStatusBadge = (status) => {
         const s = status || 'Menunggu';
@@ -404,23 +409,23 @@ export default function UcApproval({ requests, isAdmin }) {
                     <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col min-w-0">
                         <div className="flex justify-between items-center mb-5 pb-4 border-b border-gray-100">
                             <div className="flex items-center gap-2.5">
-                                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                                     <FileText className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-base sm:text-lg text-gray-800">Daftar Pengajuan Result</h3>
-                                    <p className="text-xs text-gray-400">Hasil kunjungan perjalanan dinas & nota</p>
+                                    <p className="text-xs text-gray-400">Hasil kunjungan & nota (Menunggu Persetujuan)</p>
                                 </div>
                             </div>
-                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
-                                {resultRequests.length} Result
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100 shrink-0">
+                                {pendingResultRequests.length} Menunggu
                             </span>
                         </div>
 
-                        {resultRequests.length === 0 ? (
+                        {pendingResultRequests.length === 0 ? (
                             <div className="text-center py-12 text-gray-400 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
                                 <FileText className="w-10 h-10 mx-auto mb-2 opacity-25" />
-                                <p className="text-sm font-medium">Belum ada pengajuan result atau nota yang dikirim.</p>
+                                <p className="text-sm font-medium">Belum ada pengajuan result yang menunggu persetujuan.</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
@@ -435,7 +440,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {resultRequests.map((req) => {
+                                        {pendingResultRequests.map((req) => {
                                             const totalEst = getRequestTotal(req);
                                             const badge = getStatusBadge(req.status);
                                             let photos = [];
@@ -536,6 +541,153 @@ export default function UcApproval({ requests, isAdmin }) {
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* SECTION 3 (Bawah): DAFTAR SELESAI (RESULT SUDAH ACC) */}
+                <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5 pb-4 border-b border-gray-100">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                                <CheckCircle2 className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-2">
+                                    Daftar UC Selesai <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">Result Disetujui (ACC)</span>
+                                </h3>
+                                <p className="text-xs text-gray-400">Pengajuan UC yang laporan hasil perjalanan & bukti nota-nya telah selesai disetujui</p>
+                            </div>
+                        </div>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                            {completedResultRequests.length} Selesai
+                        </span>
+                    </div>
+
+                    {completedResultRequests.length === 0 ? (
+                        <div className="text-center py-12 text-gray-400 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
+                            <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-25" />
+                            <p className="text-sm font-medium">Belum ada pengajuan result yang berstatus selesai (ACC).</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left">
+                                <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 rounded-xl">
+                                    <tr>
+                                        <th className="px-4 py-3 rounded-l-xl">No. / Pengaju</th>
+                                        <th className="px-4 py-3">Tujuan & Jadwal</th>
+                                        <th className="px-4 py-3">Total Biaya</th>
+                                        <th className="px-4 py-3">Hasil & Bukti Nota</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3 rounded-r-xl text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {completedResultRequests.map((req) => {
+                                        const totalEst = getRequestTotal(req);
+                                        let photos = [];
+                                        try {
+                                            if (req.result_receipts) {
+                                                const parsed = JSON.parse(req.result_receipts);
+                                                if (Array.isArray(parsed)) photos = parsed;
+                                            }
+                                        } catch(e) {}
+
+                                        return (
+                                            <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="px-4 py-3.5">
+                                                    <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.request_number}</span>
+                                                    <span className="text-xs text-gray-600 block">{req.user?.name}</span>
+                                                    <span className="text-[11px] text-gray-400 block">{req.department}</span>
+                                                </td>
+                                                <td className="px-4 py-3.5">
+                                                    <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
+                                                    <span className="text-xs text-gray-500 block">{req.departure_date} s/d {req.return_date}</span>
+                                                    <span className="text-[11px] text-gray-400 block">({req.estimated_days} Hari)</span>
+                                                </td>
+                                                <td className="px-4 py-3.5">
+                                                    <div className="font-bold text-gray-900 text-xs sm:text-sm">
+                                                        {formatRupiah(req.approved_gas_cost || totalEst)}
+                                                    </div>
+                                                    {req.payment_option && (
+                                                        <span className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                                            req.payment_option === 'PANJAR BIAYA 50%' 
+                                                                ? 'bg-amber-100 text-amber-800 border border-amber-200' 
+                                                                : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                                        }`}>
+                                                            {req.payment_option}
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-3.5 max-w-xs">
+                                                    {req.result_report ? (
+                                                        <p className="text-xs text-gray-700 line-clamp-2 mb-1.5" title={req.result_report}>
+                                                            {req.result_report}
+                                                        </p>
+                                                    ) : (
+                                                        <span className="text-xs text-gray-400 italic block mb-1">-</span>
+                                                    )}
+                                                    {photos.length > 0 && (
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            {photos.map((photo, i) => {
+                                                                const photoUrl = photo.startsWith('http')
+                                                                    ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
+                                                                    : `/storage/${photo}`;
+                                                                return (
+                                                                    <button 
+                                                                        key={i} 
+                                                                        type="button"
+                                                                        onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${req.destination_city || ''})` })}
+                                                                        className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                                                                        title="Lihat Nota"
+                                                                    >
+                                                                        <FileImage className="w-3 h-3" /> Nota {i + 1}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-3.5">
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                                                        <CheckCircle className="w-3.5 h-3.5" /> ACC (Selesai)
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3.5">
+                                                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                                        <button 
+                                                            onClick={() => openModal(req)}
+                                                            className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg flex items-center gap-1 text-xs font-bold transition-colors"
+                                                            title="Review Detail"
+                                                        >
+                                                            <Edit3 className="w-3.5 h-3.5" /> Review
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => openModal(req, 'Direvisi')}
+                                                            className="text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-amber-200"
+                                                            title="Revisi Ulang"
+                                                        >
+                                                            <RotateCcw className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => openModal(req, 'Ditolak')}
+                                                            className="text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-rose-200"
+                                                            title="Tolak"
+                                                        >
+                                                            <XCircle className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <ExportDropdown pdfRoute={route('requests.uc.pdf', req.id)} trigger={
+                                                            <button className="text-rose-600 hover:text-rose-900 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold" title="Unduh PDF">
+                                                                <FileText className="w-3.5 h-3.5" /> PDF
+                                                            </button>
+                                                        } />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
 
