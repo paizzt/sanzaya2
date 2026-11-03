@@ -239,28 +239,22 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                 }}
                                                 className="hover:bg-gray-100 cursor-pointer transition-colors"
                                             >
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="font-medium text-gray-900">
-                                                            {pr.submission_date ? dayjs(pr.submission_date).format('DD MMM YYYY') : '-'}
-                                                        </span>
-                                                        {pr.category && (
-                                                            <span className={`px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider ${
-                                                                pr.category.toLowerCase().includes('support') 
-                                                                    ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                                                                    : pr.category.toLowerCase().includes('entertain')
-                                                                        ? 'bg-purple-100 text-purple-800 border border-purple-200'
-                                                                        : pr.category.toLowerCase().includes('purchasing')
-                                                                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                                                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                                            }`}>
-                                                                {pr.category}
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                <td className="px-4 py-3 font-medium text-gray-900">
+                                                    {pr.submission_date ? dayjs(pr.submission_date).format('DD MMM YYYY') : '-'}
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[250px] break-words font-medium text-gray-800">
-                                                    {pr.purpose || '-'}
+                                                <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[250px] break-words">
+                                                    <div className="font-medium text-gray-800">{pr.purpose || '-'}</div>
+                                                    {pr.category && ['support', 'entertain', 'purchasing'].some(c => pr.category.toLowerCase().includes(c)) && (
+                                                        <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider ${
+                                                            pr.category.toLowerCase().includes('support') 
+                                                                ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                                                : pr.category.toLowerCase().includes('entertain')
+                                                                    ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                                                    : 'bg-amber-100 text-amber-800 border border-amber-200'
+                                                        }`}>
+                                                            {pr.category}
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="font-medium">{pr.requester?.name}</div>
