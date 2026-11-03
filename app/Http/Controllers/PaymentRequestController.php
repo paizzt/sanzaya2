@@ -969,4 +969,30 @@ class PaymentRequestController extends Controller
 
         return redirect()->back()->with('success', 'Lampiran berhasil dihapus.');
     }
+
+    /**
+     * Unduh file lampiran
+     */
+    public function downloadAttachment($id)
+    {
+        $attachment = \App\Models\PaymentRequestAttachment::findOrFail($id);
+
+        if (str_starts_with($attachment->file_path, 'http')) {
+            return redirect($attachment->file_path);
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($attachment->file_path)) {
+            return \Illuminate\Support\Facades\Storage::disk('public')->download(
+                $attachment->file_path,
+                $attachment->original_name ?: basename($attachment->file_path)
+            );
+        }
+
+        $fallbackPath = public_path('storage/' . $attachment->file_path);
+        if (file_exists($fallbackPath)) {
+            return response()->download($fallbackPath, $attachment->original_name ?: basename($attachment->file_path));
+        }
+
+        return redirect()->back()->with('error', 'File lampiran tidak ditemukan di server.');
+    }
 }

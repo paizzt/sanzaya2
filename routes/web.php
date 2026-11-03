@@ -304,9 +304,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('payment-requests', \App\Http\Controllers\PaymentRequestController::class);
     });
 
-    // Payment Request PDF (Can be downloaded by both requester and approver)
+    // Payment Request PDF & File Download (Can be downloaded by authenticated users)
     Route::middleware('auth')->group(function() {
         Route::get('payment-requests/{payment_request}/pdf', [\App\Http\Controllers\PaymentRequestController::class, 'downloadPdf'])->name('payment-requests.pdf')->middleware('can.pdf');
+        Route::get('payment-requests/attachments/{id}/download', [\App\Http\Controllers\PaymentRequestController::class, 'downloadAttachment'])->name('payment-requests.attachments.download');
     });
 
     // Payment Approvals

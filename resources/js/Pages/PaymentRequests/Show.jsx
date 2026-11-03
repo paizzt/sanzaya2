@@ -484,7 +484,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                                         </div>
                                                         <div className="mt-4 pt-3 border-t flex items-center justify-end">
                                                             <a 
-                                                                href={rawUrl} 
+                                                                href={att.id ? route('payment-requests.attachments.download', att.id) : rawUrl} 
                                                                 target="_blank" 
                                                                 rel="noopener noreferrer" 
                                                                 download={att.original_name || true}

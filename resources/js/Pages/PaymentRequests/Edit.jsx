@@ -424,7 +424,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                                             </p>
                                                             <div className="mt-1 flex items-center justify-between w-full">
                                                                 <a 
-                                                                    href={rawUrl} 
+                                                                    href={att.id ? route('payment-requests.attachments.download', att.id) : rawUrl} 
                                                                     target="_blank" 
                                                                     rel="noopener noreferrer" 
                                                                     className="text-[11px] text-indigo-600 hover:underline font-semibold"
