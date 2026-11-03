@@ -212,40 +212,127 @@ export default function UcApproval({ requests, isAdmin }) {
         return { label: s, bg: 'bg-yellow-100 text-yellow-700 border-yellow-200' };
     };
 
-    const quickAction = (req, statusChoice) => {
-        const label = statusChoice === 'Disetujui' ? 'menyetujui (ACC)' : (statusChoice === 'Direvisi' ? 'meminta revisi' : 'menolak');
-        const color = statusChoice === 'Disetujui' ? '#059669' : (statusChoice === 'Direvisi' ? '#f59e0b' : '#e11d48');
-        
-        Swal.fire({
-            title: `Konfirmasi ${statusChoice === 'Disetujui' ? 'ACC' : (statusChoice === 'Direvisi' ? 'Revisi' : 'Tolak')}?`,
-            text: `Apakah Anda yakin ingin ${label} pengajuan ${req.request_number} dari ${req.user?.name || '-'}?`,
-            icon: statusChoice === 'Disetujui' ? 'question' : 'warning',
-            showCancelButton: true,
-            confirmButtonColor: color,
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: `Ya, ${statusChoice === 'Disetujui' ? 'ACC' : (statusChoice === 'Direvisi' ? 'Revisi' : 'Tolak')}!`,
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.post(route('requests.uc.approval.update', req.id), {
-                    status: statusChoice,
-                    items: req.items && req.items.length > 0 ? req.items : undefined,
-                    approved_gas_cost: req.approved_gas_cost || getRequestTotal(req),
-                    finance_note: req.finance_note || '',
-                }, {
-                    preserveScroll: true,
-                    onSuccess: () => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: `Status pengajuan berhasil diperbarui`,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
+    const handleRowAction = (req, actionType) => {
+        const isResultReq = !!req.result_report;
+        const reqLabel = isResultReq ? 'Result UC' : 'Pengajuan UC';
+
+        if (actionType === 'Disetujui') {
+            Swal.fire({
+                title: `ACC ${reqLabel}?`,
+                html: `
+                    <div class="text-left text-sm space-y-1.5 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                        <p><span class="text-gray-500">No. Request:</span> <strong>${req.request_number}</strong></p>
+                        <p><span class="text-gray-500">Pengaju:</span> <strong>${req.user?.name || '-'}</strong> (${req.department || '-'})</p>
+                        <p><span class="text-gray-500">Tujuan:</span> <strong>${req.destination_city || '-'}</strong></p>
+                        <p><span class="text-gray-500">Total Biaya:</span> <strong>${formatRupiah(req.approved_gas_cost || getRequestTotal(req))}</strong></p>
+                        ${isResultReq && req.result_report ? `<p><span class="text-gray-500">Laporan:</span> <span class="italic text-gray-700 block mt-0.5 line-clamp-2">${req.result_report}</span></p>` : ''}
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonColor: '#059669',
+                denyButtonColor: '#2563eb',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, ACC Sekarang',
+                denyButtonText: 'Periksa / Ubah Rincian',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    router.post(route('requests.uc.approval.update', req.id), {
+                        status: 'Disetujui',
+                        items: req.items && req.items.length > 0 ? req.items : undefined,
+                        approved_gas_cost: req.approved_gas_cost || getRequestTotal(req),
+                        finance_note: req.finance_note || '',
+                    }, {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: `${reqLabel} berhasil di-ACC`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
+                } else if (result.isDenied) {
+                    openModal(req, 'Disetujui');
+                }
+            });
+        } else if (actionType === 'Ditolak') {
+            Swal.fire({
+                title: `Tolak ${reqLabel}?`,
+                text: `${reqLabel} ${req.request_number} dari ${req.user?.name || '-'} akan ditolak.`,
+                input: 'textarea',
+                inputPlaceholder: 'Tuliskan alasan penolakan di sini...',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Tolak',
+                cancelButtonText: 'Batal',
+                inputValidator: (val) => {
+                    if (!val || !val.trim()) {
+                        return 'Alasan penolakan wajib diisi!';
                     }
-                });
-            }
-        });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    router.post(route('requests.uc.approval.update', req.id), {
+                        status: 'Ditolak',
+                        finance_note: result.value || req.finance_note || '',
+                    }, {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: `${reqLabel} berhasil ditolak`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
+                }
+            });
+        } else if (actionType === 'Direvisi') {
+            Swal.fire({
+                title: `Minta Revisi ${reqLabel}?`,
+                text: `Masukkan catatan bagian yang perlu direvisi untuk ${req.request_number}:`,
+                input: 'textarea',
+                inputPlaceholder: 'Tuliskan rincian apa yang perlu diperbaiki...',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Kirim Revisi',
+                cancelButtonText: 'Batal',
+                inputValidator: (val) => {
+                    if (!val || !val.trim()) {
+                        return 'Catatan revisi wajib diisi!';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    router.post(route('requests.uc.approval.update', req.id), {
+                        status: 'Direvisi',
+                        finance_note: result.value,
+                    }, {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: `Permintaan revisi ${reqLabel} berhasil dikirim`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
+                }
+            });
+        }
     };
 
     return (
@@ -299,8 +386,8 @@ export default function UcApproval({ requests, isAdmin }) {
                                 <table className="w-full text-sm text-left">
                                     <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 rounded-xl">
                                         <tr>
-                                            <th className="px-3.5 py-3 rounded-l-xl">No. / Pengaju</th>
-                                            <th className="px-3.5 py-3">Tujuan & Jadwal</th>
+                                            <th className="px-3.5 py-3 rounded-l-xl">Pengaju</th>
+                                            <th className="px-3.5 py-3">Tujuan</th>
                                             <th className="px-3.5 py-3">Est. Biaya</th>
                                             <th className="px-3.5 py-3">Status</th>
                                             <th className="px-3.5 py-3 rounded-r-xl text-center">Aksi</th>
@@ -313,8 +400,15 @@ export default function UcApproval({ requests, isAdmin }) {
                                             return (
                                                 <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
                                                     <td className="px-3.5 py-3">
-                                                        <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.request_number}</span>
-                                                        <span className="text-xs text-gray-600 block">{req.user?.name}</span>
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => openModal(req)} 
+                                                            className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
+                                                            title="Klik untuk lihat detail & rincian biaya"
+                                                        >
+                                                            {req.request_number}
+                                                        </button>
+                                                        <span className="text-xs text-gray-700 block font-medium">{req.user?.name}</span>
                                                         <span className="text-[11px] text-gray-400 block">{req.department}</span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
@@ -347,53 +441,28 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         </span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
-                                                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                                        <div className="flex items-center justify-center gap-1.5 flex-nowrap">
                                                             <button 
-                                                                onClick={() => openModal(req)}
-                                                                className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg flex items-center gap-1 text-xs font-bold transition-colors"
-                                                                title="Review Detail"
+                                                                type="button" 
+                                                                onClick={() => handleRowAction(req, 'Disetujui')} 
+                                                                className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                                                             >
-                                                                <Edit3 className="w-3.5 h-3.5" /> Review
+                                                                ACC
                                                             </button>
                                                             <button 
-                                                                onClick={() => quickAction(req, 'Disetujui')}
-                                                                className="text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-emerald-200"
-                                                                title="ACC Pengajuan"
+                                                                type="button" 
+                                                                onClick={() => handleRowAction(req, 'Ditolak')} 
+                                                                className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                                                             >
-                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                                Tolak
                                                             </button>
                                                             <button 
-                                                                onClick={() => openModal(req, 'Direvisi')}
-                                                                className="text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-amber-200"
-                                                                title="Revisi Pengajuan"
+                                                                type="button" 
+                                                                onClick={() => handleRowAction(req, 'Direvisi')} 
+                                                                className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                                                             >
-                                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                                Revisi
                                                             </button>
-                                                            <button 
-                                                                onClick={() => openModal(req, 'Ditolak')}
-                                                                className="text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-rose-200"
-                                                                title="Tolak Pengajuan"
-                                                            >
-                                                                <XCircle className="w-3.5 h-3.5" />
-                                                            </button>
-                                                            {isAdmin && (
-                                                                <>
-                                                                    <Link 
-                                                                        href={route('uc-requests.edit', req.id)}
-                                                                        className="text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 p-1.5 rounded-lg transition-colors"
-                                                                        title="Edit"
-                                                                    >
-                                                                        <Edit className="w-3.5 h-3.5" />
-                                                                    </Link>
-                                                                    <button 
-                                                                        onClick={() => deleteRequest(req.id)}
-                                                                        className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg transition-colors"
-                                                                        title="Hapus"
-                                                                    >
-                                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                                    </button>
-                                                                </>
-                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -432,7 +501,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                 <table className="w-full text-sm text-left">
                                     <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 rounded-xl">
                                         <tr>
-                                            <th className="px-3.5 py-3 rounded-l-xl">No. / Pengaju</th>
+                                            <th className="px-3.5 py-3 rounded-l-xl">Pengaju</th>
                                             <th className="px-3.5 py-3">Tujuan</th>
                                             <th className="px-3.5 py-3">Hasil & Bukti Nota</th>
                                             <th className="px-3.5 py-3">Status</th>
@@ -454,8 +523,15 @@ export default function UcApproval({ requests, isAdmin }) {
                                             return (
                                                 <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
                                                     <td className="px-3.5 py-3">
-                                                        <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.request_number}</span>
-                                                        <span className="text-xs text-gray-600 block">{req.user?.name}</span>
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => openModal(req)} 
+                                                            className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
+                                                            title="Klik untuk lihat detail & rincian"
+                                                        >
+                                                            {req.request_number}
+                                                        </button>
+                                                        <span className="text-xs text-gray-700 block font-medium">{req.user?.name}</span>
                                                         <span className="text-[11px] text-gray-400 block">{req.department}</span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
@@ -497,40 +573,28 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         </span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
-                                                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                                        <div className="flex items-center justify-center gap-1.5 flex-nowrap">
                                                             <button 
-                                                                onClick={() => openModal(req)}
-                                                                className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg flex items-center gap-1 text-xs font-bold transition-colors"
-                                                                title="Review Result"
+                                                                type="button" 
+                                                                onClick={() => handleRowAction(req, 'Disetujui')} 
+                                                                className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                                                             >
-                                                                <Edit3 className="w-3.5 h-3.5" /> Review
+                                                                ACC
                                                             </button>
                                                             <button 
-                                                                onClick={() => quickAction(req, 'Disetujui')}
-                                                                className="text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-emerald-200"
-                                                                title="ACC Result"
+                                                                type="button" 
+                                                                onClick={() => handleRowAction(req, 'Ditolak')} 
+                                                                className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                                                             >
-                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                                Tolak
                                                             </button>
                                                             <button 
-                                                                onClick={() => openModal(req, 'Direvisi')}
-                                                                className="text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-amber-200"
-                                                                title="Revisi Result"
+                                                                type="button" 
+                                                                onClick={() => handleRowAction(req, 'Direvisi')} 
+                                                                className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                                                             >
-                                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                                Revisi
                                                             </button>
-                                                            <button 
-                                                                onClick={() => openModal(req, 'Ditolak')}
-                                                                className="text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-rose-200"
-                                                                title="Tolak Result"
-                                                            >
-                                                                <XCircle className="w-3.5 h-3.5" />
-                                                            </button>
-                                                            <ExportDropdown pdfRoute={route('requests.uc.pdf', req.id)} trigger={
-                                                                <button className="text-rose-600 hover:text-rose-900 p-1.5 hover:bg-rose-50 rounded-lg transition-colors" title="Unduh PDF">
-                                                                    <FileText className="w-3.5 h-3.5" />
-                                                                </button>
-                                                            } />
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -572,8 +636,8 @@ export default function UcApproval({ requests, isAdmin }) {
                             <table className="w-full text-sm text-left">
                                 <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 rounded-xl">
                                     <tr>
-                                        <th className="px-4 py-3 rounded-l-xl">No. / Pengaju</th>
-                                        <th className="px-4 py-3">Tujuan & Jadwal</th>
+                                        <th className="px-4 py-3 rounded-l-xl">Pengaju</th>
+                                        <th className="px-4 py-3">Tujuan</th>
                                         <th className="px-4 py-3">Total Biaya</th>
                                         <th className="px-4 py-3">Hasil & Bukti Nota</th>
                                         <th className="px-4 py-3">Status</th>
@@ -594,8 +658,15 @@ export default function UcApproval({ requests, isAdmin }) {
                                         return (
                                             <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
                                                 <td className="px-4 py-3.5">
-                                                    <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.request_number}</span>
-                                                    <span className="text-xs text-gray-600 block">{req.user?.name}</span>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => openModal(req)} 
+                                                        className="font-bold text-gray-900 hover:text-blue-600 block text-xs sm:text-sm text-left transition-colors"
+                                                        title="Klik untuk lihat detail"
+                                                    >
+                                                        {req.request_number}
+                                                    </button>
+                                                    <span className="text-xs text-gray-700 block font-medium">{req.user?.name}</span>
                                                     <span className="text-[11px] text-gray-400 block">{req.department}</span>
                                                 </td>
                                                 <td className="px-4 py-3.5">
@@ -652,33 +723,32 @@ export default function UcApproval({ requests, isAdmin }) {
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3.5">
-                                                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                                    <div className="flex items-center justify-center gap-1.5 flex-nowrap">
+                                                        <a 
+                                                            href={route('requests.uc.pdf', req.id)} 
+                                                            target="_blank" 
+                                                            rel="noreferrer"
+                                                            className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all inline-flex items-center"
+                                                            title="Unduh PDF"
+                                                        >
+                                                            PDF
+                                                        </a>
                                                         <button 
+                                                            type="button"
                                                             onClick={() => openModal(req)}
-                                                            className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg flex items-center gap-1 text-xs font-bold transition-colors"
+                                                            className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                                                             title="Review Detail"
                                                         >
-                                                            <Edit3 className="w-3.5 h-3.5" /> Review
+                                                            Detail
                                                         </button>
                                                         <button 
-                                                            onClick={() => openModal(req, 'Direvisi')}
-                                                            className="text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-amber-200"
+                                                            type="button"
+                                                            onClick={() => handleRowAction(req, 'Direvisi')}
+                                                            className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                                                             title="Revisi Ulang"
                                                         >
-                                                            <RotateCcw className="w-3.5 h-3.5" />
+                                                            Revisi
                                                         </button>
-                                                        <button 
-                                                            onClick={() => openModal(req, 'Ditolak')}
-                                                            className="text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg text-xs font-bold transition-colors border border-rose-200"
-                                                            title="Tolak"
-                                                        >
-                                                            <XCircle className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <ExportDropdown pdfRoute={route('requests.uc.pdf', req.id)} trigger={
-                                                            <button className="text-rose-600 hover:text-rose-900 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold" title="Unduh PDF">
-                                                                <FileText className="w-3.5 h-3.5" /> PDF
-                                                            </button>
-                                                        } />
                                                     </div>
                                                 </td>
                                             </tr>

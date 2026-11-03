@@ -204,14 +204,23 @@
 </head>
 <body>
     @php
-        $logoSrc = !empty($logoPath) && str_starts_with($logoPath, 'data:image')
-            ? $logoPath
-            : \App\Helpers\PdfImageHelper::toPdfSrc($logoPath ?? public_path('img/logo.png'), 400);
+        $logoSrc = !empty($logoBase64)
+            ? $logoBase64
+            : (!empty($logoPath) && str_starts_with($logoPath, 'data:image')
+                ? $logoPath
+                : \App\Helpers\PdfImageHelper::toPdfSrc($logoPath ?? public_path('img/logo.png'), 400));
 
-        if (empty($logoSrc) && file_exists(public_path('img/logo.png'))) {
-            $fbBytes = @file_get_contents(public_path('img/logo.png'));
-            if (!empty($fbBytes)) {
-                $logoSrc = 'data:image/png;base64,' . base64_encode($fbBytes);
+        if (empty($logoSrc)) {
+            if (file_exists(public_path('img/company/sanzaya.png'))) {
+                $fbBytes = @file_get_contents(public_path('img/company/sanzaya.png'));
+                if (!empty($fbBytes)) {
+                    $logoSrc = 'data:image/png;base64,' . base64_encode($fbBytes);
+                }
+            } elseif (file_exists(public_path('img/logo.png'))) {
+                $fbBytes = @file_get_contents(public_path('img/logo.png'));
+                if (!empty($fbBytes)) {
+                    $logoSrc = 'data:image/png;base64,' . base64_encode($fbBytes);
+                }
             }
         }
     @endphp

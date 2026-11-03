@@ -108,6 +108,12 @@ class UcRequestController extends Controller
                 $logoBase64 = 'data:image/' . ($ext === 'svg' ? 'svg+xml' : $ext) . ';base64,' . base64_encode($bytes);
             }
         }
+        if (empty($logoBase64) && file_exists(public_path('img/company/sanzaya.png'))) {
+            $bytes = @file_get_contents(public_path('img/company/sanzaya.png'));
+            if (!empty($bytes)) {
+                $logoBase64 = 'data:image/png;base64,' . base64_encode($bytes);
+            }
+        }
         if (empty($logoBase64) && file_exists(public_path('img/logo.png'))) {
             $bytes = @file_get_contents(public_path('img/logo.png'));
             if (!empty($bytes)) {
@@ -116,7 +122,7 @@ class UcRequestController extends Controller
         }
         $logoPath = $logoBase64;
 
-        $pdf = Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])->loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'companyAddress'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])->loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'logoBase64', 'companyAddress'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         return request()->has('preview') ? $pdf->stream('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf') : $pdf->download('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf');
     }
 
