@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X, FileText } from 'lucide-react';
+import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X, FileText, ExternalLink } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -20,6 +20,7 @@ export default function UcHistory({ requests, activeUcs = [] }) {
     const [selectedUc, setSelectedUc] = useState(null);
     const [expandedActiveUc, setExpandedActiveUc] = useState(null);
     const [previewUrls, setPreviewUrls] = useState([]);
+    const [previewImage, setPreviewImage] = useState(null);
     const { flash } = usePage().props;
 
     useEffect(() => {
@@ -261,9 +262,14 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                                                         ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
                                                         : `/storage/${photo}`;
                                                     return (
-                                                        <a key={i} href={photoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
-                                                            <FileImage className="w-3 h-3" /> Lihat Nota {i+1}
-                                                        </a>
+                                                        <button 
+                                                            key={i} 
+                                                            type="button"
+                                                            onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${req.destination_city || ''})` })}
+                                                            className="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-blue-100"
+                                                        >
+                                                            <FileImage className="w-3.5 h-3.5" /> Lihat Nota {i + 1}
+                                                        </button>
                                                     );
                                                 })}
                                             </div>
@@ -276,6 +282,51 @@ export default function UcHistory({ requests, activeUcs = [] }) {
                 </div>
 
             </div>
+
+            {/* Modal Pop-up Lihat Nota */}
+            {previewImage && (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+                    onClick={() => setPreviewImage(null)}
+                >
+                    <div 
+                        className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+                            <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm sm:text-base">
+                                <FileImage className="w-5 h-5 text-blue-500" />
+                                {previewImage.title || 'Foto Nota'}
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <a 
+                                    href={previewImage.url} 
+                                    target="_blank" 
+                                    rel="noreferrer" 
+                                    className="text-xs text-blue-600 hover:text-blue-800 font-semibold px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors flex items-center gap-1.5"
+                                >
+                                    <ExternalLink className="w-3.5 h-3.5" /> Buka Tab Baru
+                                </a>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setPreviewImage(null)} 
+                                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-xl transition-colors"
+                                    title="Tutup"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="p-4 sm:p-6 overflow-auto flex items-center justify-center bg-gray-900/5 min-h-[300px]">
+                            <img 
+                                src={previewImage.url} 
+                                alt={previewImage.title || 'Nota'} 
+                                className="max-h-[75vh] w-auto max-w-full object-contain rounded-2xl shadow-sm border border-gray-200 bg-white"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }
