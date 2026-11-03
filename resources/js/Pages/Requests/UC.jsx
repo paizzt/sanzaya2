@@ -430,7 +430,12 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                             <h3 className="font-bold text-lg text-gray-700 mb-4 flex items-center gap-2">
                                 Preview Cetakan
                             </h3>
-                            <UcPreview data={data} user={user} companies={companies} />
+                            <UcPreview 
+                                data={data} 
+                                user={(users || []).find(u => String(u.id) === String(data.user_id)) || user} 
+                                users={users} 
+                                companies={companies} 
+                            />
                         </div>
                     </div>
                 </div>

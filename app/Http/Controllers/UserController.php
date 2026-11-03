@@ -33,6 +33,15 @@ class UserController extends Controller
 
         // Ensure SATPAM role, permissions, and division exist in the database
         try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('users') && !\Illuminate\Support\Facades\Schema::hasColumn('users', 'bank_account_number')) {
+                \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                    $table->string('bank_name')->nullable()->after('bpjs_ketenagakerjaan');
+                    $table->string('bank_account_number')->nullable()->after('bank_name');
+                });
+            }
+        } catch (\Throwable $e) {}
+
+        try {
             $satpamRole = Role::firstOrCreate(['name' => 'SATPAM', 'guard_name' => 'web']);
             $satpamPermissions = ['view absensi', 'create absensi', 'view rekap absensi', 'view pengajuan absensi', 'create pengajuan absensi'];
             foreach ($satpamPermissions as $perm) {
@@ -146,6 +155,8 @@ class UserController extends Controller
             'emergency_contact',
             'bpjs_kesehatan',
             'bpjs_ketenagakerjaan',
+            'bank_name',
+            'bank_account_number',
             'spreadsheet_sales_name',
             'division_name',
         ];
@@ -208,6 +219,8 @@ class UserController extends Controller
             'emergency_contact' => 'nullable|string|max:255',
             'bpjs_kesehatan' => 'nullable|string|max:255',
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
+            'bank_name' => 'nullable|string|max:255',
+            'bank_account_number' => 'nullable|string|max:255',
             'preferences' => 'nullable|array',
             'work_days_per_week' => 'nullable|integer|in:5,6',
             'tanpa_keterlambatan' => 'nullable|boolean',
@@ -251,6 +264,8 @@ class UserController extends Controller
             'emergency_contact' => $request->emergency_contact ?: null,
             'bpjs_kesehatan' => $request->bpjs_kesehatan ?: null,
             'bpjs_ketenagakerjaan' => $request->bpjs_ketenagakerjaan ?: null,
+            'bank_name' => $request->bank_name ?: null,
+            'bank_account_number' => $request->bank_account_number ?: null,
             'preferences' => $request->preferences,
         ]);
 
@@ -284,6 +299,8 @@ class UserController extends Controller
             'emergency_contact',
             'bpjs_kesehatan',
             'bpjs_ketenagakerjaan',
+            'bank_name',
+            'bank_account_number',
             'spreadsheet_sales_name',
             'division_name',
         ];
@@ -346,6 +363,8 @@ class UserController extends Controller
             'emergency_contact' => 'nullable|string|max:255',
             'bpjs_kesehatan' => 'nullable|string|max:255',
             'bpjs_ketenagakerjaan' => 'nullable|string|max:255',
+            'bank_name' => 'nullable|string|max:255',
+            'bank_account_number' => 'nullable|string|max:255',
             'preferences' => 'nullable|array',
             'work_days_per_week' => 'nullable|integer|in:5,6',
             'tanpa_keterlambatan' => 'nullable|boolean',
@@ -402,6 +421,8 @@ class UserController extends Controller
         $user->emergency_contact = $request->emergency_contact ?: null;
         $user->bpjs_kesehatan = $request->bpjs_kesehatan ?: null;
         $user->bpjs_ketenagakerjaan = $request->bpjs_ketenagakerjaan ?: null;
+        $user->bank_name = $request->bank_name ?: null;
+        $user->bank_account_number = $request->bank_account_number ?: null;
         
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
@@ -516,7 +537,7 @@ class UserController extends Controller
     public function exportPdf()
     {
         $items = \App\Models\User::with(['company', 'division'])->orderBy('name', 'asc')->get();
-        $headings = ['No', 'Nama', 'Nama PT', 'Username / Email', 'Masa Kerja', 'Divisi'];
+        $headings = ['No', 'Nama', 'Nama PT', 'Username / Email', 'No. Rekening', 'Masa Kerja', 'Divisi'];
         
         $companies = \App\Models\Company::all()->keyBy('id');
 
@@ -571,11 +592,14 @@ class UserController extends Controller
 
             $divisionName = $item->division ? $item->division->name : ($item->division_name ?: '-');
 
+            $rekeningInfo = $item->bank_account_number ? ($item->bank_account_number . ($item->bank_name ? " ({$item->bank_name})" : '')) : '-';
+
             return [
                 $key + 1,
                 $item->name ?: '-',
                 $companyName,
                 $item->email ?: '-',
+                $rekeningInfo,
                 $masaKerja,
                 $divisionName,
             ];
@@ -590,7 +614,7 @@ class UserController extends Controller
     public function exportExcel()
     {
         $items = \App\Models\User::with(['company', 'division'])->orderBy('name', 'asc')->get();
-        $headings = ['No', 'Nama', 'Nama PT', 'Username / Email', 'Masa Kerja', 'Divisi'];
+        $headings = ['No', 'Nama', 'Nama PT', 'Username / Email', 'No. Rekening', 'Masa Kerja', 'Divisi'];
         
         $companies = \App\Models\Company::all()->keyBy('id');
 
@@ -645,11 +669,14 @@ class UserController extends Controller
 
             $divisionName = $item->division ? $item->division->name : ($item->division_name ?: '-');
 
+            $rekeningInfo = $item->bank_account_number ? ($item->bank_account_number . ($item->bank_name ? " ({$item->bank_name})" : '')) : '-';
+
             return [
                 $key + 1,
                 $item->name ?: '-',
                 $companyName,
                 $item->email ?: '-',
+                $rekeningInfo,
                 $masaKerja,
                 $divisionName,
             ];

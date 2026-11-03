@@ -84,6 +84,8 @@ export default function Index({ users = [], divisions = [], positions = [], area
         emergency_contact: '',
         bpjs_kesehatan: '',
         bpjs_ketenagakerjaan: '',
+        bank_name: '',
+        bank_account_number: '',
         work_days_per_week: 6,
         tanpa_keterlambatan: false,
         tanpa_lembur: false,
@@ -167,6 +169,8 @@ export default function Index({ users = [], divisions = [], positions = [], area
             emergency_contact: user.emergency_contact || '',
             bpjs_kesehatan: user.bpjs_kesehatan || '',
             bpjs_ketenagakerjaan: user.bpjs_ketenagakerjaan || '',
+            bank_name: user.bank_name || '',
+            bank_account_number: user.bank_account_number || '',
             work_days_per_week: user.work_days_per_week || 6,
             tanpa_keterlambatan: Boolean(user.tanpa_keterlambatan),
             tanpa_lembur: Boolean(user.tanpa_lembur),
@@ -413,6 +417,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                 <tr>
                                     <th className="px-6 py-4">Nama Lengkap</th>
                                     <th className="px-6 py-4">Kontak / Akun</th>
+                                    <th className="px-6 py-4">Nomor Rekening</th>
                                     <th className="px-6 py-4">Perusahaan & Role</th>
                                     <th className="px-6 py-4">Jabatan & Divisi</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
@@ -436,8 +441,17 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col gap-1">
                                                         <span className="text-gray-900 font-medium">{user.email}</span>
-
                                                     </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {user.bank_account_number ? (
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold text-gray-900">{user.bank_account_number}</span>
+                                                            <span className="text-xs text-gray-500">{user.bank_name || 'Bank'}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs italic">-</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col items-start gap-1">
@@ -696,6 +710,18 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                             <InputLabel value="Operasional (Rp)" />
                                                             <CurrencyInput className="mt-1 block w-full" value={data.operational_allowance} onChange={val => setData('operational_allowance', val)} />
                                                             <InputError message={errors.operational_allowance} className="mt-1" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <InputLabel value="Nama Bank" />
+                                                            <TextInput className="mt-1 block w-full" value={data.bank_name} onChange={e => setData('bank_name', e.target.value)} placeholder="Contoh: BCA, Mandiri, BRI" />
+                                                            <InputError message={errors.bank_name} className="mt-1" />
+                                                        </div>
+                                                        <div>
+                                                            <InputLabel value="Nomor Rekening" />
+                                                            <TextInput className="mt-1 block w-full" value={data.bank_account_number} onChange={e => setData('bank_account_number', e.target.value)} placeholder="Contoh: 1234567890" />
+                                                            <InputError message={errors.bank_account_number} className="mt-1" />
                                                         </div>
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
@@ -1309,6 +1335,10 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                 <div>
                                                     <p className="text-xs text-gray-500 font-medium">BPJS Ketenagakerjaan</p>
                                                     <p className="font-semibold text-gray-800">{previewUser.bpjs_ketenagakerjaan || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium">Nomor Rekening</p>
+                                                    <p className="font-semibold text-gray-800">{previewUser.bank_account_number ? `${previewUser.bank_account_number} (${previewUser.bank_name || 'Bank'})` : '-'}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-gray-500 font-medium">Hari Kerja / Minggu</p>

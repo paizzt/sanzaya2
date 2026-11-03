@@ -28,7 +28,7 @@ class UcRequestController extends Controller
             }
         } catch (\Throwable $e) {}
 
-        $users = \App\Models\User::select('id', 'name')->orderBy('name')->get();
+        $users = \App\Models\User::select('id', 'name', 'bank_name', 'bank_account_number')->orderBy('name')->get();
         $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
         $companies = \App\Models\Company::select('id', 'name', 'logo', 'address')->get();
             
@@ -133,7 +133,7 @@ class UcRequestController extends Controller
             'payment_option' => 'required|string|in:PANJAR BIAYA 50%,BAYAR FULL',
         ]);
 
-        $userId = (Auth::user()->isAdminUser() && $request->filled('user_id')) ? $request->user_id : Auth::id();
+        $userId = $request->filled('user_id') ? $request->user_id : Auth::id();
 
         $companions = array_values(array_filter($request->companions ?? [], fn($c) => !empty(trim((string)$c))));
         $companions = array_slice($companions, 0, 2);
@@ -222,7 +222,7 @@ class UcRequestController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
-        $users = \App\Models\User::select('id', 'name')->orderBy('name')->get();
+        $users = \App\Models\User::select('id', 'name', 'bank_name', 'bank_account_number')->orderBy('name')->get();
         $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
         $companies = \App\Models\Company::select('id', 'name', 'logo', 'address')->get();
 
@@ -256,6 +256,7 @@ class UcRequestController extends Controller
             'items.*.item_name' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.estimated_cost' => 'required|numeric|min:0',
+            'user_id' => 'nullable|exists:users,id',
             'payment_option' => 'required|string|in:PANJAR BIAYA 50%,BAYAR FULL',
         ]);
 
@@ -264,7 +265,7 @@ class UcRequestController extends Controller
         $companions = array_values(array_filter($request->companions ?? [], fn($c) => !empty(trim((string)$c))));
         $companions = array_slice($companions, 0, 2);
 
-        $uc->update([
+        $updateData = [
             'entity' => $request->entity,
             'department' => $request->department,
             'destination_city' => $request->destination_city,
@@ -276,7 +277,12 @@ class UcRequestController extends Controller
             'transport_type' => $request->transportation_type,
             'vehicle_number' => $request->vehicle_number,
             'payment_option' => $request->payment_option,
-        ]);
+        ];
+        if ($request->filled('user_id')) {
+            $updateData['user_id'] = $request->user_id;
+        }
+
+        $uc->update($updateData);
 
         $uc->items()->delete();
         foreach ($request->items as $item) {

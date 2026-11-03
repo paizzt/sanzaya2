@@ -449,7 +449,12 @@
     </table>
 
     <div class="red-text">
-        Rek ....... A/N {{ $uc->user->name ?? 'Staff Pegawai' }} (.........................)
+        @php
+            $rekNumber = !empty($uc->user->bank_account_number) ? $uc->user->bank_account_number : '.......';
+            $bankName = !empty($uc->user->bank_name) ? '(' . $uc->user->bank_name . ')' : '(.........................)';
+            $empName = $uc->user->name ?? 'Staff Pegawai';
+        @endphp
+        Rek {{ $rekNumber }} A/N {{ $empName }} {{ $bankName }}
     </div>
 
     @if($uc->result_report)

@@ -1,6 +1,15 @@
 import React from 'react';
 
-export default function UcPreview({ data, user, companies = [] }) {
+export default function UcPreview({ data, user, users = [], companies = [] }) {
+    const employee = (users && users.length > 0)
+        ? (users.find(u => String(u.id) === String(data?.user_id)) || user)
+        : user;
+
+    const employeeName = employee?.name || 'Staff Pegawai';
+    const employeeRole = employee?.role || employee?.position?.name || 'Staff';
+    const employeeBankRek = employee?.bank_account_number || '.......';
+    const employeeBankName = employee?.bank_name ? `(${employee.bank_name})` : '(.........................)';
+
     const formatRupiah = (val) => new Intl.NumberFormat('id-ID').format(val || 0);
     
     const formatDate = (dateStr) => {
@@ -106,7 +115,7 @@ export default function UcPreview({ data, user, companies = [] }) {
             <tbody>
                 <tr>
                     <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
-                        <div className="font-bold underline">{user?.name || 'Staff Pegawai'}</div>
+                        <div className="font-bold underline">{employeeName}</div>
                     </td>
                     <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
                         <div className="font-bold underline">Manajer</div>
@@ -193,13 +202,13 @@ export default function UcPreview({ data, user, companies = [] }) {
                             <td className="py-1.5 w-[5%]">1.</td>
                             <td className="py-1.5 w-[30%]">Nama</td>
                             <td className="py-1.5 w-[2%]">:</td>
-                            <td className="py-1.5 w-[63%]">{user?.name || '-'}</td>
+                            <td className="py-1.5 w-[63%]">{employeeName}</td>
                         </tr>
                         <tr className="align-top">
                             <td className="py-1.5">2.</td>
                             <td className="py-1.5">Jabatan</td>
                             <td className="py-1.5">:</td>
-                            <td className="py-1.5">{user?.role || 'Staff'} - {data.department || 'Sales'}</td>
+                            <td className="py-1.5">{employeeRole} - {data.department || 'Sales'}</td>
                         </tr>
                         <tr className="align-top">
                             <td className="py-1.5">3.</td>
@@ -350,7 +359,7 @@ export default function UcPreview({ data, user, companies = [] }) {
                 </table>
 
                 <div className="text-red-600 font-bold mt-6">
-                    Rek ....... A/N {user?.name || '-'} (.........................)
+                    Rek {employeeBankRek} A/N {employeeName} {employeeBankName}
                 </div>
             </PageContainer>
         </div>
