@@ -442,8 +442,9 @@ class PaymentRequestController extends Controller
         return Inertia::render('PaymentRequests/Show', [
             'paymentRequest' => $paymentRequest,
             'completeness' => $completeness,
-            'canApprove' => $canApprove,
-            'canReject' => $canReject
+            'canApprove' => false,
+            'canReject' => false,
+            'isApprovalView' => false,
         ]);
     }
 

@@ -20,7 +20,7 @@ const formatCurrency = (value) => {
     }).format(value);
 };
 
-export default function Show({ auth, paymentRequest, completeness, canApprove, canReject, isApprovalView }) {
+export default function Show({ auth, paymentRequest, completeness, canApprove, canReject, isApprovalView = false }) {
     const pageAuth = usePage().props.auth;
     const currentAuth = auth || pageAuth;
     const canDownloadPdf = currentAuth?.can_download_pdf !== undefined
@@ -333,59 +333,61 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
 
                         {/* Kolom Kanan: Aksi & Timeline */}
                         <div className="space-y-6">
-                            <div className="bg-white p-6 rounded-lg shadow-sm">
-                                <h3 className="text-lg font-bold border-b pb-2 mb-4">Aksi</h3>
-                                <div className="space-y-3">
-                                    {(paymentRequest.workflow_status === 'draft' || paymentRequest.workflow_status === 'waiting_ga') && (
-                                        <>
-                                            <Link href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', paymentRequest.id)}>
-                                                <SecondaryButton >Edit Pengajuan</SecondaryButton>
-                                            </Link>
-                                            {paymentRequest.workflow_status === 'draft' && (
-                                                <PrimaryButton 
-                                                     
-                                                    disabled={!completeness.is_complete}
-                                                    onClick={() => handleAction('payment-requests.submit')}
-                                                >
-                                                    Kirim
-                                                </PrimaryButton>
-                                            )}
-                                        </>
-                                    )}
-                                    
-                                    {(canApprove || canReject) && (
-                                        <div className="flex flex-col gap-2 mt-4 pt-4 border-t">
-                                            {canApprove && (
-                                                <button 
-                                                    onClick={handleApprove}
-                                                    disabled={processing}
-                                                    className="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                                                >
-                                                    Setujui
-                                                </button>
-                                            )}
-                                            {canReject && (
-                                                <button 
-                                                    onClick={handleRevise}
-                                                    disabled={processing}
-                                                    className="w-full inline-flex justify-center items-center px-4 py-2 bg-amber-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-400 focus:bg-amber-400 active:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                                                >
-                                                    Revisi
-                                                </button>
-                                            )}
-                                            {canReject && (
-                                                <button 
-                                                    onClick={handleReject}
-                                                    disabled={processing}
-                                                    className="w-full inline-flex justify-center items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                                                >
-                                                    Tolak
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
+                            {isApprovalView && (
+                                <div className="bg-white p-6 rounded-lg shadow-sm">
+                                    <h3 className="text-lg font-bold border-b pb-2 mb-4">Aksi</h3>
+                                    <div className="space-y-3">
+                                        {(paymentRequest.workflow_status === 'draft' || paymentRequest.workflow_status === 'waiting_ga') && (
+                                            <>
+                                                <Link href={route('payment-approvals.edit', paymentRequest.id)}>
+                                                    <SecondaryButton >Edit Pengajuan</SecondaryButton>
+                                                </Link>
+                                                {paymentRequest.workflow_status === 'draft' && (
+                                                    <PrimaryButton 
+                                                         
+                                                        disabled={!completeness.is_complete}
+                                                        onClick={() => handleAction('payment-requests.submit')}
+                                                    >
+                                                        Kirim
+                                                    </PrimaryButton>
+                                                )}
+                                            </>
+                                        )}
+                                        
+                                        {(canApprove || canReject) && (
+                                            <div className="flex flex-col gap-2 mt-4 pt-4 border-t">
+                                                {canApprove && (
+                                                    <button 
+                                                        onClick={handleApprove}
+                                                        disabled={processing}
+                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                    >
+                                                        Setujui
+                                                    </button>
+                                                )}
+                                                {canReject && (
+                                                    <button 
+                                                        onClick={handleRevise}
+                                                        disabled={processing}
+                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-amber-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-400 focus:bg-amber-400 active:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                    >
+                                                        Revisi
+                                                    </button>
+                                                )}
+                                                {canReject && (
+                                                    <button 
+                                                        onClick={handleReject}
+                                                        disabled={processing}
+                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                    >
+                                                        Tolak
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Riwayat Persetujuan */}
                             <div className="bg-white p-6 rounded-lg shadow-sm">
