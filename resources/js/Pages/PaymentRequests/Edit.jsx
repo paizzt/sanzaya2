@@ -8,7 +8,7 @@ import InputError from '@/Components/InputError';
 import CurrencyInput from '@/Components/CurrencyInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
-import { UploadCloud, X, Trash2, RotateCcw } from 'lucide-react';
+import { UploadCloud, X, Trash2, RotateCcw, FileText, File } from 'lucide-react';
 
 export default function Edit({ auth, vendors, companies, paymentRequest, isApprovalView }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -376,45 +376,60 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                             <div className="mt-2 space-y-5">
                                 {/* Lampiran yang Saat Ini Terpasang */}
                                 {(() => {
-                                    const existingPhotos = paymentRequest.attachments?.filter(a => a.attachment_type === 'Lampiran Foto') || [];
-                                    if (existingPhotos.length === 0) return null;
+                                    const existingAttachments = paymentRequest.attachments || [];
+                                    if (existingAttachments.length === 0) return null;
                                     return (
                                         <div className="space-y-2">
                                             <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                                Foto Terpasang Saat Ini ({existingPhotos.length}):
+                                                Berkas & Foto Terpasang Saat Ini ({existingAttachments.length}):
                                             </p>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                                                {existingPhotos.map(att => {
+                                                {existingAttachments.map(att => {
                                                     const isDeleted = deletedIds.includes(att.id);
                                                     const rawUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
                                                     const imgUrl = rawUrl.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}` : rawUrl;
+                                                    const ext = (att.original_name ? att.original_name.split('.').pop() : (att.file_path.split('.').pop() || '')).toUpperCase();
+                                                    const isImg = att.attachment_type === 'Lampiran Foto' || ['JPG', 'JPEG', 'PNG', 'WEBP', 'GIF', 'BMP'].includes(ext);
+                                                    const isPdf = ext === 'PDF';
+                                                    const isSheet = ['XLS', 'XLSX', 'CSV'].includes(ext);
+                                                    const isDoc = ['DOC', 'DOCX'].includes(ext);
+
                                                     return (
                                                         <div 
                                                             key={att.id} 
                                                             className={`relative group border rounded-xl overflow-hidden p-2 flex flex-col items-center transition ${isDeleted ? 'bg-red-50 border-red-200 opacity-60' : 'bg-white shadow-sm'}`}
                                                         >
-                                                            <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center mb-2">
-                                                                <img 
-                                                                    src={imgUrl} 
-                                                                    alt={att.original_name || 'Lampiran'} 
-                                                                    className={`w-full h-full object-cover ${isDeleted ? 'grayscale' : ''}`} 
-                                                                    onError={(e) => {
-                                                                        e.target.onerror = null;
-                                                                        e.target.src = 'https://placehold.co/200x200/f1f5f9/64748b?text=Gagal+Muat';
-                                                                    }}
-                                                                />
+                                                            <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 flex flex-col items-center justify-center mb-2">
+                                                                {isImg ? (
+                                                                    <img 
+                                                                        src={imgUrl} 
+                                                                        alt={att.original_name || 'Lampiran'} 
+                                                                        className={`w-full h-full object-cover ${isDeleted ? 'grayscale' : ''}`} 
+                                                                        onError={(e) => {
+                                                                            e.target.onerror = null;
+                                                                            e.target.src = 'https://placehold.co/200x200/f1f5f9/64748b?text=Gagal+Muat';
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center justify-center p-2 text-center">
+                                                                        <FileText className={`w-8 h-8 mb-1 ${isPdf ? 'text-red-500' : (isSheet ? 'text-emerald-600' : (isDoc ? 'text-blue-600' : 'text-indigo-500'))}`} />
+                                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isPdf ? 'bg-red-50 text-red-600' : (isSheet ? 'bg-emerald-50 text-emerald-700' : (isDoc ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-700'))}`}>
+                                                                            {ext || 'FILE'}
+                                                                        </span>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                             <p className="text-xs text-gray-700 truncate w-full font-medium" title={att.original_name}>
-                                                                {att.original_name || 'Lampiran Foto'}
+                                                                {att.original_name || 'Lampiran File'}
                                                             </p>
                                                             <div className="mt-1 flex items-center justify-between w-full">
                                                                 <a 
-                                                                    href={imgUrl} 
+                                                                    href={rawUrl} 
                                                                     target="_blank" 
                                                                     rel="noopener noreferrer" 
                                                                     className="text-[11px] text-indigo-600 hover:underline font-semibold"
                                                                 >
-                                                                    Lihat Foto
+                                                                    {isImg ? 'Lihat Foto' : 'Buka File'}
                                                                 </a>
                                                                 {isDeleted ? (
                                                                     <button
@@ -430,7 +445,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                                                         type="button"
                                                                         onClick={() => handleDeleteExisting(att.id)}
                                                                         className="inline-flex items-center gap-1 text-[11px] text-red-500 hover:text-red-700 font-semibold"
-                                                                        title="Hapus foto ini"
+                                                                        title="Hapus file ini"
                                                                     >
                                                                         <Trash2 className="w-3 h-3" /> Hapus
                                                                     </button>
@@ -449,14 +464,14 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                     );
                                 })()}
 
-                                {/* Upload Foto Baru */}
+                                {/* Upload Berkas / Foto Baru */}
                                 <div className="space-y-3">
-                                    <InputLabel value="Tambah Foto / Lampiran Baru" />
+                                    <InputLabel value="Tambah File Dokumen / Foto Baru" />
                                     <div className="border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-2xl p-6 text-center transition-colors bg-gray-50/50">
                                         <input
                                             type="file"
                                             id="lampiran-upload-edit"
-                                            accept="image/*"
+                                            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar"
                                             multiple
                                             onChange={handleFileChange}
                                             className="hidden"
@@ -466,10 +481,10 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                                 <UploadCloud className="w-6 h-6" />
                                             </div>
                                             <p className="text-sm font-semibold text-gray-700">
-                                                Klik untuk memilih gambar atau foto bukti baru
+                                                Klik untuk memilih file berkas / dokumen atau foto bukti baru
                                             </p>
                                             <p className="text-xs text-gray-500 mt-1">
-                                                PNG, JPG, JPEG (Bisa pilih beberapa file sekaligus)
+                                                Mendukung File Dokumen (PDF, Word, Excel, ZIP) atau Foto (PNG, JPG, JPEG)
                                             </p>
                                         </label>
                                     </div>
@@ -480,38 +495,55 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">
-                                                    Foto Baru yang Akan Ditambahkan ({data.lampiran_foto.length}):
+                                                    File Baru yang Akan Ditambahkan ({data.lampiran_foto.length}):
                                                 </p>
                                                 <label htmlFor="lampiran-upload-edit" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 cursor-pointer">
-                                                    + Tambah Gambar Lain
+                                                    + Tambah File / Foto Lain
                                                 </label>
                                             </div>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                                                {data.lampiran_foto.map((file, idx) => (
-                                                    <div key={idx} className="relative group border rounded-xl overflow-hidden bg-white shadow-sm p-2 flex flex-col items-center">
-                                                        <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center mb-2">
-                                                            <img 
-                                                                src={URL.createObjectURL(file)} 
-                                                                alt={file.name} 
-                                                                className="w-full h-full object-cover" 
-                                                            />
+                                                {data.lampiran_foto.map((file, idx) => {
+                                                    const isImg = file.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(file.name);
+                                                    const ext = (file.name.split('.').pop() || '').toUpperCase();
+                                                    const isPdf = ext === 'PDF';
+                                                    const isSheet = ['XLS', 'XLSX', 'CSV'].includes(ext);
+                                                    const isDoc = ['DOC', 'DOCX'].includes(ext);
+
+                                                    return (
+                                                        <div key={idx} className="relative group border rounded-xl overflow-hidden bg-white shadow-sm p-2 flex flex-col items-center">
+                                                            <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 flex flex-col items-center justify-center mb-2">
+                                                                {isImg ? (
+                                                                    <img 
+                                                                        src={URL.createObjectURL(file)} 
+                                                                        alt={file.name} 
+                                                                        className="w-full h-full object-cover" 
+                                                                    />
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center justify-center p-2 text-center">
+                                                                        <FileText className={`w-8 h-8 mb-1 ${isPdf ? 'text-red-500' : (isSheet ? 'text-emerald-600' : (isDoc ? 'text-blue-600' : 'text-indigo-500'))}`} />
+                                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isPdf ? 'bg-red-50 text-red-600' : (isSheet ? 'bg-emerald-50 text-emerald-700' : (isDoc ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-700'))}`}>
+                                                                            {ext || 'FILE'}
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-xs text-gray-700 truncate w-full font-medium" title={file.name}>
+                                                                {file.name}
+                                                            </p>
+                                                            <span className="text-[10px] text-gray-400 w-full">
+                                                                {(file.size / 1024).toFixed(0)} KB
+                                                            </span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeNewFile(idx)}
+                                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition shadow"
+                                                                title="Hapus file ini"
+                                                            >
+                                                                <X className="w-3.5 h-3.5" />
+                                                            </button>
                                                         </div>
-                                                        <p className="text-xs text-gray-700 truncate w-full font-medium" title={file.name}>
-                                                            {file.name}
-                                                        </p>
-                                                        <span className="text-[10px] text-gray-400 w-full">
-                                                            {(file.size / 1024).toFixed(0)} KB
-                                                        </span>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeNewFile(idx)}
-                                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition shadow"
-                                                            title="Hapus foto ini"
-                                                        >
-                                                            <X className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}

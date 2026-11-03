@@ -909,32 +909,40 @@ class PaymentRequestController extends Controller
      */
     private function uploadAttachmentFile($file, $paymentRequestId, $userId)
     {
-        try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->attach(
-                'image', 
-                file_get_contents($file->getRealPath()), 
-                $file->getClientOriginalName()
-            )->post('https://api.imgbb.com/1/upload', [
-                'key' => '5950b44b24860057ff810fe73f58868b'
-            ]);
+        $ext = strtolower($file->getClientOriginalExtension());
+        $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp']);
+        $path = null;
 
-            if ($response->successful() && $response->json('data.url')) {
-                $path = $response->json('data.url');
-            } else {
+        if ($isImage) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->attach(
+                    'image', 
+                    file_get_contents($file->getRealPath()), 
+                    $file->getClientOriginalName()
+                )->post('https://api.imgbb.com/1/upload', [
+                    'key' => '5950b44b24860057ff810fe73f58868b'
+                ]);
+
+                if ($response->successful() && $response->json('data.url')) {
+                    $path = $response->json('data.url');
+                } else {
+                    $path = $file->store('payment_requests', 'public');
+                }
+            } catch (\Throwable $e) {
                 $path = $file->store('payment_requests', 'public');
             }
-        } catch (\Throwable $e) {
+        } else {
             $path = $file->store('payment_requests', 'public');
         }
 
         \Illuminate\Support\Facades\DB::table('payment_request_attachments')->insert([
             'payment_request_id' => $paymentRequestId,
-            'attachment_type' => 'Lampiran Foto',
+            'attachment_type' => $isImage ? 'Lampiran Foto' : 'Lampiran Dokumen',
             'original_name' => $file->getClientOriginalName(),
             'stored_name' => basename($path),
             'file_path' => $path,
-            'mime_type' => $file->getClientMimeType(),
-            'file_size' => $file->getSize(),
+            'mime_type' => $file->getClientMimeType() ?: 'application/octet-stream',
+            'file_size' => $file->getSize() ?: 0,
             'uploaded_by' => $userId,
             'created_at' => now(),
             'updated_at' => now(),

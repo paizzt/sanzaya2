@@ -8,7 +8,7 @@ import InputError from '@/Components/InputError';
 import CurrencyInput from '@/Components/CurrencyInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
-import { UploadCloud, X } from 'lucide-react';
+import { UploadCloud, X, FileText, File } from 'lucide-react';
 
 export default function Create({ auth, vendors, companies, user }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -350,7 +350,7 @@ export default function Create({ auth, vendors, companies, user }) {
                                     <input
                                         type="file"
                                         id="lampiran-upload-create"
-                                        accept="image/*"
+                                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar"
                                         multiple
                                         onChange={handleFileChange}
                                         className="hidden"
@@ -360,10 +360,10 @@ export default function Create({ auth, vendors, companies, user }) {
                                             <UploadCloud className="w-6 h-6" />
                                         </div>
                                         <p className="text-sm font-semibold text-gray-700">
-                                            Klik untuk memilih gambar atau foto bukti
+                                            Klik untuk memilih file berkas / dokumen atau foto bukti
                                         </p>
                                         <p className="text-xs text-gray-500 mt-1">
-                                            PNG, JPG, JPEG (Bisa pilih beberapa file sekaligus)
+                                            Mendukung File Dokumen (PDF, Word, Excel, ZIP) atau Foto (PNG, JPG, JPEG)
                                         </p>
                                     </label>
                                 </div>
@@ -377,35 +377,52 @@ export default function Create({ auth, vendors, companies, user }) {
                                                 File Terpilih ({data.lampiran_foto.length}):
                                             </p>
                                             <label htmlFor="lampiran-upload-create" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 cursor-pointer">
-                                                + Tambah Gambar Lain
+                                                + Tambah File / Foto Lain
                                             </label>
                                         </div>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                                            {data.lampiran_foto.map((file, idx) => (
-                                                <div key={idx} className="relative group border rounded-xl overflow-hidden bg-white shadow-sm p-2 flex flex-col items-center">
-                                                    <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center mb-2">
-                                                        <img 
-                                                            src={URL.createObjectURL(file)} 
-                                                            alt={file.name} 
-                                                            className="w-full h-full object-cover" 
-                                                        />
+                                            {data.lampiran_foto.map((file, idx) => {
+                                                const isImg = file.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(file.name);
+                                                const ext = (file.name.split('.').pop() || '').toUpperCase();
+                                                const isPdf = ext === 'PDF';
+                                                const isSheet = ['XLS', 'XLSX', 'CSV'].includes(ext);
+                                                const isDoc = ['DOC', 'DOCX'].includes(ext);
+
+                                                return (
+                                                    <div key={idx} className="relative group border rounded-xl overflow-hidden bg-white shadow-sm p-2 flex flex-col items-center">
+                                                        <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 flex flex-col items-center justify-center mb-2">
+                                                            {isImg ? (
+                                                                <img 
+                                                                    src={URL.createObjectURL(file)} 
+                                                                    alt={file.name} 
+                                                                    className="w-full h-full object-cover" 
+                                                                />
+                                                            ) : (
+                                                                <div className="flex flex-col items-center justify-center p-2 text-center">
+                                                                    <FileText className={`w-8 h-8 mb-1 ${isPdf ? 'text-red-500' : (isSheet ? 'text-emerald-600' : (isDoc ? 'text-blue-600' : 'text-indigo-500'))}`} />
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isPdf ? 'bg-red-50 text-red-600' : (isSheet ? 'bg-emerald-50 text-emerald-700' : (isDoc ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-700'))}`}>
+                                                                        {ext || 'FILE'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-xs text-gray-700 truncate w-full font-medium" title={file.name}>
+                                                            {file.name}
+                                                        </p>
+                                                        <span className="text-[10px] text-gray-400 w-full">
+                                                            {(file.size / 1024).toFixed(0)} KB
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeFile(idx)}
+                                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition shadow"
+                                                            title="Hapus file ini"
+                                                        >
+                                                            <X className="w-3.5 h-3.5" />
+                                                        </button>
                                                     </div>
-                                                    <p className="text-xs text-gray-700 truncate w-full font-medium" title={file.name}>
-                                                        {file.name}
-                                                    </p>
-                                                    <span className="text-[10px] text-gray-400 w-full">
-                                                        {(file.size / 1024).toFixed(0)} KB
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeFile(idx)}
-                                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition shadow"
-                                                        title="Hapus foto ini"
-                                                    >
-                                                        <X className="w-3.5 h-3.5" />
-                                                    </button>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}

@@ -5,7 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
 import Modal from '@/Components/Modal';
-import { Eye, ExternalLink, X } from 'lucide-react';
+import { Eye, ExternalLink, X, FileText, Download } from 'lucide-react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -403,49 +403,94 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
 
                             {/* Lampiran Tambahan */}
                             {(() => {
-                                const photoAttachments = paymentRequest.attachments?.filter(a => a.attachment_type === 'Lampiran Foto') || [];
-                                if (photoAttachments.length === 0) return null;
+                                const attachments = paymentRequest.attachments || [];
+                                if (attachments.length === 0) return null;
                                 return (
                                     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                                         <div className="flex items-center justify-between border-b pb-2 mb-4">
                                             <h3 className="text-lg font-bold text-gray-800">
-                                                Lampiran Foto ({photoAttachments.length})
+                                                Lampiran Tambahan ({attachments.length})
                                             </h3>
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {photoAttachments.map((att, idx) => {
+                                            {attachments.map((att, idx) => {
                                                 const rawUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
                                                 const imgUrl = rawUrl.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}` : rawUrl;
-                                                return (
-                                                    <div key={att.id || idx} className="group border rounded-xl overflow-hidden bg-gray-50 flex flex-col justify-between hover:shadow-md transition">
-                                                        <div 
-                                                            onClick={() => setSelectedImage(imgUrl)}
-                                                            className="cursor-pointer overflow-hidden bg-gray-100 h-44 flex items-center justify-center relative"
-                                                        >
-                                                            <img 
-                                                                src={imgUrl} 
-                                                                alt={att.original_name || `Lampiran ${idx + 1}`} 
-                                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                                onError={(e) => {
-                                                                    e.target.onerror = null;
-                                                                    e.target.src = 'https://placehold.co/400x300/f1f5f9/64748b?text=Foto+Gagal+Dimuat';
-                                                                }}
-                                                            />
-                                                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-2 font-medium text-xs">
-                                                                <Eye className="w-4 h-4" /> Perbesar
+                                                const ext = (att.original_name ? att.original_name.split('.').pop() : (att.file_path.split('.').pop() || '')).toUpperCase();
+                                                const isImg = att.attachment_type === 'Lampiran Foto' || ['JPG', 'JPEG', 'PNG', 'WEBP', 'GIF', 'BMP'].includes(ext);
+                                                const isPdf = ext === 'PDF';
+                                                const isSheet = ['XLS', 'XLSX', 'CSV'].includes(ext);
+                                                const isDoc = ['DOC', 'DOCX'].includes(ext);
+
+                                                if (isImg) {
+                                                    return (
+                                                        <div key={att.id || idx} className="group border rounded-xl overflow-hidden bg-gray-50 flex flex-col justify-between hover:shadow-md transition">
+                                                            <div 
+                                                                onClick={() => setSelectedImage(imgUrl)}
+                                                                className="cursor-pointer overflow-hidden bg-gray-100 h-44 flex items-center justify-center relative"
+                                                            >
+                                                                <img 
+                                                                    src={imgUrl} 
+                                                                    alt={att.original_name || `Lampiran ${idx + 1}`} 
+                                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                                    onError={(e) => {
+                                                                        e.target.onerror = null;
+                                                                        e.target.src = 'https://placehold.co/400x300/f1f5f9/64748b?text=Foto+Gagal+Dimuat';
+                                                                    }}
+                                                                />
+                                                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-2 font-medium text-xs">
+                                                                    <Eye className="w-4 h-4" /> Perbesar
+                                                                </div>
+                                                            </div>
+                                                            <div className="p-3 bg-white border-t flex items-center justify-between gap-2">
+                                                                <span className="text-xs font-semibold text-gray-700 truncate" title={att.original_name}>
+                                                                    {att.original_name || `Foto ${idx + 1}`}
+                                                                </span>
+                                                                <a 
+                                                                    href={rawUrl} 
+                                                                    target="_blank" 
+                                                                    rel="noopener noreferrer" 
+                                                                    className="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg shrink-0 transition flex items-center gap-1"
+                                                                >
+                                                                    <ExternalLink className="w-3 h-3" /> Buka
+                                                                </a>
                                                             </div>
                                                         </div>
-                                                        <div className="p-3 bg-white border-t flex items-center justify-between gap-2">
-                                                            <span className="text-xs font-semibold text-gray-700 truncate" title={att.original_name}>
-                                                                {att.original_name || `Foto ${idx + 1}`}
-                                                            </span>
+                                                    );
+                                                }
+
+                                                // Document File Card
+                                                return (
+                                                    <div key={att.id || idx} className="border rounded-xl overflow-hidden bg-white hover:border-indigo-300 flex flex-col justify-between hover:shadow-md transition p-4">
+                                                        <div className="flex items-start gap-3">
+                                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isPdf ? 'bg-red-50 text-red-600' : (isSheet ? 'bg-emerald-50 text-emerald-700' : (isDoc ? 'bg-blue-50 text-blue-700' : 'bg-indigo-50 text-indigo-600'))}`}>
+                                                                <FileText className="w-6 h-6" />
+                                                            </div>
+                                                            <div className="min-w-0 flex-1">
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${isPdf ? 'bg-red-100 text-red-700' : (isSheet ? 'bg-emerald-100 text-emerald-800' : (isDoc ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'))}`}>
+                                                                        {ext || 'FILE'}
+                                                                    </span>
+                                                                    {att.file_size ? (
+                                                                        <span className="text-[11px] text-gray-400">
+                                                                            {(att.file_size / 1024).toFixed(0)} KB
+                                                                        </span>
+                                                                    ) : null}
+                                                                </div>
+                                                                <p className="text-sm font-semibold text-gray-800 truncate" title={att.original_name}>
+                                                                    {att.original_name || `Berkas ${idx + 1}`}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="mt-4 pt-3 border-t flex items-center justify-end">
                                                             <a 
-                                                                href={imgUrl} 
+                                                                href={rawUrl} 
                                                                 target="_blank" 
                                                                 rel="noopener noreferrer" 
-                                                                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg shrink-0 transition flex items-center gap-1"
+                                                                download={att.original_name || true}
+                                                                className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition shadow-sm"
                                                             >
-                                                                <ExternalLink className="w-3 h-3" /> Buka
+                                                                <Download className="w-3.5 h-3.5" /> Buka / Unduh
                                                             </a>
                                                         </div>
                                                     </div>

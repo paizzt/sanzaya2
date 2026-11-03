@@ -308,13 +308,47 @@
     </div>
 
     @php
-        $photoAttachments = $paymentRequest->attachments ? $paymentRequest->attachments->where('attachment_type', 'Lampiran Foto') : collect();
+        $attachments = $paymentRequest->attachments ?? collect();
+        $photoAttachments = $attachments->filter(function($a) {
+            $ext = strtolower(pathinfo($a->original_name ?: $a->file_path, PATHINFO_EXTENSION));
+            return $a->attachment_type === 'Lampiran Foto' || in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp']);
+        });
+        $docAttachments = $attachments->filter(function($a) {
+            $ext = strtolower(pathinfo($a->original_name ?: $a->file_path, PATHINFO_EXTENSION));
+            return $a->attachment_type !== 'Lampiran Foto' && !in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp']);
+        });
     @endphp
+
+    @if($docAttachments->count() > 0)
+        <div style="margin-top: 20px; font-size: 13px;">
+            <p style="font-weight: bold; margin-bottom: 8px;">Daftar Dokumen / Berkas Terlampir ({{ $docAttachments->count() }} File):</p>
+            <table class="bordered-table" style="width: 100%; font-size: 11px;">
+                <thead>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="width: 35px; text-align: center;">No</th>
+                        <th>Nama Dokumen</th>
+                        <th style="width: 100px; text-align: center;">Tipe</th>
+                        <th style="width: 100px; text-align: right;">Ukuran</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($docAttachments as $doc)
+                        <tr>
+                            <td style="text-align: center;">{{ $loop->iteration }}</td>
+                            <td>{{ $doc->original_name }}</td>
+                            <td style="text-align: center;">{{ strtoupper(pathinfo($doc->original_name ?: $doc->file_path, PATHINFO_EXTENSION) ?: 'BERKAS') }}</td>
+                            <td style="text-align: right;">{{ $doc->file_size ? number_format($doc->file_size / 1024, 0, ',', '.') . ' KB' : '-' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
 
     @if($photoAttachments->count() > 0)
         <div class="page-break"></div>
         <div style="margin-top: 30px; font-size: 14px;">
-            <p style="font-weight: bold; margin-bottom: 15px;">Lampiran / Bukti Pendukung ({{ $photoAttachments->count() }} Foto):</p>
+            <p style="font-weight: bold; margin-bottom: 15px;">Lampiran Foto / Bukti Pendukung ({{ $photoAttachments->count() }} Foto):</p>
             <div>
                 @foreach($photoAttachments as $attachment)
                     @php
