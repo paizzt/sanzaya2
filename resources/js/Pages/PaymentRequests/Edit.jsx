@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 import { UploadCloud, X, Trash2, RotateCcw, FileText, File } from 'lucide-react';
 
 export default function Edit({ auth, vendors, companies, paymentRequest, isApprovalView }) {
-    const defaultCategories = ['Pengajuan Umum', 'Entertaint', 'Support'];
+    const defaultCategories = ['Pengajuan Umum', 'Entertaint', 'Support', 'Purchasing'];
     const categoryOptions = [
         ...defaultCategories.map(c => ({ value: c, label: c })),
         ...(paymentRequest.category && !defaultCategories.includes(paymentRequest.category)

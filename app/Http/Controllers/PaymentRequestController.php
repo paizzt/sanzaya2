@@ -66,6 +66,10 @@ class PaymentRequestController extends Controller
                 $query->where(function($q) {
                     $q->where('category', 'like', '%Entertain%');
                 });
+            } elseif ($cat === 'Purchasing' || $cat === 'Pengajuan Purchasing') {
+                $query->where(function($q) {
+                    $q->where('category', 'like', '%Purchasing%');
+                });
             } else {
                 $query->where('category', 'like', "%{$cat}%");
             }
@@ -175,6 +179,10 @@ class PaymentRequestController extends Controller
             if ($cat === 'Entertaint' || $cat === 'Entertain') {
                 $query->where(function($q) {
                     $q->where('category', 'like', '%Entertain%');
+                });
+            } elseif ($cat === 'Purchasing' || $cat === 'Pengajuan Purchasing') {
+                $query->where(function($q) {
+                    $q->where('category', 'like', '%Purchasing%');
                 });
             } else {
                 $query->where('category', 'like', "%{$cat}%");

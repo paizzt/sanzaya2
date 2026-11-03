@@ -162,6 +162,8 @@
             $pdfTitle = 'LAPORAN BIAYA SUPPORT';
         } elseif (str_contains($catUpper, 'ENTERTAIN')) {
             $pdfTitle = 'LAPORAN BIAYA ENTERTAIN';
+        } elseif (str_contains($catUpper, 'PURCHASING')) {
+            $pdfTitle = 'LAPORAN BIAYA PURCHASING';
         }
     @endphp
     <table class="header">

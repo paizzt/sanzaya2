@@ -15,6 +15,7 @@ export default function Create({ auth, vendors, companies, user }) {
         { value: 'Pengajuan Umum', label: 'Pengajuan Umum' },
         { value: 'Entertaint', label: 'Entertaint' },
         { value: 'Support', label: 'Support' },
+        { value: 'Purchasing', label: 'Purchasing' },
     ];
 
     const { data, setData, post, processing, errors } = useForm({
