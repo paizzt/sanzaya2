@@ -222,6 +222,20 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                         <span className="text-gray-500 block text-xs">Tujuan Pembayaran</span>
                                         <span className="font-semibold text-gray-900">{paymentRequest.purpose}</span>
                                     </div>
+                                    {paymentRequest.project_or_outlet && paymentRequest.project_or_outlet !== '-' && (
+                                        <div>
+                                            <span className="text-gray-500 block text-xs">
+                                                {paymentRequest.category?.toLowerCase().includes('purchasing') ? 'Nama RS / DINKES' : 'Nama Outlet'}
+                                            </span>
+                                            <span className="font-semibold text-gray-900">{paymentRequest.project_or_outlet}</span>
+                                        </div>
+                                    )}
+                                    {paymentRequest.invoice_reference && (
+                                        <div>
+                                            <span className="text-gray-500 block text-xs">No. Pesanan / Klikkan</span>
+                                            <span className="font-semibold text-gray-900">{paymentRequest.invoice_reference}</span>
+                                        </div>
+                                    )}
                                     <div>
                                         <span className="text-gray-500 block text-xs">Nomor Surat</span>
                                         <span className="font-semibold text-gray-900">{paymentRequest.letter_number || '-'}</span>

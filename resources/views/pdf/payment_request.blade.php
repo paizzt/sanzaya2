@@ -234,6 +234,22 @@
             <td>:</td>
             <td>{{ $paymentRequest->category }} / {{ $paymentRequest->purpose }}</td>
         </tr>
+        @if($paymentRequest->project_or_outlet && $paymentRequest->project_or_outlet !== '-')
+        <tr>
+            <td>-</td>
+            <td>{{ str_contains($catUpper, 'PURCHASING') ? 'Nama RS / DINKES' : 'Nama Outlet' }}</td>
+            <td>:</td>
+            <td>{{ $paymentRequest->project_or_outlet }}</td>
+        </tr>
+        @endif
+        @if($paymentRequest->invoice_reference)
+        <tr>
+            <td>-</td>
+            <td>No. Pesanan / Klikkan</td>
+            <td>:</td>
+            <td>{{ $paymentRequest->invoice_reference }}</td>
+        </tr>
+        @endif
         @if($paymentRequest->letter_number)
         <tr>
             <td>-</td>

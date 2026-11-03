@@ -103,8 +103,19 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
         if (!data.transaction_date || !data.transaction_date.trim()) emptyFields.push('Tanggal Transaksi');
         if (!data.payment_deadline || !data.payment_deadline.trim()) emptyFields.push('Batas Akhir Pembayaran');
         if (!data.category || !data.category.trim()) emptyFields.push('Kategori Pengajuan');
-        if (!data.purpose || !data.purpose.trim()) emptyFields.push('Perihal / Tujuan');
-        if (!data.recipient_name || !data.recipient_name.trim()) emptyFields.push('Nama Penerima');
+
+        if (data.category === 'Support' || data.category === 'Entertaint') {
+            if (!data.project_or_outlet || !data.project_or_outlet.trim()) emptyFields.push('Nama Outlet');
+            if (!data.recipient_name || !data.recipient_name.trim()) emptyFields.push('Nama Penerima / Bagian');
+            if (!data.purpose || !data.purpose.trim()) emptyFields.push('Perihal / Keterangan Kegiatan');
+        } else if (data.category === 'Purchasing') {
+            if (!data.project_or_outlet || !data.project_or_outlet.trim()) emptyFields.push('Nama RS / DINKES');
+            if (!data.recipient_name || !data.recipient_name.trim()) emptyFields.push('Penyedia / Nama Vendor');
+            if (!data.purpose || !data.purpose.trim()) emptyFields.push('Perihal / Kebutuhan Barang');
+        } else {
+            if (!data.purpose || !data.purpose.trim()) emptyFields.push('Perihal / Tujuan');
+            if (!data.recipient_name || !data.recipient_name.trim()) emptyFields.push('Nama Penerima');
+        }
 
         if (!data.items || data.items.length === 0) {
             emptyFields.push('Rincian Anggaran (minimal 1 baris)');
@@ -219,7 +230,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                     <TextInput type="date" value={data.payment_deadline} onChange={e => setData('payment_deadline', e.target.value)} className="w-full" required />
                                     <InputError message={errors.payment_deadline} />
                                 </div>
-                                <div>
+                                <div className="md:col-span-2">
                                     <InputLabel value="Kategori Pengajuan" />
                                     <CustomSelect
                                         value={data.category}
@@ -229,32 +240,146 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                     />
                                     <InputError message={errors.category} />
                                 </div>
-                                <div>
-                                    <InputLabel value="Perihal / Tujuan" />
-                                    <TextInput value={data.purpose} onChange={e => setData('purpose', e.target.value)} className="w-full" required />
-                                    <InputError message={errors.purpose} />
-                                </div>
-                                <div>
-                                    <InputLabel value="Nomor Surat (Opsional)" />
-                                    <TextInput value={data.letter_number} onChange={e => setData('letter_number', e.target.value)} className="w-full" />
-                                    <InputError message={errors.letter_number} />
-                                </div>
-                                <div>
-                                    <InputLabel value="Nama Penerima" />
-                                    <TextInput value={data.recipient_name} onChange={e => setData('recipient_name', e.target.value)} className="w-full" required />
-                                    <InputError message={errors.recipient_name} />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <InputLabel value="Keterangan (Opsional)" />
-                                    <textarea
-                                        value={data.notes}
-                                        onChange={e => setData('notes', e.target.value)}
-                                        className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
-                                        rows="3"
-                                        placeholder="Masukkan keterangan atau catatan tambahan jika ada..."
-                                    />
-                                    <InputError message={errors.notes} />
-                                </div>
+
+                                {/* Dynamic Fields based on Category */}
+                                {(data.category === 'Support' || data.category === 'Entertaint') && (
+                                    <>
+                                        <div>
+                                            <InputLabel value="Nama Outlet" />
+                                            <TextInput 
+                                                value={data.project_or_outlet} 
+                                                onChange={e => setData('project_or_outlet', e.target.value)} 
+                                                className="w-full" 
+                                                placeholder={data.category === 'Support' ? "Contoh: RSUD I LAGA LIGO" : "Contoh: RSUD ANWAR MAKKATUTU"}
+                                                required 
+                                            />
+                                            <InputError message={errors.project_or_outlet} />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Nama Penerima / Bagian" />
+                                            <TextInput 
+                                                value={data.recipient_name} 
+                                                onChange={e => setData('recipient_name', e.target.value)} 
+                                                className="w-full" 
+                                                placeholder={data.category === 'Support' ? "Contoh: dr. IRFAN / DIREKTUR RUMAH SAKIT" : "Contoh: PAK ASWIN / PEMESANAN"}
+                                                required 
+                                            />
+                                            <InputError message={errors.recipient_name} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <InputLabel value={data.category === 'Support' ? "Keterangan Kegiatan / Perihal" : "Perihal / Keterangan Entertain"} />
+                                            <TextInput 
+                                                value={data.purpose} 
+                                                onChange={e => setData('purpose', e.target.value)} 
+                                                className="w-full" 
+                                                placeholder={data.category === 'Support' ? "Contoh: KEGIATAN DI KEMENKES RI / PEMESANAN 2 KAMAR HOTEL" : "Contoh: MAKANAN DAN MINUMAN KOORDINASI"}
+                                                required 
+                                            />
+                                            <InputError message={errors.purpose} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <InputLabel value="Catatan / Keterangan Tambahan (Opsional)" />
+                                            <textarea
+                                                value={data.notes}
+                                                onChange={e => setData('notes', e.target.value)}
+                                                className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                                rows="3"
+                                                placeholder="Contoh: Pemesanan kamar hotel diharapkan dekat dengan lokasi acara..."
+                                            />
+                                            <InputError message={errors.notes} />
+                                        </div>
+                                    </>
+                                )}
+
+                                {data.category === 'Purchasing' && (
+                                    <>
+                                        <div>
+                                            <InputLabel value="No. Pesanan / Klikkan (Opsional)" />
+                                            <TextInput 
+                                                value={data.invoice_reference} 
+                                                onChange={e => setData('invoice_reference', e.target.value)} 
+                                                className="w-full" 
+                                                placeholder="Contoh: EP-01M5Y7XEDWGMBAKE1QJRYVJNOV"
+                                            />
+                                            <InputError message={errors.invoice_reference} />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Nama RS / DINKES" />
+                                            <TextInput 
+                                                value={data.project_or_outlet} 
+                                                onChange={e => setData('project_or_outlet', e.target.value)} 
+                                                className="w-full" 
+                                                placeholder="Contoh: RSUD I LAGA LIGO"
+                                                required 
+                                            />
+                                            <InputError message={errors.project_or_outlet} />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Penyedia / Nama Vendor" />
+                                            <TextInput 
+                                                value={data.recipient_name} 
+                                                onChange={e => setData('recipient_name', e.target.value)} 
+                                                className="w-full" 
+                                                placeholder="Contoh: PT. KUNINGAN SARANA BERSAMA"
+                                                required 
+                                            />
+                                            <InputError message={errors.recipient_name} />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Perihal / Kebutuhan Barang" />
+                                            <TextInput 
+                                                value={data.purpose} 
+                                                onChange={e => setData('purpose', e.target.value)} 
+                                                className="w-full" 
+                                                placeholder="Contoh: Pengadaan Apron LL / Kebutuhan Barang Tgl 03/11/2026"
+                                                required 
+                                            />
+                                            <InputError message={errors.purpose} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <InputLabel value="Keterangan (Opsional)" />
+                                            <textarea
+                                                value={data.notes}
+                                                onChange={e => setData('notes', e.target.value)}
+                                                className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                                rows="3"
+                                                placeholder="Contoh: Pembayaran Cash / Transfer..."
+                                            />
+                                            <InputError message={errors.notes} />
+                                        </div>
+                                    </>
+                                )}
+
+                                {data.category !== 'Support' && data.category !== 'Entertaint' && data.category !== 'Purchasing' && (
+                                    <>
+                                        <div>
+                                            <InputLabel value="Perihal / Tujuan" />
+                                            <TextInput value={data.purpose} onChange={e => setData('purpose', e.target.value)} className="w-full" required />
+                                            <InputError message={errors.purpose} />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Nomor Surat (Opsional)" />
+                                            <TextInput value={data.letter_number} onChange={e => setData('letter_number', e.target.value)} className="w-full" />
+                                            <InputError message={errors.letter_number} />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Nama Penerima" />
+                                            <TextInput value={data.recipient_name} onChange={e => setData('recipient_name', e.target.value)} className="w-full" required />
+                                            <InputError message={errors.recipient_name} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <InputLabel value="Keterangan (Opsional)" />
+                                            <textarea
+                                                value={data.notes}
+                                                onChange={e => setData('notes', e.target.value)}
+                                                className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                                                rows="3"
+                                                placeholder="Masukkan keterangan atau catatan tambahan jika ada..."
+                                            />
+                                            <InputError message={errors.notes} />
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
 
