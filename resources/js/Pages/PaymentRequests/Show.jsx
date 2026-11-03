@@ -463,7 +463,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                                                     {att.original_name || `Foto ${idx + 1}`}
                                                                 </span>
                                                                 <a 
-                                                                    href={rawUrl} 
+                                                                    href={imgUrl} 
                                                                     target="_blank" 
                                                                     rel="noopener noreferrer" 
                                                                     className="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg shrink-0 transition flex items-center gap-1"

@@ -1035,6 +1035,9 @@ class PaymentRequestController extends Controller
         $attachment = \App\Models\PaymentRequestAttachment::findOrFail($id);
 
         if (str_starts_with($attachment->file_path, 'http')) {
+            if (str_contains($attachment->file_path, 'i.ibb.co')) {
+                return redirect('https://wsrv.nl/?url=' . urlencode($attachment->file_path));
+            }
             return redirect($attachment->file_path);
         }
 
