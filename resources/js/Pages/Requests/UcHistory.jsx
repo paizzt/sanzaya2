@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X } from 'lucide-react';
+import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
