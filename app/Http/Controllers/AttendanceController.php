@@ -325,6 +325,10 @@ class AttendanceController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($id === 'pengajuan' || $id === 'settings' || $id === 'rekap') {
+            abort(404, 'Data absensi tidak ditemukan.');
+        }
+
         $user = Auth::user();
         $canEdit = $user && ($user->isAdminUser() || $user->isSuperAdminUser());
         if (!$canEdit) {
