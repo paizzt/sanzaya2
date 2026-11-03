@@ -437,25 +437,25 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         </span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
-                                                        <div className="flex items-center justify-center gap-1.5 flex-nowrap">
+                                                        <div className="flex flex-col items-stretch gap-1 w-full max-w-[64px] mx-auto">
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => handleRowAction(req, 'Disetujui')} 
-                                                                className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
+                                                                className="w-full py-1 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 ACC
                                                             </button>
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => handleRowAction(req, 'Ditolak')} 
-                                                                className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
+                                                                className="w-full py-1 px-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Tolak
                                                             </button>
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => handleRowAction(req, 'Direvisi')} 
-                                                                className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
+                                                                className="w-full py-1 px-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Revisi
                                                             </button>
@@ -569,25 +569,25 @@ export default function UcApproval({ requests, isAdmin }) {
                                                         </span>
                                                     </td>
                                                     <td className="px-3.5 py-3">
-                                                        <div className="flex items-center justify-center gap-1.5 flex-nowrap">
+                                                        <div className="flex flex-col items-stretch gap-1 w-full max-w-[64px] mx-auto">
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => handleRowAction(req, 'Disetujui')} 
-                                                                className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
+                                                                className="w-full py-1 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 ACC
                                                             </button>
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => handleRowAction(req, 'Ditolak')} 
-                                                                className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
+                                                                className="w-full py-1 px-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Tolak
                                                             </button>
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => handleRowAction(req, 'Direvisi')} 
-                                                                className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
+                                                                className="w-full py-1 px-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
                                                             >
                                                                 Revisi
                                                             </button>
