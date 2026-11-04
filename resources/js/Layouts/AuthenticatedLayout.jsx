@@ -235,11 +235,10 @@ export default function Authenticated({ user, header, children }) {
         },
         {
             name: 'Pengajuan', icon: FileText,
-            active: url.startsWith('/requests') || url.startsWith('/payment-requests'),
+            active: (url.startsWith('/requests') && !url.startsWith('/requests/uc-approval')) || url.startsWith('/payment-requests'),
             children: [
                 { name: 'Form UC', href: route('requests.uc.index'), active: url.startsWith('/requests/uc') && !url.startsWith('/requests/uc-approval') && !url.startsWith('/requests/uc-history'), show: hasFeature('Menu Pengajuan UC') },
                 { name: 'Riwayat UC', href: route('requests.uc.history'), active: url.startsWith('/requests/uc-history'), show: hasFeature('Riwayat UC') },
-                { name: 'Persetujuan UC', href: route('requests.uc.approval.index'), active: url.startsWith('/requests/uc-approval'), show: hasFeature('Menu Persetujuan UC') },
                 { name: 'Input BHP', href: route('requests.bhp.index'), active: url.startsWith('/requests/bhp') && !url.startsWith('/requests/bhp-recap'), show: hasFeature('Menu Pengajuan BHP') },
                 { name: 'Rekap BHP', href: route('requests.bhp.recap.index'), active: url.startsWith('/requests/bhp-recap'), show: hasFeature('Rekap BHP') },
                 { name: 'Pengajuan Pembayaran', href: route('payment-requests.index'), active: url.startsWith('/payment-requests'), show: hasFeature('Menu Pengajuan Pembayaran') },
@@ -247,11 +246,12 @@ export default function Authenticated({ user, header, children }) {
         },
         {
             name: 'Finance', icon: Wallet,
-            active: url.startsWith('/payables') || url.startsWith('/receivables') || url.startsWith('/payment-approvals'),
+            active: url.startsWith('/payables') || url.startsWith('/receivables') || url.startsWith('/payment-approvals') || url.startsWith('/requests/uc-approval'),
             children: [
                 { name: 'Data Hutang', href: route('payables.index'), active: url.startsWith('/payables'), show: hasFeature('Data Hutang') },
                 { name: 'Data Piutang', href: route('receivables.index'), active: url.startsWith('/receivables'), show: hasFeature('Data Piutang') },
                 { name: 'Persetujuan Pembayaran', href: route('payment-approvals.index'), active: url.startsWith('/payment-approvals'), show: hasFeature('Persetujuan Pembayaran') },
+                { name: 'Persetujuan UC', href: route('requests.uc.approval.index'), active: url.startsWith('/requests/uc-approval'), show: hasFeature('Menu Persetujuan UC') },
             ]
         },
         {

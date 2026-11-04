@@ -1015,7 +1015,6 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     "Pengajuan": [
                                                         { label: "Form UC", db: "Menu Pengajuan UC" },
                                                         { label: "Riwayat UC", db: "Riwayat UC" },
-                                                        { label: "Persetujuan UC", db: "Menu Persetujuan UC" },
                                                         { label: "Input BHP", db: "Menu Pengajuan BHP" },
                                                         { label: "Rekap BHP", db: "Rekap BHP" },
                                                         { label: "Pengajuan Pembayaran", db: "Menu Pengajuan Pembayaran" }
@@ -1023,7 +1022,8 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     "Finance": [
                                                         { label: "Data Hutang", db: "Data Hutang" },
                                                         { label: "Data Piutang", db: "Data Piutang" },
-                                                        { label: "Persetujuan Pembayaran", db: "Persetujuan Pembayaran" }
+                                                        { label: "Persetujuan Pembayaran", db: "Persetujuan Pembayaran" },
+                                                        { label: "Persetujuan UC", db: "Menu Persetujuan UC" }
                                                     ],
                                                     "Logistik": [
                                                         { label: "Laporan Logistik", db: "Laporan Logistik" },
