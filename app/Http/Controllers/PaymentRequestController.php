@@ -75,8 +75,23 @@ class PaymentRequestController extends Controller
             }
         }
 
-        if ($request->filled('company')) {
-            $query->where('company_name', $request->company);
+        // Persistent PT filter in session
+        if ($request->has('company')) {
+            $companyFilter = $request->input('company');
+            if (!empty($companyFilter)) {
+                session(['payment_requests_company' => $companyFilter]);
+            } else {
+                session()->forget('payment_requests_company');
+            }
+        } elseif ($request->boolean('reset') || $request->has('reset_company')) {
+            session()->forget('payment_requests_company');
+            $companyFilter = null;
+        } else {
+            $companyFilter = session('payment_requests_company', null);
+        }
+
+        if (!empty($companyFilter)) {
+            $query->where('company_name', $companyFilter);
         }
 
         $companyNames = \App\Models\Company::orderBy('name')->pluck('name')->toArray();
@@ -86,9 +101,14 @@ class PaymentRequestController extends Controller
 
         $paymentRequests = $query->paginate(15)->withQueryString();
 
+        $filters = array_merge(
+            $request->only(['search', 'status', 'nominal', 'category']),
+            ['company' => $companyFilter ?: '']
+        );
+
         return Inertia::render('PaymentRequests/Index', [
             'paymentRequests' => $paymentRequests,
-            'filters' => $request->only(['search', 'status', 'nominal', 'category', 'company']),
+            'filters' => $filters,
             'companies' => $allCompanyNames,
             'summary' => Inertia::defer(fn () => [
                 'total' => PaymentRequest::where('requester_id', $user->id)->count(),
@@ -199,8 +219,23 @@ class PaymentRequestController extends Controller
             }
         }
 
-        if ($request->filled('company')) {
-            $query->where('company_name', $request->company);
+        // Persistent PT filter in session for Persetujuan Pembayaran
+        if ($request->has('company')) {
+            $companyFilter = $request->input('company');
+            if (!empty($companyFilter)) {
+                session(['payment_approvals_company' => $companyFilter]);
+            } else {
+                session()->forget('payment_approvals_company');
+            }
+        } elseif ($request->boolean('reset') || $request->has('reset_company')) {
+            session()->forget('payment_approvals_company');
+            $companyFilter = null;
+        } else {
+            $companyFilter = session('payment_approvals_company', null);
+        }
+
+        if (!empty($companyFilter)) {
+            $query->where('company_name', $companyFilter);
         }
 
         $companyNames = \App\Models\Company::orderBy('name')->pluck('name')->toArray();
@@ -210,9 +245,14 @@ class PaymentRequestController extends Controller
 
         $paymentRequests = $query->paginate(15)->withQueryString();
 
+        $filters = array_merge(
+            $request->only(['search', 'status', 'deadline', 'nominal', 'category']),
+            ['company' => $companyFilter ?: '']
+        );
+
         return Inertia::render('PaymentRequests/Index', [
             'paymentRequests' => $paymentRequests,
-            'filters' => $request->only(['search', 'status', 'deadline', 'nominal', 'category', 'company']),
+            'filters' => $filters,
             'isApprovalView' => true,
             'companies' => $allCompanyNames,
             'summary' => Inertia::defer(function () use ($query, $allowedStatuses) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -84,6 +84,26 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
     const [categoryFilter, setCategoryFilter] = useState(filters.category || '');
     const [companyFilter, setCompanyFilter] = useState(filters.company || '');
     
+    const storageKey = isApprovalView ? 'payment_approvals_pt' : 'payment_requests_pt';
+
+    useEffect(() => {
+        setCompanyFilter(filters.company || '');
+    }, [filters.company]);
+
+    useEffect(() => {
+        // If neither URL nor session provided a company filter, check localStorage fallback
+        if (!filters.company) {
+            const savedPt = localStorage.getItem(storageKey);
+            if (savedPt && companies.some(c => (typeof c === 'object' ? c.name : c) === savedPt)) {
+                setCompanyFilter(savedPt);
+                const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
+                router.get(route(routeName), { ...filters, company: savedPt }, { preserveState: true, replace: true });
+            }
+        } else {
+            localStorage.setItem(storageKey, filters.company);
+        }
+    }, []);
+    
     const isSuperAdmin = currentAuth?.user?.roles?.some(r => r.name === 'SUPERADMIN');
     const canDownloadPdf = currentAuth?.can_download_pdf !== undefined
         ? Boolean(currentAuth.can_download_pdf)
@@ -146,6 +166,11 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
 
     const handleSearch = (e) => {
         if (e) e.preventDefault();
+        if (companyFilter) {
+            localStorage.setItem(storageKey, companyFilter);
+        } else {
+            localStorage.removeItem(storageKey);
+        }
         const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
         router.get(route(routeName), { search, status, deadline, nominal, category: categoryFilter, company: companyFilter }, { preserveState: true });
     };
@@ -157,8 +182,9 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
         setNominal('');
         setCategoryFilter('');
         setCompanyFilter('');
+        localStorage.removeItem(storageKey);
         const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
-        router.get(route(routeName), {}, { preserveState: true });
+        router.get(route(routeName), { company: '', reset: 1 }, { preserveState: true });
     };
 
     const handleFilterCard = (newStatus, newDeadline = '') => {
@@ -237,7 +263,14 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                 <div className="w-full sm:w-44">
                                     <CustomSelect 
                                         value={companyFilter}
-                                        onChange={(val) => setCompanyFilter(val)}
+                                        onChange={(val) => {
+                                            setCompanyFilter(val);
+                                            if (val) {
+                                                localStorage.setItem(storageKey, val);
+                                            } else {
+                                                localStorage.removeItem(storageKey);
+                                            }
+                                        }}
                                         options={companyOptions}
                                     />
                                 </div>
