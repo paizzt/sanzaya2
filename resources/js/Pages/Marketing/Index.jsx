@@ -319,7 +319,7 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Card 1: Target Kunjungan Bulanan (Merged) */}
-                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-blue-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300">
+                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-blue-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-400/30 text-white shadow-inner">
                                     <Target className="w-6 h-6" />
@@ -348,26 +348,24 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                         </div>
 
                         {/* Card ke-2: Total Penjualan Perbulan */}
-                        <Link href={route('reports.index')} className="bg-gradient-to-br from-white to-emerald-50/40 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 block">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-100 text-emerald-600 shadow-inner font-bold text-sm">
-                                        {spreadsheet?.monthly_target > 0 
-                                            ? Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
-                                            : 0}%
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-500">Total Penjualan Perbulan</p>
-                                        <h3 className="text-2xl font-black text-gray-800 truncate">
-                                            Rp {new Intl.NumberFormat('id-ID').format(spreadsheet?.total_monthly || 0)}
-                                        </h3>
-                                    </div>
+                        <Link href={route('reports.index')} className="bg-gradient-to-br from-white to-emerald-50/40 rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 block">
+                            <div className="flex items-center gap-3.5 sm:gap-4 mb-4">
+                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-600 text-white shadow-sm font-bold text-sm shrink-0">
+                                    {spreadsheet?.monthly_target > 0 
+                                        ? Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
+                                        : 0}%
                                 </div>
-                                {spreadsheet?.monthly_target > 0 && (
-                                    <span className="text-xs font-semibold bg-emerald-100/50 text-emerald-700 px-2 py-1 rounded-lg whitespace-nowrap">
-                                        Target: Rp {new Intl.NumberFormat('id-ID').format(spreadsheet.monthly_target)}
-                                    </span>
-                                )}
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs sm:text-sm font-semibold text-gray-500">Total Penjualan Perbulan</p>
+                                    <h3 className="text-lg sm:text-2xl font-black text-gray-800 break-words leading-tight">
+                                        Rp {new Intl.NumberFormat('id-ID').format(spreadsheet?.total_monthly || 0)}
+                                    </h3>
+                                    {spreadsheet?.monthly_target > 0 && (
+                                        <p className="text-xs text-gray-500 font-medium mt-0.5">
+                                            Target: <span className="font-bold text-emerald-700">Rp {new Intl.NumberFormat('id-ID').format(spreadsheet.monthly_target)}</span>
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                             
                             
