@@ -421,7 +421,6 @@ export default function UcApproval({ requests, isAdmin }) {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-base sm:text-lg text-gray-800">Daftar Pengajuan UC</h3>
-                                    <p className="text-xs text-gray-400">Pengajuan biaya perjalanan sebelum berangkat</p>
                                 </div>
                             </div>
                             <span className="text-xs font-bold text-gray-500 shrink-0">
@@ -528,7 +527,6 @@ export default function UcApproval({ requests, isAdmin }) {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-base sm:text-lg text-gray-800">Daftar Pengajuan Result</h3>
-                                    <p className="text-xs text-gray-400">Hasil kunjungan & nota (Menunggu Persetujuan)</p>
                                 </div>
                             </div>
                             <span className="text-xs font-bold text-gray-500 shrink-0">
