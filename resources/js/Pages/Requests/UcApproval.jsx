@@ -780,13 +780,28 @@ export default function UcApproval({ requests, isAdmin }) {
             </div>
 
             {/* Modal Review */}
-            {isModalOpen && selectedRequest && (
-                <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 px-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto pb-10">
-                    <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl relative my-auto">
-                        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                            <h3 className="text-xl font-bold text-gray-900">
-                                {modalSource === 'result' || selectedRequest.result_report ? 'Review Pengajuan Result UC' : (modalSource === 'completed' ? 'Detail Pengajuan UC (Selesai)' : 'Review Pengajuan Biaya UC')}
-                            </h3>
+            {isModalOpen && selectedRequest && (() => {
+                const photos = (() => {
+                    try {
+                        if (!selectedRequest.result_receipts) return [];
+                        const parsed = typeof selectedRequest.result_receipts === 'string'
+                            ? JSON.parse(selectedRequest.result_receipts)
+                            : selectedRequest.result_receipts;
+                        return Array.isArray(parsed) ? parsed : [];
+                    } catch (e) {
+                        return [];
+                    }
+                })();
+
+                const isResultReview = modalSource === 'result' || modalSource === 'completed';
+
+                return (
+                    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 px-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto pb-10">
+                        <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl relative my-auto">
+                            <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                                <h3 className="text-xl font-bold text-gray-900">
+                                    {modalSource === 'result' ? 'Review Pengajuan Result UC' : (modalSource === 'completed' ? 'Detail Pengajuan UC (Selesai)' : 'Review Pengajuan Biaya UC')}
+                                </h3>
                             <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-xl transition-colors">
                                 <X className="w-5 h-5" />
                             </button>
@@ -820,88 +835,152 @@ export default function UcApproval({ requests, isAdmin }) {
                                     </span>
                                 </div>
 
-                                <div className="sm:col-span-2 pt-2 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                                    <div>
-                                        <span className="text-xs font-semibold text-gray-500 uppercase">Total Estimasi Diajukan:</span>
-                                        <div className="text-base font-bold text-gray-900">
-                                            {formatRupiah(getRequestTotal(selectedRequest))}
-                                        </div>
-                                    </div>
-                                    {selectedRequest.payment_option === 'PANJAR BIAYA 50%' && (
-                                        <div className="sm:text-right">
-                                            <span className="text-xs font-semibold text-amber-700 uppercase">Panjar 50% Yang Diajukan:</span>
-                                            <div className="text-base font-bold text-amber-800">
-                                                {formatRupiah(getRequestTotal(selectedRequest) / 2)}
+                                    {modalSource === 'uc' ? (
+                                        <>
+                                            <div className="sm:col-span-2 pt-2 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                                                <div>
+                                                    <span className="text-xs font-semibold text-gray-500 uppercase">Total Estimasi Diajukan:</span>
+                                                    <div className="text-base font-bold text-gray-900">
+                                                        {formatRupiah(getRequestTotal(selectedRequest))}
+                                                    </div>
+                                                </div>
+                                                {selectedRequest.payment_option === 'PANJAR BIAYA 50%' && (
+                                                    <div className="sm:text-right">
+                                                        <span className="text-xs font-semibold text-amber-700 uppercase">Panjar 50% Yang Diajukan:</span>
+                                                        <div className="text-base font-bold text-amber-800">
+                                                            {formatRupiah(getRequestTotal(selectedRequest) / 2)}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {selectedRequest.items && selectedRequest.items.length > 0 && (
+                                                <div className="sm:col-span-2 pt-2">
+                                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Rincian Estimasi Biaya Diajukan</span>
+                                                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                                                        <table className="min-w-full text-xs text-left">
+                                                            <thead className="bg-gray-100 text-gray-600 font-semibold">
+                                                                <tr>
+                                                                    <th className="px-3 py-2">Item</th>
+                                                                    <th className="px-3 py-2 text-center">QTY</th>
+                                                                    <th className="px-3 py-2 text-right">Biaya Satuan</th>
+                                                                    <th className="px-3 py-2 text-right">Subtotal</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-100">
+                                                                {selectedRequest.items.map((it, idx) => (
+                                                                    <tr key={idx} className="hover:bg-gray-50/50">
+                                                                        <td className="px-3 py-2 text-gray-800 font-medium">{it.item_name}</td>
+                                                                        <td className="px-3 py-2 text-center text-gray-600">{it.quantity}</td>
+                                                                        <td className="px-3 py-2 text-right text-gray-600">{formatRupiah(it.estimated_cost)}</td>
+                                                                        <td className="px-3 py-2 text-right font-semibold text-gray-900">{formatRupiah(it.total_cost || (it.quantity * it.estimated_cost))}</td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="sm:col-span-2 pt-2 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                                            <div>
+                                                <span className="text-xs font-semibold text-gray-500 uppercase">Total Biaya Disetujui:</span>
+                                                <div className="text-base font-bold text-emerald-800">
+                                                    {formatRupiah(selectedRequest.approved_gas_cost || getRequestTotal(selectedRequest))}
+                                                </div>
                                             </div>
                                         </div>
                                     )}
                                 </div>
 
-                                {selectedRequest.items && selectedRequest.items.length > 0 && (
-                                    <div className="sm:col-span-2 pt-2">
-                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Rincian Estimasi Biaya Diajukan</span>
-                                        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                                            <table className="min-w-full text-xs text-left">
-                                                <thead className="bg-gray-100 text-gray-600 font-semibold">
-                                                    <tr>
-                                                        <th className="px-3 py-2">Item</th>
-                                                        <th className="px-3 py-2 text-center">QTY</th>
-                                                        <th className="px-3 py-2 text-right">Biaya Satuan</th>
-                                                        <th className="px-3 py-2 text-right">Subtotal</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-100">
-                                                    {selectedRequest.items.map((it, idx) => (
-                                                        <tr key={idx} className="hover:bg-gray-50/50">
-                                                            <td className="px-3 py-2 text-gray-800 font-medium">{it.item_name}</td>
-                                                            <td className="px-3 py-2 text-center text-gray-600">{it.quantity}</td>
-                                                            <td className="px-3 py-2 text-right text-gray-600">{formatRupiah(it.estimated_cost)}</td>
-                                                            <td className="px-3 py-2 text-right font-semibold text-gray-900">{formatRupiah(it.total_cost || (it.quantity * it.estimated_cost))}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                {/* KHUSUS RESULT UC: Bagian Laporan Hasil Perjalanan & Bukti Nota */}
+                                {isResultReview && (
+                                    <div className="space-y-4 mb-6">
+                                        {/* Card Hasil Laporan Perjalanan */}
+                                        <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl">
+                                            <div className="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
+                                                <FileText className="w-4 h-4 text-amber-600" />
+                                                <span>Hasil Kunjungan / Laporan Perjalanan Dinas:</span>
+                                            </div>
+                                            <div className="p-3.5 bg-white rounded-xl border border-amber-100 text-sm text-gray-800 whitespace-pre-wrap leading-relaxed shadow-xs min-h-[60px]">
+                                                {selectedRequest.result_report ? selectedRequest.result_report : (
+                                                    <span className="text-gray-400 italic">Belum ada laporan hasil yang diisi oleh pengaju.</span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Card Bukti Nota / Kwitansi */}
+                                        <div className="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl">
+                                            <div className="flex items-center justify-between gap-2 mb-3">
+                                                <div className="flex items-center gap-2 text-blue-900 font-bold text-sm">
+                                                    <FileImage className="w-4 h-4 text-blue-600" />
+                                                    <span>Bukti Nota / Kwitansi {photos.length > 0 ? `(${photos.length} Nota)` : ''}</span>
+                                                </div>
+                                                {photos.length > 0 && (
+                                                    <span className="text-xs text-blue-600 font-semibold">
+                                                        Klik nota untuk melihat foto
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {photos.length === 0 ? (
+                                                <div className="p-4 text-center text-xs text-gray-400 italic bg-white rounded-xl border border-dashed border-gray-200">
+                                                    Tidak ada lampiran bukti nota.
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        {photos.map((photo, i) => {
+                                                            const photoUrl = photo.startsWith('http')
+                                                                ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
+                                                                : `/storage/${photo}`;
+                                                            return (
+                                                                <button 
+                                                                    key={i} 
+                                                                    type="button" 
+                                                                    onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${selectedRequest.destination_city || ''})` })}
+                                                                    className="px-3 py-1.5 bg-white hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl border border-blue-200 flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                                                                >
+                                                                    <FileImage className="w-3.5 h-3.5 text-blue-600" /> [Nota {i + 1}]
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 pt-1">
+                                                        {photos.map((photo, i) => {
+                                                            const photoUrl = photo.startsWith('http')
+                                                                ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
+                                                                : `/storage/${photo}`;
+                                                            return (
+                                                                <div 
+                                                                    key={i} 
+                                                                    onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${selectedRequest.destination_city || ''})` })}
+                                                                    className="group relative bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xs hover:border-blue-400 hover:shadow-md cursor-pointer transition-all"
+                                                                >
+                                                                    <div className="aspect-4/3 w-full bg-gray-100 overflow-hidden relative">
+                                                                        <img 
+                                                                            src={photoUrl} 
+                                                                            alt={`Nota ${i + 1}`} 
+                                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                                                            loading="lazy"
+                                                                        />
+                                                                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                                                                            <ExternalLink className="w-3.5 h-3.5" /> Buka
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="p-1.5 text-center bg-white border-t border-gray-100 text-xs font-bold text-gray-700 group-hover:text-blue-600">
+                                                                        Nota {i + 1}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
-
-                                {selectedRequest.result_report && (
-                                    <div className="sm:col-span-2 pt-3 border-t border-gray-200">
-                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Hasil Perjalanan / Result:</span>
-                                        <div className="p-3 bg-white rounded-xl border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap">
-                                            {selectedRequest.result_report}
-                                        </div>
-                                        {selectedRequest.result_receipts && (() => {
-                                            try {
-                                                const photos = JSON.parse(selectedRequest.result_receipts);
-                                                if (Array.isArray(photos) && photos.length > 0) {
-                                                    return (
-                                                        <div className="mt-2.5 flex gap-2 flex-wrap">
-                                                            {photos.map((photo, i) => {
-                                                                const photoUrl = photo.startsWith('http')
-                                                                    ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
-                                                                    : `/storage/${photo}`;
-                                                                return (
-                                                                    <button 
-                                                                        key={i} 
-                                                                        type="button"
-                                                                        onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${selectedRequest.destination_city || ''})` })}
-                                                                        className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                                                                    >
-                                                                        <FileImage className="w-3.5 h-3.5" /> Lihat Nota {i + 1}
-                                                                    </button>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    );
-                                                }
-                                            } catch (e) {}
-                                            return null;
-                                        })()}
-                                    </div>
-                                )}
-                            </div>
-
                             <div className="space-y-4">
                                 {modalSource !== 'completed' ? (
                                     <div>
@@ -963,8 +1042,8 @@ export default function UcApproval({ requests, isAdmin }) {
                                     </div>
                                 )}
 
-                                {/* Estimasi Biaya Disetujui (Mengikuti Form UC) */}
-                                <div className="p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                                {modalSource === 'uc' && (
+                                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-2xl">
                                     <div className="flex justify-between items-center mb-3">
                                         <div>
                                             <h4 className="font-semibold text-gray-800 text-sm">Estimasi Biaya Disetujui</h4>
@@ -1048,6 +1127,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                         )}
                                     </div>
                                 </div>
+                                )}
 
                                 <div>
                                     <InputLabel value="Catatan Finance / Manager (Opsional)" />
@@ -1128,7 +1208,8 @@ export default function UcApproval({ requests, isAdmin }) {
                         </form>
                     </div>
                 </div>
-            )}
+                );
+            })()}
             {/* Modal Pop-up Lihat Nota */}
             {previewImage && (
                 <div 
