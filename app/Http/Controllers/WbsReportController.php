@@ -8,6 +8,7 @@ use App\Models\WbsReport;
 use App\Models\WbsMessage;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 class WbsReportController extends Controller
 {
