@@ -142,20 +142,20 @@ export default function BHP({ requests, today }) {
                                             <div>
                                                 <div className="flex justify-between items-start mb-2">
                                                     <h4 className="font-bold text-lg text-gray-800">{req.product_name}</h4>
-                                                    <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">{req.request_date}</span>
+                                                    <span className="text-xs text-gray-500 font-medium">{req.request_date}</span>
                                                 </div>
                                                 <p className="text-sm text-gray-600 mb-4">{req.specifications}</p>
                                             </div>
                                             <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
                                                 <p className="text-xs font-semibold text-gray-500"><span className="font-normal text-gray-400">Dibutuhkan: </span>{req.target_date}</p>
                                                 <div className="flex gap-2">
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${req.status === 'Disetujui' ? 'bg-emerald-100 text-emerald-700' : req.status === 'Ditolak' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
+                                                    <span className={`text-xs font-bold ${req.status === 'Disetujui' ? 'text-emerald-700' : req.status === 'Ditolak' ? 'text-rose-600' : 'text-amber-600'}`}>
                                                         {req.status}
                                                     </span>
                                                     {/* Simulate approval logic for demo purposes */}
                                                     {req.status !== 'Ditolak' && (
                                                         <ExportDropdown pdfRoute={route('requests.bhp.pdf', req.id)} trigger={
-                                                        <button className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-bold rounded-full transition-colors flex items-center gap-1">
+                                                        <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-xs">
                                                             <Download className="w-3 h-3" /> PDF
                                                         </button>
                                                     } />

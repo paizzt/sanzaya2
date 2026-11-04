@@ -25,17 +25,17 @@ const getStatusBadge = (status) => {
     switch (status) {
         case 'waiting_ga':
         case 'waiting_supervisor':
-            return { text: 'DI PROSES', color: 'bg-yellow-100 text-yellow-800' };
+            return { text: 'DI PROSES', color: 'text-amber-600 font-bold' };
         case 'approved':
-            return { text: 'DI SETUJUI', color: 'bg-blue-100 text-blue-800' };
+            return { text: 'DI SETUJUI', color: 'text-blue-600 font-bold' };
         case 'paid':
-            return { text: 'SELESAI', color: 'bg-green-100 text-green-800' };
+            return { text: 'SELESAI', color: 'text-emerald-700 font-bold' };
         case 'rejected':
-            return { text: 'DI TOLAK', color: 'bg-red-100 text-red-800' };
+            return { text: 'DI TOLAK', color: 'text-rose-600 font-bold' };
         case 'draft':
-            return { text: 'REVISI', color: 'bg-gray-100 text-gray-800' };
+            return { text: 'REVISI', color: 'text-gray-600 font-bold' };
         default:
-            return { text: 'REVISI', color: 'bg-gray-100 text-gray-800' };
+            return { text: 'REVISI', color: 'text-gray-600 font-bold' };
     }
 };
 
@@ -51,21 +51,21 @@ const renderCategoryBadge = (category, purpose = '') => {
 
     if (catLower.includes('support')) {
         return (
-            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider border bg-blue-100 text-blue-800 border-blue-200">
+            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-blue-600 text-white">
                 Support
             </span>
         );
     }
     if (catLower.includes('entertain')) {
         return (
-            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider border bg-purple-100 text-purple-800 border-purple-200">
+            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-purple-600 text-white">
                 Entertaint
             </span>
         );
     }
     if (catLower.includes('purchasing')) {
         return (
-            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider border bg-amber-100 text-amber-800 border-amber-200">
+            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-amber-600 text-white">
                 Purchasing
             </span>
         );
@@ -339,7 +339,7 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                     </span>
                                                     {renderCategoryBadge(pr.category, pr.purpose)}
                                                 </div>
-                                                <span className={`px-2.5 py-0.5 inline-flex text-[11px] font-bold rounded-full shrink-0 ${badge.color}`}>
+                                                <span className={`text-xs ${badge.color} shrink-0`}>
                                                     {badge.text}
                                                 </span>
                                             </div>
@@ -359,7 +359,7 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                     <span className="font-semibold text-gray-800 block truncate">{pr.requester?.name || '-'}</span>
                                                     <span className="text-[11px] text-gray-500 block truncate">{pr.division?.name || '-'}</span>
                                                     {pr.company_name && (
-                                                        <span className="inline-block mt-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded border border-blue-100 truncate max-w-full">
+                                                        <span className="inline-block mt-0.5 px-1.5 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded truncate max-w-full">
                                                             {pr.company_name}
                                                         </span>
                                                     )}
@@ -467,7 +467,7 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                         <div className="font-medium text-gray-900">{pr.requester?.name}</div>
                                                         <div className="text-xs text-gray-500">{pr.division?.name}</div>
                                                         {pr.company_name && (
-                                                            <span className="inline-block mt-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded border border-blue-100">
+                                                            <span className="inline-block mt-0.5 px-1.5 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded">
                                                                 {pr.company_name}
                                                             </span>
                                                         )}
@@ -484,7 +484,7 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                         {formatCurrency(pr.grand_total)}
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badge.color}`}>
+                                                        <span className={`text-xs ${badge.color} whitespace-nowrap`}>
                                                             {badge.text}
                                                         </span>
                                                     </td>

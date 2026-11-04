@@ -458,7 +458,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                         {user.company && (
                                                             <span className="text-xs font-semibold text-gray-600 flex items-center gap-1"><Building className="w-3 h-3"/> {user.company.name}</span>
                                                         )}
-                                                        <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
+                                                        <span className="bg-indigo-600 text-white text-xs font-bold px-2.5 py-0.5 rounded">
                                                             {user.roles && user.roles.length > 0 ? user.roles[0].name : 'Tidak ada role'}
                                                         </span>
                                                     </div>
@@ -1209,7 +1209,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                             const isSuper = previewUser.roles && previewUser.roles.some(r => ['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'].includes(r.name));
                                                             if (isSuper) {
                                                                 return (
-                                                                    <span className="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-lg border border-emerald-200">
+                                                                    <span className="text-xs bg-emerald-600 text-white font-bold px-2.5 py-1 rounded-lg shadow-xs">
                                                                         Semua PT (Akses Penuh Superadmin)
                                                                     </span>
                                                                 );
@@ -1219,7 +1219,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                                 const matchedComps = companies.filter(c => allowed.map(Number).includes(Number(c.id)));
                                                                 if (matchedComps.length > 0) {
                                                                     return matchedComps.map(c => (
-                                                                        <span key={c.id} className="text-xs bg-blue-50 text-blue-700 font-medium px-2.5 py-1 rounded-lg border border-blue-200 flex items-center gap-1">
+                                                                        <span key={c.id} className="text-xs bg-blue-600 text-white font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-xs">
                                                                             <Building className="w-3 h-3" /> {c.name}
                                                                         </span>
                                                                     ));
@@ -1233,7 +1233,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                 </div>
                                                 <div>
                                                     <p className="text-xs text-gray-500 font-medium">Role Sistem</p>
-                                                    <span className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200 mt-1">
+                                                    <span className="inline-block bg-indigo-600 text-white text-xs font-bold px-2.5 py-0.5 rounded mt-1">
                                                         {previewUser.roles && previewUser.roles.length > 0 ? previewUser.roles[0].name : '-'}
                                                     </span>
                                                 </div>

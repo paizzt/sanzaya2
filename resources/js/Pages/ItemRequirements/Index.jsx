@@ -439,7 +439,7 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                                         )}
                                                     </td>
                                                     <td className="px-3 py-2 text-sm text-center">
-                                                        <span className={`px-2 py-1 text-xs rounded-full font-medium ${item.click_status === 'Sudah' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                        <span className={`text-xs font-bold ${item.click_status === 'Sudah' ? 'text-emerald-700' : 'text-rose-600'}`}>
                                                             {item.click_status || 'Belum'}
                                                         </span>
                                                     </td>

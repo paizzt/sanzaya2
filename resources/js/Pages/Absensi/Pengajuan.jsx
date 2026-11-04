@@ -313,9 +313,9 @@ export default function Pengajuan({ requests = [], canApprove }) {
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex flex-wrap items-center gap-2 mb-1.5">
                                                             <span className={`px-2.5 py-0.5 text-xs font-bold rounded-lg ${
-                                                                req.type === 'Sakit' ? 'bg-red-50 text-red-600 border border-red-200' : 
-                                                                req.type === 'Cuti' ? 'bg-purple-50 text-purple-600 border border-purple-200' :
-                                                                'bg-blue-50 text-blue-600 border border-blue-200'
+                                                                req.type === 'Sakit' ? 'bg-rose-600 text-white' : 
+                                                                req.type === 'Cuti' ? 'bg-purple-600 text-white' : 
+                                                                'bg-blue-600 text-white'
                                                             }`}>
                                                                 {req.type}
                                                             </span>

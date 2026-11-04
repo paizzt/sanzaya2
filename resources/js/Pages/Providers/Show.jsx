@@ -172,7 +172,7 @@ export default function Show({ provider, products, filters }) {
                                         <div>
                                             <h3 className="text-2xl font-bold text-gray-900">{provider.name}</h3>
                                             {provider.type && (
-                                                <span className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-indigo-200 mt-2">
+                                                <span className="inline-block bg-indigo-600 text-white text-xs font-bold px-2.5 py-0.5 rounded mt-2">
                                                     {provider.type}
                                                 </span>
                                             )}

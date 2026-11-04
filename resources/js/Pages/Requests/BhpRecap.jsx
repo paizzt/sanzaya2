@@ -92,12 +92,12 @@ export default function BhpRecap({ requests }) {
     const getStatusBadge = (status) => {
         switch (status?.toLowerCase()) {
             case 'disetujui':
-                return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 flex items-center gap-1 w-max"><CheckCircle className="w-3 h-3"/> Disetujui</span>;
+                return <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 w-max"><CheckCircle className="w-3.5 h-3.5"/> Disetujui</span>;
             case 'ditolak':
-                return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 flex items-center gap-1 w-max">Ditolak</span>;
+                return <span className="text-xs font-bold text-rose-600 flex items-center gap-1 w-max">Ditolak</span>;
             case 'menunggu':
             default:
-                return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 flex items-center gap-1 w-max"><Clock className="w-3 h-3"/> Menunggu</span>;
+                return <span className="text-xs font-bold text-amber-600 flex items-center gap-1 w-max"><Clock className="w-3.5 h-3.5"/> Menunggu</span>;
         }
     };
 

@@ -375,12 +375,12 @@ export default function Index({ outlets, areas }) {
                                             <div className="flex items-center gap-2">
                                                 {outlet.name}
                                                 {outlet.is_pareto ? (
-                                                    <span className="bg-yellow-100 text-yellow-800 text-[10px] px-2 py-0.5 rounded border border-yellow-200 uppercase tracking-wider">Pareto</span>
+                                                    <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Pareto</span>
                                                 ) : null}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-indigo-200">
+                                            <span className="bg-indigo-600 text-white text-xs font-bold px-2.5 py-0.5 rounded">
                                                 {outlet.type}
                                             </span>
                                         </td>

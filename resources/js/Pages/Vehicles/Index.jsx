@@ -84,12 +84,12 @@ export default function Index({ vehicles }) {
     const StatusBadge = ({ date, label }) => {
         if (!date) return null;
         if (isExpired(date)) {
-            return <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200 w-max flex items-center gap-1 font-medium"><AlertTriangle className="w-3 h-3" /> {label} Exp</span>;
+            return <span className="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> {label} Exp</span>;
         }
         if (isExpiringSoon(date)) {
-            return <span className="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full border border-orange-200 w-max flex items-center gap-1 font-medium"><AlertTriangle className="w-3 h-3" /> {label} H-30</span>;
+            return <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> {label} H-30</span>;
         }
-        return <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-200 w-max font-medium">{label} Aman</span>;
+        return <span className="text-[10px] text-emerald-700 font-bold w-max">{label} Aman</span>;
     };
 
     const OdoServiceBadge = ({ initialOdo, currentOdo }) => {
@@ -97,12 +97,12 @@ export default function Index({ vehicles }) {
         const diff = currentOdo - initialOdo;
         
         if (diff >= 10000) {
-            return <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200 w-max flex items-center gap-1 font-medium"><AlertTriangle className="w-3 h-3" /> Service Segera</span>;
+            return <span className="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> Service Segera</span>;
         }
         if (diff >= 8000) {
-            return <span className="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full border border-yellow-200 w-max flex items-center gap-1 font-medium"><AlertTriangle className="w-3 h-3" /> Mendekati Service</span>;
+            return <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> Mendekati Service</span>;
         }
-        return <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-200 w-max font-medium">Aman</span>;
+        return <span className="text-[10px] text-emerald-700 font-bold w-max">Aman</span>;
     };
 
     return (

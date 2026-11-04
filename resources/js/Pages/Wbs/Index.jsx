@@ -147,9 +147,9 @@ export default function Index({ auth, reports }) {
                                                             value={report.status || 'belum proses'}
                                                             onChange={(e) => updateStatus(report.id, e.target.value)}
                                                             className={`text-xs font-bold rounded-xl border focus:ring focus:ring-opacity-50 px-3 py-2 w-full ${
-                                                                report.status === 'selesai' ? 'bg-green-100 text-green-700 border-green-200 focus:border-green-500 focus:ring-green-200' :
-                                                                report.status === 'di proses' ? 'bg-yellow-100 text-yellow-700 border-yellow-200 focus:border-yellow-500 focus:ring-yellow-200' :
-                                                                'bg-gray-100 text-gray-700 border-gray-200 focus:border-gray-500 focus:ring-gray-200'
+                                                                report.status === 'selesai' ? 'bg-white text-emerald-700 border-emerald-500 focus:ring-emerald-200' :
+                                                                report.status === 'di proses' ? 'bg-white text-amber-700 border-amber-500 focus:ring-amber-200' :
+                                                                'bg-white text-gray-700 border-gray-300 focus:ring-gray-200'
                                                             }`}
                                                         >
                                                             <option className="bg-white text-gray-900" value="belum proses">Belum Proses</option>

@@ -152,20 +152,20 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                     switch (status) {
                                         case 'waiting_ga':
                                         case 'waiting_supervisor':
-                                            return { text: 'DI PROSES', color: 'bg-yellow-100 text-yellow-800' };
+                                            return { text: 'DI PROSES', color: 'bg-amber-500 text-white' };
                                         case 'approved':
-                                            return { text: 'DI SETUJUI', color: 'bg-blue-100 text-blue-800' };
+                                            return { text: 'DI SETUJUI', color: 'bg-blue-600 text-white' };
                                         case 'paid':
-                                            return { text: 'SELESAI', color: 'bg-green-100 text-green-800' };
+                                            return { text: 'SELESAI', color: 'bg-emerald-600 text-white' };
                                         case 'rejected':
-                                            return { text: 'DI TOLAK', color: 'bg-red-100 text-red-800' };
+                                            return { text: 'DI TOLAK', color: 'bg-rose-600 text-white' };
                                         default:
-                                            return { text: 'DRAFT / REVISI', color: 'bg-gray-100 text-gray-800' };
+                                            return { text: 'DRAFT / REVISI', color: 'bg-gray-600 text-white' };
                                     }
                                 };
                                 const badge = getStatusBadge(paymentRequest.workflow_status);
                                 return (
-                                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${badge.color}`}>
+                                    <span className={`px-3 py-1 rounded-xl text-xs font-bold shadow-xs ${badge.color}`}>
                                         {badge.text}
                                     </span>
                                 );
@@ -484,7 +484,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                                             </div>
                                                             <div className="min-w-0 flex-1">
                                                                 <div className="flex items-center gap-1.5 mb-1">
-                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${isPdf ? 'bg-red-100 text-red-700' : (isSheet ? 'bg-emerald-100 text-emerald-800' : (isDoc ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'))}`}>
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${isPdf ? 'bg-red-600 text-white' : (isSheet ? 'bg-emerald-600 text-white' : (isDoc ? 'bg-blue-600 text-white' : 'bg-gray-600 text-white'))}`}>
                                                                         {ext || 'FILE'}
                                                                     </span>
                                                                     {att.file_size ? (

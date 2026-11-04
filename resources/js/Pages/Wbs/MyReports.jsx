@@ -116,10 +116,10 @@ export default function MyReports({ reports }) {
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-xl border ${
-                                                        report.status === 'selesai' ? 'bg-green-100 text-green-700 border-green-200' :
-                                                        report.status === 'di proses' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                                                        'bg-gray-100 text-gray-700 border-gray-200'
+                                                    <span className={`text-xs font-bold ${
+                                                        report.status === 'selesai' ? 'text-emerald-700' :
+                                                        report.status === 'di proses' ? 'text-amber-600' :
+                                                        'text-gray-600'
                                                     }`}>
                                                         {report.status ? report.status.toUpperCase() : 'BELUM PROSES'}
                                                     </span>

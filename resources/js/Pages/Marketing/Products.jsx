@@ -107,7 +107,7 @@ export default function Products({ auth, products, filters }) {
                                                     <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
                                                         <div className="font-bold text-gray-900 text-base md:text-sm">{product.name}</div>
                                                         <div className="flex items-center gap-2 mt-2 md:mt-1">
-                                                            <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${product.source_type === 'Internal' ? 'bg-indigo-50 text-indigo-700' : 'bg-orange-50 text-orange-700'}`}>
+                                                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${product.source_type === 'Internal' ? 'bg-indigo-600 text-white' : 'bg-amber-600 text-white'}`}>
                                                                 {product.source_type}
                                                             </span>
                                                         </div>

@@ -98,9 +98,9 @@ export default function Usages({ usages, vehicles, filters }) {
                                         </td>
                                         <td className="px-6 py-4">
                                             {usage.status === 'in_use' ? (
-                                                <span className="bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">Sedang Dipakai</span>
+                                                <span className="text-amber-600 font-bold text-xs whitespace-nowrap">Sedang Dipakai</span>
                                             ) : (
-                                                <span className="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">Selesai</span>
+                                                <span className="text-emerald-700 font-bold text-xs whitespace-nowrap">Selesai</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4 font-medium text-gray-800">

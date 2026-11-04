@@ -199,7 +199,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                                                 <span className="text-xs text-gray-500">{new Date(item.created_at).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}</span>
                                             </div>
                                         </div>
-                                        <span className="text-xs font-semibold px-3 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-100">{item.status || 'Hadir'}</span>
+                                        <span className="text-xs font-bold text-blue-700">{item.status || 'Hadir'}</span>
                                     </div>
                                 )) : <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">Belum ada data hari ini.</div>}
                             </div>
@@ -262,7 +262,7 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                                                 <span className="text-xs text-gray-500">Menunggu Persetujuan</span>
                                             </div>
                                         </div>
-                                        <span className="text-xs font-semibold px-3 py-1 bg-orange-50 text-orange-700 rounded-lg border border-orange-100">
+                                        <span className="text-xs font-bold text-amber-600">
                                             {item.status}
                                         </span>
                                     </div>

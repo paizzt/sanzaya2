@@ -537,7 +537,7 @@ export default function Create({ auth, vendors, companies, user }) {
                                                             ) : (
                                                                 <div className="flex flex-col items-center justify-center p-2 text-center">
                                                                     <FileText className={`w-8 h-8 mb-1 ${isPdf ? 'text-red-500' : (isSheet ? 'text-emerald-600' : (isDoc ? 'text-blue-600' : 'text-indigo-500'))}`} />
-                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isPdf ? 'bg-red-50 text-red-600' : (isSheet ? 'bg-emerald-50 text-emerald-700' : (isDoc ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-700'))}`}>
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded text-white ${isPdf ? 'bg-red-600' : (isSheet ? 'bg-emerald-600' : (isDoc ? 'bg-blue-600' : 'bg-gray-600'))}`}>
                                                                         {ext || 'FILE'}
                                                                     </span>
                                                                 </div>

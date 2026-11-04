@@ -339,11 +339,11 @@ export default function Index({ providers, filters }) {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-base">{provider.name}</p>
-                                                    <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 border border-indigo-100">
+                                                    <span className="inline-block bg-indigo-600 text-white text-xs font-bold px-2 py-0.5 rounded mt-1">
                                                         {provider.type || 'Lainnya'}
                                                     </span>
                                                     {provider.business_type && (
-                                                        <span className="inline-block bg-emerald-50 text-emerald-700 text-xs font-semibold px-2 py-0.5 rounded mt-1 ml-2 border border-emerald-100">
+                                                        <span className="inline-block bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded mt-1 ml-2">
                                                             {provider.business_type}
                                                         </span>
                                                     )}

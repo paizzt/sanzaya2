@@ -664,14 +664,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             {roleTab === 'satpam' ? (
                                                 <>
                                                     <td className="py-4 px-6 text-center font-bold text-amber-600">
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                                            {u.shift_siang || 0}
-                                                        </span>
+                                                        {u.shift_siang || 0}
                                                     </td>
                                                     <td className="py-4 px-6 text-center font-bold text-indigo-600">
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                                            {u.shift_malam || 0}
-                                                        </span>
+                                                        {u.shift_malam || 0}
                                                     </td>
                                                 </>
                                             ) : (
@@ -781,7 +777,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span>{item.check_in || '-'}</span>
                                                     {!item.is_satpam && item.is_late && (
-                                                        <span className="text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap">Terlambat</span>
+                                                        <span className="text-[10px] bg-rose-600 text-white px-1.5 py-0.5 rounded font-bold whitespace-nowrap">Terlambat</span>
                                                     )}
                                                     {item.check_in_photo && (
                                                         <button onClick={() => handleShowPhoto(item.check_in_photo, 'Masuk')} className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1">
