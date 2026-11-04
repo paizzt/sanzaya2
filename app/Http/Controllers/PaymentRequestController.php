@@ -75,11 +75,21 @@ class PaymentRequestController extends Controller
             }
         }
 
+        if ($request->filled('company')) {
+            $query->where('company_name', $request->company);
+        }
+
+        $companyNames = \App\Models\Company::orderBy('name')->pluck('name')->toArray();
+        $existingNames = PaymentRequest::whereNotNull('company_name')->where('company_name', '!=', '')->distinct()->pluck('company_name')->toArray();
+        $allCompanyNames = array_values(array_unique(array_filter(array_merge($companyNames, $existingNames))));
+        sort($allCompanyNames);
+
         $paymentRequests = $query->paginate(15)->withQueryString();
 
         return Inertia::render('PaymentRequests/Index', [
             'paymentRequests' => $paymentRequests,
-            'filters' => $request->only(['search', 'status', 'nominal', 'category']),
+            'filters' => $request->only(['search', 'status', 'nominal', 'category', 'company']),
+            'companies' => $allCompanyNames,
             'summary' => Inertia::defer(fn () => [
                 'total' => PaymentRequest::where('requester_id', $user->id)->count(),
                 'draft' => PaymentRequest::where('requester_id', $user->id)->where('workflow_status', 'draft')->count(),
@@ -189,12 +199,22 @@ class PaymentRequestController extends Controller
             }
         }
 
+        if ($request->filled('company')) {
+            $query->where('company_name', $request->company);
+        }
+
+        $companyNames = \App\Models\Company::orderBy('name')->pluck('name')->toArray();
+        $existingNames = PaymentRequest::whereNotNull('company_name')->where('company_name', '!=', '')->distinct()->pluck('company_name')->toArray();
+        $allCompanyNames = array_values(array_unique(array_filter(array_merge($companyNames, $existingNames))));
+        sort($allCompanyNames);
+
         $paymentRequests = $query->paginate(15)->withQueryString();
 
         return Inertia::render('PaymentRequests/Index', [
             'paymentRequests' => $paymentRequests,
-            'filters' => $request->only(['search', 'status', 'deadline', 'nominal', 'category']),
+            'filters' => $request->only(['search', 'status', 'deadline', 'nominal', 'category', 'company']),
             'isApprovalView' => true,
+            'companies' => $allCompanyNames,
             'summary' => Inertia::defer(function () use ($query, $allowedStatuses) {
                 $summaryData = (clone $query)->get(['id', 'payment_deadline', 'workflow_status']);
                 $now = now()->startOfDay();

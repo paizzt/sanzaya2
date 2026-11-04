@@ -74,7 +74,7 @@ const renderCategoryBadge = (category, purpose = '') => {
     return null;
 };
 
-export default function Index({ auth, paymentRequests, summary, filters, isApprovalView = false }) {
+export default function Index({ auth, paymentRequests, summary, filters, companies = [], isApprovalView = false }) {
     const pageAuth = usePage().props.auth;
     const currentAuth = auth || pageAuth;
     const [search, setSearch] = useState(filters.search || '');
@@ -82,6 +82,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
     const [deadline, setDeadline] = useState(filters.deadline || '');
     const [nominal, setNominal] = useState(filters.nominal || '');
     const [categoryFilter, setCategoryFilter] = useState(filters.category || '');
+    const [companyFilter, setCompanyFilter] = useState(filters.company || '');
     
     const isSuperAdmin = currentAuth?.user?.roles?.some(r => r.name === 'SUPERADMIN');
     const canDownloadPdf = currentAuth?.can_download_pdf !== undefined
@@ -135,10 +136,18 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
         { value: 'Purchasing', label: 'Purchasing' }
     ];
 
+    const companyOptions = [
+        { value: '', label: 'Semua PT' },
+        ...(companies || []).map(comp => {
+            const name = typeof comp === 'object' ? (comp.name || comp.label) : comp;
+            return { value: name, label: name };
+        })
+    ];
+
     const handleSearch = (e) => {
         if (e) e.preventDefault();
         const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
-        router.get(route(routeName), { search, status, deadline, nominal, category: categoryFilter }, { preserveState: true });
+        router.get(route(routeName), { search, status, deadline, nominal, category: categoryFilter, company: companyFilter }, { preserveState: true });
     };
 
     const handleReset = () => {
@@ -147,6 +156,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
         setDeadline('');
         setNominal('');
         setCategoryFilter('');
+        setCompanyFilter('');
         const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
         router.get(route(routeName), {}, { preserveState: true });
     };
@@ -155,7 +165,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
         setStatus(newStatus);
         setDeadline(newDeadline);
         const routeName = isApprovalView ? 'payment-approvals.index' : 'payment-requests.index';
-        router.get(route(routeName), { search, status: newStatus, deadline: newDeadline, nominal, category: categoryFilter }, { preserveState: true });
+        router.get(route(routeName), { search, status: newStatus, deadline: newDeadline, nominal, category: categoryFilter, company: companyFilter }, { preserveState: true });
     };
 
     return (
@@ -214,14 +224,21 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
 
                     <div className="bg-white overflow-visible shadow-sm sm:rounded-lg p-4 sm:p-6">
                         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                            <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-2 w-full lg:max-w-4xl">
-                                <div className="w-full sm:w-48">
+                            <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-2 w-full lg:max-w-5xl">
+                                <div className="w-full sm:w-44">
                                     <TextInput
                                         type="text"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         className="block w-full text-sm"
                                         placeholder="Cari..."
+                                    />
+                                </div>
+                                <div className="w-full sm:w-44">
+                                    <CustomSelect 
+                                        value={companyFilter}
+                                        onChange={(val) => setCompanyFilter(val)}
+                                        options={companyOptions}
                                     />
                                 </div>
                                 <div className="w-full sm:w-36">
@@ -231,14 +248,14 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                         options={statusOptions}
                                     />
                                 </div>
-                                <div className="w-full sm:w-48">
+                                <div className="w-full sm:w-40">
                                     <CustomSelect 
                                         value={nominal}
                                         onChange={(val) => setNominal(val)}
                                         options={nominalOptions}
                                     />
                                 </div>
-                                <div className="w-full sm:w-40">
+                                <div className="w-full sm:w-36">
                                     <CustomSelect 
                                         value={categoryFilter}
                                         onChange={(val) => setCategoryFilter(val)}
@@ -247,7 +264,7 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                 </div>
                                 <div className="flex items-center gap-2 w-full sm:w-auto">
                                     <PrimaryButton type="submit" className="w-full sm:w-auto justify-center">Filter</PrimaryButton>
-                                    {(search || status || nominal || categoryFilter || deadline) && (
+                                    {(search || status || nominal || categoryFilter || deadline || companyFilter) && (
                                         <button
                                             type="button"
                                             onClick={handleReset}
@@ -308,6 +325,11 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                     <span className="text-[11px] text-gray-400 block font-medium">Pengaju / Divisi</span>
                                                     <span className="font-semibold text-gray-800 block truncate">{pr.requester?.name || '-'}</span>
                                                     <span className="text-[11px] text-gray-500 block truncate">{pr.division?.name || '-'}</span>
+                                                    {pr.company_name && (
+                                                        <span className="inline-block mt-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded border border-blue-100 truncate max-w-full">
+                                                            {pr.company_name}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <span className="text-[11px] text-gray-400 block font-medium">Penerima</span>
@@ -409,8 +431,13 @@ export default function Index({ auth, paymentRequests, summary, filters, isAppro
                                                         {renderCategoryBadge(pr.category, pr.purpose)}
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        <div className="font-medium">{pr.requester?.name}</div>
-                                                        <div className="text-xs text-gray-400">{pr.division?.name}</div>
+                                                        <div className="font-medium text-gray-900">{pr.requester?.name}</div>
+                                                        <div className="text-xs text-gray-500">{pr.division?.name}</div>
+                                                        {pr.company_name && (
+                                                            <span className="inline-block mt-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded border border-blue-100">
+                                                                {pr.company_name}
+                                                            </span>
+                                                        )}
                                                     </td>
                                                     <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[250px] break-words">
                                                         {pr.recipient_name}
