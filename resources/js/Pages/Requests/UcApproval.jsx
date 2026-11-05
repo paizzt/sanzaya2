@@ -76,22 +76,22 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
         return isResultPending(req) || isCompletedResult(req) || Boolean(req.result_report);
     };
 
-    // List PT / Entitas unik dari data companies & requests
+    // List PT / Entitas unik yang HANYA memiliki data pengajuan masuk (count > 0)
     const ptOptions = useMemo(() => {
-        const list = new Set();
-        if (companies && Array.isArray(companies)) {
-            companies.forEach(c => {
-                if (c && c.name && c.name.trim()) list.add(c.name.trim());
-            });
-        }
+        const counts = {};
         (requests || []).forEach(r => {
-            if (r && r.entity && r.entity.trim()) list.add(r.entity.trim());
+            const entity = (r && r.entity && r.entity.trim()) ? r.entity.trim() : null;
+            if (entity) {
+                counts[entity] = (counts[entity] || 0) + 1;
+            }
         });
-        return Array.from(list).sort().map(pt => ({
-            value: pt,
-            label: pt
+
+        return Object.keys(counts).sort().map(entity => ({
+            value: entity,
+            label: `${entity} (${counts[entity]})`,
+            count: counts[entity]
         }));
-    }, [companies, requests]);
+    }, [requests]);
 
     // Filter requests berdasarkan PT terpilih
     const filteredRequests = useMemo(() => {
@@ -433,13 +433,13 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                         <p className="text-xs text-gray-500 mt-0.5">Kelola dan tinjau persetujuan biaya perjalanan dinas serta laporan hasil dinas</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto justify-end">
-                        {/* Filter PT */}
+                        {/* Filter PT Dropdown */}
                         <div className="w-full sm:w-64">
                             <CustomSelect
                                 value={selectedPt}
                                 onChange={(val) => setSelectedPt(val)}
                                 options={[
-                                    { value: '', label: 'Semua PT (Entitas)' },
+                                    { value: '', label: `Semua PT (${requests?.length || 0})` },
                                     ...ptOptions
                                 ]}
                                 placeholder="Pilih PT..."
@@ -454,45 +454,6 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                         </div>
                     </div>
                 </div>
-
-                {/* Filter Pills PT */}
-                {ptOptions.length > 0 && (
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                        <button
-                            type="button"
-                            onClick={() => setSelectedPt('')}
-                            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer ${
-                                !selectedPt 
-                                    ? 'bg-blue-600 text-white shadow-xs' 
-                                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-                            }`}
-                        >
-                            Semua PT ({requests?.length || 0})
-                        </button>
-                        {ptOptions.map(pt => {
-                            const count = (requests || []).filter(r => r && r.entity && r.entity.trim().toLowerCase() === pt.value.trim().toLowerCase()).length;
-                            const isSelected = selectedPt === pt.value;
-                            return (
-                                <button
-                                    key={pt.value}
-                                    type="button"
-                                    onClick={() => setSelectedPt(isSelected ? '' : pt.value)}
-                                    className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
-                                        isSelected 
-                                            ? 'bg-blue-600 text-white shadow-xs' 
-                                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <Building2 className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-gray-400'}`} />
-                                    <span>{pt.label}</span>
-                                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${isSelected ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600'}`}>
-                                        {count}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                )}
 
                 {/* 2 Card Containers Grid */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
