@@ -379,7 +379,7 @@
     ]
   },
   "resources/js/Pages/Marketing/Products.jsx": {
-    "file": "assets/Products-j1DxnEzK.js",
+    "file": "assets/Products-dxdg-WCe.js",
     "name": "Products",
     "src": "resources/js/Pages/Marketing/Products.jsx",
     "isDynamicEntry": true,
@@ -878,7 +878,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-CICl_faU.js",
+    "file": "assets/Index-DVAYYOWl.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -899,7 +899,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-dz507XME.js",
+    "file": "assets/Show-zqWyeTHa.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1076,7 +1076,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-D0blntjh.js",
+    "file": "assets/app-Dz4npVly.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1146,7 +1146,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-CuGobKwD.css"
+      "assets/app-24nfCbQC.css"
     ]
   },
   "resources/js/assets/logo.png": {
