@@ -473,7 +473,6 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
                             <FileCheck className="text-blue-600 w-6 h-6" /> Persetujuan UC
                         </h2>
-                        <p className="text-xs text-gray-500 mt-0.5">Kelola dan tinjau persetujuan biaya perjalanan dinas serta laporan hasil dinas</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto justify-end">
                         {/* Filter PT Dropdown */}
