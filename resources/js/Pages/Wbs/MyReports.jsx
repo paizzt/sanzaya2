@@ -52,7 +52,7 @@ export default function MyReports({ reports }) {
         >
             <Head title="Riwayat Laporan WBS" />
 
-            <div className="py-12">
+            <div className="pt-0 pb-6">
                 <div className="">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
                         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
