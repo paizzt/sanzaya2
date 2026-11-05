@@ -43,7 +43,7 @@ class UcRequestController extends Controller
     public function history()
     {
         $user = Auth::user();
-        $query = UcRequest::with(['user', 'items', 'approver'])->orderBy('created_at', 'desc');
+        $query = UcRequest::with(['user', 'creator', 'items', 'approver'])->orderBy('created_at', 'desc');
 
         if (!$user->isSuperAdminUser() && !$user->isAdminUser() && !$user->can('approve uc')) {
             $query->where('user_id', $user->id);
@@ -52,7 +52,7 @@ class UcRequestController extends Controller
         $requests = $query->get();
 
         $today = now()->toDateString();
-        $activeUcs = UcRequest::with(['user', 'approver'])
+        $activeUcs = UcRequest::with(['user', 'creator', 'approver'])
             ->where('departure_date', '<=', $today)
             ->where('return_date', '>=', $today)
             ->whereIn('status', ['Disetujui', 'Selesai / Result Dikirim', 'Dicairkan'])
@@ -67,7 +67,7 @@ class UcRequestController extends Controller
     
     public function generatePdf($id)
     {
-        $uc = UcRequest::with(['user', 'items', 'approver'])->findOrFail($id);
+        $uc = UcRequest::with(['user', 'creator', 'items', 'approver'])->findOrFail($id);
         
         $qrUrl = route('requests.uc.index'); // Can be a verification URL
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
@@ -155,10 +155,17 @@ class UcRequestController extends Controller
     public function store(Request $request)
     {
         try {
-            if (Schema::hasTable('uc_requests') && !Schema::hasColumn('uc_requests', 'description')) {
-                Schema::table('uc_requests', function ($table) {
-                    $table->text('description')->nullable()->after('destination_city');
-                });
+            if (Schema::hasTable('uc_requests')) {
+                if (!Schema::hasColumn('uc_requests', 'description')) {
+                    Schema::table('uc_requests', function ($table) {
+                        $table->text('description')->nullable()->after('destination_city');
+                    });
+                }
+                if (!Schema::hasColumn('uc_requests', 'created_by')) {
+                    Schema::table('uc_requests', function ($table) {
+                        $table->unsignedBigInteger('created_by')->nullable()->after('user_id');
+                    });
+                }
             }
         } catch (\Throwable $e) {}
 
@@ -190,6 +197,7 @@ class UcRequestController extends Controller
         $ucRequest = UcRequest::create([
             'request_number' => 'UC-' . date('Ymd') . '-' . strtoupper(Str::random(5)),
             'user_id' => $userId,
+            'created_by' => Auth::id(),
             'entity' => $request->entity,
             'department' => $request->department,
             'destination_city' => $request->destination_city,

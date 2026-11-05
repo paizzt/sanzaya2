@@ -433,6 +433,7 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                             <UcPreview 
                                 data={data} 
                                 user={(users || []).find(u => String(u.id) === String(data.user_id)) || user} 
+                                creator={user}
                                 users={users} 
                                 companies={companies} 
                             />

@@ -402,15 +402,28 @@
                             <th width="33%">Diperiksa Oleh</th>
                             <th width="33%">Disetujui Oleh</th>
                         </tr>
+                        @php
+                            $employeeName = $uc->user->name ?? 'Staff Pegawai';
+                            $creatorName = $uc->creator_name ?? ($uc->creator->name ?? ($uc->user->name ?? 'Staff'));
+                            $isApproved = in_array(strtolower($uc->status ?? ''), ['disetujui', 'acc', 'selesai', 'dicairkan']);
+                            $approverName = $uc->approver->name ?? null;
+                            if (empty($approverName) && $isApproved) {
+                                $approverName = 'Finance';
+                            }
+                        @endphp
                         <tr>
                             <td style="padding: 10px; height: 50px; vertical-align: bottom;">
-                                <div class="signature-name">{{ $uc->user->name ?? 'Staff Pegawai' }}</div>
+                                <div class="signature-name">{{ $employeeName }}</div>
                             </td>
                             <td style="padding: 10px; height: 50px; vertical-align: bottom;">
-                                <div class="signature-name">{{ $uc->approver->name ?? 'Manajer' }}</div>
+                                <div class="signature-name">{{ $creatorName }}</div>
                             </td>
                             <td style="padding: 10px; height: 50px; vertical-align: bottom;">
-                                <div class="signature-name">Finance</div>
+                                @if(!empty($approverName))
+                                    <div class="signature-name">{{ $approverName }}</div>
+                                @else
+                                    <div class="signature-name" style="text-decoration: none; color: #888;">(.........................)</div>
+                                @endif
                             </td>
                         </tr>
                         <tr>

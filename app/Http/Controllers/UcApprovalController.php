@@ -15,8 +15,8 @@ class UcApprovalController extends Controller
 {
     public function index()
     {
-        // Get all UC requests with user and items relationships
-        $requests = UcRequest::with(['user', 'items'])->orderBy('created_at', 'desc')->get();
+        // Get all UC requests with user, creator, approver and items relationships
+        $requests = UcRequest::with(['user', 'creator', 'approver', 'items'])->orderBy('created_at', 'desc')->get();
         $companies = \App\Models\Company::orderBy('name')->get();
         
         return Inertia::render('Requests/UcApproval', [

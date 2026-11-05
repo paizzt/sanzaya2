@@ -435,6 +435,7 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
                             <UcPreview 
                                 data={data} 
                                 user={(users || []).find(u => String(u.id) === String(data.user_id)) || user} 
+                                creator={user}
                                 users={users} 
                                 companies={companies} 
                             />

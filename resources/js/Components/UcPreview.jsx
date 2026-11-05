@@ -1,14 +1,27 @@
 import React from 'react';
 
-export default function UcPreview({ data, user, users = [], companies = [] }) {
+export default function UcPreview({ data, user, creator, users = [], companies = [] }) {
     const employee = (users && users.length > 0)
         ? (users.find(u => String(u.id) === String(data?.user_id)) || user)
         : user;
 
-    const employeeName = employee?.name || 'Staff Pegawai';
+    const employeeName = employee?.name || data?.user?.name || 'Staff Pegawai';
     const employeeRole = employee?.role || employee?.position?.name || 'Staff';
     const employeeBankRek = employee?.bank_account_number || '.......';
     const employeeBankName = employee?.bank_name ? `(${employee.bank_name})` : '(.........................)';
+
+    // Pembuat form (Diperiksa Oleh)
+    const creatorUser = (users && users.length > 0 && data?.created_by)
+        ? users.find(u => String(u.id) === String(data?.created_by))
+        : null;
+    const creatorName = data?.creator?.name || creatorUser?.name || creator?.name || user?.name || 'Manager';
+
+    // Penyetuju finance (Disetujui Oleh)
+    const approverUser = (users && users.length > 0 && data?.approved_by)
+        ? users.find(u => String(u.id) === String(data?.approved_by))
+        : null;
+    const isApproved = ['disetujui', 'acc', 'selesai', 'dicairkan'].includes(String(data?.status || '').toLowerCase());
+    const approverName = data?.approver?.name || approverUser?.name || (isApproved ? 'Finance' : '-');
 
     const formatRupiah = (val) => new Intl.NumberFormat('id-ID').format(val || 0);
     
@@ -118,10 +131,10 @@ export default function UcPreview({ data, user, users = [], companies = [] }) {
                         <div className="font-bold underline">{employeeName}</div>
                     </td>
                     <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
-                        <div className="font-bold underline">Manajer</div>
+                        <div className="font-bold underline">{creatorName}</div>
                     </td>
                     <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
-                        <div className="font-bold underline">Finance</div>
+                        <div className="font-bold underline">{approverName}</div>
                     </td>
                 </tr>
                 <tr>
