@@ -169,7 +169,7 @@
     <table class="header">
         <tr>
             <td width="50%">
-                <p class="company-name">PT. SANZAYA MEDIKA PRATAMA</p>
+                <p class="company-name">{{ !empty($paymentRequest->company_name) ? $paymentRequest->company_name : 'PT. SANZAYA MEDIKA PRATAMA' }}</p>
                 <p class="company-sub">Karena Anda Kami Ada</p>
                 
                 <p class="form-title">{{ $pdfTitle }}</p>
@@ -208,7 +208,12 @@
     </table>
 
     <div class="date-right">
-        Makassar, {{ \Carbon\Carbon::parse($paymentRequest->submission_date ?? $paymentRequest->created_at)->format('d F Y') }}
+        <div>Makassar, {{ \Carbon\Carbon::parse($paymentRequest->submission_date ?? $paymentRequest->created_at)->locale('id')->translatedFormat('d F Y') }}</div>
+        @if($paymentRequest->payment_deadline)
+            <div style="font-size: 11px; color: #b91c1c; font-weight: bold; margin-top: 3px;">
+                Batas Akhir Pembayaran: {{ \Carbon\Carbon::parse($paymentRequest->payment_deadline)->locale('id')->translatedFormat('d F Y') }}
+            </div>
+        @endif
     </div>
 
     <div class="intro-text">
@@ -264,6 +269,22 @@
             <td>Keterangan</td>
             <td>:</td>
             <td>{{ $paymentRequest->notes }}</td>
+        </tr>
+        @endif
+        @if($paymentRequest->payment_deadline)
+        <tr>
+            <td>-</td>
+            <td>Batas Akhir Pembayaran</td>
+            <td>:</td>
+            <td><strong style="color: #b91c1c;">{{ \Carbon\Carbon::parse($paymentRequest->payment_deadline)->locale('id')->translatedFormat('d F Y') }}</strong></td>
+        </tr>
+        @endif
+        @if($paymentRequest->transaction_date)
+        <tr>
+            <td>-</td>
+            <td>Tanggal Transaksi</td>
+            <td>:</td>
+            <td>{{ \Carbon\Carbon::parse($paymentRequest->transaction_date)->locale('id')->translatedFormat('d F Y') }}</td>
         </tr>
         @endif
         <tr>
@@ -331,7 +352,12 @@
     </table>
 
     <div class="red-text">
-        Rek {{ $paymentRequest->bank_or_wallet ?? '...' }} A/N {{ $paymentRequest->recipient_name }} ({{ $paymentRequest->account_number ?? '...' }})
+        <div>Rek {{ $paymentRequest->bank_or_wallet ?? '...' }} A/N {{ $paymentRequest->recipient_name }} ({{ $paymentRequest->account_number ?? '...' }})</div>
+        @if($paymentRequest->payment_deadline)
+            <div style="margin-top: 4px; color: #b91c1c;">
+                * Batas Akhir Pembayaran: {{ \Carbon\Carbon::parse($paymentRequest->payment_deadline)->locale('id')->translatedFormat('d F Y') }}
+            </div>
+        @endif
     </div>
 
     @php

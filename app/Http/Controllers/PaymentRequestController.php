@@ -983,7 +983,7 @@ class PaymentRequestController extends Controller
             ]);
 
             $filename = 'Pengajuan_Pembayaran_' . str_replace(['/', '\\'], '-', $paymentRequest->reference_number) . '.pdf';
-            return $pdf->download($filename);
+            return (request()->has('preview') || request()->has('stream')) ? $pdf->stream($filename) : $pdf->download($filename);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("PR PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
             return response("Terjadi kesalahan saat membuat PDF: " . $e->getMessage() . " (Baris " . $e->getLine() . ")", 500);
