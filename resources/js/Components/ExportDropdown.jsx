@@ -152,7 +152,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     return (
         <>
             {trigger ? (
-                <div onClick={(e) => { e.preventDefault(); handleOpen(); }}>
+                <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleOpen(); }} className="inline-block">
                     {trigger}
                 </div>
             ) : (
