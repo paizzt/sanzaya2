@@ -26,7 +26,7 @@ import ClientPagination from '@/Components/ClientPagination';
 
 export default function Pengajuan({ requests = [], canApprove }) {
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 3;
     const totalPages = Math.max(1, Math.ceil(requests.length / itemsPerPage));
 
     useEffect(() => {
