@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
-import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2 } from 'lucide-react';
+import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2, Clock } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -563,6 +563,13 @@ export default function UcApproval({ requests, isAdmin }) {
                                                 }
                                             } catch(e) {}
 
+                                            const hasResult = Boolean(
+                                                (req.result_report && req.result_report.trim().length > 0) ||
+                                                photos.length > 0 ||
+                                                req.status === 'Selesai / Result Dikirim'
+                                            );
+                                            const isWaitingResult = st.label === 'ACC (Menunggu Result)' || !hasResult;
+
                                             return (
                                                 <tr 
                                                     key={req.id} 
@@ -612,30 +619,36 @@ export default function UcApproval({ requests, isAdmin }) {
                                                             {st.label}
                                                         </span>
                                                     </td>
-                                                    <td className="px-3.5 py-3" onClick={(e) => e.stopPropagation()}>
-                                                        <div className="flex flex-col items-stretch gap-1 w-full max-w-[64px] mx-auto">
-                                                            <button 
-                                                                type="button" 
-                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Disetujui', 'result'); }} 
-                                                                className="w-full py-1 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
-                                                            >
-                                                                ACC
-                                                            </button>
-                                                            <button 
-                                                                type="button" 
-                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Ditolak', 'result'); }} 
-                                                                className="w-full py-1 px-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
-                                                            >
-                                                                Tolak
-                                                            </button>
-                                                            <button 
-                                                                type="button" 
-                                                                onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Direvisi', 'result'); }} 
-                                                                className="w-full py-1 px-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
-                                                            >
-                                                                Revisi
-                                                            </button>
-                                                        </div>
+                                                    <td className="px-3.5 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                                                        {!isWaitingResult ? (
+                                                            <div className="flex flex-col items-stretch gap-1 w-full max-w-[64px] mx-auto">
+                                                                <button 
+                                                                    type="button" 
+                                                                    onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Disetujui', 'result'); }} 
+                                                                    className="w-full py-1 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
+                                                                >
+                                                                    ACC
+                                                                </button>
+                                                                <button 
+                                                                    type="button" 
+                                                                    onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Ditolak', 'result'); }} 
+                                                                    className="w-full py-1 px-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
+                                                                >
+                                                                    Tolak
+                                                                </button>
+                                                                <button 
+                                                                    type="button" 
+                                                                    onClick={(e) => { e.stopPropagation(); handleRowAction(req, 'Direvisi', 'result'); }} 
+                                                                    className="w-full py-1 px-2 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all text-center"
+                                                                >
+                                                                    Revisi
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-[11px] text-gray-400 italic block leading-tight">
+                                                                Menunggu Result
+                                                            </span>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             );
@@ -792,6 +805,12 @@ export default function UcApproval({ requests, isAdmin }) {
                 })();
 
                 const isResultReview = modalSource === 'result' || modalSource === 'completed';
+                const hasResultData = Boolean(
+                    (selectedRequest.result_report && selectedRequest.result_report.trim().length > 0) ||
+                    photos.length > 0 ||
+                    selectedRequest.status === 'Selesai / Result Dikirim'
+                );
+                const isResultWaiting = modalSource === 'result' && !hasResultData;
 
                 return (
                     <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 px-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto pb-10">
@@ -980,7 +999,30 @@ export default function UcApproval({ requests, isAdmin }) {
                                     </div>
                                 )}
                             <div className="space-y-4">
-                                {modalSource !== 'completed' ? (
+                                {modalSource === 'completed' ? (
+                                    <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                        <div className="flex items-center gap-2 text-emerald-800 text-sm font-bold">
+                                            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                            <span>Pengajuan UC ini telah Selesai (ACC)</span>
+                                        </div>
+                                        <ExportDropdown 
+                                            pdfRoute={route('requests.uc.pdf', selectedRequest.id)} 
+                                            trigger={
+                                                <button 
+                                                    type="button" 
+                                                    className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                                                >
+                                                    <FileText className="w-3.5 h-3.5" /> Unduh PDF
+                                                </button>
+                                            }
+                                        />
+                                    </div>
+                                ) : isResultWaiting ? (
+                                    <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-2.5 text-blue-800 text-xs sm:text-sm font-medium">
+                                        <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+                                        <span>Menunggu pengaju mengisi laporan hasil dinas & bukti nota. Aksi persetujuan result (ACC / Tolak / Revisi) akan tersedia setelah result dikirim.</span>
+                                    </div>
+                                ) : (
                                     <div>
                                         <InputLabel value="Status Persetujuan" className="mb-2 font-semibold text-gray-700" />
                                         <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -1019,24 +1061,6 @@ export default function UcApproval({ requests, isAdmin }) {
                                             </button>
                                         </div>
                                         <InputError message={errors.status} />
-                                    </div>
-                                ) : (
-                                    <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                                        <div className="flex items-center gap-2 text-emerald-800 text-sm font-bold">
-                                            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                                            <span>Pengajuan UC ini telah Selesai (ACC)</span>
-                                        </div>
-                                        <ExportDropdown 
-                                            pdfRoute={route('requests.uc.pdf', selectedRequest.id)} 
-                                            trigger={
-                                                <button 
-                                                    type="button"
-                                                    className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-                                                >
-                                                    <FileText className="w-3.5 h-3.5" /> Unduh PDF
-                                                </button>
-                                            }
-                                        />
                                     </div>
                                 )}
 
@@ -1127,6 +1151,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                 </div>
                                 )}
 
+                                {!isResultWaiting && modalSource !== 'completed' && (
                                 <div>
                                     <InputLabel value="Catatan Finance / Manager (Opsional)" />
                                     <textarea
@@ -1138,6 +1163,7 @@ export default function UcApproval({ requests, isAdmin }) {
                                     ></textarea>
                                     <InputError message={errors.finance_note} />
                                 </div>
+                                )}
                             </div>
 
                             <div className="mt-8 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
@@ -1147,9 +1173,9 @@ export default function UcApproval({ requests, isAdmin }) {
                                     disabled={processing}
                                     className="px-4 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors"
                                 >
-                                    Batal
+                                    {isResultWaiting || modalSource === 'completed' ? 'Tutup' : 'Batal'}
                                 </button>
-                                {modalSource !== 'completed' ? (
+                                {modalSource !== 'completed' && !isResultWaiting ? (
                                     <div className="flex flex-wrap items-center gap-2">
                                         <button
                                             type="button"
