@@ -531,7 +531,7 @@
     ]
   },
   "resources/js/Pages/Profile/Edit.jsx": {
-    "file": "assets/Edit-B9g4vPBq.js",
+    "file": "assets/Edit-CQEpdut0.js",
     "name": "Edit",
     "src": "resources/js/Pages/Profile/Edit.jsx",
     "isDynamicEntry": true,
@@ -546,14 +546,13 @@
       "_ApplicationLogo-wGUDbmfm.js",
       "_InputError-DeYP_mLX.js",
       "_InputLabel-UBOIu0UB.js",
-      "_PrimaryButton-C5dazSzK.js",
       "_TextInput-Bh7FadKn.js",
       "_Modal-CtAlz74F.js",
       "_SecondaryButton-C5mceE6r.js"
     ]
   },
   "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx": {
-    "file": "assets/DeleteUserForm-BSgRb9Qc.js",
+    "file": "assets/DeleteUserForm-D8-i5pZZ.js",
     "name": "DeleteUserForm",
     "src": "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
     "isDynamicEntry": true,
@@ -567,7 +566,7 @@
     ]
   },
   "resources/js/Pages/Profile/Partials/DownloadBarcodeForm.jsx": {
-    "file": "assets/DownloadBarcodeForm-B52o0SbL.js",
+    "file": "assets/DownloadBarcodeForm-OaYrrao_.js",
     "name": "DownloadBarcodeForm",
     "src": "resources/js/Pages/Profile/Partials/DownloadBarcodeForm.jsx",
     "isDynamicEntry": true,
@@ -576,7 +575,7 @@
     ]
   },
   "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx": {
-    "file": "assets/UpdatePasswordForm-DQDCqnEo.js",
+    "file": "assets/UpdatePasswordForm--JLCo3-T.js",
     "name": "UpdatePasswordForm",
     "src": "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
     "isDynamicEntry": true,
@@ -584,22 +583,20 @@
       "_vendor-qYqXZm9g.js",
       "_InputError-DeYP_mLX.js",
       "_InputLabel-UBOIu0UB.js",
-      "_PrimaryButton-C5dazSzK.js",
       "_TextInput-Bh7FadKn.js"
     ]
   },
   "resources/js/Pages/Profile/Partials/UpdatePreferencesForm.jsx": {
-    "file": "assets/UpdatePreferencesForm-CZfRo1m4.js",
+    "file": "assets/UpdatePreferencesForm-DR9kjytW.js",
     "name": "UpdatePreferencesForm",
     "src": "resources/js/Pages/Profile/Partials/UpdatePreferencesForm.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor-qYqXZm9g.js",
-      "_PrimaryButton-C5dazSzK.js"
+      "_vendor-qYqXZm9g.js"
     ]
   },
   "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx": {
-    "file": "assets/UpdateProfileInformationForm-DM8t6J3z.js",
+    "file": "assets/UpdateProfileInformationForm-CTNxaCuN.js",
     "name": "UpdateProfileInformationForm",
     "src": "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
     "isDynamicEntry": true,
@@ -607,7 +604,6 @@
       "_vendor-qYqXZm9g.js",
       "_InputError-DeYP_mLX.js",
       "_InputLabel-UBOIu0UB.js",
-      "_PrimaryButton-C5dazSzK.js",
       "_TextInput-Bh7FadKn.js"
     ]
   },
@@ -882,7 +878,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-DEIL-m6V.js",
+    "file": "assets/Index-DIaAAVRL.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -903,7 +899,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-D5-PuX4D.js",
+    "file": "assets/Show-BzgBl8ZF.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1080,7 +1076,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-DSqobdN0.js",
+    "file": "assets/app-DEXt7lMF.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1150,7 +1146,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-Db9MqtuV.css"
+      "assets/app-CuGobKwD.css"
     ]
   },
   "resources/js/assets/logo.png": {

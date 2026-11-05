@@ -21,11 +21,11 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                     {/* Profile Information Section */}
                     <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative flex flex-col">
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-sky-400"></div>
                         <div className="p-5 sm:p-6 md:p-8 flex-1 flex flex-col justify-between">
                             <div>
                                 <div className="flex items-center gap-3 mb-6 border-b border-gray-50 pb-4">
-                                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
                                         <User className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
@@ -43,11 +43,11 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
 
                     {/* Update Password Section */}
                     <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative flex flex-col">
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-orange-500"></div>
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-sky-400"></div>
                         <div className="p-5 sm:p-6 md:p-8 flex-1 flex flex-col justify-between">
                             <div>
                                 <div className="flex items-center gap-3 mb-6 border-b border-gray-50 pb-4">
-                                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 shrink-0">
+                                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
                                         <Lock className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
@@ -65,10 +65,10 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                     {/* Download Barcode Section */}
                     <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative flex flex-col">
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500"></div>
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-sky-400"></div>
                         <div className="p-5 sm:p-6 md:p-8 flex-1 flex flex-col justify-between">
                             <div className="flex items-center gap-3 mb-4 border-b border-gray-50 pb-4">
-                                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
                                     <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
                                 </div>
                                 <div>
@@ -82,11 +82,11 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
 
                     {/* Slip Gaji Section */}
                     <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative flex flex-col">
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-sky-400"></div>
                         <div className="p-5 sm:p-6 md:p-8 flex-1 flex flex-col justify-between">
                             <div>
                                 <div className="flex items-center gap-3 mb-4 border-b border-gray-50 pb-4">
-                                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
                                         <Receipt className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
@@ -101,22 +101,22 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             <div>
                                 <Link
                                     href={route('salaries.my-slip')}
-                                    className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all"
+                                    className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all"
                                 >
                                     <Receipt className="w-4 h-4" />
-                                    Buka Slip Gaji
+                                    Buka
                                 </Link>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Row 3: Preferensi Tampilan (Kiri & Kanan di dalam kartu) */}
+                {/* Row 3: Preferensi Tampilan */}
                 <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative">
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-sky-400"></div>
                     <div className="p-5 sm:p-6 md:p-8">
                         <div className="flex items-center gap-3 mb-6 border-b border-gray-50 pb-4">
-                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
                                 <Sliders className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
                             <div>

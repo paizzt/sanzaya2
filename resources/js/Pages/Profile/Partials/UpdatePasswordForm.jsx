@@ -1,6 +1,5 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { useForm } from '@inertiajs/react';
 import { useRef, useEffect } from 'react';
@@ -23,7 +22,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 title: 'Berhasil!',
                 text: 'Kata sandi berhasil diperbarui.',
                 icon: 'success',
-                confirmButtonColor: '#f97316',
+                confirmButtonColor: '#0ea5e9',
                 customClass: { popup: 'rounded-3xl' },
                 timer: 2000,
                 showConfirmButton: false
@@ -65,7 +64,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                             value={data.current_password}
                             onChange={(e) => setData('current_password', e.target.value)}
                             type="password"
-                            className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 focus:ring-orange-500 transition-all"
+                            className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-sky-400 focus:ring-sky-400 transition-all"
                             autoComplete="current-password"
                         />
                     </div>
@@ -85,7 +84,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 type="password"
-                                className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 focus:ring-orange-500 transition-all"
+                                className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-sky-400 focus:ring-sky-400 transition-all"
                                 autoComplete="new-password"
                             />
                         </div>
@@ -103,7 +102,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                                 value={data.password_confirmation}
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 type="password"
-                                className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 focus:ring-orange-500 transition-all"
+                                className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-sky-400 focus:ring-sky-400 transition-all"
                                 autoComplete="new-password"
                             />
                         </div>
@@ -112,9 +111,13 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </div>
 
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-50">
-                    <PrimaryButton disabled={processing} >
-                        Perbarui Sandi
-                    </PrimaryButton>
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="inline-flex items-center justify-center px-5 py-2.5 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
+                    >
+                        Simpan
+                    </button>
 
                     <div className={`transition-opacity duration-500 ${recentlySuccessful ? 'opacity-100' : 'opacity-0'}`}>
                         <p className="text-sm text-gray-600 flex items-center gap-1">

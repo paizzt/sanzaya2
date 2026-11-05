@@ -1,4 +1,4 @@
-import { QrCode, X } from 'lucide-react';
+import { QrCode, X, Download } from 'lucide-react';
 import { useState } from 'react';
 
 export default function DownloadBarcodeForm({ user }) {
@@ -56,9 +56,9 @@ export default function DownloadBarcodeForm({ user }) {
                 <button
                     type="button"
                     onClick={() => setBarcodeModalOpen(true)}
-                    className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all gap-2"
+                    className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-2.5 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all gap-2"
                 >
-                    <QrCode className="w-4 h-4" /> Unduh Barcode
+                    <QrCode className="w-4 h-4" /> Unduh
                 </button>
             </div>
 
@@ -81,14 +81,14 @@ export default function DownloadBarcodeForm({ user }) {
                             <p className="text-sm text-gray-600 text-center mb-6">Pilih format file untuk mengunduh QR Code Tanda Tangan Digital:</p>
                             
                             <div className="grid grid-cols-1 gap-3 w-full">
-                                <button type="button" onClick={() => downloadImage('svg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gray-800 text-white hover:bg-gray-700 rounded-xl font-semibold transition-colors">
-                                    Unduh format SVG
+                                <button type="button" onClick={() => downloadImage('svg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-sky-500 text-white hover:bg-sky-600 rounded-xl font-semibold shadow-sm transition-colors">
+                                    <Download className="w-4 h-4" /> SVG
                                 </button>
-                                <button type="button" onClick={() => downloadImage('png')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gray-800 text-white hover:bg-gray-700 rounded-xl font-semibold transition-colors">
-                                    Unduh format PNG
+                                <button type="button" onClick={() => downloadImage('png')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-sky-500 text-white hover:bg-sky-600 rounded-xl font-semibold shadow-sm transition-colors">
+                                    <Download className="w-4 h-4" /> PNG
                                 </button>
-                                <button type="button" onClick={() => downloadImage('jpg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gray-800 text-white hover:bg-gray-700 rounded-xl font-semibold transition-colors">
-                                    Unduh format JPG
+                                <button type="button" onClick={() => downloadImage('jpg')} className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-sky-500 text-white hover:bg-sky-600 rounded-xl font-semibold shadow-sm transition-colors">
+                                    <Download className="w-4 h-4" /> JPG
                                 </button>
                             </div>
                         </div>

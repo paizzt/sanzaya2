@@ -1,7 +1,6 @@
 import { useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 import { LayoutDashboard, PanelBottom } from 'lucide-react';
-import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function UpdatePreferencesForm({ className = '' }) {
     const user = usePage().props.auth.user;
@@ -74,7 +73,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
                     {/* Kolom Kiri: Pintasan Navigasi Bawah (Mobile) */}
                     <div className="bg-gray-50/60 p-4 sm:p-5 rounded-2xl border border-gray-100">
                         <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-1.5">
-                            <PanelBottom className="w-5 h-5 text-blue-500 shrink-0" /> Pintasan Navigasi Bawah (Mobile)
+                            <PanelBottom className="w-5 h-5 text-sky-500 shrink-0" /> Pintasan Navigasi Bawah (Mobile)
                         </h4>
                         <p className="text-xs sm:text-sm text-gray-500 mb-4">Pilih menu pintasan cepat di bagian bawah layar HP Anda (Maksimal 4 Menu).</p>
                         
@@ -89,10 +88,10 @@ export default function UpdatePreferencesForm({ className = '' }) {
                                 const isDisabled = !isChecked && (data.preferences.bottom_nav.length >= 4);
 
                                 return (
-                                    <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-100/60' : 'border-gray-200 bg-white cursor-pointer hover:border-blue-300 hover:bg-blue-50/30'}`}>
+                                    <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-100/60' : 'border-gray-200 bg-white cursor-pointer hover:border-sky-300 hover:bg-sky-50/40'}`}>
                                         <input 
                                             type="checkbox" 
-                                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50 shrink-0"
+                                            className="rounded border-gray-300 text-sky-500 shadow-sm focus:ring-sky-400 mr-3 disabled:opacity-50 shrink-0"
                                             checked={isChecked}
                                             disabled={isDisabled}
                                             onChange={(e) => {
@@ -115,7 +114,7 @@ export default function UpdatePreferencesForm({ className = '' }) {
                     {/* Kolom Kanan: Widget Dashboard Beranda */}
                     <div className="bg-gray-50/60 p-4 sm:p-5 rounded-2xl border border-gray-100">
                         <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-1.5">
-                            <LayoutDashboard className="w-5 h-5 text-blue-500 shrink-0" /> Widget Dashboard Beranda
+                            <LayoutDashboard className="w-5 h-5 text-sky-500 shrink-0" /> Widget Dashboard Beranda
                         </h4>
                         <p className="text-xs sm:text-sm text-gray-500 mb-4">Pilih kotak informasi atau pintasan di bagian atas halaman beranda (Maksimal 10 Menu).</p>
                         
@@ -130,10 +129,10 @@ export default function UpdatePreferencesForm({ className = '' }) {
                                 const isDisabled = !isChecked && (data.preferences.dashboard.length >= 10);
 
                                 return (
-                                    <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-100/60' : 'border-gray-200 bg-white cursor-pointer hover:border-blue-300 hover:bg-blue-50/30'}`}>
+                                    <label key={opt.key} className={`flex items-center p-3 border rounded-xl transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed border-gray-100 bg-gray-100/60' : 'border-gray-200 bg-white cursor-pointer hover:border-sky-300 hover:bg-sky-50/40'}`}>
                                         <input 
                                             type="checkbox" 
-                                            className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mr-3 disabled:opacity-50 shrink-0"
+                                            className="rounded border-gray-300 text-sky-500 shadow-sm focus:ring-sky-400 mr-3 disabled:opacity-50 shrink-0"
                                             checked={isChecked}
                                             disabled={isDisabled}
                                             onChange={(e) => {
@@ -155,7 +154,13 @@ export default function UpdatePreferencesForm({ className = '' }) {
                 </div>
 
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-                    <PrimaryButton disabled={processing}>Simpan Preferensi</PrimaryButton>
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="inline-flex items-center justify-center px-5 py-2.5 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
+                    >
+                        Simpan
+                    </button>
 
                     <Transition
                         show={recentlySuccessful}

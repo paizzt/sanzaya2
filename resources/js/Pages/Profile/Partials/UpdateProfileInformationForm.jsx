@@ -1,6 +1,5 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import Swal from 'sweetalert2';
@@ -21,7 +20,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                 title: 'Berhasil!',
                 text: 'Informasi profil berhasil diperbarui.',
                 icon: 'success',
-                confirmButtonColor: '#3b82f6',
+                confirmButtonColor: '#0ea5e9',
                 customClass: { popup: 'rounded-3xl' },
                 timer: 2000,
                 showConfirmButton: false
@@ -45,7 +44,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                         </div>
                         <TextInput
                             id="name"
-                            className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-blue-500 transition-all"
+                            className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-sky-400 focus:ring-sky-400 transition-all"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                             required
@@ -65,7 +64,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                         <TextInput
                             id="email"
                             type="text"
-                            className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-blue-500 transition-all"
+                            className="block w-full pl-11 py-3 bg-gray-50 border-gray-200 rounded-xl focus:bg-white focus:border-sky-400 focus:ring-sky-400 transition-all"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             required
@@ -76,20 +75,20 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (
-                    <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-                        <p className="text-sm text-orange-800 flex items-center gap-2">
+                    <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
+                        <p className="text-sm text-sky-800 flex items-center gap-2">
                             Alamat email Anda belum diverifikasi.
                             <Link
                                 href={route('verification.send')}
                                 method="post"
                                 as="button"
-                                className="underline font-semibold hover:text-orange-900 focus:outline-none focus:ring-2 focus:ring-orange-500 rounded-md"
+                                className="underline font-semibold hover:text-sky-900 focus:outline-none focus:ring-2 focus:ring-sky-500 rounded-md"
                             >
                                 Klik di sini untuk mengirim ulang email verifikasi.
                             </Link>
                         </p>
                         {status === 'verification-link-sent' && (
-                            <div className="mt-2 font-medium text-sm text-emerald-600">
+                            <div className="mt-2 font-medium text-sm text-sky-600">
                                 Tautan verifikasi baru telah dikirim ke alamat email Anda.
                             </div>
                         )}
@@ -97,9 +96,13 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                 )}
 
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-50">
-                    <PrimaryButton disabled={processing} >
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="inline-flex items-center justify-center px-5 py-2.5 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
+                    >
                         Simpan
-                    </PrimaryButton>
+                    </button>
 
                     <div className={`transition-opacity duration-500 ${recentlySuccessful ? 'opacity-100' : 'opacity-0'}`}>
                         <p className="text-sm text-gray-600 flex items-center gap-1">
