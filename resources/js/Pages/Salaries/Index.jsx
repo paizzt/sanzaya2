@@ -492,66 +492,66 @@ export default function Index({
 
             <div className="pb-6 pt-0 space-y-6">
                 {/* Summary Stat Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div className="p-3 bg-blue-50 text-blue-600 rounded-xl shrink-0">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                    <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex items-center gap-3 sm:gap-3.5 hover:shadow-md transition-all">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                             <Users className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-xs text-gray-500">Karyawan</p>
-                            <h4 className="text-lg font-bold text-gray-900 truncate">{summary.total_karyawan || 0}</h4>
+                            <p className="text-xs text-gray-500 font-medium truncate">Total Karyawan</p>
+                            <h4 className="text-base sm:text-lg font-black text-gray-900 truncate">{summary.total_karyawan || 0}</h4>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+                    <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex items-center gap-3 sm:gap-3.5 hover:shadow-md transition-all">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                             <TrendingUp className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-xs text-gray-500">Penerimaan</p>
-                            <h4 className="text-sm font-bold text-gray-900 truncate">{formatRp(summary.total_penerimaan)}</h4>
+                            <p className="text-xs text-gray-500 font-medium truncate">Total Penerimaan</p>
+                            <h4 className="text-sm sm:text-base font-black text-gray-900 truncate">{formatRp(summary.total_penerimaan)}</h4>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div className="p-3 bg-red-50 text-red-600 rounded-xl shrink-0">
+                    <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex items-center gap-3 sm:gap-3.5 hover:shadow-md transition-all">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
                             <TrendingDown className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-xs text-gray-500">Potongan</p>
-                            <h4 className="text-sm font-bold text-red-600 truncate">{formatRp(summary.total_potongan)}</h4>
+                            <p className="text-xs text-gray-500 font-medium truncate">Total Potongan</p>
+                            <h4 className="text-sm sm:text-base font-black text-red-600 truncate">{formatRp(summary.total_potongan)}</h4>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
+                    <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex items-center gap-3 sm:gap-3.5 hover:shadow-md transition-all">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                             <ShieldCheck className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-xs text-gray-500">BPJS Kantor</p>
-                            <h4 className="text-sm font-bold text-indigo-600 truncate">{formatRp(summary.total_bpjs_perusahaan)}</h4>
+                            <p className="text-xs text-gray-500 font-medium truncate">BPJS Kantor</p>
+                            <h4 className="text-sm sm:text-base font-black text-indigo-600 truncate">{formatRp(summary.total_bpjs_perusahaan)}</h4>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl shrink-0">
+                    <div className="col-span-2 sm:col-span-1 bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex items-center gap-3 sm:gap-3.5 hover:shadow-md transition-all">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
                             <Wallet className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-xs text-gray-500">Gaji Bersih</p>
-                            <h4 className="text-sm font-bold text-emerald-700 truncate">{formatRp(summary.total_diterima)}</h4>
+                            <p className="text-xs text-gray-500 font-medium truncate">Gaji Bersih</p>
+                            <h4 className="text-sm sm:text-base font-black text-emerald-700 truncate">{formatRp(summary.total_diterima)}</h4>
                         </div>
                     </div>
                 </div>
 
-                {/* Page Heading & Single-Word Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {/* Page Heading & Actions Card */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white rounded-3xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-gray-100">
                     <div>
-                        <h1 className="text-xl font-bold text-gray-900">
+                        <h1 className="text-xl sm:text-2xl font-black text-gray-900">
                             Penggajian {currentMonthLabel} {year}
                         </h1>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                            Terlambat: -{formatRp(defaultRates.tarif_potongan_terlambat)} &bull; Lembur Sen–Jum: {formatRp(defaultRates.tarif_lembur_weekday_pertama)} (+{formatRp(defaultRates.tarif_lembur_weekday_berikutnya)}/jam) &bull; Sabtu: {formatRp(defaultRates.tarif_lembur_sabtu)}/jam
+                        <p className="text-xs text-gray-500 mt-0.5 font-medium">
+                            Kelola rekapitulasi gaji, tunjangan, lembur, dan potongan karyawan
                         </p>
                     </div>
 
@@ -562,7 +562,7 @@ export default function Index({
                         />
                         <Link
                             href={route('absensi.rekap', { month, year })}
-                            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white border border-gray-200 rounded-xl font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50 transition-colors"
+                            className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-200 rounded-xl font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50 transition-colors shadow-sm"
                         >
                             <CalendarCheck className="w-4 h-4 text-blue-600" />
                             Absensi
@@ -570,7 +570,7 @@ export default function Index({
                         <button
                             type="button"
                             onClick={openSettingsModal}
-                            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-amber-500 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-600 transition-colors"
+                            className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-amber-500 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-600 transition-colors shadow-sm"
                         >
                             <Settings className="w-4 h-4" />
                             Tarif
@@ -578,7 +578,7 @@ export default function Index({
                         <button
                             type="button"
                             onClick={handleBatchGenerate}
-                            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition-colors"
+                            className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-sm"
                         >
                             <Sparkles className="w-4 h-4" />
                             Generate
@@ -586,7 +586,7 @@ export default function Index({
                         <button
                             type="button"
                             onClick={openAddModal}
-                            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 transition-colors"
+                            className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-sm"
                         >
                             <Plus className="w-4 h-4" />
                             Tambah
@@ -595,9 +595,9 @@ export default function Index({
                 </div>
 
                 {/* Main Card: Filter + Table + Pagination */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                     {/* Filter Bar */}
-                    <div className="p-4 border-b border-gray-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-gray-50">
+                    <div className="p-4 border-b border-gray-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-gray-50/70">
                         <div className="relative">
                             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                             <input
@@ -667,8 +667,187 @@ export default function Index({
                         </div>
                     </div>
 
-                    {/* Payroll Table */}
-                    <div className="overflow-x-auto">
+                    {/* Mobile Card List for Payrolls */}
+                    <div className="block md:hidden divide-y divide-gray-100">
+                        {paginatedPayrolls.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500 text-sm">
+                                Belum ada data gaji pada periode {currentMonthLabel} {year}.
+                            </div>
+                        ) : (
+                            paginatedPayrolls.map((p) => {
+                                const isExpanded = expandedId === p.id;
+                                const jmlTerlambat = Number(p.jumlah_terlambat || 0);
+                                return (
+                                    <div key={p.id} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
+                                        {/* Header: Name, NIK, Position, Status Badge */}
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <h4 className="font-bold text-gray-900 text-sm truncate">{p.user?.name ?? '-'}</h4>
+                                                <p className="text-xs text-gray-500">
+                                                    {p.user?.position?.name || 'Karyawan'} • {p.user?.division?.name || '-'}
+                                                </p>
+                                                <p className="text-[11px] text-gray-400">
+                                                    {p.user?.employee_id || p.user?.nik || '-'}
+                                                </p>
+                                            </div>
+                                            <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                                                p.status === 'paid' ? 'bg-emerald-600 text-white' :
+                                                p.status === 'published' ? 'bg-blue-600 text-white' :
+                                                'bg-gray-600 text-white'
+                                            }`}>
+                                                {p.status === 'paid' ? 'Dibayar' : p.status === 'published' ? 'Publik' : 'Draft'}
+                                            </span>
+                                        </div>
+
+                                        {/* Financial Summary Box */}
+                                        <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 space-y-2">
+                                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                                <div>
+                                                    <span className="text-[10px] text-gray-400 block font-medium">Gaji Pokok</span>
+                                                    <span className="font-bold text-gray-800">{formatRp(p.gaji_pokok)}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] text-gray-400 block font-medium">Operasional</span>
+                                                    <span className="font-bold text-gray-800">{formatRp(p.operasional)}</span>
+                                                    {p.potongan_absen > 0 && (
+                                                        <span className="text-[10px] text-red-600 block">
+                                                            Telat {jmlTerlambat}x (-{formatRp(p.potongan_absen)})
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] text-gray-400 block font-medium">Lembur</span>
+                                                    <span className="font-bold text-blue-600">{formatRp(p.lembur)}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] text-gray-400 block font-medium">Total Potongan</span>
+                                                    <span className="font-bold text-red-600">{formatRp(p.total_potongan)}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Gaji Bersih Row */}
+                                            <div className="pt-2 border-t border-gray-200/60 flex items-center justify-between">
+                                                <span className="text-xs font-semibold text-gray-600">Gaji Bersih (THP):</span>
+                                                <span className="text-base font-extrabold text-emerald-600">{formatRp(p.total_diterima)}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Toolbar on Mobile */}
+                                        <div className="flex items-center justify-between gap-2 pt-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => setExpandedId(isExpanded ? null : p.id)}
+                                                className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
+                                            >
+                                                <span>{isExpanded ? 'Tutup Rincian' : 'Lihat Rincian'}</span>
+                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                            </button>
+
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPreviewPayroll(p)}
+                                                    className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Lihat Slip"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+                                                <a
+                                                    href={route('salaries.slip.pdf', p.id)}
+                                                    className="p-1.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                    title="Unduh PDF"
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                </a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => openEditModal(p)}
+                                                    className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Edit"
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDelete(p)}
+                                                    className="p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Hapus"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Expanded Mobile Detail */}
+                                        {isExpanded && (
+                                            <div className="pt-2 space-y-3">
+                                                <div className="bg-blue-50/50 p-3.5 rounded-2xl border border-blue-100 space-y-2.5 text-xs">
+                                                    <div className="flex items-center justify-between pb-1.5 border-b border-blue-200/60">
+                                                        <span className="font-bold text-blue-900">Rincian Lengkap Penggajian</span>
+                                                        <Link
+                                                            href={route('absensi.rekap', { month: p.period_month, year: p.period_year, user_id: p.user_id })}
+                                                            className="text-[11px] font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded transition-colors"
+                                                        >
+                                                            Buka Absensi
+                                                        </Link>
+                                                    </div>
+
+                                                    {/* Penerimaan Sub-card */}
+                                                    <div className="space-y-1 bg-white p-2.5 rounded-xl border border-gray-100">
+                                                        <div className="font-bold text-gray-800 flex justify-between border-b border-gray-100 pb-1">
+                                                            <span>Total Penerimaan</span>
+                                                            <span className="text-blue-600">{formatRp(p.total_penerimaan)}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-gray-600"><span>Gaji Pokok:</span><strong>{formatRp(p.gaji_pokok)}</strong></div>
+                                                        <div className="flex justify-between text-gray-600"><span>Operasional:</span><strong>{formatRp(p.operasional)}</strong></div>
+                                                        <div className="flex justify-between text-gray-600"><span>T. Jabatan:</span><strong>{formatRp(p.tunjangan_jabatan)}</strong></div>
+                                                        <div className="flex justify-between text-gray-600"><span>THR:</span><strong>{formatRp(p.thr)}</strong></div>
+                                                        <div className="flex justify-between text-blue-700">
+                                                            <span>Lembur ({p.jumlah_lembur_weekday_pertama || 0}x 20:00, +{p.jumlah_jam_lembur_weekday_berikutnya || 0}j, Sabtu {p.jumlah_jam_lembur_sabtu || 0}j):</span>
+                                                            <strong>{formatRp(p.lembur)}</strong>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Potongan Sub-card */}
+                                                    <div className="space-y-1 bg-white p-2.5 rounded-xl border border-gray-100">
+                                                        <div className="font-bold text-gray-800 flex justify-between border-b border-gray-100 pb-1">
+                                                            <span>Total Potongan</span>
+                                                            <span className="text-red-600">{formatRp(p.total_potongan)}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-gray-600"><span>BPJS Kes ({p.bpjs_kesehatan_persen}%):</span><strong>{formatRp(p.bpjs_kesehatan)}</strong></div>
+                                                        <div className="flex justify-between text-gray-600"><span>BPJS TK ({p.bpjs_ketenagakerjaan_persen}%):</span><strong>{formatRp(p.bpjs_ketenagakerjaan)}</strong></div>
+                                                        <div className="flex justify-between text-gray-600"><span>Pajak:</span><strong>{formatRp(p.pajak)}</strong></div>
+                                                        <div className="flex justify-between text-gray-600"><span>Piutang:</span><strong>{formatRp(p.piutang)}</strong></div>
+                                                        <div className="flex justify-between text-red-600">
+                                                            <span>Terlambat ({p.jumlah_terlambat || 0}x):</span>
+                                                            <strong>{formatRp(p.potongan_absen)}</strong>
+                                                        </div>
+                                                        <div className="flex justify-between text-emerald-700 font-semibold">
+                                                            <span>Sisa Operasional:</span>
+                                                            <strong>{formatRp(Math.max(0, (p.operasional || 0) - (p.potongan_absen || 0)))}</strong>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* BPJS Kantor Sub-card */}
+                                                    <div className="space-y-1 bg-white p-2.5 rounded-xl border border-gray-100">
+                                                        <div className="font-bold text-gray-800 flex justify-between border-b border-gray-100 pb-1">
+                                                            <span>BPJS Ditanggung Kantor</span>
+                                                            <span className="text-indigo-600">{formatRp(p.total_bpjs_perusahaan)}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-gray-600"><span>BPJS Kes ({p.bpjs_kesehatan_perusahaan_persen}%):</span><strong>{formatRp(p.bpjs_kesehatan_perusahaan)}</strong></div>
+                                                        <div className="flex justify-between text-gray-600"><span>BPJS TK ({p.bpjs_ketenagakerjaan_perusahaan_persen}%):</span><strong>{formatRp(p.bpjs_ketenagakerjaan_perusahaan)}</strong></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+
+                    {/* Desktop Table for Payrolls */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-600">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                                 <tr>
@@ -737,10 +916,10 @@ export default function Index({
                                                         {formatRp(p.total_diterima)}
                                                     </td>
                                                     <td className="px-5 py-3.5 text-center whitespace-nowrap">
-                                                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                                            p.status === 'paid' ? 'bg-emerald-50 text-emerald-700' :
-                                                            p.status === 'published' ? 'bg-blue-50 text-blue-700' :
-                                                            'bg-gray-100 text-gray-700'
+                                                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                                                            p.status === 'paid' ? 'bg-emerald-600 text-white' :
+                                                            p.status === 'published' ? 'bg-blue-600 text-white' :
+                                                            'bg-gray-600 text-white'
                                                         }`}>
                                                             {p.status === 'paid' ? 'Dibayar' : p.status === 'published' ? 'Publik' : 'Draft'}
                                                         </span>
