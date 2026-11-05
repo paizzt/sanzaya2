@@ -642,44 +642,44 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     </div>
                                     {roleTab === 'satpam' ? (
                                         <div className="grid grid-cols-4 gap-1.5 text-center">
-                                            <div className="bg-amber-50 rounded-xl p-1.5 border border-amber-100/60">
-                                                <span className="text-[10px] text-amber-700 font-semibold block">Siang</span>
-                                                <span className="text-xs font-black text-amber-800">{u.shift_siang || 0}</span>
+                                            <div className="bg-amber-500 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-amber-100 font-semibold block">Siang</span>
+                                                <span className="text-xs font-black text-white">{u.shift_siang || 0}</span>
                                             </div>
-                                            <div className="bg-indigo-50 rounded-xl p-1.5 border border-indigo-100/60">
-                                                <span className="text-[10px] text-indigo-700 font-semibold block">Malam</span>
-                                                <span className="text-xs font-black text-indigo-800">{u.shift_malam || 0}</span>
+                                            <div className="bg-indigo-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-indigo-100 font-semibold block">Malam</span>
+                                                <span className="text-xs font-black text-white">{u.shift_malam || 0}</span>
                                             </div>
-                                            <div className="bg-orange-50 rounded-xl p-1.5 border border-orange-100/60">
-                                                <span className="text-[10px] text-orange-700 font-semibold block">Sakit</span>
-                                                <span className="text-xs font-black text-orange-800">{u.sakit || 0}</span>
+                                            <div className="bg-orange-500 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-orange-100 font-semibold block">Sakit</span>
+                                                <span className="text-xs font-black text-white">{u.sakit || 0}</span>
                                             </div>
-                                            <div className="bg-emerald-50 rounded-xl p-1.5 border border-emerald-100/60">
-                                                <span className="text-[10px] text-emerald-700 font-semibold block">Izin</span>
-                                                <span className="text-xs font-black text-emerald-800">{u.izin || 0}</span>
+                                            <div className="bg-emerald-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-emerald-100 font-semibold block">Izin</span>
+                                                <span className="text-xs font-black text-white">{u.izin || 0}</span>
                                             </div>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-5 gap-1.5 text-center">
-                                            <div className="bg-orange-50 rounded-xl p-1.5 border border-orange-100/60">
-                                                <span className="text-[10px] text-orange-700 font-semibold block">Sakit</span>
-                                                <span className="text-xs font-black text-orange-800">{u.sakit}</span>
+                                            <div className="bg-orange-500 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-orange-100 font-semibold block">Sakit</span>
+                                                <span className="text-xs font-black text-white">{u.sakit}</span>
                                             </div>
-                                            <div className="bg-emerald-50 rounded-xl p-1.5 border border-emerald-100/60">
-                                                <span className="text-[10px] text-emerald-700 font-semibold block">Izin</span>
-                                                <span className="text-xs font-black text-emerald-800">{u.izin}</span>
+                                            <div className="bg-emerald-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-emerald-100 font-semibold block">Izin</span>
+                                                <span className="text-xs font-black text-white">{u.izin}</span>
                                             </div>
-                                            <div className="bg-rose-50 rounded-xl p-1.5 border border-rose-100/60">
-                                                <span className="text-[10px] text-rose-700 font-semibold block">Alpa</span>
-                                                <span className="text-xs font-black text-rose-800">{u.alpa}</span>
+                                            <div className="bg-rose-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-rose-100 font-semibold block">Alpa</span>
+                                                <span className="text-xs font-black text-white">{u.alpa}</span>
                                             </div>
-                                            <div className="bg-amber-50 rounded-xl p-1.5 border border-amber-100/60">
-                                                <span className="text-[10px] text-amber-700 font-semibold block">Telat</span>
-                                                <span className="text-xs font-black text-amber-800">{u.terlambat || 0}</span>
+                                            <div className="bg-amber-500 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-amber-100 font-semibold block">Telat</span>
+                                                <span className="text-xs font-black text-white">{u.terlambat || 0}</span>
                                             </div>
-                                            <div className="bg-blue-50 rounded-xl p-1.5 border border-blue-100/60">
-                                                <span className="text-[10px] text-blue-700 font-semibold block">Lembur</span>
-                                                <span className="text-xs font-black text-blue-800">{u.lembur || 0}</span>
+                                            <div className="bg-blue-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-blue-100 font-semibold block">Lembur</span>
+                                                <span className="text-xs font-black text-white">{u.lembur || 0}</span>
                                             </div>
                                         </div>
                                     )}
@@ -798,7 +798,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <div className="flex items-center gap-1.5">
                                                 <span className="font-bold text-gray-900 text-sm">{item.user_name}</span>
                                                 {item.is_satpam && (
-                                                    <span className="text-[11px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded font-medium">Satpam</span>
+                                                    <span className="text-[11px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold">Satpam</span>
                                                 )}
                                             </div>
                                             <p className="text-xs text-gray-500 mt-0.5">{item.date}</p>
@@ -837,7 +837,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
                                     {/* Shift Tag if available */}
                                     {item.shift && (
-                                        <div className="inline-flex items-center gap-1 text-xs text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md font-semibold">
+                                        <div className="inline-flex items-center gap-1 text-xs bg-indigo-600 text-white px-2.5 py-0.5 rounded-full font-bold">
                                             Shift: {item.shift}
                                         </div>
                                     )}
@@ -877,12 +877,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             </div>
                                             {!item.is_satpam && item.is_lembur && (
                                                 <div className="mt-0.5">
-                                                    <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                                                    <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-bold ${
                                                         item.overtime_status === 'Disetujui'
-                                                            ? 'bg-emerald-100 text-emerald-700'
+                                                            ? 'bg-emerald-600 text-white'
                                                             : item.overtime_status === 'Ditolak'
-                                                            ? 'bg-rose-100 text-rose-700 line-through'
-                                                            : 'bg-amber-100 text-amber-700'
+                                                            ? 'bg-rose-600 text-white line-through'
+                                                            : 'bg-amber-500 text-white'
                                                     }`}>
                                                         Lembur {item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`}
                                                         {item.overtime_status === 'Disetujui' ? ' • ACC' : item.overtime_status === 'Ditolak' ? ' • Ditolak' : ' • Menunggu'}
@@ -903,9 +903,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     {/* Status, Attachment & Notes */}
                                     <div className="space-y-2 pt-1">
                                         <div className="flex flex-wrap items-center justify-between gap-2">
-                                            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                                                item.status === 'Selesai' || item.status === 'Disetujui' ? 'text-emerald-700 bg-emerald-50' :
-                                                item.status === 'Menunggu' ? 'text-amber-700 bg-amber-50' : 'text-red-700 bg-red-50'
+                                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                                                item.status === 'Selesai' || item.status === 'Disetujui' ? 'bg-emerald-600 text-white' :
+                                                item.status === 'Menunggu' ? 'bg-amber-500 text-white' : 'bg-rose-600 text-white'
                                             }`}>
                                                 Status: {item.status}
                                             </span>
@@ -936,12 +936,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     <span className="font-bold text-blue-950 flex items-center gap-1">
                                                         <Clock className="w-3.5 h-3.5 text-blue-600 inline" /> Alasan Lembur:
                                                     </span>
-                                                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                                         item.overtime_status === 'Disetujui'
-                                                            ? 'bg-emerald-100 text-emerald-700'
+                                                            ? 'bg-emerald-600 text-white'
                                                             : item.overtime_status === 'Ditolak'
-                                                            ? 'bg-rose-100 text-rose-700'
-                                                            : 'bg-amber-100 text-amber-700'
+                                                            ? 'bg-rose-600 text-white'
+                                                            : 'bg-amber-500 text-white'
                                                     }`}>
                                                         {item.overtime_status === 'Disetujui' ? 'Lembur Ter-ACC' : item.overtime_status === 'Ditolak' ? 'Ditolak' : 'Menunggu ACC'}
                                                     </span>
@@ -1074,10 +1074,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6">{item.date}</td>
                                             <td className="py-4 px-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                    item.type === 'Hadir' ? 'bg-blue-50 text-blue-600' :
-                                                    item.type === 'Sakit' ? 'bg-orange-50 text-orange-600' : 
-                                                    item.type === 'Lembur' ? 'bg-blue-50 text-blue-600' : 
-                                                    item.type === 'Alpa' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
+                                                    item.type === 'Hadir' ? 'bg-blue-600 text-white' :
+                                                    item.type === 'Sakit' ? 'bg-orange-500 text-white' : 
+                                                    item.type === 'Lembur' ? 'bg-indigo-600 text-white' : 
+                                                    item.type === 'Alpa' ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
                                                 }`}>
                                                     {item.type}
                                                 </span>
@@ -1108,12 +1108,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span>{item.check_out || '-'}</span>
                                                     {!item.is_satpam && item.is_lembur && (
-                                                        <span className={`text-[10px] px-1.5 py-0.5 rounded text-xs font-bold whitespace-nowrap ${
+                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${
                                                             item.overtime_status === 'Disetujui'
-                                                                ? 'bg-emerald-100 text-emerald-700'
+                                                                ? 'bg-emerald-600 text-white'
                                                                 : item.overtime_status === 'Ditolak'
-                                                                ? 'bg-rose-100 text-rose-700 line-through'
-                                                                : 'bg-amber-100 text-amber-700'
+                                                                ? 'bg-rose-600 text-white line-through'
+                                                                : 'bg-amber-500 text-white'
                                                         }`}>
                                                             Lembur {item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`}
                                                             {item.overtime_status === 'Disetujui' ? ' • Ter-ACC' : item.overtime_status === 'Ditolak' ? ' • Ditolak' : ' • Menunggu'}
@@ -1128,9 +1128,9 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col gap-1.5 items-start">
-                                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                                        item.status === 'Selesai' || item.status === 'Disetujui' ? 'text-emerald-600 bg-emerald-50' :
-                                                        item.status === 'Menunggu' ? 'text-orange-600 bg-orange-50' : 'text-red-600 bg-red-50'
+                                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                                                        item.status === 'Selesai' || item.status === 'Disetujui' ? 'bg-emerald-600 text-white' :
+                                                        item.status === 'Menunggu' ? 'bg-amber-500 text-white' : 'bg-rose-600 text-white'
                                                     }`}>
                                                         {item.status}
                                                     </span>
@@ -1160,12 +1160,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                                 <span className="font-bold text-blue-950 flex items-center gap-1">
                                                                     <Clock className="w-3 h-3 text-blue-600 inline" /> Alasan Lembur:
                                                                 </span>
-                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                                                     item.overtime_status === 'Disetujui'
-                                                                        ? 'bg-emerald-100 text-emerald-700'
+                                                                        ? 'bg-emerald-600 text-white'
                                                                         : item.overtime_status === 'Ditolak'
-                                                                        ? 'bg-rose-100 text-rose-700'
-                                                                        : 'bg-amber-100 text-amber-700'
+                                                                        ? 'bg-rose-600 text-white'
+                                                                        : 'bg-amber-500 text-white'
                                                                 }`}>
                                                                     {item.overtime_status === 'Disetujui' ? 'Lembur Ter-ACC' : item.overtime_status === 'Ditolak' ? 'Ditolak' : 'Menunggu ACC'}
                                                                 </span>
