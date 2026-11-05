@@ -312,16 +312,17 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                             )}
                         </div>
 
-                        {/* Search and Filters Section */}
+                        {/* Search and Filters Section (1 Baris pada Layar Desktop) */}
                         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-5 gap-3">
-                            <form onSubmit={handleSearch} className="w-full lg:max-w-5xl space-y-2.5">
-                                <div className="flex items-center gap-2">
+                            <form onSubmit={handleSearch} className="w-full flex-1 flex flex-col lg:flex-row lg:items-center gap-2">
+                                {/* Search Input Bar */}
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
                                     <div className="flex-1 relative">
                                         <TextInput
                                             type="text"
                                             value={search}
                                             onChange={(e) => setSearch(e.target.value)}
-                                            className="block w-full text-sm pl-3 pr-8 py-2 rounded-xl"
+                                            className="block w-full text-xs sm:text-sm pl-3 pr-8 py-2 rounded-xl"
                                             placeholder="Cari perihal, nomor, penerima..."
                                         />
                                         {search && (
@@ -354,27 +355,11 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                         )}
                                         {showMobileFilter ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                     </button>
-
-                                    {/* Desktop Submit Button */}
-                                    <div className="hidden lg:flex items-center gap-2">
-                                        <PrimaryButton type="submit" className="py-2 px-4 rounded-xl text-xs font-bold">
-                                            Filter
-                                        </PrimaryButton>
-                                        {(search || status || nominal || categoryFilter || deadline || companyFilter) && (
-                                            <button
-                                                type="button"
-                                                onClick={handleReset}
-                                                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition text-center"
-                                            >
-                                                Reset
-                                            </button>
-                                        )}
-                                    </div>
                                 </div>
 
-                                {/* Filter Controls (Collapsible on Mobile, Inline on Desktop) */}
-                                <div className={`${showMobileFilter ? 'grid' : 'hidden lg:flex'} grid-cols-2 lg:flex lg:flex-wrap items-center gap-2 pt-1`}>
-                                    <div className="col-span-1 lg:w-44">
+                                {/* Filter Controls (Collapsible 2-col on Mobile, 1-Row Inline on Desktop) */}
+                                <div className={`${showMobileFilter ? 'grid' : 'hidden lg:flex'} grid-cols-2 lg:flex lg:items-center gap-2 shrink-0`}>
+                                    <div className="col-span-1 lg:w-40">
                                         <CustomSelect 
                                             value={companyFilter}
                                             onChange={(val) => {
@@ -388,14 +373,14 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                             options={companyOptions}
                                         />
                                     </div>
-                                    <div className="col-span-1 lg:w-36">
+                                    <div className="col-span-1 lg:w-32">
                                         <CustomSelect 
                                             value={status}
                                             onChange={(val) => setStatus(val)}
                                             options={statusOptions}
                                         />
                                     </div>
-                                    <div className="col-span-1 lg:w-40">
+                                    <div className="col-span-1 lg:w-36">
                                         <CustomSelect 
                                             value={nominal}
                                             onChange={(val) => setNominal(val)}
@@ -408,6 +393,23 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                             onChange={(val) => setCategoryFilter(val)}
                                             options={categoryFilterOptions}
                                         />
+                                    </div>
+
+                                    {/* Desktop Submit and Reset Buttons */}
+                                    <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+                                        <PrimaryButton type="submit" className="py-2 px-3.5 rounded-xl text-xs font-bold uppercase tracking-wider">
+                                            Filter
+                                        </PrimaryButton>
+                                        {(search || status || nominal || categoryFilter || deadline || companyFilter) && (
+                                            <button
+                                                type="button"
+                                                onClick={handleReset}
+                                                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition text-center"
+                                                title="Reset Filter"
+                                            >
+                                                Reset
+                                            </button>
+                                        )}
                                     </div>
 
                                     {/* Mobile Submit/Reset Buttons */}
