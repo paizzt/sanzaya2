@@ -1,9 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
-import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2, Clock } from 'lucide-react';
+import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2, Clock, Building2, Filter } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -11,12 +11,13 @@ import CustomSelect from '@/Components/CustomSelect';
 import CurrencyInput from '@/Components/CurrencyInput';
 import InputError from '@/Components/InputError';
 
-export default function UcApproval({ requests, isAdmin }) {
+export default function UcApproval({ requests = [], isAdmin = false, companies = [] }) {
     const user = usePage().props.auth.user;
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState(null);
     const [modalSource, setModalSource] = useState('uc');
+    const [selectedPt, setSelectedPt] = useState('');
 
     const { data, setData, post, processing, reset, errors, transform } = useForm({
         status: '',
@@ -75,9 +76,35 @@ export default function UcApproval({ requests, isAdmin }) {
         return isResultPending(req) || isCompletedResult(req) || Boolean(req.result_report);
     };
 
-    const ucRequests = (requests || []).filter(isUcInitialPending);
-    const pendingResultRequests = (requests || []).filter(isResultPending);
-    const completedResultRequests = (requests || []).filter(isCompletedResult);
+    // List PT / Entitas unik dari data companies & requests
+    const ptOptions = useMemo(() => {
+        const list = new Set();
+        if (companies && Array.isArray(companies)) {
+            companies.forEach(c => {
+                if (c && c.name && c.name.trim()) list.add(c.name.trim());
+            });
+        }
+        (requests || []).forEach(r => {
+            if (r && r.entity && r.entity.trim()) list.add(r.entity.trim());
+        });
+        return Array.from(list).sort().map(pt => ({
+            value: pt,
+            label: pt
+        }));
+    }, [companies, requests]);
+
+    // Filter requests berdasarkan PT terpilih
+    const filteredRequests = useMemo(() => {
+        if (!selectedPt) return requests || [];
+        return (requests || []).filter(r => {
+            if (!r || !r.entity) return false;
+            return r.entity.trim().toLowerCase() === selectedPt.trim().toLowerCase();
+        });
+    }, [requests, selectedPt]);
+
+    const ucRequests = filteredRequests.filter(isUcInitialPending);
+    const pendingResultRequests = filteredRequests.filter(isResultPending);
+    const completedResultRequests = filteredRequests.filter(isCompletedResult);
 
     const openModal = (req, defaultStatus = null, source = null) => {
         setSelectedRequest(req);
@@ -398,16 +425,74 @@ export default function UcApproval({ requests, isAdmin }) {
 
             <div className="space-y-6">
                 {/* Header Action Bar */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                     <div>
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
                             <FileCheck className="text-blue-600 w-6 h-6" /> Persetujuan UC
                         </h2>
+                        <p className="text-xs text-gray-500 mt-0.5">Kelola dan tinjau persetujuan biaya perjalanan dinas serta laporan hasil dinas</p>
                     </div>
-                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                        <ExportDropdown pdfRoute={route('requests.uc.approval.export.pdf')} excelRoute={route('requests.uc.approval.export.excel')} />
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto justify-end">
+                        {/* Filter PT */}
+                        <div className="w-full sm:w-64">
+                            <CustomSelect
+                                value={selectedPt}
+                                onChange={(val) => setSelectedPt(val)}
+                                options={[
+                                    { value: '', label: 'Semua PT (Entitas)' },
+                                    ...ptOptions
+                                ]}
+                                placeholder="Pilih PT..."
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                            <ExportDropdown 
+                                pdfRoute={route('requests.uc.approval.export.pdf', selectedPt ? { pt: selectedPt } : {})} 
+                                excelRoute={route('requests.uc.approval.export.excel', selectedPt ? { pt: selectedPt } : {})} 
+                            />
+                        </div>
                     </div>
                 </div>
+
+                {/* Filter Pills PT */}
+                {ptOptions.length > 0 && (
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                        <button
+                            type="button"
+                            onClick={() => setSelectedPt('')}
+                            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer ${
+                                !selectedPt 
+                                    ? 'bg-blue-600 text-white shadow-xs' 
+                                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                            }`}
+                        >
+                            Semua PT ({requests?.length || 0})
+                        </button>
+                        {ptOptions.map(pt => {
+                            const count = (requests || []).filter(r => r && r.entity && r.entity.trim().toLowerCase() === pt.value.trim().toLowerCase()).length;
+                            const isSelected = selectedPt === pt.value;
+                            return (
+                                <button
+                                    key={pt.value}
+                                    type="button"
+                                    onClick={() => setSelectedPt(isSelected ? '' : pt.value)}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                                        isSelected 
+                                            ? 'bg-blue-600 text-white shadow-xs' 
+                                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    <Building2 className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-gray-400'}`} />
+                                    <span>{pt.label}</span>
+                                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${isSelected ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                        {count}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 {/* 2 Card Containers Grid */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
@@ -431,7 +516,7 @@ export default function UcApproval({ requests, isAdmin }) {
                         {ucRequests.length === 0 ? (
                             <div className="text-center py-12 text-gray-400 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
                                 <PlaneTakeoff className="w-10 h-10 mx-auto mb-2 opacity-25" />
-                                <p className="text-sm font-medium">Belum ada data pengajuan biaya UC.</p>
+                                <p className="text-sm font-medium">Belum ada data pengajuan biaya UC{selectedPt ? ` untuk ${selectedPt}` : ''}.</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
@@ -458,7 +543,14 @@ export default function UcApproval({ requests, isAdmin }) {
                                                 >
                                                     <td className="px-3.5 py-3">
                                                         <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.user?.name || '-'}</span>
-                                                        <span className="text-[11px] text-gray-500 block">{req.department || '-'}</span>
+                                                        <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                                            <span className="text-[11px] text-gray-500">{req.department || '-'}</span>
+                                                            {req.entity && (
+                                                                <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-0.2 rounded">
+                                                                    {req.entity}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-3.5 py-3">
                                                         <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
@@ -537,7 +629,7 @@ export default function UcApproval({ requests, isAdmin }) {
                         {pendingResultRequests.length === 0 ? (
                             <div className="text-center py-12 text-gray-400 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
                                 <FileText className="w-10 h-10 mx-auto mb-2 opacity-25" />
-                                <p className="text-sm font-medium">Belum ada pengajuan result yang menunggu persetujuan.</p>
+                                <p className="text-sm font-medium">Belum ada pengajuan result yang menunggu persetujuan{selectedPt ? ` untuk ${selectedPt}` : ''}.</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
@@ -579,7 +671,14 @@ export default function UcApproval({ requests, isAdmin }) {
                                                 >
                                                     <td className="px-3.5 py-3">
                                                         <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.user?.name || '-'}</span>
-                                                        <span className="text-[11px] text-gray-500 block">{req.department || '-'}</span>
+                                                        <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                                            <span className="text-[11px] text-gray-500">{req.department || '-'}</span>
+                                                            {req.entity && (
+                                                                <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-0.2 rounded">
+                                                                    {req.entity}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-3.5 py-3">
                                                         <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
@@ -681,7 +780,7 @@ export default function UcApproval({ requests, isAdmin }) {
                     {completedResultRequests.length === 0 ? (
                         <div className="text-center py-12 text-gray-400 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
                             <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-25" />
-                            <p className="text-sm font-medium">Belum ada pengajuan result yang berstatus selesai (ACC).</p>
+                            <p className="text-sm font-medium">Belum ada pengajuan result yang berstatus selesai (ACC){selectedPt ? ` untuk ${selectedPt}` : ''}.</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -716,7 +815,14 @@ export default function UcApproval({ requests, isAdmin }) {
                                             >
                                                 <td className="px-4 py-3.5">
                                                     <span className="font-bold text-gray-900 block text-xs sm:text-sm">{req.user?.name || '-'}</span>
-                                                    <span className="text-[11px] text-gray-500 block">{req.department || '-'}</span>
+                                                    <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                                        <span className="text-[11px] text-gray-500">{req.department || '-'}</span>
+                                                        {req.entity && (
+                                                            <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-0.2 rounded">
+                                                                {req.entity}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-4 py-3.5">
                                                     <span className="font-semibold text-gray-800 block text-xs sm:text-sm capitalize">{req.destination_city}</span>
@@ -844,6 +950,10 @@ export default function UcApproval({ requests, isAdmin }) {
                                 <div>
                                     <span className="text-gray-500 block mb-1">Pengaju</span>
                                     <span className="font-semibold text-gray-900">{selectedRequest.user?.name} ({selectedRequest.department})</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500 block mb-1">Perusahaan / PT</span>
+                                    <span className="font-semibold text-blue-700">{selectedRequest.entity || '-'}</span>
                                 </div>
                                 <div>
                                     <span className="text-gray-500 block mb-1">Tujuan</span>

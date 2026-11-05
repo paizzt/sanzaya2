@@ -17,9 +17,11 @@ class UcApprovalController extends Controller
     {
         // Get all UC requests with user and items relationships
         $requests = UcRequest::with(['user', 'items'])->orderBy('created_at', 'desc')->get();
+        $companies = \App\Models\Company::orderBy('name')->get();
         
         return Inertia::render('Requests/UcApproval', [
             'requests' => $requests,
+            'companies' => $companies,
             'isAdmin' => Auth::user()->isSuperAdminUser() || Auth::user()->isAdminUser()
         ]);
     }
@@ -85,7 +87,13 @@ class UcApprovalController extends Controller
 
     public function exportPdf()
     {
-        $items = \App\Models\UcRequest::with(['user', 'items'])->orderBy('id', 'desc')->get();
+        $query = \App\Models\UcRequest::with(['user', 'items'])->orderBy('id', 'desc');
+        if (request()->filled('pt')) {
+            $query->where('entity', request('pt'));
+        } elseif (request()->filled('entity')) {
+            $query->where('entity', request('entity'));
+        }
+        $items = $query->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
@@ -127,7 +135,13 @@ class UcApprovalController extends Controller
 
     public function exportExcel()
     {
-        $items = \App\Models\UcRequest::with(['user', 'items'])->orderBy('id', 'desc')->get();
+        $query = \App\Models\UcRequest::with(['user', 'items'])->orderBy('id', 'desc');
+        if (request()->filled('pt')) {
+            $query->where('entity', request('pt'));
+        } elseif (request()->filled('entity')) {
+            $query->where('entity', request('entity'));
+        }
+        $items = $query->get();
         if ($items->isEmpty()) {
             $headings = [];
             $rows = collect([]);
