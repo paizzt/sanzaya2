@@ -151,6 +151,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['can:approve uc requests'])->group(function() {
         // Persetujuan UC
         Route::get('/requests/uc-approval', [\App\Http\Controllers\UcApprovalController::class, 'index'])->name('requests.uc.approval.index');
+        Route::post('/requests/uc-approval-preference', [\App\Http\Controllers\UcApprovalController::class, 'savePreference'])->name('requests.uc.approval.preference');
         Route::post('/requests/uc-approval/{id}', [\App\Http\Controllers\UcApprovalController::class, 'update'])->name('requests.uc.approval.update');
     });
 

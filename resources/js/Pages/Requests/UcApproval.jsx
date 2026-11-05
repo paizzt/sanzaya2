@@ -11,13 +11,44 @@ import CustomSelect from '@/Components/CustomSelect';
 import CurrencyInput from '@/Components/CurrencyInput';
 import InputError from '@/Components/InputError';
 
-export default function UcApproval({ requests = [], isAdmin = false, companies = [] }) {
+export default function UcApproval({ requests = [], isAdmin = false, companies = [], savedPt = '' }) {
     const user = usePage().props.auth.user;
+    const storageKey = 'uc_approval_selected_pt_' + (user?.id || 'default');
+
+    const getInitialPt = () => {
+        if (savedPt) return savedPt;
+        try {
+            return localStorage.getItem(storageKey) || localStorage.getItem('uc_approval_selected_pt') || '';
+        } catch (e) {
+            return '';
+        }
+    };
+
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState(null);
     const [modalSource, setModalSource] = useState('uc');
-    const [selectedPt, setSelectedPt] = useState('');
+    const [selectedPt, setSelectedPt] = useState(getInitialPt);
+
+    const handlePtChange = (val) => {
+        setSelectedPt(val);
+        try {
+            if (val) {
+                localStorage.setItem(storageKey, val);
+                localStorage.setItem('uc_approval_selected_pt', val);
+            } else {
+                localStorage.removeItem(storageKey);
+                localStorage.removeItem('uc_approval_selected_pt');
+            }
+        } catch (e) {}
+
+        // Simpan preferensi PT ke server / session secara async
+        try {
+            if (window.axios) {
+                window.axios.post(route('requests.uc.approval.preference'), { pt: val }).catch(() => {});
+            }
+        } catch (e) {}
+    };
 
     const { data, setData, post, processing, reset, errors, transform } = useForm({
         status: '',
@@ -86,12 +117,24 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
             }
         });
 
-        return Object.keys(counts).sort().map(entity => ({
+        const options = Object.keys(counts).sort().map(entity => ({
             value: entity,
             label: `${entity} (${counts[entity]})`,
             count: counts[entity]
         }));
-    }, [requests]);
+
+        // Jika user memiliki preferensi PT yang sedang tersimpan tapi saat ini count-nya 0,
+        // tetap sertakan sebagai opsi agar label dropdown tidak hilang/kosong
+        if (selectedPt && !options.some(o => o.value.trim().toLowerCase() === selectedPt.trim().toLowerCase())) {
+            options.unshift({
+                value: selectedPt,
+                label: `${selectedPt} (0)`,
+                count: 0
+            });
+        }
+
+        return options;
+    }, [requests, selectedPt]);
 
     // Filter requests berdasarkan PT terpilih
     const filteredRequests = useMemo(() => {
@@ -437,7 +480,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                         <div className="w-full sm:w-64">
                             <CustomSelect
                                 value={selectedPt}
-                                onChange={(val) => setSelectedPt(val)}
+                                onChange={handlePtChange}
                                 options={[
                                     { value: '', label: `Semua PT (${requests?.length || 0})` },
                                     ...ptOptions

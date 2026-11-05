@@ -13,8 +13,23 @@ use Illuminate\Support\Facades\Auth;
 
 class UcApprovalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $user = Auth::user();
+        $savedPt = '';
+        if ($request->has('pt')) {
+            $savedPt = (string)$request->query('pt');
+            session(['uc_approval_selected_pt' => $savedPt]);
+            try {
+                $prefs = $user->preferences ?: [];
+                $prefs['uc_approval_selected_pt'] = $savedPt;
+                $user->preferences = $prefs;
+                $user->save();
+            } catch (\Throwable $e) {}
+        } else {
+            $savedPt = (string)(session('uc_approval_selected_pt') ?? ($user->preferences['uc_approval_selected_pt'] ?? ''));
+        }
+
         // Get all UC requests with user, creator, approver and items relationships
         $requests = UcRequest::with(['user', 'creator', 'approver', 'items'])->orderBy('created_at', 'desc')->get();
         $companies = \App\Models\Company::orderBy('name')->get();
@@ -22,8 +37,26 @@ class UcApprovalController extends Controller
         return Inertia::render('Requests/UcApproval', [
             'requests' => $requests,
             'companies' => $companies,
-            'isAdmin' => Auth::user()->isSuperAdminUser() || Auth::user()->isAdminUser()
+            'savedPt' => $savedPt,
+            'isAdmin' => $user->isSuperAdminUser() || $user->isAdminUser()
         ]);
+    }
+
+    public function savePreference(Request $request)
+    {
+        $pt = (string)$request->input('pt', '');
+        session(['uc_approval_selected_pt' => $pt]);
+        try {
+            $user = Auth::user();
+            if ($user) {
+                $prefs = $user->preferences ?: [];
+                $prefs['uc_approval_selected_pt'] = $pt;
+                $user->preferences = $prefs;
+                $user->save();
+            }
+        } catch (\Throwable $e) {}
+
+        return response()->json(['success' => true]);
     }
 
     public function update(Request $request, $id)
