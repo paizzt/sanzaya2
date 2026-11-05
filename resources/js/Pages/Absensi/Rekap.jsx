@@ -420,7 +420,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                 </div>
 
                 {/* Filter & Search Section */}
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-end gap-4">
+                <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-stretch lg:items-end gap-3 sm:gap-4">
                     <div className="w-full lg:w-1/6">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
                         <CustomSelect 
@@ -466,129 +466,129 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
                 {/* Summary Cards */}
                 {roleTab === 'satpam' ? (
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Hadir' ? 'all' : 'Hadir')}
-                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-indigo-500 border-indigo-500' : 'border-gray-100'}`}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-indigo-500 border-indigo-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                                <CheckCircle2 className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-xs text-gray-500 font-medium">Hadir Satpam</p>
-                                <h4 className="text-xl font-black text-gray-800">{summary.satpam_hadir ?? satpamTotals.hadir}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Hadir Satpam</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{summary.satpam_hadir ?? satpamTotals.hadir}</h4>
                             </div>
                         </div>
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Shift Siang' ? 'all' : 'Shift Siang')}
-                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Shift Siang' ? 'ring-2 ring-amber-500 border-amber-500' : 'border-gray-100'}`}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Shift Siang' ? 'ring-2 ring-amber-500 border-amber-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-                                <Clock className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                                <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-xs text-amber-600 font-semibold">Shift Siang</p>
-                                <h4 className="text-xl font-black text-amber-700">{summary.shift_siang ?? satpamTotals.shift_siang}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-amber-600 font-semibold truncate">Shift Siang</p>
+                                <h4 className="text-lg sm:text-xl font-black text-amber-700">{summary.shift_siang ?? satpamTotals.shift_siang}</h4>
                             </div>
                         </div>
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Shift Malam' ? 'all' : 'Shift Malam')}
-                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Shift Malam' ? 'ring-2 ring-indigo-600 border-indigo-600' : 'border-gray-100'}`}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Shift Malam' ? 'ring-2 ring-indigo-600 border-indigo-600' : 'border-gray-100'}`}
                         >
-                            <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
-                                <Clock className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
+                                <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-xs text-indigo-600 font-semibold">Shift Malam</p>
-                                <h4 className="text-xl font-black text-indigo-800">{summary.shift_malam ?? satpamTotals.shift_malam}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-indigo-600 font-semibold truncate">Shift Malam</p>
+                                <h4 className="text-lg sm:text-xl font-black text-indigo-800">{summary.shift_malam ?? satpamTotals.shift_malam}</h4>
                             </div>
                         </div>
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Sakit' ? 'all' : 'Sakit')}
-                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Sakit' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-100'}`}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Sakit' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
-                                <AlertCircle className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+                                <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-xs text-gray-500 font-medium">Sakit</p>
-                                <h4 className="text-xl font-black text-gray-800">{satpamTotals.sakit}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Sakit</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{satpamTotals.sakit}</h4>
                             </div>
                         </div>
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Izin' ? 'all' : 'Izin')}
-                            className={`bg-white rounded-2xl p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Izin' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
+                            className={`col-span-2 sm:col-span-1 bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Izin' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
-                                <ClipboardCheck className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+                                <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-xs text-gray-500 font-medium">Izin</p>
-                                <h4 className="text-xl font-black text-gray-800">{satpamTotals.izin}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Izin</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{satpamTotals.izin}</h4>
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Hadir' ? 'all' : 'Hadir')}
-                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Hadir' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
-                                <CheckCircle2 className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Hadir</p>
-                                <h4 className="text-2xl font-black text-gray-800">{summary.hadir}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Total Hadir</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{summary.hadir}</h4>
                             </div>
                         </div>
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Sakit' ? 'all' : 'Sakit')}
-                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Sakit' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-100'}`}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Sakit' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
-                                <AlertCircle className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+                                <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Sakit</p>
-                                <h4 className="text-2xl font-black text-gray-800">{summary.sakit}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Sakit</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{summary.sakit}</h4>
                             </div>
                         </div>
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Izin' ? 'all' : 'Izin')}
-                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Izin' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Izin' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                                <ClipboardCheck className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+                                <ClipboardCheck className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Izin</p>
-                                <h4 className="text-2xl font-black text-gray-800">{summary.izin}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Izin</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{summary.izin}</h4>
                             </div>
                         </div>
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Alpa' ? 'all' : 'Alpa')}
-                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Alpa' ? 'ring-2 ring-red-500 border-red-500' : 'border-gray-100'}`}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Alpa' ? 'ring-2 ring-red-500 border-red-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
-                                <AlertCircle className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                                <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Alpa</p>
-                                <h4 className="text-2xl font-black text-gray-800">{summary.alpa}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Alpa</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{summary.alpa}</h4>
                             </div>
                         </div>
 
                         <div 
                             onClick={() => setStatusFilter(statusFilter === 'Terlambat' ? 'all' : 'Terlambat')}
-                            className={`bg-white rounded-2xl p-5 shadow-sm border flex items-center gap-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Terlambat' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
+                            className={`col-span-2 sm:col-span-1 bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Terlambat' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
                         >
-                            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
-                                <Clock className="w-6 h-6" />
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                                <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Terlambat</p>
-                                <h4 className="text-2xl font-black text-gray-800">{summary.terlambat || 0}</h4>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Terlambat</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{summary.terlambat || 0}</h4>
                             </div>
                         </div>
                     </div>
@@ -596,8 +596,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
                 {/* User Summaries Table */}
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
-                    <div className="p-6 border-b border-gray-50 flex flex-wrap justify-between items-center gap-3">
-                        <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                    <div className="p-4 sm:p-6 border-b border-gray-50 flex flex-wrap justify-between items-center gap-3">
+                        <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-2">
                             {roleTab === 'satpam' ? (
                                 <>
                                     <Users className="w-5 h-5 text-amber-500"/> Ringkasan Kehadiran & Shift Personel Satpam
@@ -613,14 +613,14 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 <button
                                     type="button"
                                     onClick={() => setShowSettingsModal(true)}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold transition-all"
+                                    className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold transition-all"
                                 >
                                     <Settings className="w-4 h-4" />
                                     Atur Jam
                                 </button>
                                 <Link
                                     href={route('salaries.index', { month: data.month, year: data.year })}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all"
+                                    className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all"
                                 >
                                     <Wallet className="w-4 h-4" />
                                     Gaji
@@ -628,7 +628,74 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             </div>
                         )}
                     </div>
-                    <div className="overflow-x-auto">
+
+                    {/* Mobile Card List for User Summaries */}
+                    <div className="block md:hidden divide-y divide-gray-100">
+                        {filteredUserSummaries.length > 0 ? (
+                            filteredUserSummaries.map((u, idx) => (
+                                <div key={idx} className="p-4 space-y-2.5">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="font-bold text-gray-900 text-sm truncate">{u.name}</span>
+                                        <span className="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white">
+                                            Hadir: {u.hadir}
+                                        </span>
+                                    </div>
+                                    {roleTab === 'satpam' ? (
+                                        <div className="grid grid-cols-4 gap-1.5 text-center">
+                                            <div className="bg-amber-50 rounded-xl p-1.5 border border-amber-100/60">
+                                                <span className="text-[10px] text-amber-700 font-semibold block">Siang</span>
+                                                <span className="text-xs font-black text-amber-800">{u.shift_siang || 0}</span>
+                                            </div>
+                                            <div className="bg-indigo-50 rounded-xl p-1.5 border border-indigo-100/60">
+                                                <span className="text-[10px] text-indigo-700 font-semibold block">Malam</span>
+                                                <span className="text-xs font-black text-indigo-800">{u.shift_malam || 0}</span>
+                                            </div>
+                                            <div className="bg-orange-50 rounded-xl p-1.5 border border-orange-100/60">
+                                                <span className="text-[10px] text-orange-700 font-semibold block">Sakit</span>
+                                                <span className="text-xs font-black text-orange-800">{u.sakit || 0}</span>
+                                            </div>
+                                            <div className="bg-emerald-50 rounded-xl p-1.5 border border-emerald-100/60">
+                                                <span className="text-[10px] text-emerald-700 font-semibold block">Izin</span>
+                                                <span className="text-xs font-black text-emerald-800">{u.izin || 0}</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-5 gap-1.5 text-center">
+                                            <div className="bg-orange-50 rounded-xl p-1.5 border border-orange-100/60">
+                                                <span className="text-[10px] text-orange-700 font-semibold block">Sakit</span>
+                                                <span className="text-xs font-black text-orange-800">{u.sakit}</span>
+                                            </div>
+                                            <div className="bg-emerald-50 rounded-xl p-1.5 border border-emerald-100/60">
+                                                <span className="text-[10px] text-emerald-700 font-semibold block">Izin</span>
+                                                <span className="text-xs font-black text-emerald-800">{u.izin}</span>
+                                            </div>
+                                            <div className="bg-rose-50 rounded-xl p-1.5 border border-rose-100/60">
+                                                <span className="text-[10px] text-rose-700 font-semibold block">Alpa</span>
+                                                <span className="text-xs font-black text-rose-800">{u.alpa}</span>
+                                            </div>
+                                            <div className="bg-amber-50 rounded-xl p-1.5 border border-amber-100/60">
+                                                <span className="text-[10px] text-amber-700 font-semibold block">Telat</span>
+                                                <span className="text-xs font-black text-amber-800">{u.terlambat || 0}</span>
+                                            </div>
+                                            <div className="bg-blue-50 rounded-xl p-1.5 border border-blue-100/60">
+                                                <span className="text-[10px] text-blue-700 font-semibold block">Lembur</span>
+                                                <span className="text-xs font-black text-blue-800">{u.lembur || 0}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-6 text-center text-gray-500 text-sm">
+                                {roleTab === 'satpam' 
+                                    ? 'Tidak ada data personel satpam yang cocok.' 
+                                    : 'Tidak ada data karyawan yang cocok dengan pencarian.'}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Desktop Table for User Summaries */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 {roleTab === 'satpam' ? (
@@ -704,18 +771,269 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
 
                 {/* Table Data */}
                 <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
-                    <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-                        <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                    <div className="p-4 sm:p-6 border-b border-gray-50 flex flex-wrap justify-between items-center gap-3">
+                        <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-2">
                             <FileText className="w-5 h-5 text-blue-500"/> 
                             {roleTab === 'satpam' ? 'Rincian Kehadiran & Shift Satpam' : 'Rincian Kehadiran'}
                         </h3>
                         <ExportDropdown pdfRoute={route('absensi.rekap.export-pdf', { month: data.month, year: data.year, user_id: data.user_id })} trigger={
-                            <button className="text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                            <button className="text-xs sm:text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
                                 <Download className="w-4 h-4"/> Export PDF
                             </button>
                         } />
                     </div>
-                    <div className="overflow-x-auto">
+
+                    {/* Mobile Card List for Attendance Records */}
+                    <div className="block md:hidden divide-y divide-gray-100">
+                        {paginatedList.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500 text-sm">
+                                Tidak ada riwayat absensi yang cocok dengan pencarian.
+                            </div>
+                        ) : (
+                            paginatedList.map((item, idx) => (
+                                <div key={idx} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
+                                    {/* Top: Name, Date, Type Badge, and Actions */}
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="font-bold text-gray-900 text-sm">{item.user_name}</span>
+                                                {item.is_satpam && (
+                                                    <span className="text-[11px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded font-medium">Satpam</span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-0.5">{item.date}</p>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                                                item.type === 'Hadir' ? 'bg-blue-600 text-white' :
+                                                item.type === 'Sakit' ? 'bg-orange-500 text-white' : 
+                                                item.type === 'Lembur' ? 'bg-indigo-600 text-white' : 
+                                                item.type === 'Alpa' ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
+                                            }`}>
+                                                {item.type}
+                                            </span>
+                                            {(isSuperAdmin || isAdmin) && (
+                                                <div className="flex items-center gap-1">
+                                                    <button 
+                                                        onClick={() => handleEditAbsensi(item)}
+                                                        className="p-1 text-gray-400 hover:text-blue-600 rounded"
+                                                        title="Edit Keterangan"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </button>
+                                                    {!item.id.startsWith('alpa_') && (
+                                                        <button 
+                                                            onClick={() => handleDeleteAbsensi(item.id)}
+                                                            className="p-1 text-gray-400 hover:text-red-600 rounded"
+                                                            title="Hapus Data"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Shift Tag if available */}
+                                    {item.shift && (
+                                        <div className="inline-flex items-center gap-1 text-xs text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md font-semibold">
+                                            Shift: {item.shift}
+                                        </div>
+                                    )}
+
+                                    {/* Check In & Check Out 2-column Box */}
+                                    <div className="grid grid-cols-2 gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                        {/* Masuk */}
+                                        <div className="space-y-1">
+                                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">
+                                                {roleTab === 'satpam' ? 'Masuk Shift' : 'Jam Masuk'}
+                                            </span>
+                                            <div className="font-bold text-gray-800 text-sm">
+                                                {item.check_in || '-'}
+                                            </div>
+                                            {!item.is_satpam && item.is_late && (
+                                                <span className="inline-block text-[10px] bg-rose-600 text-white px-1.5 py-0.5 rounded font-bold">
+                                                    Terlambat
+                                                </span>
+                                            )}
+                                            {item.check_in_photo && (
+                                                <button 
+                                                    onClick={() => handleShowPhoto(item.check_in_photo, 'Masuk')} 
+                                                    className="text-xs text-blue-600 hover:underline flex items-center gap-1 font-medium pt-0.5"
+                                                >
+                                                    <Camera className="w-3.5 h-3.5"/> Foto Masuk
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Keluar */}
+                                        <div className="space-y-1 border-l border-gray-200 pl-2.5">
+                                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">
+                                                {roleTab === 'satpam' ? 'Keluar Shift' : 'Jam Keluar'}
+                                            </span>
+                                            <div className="font-bold text-gray-800 text-sm">
+                                                {item.check_out || '-'}
+                                            </div>
+                                            {!item.is_satpam && item.is_lembur && (
+                                                <div className="mt-0.5">
+                                                    <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                                                        item.overtime_status === 'Disetujui'
+                                                            ? 'bg-emerald-100 text-emerald-700'
+                                                            : item.overtime_status === 'Ditolak'
+                                                            ? 'bg-rose-100 text-rose-700 line-through'
+                                                            : 'bg-amber-100 text-amber-700'
+                                                    }`}>
+                                                        Lembur {item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`}
+                                                        {item.overtime_status === 'Disetujui' ? ' • ACC' : item.overtime_status === 'Ditolak' ? ' • Ditolak' : ' • Menunggu'}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {item.check_out_photo && (
+                                                <button 
+                                                    onClick={() => handleShowPhoto(item.check_out_photo, 'Keluar')} 
+                                                    className="text-xs text-blue-600 hover:underline flex items-center gap-1 font-medium pt-0.5"
+                                                >
+                                                    <Camera className="w-3.5 h-3.5"/> Foto Keluar
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Status, Attachment & Notes */}
+                                    <div className="space-y-2 pt-1">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                                item.status === 'Selesai' || item.status === 'Disetujui' ? 'text-emerald-700 bg-emerald-50' :
+                                                item.status === 'Menunggu' ? 'text-amber-700 bg-amber-50' : 'text-red-700 bg-red-50'
+                                            }`}>
+                                                Status: {item.status}
+                                            </span>
+
+                                            {item.attachment && (
+                                                <button 
+                                                    onClick={() => handleShowPhoto(item.attachment, 'Lampiran Pengajuan')} 
+                                                    className="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline flex items-center gap-1"
+                                                    title="Lihat lampiran pengajuan"
+                                                >
+                                                    <Paperclip className="w-3.5 h-3.5 text-blue-500" />
+                                                    Lihat Lampiran
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Keterangan Masuk */}
+                                        {item.check_in_notes && (
+                                            <div className="text-xs text-blue-900 bg-blue-50/80 border border-blue-200/60 rounded-lg px-2.5 py-1 break-words">
+                                                <span className="font-bold text-blue-950">Masuk:</span> {item.check_in_notes}
+                                            </div>
+                                        )}
+
+                                        {/* Alasan Lembur Khusus Jika Lembur */}
+                                        {!item.is_satpam && item.is_lembur && (
+                                            <div className="text-xs text-blue-900 bg-blue-50 border border-blue-200 rounded-lg p-2.5 break-words space-y-1.5">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="font-bold text-blue-950 flex items-center gap-1">
+                                                        <Clock className="w-3.5 h-3.5 text-blue-600 inline" /> Alasan Lembur:
+                                                    </span>
+                                                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                                        item.overtime_status === 'Disetujui'
+                                                            ? 'bg-emerald-100 text-emerald-700'
+                                                            : item.overtime_status === 'Ditolak'
+                                                            ? 'bg-rose-100 text-rose-700'
+                                                            : 'bg-amber-100 text-amber-700'
+                                                    }`}>
+                                                        {item.overtime_status === 'Disetujui' ? 'Lembur Ter-ACC' : item.overtime_status === 'Ditolak' ? 'Ditolak' : 'Menunggu ACC'}
+                                                    </span>
+                                                </div>
+                                                <div className="text-gray-800">
+                                                    {item.check_out_notes || item.notes || (
+                                                        <span className="text-amber-600 italic">Belum ada alasan lembur</span>
+                                                    )}
+                                                </div>
+                                                {(isAdmin || isSuperAdmin) && !item.id.toString().startsWith('req_') && !item.id.toString().startsWith('alpa_') && (
+                                                    <div className="flex items-center gap-2 pt-1.5 border-t border-blue-200/60">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOvertimeStatus(item, 'Disetujui')}
+                                                            disabled={item.overtime_status === 'Disetujui'}
+                                                            className={`flex-1 py-1 rounded text-xs font-bold transition-colors text-center ${
+                                                                item.overtime_status === 'Disetujui'
+                                                                    ? 'bg-emerald-100 text-emerald-700 cursor-default'
+                                                                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'
+                                                            }`}
+                                                        >
+                                                            Terima
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOvertimeStatus(item, 'Ditolak')}
+                                                            disabled={item.overtime_status === 'Ditolak'}
+                                                            className={`flex-1 py-1 rounded text-xs font-bold transition-colors text-center ${
+                                                                item.overtime_status === 'Ditolak'
+                                                                    ? 'bg-rose-100 text-rose-700 cursor-default'
+                                                                    : 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm'
+                                                            }`}
+                                                        >
+                                                            Tolak
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Keterangan Pulang Biasa (Jika Tidak Lembur) */}
+                                        {!item.is_lembur && item.check_out_notes && (
+                                            <div className="text-xs text-emerald-900 bg-emerald-50/80 border border-emerald-200/60 rounded-lg px-2.5 py-1 break-words">
+                                                <span className="font-bold text-emerald-950">Pulang:</span> {item.check_out_notes}
+                                            </div>
+                                        )}
+
+                                        {/* Fallback Legacy Notes */}
+                                        {!item.is_lembur && !item.check_in_notes && !item.check_out_notes && item.notes && (
+                                            <div className="text-xs text-gray-500 italic break-words">
+                                                "{item.notes}"
+                                            </div>
+                                        )}
+
+                                        {/* Action Row for Edit Notes / Approve Requests */}
+                                        <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                                            {(isSuperAdmin || isAdmin) && !item.id.startsWith('req_') && (
+                                                <button 
+                                                    onClick={() => handleEditAbsensi(item)} 
+                                                    className="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline flex items-center gap-1"
+                                                    title="Edit Keterangan Masuk & Pulang"
+                                                >
+                                                    <Edit className="w-3.5 h-3.5" />
+                                                    {item.check_in_notes || item.check_out_notes || item.notes ? 'Ubah Keterangan' : 'Tambah Keterangan'}
+                                                </button>
+                                            )}
+
+                                            {(isAdmin || isSuperAdmin) && item.id.startsWith('req_') && item.status === 'Menunggu' && (
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={() => handleUpdateStatus(item.id, 'Disetujui')}
+                                                        className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors"
+                                                    >
+                                                        ACC
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleUpdateStatus(item.id, 'Ditolak')}
+                                                        className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors"
+                                                    >
+                                                        Tolak
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {/* Desktop Table for Attendance Records */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
@@ -961,22 +1279,22 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                     </div>
                     
                     {totalPages > 1 && (
-                        <div className="flex justify-center py-6 border-t border-gray-100 bg-white">
-                            <nav className="flex items-center gap-2">
+                        <div className="flex justify-center py-4 sm:py-6 px-3 border-t border-gray-100 bg-white">
+                            <nav className="flex flex-wrap justify-center items-center gap-1.5 sm:gap-2">
                                 <button 
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
-                                    &laquo; Previous
+                                    &laquo; Prev
                                 </button>
                                 
-                                <div className="flex items-center gap-1">
+                                <div className="flex flex-wrap items-center gap-1">
                                     {getPageNumbers().map(page => (
                                         <button
                                             key={page}
                                             onClick={() => setCurrentPage(page)}
-                                            className={`min-w-[40px] h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                                            className={`min-w-[32px] sm:min-w-[40px] h-8 sm:h-10 flex items-center justify-center rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                                                 currentPage === page 
                                                     ? 'bg-blue-600 text-white shadow-sm' 
                                                     : 'text-gray-600 hover:bg-gray-50 border border-transparent'
@@ -990,7 +1308,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 <button 
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
                                     Next &raquo;
                                 </button>
