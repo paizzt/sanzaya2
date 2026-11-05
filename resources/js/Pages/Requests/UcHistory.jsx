@@ -181,6 +181,17 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                     )}
                                                 </div>
                                             </div>
+                                            <div className="col-span-1 md:col-span-2 mt-2 pt-2 border-t border-gray-50 flex justify-end">
+                                                <a 
+                                                    href={route('requests.uc.pdf', { id: uc.id, without_result: 1 })}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs font-bold rounded-lg shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                                                    title="Unduh PDF Formulir UC (Tanpa Result)"
+                                                >
+                                                    <FileText className="w-3.5 h-3.5" /> Unduh PDF UC
+                                                </a>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -285,10 +296,11 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                             {filteredRequests.map(req => {
                                 const stInfo = getStatusInfo(req);
                                 const total = getRequestTotal(req);
-                                const isAcc = req.status === 'Disetujui' || req.status === 'ACC';
+                                const isAcc = req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Dicairkan';
                                 const isTolak = req.status === 'Ditolak' || req.status === 'Tolak';
                                 const isRevisi = req.status === 'Direvisi' || req.status === 'Revisi';
                                 const isSelesai = req.status === 'Selesai' || req.status === 'Selesai / Result Dikirim' || (Boolean(req.result_report) && isAcc);
+                                const canDownloadPdfUc = isAcc || isSelesai || Boolean(req.result_report) || Boolean(req.approved_at);
 
                                 let photos = [];
                                 try {
@@ -384,18 +396,34 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                 )}
                                             </div>
 
-                                            {/* Unduh PDF jika sudah selesai atau memiliki result */}
-                                            {(isSelesai || req.result_report) && (
-                                                <a 
-                                                    href={route('requests.uc.pdf', req.id)} 
-                                                    target="_blank" 
-                                                    rel="noreferrer"
-                                                    className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all inline-flex items-center gap-1.5"
-                                                    title="Unduh PDF"
-                                                >
-                                                    <FileText className="w-3.5 h-3.5" /> Unduh PDF
-                                                </a>
-                                            )}
+                                            {/* Tombol Unduh PDF */}
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                {/* Unduh PDF Formulir UC Saja (Tanpa Result) - Selalu bisa diunduh jika sudah ACC / Selesai */}
+                                                {canDownloadPdfUc && (
+                                                    <a 
+                                                        href={route('requests.uc.pdf', { id: req.id, without_result: 1 })} 
+                                                        target="_blank" 
+                                                        rel="noreferrer"
+                                                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs font-bold rounded-lg shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                                                        title="Unduh PDF Formulir UC saja tanpa lampiran result"
+                                                    >
+                                                        <FileText className="w-3.5 h-3.5" /> Unduh PDF UC
+                                                    </a>
+                                                )}
+
+                                                {/* Unduh PDF Formulir UC Lengkap (+ Result & Nota) jika ada result */}
+                                                {(isSelesai || req.result_report) && (
+                                                    <a 
+                                                        href={route('requests.uc.pdf', req.id)} 
+                                                        target="_blank" 
+                                                        rel="noreferrer"
+                                                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                                                        title="Unduh PDF Formulir UC lengkap (+ Result & Nota)"
+                                                    >
+                                                        <FileCheck className="w-3.5 h-3.5" /> Unduh PDF + Result
+                                                    </a>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {/* Form Input Result & Nota */}

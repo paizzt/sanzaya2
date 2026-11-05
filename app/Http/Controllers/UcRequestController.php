@@ -136,8 +136,20 @@ class UcRequestController extends Controller
         }
         $logoPath = $logoBase64;
 
-        $pdf = Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])->loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'logoBase64', 'companyAddress'))->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
-        return request()->has('preview') ? $pdf->stream('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf') : $pdf->download('UC_Request_' . str_pad($uc->id, 4, '0', STR_PAD_LEFT) . '.pdf');
+        $withoutResult = request()->boolean('without_result') 
+            || request()->boolean('no_result') 
+            || request('without_result') === '1' 
+            || request('no_result') === '1'
+            || request('type') === 'uc_only';
+
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])
+            ->loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'logoBase64', 'companyAddress', 'withoutResult'))
+            ->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
+        
+        $safeNumber = preg_replace('/[^A-Za-z0-9_-]/', '_', $uc->request_number ?? ('UC_' . $uc->id));
+        $filename = 'UC_' . $safeNumber . ($withoutResult ? '_Tanpa_Result' : '') . '.pdf';
+
+        return request()->has('preview') ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
     public function store(Request $request)

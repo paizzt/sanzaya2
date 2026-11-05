@@ -767,18 +767,26 @@ export default function UcApproval({ requests, isAdmin }) {
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
-                                                    <ExportDropdown 
-                                                        pdfRoute={route('requests.uc.pdf', req.id)}
-                                                        trigger={
-                                                            <button 
-                                                                type="button"
-                                                                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer"
-                                                                title="Unduh PDF Formulir & Bukti UC"
-                                                            >
-                                                                <FileText className="w-3.5 h-3.5" /> Unduh PDF
-                                                            </button>
-                                                        }
-                                                    />
+                                                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                                        <a 
+                                                            href={route('requests.uc.pdf', { id: req.id, without_result: 1 })}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1 cursor-pointer"
+                                                            title="Unduh PDF formulir UC saja tanpa lampiran result"
+                                                        >
+                                                            <FileText className="w-3.5 h-3.5" /> UC Saja
+                                                        </a>
+                                                        <a 
+                                                            href={route('requests.uc.pdf', req.id)}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1 cursor-pointer"
+                                                            title="Unduh PDF formulir UC lengkap (+ Result & Nota)"
+                                                        >
+                                                            <FileCheck className="w-3.5 h-3.5" /> + Result
+                                                        </a>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );
@@ -1005,22 +1013,42 @@ export default function UcApproval({ requests, isAdmin }) {
                                             <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
                                             <span>Pengajuan UC ini telah Selesai (ACC)</span>
                                         </div>
-                                        <ExportDropdown 
-                                            pdfRoute={route('requests.uc.pdf', selectedRequest.id)} 
-                                            trigger={
-                                                <button 
-                                                    type="button" 
-                                                    className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-                                                >
-                                                    <FileText className="w-3.5 h-3.5" /> Unduh PDF
-                                                </button>
-                                            }
-                                        />
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <a 
+                                                href={route('requests.uc.pdf', { id: selectedRequest.id, without_result: 1 })} 
+                                                target="_blank" 
+                                                rel="noreferrer"
+                                                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                                                title="Unduh formulir UC saja (tanpa lampiran result)"
+                                            >
+                                                <FileText className="w-3.5 h-3.5" /> Unduh PDF UC
+                                            </a>
+                                            <a 
+                                                href={route('requests.uc.pdf', selectedRequest.id)} 
+                                                target="_blank" 
+                                                rel="noreferrer"
+                                                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                                                title="Unduh formulir UC lengkap (+ Result & Nota)"
+                                            >
+                                                <FileCheck className="w-3.5 h-3.5" /> Unduh PDF + Result
+                                            </a>
+                                        </div>
                                     </div>
                                 ) : isResultWaiting ? (
-                                    <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-2.5 text-blue-800 text-xs sm:text-sm font-medium">
-                                        <Clock className="w-4 h-4 text-blue-600 shrink-0" />
-                                        <span>Menunggu pengaju mengisi laporan hasil dinas & bukti nota. Aksi persetujuan result (ACC / Tolak / Revisi) akan tersedia setelah result dikirim.</span>
+                                    <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                        <div className="flex items-center gap-2.5 text-blue-800 text-xs sm:text-sm font-medium">
+                                            <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+                                            <span>Menunggu pengaju mengisi laporan hasil dinas & bukti nota. Aksi persetujuan result (ACC / Tolak / Revisi) akan tersedia setelah result dikirim.</span>
+                                        </div>
+                                        <a 
+                                            href={route('requests.uc.pdf', { id: selectedRequest.id, without_result: 1 })} 
+                                            target="_blank" 
+                                            rel="noreferrer"
+                                            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
+                                            title="Unduh formulir pengajuan UC"
+                                        >
+                                            <FileText className="w-3.5 h-3.5" /> Unduh PDF UC
+                                        </a>
                                     </div>
                                 ) : (
                                     <div>

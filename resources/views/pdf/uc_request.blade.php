@@ -482,7 +482,15 @@
         Rek {{ $rekNumber }} A/N {{ $empName }} {{ $bankName }}
     </div>
 
-    @if($uc->result_report)
+    @php
+        $showResult = empty($withoutResult) 
+            && !request('without_result') 
+            && !request('no_result') 
+            && request('type') !== 'uc_only' 
+            && !empty($uc->result_report);
+    @endphp
+
+    @if($showResult)
     <div class="page-break"></div>
 
     <!-- PAGE 3: RESULT PERJALANAN -->
