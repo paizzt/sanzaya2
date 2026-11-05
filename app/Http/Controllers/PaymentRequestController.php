@@ -977,10 +977,15 @@ class PaymentRequestController extends Controller
         $qrCode = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(100)->generate($qrUrl));
 
         try {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true])->loadView('pdf.payment_request', [
-                'paymentRequest' => $paymentRequest,
-                'qrCode' => $qrCode
-            ]);
+            $paper = request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4');
+            $orientation = request()->query('orientation', 'portrait');
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])
+                ->loadView('pdf.payment_request', [
+                    'paymentRequest' => $paymentRequest,
+                    'qrCode' => $qrCode
+                ])
+                ->setPaper($paper, $orientation);
 
             $filename = 'Pengajuan_Pembayaran_' . str_replace(['/', '\\'], '-', $paymentRequest->reference_number) . '.pdf';
             return (request()->has('preview') || request()->has('stream')) ? $pdf->stream($filename) : $pdf->download($filename);

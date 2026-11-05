@@ -5,6 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Pagination from '@/Components/Pagination';
+import ExportDropdown from '@/Components/ExportDropdown';
 import { Eye, FileText, Edit, Trash2, Plus, Filter, X, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
@@ -518,15 +519,18 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                         <Eye size={14} /> Detail
                                                     </Link>
                                                     {canDownloadPdf && (
-                                                        <a
-                                                            href={route('payment-requests.pdf', pr.id)}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="p-2 text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 rounded-xl transition"
-                                                            title="Unduh PDF"
-                                                        >
-                                                            <FileText size={15} />
-                                                        </a>
+                                                        <ExportDropdown 
+                                                            pdfRoute={route('payment-requests.pdf', pr.id)}
+                                                            trigger={
+                                                                <button
+                                                                    type="button"
+                                                                    className="p-2 text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 rounded-xl transition cursor-pointer"
+                                                                    title="Unduh PDF"
+                                                                >
+                                                                    <FileText size={15} />
+                                                                </button>
+                                                            }
+                                                        />
                                                     )}
                                                     {isSuperAdmin && (
                                                         <>
@@ -622,9 +626,14 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                     </td>
                                                     <td className="px-4 py-3 text-center space-x-3">
                                                         {canDownloadPdf && (
-                                                            <a href={route('payment-requests.pdf', pr.id)} target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-900 inline-block" title="Unduh PDF">
-                                                                <FileText size={18} />
-                                                            </a>
+                                                            <ExportDropdown 
+                                                                pdfRoute={route('payment-requests.pdf', pr.id)}
+                                                                trigger={
+                                                                    <button type="button" className="text-rose-600 hover:text-rose-900 inline-block cursor-pointer" title="Unduh PDF">
+                                                                        <FileText size={18} />
+                                                                    </button>
+                                                                }
+                                                            />
                                                         )}
                                                         {isSuperAdmin && (
                                                             <>
