@@ -280,7 +280,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         return { value: y, label: y };
     });
 
-    const [roleTab, setRoleTab] = useState('all'); // 'all', 'regular', 'satpam'
+    const [roleTab, setRoleTab] = useState('all'); // 'all', 'regular', 'satpam', 'lembur'
     const [statusFilter, setStatusFilter] = useState('all');
 
     // Filter available users for dropdown based on active roleTab
@@ -289,11 +289,16 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         const isSatpamUser = summaryMatch ? summaryMatch.is_satpam : false;
         if (roleTab === 'satpam') return isSatpamUser;
         if (roleTab === 'regular') return !isSatpamUser;
+        if (roleTab === 'lembur') {
+            const hasLembur = summaryMatch ? ((summaryMatch.lembur || 0) > 0) : false;
+            const anyLembur = userSummaries?.some(s => (s.lembur || 0) > 0);
+            return anyLembur ? hasLembur : !isSatpamUser;
+        }
         return true;
     });
 
     const userOptions = [
-        { value: 'all', label: roleTab === 'satpam' ? '-- Semua Satpam --' : roleTab === 'regular' ? '-- Semua Karyawan Reguler --' : '-- Semua Karyawan --' },
+        { value: 'all', label: roleTab === 'satpam' ? '-- Semua Satpam --' : roleTab === 'regular' ? '-- Semua Karyawan Reguler --' : roleTab === 'lembur' ? '-- Semua Karyawan Lembur --' : '-- Semua Karyawan --' },
         ...roleFilteredUsers.map(u => ({ value: u.id.toString(), label: u.name }))
     ];
 
@@ -307,9 +312,31 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         return acc;
     }, { hadir: 0, sakit: 0, izin: 0, shift_siang: 0, shift_malam: 0 }) || { hadir: 0, sakit: 0, izin: 0, shift_siang: 0, shift_malam: 0 };
 
+    // Total Lembur data calculated from recapList
+    const lemburTotals = React.useMemo(() => {
+        let total = 0;
+        let terAcc = 0;
+        let menunggu = 0;
+        let ditolak = 0;
+        (recapList || []).forEach(item => {
+            if (!item.is_satpam && (item.is_lembur === true || item.type === 'Lembur' || item.type?.toLowerCase() === 'lembur' || Boolean(item.overtime_status))) {
+                total++;
+                if (item.overtime_status === 'Disetujui' || item.status === 'Disetujui') {
+                    terAcc++;
+                } else if (item.overtime_status === 'Ditolak' || item.status === 'Ditolak') {
+                    ditolak++;
+                } else {
+                    menunggu++;
+                }
+            }
+        });
+        return { total, terAcc, menunggu, ditolak };
+    }, [recapList]);
+
     const roleFilteredUserSummaries = userSummaries?.filter(u => {
         if (roleTab === 'satpam') return u.is_satpam;
         if (roleTab === 'regular') return !u.is_satpam;
+        if (roleTab === 'lembur') return !u.is_satpam && (u.lembur || 0) > 0;
         return true;
     }) || [];
 
@@ -318,6 +345,11 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         if (!matchesSearch) return false;
         
         if (statusFilter === 'all') return true;
+        if (roleTab === 'lembur') {
+            if (statusFilter === 'Disetujui' || statusFilter === 'Ter-ACC') return (u.lembur || 0) > 0;
+            if (statusFilter === 'Menunggu' || statusFilter === 'Ditolak') return (u.lembur || 0) > 0;
+            return true;
+        }
         if (statusFilter === 'Hadir') return u.hadir > 0;
         if (statusFilter === 'Sakit') return u.sakit > 0;
         if (statusFilter === 'Izin') return u.izin > 0;
@@ -332,6 +364,14 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
     const roleFilteredRecapList = recapList?.filter(item => {
         if (roleTab === 'satpam') return item.is_satpam;
         if (roleTab === 'regular') return !item.is_satpam;
+        if (roleTab === 'lembur') {
+            return !item.is_satpam && (
+                item.is_lembur === true || 
+                item.type === 'Lembur' || 
+                item.type?.toLowerCase() === 'lembur' ||
+                Boolean(item.overtime_status)
+            );
+        }
         return true;
     }) || [];
 
@@ -340,6 +380,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
         if (!matchesSearch) return false;
         
         if (statusFilter === 'all') return true;
+        if (roleTab === 'lembur') {
+            if (statusFilter === 'Disetujui') return item.overtime_status === 'Disetujui' || item.status === 'Disetujui';
+            if (statusFilter === 'Menunggu') return (!item.overtime_status || item.overtime_status === 'Menunggu') && item.status !== 'Disetujui' && item.status !== 'Ditolak';
+            if (statusFilter === 'Ditolak') return item.overtime_status === 'Ditolak' || item.status === 'Ditolak';
+            return true;
+        }
         if (statusFilter === 'Terlambat') return item.is_late === true || item.is_late === 1;
         if (statusFilter === 'Izin') return item.type === 'Izin' || item.type === 'Izin Khusus' || item.type === 'Cuti';
         if (statusFilter === 'Shift Siang') return item.shift === 'Shift Siang';
@@ -416,6 +462,17 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         >
                             <Users className="w-4 h-4" /> Satpam
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => { setRoleTab('lembur'); setStatusFilter('all'); }}
+                            className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 ${
+                                roleTab === 'lembur'
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-100'
+                            }`}
+                        >
+                            <Clock className="w-4 h-4" /> Pengajuan Lembur
+                        </button>
                     </div>
                 </div>
 
@@ -439,7 +496,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                     </div>
                     <div className="w-full lg:w-1/4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            {roleTab === 'satpam' ? 'Personel Satpam' : 'Karyawan'}
+                            {roleTab === 'satpam' ? 'Personel Satpam' : roleTab === 'lembur' ? 'Karyawan Lembur' : 'Karyawan'}
                         </label>
                         <CustomSelect 
                             value={data.user_id} 
@@ -528,6 +585,57 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             </div>
                         </div>
                     </div>
+                ) : roleTab === 'lembur' ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'all' ? 'all' : 'all')}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'all' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Total Lembur</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{lemburTotals.total}</h4>
+                            </div>
+                        </div>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Disetujui' ? 'all' : 'Disetujui')}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Disetujui' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs text-emerald-600 font-semibold truncate">Lembur Ter-ACC</p>
+                                <h4 className="text-lg sm:text-xl font-black text-emerald-700">{lemburTotals.terAcc}</h4>
+                            </div>
+                        </div>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Menunggu' ? 'all' : 'Menunggu')}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Menunggu' ? 'ring-2 ring-amber-500 border-amber-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                                <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs text-amber-600 font-semibold truncate">Menunggu ACC</p>
+                                <h4 className="text-lg sm:text-xl font-black text-amber-700">{lemburTotals.menunggu}</h4>
+                            </div>
+                        </div>
+                        <div 
+                            onClick={() => setStatusFilter(statusFilter === 'Ditolak' ? 'all' : 'Ditolak')}
+                            className={`bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border flex items-center gap-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'Ditolak' ? 'ring-2 ring-rose-500 border-rose-500' : 'border-gray-100'}`}
+                        >
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                                <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs text-gray-500 font-medium truncate">Ditolak</p>
+                                <h4 className="text-lg sm:text-xl font-black text-gray-800">{lemburTotals.ditolak}</h4>
+                            </div>
+                        </div>
+                    </div>
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
                         <div 
@@ -602,6 +710,10 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 <>
                                     <Users className="w-5 h-5 text-amber-500"/> Ringkasan Kehadiran & Shift Personel Satpam
                                 </>
+                            ) : roleTab === 'lembur' ? (
+                                <>
+                                    <Clock className="w-5 h-5 text-blue-600"/> Ringkasan Lembur per Karyawan
+                                </>
                             ) : (
                                 <>
                                     <Users className="w-5 h-5 text-blue-500"/> Ringkasan Kehadiran per Karyawan
@@ -637,7 +749,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                     <div className="flex items-center justify-between gap-2">
                                         <span className="font-bold text-gray-900 text-sm truncate">{u.name}</span>
                                         <span className="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white">
-                                            Hadir: {u.hadir}
+                                            {roleTab === 'lembur' ? `Lembur: ${u.lembur || 0}` : `Hadir: ${u.hadir}`}
                                         </span>
                                     </div>
                                     {roleTab === 'satpam' ? (
@@ -657,6 +769,25 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <div className="bg-emerald-600 text-white rounded-xl p-1.5 shadow-xs">
                                                 <span className="text-[10px] text-emerald-100 font-semibold block">Izin</span>
                                                 <span className="text-xs font-black text-white">{u.izin || 0}</span>
+                                            </div>
+                                        </div>
+                                    ) : roleTab === 'lembur' ? (
+                                        <div className="grid grid-cols-2 gap-2 text-center">
+                                            <div className="bg-blue-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-blue-100 font-semibold block">Total Lembur</span>
+                                                <span className="text-xs font-black text-white">{u.lembur || 0} Kali</span>
+                                            </div>
+                                            <div className="bg-indigo-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-indigo-100 font-semibold block">Weekday (Jam 20)</span>
+                                                <span className="text-xs font-black text-white">{u.lembur_weekday_pertama || 0}x</span>
+                                            </div>
+                                            <div className="bg-purple-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-purple-100 font-semibold block">Lembur Sabtu</span>
+                                                <span className="text-xs font-black text-white">{u.lembur_sabtu || 0} Jam</span>
+                                            </div>
+                                            <div className="bg-emerald-600 text-white rounded-xl p-1.5 shadow-xs">
+                                                <span className="text-[10px] text-emerald-100 font-semibold block">Estimasi Nominal</span>
+                                                <span className="text-xs font-black text-white">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(u.nominal_lembur || 0)}</span>
                                             </div>
                                         </div>
                                     ) : (
@@ -689,6 +820,8 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <div className="p-6 text-center text-gray-500 text-sm">
                                 {roleTab === 'satpam' 
                                     ? 'Tidak ada data personel satpam yang cocok.' 
+                                    : roleTab === 'lembur'
+                                    ? 'Tidak ada data lembur karyawan yang cocok.'
                                     : 'Tidak ada data karyawan yang cocok dengan pencarian.'}
                             </div>
                         )}
@@ -706,6 +839,15 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                         <th className="py-4 px-6 font-semibold text-center text-indigo-600">Shift Malam</th>
                                         <th className="py-4 px-6 font-semibold text-center text-orange-600">Sakit</th>
                                         <th className="py-4 px-6 font-semibold text-center text-emerald-600">Izin</th>
+                                    </tr>
+                                ) : roleTab === 'lembur' ? (
+                                    <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                                        <th className="py-4 px-6 font-semibold">Nama Karyawan</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-blue-600">Total Lembur</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-indigo-600">Weekday (Jam Pertama)</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-amber-600">Weekday (Berikutnya)</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-purple-600">Lembur Sabtu</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-emerald-600">Estimasi Nominal</th>
                                     </tr>
                                 ) : (
                                     <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
@@ -726,19 +868,26 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6 font-medium text-gray-900">
                                                 <span>{u.name}</span>
                                             </td>
-                                            <td className="py-4 px-6 text-center font-bold text-blue-600">{u.hadir}</td>
                                             
                                             {roleTab === 'satpam' ? (
                                                 <>
-                                                    <td className="py-4 px-6 text-center font-bold text-amber-600">
-                                                        {u.shift_siang || 0}
-                                                    </td>
-                                                    <td className="py-4 px-6 text-center font-bold text-indigo-600">
-                                                        {u.shift_malam || 0}
-                                                    </td>
+                                                    <td className="py-4 px-6 text-center font-bold text-blue-600">{u.hadir}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-amber-600">{u.shift_siang || 0}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-indigo-600">{u.shift_malam || 0}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
+                                                </>
+                                            ) : roleTab === 'lembur' ? (
+                                                <>
+                                                    <td className="py-4 px-6 text-center font-bold text-blue-600">{u.lembur || 0} Kali</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-indigo-600">{u.lembur_weekday_pertama || 0}x</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-amber-600">{u.lembur_weekday_berikutnya || 0} Jam</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-purple-600">{u.lembur_sabtu || 0} Jam</td>
+                                                    <td className="py-4 px-6 text-center font-bold text-emerald-600">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(u.nominal_lembur || 0)}</td>
                                                 </>
                                             ) : (
                                                 <>
+                                                    <td className="py-4 px-6 text-center font-bold text-blue-600">{u.hadir}</td>
                                                     <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
                                                     <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
                                                     <td className="py-4 px-6 text-center font-bold text-red-600">{u.alpa}</td>
@@ -746,20 +895,15 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     <td className="py-4 px-6 text-center font-bold text-blue-600">{u.lembur || 0}</td>
                                                 </>
                                             )}
-
-                                            {roleTab === 'satpam' && (
-                                                <>
-                                                    <td className="py-4 px-6 text-center font-bold text-orange-600">{u.sakit}</td>
-                                                    <td className="py-4 px-6 text-center font-bold text-emerald-600">{u.izin}</td>
-                                                </>
-                                            )}
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={roleTab === 'satpam' ? "6" : "7"} className="py-6 text-center text-gray-500">
+                                        <td colSpan={roleTab === 'satpam' || roleTab === 'lembur' ? "6" : "7"} className="py-6 text-center text-gray-500">
                                             {roleTab === 'satpam' 
                                                 ? 'Tidak ada data personel satpam yang cocok.' 
+                                                : roleTab === 'lembur'
+                                                ? 'Tidak ada data lembur karyawan yang cocok.'
                                                 : 'Tidak ada data karyawan yang cocok dengan pencarian.'}
                                         </td>
                                     </tr>
@@ -774,7 +918,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                     <div className="p-4 sm:p-6 border-b border-gray-50 flex flex-wrap justify-between items-center gap-3">
                         <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-2">
                             <FileText className="w-5 h-5 text-blue-500"/> 
-                            {roleTab === 'satpam' ? 'Rincian Kehadiran & Shift Satpam' : 'Rincian Kehadiran'}
+                            {roleTab === 'satpam' ? 'Rincian Kehadiran & Shift Satpam' : roleTab === 'lembur' ? 'Rincian Pengajuan & Kehadiran Lembur' : 'Rincian Kehadiran'}
                         </h3>
                         <ExportDropdown pdfRoute={route('absensi.rekap.export-pdf', { month: data.month, year: data.year, user_id: data.user_id })} trigger={
                             <button className="text-xs sm:text-sm font-semibold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
