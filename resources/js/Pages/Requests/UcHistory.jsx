@@ -8,6 +8,7 @@ import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ClientPagination from '@/Components/ClientPagination';
+import CurrencyInput from '@/Components/CurrencyInput';
 
 export default function UcHistory({ requests = [], activeUcs = [], isAdmin = false }) {
     const user = usePage().props.auth.user;
@@ -16,6 +17,10 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
     const { data: resultData, setData: setResultData, post: postResult, processing: resultProcessing, errors: resultErrors, reset: resultReset } = useForm({
         result_summary: '',
         receipt_photos: [],
+        total_nota: '',
+        dibayarkan: '',
+        reimburse_sisa_dana: '',
+        pengembalian_dana: '',
     });
 
     const [selectedUc, setSelectedUc] = useState(null);
@@ -27,6 +32,80 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const { flash } = usePage().props;
+
+    const openResultForm = (req) => {
+        if (selectedUc === req.id) {
+            setSelectedUc(null);
+            return;
+        }
+        setSelectedUc(req.id);
+        const totalApproved = Number(req.approved_gas_cost) || getRequestTotal(req);
+        let defaultDibayarkan = req.dibayarkan;
+        if (defaultDibayarkan === undefined || defaultDibayarkan === null || defaultDibayarkan === '') {
+            defaultDibayarkan = req.payment_option === 'PANJAR BIAYA 50%' ? Math.round(totalApproved / 2) : totalApproved;
+        }
+        const initialNota = req.total_nota !== null && req.total_nota !== undefined && req.total_nota !== '' ? req.total_nota : '';
+        const initialPaid = defaultDibayarkan !== null && defaultDibayarkan !== undefined && defaultDibayarkan !== '' ? defaultDibayarkan : '';
+        
+        const nNota = parseFloat(initialNota) || 0;
+        const nPaid = parseFloat(initialPaid) || 0;
+        const initialReimburse = req.reimburse_sisa_dana !== null && req.reimburse_sisa_dana !== undefined && req.reimburse_sisa_dana !== '' 
+            ? req.reimburse_sisa_dana 
+            : (nNota > nPaid ? nNota - nPaid : 0);
+        const initialPengembalian = req.pengembalian_dana !== null && req.pengembalian_dana !== undefined && req.pengembalian_dana !== '' 
+            ? req.pengembalian_dana 
+            : (nPaid > nNota ? nPaid - nNota : 0);
+
+        setResultData({
+            result_summary: req.result_report || '',
+            receipt_photos: [],
+            total_nota: initialNota,
+            dibayarkan: initialPaid,
+            reimburse_sisa_dana: initialReimburse,
+            pengembalian_dana: initialPengembalian,
+        });
+        setPreviewUrls([]);
+    };
+
+    const handleTotalNotaChange = (val) => {
+        const nNota = parseFloat(val) || 0;
+        const nPaid = parseFloat(resultData.dibayarkan) || 0;
+        let reimb = 0;
+        let refund = 0;
+        if (nNota > nPaid) {
+            reimb = nNota - nPaid;
+            refund = 0;
+        } else if (nPaid > nNota) {
+            reimb = 0;
+            refund = nPaid - nNota;
+        }
+        setResultData(prev => ({
+            ...prev,
+            total_nota: val,
+            reimburse_sisa_dana: reimb,
+            pengembalian_dana: refund
+        }));
+    };
+
+    const handleDibayarkanChange = (val) => {
+        const nPaid = parseFloat(val) || 0;
+        const nNota = parseFloat(resultData.total_nota) || 0;
+        let reimb = 0;
+        let refund = 0;
+        if (nNota > nPaid) {
+            reimb = nNota - nPaid;
+            refund = 0;
+        } else if (nPaid > nNota) {
+            reimb = 0;
+            refund = nPaid - nNota;
+        }
+        setResultData(prev => ({
+            ...prev,
+            dibayarkan: val,
+            reimburse_sisa_dana: reimb,
+            pengembalian_dana: refund
+        }));
+    };
 
     useEffect(() => {
         setCurrentPage(1);
@@ -369,8 +448,12 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                 const isInitialOrPending = !req.status || req.status === 'Menunggu' || req.status === 'Pending' || isRevisi;
                                 const isApprovedBeforeResult = isAcc && !req.result_report;
 
-                                const canEdit = (isOwner || isAdmin) && (isInitialOrPending || isApprovedBeforeResult) && !isSelesai && !isTolak && !isDibatalkan;
-                                const canCancel = (isOwner || isAdmin) && (isInitialOrPending || isApprovedBeforeResult) && !isSelesai && !isTolak && !isDibatalkan;
+                                const hasResult = Boolean(req.result_report && req.result_report.trim().length > 0);
+                                const isResultAcc = req.status === 'Selesai' || (hasResult && (req.status === 'Disetujui' || req.status === 'ACC'));
+
+                                // Jika result sudah diisi atau sudah di-ACC, Edit Pengajuan dan Batalkan TIDAK BISA lagi ditampilkan
+                                const canEdit = (isOwner || isAdmin) && !isResultAcc && !hasResult && (isInitialOrPending || isApprovedBeforeResult) && !isTolak && !isDibatalkan;
+                                const canCancel = (isOwner || isAdmin) && !isResultAcc && !hasResult && (isInitialOrPending || isApprovedBeforeResult) && !isTolak && !isDibatalkan;
 
                                 let photos = [];
                                 try {
@@ -514,7 +597,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                 {isAcc && !req.result_report && (
                                                     <button 
                                                         type="button"
-                                                        onClick={() => setSelectedUc(selectedUc === req.id ? null : req.id)}
+                                                        onClick={() => openResultForm(req)}
                                                         className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all cursor-pointer"
                                                     >
                                                         {selectedUc === req.id ? 'Tutup Form Result' : 'Isi Result & Nota'}
@@ -548,7 +631,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                 {isRevisi && req.result_report && (
                                                     <button 
                                                         type="button"
-                                                        onClick={() => setSelectedUc(selectedUc === req.id ? null : req.id)}
+                                                        onClick={() => openResultForm(req)}
                                                         className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow-sm transition-all cursor-pointer"
                                                     >
                                                         {selectedUc === req.id ? 'Tutup Form' : 'Perbaiki Result & Nota'}
@@ -606,6 +689,72 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                             placeholder="Tuliskan ringkasan hasil kegiatan dan agenda perjalanan dinas..."
                                                         ></textarea>
                                                         <InputError message={resultErrors.result_summary} className="mt-2" />
+                                                    </div>
+
+                                                    {/* Kolom Finansial: Total Nota, Dibayarkan, Reimburse Sisa Dana, Pengembalian Dana */}
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50/80 rounded-2xl border border-gray-100">
+                                                        <div>
+                                                            <InputLabel value="Total Nota *" />
+                                                            <div className="mt-1">
+                                                                <CurrencyInput
+                                                                    value={resultData.total_nota}
+                                                                    onChange={handleTotalNotaChange}
+                                                                    placeholder="0"
+                                                                    className="rounded-xl border-gray-200"
+                                                                    required
+                                                                />
+                                                            </div>
+                                                            <InputError message={resultErrors.total_nota} className="mt-1" />
+                                                        </div>
+
+                                                        <div>
+                                                            <InputLabel value="Dibayarkan *" />
+                                                            <div className="mt-1">
+                                                                <CurrencyInput
+                                                                    value={resultData.dibayarkan}
+                                                                    onChange={handleDibayarkanChange}
+                                                                    placeholder="0"
+                                                                    className="rounded-xl border-gray-200"
+                                                                    required
+                                                                />
+                                                            </div>
+                                                            <p className="text-[11px] text-gray-500 mt-1">
+                                                                Dana awal yang diterima (Panjar / Full)
+                                                            </p>
+                                                            <InputError message={resultErrors.dibayarkan} className="mt-1" />
+                                                        </div>
+
+                                                        <div>
+                                                            <InputLabel value="Reimburse Sisa Dana" />
+                                                            <div className="mt-1">
+                                                                <CurrencyInput
+                                                                    value={resultData.reimburse_sisa_dana}
+                                                                    onChange={(val) => setResultData('reimburse_sisa_dana', val)}
+                                                                    placeholder="0"
+                                                                    className="rounded-xl border-gray-200 bg-emerald-50/50 font-bold text-emerald-800"
+                                                                />
+                                                            </div>
+                                                            <p className="text-[11px] text-emerald-700 mt-1">
+                                                                (Otomatis terisi jika Total Nota &gt; Dibayarkan)
+                                                            </p>
+                                                            <InputError message={resultErrors.reimburse_sisa_dana} className="mt-1" />
+                                                        </div>
+
+                                                        <div>
+                                                            <InputLabel value="Pengembalian Dana" />
+                                                            <div className="mt-1">
+                                                                <CurrencyInput
+                                                                    value={resultData.pengembalian_dana}
+                                                                    onChange={(val) => setResultData('pengembalian_dana', val)}
+                                                                    placeholder="0"
+                                                                    className="rounded-xl border-gray-200 bg-blue-50/50 font-bold text-blue-800"
+                                                                />
+                                                            </div>
+                                                            <p className="text-[11px] text-blue-700 mt-1">
+                                                                (Otomatis terisi jika Dibayarkan &gt; Total Nota)
+                                                            </p>
+                                                            <InputError message={resultErrors.pengembalian_dana} className="mt-1" />
+                                                        </div>
                                                     </div>
 
                                                     <div>
@@ -668,11 +817,38 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
                                         {/* Tampilan Result jika sudah pernah dikirim */}
                                         {req.result_report && (
-                                            <div className="mt-3 pt-3 border-t border-gray-100 bg-gray-50/70 p-3.5 rounded-xl">
-                                                <div className="text-xs font-bold text-gray-700 mb-1">Hasil Perjalanan / Result:</div>
-                                                <p className="text-xs text-gray-600 whitespace-pre-wrap">{req.result_report}</p>
+                                            <div className="mt-3 pt-3 border-t border-gray-100 bg-gray-50/70 p-4 rounded-xl space-y-3">
+                                                <div>
+                                                    <div className="text-xs font-bold text-gray-700 mb-1">Hasil Perjalanan / Result:</div>
+                                                    <p className="text-xs text-gray-600 whitespace-pre-wrap">{req.result_report}</p>
+                                                </div>
+
+                                                {/* Rekap Finansial Nota */}
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-gray-200 text-xs">
+                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 shadow-xs">
+                                                        <span className="text-gray-500 block text-[11px]">Total Nota:</span>
+                                                        <span className="font-bold text-gray-900">{formatRupiah(req.total_nota)}</span>
+                                                    </div>
+                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 shadow-xs">
+                                                        <span className="text-gray-500 block text-[11px]">Dibayarkan:</span>
+                                                        <span className="font-bold text-gray-900">{formatRupiah(req.dibayarkan)}</span>
+                                                    </div>
+                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 shadow-xs">
+                                                        <span className="text-gray-500 block text-[11px]">Reimburse Sisa Dana:</span>
+                                                        <span className={`font-bold ${Number(req.reimburse_sisa_dana) > 0 ? 'text-emerald-700' : 'text-gray-400'}`}>
+                                                            {formatRupiah(req.reimburse_sisa_dana)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 shadow-xs">
+                                                        <span className="text-gray-500 block text-[11px]">Pengembalian Dana:</span>
+                                                        <span className={`font-bold ${Number(req.pengembalian_dana) > 0 ? 'text-blue-700' : 'text-gray-400'}`}>
+                                                            {formatRupiah(req.pengembalian_dana)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
                                                 {photos.length > 0 && (
-                                                    <div className="mt-2.5 flex gap-2 flex-wrap items-center">
+                                                    <div className="pt-2 border-t border-gray-200 flex gap-2 flex-wrap items-center">
                                                         <span className="text-xs text-gray-500 font-medium">Bukti Nota:</span>
                                                         {photos.map((photo, i) => {
                                                             const photoUrl = photo.startsWith('http') 

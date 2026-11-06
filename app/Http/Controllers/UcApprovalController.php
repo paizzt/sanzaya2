@@ -71,6 +71,25 @@ class UcApprovalController extends Controller
             $request->merge(['status' => 'Selesai']);
         }
 
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('uc_requests')) {
+                \Illuminate\Support\Facades\Schema::table('uc_requests', function ($table) {
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('uc_requests', 'total_nota')) {
+                        $table->decimal('total_nota', 15, 2)->nullable()->default(0);
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('uc_requests', 'dibayarkan')) {
+                        $table->decimal('dibayarkan', 15, 2)->nullable()->default(0);
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('uc_requests', 'reimburse_sisa_dana')) {
+                        $table->decimal('reimburse_sisa_dana', 15, 2)->nullable()->default(0);
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('uc_requests', 'pengembalian_dana')) {
+                        $table->decimal('pengembalian_dana', 15, 2)->nullable()->default(0);
+                    }
+                });
+            }
+        } catch (\Throwable $e) {}
+
         $request->validate([
             'status' => 'required|string|in:' . implode(',', \App\Enums\RequestStatus::ucStatuses()),
             'items' => 'nullable|array',
@@ -81,6 +100,10 @@ class UcApprovalController extends Controller
             'approved_meals_cost' => 'nullable|numeric',
             'approved_accommodation_cost' => 'nullable|numeric',
             'finance_note' => 'nullable|string',
+            'total_nota' => 'nullable|numeric|min:0',
+            'dibayarkan' => 'nullable|numeric|min:0',
+            'reimburse_sisa_dana' => 'nullable|numeric|min:0',
+            'pengembalian_dana' => 'nullable|numeric|min:0',
         ]);
 
         $uc = UcRequest::with('items')->findOrFail($id);
@@ -90,6 +113,11 @@ class UcApprovalController extends Controller
             'finance_note' => $request->finance_note,
             'approved_by' => Auth::id(),
         ];
+
+        if ($request->filled('total_nota')) $updateData['total_nota'] = $request->total_nota;
+        if ($request->filled('dibayarkan')) $updateData['dibayarkan'] = $request->dibayarkan;
+        if ($request->filled('reimburse_sisa_dana')) $updateData['reimburse_sisa_dana'] = $request->reimburse_sisa_dana;
+        if ($request->filled('pengembalian_dana')) $updateData['pengembalian_dana'] = $request->pengembalian_dana;
 
         if ($request->has('items') && is_array($request->items)) {
             $uc->items()->delete();

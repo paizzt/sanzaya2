@@ -567,13 +567,43 @@
         </div>
     </div>
 
+    <div style="margin-top: 25px; font-size: 13px;">
+        <p style="font-weight: bold; margin-bottom: 8px;">B. Rekapitulasi Realisasi Biaya & Nota:</p>
+        <table style="width: 100%; border: 1px solid #1f2937; font-size: 12px; margin-bottom: 10px;">
+            <tr style="background-color: #f3f4f6;">
+                <td style="padding: 6px 12px; border: 1px solid #9ca3af; font-weight: bold; width: 45%;">Total Nota</td>
+                <td style="padding: 6px 12px; border: 1px solid #9ca3af; font-weight: bold; width: 55%; text-align: right;">
+                    Rp {{ number_format((float)($uc->total_nota ?? 0), 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 6px 12px; border: 1px solid #9ca3af; font-weight: bold;">Dibayarkan</td>
+                <td style="padding: 6px 12px; border: 1px solid #9ca3af; font-weight: bold; text-align: right;">
+                    Rp {{ number_format((float)($uc->dibayarkan ?? 0), 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr style="background-color: #f3f4f6;">
+                <td style="padding: 6px 12px; border: 1px solid #9ca3af; font-weight: bold;">Reimburse Sisa Dana</td>
+                <td style="padding: 6px 12px; border: 1px solid #9ca3af; font-weight: bold; text-align: right; color: {{ (float)($uc->reimburse_sisa_dana ?? 0) > 0 ? '#047857' : '#111827' }};">
+                    Rp {{ number_format((float)($uc->reimburse_sisa_dana ?? 0), 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 6px 12px; border: 1px solid #9ca3af; font-weight: bold;">Pengembalian Dana</td>
+                <td style="padding: 6px 12px; border: 1px solid #9ca3af; font-weight: bold; text-align: right; color: {{ (float)($uc->pengembalian_dana ?? 0) > 0 ? '#1d4ed8' : '#111827' }};">
+                    Rp {{ number_format((float)($uc->pengembalian_dana ?? 0), 0, ',', '.') }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
     @php
         $receipts = json_decode($uc->result_receipts, true) ?? [];
     @endphp
     
     @if(count($receipts) > 0)
     <div style="margin-top: 30px; font-size: 14px;">
-        <p style="font-weight: bold; margin-bottom: 10px;">B. Lampiran Nota / Bukti Result:</p>
+        <p style="font-weight: bold; margin-bottom: 10px;">C. Lampiran Nota / Bukti Result:</p>
         <div>
             @foreach($receipts as $receipt)
                 @php $receiptSrc = \App\Helpers\PdfImageHelper::toPdfSrc($receipt, 700); @endphp @if($receiptSrc)

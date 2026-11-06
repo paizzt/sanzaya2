@@ -226,20 +226,68 @@ class UcRequestController extends Controller
 
     public function storeResult(Request $request, $id)
     {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('uc_requests')) {
+                \Illuminate\Support\Facades\Schema::table('uc_requests', function ($table) {
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('uc_requests', 'total_nota')) {
+                        $table->decimal('total_nota', 15, 2)->nullable()->default(0);
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('uc_requests', 'dibayarkan')) {
+                        $table->decimal('dibayarkan', 15, 2)->nullable()->default(0);
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('uc_requests', 'reimburse_sisa_dana')) {
+                        $table->decimal('reimburse_sisa_dana', 15, 2)->nullable()->default(0);
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('uc_requests', 'pengembalian_dana')) {
+                        $table->decimal('pengembalian_dana', 15, 2)->nullable()->default(0);
+                    }
+                });
+            }
+        } catch (\Throwable $e) {}
+
         $request->validate([
             'result_summary' => 'required|string',
-            'receipt_photos' => 'required|array',
-            'receipt_photos.*' => 'file|mimes:jpeg,png,jpg|max:5120'
+            'receipt_photos' => 'nullable|array',
+            'receipt_photos.*' => 'file|mimes:jpeg,png,jpg|max:5120',
+            'total_nota' => 'nullable|numeric|min:0',
+            'dibayarkan' => 'nullable|numeric|min:0',
+            'reimburse_sisa_dana' => 'nullable|numeric|min:0',
+            'pengembalian_dana' => 'nullable|numeric|min:0',
         ]);
 
         $uc = UcRequest::findOrFail($id);
+        $user = Auth::user();
 
-        if ($uc->user_id !== Auth::id()) {
-            abort(403);
+        $isOwner = $uc->user_id === $user->id || $uc->created_by === $user->id;
+        $isAdmin = $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc') || $user->can('approve uc requests');
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Akses ditolak.');
         }
 
-        $photos = [];
+        if ($uc->status === 'Selesai') {
+            return redirect()->back()->with('error', 'Result pengajuan UC ini sudah di-ACC (Selesai) dan tidak dapat diubah lagi.');
+        }
+
+        $existingPhotos = [];
+        try {
+            if ($uc->result_receipts) {
+                $decoded = json_decode($uc->result_receipts, true);
+                if (is_array($decoded)) $existingPhotos = $decoded;
+            }
+        } catch (\Throwable $e) {}
+
+        if (empty($existingPhotos) && !$request->hasFile('receipt_photos')) {
+            $request->validate([
+                'receipt_photos' => 'required|array|min:1',
+            ], [
+                'receipt_photos.required' => 'Foto nota wajib diunggah minimal 1 foto.',
+            ]);
+        }
+
+        $photos = $existingPhotos;
         if ($request->hasFile('receipt_photos')) {
+            $newPhotos = [];
             foreach ($request->file('receipt_photos') as $file) {
                 try {
                     $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->attach(
@@ -258,13 +306,23 @@ class UcRequestController extends Controller
                 } catch (\Throwable $e) {
                     $path = $file->store('uc_receipts', 'public');
                 }
-                $photos[] = $path;
+                $newPhotos[] = $path;
             }
+            $photos = array_merge($photos, $newPhotos);
         }
+
+        $totalNota = (float)($request->total_nota ?? 0);
+        $dibayarkan = (float)($request->dibayarkan ?? 0);
+        $reimburse = $request->filled('reimburse_sisa_dana') ? (float)$request->reimburse_sisa_dana : ($totalNota > $dibayarkan ? $totalNota - $dibayarkan : 0);
+        $pengembalian = $request->filled('pengembalian_dana') ? (float)$request->pengembalian_dana : ($dibayarkan > $totalNota ? $dibayarkan - $totalNota : 0);
 
         $uc->update([
             'result_report' => $request->result_summary,
             'result_receipts' => json_encode($photos),
+            'total_nota' => $totalNota,
+            'dibayarkan' => $dibayarkan,
+            'reimburse_sisa_dana' => $reimburse,
+            'pengembalian_dana' => $pengembalian,
             'status' => 'Selesai / Result Dikirim'
         ]);
 
@@ -320,8 +378,8 @@ class UcRequestController extends Controller
             abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk memperbarui pengajuan ini.');
         }
 
-        if ($uc->status === 'Selesai') {
-            return redirect()->route('requests.uc.history')->with('error', 'Pengajuan UC yang sudah selesai tidak dapat diedit.');
+        if ($uc->status === 'Selesai' || !empty($uc->result_report)) {
+            return redirect()->route('requests.uc.history')->with('error', 'Pengajuan UC yang sudah memiliki laporan result atau sudah selesai di-ACC tidak dapat diedit.');
         }
 
         if ($uc->status === 'Ditolak' || $uc->status === 'Dibatalkan' || $uc->status === 'Batal') {
@@ -406,8 +464,8 @@ class UcRequestController extends Controller
             abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk membatalkan pengajuan ini.');
         }
 
-        if ($uc->status === 'Selesai') {
-            return redirect()->back()->with('error', 'Pengajuan UC yang sudah selesai (Result di-ACC) tidak dapat dibatalkan.');
+        if ($uc->status === 'Selesai' || !empty($uc->result_report)) {
+            return redirect()->back()->with('error', 'Pengajuan UC yang sudah memiliki laporan result atau sudah selesai di-ACC tidak dapat dibatalkan.');
         }
 
         if ($uc->status === 'Dibatalkan' || $uc->status === 'Batal') {

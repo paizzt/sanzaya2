@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
-import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2, Clock, Building2, Filter } from 'lucide-react';
+import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2, Clock, Building2, Filter, Receipt } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useMemo } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -57,6 +57,10 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
         approved_meals_cost: '',
         approved_accommodation_cost: '',
         finance_note: '',
+        total_nota: '',
+        dibayarkan: '',
+        reimburse_sisa_dana: '',
+        pengembalian_dana: '',
     });
 
     const formatRupiah = (number) => {
@@ -205,6 +209,10 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
             approved_meals_cost: req.approved_meals_cost || '',
             approved_accommodation_cost: req.approved_accommodation_cost || '',
             finance_note: req.finance_note || '',
+            total_nota: req.total_nota || '',
+            dibayarkan: req.dibayarkan || '',
+            reimburse_sisa_dana: req.reimburse_sisa_dana || '',
+            pengembalian_dana: req.pengembalian_dana || '',
         });
         setIsModalOpen(true);
     };
@@ -721,6 +729,32 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                                                                 })}
                                                             </div>
                                                         )}
+
+                                                        {/* Rekap Finansial Nota di Tabel */}
+                                                        {(req.total_nota || req.dibayarkan || req.reimburse_sisa_dana || req.pengembalian_dana) && (
+                                                            <div className="mt-2 p-2 bg-amber-50/70 rounded-xl border border-amber-200/60 text-[11px] space-y-0.5">
+                                                                <div className="flex justify-between items-center text-gray-600">
+                                                                    <span>Total Nota:</span>
+                                                                    <strong className="text-gray-900">{formatRupiah(req.total_nota)}</strong>
+                                                                </div>
+                                                                <div className="flex justify-between items-center text-gray-600">
+                                                                    <span>Dibayarkan:</span>
+                                                                    <strong className="text-gray-900">{formatRupiah(req.dibayarkan)}</strong>
+                                                                </div>
+                                                                {Number(req.reimburse_sisa_dana) > 0 && (
+                                                                    <div className="flex justify-between items-center text-emerald-700 font-bold pt-0.5 border-t border-amber-200/50">
+                                                                        <span>Reimburse:</span>
+                                                                        <span>{formatRupiah(req.reimburse_sisa_dana)}</span>
+                                                                    </div>
+                                                                )}
+                                                                {Number(req.pengembalian_dana) > 0 && (
+                                                                    <div className="flex justify-between items-center text-blue-700 font-bold pt-0.5 border-t border-amber-200/50">
+                                                                        <span>Pengembalian:</span>
+                                                                        <span>{formatRupiah(req.pengembalian_dana)}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </td>
                                                     <td className="px-3.5 py-3">
                                                         <span className={`text-xs ${st.color}`}>
@@ -1047,6 +1081,50 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                                 {/* KHUSUS RESULT UC: Bagian Laporan Hasil Perjalanan & Bukti Nota */}
                                 {isResultReview && (
                                     <div className="space-y-4 mb-6">
+                                        {/* Card Rekapitulasi Realisasi Biaya & Nota */}
+                                        <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl">
+                                            <div className="flex items-center gap-2 mb-3 text-amber-900 font-bold text-sm">
+                                                <Receipt className="w-4 h-4 text-amber-600" />
+                                                <span>Rekapitulasi Biaya &amp; Nota Perjalanan:</span>
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                                                <div className="bg-white p-3 rounded-xl border border-amber-100 shadow-xs">
+                                                    <span className="text-gray-500 block text-xs mb-0.5">Total Nota :</span>
+                                                    <span className="font-bold text-gray-900 text-sm sm:text-base">
+                                                        {formatRupiah(selectedRequest.total_nota)}
+                                                    </span>
+                                                </div>
+                                                <div className="bg-white p-3 rounded-xl border border-amber-100 shadow-xs">
+                                                    <span className="text-gray-500 block text-xs mb-0.5">Dibayarkan :</span>
+                                                    <span className="font-bold text-gray-900 text-sm sm:text-base">
+                                                        {formatRupiah(selectedRequest.dibayarkan)}
+                                                    </span>
+                                                </div>
+                                                <div className="bg-white p-3 rounded-xl border border-amber-100 shadow-xs">
+                                                    <span className="text-gray-500 block text-xs mb-0.5">Reimburse Sisa Dana :</span>
+                                                    <span className={`font-bold text-sm sm:text-base ${Number(selectedRequest.reimburse_sisa_dana) > 0 ? 'text-emerald-700' : 'text-gray-400'}`}>
+                                                        {formatRupiah(selectedRequest.reimburse_sisa_dana)}
+                                                    </span>
+                                                    {Number(selectedRequest.reimburse_sisa_dana) > 0 && (
+                                                        <span className="text-[10px] text-emerald-600 block mt-0.5">
+                                                            Kantor perlu mengganti kekurangan dana ke karyawan
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="bg-white p-3 rounded-xl border border-amber-100 shadow-xs">
+                                                    <span className="text-gray-500 block text-xs mb-0.5">Pengembalian Dana :</span>
+                                                    <span className={`font-bold text-sm sm:text-base ${Number(selectedRequest.pengembalian_dana) > 0 ? 'text-blue-700' : 'text-gray-400'}`}>
+                                                        {formatRupiah(selectedRequest.pengembalian_dana)}
+                                                    </span>
+                                                    {Number(selectedRequest.pengembalian_dana) > 0 && (
+                                                        <span className="text-[10px] text-blue-600 block mt-0.5">
+                                                            Karyawan perlu mengembalikan kelebihan dana ke kantor
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         {/* Card Hasil Laporan Perjalanan */}
                                         <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl">
                                             <div className="flex items-center gap-2 mb-2 text-amber-900 font-bold text-sm">
