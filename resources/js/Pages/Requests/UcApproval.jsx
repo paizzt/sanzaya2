@@ -86,13 +86,13 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
 
     const isCompletedResult = (req) => {
         if (!req) return false;
-        return req.status === 'Selesai';
+        return req.status === 'Selesai' || req.status === 'Ditolak' || req.status === 'Tolak';
     };
 
     const isUcInitialPending = (req) => {
         if (!req) return false;
         if (isCompletedResult(req)) return false;
-        if (req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Selesai / Result Dikirim' || req.status === 'Dibatalkan' || req.status === 'Batal') {
+        if (req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Selesai / Result Dikirim' || req.status === 'Dibatalkan' || req.status === 'Batal' || req.status === 'Ditolak' || req.status === 'Tolak') {
             return false;
         }
         if (req.result_report && req.result_report.trim().length > 0) {
@@ -307,6 +307,12 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
         if (!req) return { label: '-', color: 'text-gray-500 font-bold' };
         const s = typeof req === 'string' ? req : (req.status || 'Menunggu');
 
+        if (s === 'Ditolak' || s === 'Tolak') {
+            return { label: 'Ditolak', color: 'text-rose-600 font-bold' };
+        }
+        if (s === 'Dibatalkan' || s === 'Batal') {
+            return { label: 'Dibatalkan', color: 'text-gray-500 font-bold' };
+        }
         if (context === 'completed' || s === 'Selesai') {
             return { label: 'ACC (Selesai)', color: 'text-emerald-700 font-bold' };
         }
@@ -317,9 +323,6 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
             if (s === 'Direvisi' || s === 'Revisi') {
                 return { label: 'Result Direvisi', color: 'text-amber-600 font-bold' };
             }
-            if (s === 'Ditolak' || s === 'Tolak') {
-                return { label: 'Result Ditolak', color: 'text-rose-600 font-bold' };
-            }
             if (typeof req === 'object' && req.result_report && req.result_report.trim().length > 0) {
                 return { label: 'Result Dikirim', color: 'text-indigo-600 font-bold' };
             }
@@ -327,12 +330,6 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
         }
         if (s === 'Disetujui' || s === 'ACC') {
             return { label: 'ACC', color: 'text-emerald-700 font-bold' };
-        }
-        if (s === 'Ditolak' || s === 'Tolak') {
-            return { label: 'Tolak', color: 'text-rose-600 font-bold' };
-        }
-        if (s === 'Dibatalkan' || s === 'Batal') {
-            return { label: 'Dibatalkan', color: 'text-gray-500 font-bold' };
         }
         if (s === 'Direvisi' || s === 'Revisi') {
             return { label: 'Revisi', color: 'text-amber-600 font-bold' };
@@ -351,7 +348,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
             const nextStatus = isResultSource ? 'Selesai' : 'Disetujui';
             const actionTitle = isResultSource ? 'ACC Result UC?' : 'ACC Pengajuan UC?';
             const actionText = isResultSource 
-                ? 'Result UC akan disetujui dan dipindahkan ke Daftar UC Selesai (ACC).'
+                ? 'Result UC akan disetujui dan dipindahkan ke Daftar pengajuan UC.'
                 : 'Pengajuan UC akan disetujui dan dipindahkan ke Daftar Pengajuan Result.';
 
             Swal.fire({
@@ -802,7 +799,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                     </div>
                 </div>
 
-                {/* SECTION 3 (Bawah): DAFTAR SELESAI (RESULT SUDAH ACC) */}
+                {/* SECTION 3 (Bawah): DAFTAR PENGAJUAN UC */}
                 <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5 pb-4 border-b border-gray-100">
                         <div className="flex items-center gap-2.5">
@@ -811,19 +808,19 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                             </div>
                             <div>
                                 <h3 className="font-bold text-base sm:text-lg text-gray-800">
-                                    Daftar UC Selesai (ACC)
+                                    Daftar pengajuan UC
                                 </h3>
                             </div>
                         </div>
                         <span className="text-xs font-bold text-gray-500 shrink-0">
-                            {completedResultRequests.length} Selesai
+                            {completedResultRequests.length} Pengajuan
                         </span>
                     </div>
 
                     {completedResultRequests.length === 0 ? (
                         <div className="text-center py-12 text-gray-400 bg-gray-50/70 rounded-2xl border border-dashed border-gray-200">
                             <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-25" />
-                            <p className="text-sm font-medium">Belum ada pengajuan result yang berstatus selesai (ACC){selectedPt ? ` untuk ${selectedPt}` : ''}.</p>
+                            <p className="text-sm font-medium">Belum ada data pengajuan UC{selectedPt ? ` untuk ${selectedPt}` : ''}.</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -841,6 +838,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                                 <tbody className="divide-y divide-gray-50">
                                     {completedResultRequests.map((req) => {
                                         const totalEst = getRequestTotal(req);
+                                        const isRejected = req.status === 'Ditolak' || req.status === 'Tolak';
                                         let photos = [];
                                         try {
                                             if (req.result_receipts) {
@@ -853,7 +851,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                                             <tr 
                                                 key={req.id} 
                                                 onClick={() => openModal(req, null, 'completed')}
-                                                className="hover:bg-emerald-50/50 cursor-pointer transition-colors"
+                                                className={`cursor-pointer transition-colors ${isRejected ? 'hover:bg-rose-50/50 bg-rose-50/10' : 'hover:bg-emerald-50/50'}`}
                                                 title="Klik baris untuk Review Pengajuan"
                                             >
                                                 <td className="px-4 py-3.5">
@@ -911,9 +909,15 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3.5">
-                                                    <span className="text-xs font-bold text-emerald-700">
-                                                        ACC (Selesai)
-                                                    </span>
+                                                    {isRejected ? (
+                                                        <span className="text-xs font-bold text-rose-600">
+                                                            Ditolak
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-xs font-bold text-emerald-700">
+                                                            ACC (Selesai)
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
                                                     <div className="flex items-center justify-center gap-1.5 flex-wrap">
@@ -929,18 +933,20 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                                                                 </button>
                                                             }
                                                         />
-                                                        <ExportDropdown 
-                                                            pdfRoute={route('requests.uc.pdf', req.id)}
-                                                            trigger={
-                                                                <button 
-                                                                    type="button"
-                                                                    className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1 cursor-pointer"
-                                                                    title="Pratinjau & Unduh PDF formulir UC lengkap (+ Result & Nota)"
-                                                                >
-                                                                    <FileCheck className="w-3.5 h-3.5" /> + Result
-                                                                </button>
-                                                            }
-                                                        />
+                                                        {(!isRejected || req.result_report) && (
+                                                            <ExportDropdown 
+                                                                pdfRoute={route('requests.uc.pdf', req.id)}
+                                                                trigger={
+                                                                    <button 
+                                                                        type="button"
+                                                                        className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1 cursor-pointer"
+                                                                        title="Pratinjau & Unduh PDF formulir UC lengkap (+ Result & Nota)"
+                                                                    >
+                                                                        <FileCheck className="w-3.5 h-3.5" /> + Result
+                                                                    </button>
+                                                                }
+                                                            />
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -980,7 +986,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                         <div className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl relative my-auto">
                             <div className="flex justify-between items-center p-6 border-b border-gray-100">
                                 <h3 className="text-xl font-bold text-gray-900">
-                                    {modalSource === 'result' ? 'Review Pengajuan Result UC' : (modalSource === 'completed' ? 'Detail Pengajuan UC (Selesai)' : 'Review Pengajuan Biaya UC')}
+                                    {modalSource === 'result' ? 'Review Pengajuan Result UC' : (modalSource === 'completed' ? (selectedRequest?.status === 'Ditolak' || selectedRequest?.status === 'Tolak' ? 'Detail Pengajuan UC (Ditolak)' : 'Detail Pengajuan UC (Selesai)') : 'Review Pengajuan Biaya UC')}
                                 </h3>
                             <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-xl transition-colors">
                                 <X className="w-5 h-5" />
@@ -1211,38 +1217,61 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                                 )}
                             <div className="space-y-4">
                                 {modalSource === 'completed' ? (
-                                    <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                                        <div className="flex items-center gap-2 text-emerald-800 text-sm font-bold">
-                                            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                                            <span>Pengajuan UC ini telah Selesai (ACC)</span>
+                                    selectedRequest?.status === 'Ditolak' || selectedRequest?.status === 'Tolak' ? (
+                                        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                            <div className="flex items-center gap-2 text-rose-800 text-sm font-bold">
+                                                <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                                                <span>Pengajuan UC ini telah Ditolak</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <ExportDropdown 
+                                                    pdfRoute={route('requests.uc.pdf', { id: selectedRequest.id, without_result: 1 })} 
+                                                    trigger={
+                                                        <button 
+                                                            type="button"
+                                                            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                                                            title="Pratinjau & Unduh Formulir UC saja"
+                                                        >
+                                                            <FileText className="w-3.5 h-3.5" /> Unduh PDF UC
+                                                        </button>
+                                                    }
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <ExportDropdown 
-                                                pdfRoute={route('requests.uc.pdf', { id: selectedRequest.id, without_result: 1 })} 
-                                                trigger={
-                                                    <button 
-                                                        type="button"
-                                                        className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-                                                        title="Pratinjau & Unduh Formulir UC saja (tanpa lampiran result)"
-                                                    >
-                                                        <FileText className="w-3.5 h-3.5" /> Unduh PDF UC
-                                                    </button>
-                                                }
-                                            />
-                                            <ExportDropdown 
-                                                pdfRoute={route('requests.uc.pdf', selectedRequest.id)} 
-                                                trigger={
-                                                    <button 
-                                                        type="button"
-                                                        className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-                                                        title="Pratinjau & Unduh Formulir UC lengkap (+ Result & Nota)"
-                                                    >
-                                                        <FileCheck className="w-3.5 h-3.5" /> Unduh PDF + Result
-                                                    </button>
-                                                }
-                                            />
+                                    ) : (
+                                        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                            <div className="flex items-center gap-2 text-emerald-800 text-sm font-bold">
+                                                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                                <span>Pengajuan UC ini telah Selesai (ACC)</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <ExportDropdown 
+                                                    pdfRoute={route('requests.uc.pdf', { id: selectedRequest.id, without_result: 1 })} 
+                                                    trigger={
+                                                        <button 
+                                                            type="button"
+                                                            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                                                            title="Pratinjau & Unduh Formulir UC saja (tanpa lampiran result)"
+                                                        >
+                                                            <FileText className="w-3.5 h-3.5" /> Unduh PDF UC
+                                                        </button>
+                                                    }
+                                                />
+                                                <ExportDropdown 
+                                                    pdfRoute={route('requests.uc.pdf', selectedRequest.id)} 
+                                                    trigger={
+                                                        <button 
+                                                            type="button"
+                                                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                                                            title="Pratinjau & Unduh Formulir UC lengkap (+ Result & Nota)"
+                                                        >
+                                                            <FileCheck className="w-3.5 h-3.5" /> Unduh PDF + Result
+                                                        </button>
+                                                    }
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
+                                    )
                                 ) : isResultWaiting ? (
                                     <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                                         <div className="flex items-center gap-2.5 text-blue-800 text-xs sm:text-sm font-medium">
