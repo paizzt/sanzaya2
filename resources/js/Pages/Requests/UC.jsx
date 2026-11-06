@@ -307,6 +307,7 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                                             placeholder="Pilih Kendaraan..."
                                             options={[
                                                 { value: 'Kendaraan Pribadi', label: 'Kendaraan Pribadi' },
+                                                { value: 'Angkutan Umum', label: 'Angkutan Umum' },
                                                 ...(vehicles || []).map(v => ({ 
                                                     value: v.license_plate, 
                                                     label: `${v.license_plate} - ${v.brand_type || 'Kendaraan'}` 

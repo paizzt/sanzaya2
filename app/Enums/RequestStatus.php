@@ -35,6 +35,8 @@ class RequestStatus
             'Revisi',
             'Diproses',
             'Selesai / Result Dikirim',
+            'Dibatalkan',
+            'Batal',
         ];
     }
 

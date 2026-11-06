@@ -274,9 +274,25 @@ class UcRequestController extends Controller
     public function edit($id)
     {
         $uc = UcRequest::with('items')->findOrFail($id);
+        $user = Auth::user();
         
-        if (!Auth::user()->isSuperAdminUser() && !Auth::user()->isAdminUser()) {
-            abort(403, 'Akses ditolak.');
+        $isOwner = $uc->user_id === $user->id || $uc->created_by === $user->id;
+        $isAdmin = $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc') || $user->can('approve uc requests');
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk mengedit pengajuan ini.');
+        }
+
+        if ($uc->status === 'Selesai') {
+            return redirect()->route('requests.uc.history')->with('error', 'Pengajuan UC yang sudah selesai (Result di-ACC) tidak dapat diedit.');
+        }
+
+        if ($uc->status === 'Ditolak' || $uc->status === 'Dibatalkan' || $uc->status === 'Batal') {
+            return redirect()->route('requests.uc.history')->with('error', 'Pengajuan UC yang telah ditolak atau dibatalkan tidak dapat diedit.');
+        }
+
+        if (!empty($uc->result_report)) {
+            return redirect()->route('requests.uc.history')->with('error', 'Pengajuan UC yang sudah memiliki laporan result tidak dapat diedit melalui formulir ini.');
         }
 
         $users = \App\Models\User::select('id', 'name', 'bank_name', 'bank_account_number')->orderBy('name')->get();
@@ -287,14 +303,29 @@ class UcRequestController extends Controller
             'ucRequest' => $uc,
             'users' => $users,
             'vehicles' => $vehicles,
-            'companies' => $companies
+            'companies' => $companies,
+            'isAdmin' => $isAdmin
         ]);
     }
 
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->isSuperAdminUser() && !Auth::user()->isAdminUser()) {
-            abort(403, 'Akses ditolak.');
+        $uc = UcRequest::findOrFail($id);
+        $user = Auth::user();
+
+        $isOwner = $uc->user_id === $user->id || $uc->created_by === $user->id;
+        $isAdmin = $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc') || $user->can('approve uc requests');
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk memperbarui pengajuan ini.');
+        }
+
+        if ($uc->status === 'Selesai') {
+            return redirect()->route('requests.uc.history')->with('error', 'Pengajuan UC yang sudah selesai tidak dapat diedit.');
+        }
+
+        if ($uc->status === 'Ditolak' || $uc->status === 'Dibatalkan' || $uc->status === 'Batal') {
+            return redirect()->route('requests.uc.history')->with('error', 'Pengajuan UC yang telah ditolak atau dibatalkan tidak dapat diedit.');
         }
 
         $request->validate([
@@ -317,8 +348,6 @@ class UcRequestController extends Controller
             'payment_option' => 'required|string|in:PANJAR BIAYA 50%,BAYAR FULL',
         ]);
 
-        $uc = UcRequest::findOrFail($id);
-
         $companions = array_values(array_filter($request->companions ?? [], fn($c) => !empty(trim((string)$c))));
         $companions = array_slice($companions, 0, 2);
 
@@ -339,6 +368,13 @@ class UcRequestController extends Controller
             $updateData['user_id'] = $request->user_id;
         }
 
+        // Jika pengajuan diedit (terutama setelah Direvisi atau Disetujui), kembalikan status ke Menunggu agar finance memeriksa ulang
+        if ($uc->status === 'Direvisi' || $uc->status === 'Disetujui' || $uc->status === 'ACC') {
+            $updateData['status'] = 'Menunggu';
+            $updateData['approved_by'] = null;
+            $updateData['approved_gas_cost'] = null;
+        }
+
         $uc->update($updateData);
 
         $uc->items()->delete();
@@ -351,16 +387,57 @@ class UcRequestController extends Controller
             ]);
         }
 
-        return redirect()->route('requests.uc.approval.index')->with('success', 'Form Pengajuan UC berhasil diperbarui!');
+        if (Auth::user()->can('approve uc requests') && !str_contains(request()->header('referer', ''), 'history')) {
+            return redirect()->route('requests.uc.approval.index')->with('success', 'Form Pengajuan UC berhasil diperbarui!');
+        }
+
+        return redirect()->route('requests.uc.history')->with('success', 'Form Pengajuan UC berhasil diperbarui!');
+    }
+
+    public function cancel($id)
+    {
+        $uc = UcRequest::findOrFail($id);
+        $user = Auth::user();
+
+        $isOwner = $uc->user_id === $user->id || $uc->created_by === $user->id;
+        $isAdmin = $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc') || $user->can('approve uc requests');
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk membatalkan pengajuan ini.');
+        }
+
+        if ($uc->status === 'Selesai') {
+            return redirect()->back()->with('error', 'Pengajuan UC yang sudah selesai (Result di-ACC) tidak dapat dibatalkan.');
+        }
+
+        if ($uc->status === 'Dibatalkan' || $uc->status === 'Batal') {
+            return redirect()->back()->with('error', 'Pengajuan UC sudah dalam status dibatalkan.');
+        }
+
+        $uc->update([
+            'status' => 'Dibatalkan',
+            'finance_note' => $uc->finance_note ? $uc->finance_note . "\n(Dibatalkan oleh pemohon)" : 'Dibatalkan oleh pemohon'
+        ]);
+
+        return redirect()->back()->with('success', 'Pengajuan UC berhasil dibatalkan!');
     }
 
     public function destroy($id)
     {
-        if (!Auth::user()->isSuperAdminUser() && !Auth::user()->isAdminUser()) {
-            abort(403, 'Akses ditolak.');
+        $uc = UcRequest::findOrFail($id);
+        $user = Auth::user();
+
+        $isOwner = $uc->user_id === $user->id || $uc->created_by === $user->id;
+        $isAdmin = $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc') || $user->can('approve uc requests');
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk menghapus pengajuan ini.');
         }
 
-        $uc = UcRequest::findOrFail($id);
+        if ($uc->status === 'Selesai') {
+            return redirect()->back()->with('error', 'Pengajuan UC yang sudah selesai (Result di-ACC) tidak dapat dihapus.');
+        }
+
         $uc->items()->delete();
         $uc->delete();
 

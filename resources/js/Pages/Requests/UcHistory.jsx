@@ -1,12 +1,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Head, useForm, usePage, Link } from '@inertiajs/react';
-import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X, FileText, ExternalLink, AlertCircle, CheckCircle, Clock, AlertTriangle, Edit } from 'lucide-react';
+import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
+import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X, FileText, ExternalLink, AlertCircle, CheckCircle, Clock, AlertTriangle, Edit, Ban, ChevronDown } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
+import ClientPagination from '@/Components/ClientPagination';
 
 export default function UcHistory({ requests = [], activeUcs = [], isAdmin = false }) {
     const user = usePage().props.auth.user;
@@ -19,10 +20,17 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
     const [selectedUc, setSelectedUc] = useState(null);
     const [expandedActiveUc, setExpandedActiveUc] = useState(null);
+    const [expandedRequest, setExpandedRequest] = useState(null);
     const [previewUrls, setPreviewUrls] = useState([]);
     const [previewImage, setPreviewImage] = useState(null);
     const [selectedTab, setSelectedTab] = useState('Semua');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     const { flash } = usePage().props;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedTab]);
 
     useEffect(() => {
         if (flash.success) {
@@ -42,6 +50,36 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
     const submitResult = (e, id) => {
         e.preventDefault();
         postResult(route('requests.uc.storeResult', id), { preserveScroll: true });
+    };
+
+    const handleCancel = (req) => {
+        Swal.fire({
+            title: 'Batalkan Pengajuan UC?',
+            text: `Apakah Anda yakin ingin membatalkan pengajuan ${req.request_number}? Pengajuan ini tidak akan diproses lebih lanjut.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Batalkan',
+            cancelButtonText: 'Kembali',
+            customClass: { popup: 'rounded-2xl' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route('requests.uc.cancel', req.id), {}, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Dibatalkan!',
+                            text: 'Pengajuan UC berhasil dibatalkan.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: { popup: 'rounded-2xl' }
+                        });
+                    }
+                });
+            }
+        });
     };
 
     const handleFileChange = (e) => {
@@ -88,6 +126,9 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
         if (s === 'Ditolak' || s === 'Tolak') {
             return { label: 'Ditolak', color: 'text-rose-600' };
         }
+        if (s === 'Dibatalkan' || s === 'Batal') {
+            return { label: 'Dibatalkan', color: 'text-gray-500' };
+        }
         if (s === 'Direvisi' || s === 'Revisi') {
             return { label: 'Direvisi', color: 'text-amber-600' };
         }
@@ -103,6 +144,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
         disetujui: requests.filter(r => (r.status === 'Disetujui' || r.status === 'ACC') && !r.result_report).length,
         direvisi: requests.filter(r => r.status === 'Direvisi' || r.status === 'Revisi').length,
         ditolak: requests.filter(r => r.status === 'Ditolak' || r.status === 'Tolak').length,
+        dibatalkan: requests.filter(r => r.status === 'Dibatalkan' || r.status === 'Batal').length,
         selesai: requests.filter(r => r.status === 'Selesai' || r.status === 'Selesai / Result Dikirim' || (Boolean(r.result_report) && (r.status === 'Disetujui' || r.status === 'ACC'))).length,
     };
 
@@ -112,9 +154,13 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
         if (selectedTab === 'Disetujui') return (s === 'Disetujui' || s === 'ACC') && !req.result_report;
         if (selectedTab === 'Direvisi') return s === 'Direvisi' || s === 'Revisi';
         if (selectedTab === 'Ditolak') return s === 'Ditolak' || s === 'Tolak';
+        if (selectedTab === 'Dibatalkan') return s === 'Dibatalkan' || s === 'Batal';
         if (selectedTab === 'Selesai') return s === 'Selesai' || s === 'Selesai / Result Dikirim' || (Boolean(req.result_report) && (s === 'Disetujui' || s === 'ACC'));
         return true;
     });
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedRequests = filteredRequests.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <AuthenticatedLayout
@@ -210,7 +256,6 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                             <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
                                 <FileCheck className="text-blue-600" /> Riwayat Pengajuan UC
                             </h3>
-                            <p className="text-xs text-gray-500 mt-0.5">Daftar riwayat semua pengajuan biaya UC dan status persetujuannya</p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                             <div className="w-full">
@@ -270,12 +315,25 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                             onClick={() => setSelectedTab('Ditolak')}
                             className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shrink-0 ${
                                 selectedTab === 'Ditolak' 
-                                    ? 'bg-rose-600 text-white shadow-sm' 
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-rose-600 text-white shadow-sm' 
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                         >
                             Ditolak ({counts.ditolak})
                         </button>
+                        {counts.dibatalkan > 0 && (
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTab('Dibatalkan')}
+                                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shrink-0 ${
+                                    selectedTab === 'Dibatalkan' 
+                                        ? 'bg-gray-600 text-white shadow-sm' 
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                            >
+                                Dibatalkan ({counts.dibatalkan})
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={() => setSelectedTab('Selesai')}
@@ -295,15 +353,24 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                             <p className="text-sm font-medium">Tidak ada data riwayat pengajuan {selectedTab !== 'Semua' ? `dengan status ${selectedTab}` : 'UC'}.</p>
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            {filteredRequests.map(req => {
+                        <>
+                            <div className="space-y-4">
+                                {paginatedRequests.map(req => {
                                 const stInfo = getStatusInfo(req);
                                 const total = getRequestTotal(req);
                                 const isAcc = req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Dicairkan';
                                 const isTolak = req.status === 'Ditolak' || req.status === 'Tolak';
                                 const isRevisi = req.status === 'Direvisi' || req.status === 'Revisi';
+                                const isDibatalkan = req.status === 'Dibatalkan' || req.status === 'Batal';
                                 const isSelesai = req.status === 'Selesai' || req.status === 'Selesai / Result Dikirim' || (Boolean(req.result_report) && isAcc);
                                 const canDownloadPdfUc = isAcc || isSelesai || Boolean(req.result_report) || Boolean(req.approved_at);
+
+                                const isOwner = req.user_id === user?.id || req.created_by === user?.id;
+                                const isInitialOrPending = !req.status || req.status === 'Menunggu' || req.status === 'Pending' || isRevisi;
+                                const isApprovedBeforeResult = isAcc && !req.result_report;
+
+                                const canEdit = (isOwner || isAdmin) && (isInitialOrPending || isApprovedBeforeResult) && !isSelesai && !isTolak && !isDibatalkan;
+                                const canCancel = (isOwner || isAdmin) && (isInitialOrPending || isApprovedBeforeResult) && !isSelesai && !isTolak && !isDibatalkan;
 
                                 let photos = [];
                                 try {
@@ -313,78 +380,168 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                     }
                                 } catch (e) {}
 
+                                const isExpanded = expandedRequest === req.id || selectedUc === req.id;
+
                                 return (
-                                    <div key={req.id} className="p-5 rounded-2xl border border-gray-200 bg-white hover:shadow-md transition-all">
-                                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pb-3 border-b border-gray-100">
-                                            <div>
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className="font-bold text-gray-900 text-sm">{req.request_number}</span>
-                                                    <span className="text-xs text-gray-400">•</span>
-                                                    <span className="text-xs text-gray-600">{req.user?.name} ({req.department})</span>
+                                    <div key={req.id} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm bg-white transition-all">
+                                        {/* Header Ringkasan: Nama sales, tujuan, berapa hari (Klik untuk buka/tutup) */}
+                                        <div 
+                                            className="p-4 bg-gray-50 hover:bg-gray-100/80 cursor-pointer flex justify-between items-center transition-colors select-none"
+                                            onClick={() => setExpandedRequest(expandedRequest === req.id ? null : req.id)}
+                                        >
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                                                    {req.user?.name?.charAt(0) || '?'}
                                                 </div>
-                                                <h4 className="font-bold text-base text-gray-800 mt-1 capitalize">Tujuan: {req.destination_city}</h4>
-                                                {req.description && (
-                                                    <p className="text-xs text-gray-600 mt-0.5"><span className="font-medium text-gray-500">Keterangan:</span> {req.description}</p>
-                                                )}
-                                                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                                                    <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                                                    {req.departure_date} s/d {req.return_date} ({req.estimated_days} Hari)
-                                                </p>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-bold text-gray-800 text-sm sm:text-base truncate">{req.user?.name || '-'}</h4>
+                                                    <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                                        <span>Tujuan: <strong className="text-gray-700 capitalize">{req.destination_city || '-'}</strong></span>
+                                                        <span>•</span>
+                                                        <span className="font-medium text-gray-600">{req.estimated_days || 0} Hari</span>
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="text-left md:text-right w-full md:w-auto">
-                                                <div className="text-xs text-gray-400 mb-0.5">Status Pengajuan:</div>
-                                                <span className={`text-sm ${stInfo.color} block`}>
-                                                    {stInfo.label}
-                                                </span>
-                                                <div className="text-xs font-bold text-gray-900 mt-1">
-                                                    {formatRupiah(total)}
+
+                                            <div className="flex items-center gap-3 shrink-0">
+                                                <div className="text-right">
+                                                    <span className={`text-xs ${stInfo.color} font-semibold block`}>
+                                                        {stInfo.label}
+                                                    </span>
+                                                    <span className="text-xs font-bold text-gray-900 block mt-0.5">
+                                                        {formatRupiah(total)}
+                                                    </span>
                                                 </div>
-                                                {req.payment_option && (
-                                                    <div className="text-[11px] text-gray-500 font-medium">
-                                                        {req.payment_option}
-                                                    </div>
-                                                )}
+                                                <div className={`p-1.5 rounded-lg text-gray-400 hover:text-gray-600 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-blue-600' : ''}`}>
+                                                    <ChevronDown className="w-5 h-5" />
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {/* Catatan Finance / Alasan Penolakan / Catatan Revisi */}
-                                        {req.finance_note && (
-                                            <div className={`mt-3 p-3 rounded-xl text-xs border ${
-                                                isTolak 
-                                                    ? 'bg-rose-50 border-rose-200 text-rose-800' 
-                                                    : (isRevisi 
-                                                        ? 'bg-amber-50 border-amber-200 text-amber-800' 
-                                                        : 'bg-gray-50 border-gray-200 text-gray-800')
-                                            }`}>
-                                                <span className="font-bold block mb-0.5">
-                                                    {isTolak ? 'Alasan Penolakan:' : (isRevisi ? 'Catatan Revisi:' : 'Catatan Finance:')}
-                                                </span>
-                                                <p className="whitespace-pre-wrap">{req.finance_note}</p>
-                                            </div>
-                                        )}
+                                        {/* Rincian Lengkap Saat Ditekan */}
+                                        {isExpanded && (
+                                            <div className="p-5 border-t border-gray-100 bg-white space-y-4 animate-in slide-in-from-top-2">
+                                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pb-3 border-b border-gray-100">
+                                                    <div>
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span className="font-bold text-gray-900 text-sm">{req.request_number}</span>
+                                                            <span className="text-xs text-gray-400">•</span>
+                                                            <span className="text-xs text-gray-600">{req.user?.name} ({req.department})</span>
+                                                            {req.entity && (
+                                                                <>
+                                                                    <span className="text-xs text-gray-400">•</span>
+                                                                    <span className="text-xs text-gray-500">{req.entity}</span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                        <h4 className="font-bold text-base text-gray-800 mt-1 capitalize">Tujuan: {req.destination_city}</h4>
+                                                        {req.description && (
+                                                            <p className="text-xs text-gray-600 mt-0.5"><span className="font-medium text-gray-500">Keterangan:</span> {req.description}</p>
+                                                        )}
+                                                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                                            <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                                                            {req.departure_date} s/d {req.return_date} ({req.estimated_days} Hari)
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 mt-1">
+                                                            Transportasi: <strong className="text-gray-700">{req.transport_type || '-'}</strong> {req.vehicle_number ? `(${req.vehicle_number})` : ''}
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-left md:text-right w-full md:w-auto">
+                                                        <div className="text-xs text-gray-400 mb-0.5">Status Pengajuan:</div>
+                                                        <span className={`text-sm ${stInfo.color} block`}>
+                                                            {stInfo.label}
+                                                        </span>
+                                                        <div className="text-xs font-bold text-gray-900 mt-1">
+                                                            {formatRupiah(total)}
+                                                        </div>
+                                                        {req.payment_option && (
+                                                            <div className="text-[11px] text-gray-500 font-medium">
+                                                                {req.payment_option}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
 
-                                        {/* Aksi Bar */}
-                                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-50">
+                                                {/* Pendamping jika ada */}
+                                                {req.companions && req.companions.length > 0 && (
+                                                    <div className="text-xs">
+                                                        <span className="text-gray-400 block mb-1">Pendamping:</span>
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {req.companions.map((comp, idx) => (
+                                                                <span key={idx} className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-medium">
+                                                                    {comp}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Rincian Item Estimasi Biaya */}
+                                                {req.items && req.items.length > 0 && (
+                                                    <div className="bg-gray-50/70 rounded-xl p-3 border border-gray-100 text-xs">
+                                                        <span className="font-bold text-gray-700 block mb-1.5">Rincian Item Estimasi Biaya:</span>
+                                                        <div className="space-y-1">
+                                                            {req.items.map((item, idx) => (
+                                                                <div key={idx} className="flex justify-between items-center text-gray-600">
+                                                                    <span>{item.item_name} <span className="text-gray-400">({item.quantity}x @{formatRupiah(item.estimated_cost)})</span></span>
+                                                                    <span className="font-semibold text-gray-800">{formatRupiah(item.total_cost || (item.quantity * item.estimated_cost))}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Catatan Finance / Alasan Penolakan / Catatan Revisi */}
+                                                {req.finance_note && (
+                                                    <div className={`p-3 rounded-xl text-xs border ${
+                                                        isTolak 
+                                                            ? 'bg-rose-50 border-rose-200 text-rose-800' 
+                                                            : (isRevisi 
+                                                                ? 'bg-amber-50 border-amber-200 text-amber-800' 
+                                                                : 'bg-gray-50 border-gray-200 text-gray-800')
+                                                    }`}>
+                                                        <span className="font-bold block mb-0.5">
+                                                            {isTolak ? 'Alasan Penolakan:' : (isRevisi ? 'Catatan Revisi:' : 'Catatan Finance:')}
+                                                        </span>
+                                                        <p className="whitespace-pre-wrap">{req.finance_note}</p>
+                                                    </div>
+                                                )}
+
+                                                {/* Aksi Bar */}
+                                                <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
                                             <div className="flex items-center gap-2 flex-wrap">
                                                 {/* Tombol Isi Result & Nota jika sudah di-ACC dan belum ada result */}
                                                 {isAcc && !req.result_report && (
                                                     <button 
                                                         type="button"
                                                         onClick={() => setSelectedUc(selectedUc === req.id ? null : req.id)}
-                                                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all"
+                                                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all cursor-pointer"
                                                     >
                                                         {selectedUc === req.id ? 'Tutup Form Result' : 'Isi Result & Nota'}
                                                     </button>
                                                 )}
 
-                                                {/* Tombol Edit jika direvisi */}
-                                                {isRevisi && !req.result_report && (
+                                                {/* Tombol Edit Pengajuan jika masih dalam daftar pengajuan / belum di-ACC result */}
+                                                {canEdit && (
                                                     <Link 
                                                         href={route('uc-requests.edit', req.id)}
-                                                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow-sm transition-all inline-flex items-center gap-1"
+                                                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow-sm transition-all inline-flex items-center gap-1 cursor-pointer"
+                                                        title="Edit Data Pengajuan UC"
                                                     >
                                                         <Edit className="w-3.5 h-3.5" /> Edit Pengajuan
                                                     </Link>
+                                                )}
+
+                                                {/* Tombol Batalkan jika masih dalam daftar pengajuan / belum di-ACC result */}
+                                                {canCancel && (
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => handleCancel(req)}
+                                                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all inline-flex items-center gap-1 cursor-pointer"
+                                                        title="Batalkan Pengajuan UC"
+                                                    >
+                                                        <Ban className="w-3.5 h-3.5" /> Batalkan
+                                                    </button>
                                                 )}
 
                                                 {/* Jika result direvisi */}
@@ -392,7 +549,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                     <button 
                                                         type="button"
                                                         onClick={() => setSelectedUc(selectedUc === req.id ? null : req.id)}
-                                                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow-sm transition-all"
+                                                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow-sm transition-all cursor-pointer"
                                                     >
                                                         {selectedUc === req.id ? 'Tutup Form' : 'Perbaiki Result & Nota'}
                                                     </button>
@@ -536,10 +693,26 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                 )}
                                             </div>
                                         )}
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
                         </div>
+
+                        {/* Pagination */}
+                        <div className="mt-4 border-t border-gray-100">
+                            <ClientPagination
+                                total={filteredRequests.length}
+                                itemsPerPage={itemsPerPage}
+                                currentPage={currentPage}
+                                onPageChange={setCurrentPage}
+                                onItemsPerPageChange={setItemsPerPage}
+                                perPageOptions={[10, 20, 50, 100]}
+                                alwaysShow={true}
+                            />
+                        </div>
+                    </>
                     )}
                 </div>
 

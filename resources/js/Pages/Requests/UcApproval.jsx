@@ -88,7 +88,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
     const isUcInitialPending = (req) => {
         if (!req) return false;
         if (isCompletedResult(req)) return false;
-        if (req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Selesai / Result Dikirim') {
+        if (req.status === 'Disetujui' || req.status === 'ACC' || req.status === 'Selesai / Result Dikirim' || req.status === 'Dibatalkan' || req.status === 'Batal') {
             return false;
         }
         if (req.result_report && req.result_report.trim().length > 0) {
@@ -99,6 +99,9 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
 
     const isResultPending = (req) => {
         if (!req) return false;
+        if (req.status === 'Dibatalkan' || req.status === 'Batal' || req.status === 'Ditolak' || req.status === 'Tolak') {
+            return false;
+        }
         return !isCompletedResult(req) && !isUcInitialPending(req);
     };
 
@@ -319,6 +322,9 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
         }
         if (s === 'Ditolak' || s === 'Tolak') {
             return { label: 'Tolak', color: 'text-rose-600 font-bold' };
+        }
+        if (s === 'Dibatalkan' || s === 'Batal') {
+            return { label: 'Dibatalkan', color: 'text-gray-500 font-bold' };
         }
         if (s === 'Direvisi' || s === 'Revisi') {
             return { label: 'Revisi', color: 'text-amber-600 font-bold' };

@@ -143,6 +143,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/requests/uc', [UcRequestController::class, 'index'])->name('requests.uc.index');
         Route::get('/requests/uc-history', [UcRequestController::class, 'history'])->name('requests.uc.history');
         Route::post('/requests/uc', [UcRequestController::class, 'store'])->name('requests.uc.store');
+        Route::post('/requests/uc/{id}/cancel', [UcRequestController::class, 'cancel'])->name('requests.uc.cancel');
         Route::post('/requests/uc/{id}/result', [UcRequestController::class, 'storeResult'])->name('requests.uc.storeResult');
         Route::get('/requests/uc/{id}/pdf', [UcRequestController::class, 'generatePdf'])->name('requests.uc.pdf')->middleware('can.pdf');
         Route::resource('uc-requests', UcRequestController::class);

@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import { PlaneTakeoff, Send, MapPin, Calendar, Users, Car, Loader2, X, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
@@ -309,6 +309,7 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
                                             placeholder="Pilih Kendaraan..."
                                             options={[
                                                 { value: 'Kendaraan Pribadi', label: 'Kendaraan Pribadi' },
+                                                { value: 'Angkutan Umum', label: 'Angkutan Umum' },
                                                 ...(vehicles || []).map(v => ({ 
                                                     value: v.license_plate, 
                                                     label: `${v.license_plate} - ${v.brand_type || 'Kendaraan'}` 
@@ -417,7 +418,13 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
                             <InputError message={errors.payment_option} className="mt-2" />
                         </div>
 
-                        <div className="pt-4 flex justify-end">
+                        <div className="pt-4 flex justify-end items-center gap-3">
+                            <Link
+                                href={route('requests.uc.history')}
+                                className="px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium text-sm transition"
+                            >
+                                Batal
+                            </Link>
                             <PrimaryButton disabled={processing} >
                                 {processing && <Loader2 className="w-5 h-5 animate-spin" />}
                                 {processing ? 'Memproses...' : 'Simpan Perubahan'}
