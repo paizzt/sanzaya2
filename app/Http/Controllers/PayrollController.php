@@ -288,7 +288,7 @@ class PayrollController extends Controller
             if ($att->status === 'Hadir') {
                 $hadir++;
 
-                if (!$isSatpam && !$tanpaKeterlambatan) {
+                if (!$isSatpam && !$tanpaKeterlambatan && !$isOffDay) {
                     // 1. Check Keterlambatan
                     $prevDateStr = $attDate->copy()->subDay()->format('Y-m-d');
                     $isLemburYesterday = !empty($lemburMap[$prevDateStr]);

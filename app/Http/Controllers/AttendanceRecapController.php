@@ -278,8 +278,14 @@ class AttendanceRecapController extends Controller
             }
             if ($att->status == 'Hadir') {
                 $userSummaries[$att->user_id]['hadir']++;
-                
-                // Calculate Shift / Terlambat (Khusus SATPAM atau saklar Tanpa Keterlambatan: TIDAK berlaku jam terlambat)
+
+                $attDate = Carbon::parse(substr($att->date, 0, 10));
+                $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
+                $isSunday = $attDate->dayOfWeek === Carbon::SUNDAY;
+                $workDays = $userWorkDays[$att->user_id] ?? 6;
+                $isOffDay = ($isSunday || ($isSaturday && $workDays <= 5));
+
+                // Calculate Shift / Terlambat (Khusus SATPAM, saklar Tanpa Keterlambatan, atau hari libur/luar hari kerja: TIDAK berlaku jam terlambat)
                 if ($isUserSatpam) {
                     $att->is_late = false;
                     $shiftName = $att->shift;
@@ -292,7 +298,7 @@ class AttendanceRecapController extends Controller
                     } else {
                         $userSummaries[$att->user_id]['shift_malam']++;
                     }
-                } elseif ($isUserTanpaTerlambat) {
+                } elseif ($isUserTanpaTerlambat || $isOffDay) {
                     $att->is_late = false;
                 } else {
                     $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay()->format('Y-m-d');
@@ -308,11 +314,6 @@ class AttendanceRecapController extends Controller
 
                 // Calculate Lembur (Hanya dihitung jika tidak saklar tanpa_lembur & status lembur Disetujui / Ter-ACC)
                 if (!$isUserSatpam && !$isUserTanpaLembur) {
-                    $attDate = Carbon::parse(substr($att->date, 0, 10));
-                    $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
-                    $isSunday = $attDate->dayOfWeek === Carbon::SUNDAY;
-                    $workDays = $userWorkDays[$att->user_id] ?? 6;
-                    $isOffDay = ($isSunday || ($isSaturday && $workDays <= 5));
                     $overtimeThreshold = ($isSaturday && $workDays >= 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
                     $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || (!empty(trim($att->notes ?? '')) && !str_starts_with($att->notes, 'Masuk:'));
@@ -499,7 +500,7 @@ class AttendanceRecapController extends Controller
                 'check_out' => $att->check_out_time,
                 'check_in_photo' => $att->check_in_photo ? (str_starts_with($att->check_in_photo, 'http') ? $att->check_in_photo : asset('storage/' . $att->check_in_photo)) : null,
                 'check_out_photo' => $att->check_out_photo ? (str_starts_with($att->check_out_photo, 'http') ? $att->check_out_photo : asset('storage/' . $att->check_out_photo)) : null,
-                'is_late' => (!$isUserSatpam && !$isUserTanpaTerlambat && ($att->is_late ?? false)),
+                'is_late' => (!$isUserSatpam && !$isUserTanpaTerlambat && !$isOffDay && ($att->is_late ?? false)),
                 'is_lembur' => $isLembur,
                 'overtime_status' => $overtimeStatus,
                 'is_saturday' => $isSaturday,
@@ -695,7 +696,13 @@ class AttendanceRecapController extends Controller
                         $summary['shift_malam']++;
                     }
                 } else {
-                    if (!$isUserTanpaTerlambat) {
+                    $attDate = Carbon::parse(substr($att->date, 0, 10));
+                    $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
+                    $isSunday = $attDate->dayOfWeek === Carbon::SUNDAY;
+                    $workDays = $userWorkDays[$att->user_id] ?? 6;
+                    $isOffDay = ($isSunday || ($isSaturday && $workDays <= 5));
+
+                    if (!$isUserTanpaTerlambat && !$isOffDay) {
                         $prevDate = Carbon::parse(substr($att->date, 0, 10))->subDay();
                         $prevDateStr = $prevDate->format('Y-m-d');
                         
@@ -708,11 +715,6 @@ class AttendanceRecapController extends Controller
                     }
 
                     if (!$isUserTanpaLembur) {
-                        $attDate = Carbon::parse(substr($att->date, 0, 10));
-                        $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
-                        $isSunday = $attDate->dayOfWeek === Carbon::SUNDAY;
-                        $workDays = $userWorkDays[$att->user_id] ?? 6;
-                        $isOffDay = ($isSunday || ($isSaturday && $workDays <= 5));
                         $overtimeThreshold = ($isSaturday && $workDays >= 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
                         $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || !empty(trim($att->notes ?? ''));

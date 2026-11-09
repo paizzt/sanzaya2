@@ -386,7 +386,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             if (statusFilter === 'Ditolak') return item.overtime_status === 'Ditolak' || item.status === 'Ditolak';
             return true;
         }
-        if (statusFilter === 'Terlambat') return item.is_late === true || item.is_late === 1;
+        if (statusFilter === 'Terlambat') return (item.is_late === true || item.is_late === 1) && !item.is_off_day;
         if (statusFilter === 'Izin') return item.type === 'Izin' || item.type === 'Izin Khusus' || item.type === 'Cuti';
         if (statusFilter === 'Shift Siang') return item.shift === 'Shift Siang';
         if (statusFilter === 'Shift Malam') return item.shift === 'Shift Malam';
@@ -996,7 +996,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <div className="font-bold text-gray-800 text-sm">
                                                 {item.check_in || '-'}
                                             </div>
-                                            {!item.is_satpam && item.is_late && (
+                                            {!item.is_satpam && item.is_late && !item.is_off_day && (
                                                 <span className="inline-block text-[10px] bg-rose-600 text-white px-1.5 py-0.5 rounded font-bold">
                                                     Terlambat
                                                 </span>
@@ -1238,7 +1238,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <td className="py-4 px-6 text-center font-medium">
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span>{item.check_in || '-'}</span>
-                                                    {!item.is_satpam && item.is_late && (
+                                                    {!item.is_satpam && item.is_late && !item.is_off_day && (
                                                         <span className="text-[10px] bg-rose-600 text-white px-1.5 py-0.5 rounded font-bold whitespace-nowrap">Terlambat</span>
                                                     )}
                                                     {item.check_in_photo && (

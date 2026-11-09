@@ -419,6 +419,11 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                                 {paginatedHistory.length > 0 ? (
                                     paginatedHistory.map((item, index) => {
                                         const itemShift = item.shift || ((item.check_in_time && item.check_in_time >= '18:00') ? 'Shift Malam' : 'Shift Siang');
+                                        const itemDate = new Date(item.date);
+                                        const itemIsSunday = itemDate.getDay() === 0;
+                                        const itemIsSaturday = itemDate.getDay() === 6;
+                                        const itemIsOffDay = itemIsSunday || (itemIsSaturday && (userWorkDays || 6) <= 5);
+                                        const isLateExempt = tanpaKeterlambatan || itemIsOffDay;
                                         return (
                                             <tr key={item.id || index} className="hover:bg-gray-50/50 transition-colors">
                                                 <td className="px-4 py-3 font-medium text-gray-900">{new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td>
@@ -451,10 +456,10 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                                                         item.status === 'Hadir' ? 'bg-green-100 text-green-700' :
                                                         item.status === 'Izin' ? 'bg-yellow-100 text-yellow-700' :
                                                         item.status === 'Sakit' ? 'bg-orange-100 text-orange-700' :
-                                                        item.status === 'Terlambat' ? (tanpaKeterlambatan ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700') :
+                                                        item.status === 'Terlambat' ? (isLateExempt ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700') :
                                                         'bg-gray-100 text-gray-700'
                                                     }`}>
-                                                        {(tanpaKeterlambatan && item.status === 'Terlambat') ? 'Hadir' : (item.status || 'Hadir')}
+                                                        {(isLateExempt && item.status === 'Terlambat') ? 'Hadir' : (item.status || 'Hadir')}
                                                     </span>
                                                 </td>
                                             </tr>
