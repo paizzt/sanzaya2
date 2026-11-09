@@ -94,16 +94,22 @@ class AttendanceController extends Controller
         $now = Carbon::now();
         $isOvertime = false;
         $isSaturday = Carbon::now()->dayOfWeek === Carbon::SATURDAY;
+        $isSunday = Carbon::now()->dayOfWeek === Carbon::SUNDAY;
+        $userWorkDays = $user->work_days_per_week ?? 6;
+        $isOffDay = ($isSunday || ($isSaturday && $userWorkDays <= 5));
         
         // Khusus SATPAM atau pengguna dengan saklar Tanpa Lembur: TIDAK berlaku jam lembur
         if (!$isSatpam && !$tanpaLembur) {
             if ($attendance && $attendance->check_in_time && !$attendance->check_out_time) {
                 $attDate = Carbon::parse($attendance->date);
                 $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
-                $userWorkDays = $user->work_days_per_week ?? 6;
-                $overtimeThreshold = ($isSaturday && $userWorkDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
+                $isSunday = $attDate->dayOfWeek === Carbon::SUNDAY;
+                $isOffDay = ($isSunday || ($isSaturday && $userWorkDays <= 5));
+                $overtimeThreshold = ($isSaturday && $userWorkDays >= 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
-                if ($now->isSameDay($attDate)) {
+                if ($isOffDay) {
+                    $isOvertime = true;
+                } else if ($now->isSameDay($attDate)) {
                     if ($now->format('H:i:s') >= $overtimeThreshold) {
                         $isOvertime = true;
                     }
@@ -139,6 +145,8 @@ class AttendanceController extends Controller
             'currentTime' => Carbon::now()->format('H:i'),
             'isOvertime' => $isOvertime,
             'isSaturday' => $isSaturday,
+            'isSunday' => $isSunday,
+            'isOffDay' => $isOffDay,
             'userWorkDays' => $user->work_days_per_week ?? 6,
             'tanpaLembur' => $tanpaLembur,
             'tanpaKeterlambatan' => $tanpaKeterlambatan,
@@ -259,6 +267,8 @@ class AttendanceController extends Controller
             
             $isOvertime = false;
             $isSaturday = false;
+            $isSunday = false;
+            $isOffDay = false;
             $userWorkDays = $user->work_days_per_week ?? 6;
             $tanpaLembur = (bool)($user->tanpa_lembur ?? false);
 
@@ -269,9 +279,13 @@ class AttendanceController extends Controller
             // Khusus SATPAM atau pengguna dengan saklar Tanpa Lembur: TIDAK berlaku jam lembur
             if (!$user->isSatpam() && !$tanpaLembur) {
                 $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
-                $overtimeThreshold = ($isSaturday && $userWorkDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
+                $isSunday = $attDate->dayOfWeek === Carbon::SUNDAY;
+                $isOffDay = ($isSunday || ($isSaturday && $userWorkDays <= 5));
+                $overtimeThreshold = ($isSaturday && $userWorkDays >= 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
-                if ($now->isSameDay($attDate)) {
+                if ($isOffDay) {
+                    $isOvertime = true;
+                } else if ($now->isSameDay($attDate)) {
                     if ($now->format('H:i:s') >= $overtimeThreshold) {
                         $isOvertime = true;
                     }
@@ -293,10 +307,18 @@ class AttendanceController extends Controller
             $attendance->longitude = $userLon;
             
             $notes = trim($request->notes ?? '');
-            if (!$tanpaLembur && !empty($notes)) {
-                $attendance->notes = $notes;
-                $attendance->check_out_notes = $notes;
-                if ($isOvertime && !$user->isSatpam()) {
+            if (!$tanpaLembur) {
+                if (!empty($notes)) {
+                    $attendance->notes = $notes;
+                    $attendance->check_out_notes = $notes;
+                    if ($isOvertime && !$user->isSatpam()) {
+                        $attendance->overtime_status = 'Menunggu';
+                    }
+                } elseif ($isOvertime && $isOffDay && !$user->isSatpam()) {
+                    // Masuk di hari libur otomatis set status lembur Menunggu
+                    $defaultOffNote = $isSunday ? 'Lembur Hari Libur (Minggu)' : 'Lembur Hari Libur (Sabtu)';
+                    $attendance->notes = $defaultOffNote;
+                    $attendance->check_out_notes = $defaultOffNote;
                     $attendance->overtime_status = 'Menunggu';
                 }
             } elseif ($user->isSatpam() && $isCrossDay) {
@@ -422,12 +444,18 @@ class AttendanceController extends Controller
             $payrollSettings = PayrollController::getPayrollSettings();
             $attDate = Carbon::parse(substr($attendance->date, 0, 10));
             $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
+            $isSunday = $attDate->dayOfWeek === Carbon::SUNDAY;
             $userWorkDays = $attendance->user?->work_days_per_week ?? 6;
+            $isOffDay = ($isSunday || ($isSaturday && $userWorkDays <= 5));
             $jamMulaiWeekday = substr($payrollSettings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
             $jamMulaiSabtu = substr($payrollSettings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
-            $overtimeThreshold = ($isSaturday && $userWorkDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
+            $overtimeThreshold = ($isSaturday && $userWorkDays >= 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
-            if ($attendance->check_out_time && $attendance->check_out_time >= $overtimeThreshold && !empty($checkOutNotes)) {
+            if ($isOffDay) {
+                if (empty($attendance->overtime_status)) {
+                    $attendance->overtime_status = 'Menunggu';
+                }
+            } elseif ($attendance->check_out_time && $attendance->check_out_time >= $overtimeThreshold && !empty($checkOutNotes)) {
                 if (empty($attendance->overtime_status)) {
                     $attendance->overtime_status = 'Menunggu';
                 }

@@ -16,7 +16,7 @@ const dataURLtoFile = (dataurl, filename) => {
     return new File([u8arr], filename, {type:mime});
 };
 
-export default function Index({ attendance, today, currentTime, isOvertime, isSaturday, userWorkDays, history = [], company, isMarketing, isSatpam, activeDutySatpam, tanpaLembur = false, tanpaKeterlambatan = false, overtimeWeekdayStart = '20:00', overtimeSaturdayStart = '14:00' }) {
+export default function Index({ attendance, today, currentTime, isOvertime, isSaturday, isSunday, isOffDay, userWorkDays, history = [], company, isMarketing, isSatpam, activeDutySatpam, tanpaLembur = false, tanpaKeterlambatan = false, overtimeWeekdayStart = '20:00', overtimeSaturdayStart = '14:00' }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -369,7 +369,9 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                                                         ></textarea>
                                                         <p className="text-xs text-gray-500">
                                                             {(isSaturday || new Date().getDay() === 6)
-                                                                ? `Hari Sabtu (lewat ${overtimeSaturdayStart} WITA): Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`
+                                                                ? ((userWorkDays <= 5) ? 'Hari Libur (Sabtu - 5 Hari Kerja): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.' : `Hari Sabtu (lewat ${overtimeSaturdayStart} WITA): Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`)
+                                                                : (isSunday || new Date().getDay() === 0)
+                                                                    ? 'Hari Libur (Minggu): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.'
                                                                 : `Lewat pukul ${overtimeWeekdayStart} WITA: Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`}
                                                         </p>
                                                     </div>

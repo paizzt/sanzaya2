@@ -1028,7 +1028,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                             ? 'bg-rose-600 text-white line-through'
                                                             : 'bg-amber-500 text-white'
                                                     }`}>
-                                                        Lembur {item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`}
+                                                        Lembur {item.is_sunday ? '(Hari Libur Minggu)' : (item.is_saturday && item.is_off_day ? '(Hari Libur Sabtu)' : item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`)}
                                                         {item.overtime_status === 'Disetujui' ? ' • ACC' : item.overtime_status === 'Ditolak' ? ' • Ditolak' : ' • Menunggu'}
                                                     </span>
                                                 </div>
@@ -1259,7 +1259,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                                 ? 'bg-rose-600 text-white line-through'
                                                                 : 'bg-amber-500 text-white'
                                                         }`}>
-                                                            Lembur {item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`}
+                                                            Lembur {item.is_sunday ? '(Hari Libur Minggu)' : (item.is_saturday && item.is_off_day ? '(Hari Libur Sabtu)' : item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`)}
                                                             {item.overtime_status === 'Disetujui' ? ' • Ter-ACC' : item.overtime_status === 'Ditolak' ? ' • Ditolak' : ' • Menunggu'}
                                                         </span>
                                                     )}

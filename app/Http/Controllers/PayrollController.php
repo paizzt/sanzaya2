@@ -267,6 +267,8 @@ class PayrollController extends Controller
             $dateStr = substr($att->date, 0, 10);
             $attDate = Carbon::parse($dateStr);
             $isSaturday = $attDate->dayOfWeek === Carbon::SATURDAY;
+            $isSunday = $attDate->dayOfWeek === Carbon::SUNDAY;
+            $isOffDay = ($isSunday || ($isSaturday && $workDays <= 5));
 
             // Parse checkout notes (matching AttendanceRecapController)
             $checkInNotes = $att->check_in_notes ?? null;
@@ -305,9 +307,15 @@ class PayrollController extends Controller
 
             // 2. Check Lembur (hanya dihitung jika overtime_status === 'Disetujui' atau status === 'Lembur')
             if (!$isSatpam && !$tanpaLembur) {
-                $overtimeThreshold = ($isSaturday && $workDays == 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
+                $overtimeThreshold = $isOffDay ? '00:00:00' : (($isSaturday && $workDays >= 6) ? $jamMulaiSabtu : $jamMulaiWeekday);
                 $hasOvertimeNotes = !empty(trim($checkOutNotes ?? '')) || (!empty(trim($att->notes ?? '')) && !str_starts_with($att->notes, 'Masuk:'));
-                $isApprovedOvertime = ($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes && $att->overtime_status === 'Disetujui');
+
+                $isApprovedOvertime = false;
+                if ($isOffDay) {
+                    $isApprovedOvertime = ($att->check_out_time && $att->overtime_status === 'Disetujui');
+                } else {
+                    $isApprovedOvertime = ($att->check_out_time && $att->check_out_time >= $overtimeThreshold && $hasOvertimeNotes && $att->overtime_status === 'Disetujui');
+                }
                 $isLembur = ($isApprovedOvertime || ($att->status === 'Lembur' && $att->overtime_status !== 'Ditolak'));
 
                 if ($isLembur) {
@@ -315,7 +323,8 @@ class PayrollController extends Controller
                     $lemburDatesCounted[$dateStr] = true;
                     $lemburHari++;
 
-                    // Determine checkout hour (up to 24:00 / 12:00 malam)
+                    // Determine checkout and checkin hour
+                    $checkInHour = $att->check_in_time ? (int)substr($att->check_in_time, 0, 2) : 8;
                     $checkOutHour = $hourMulaiWeekday;
                     if ($att->check_out_time) {
                         $isCrossDay = ($att->check_in_time && $att->check_out_time < $att->check_in_time);
@@ -328,8 +337,23 @@ class PayrollController extends Controller
                         $checkOutHour = $isSaturday ? ($hourMulaiSabtu + 1) : $hourMulaiWeekday;
                     }
 
-                    if ($isSaturday) {
-                        // Sabtu: dihitung mulai jam mulai lembur Sabtu
+                    if ($isOffDay) {
+                        // Masuk di hari libur (Sabtu bagi pekerja 5 hari, atau Minggu bagi semua): dihitung seluruh jam kerja
+                        $offHours = max(1, min(24, $checkOutHour - $checkInHour));
+                        $jumlahJamSabtu += $offHours;
+                        $dayLabel = $isSunday ? 'Minggu (Hari Libur)' : 'Sabtu (Hari Libur / 5 Hari Kerja)';
+                        $overtimeDetails[] = [
+                            'date' => $dateStr,
+                            'day_type' => $dayLabel,
+                            'check_out' => $att->check_out_time ? ($att->check_out_time >= '23:55:00' ? '24:00' : substr($att->check_out_time, 0, 5)) : '17:00',
+                            'jam_pertama' => 0,
+                            'jam_berikutnya' => 0,
+                            'jam_sabtu' => $offHours,
+                            'nominal' => $offHours * $tarifSabtu,
+                            'notes' => $checkOutNotes ?: ($att->notes ?? 'Masuk di hari libur'),
+                        ];
+                    } elseif ($isSaturday) {
+                        // Sabtu (Pekerja 6 hari): dihitung mulai jam mulai lembur Sabtu
                         $satHours = max(1, min(24 - $hourMulaiSabtu, $checkOutHour - $hourMulaiSabtu));
                         $jumlahJamSabtu += $satHours;
                         $overtimeDetails[] = [
@@ -379,11 +403,16 @@ class PayrollController extends Controller
                         if ((int)$cur->month === $month && (int)$cur->year === $year && empty($lemburDatesCounted[$dStr])) {
                             $lemburDatesCounted[$dStr] = true;
                             $lemburHari++;
-                            if ($cur->dayOfWeek === Carbon::SATURDAY) {
+                            $reqIsSunday = $cur->dayOfWeek === Carbon::SUNDAY;
+                            $reqIsSaturday = $cur->dayOfWeek === Carbon::SATURDAY;
+                            $reqIsOffDay = ($reqIsSunday || ($reqIsSaturday && $workDays <= 5));
+
+                            if ($reqIsOffDay || $reqIsSaturday) {
                                 $jumlahJamSabtu += 1;
+                                $label = $reqIsSunday ? 'Minggu (Hari Libur / Pengajuan Lembur)' : ($reqIsSaturday && $workDays <= 5 ? 'Sabtu (Hari Libur / Pengajuan Lembur)' : 'Sabtu (Pengajuan Lembur)');
                                 $overtimeDetails[] = [
                                     'date' => $dStr,
-                                    'day_type' => 'Sabtu (Pengajuan Lembur)',
+                                    'day_type' => $label,
                                     'check_out' => '-',
                                     'jam_pertama' => 0,
                                     'jam_berikutnya' => 0,
