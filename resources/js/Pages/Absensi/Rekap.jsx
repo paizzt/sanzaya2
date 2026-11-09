@@ -782,7 +782,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                 <span className="text-xs font-black text-white">{u.lembur_weekday_pertama || 0}x</span>
                                             </div>
                                             <div className="bg-purple-600 text-white rounded-xl p-1.5 shadow-xs">
-                                                <span className="text-[10px] text-purple-100 font-semibold block">Lembur Sabtu</span>
+                                                <span className="text-[10px] text-purple-100 font-semibold block">Lembur Weekend</span>
                                                 <span className="text-xs font-black text-white">{u.lembur_sabtu || 0} Jam</span>
                                             </div>
                                             <div className="bg-emerald-600 text-white rounded-xl p-1.5 shadow-xs">
@@ -846,7 +846,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                         <th className="py-4 px-6 font-semibold text-center text-blue-600">Total Lembur</th>
                                         <th className="py-4 px-6 font-semibold text-center text-indigo-600">Weekday (Jam Pertama)</th>
                                         <th className="py-4 px-6 font-semibold text-center text-amber-600">Weekday (Berikutnya)</th>
-                                        <th className="py-4 px-6 font-semibold text-center text-purple-600">Lembur Sabtu</th>
+                                        <th className="py-4 px-6 font-semibold text-center text-purple-600">Lembur Weekend</th>
                                         <th className="py-4 px-6 font-semibold text-center text-emerald-600">Estimasi Nominal</th>
                                     </tr>
                                 ) : (

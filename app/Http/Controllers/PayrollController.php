@@ -1248,7 +1248,7 @@ class PayrollController extends Controller
             'THR',
             'Lembur Sen-Jum Jam 20:00 (Kali)',
             'Lembur Sen-Jum Jam Berikutnya (Jam)',
-            'Lembur Sabtu (Jam)',
+            'Lembur Weekend (Jam)',
             'Total Lembur (Rp)',
             'Total Penerimaan',
             'BPJS Kesehatan (Karyawan)',
