@@ -1028,8 +1028,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                             ? 'bg-rose-600 text-white line-through'
                                                             : 'bg-amber-500 text-white'
                                                     }`}>
-                                                        Lembur {item.is_sunday ? '(Hari Libur Minggu)' : (item.is_saturday && item.is_off_day ? '(Hari Libur Sabtu)' : item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`)}
-                                                        {item.overtime_status === 'Disetujui' ? ' • ACC' : item.overtime_status === 'Ditolak' ? ' • Ditolak' : ' • Menunggu'}
+                                                        Lembur
                                                     </span>
                                                 </div>
                                             )}
@@ -1078,7 +1077,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                             <div className="text-xs text-blue-900 bg-blue-50 border border-blue-200 rounded-lg p-2.5 break-words space-y-1.5">
                                                 <div className="flex items-center justify-between gap-2">
                                                     <span className="font-bold text-blue-950 flex items-center gap-1">
-                                                        <Clock className="w-3.5 h-3.5 text-blue-600 inline" /> Alasan Lembur:
+                                                        <Clock className="w-3.5 h-3.5 text-blue-600 inline" /> Alasan :
                                                     </span>
                                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                                         item.overtime_status === 'Disetujui'
@@ -1087,7 +1086,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                             ? 'bg-rose-600 text-white'
                                                             : 'bg-amber-500 text-white'
                                                     }`}>
-                                                        {item.overtime_status === 'Disetujui' ? 'Lembur Ter-ACC' : item.overtime_status === 'Ditolak' ? 'Ditolak' : 'Menunggu ACC'}
+                                                        {item.overtime_status === 'Disetujui' ? 'ACC' : item.overtime_status === 'Ditolak' ? 'Ditolak' : 'Menunggu ACC'}
                                                     </span>
                                                 </div>
                                                 <div className="text-gray-800">
@@ -1259,8 +1258,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                                 ? 'bg-rose-600 text-white line-through'
                                                                 : 'bg-amber-500 text-white'
                                                         }`}>
-                                                            Lembur {item.is_sunday ? '(Hari Libur Minggu)' : (item.is_saturday && item.is_off_day ? '(Hari Libur Sabtu)' : item.is_saturday ? `(Sabtu >${(payrollSettings?.jam_mulai_lembur_sabtu || '14:00').slice(0, 5)})` : `(>${(payrollSettings?.jam_mulai_lembur_weekday || '20:00').slice(0, 5)})`)}
-                                                            {item.overtime_status === 'Disetujui' ? ' • Ter-ACC' : item.overtime_status === 'Ditolak' ? ' • Ditolak' : ' • Menunggu'}
+                                                            Lembur
                                                         </span>
                                                     )}
                                                     {item.check_out_photo && (
@@ -1302,7 +1300,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                         <div className="text-[11px] text-blue-900 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 max-w-[280px] break-words space-y-1.5">
                                                             <div className="flex items-center justify-between gap-2">
                                                                 <span className="font-bold text-blue-950 flex items-center gap-1">
-                                                                    <Clock className="w-3 h-3 text-blue-600 inline" /> Alasan Lembur:
+                                                                    <Clock className="w-3 h-3 text-blue-600 inline" /> Alasan :
                                                                 </span>
                                                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                                                     item.overtime_status === 'Disetujui'
@@ -1311,7 +1309,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                                         ? 'bg-rose-600 text-white'
                                                                         : 'bg-amber-500 text-white'
                                                                 }`}>
-                                                                    {item.overtime_status === 'Disetujui' ? 'Lembur Ter-ACC' : item.overtime_status === 'Ditolak' ? 'Ditolak' : 'Menunggu ACC'}
+                                                                    {item.overtime_status === 'Disetujui' ? 'ACC' : item.overtime_status === 'Ditolak' ? 'Ditolak' : 'Menunggu ACC'}
                                                                 </span>
                                                             </div>
                                                             <div className="text-gray-800">
