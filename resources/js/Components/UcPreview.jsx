@@ -15,6 +15,12 @@ export default function UcPreview({ data, user, creator, users = [], companies =
         ? users.find(u => String(u.id) === String(data?.created_by))
         : null;
     const creatorName = data?.creator?.name || creatorUser?.name || creator?.name || user?.name || 'Manager';
+    const creatorDivision = data?.creator_division
+        || data?.creator?.division?.name
+        || creatorUser?.division?.name
+        || creator?.division?.name
+        || user?.division?.name
+        || 'Manager';
 
     // Penyetuju finance (Disetujui Oleh)
     const approverUser = (users && users.length > 0 && data?.approved_by)
@@ -139,7 +145,7 @@ export default function UcPreview({ data, user, creator, users = [], companies =
                 </tr>
                 <tr>
                     <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">Staff</td>
-                    <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">Manager</td>
+                    <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">{creatorDivision}</td>
                     <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">Finance</td>
                 </tr>
             </tbody>

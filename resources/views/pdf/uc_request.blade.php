@@ -410,6 +410,18 @@
                             if (empty($approverName) && $isApproved) {
                                 $approverName = 'Finance';
                             }
+
+                            $creatorDivision = $uc->creator_division ?? null;
+                            if (empty($creatorDivision) || $creatorDivision === 'Manager') {
+                                $cUser = $uc->creator_user ?? ($uc->creator ?? ($uc->created_by ? \App\Models\User::with('division')->find($uc->created_by) : $uc->user));
+                                if ($cUser && $cUser->division && !empty($cUser->division->name)) {
+                                    $creatorDivision = $cUser->division->name;
+                                } elseif ($cUser && !empty($cUser->division_name)) {
+                                    $creatorDivision = $cUser->division_name;
+                                } else {
+                                    $creatorDivision = 'Manager';
+                                }
+                            }
                         @endphp
                         <tr>
                             <td style="padding: 10px; height: 50px; vertical-align: bottom;">
@@ -428,7 +440,7 @@
                         </tr>
                         <tr>
                             <td>Staff</td>
-                            <td>Manager</td>
+                            <td>{{ $creatorDivision }}</td>
                             <td>Finance</td>
                         </tr>
                     </table>

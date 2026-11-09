@@ -43,7 +43,7 @@ class UcRequestController extends Controller
     public function history()
     {
         $user = Auth::user();
-        $query = UcRequest::with(['user', 'creator', 'items', 'approver'])->orderBy('created_at', 'desc');
+        $query = UcRequest::with(['user.division', 'creator.division', 'items', 'approver.division'])->orderBy('created_at', 'desc');
 
         if (!$user->isSuperAdminUser() && !$user->isAdminUser() && !$user->can('approve uc')) {
             $query->where('user_id', $user->id);
@@ -52,7 +52,7 @@ class UcRequestController extends Controller
         $requests = $query->get();
 
         $today = now()->toDateString();
-        $activeUcs = UcRequest::with(['user', 'creator', 'approver'])
+        $activeUcs = UcRequest::with(['user.division', 'creator.division', 'approver.division'])
             ->where('departure_date', '<=', $today)
             ->where('return_date', '>=', $today)
             ->whereIn('status', ['Disetujui', 'Selesai / Result Dikirim', 'Dicairkan'])
@@ -67,7 +67,7 @@ class UcRequestController extends Controller
     
     public function generatePdf($id)
     {
-        $uc = UcRequest::with(['user', 'creator', 'items', 'approver'])->findOrFail($id);
+        $uc = UcRequest::with(['user.division', 'creator.division', 'items', 'approver.division'])->findOrFail($id);
         
         $qrUrl = route('requests.uc.index'); // Can be a verification URL
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
