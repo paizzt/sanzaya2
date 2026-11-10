@@ -401,17 +401,6 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                                             <span className="text-sm font-semibold text-gray-800">
                                                                 {req.start_date} {req.start_date !== req.end_date ? ` s/d ${req.end_date}` : ''}
                                                             </span>
-                                                            {userIsSuperAdmin && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleOpenEditModal(req)}
-                                                                    className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-md transition-colors"
-                                                                    title="Edit rentang tanggal"
-                                                                >
-                                                                    <Pencil className="w-3 h-3" />
-                                                                    <span>Edit Tanggal</span>
-                                                                </button>
-                                                            )}
                                                             {canApprove && (
                                                                 <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
                                                                     {req.user?.name || 'User'}
