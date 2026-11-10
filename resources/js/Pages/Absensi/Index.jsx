@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { CheckCircle2, Clock, CalendarDays, Loader2, Sun, Moon, Camera, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Check, Clock, CalendarDays, Loader2, Sun, Moon, Camera, AlertCircle } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
@@ -287,8 +287,8 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                                 {/* Check In Status */}
                                 <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
                                     {hasCheckedIn && (
-                                        <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600">
-                                            <CheckCircle2 className="w-7 h-7" />
+                                        <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-600 text-white shadow-lg shadow-green-600/25">
+                                            <Check className="w-7 h-7 stroke-[3]" />
                                         </div>
                                     )}
                                     <div className="flex-1">
@@ -342,8 +342,8 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                                 {/* Check Out Status */}
                                 <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
                                     {hasCheckedOut && (
-                                        <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600">
-                                            <CheckCircle2 className="w-7 h-7" />
+                                        <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-600 text-white shadow-lg shadow-green-600/25">
+                                            <Check className="w-7 h-7 stroke-[3]" />
                                         </div>
                                     )}
                                     <div className="flex-1">
