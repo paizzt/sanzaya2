@@ -90,6 +90,37 @@ class UcApprovalController extends Controller
             }
         } catch (\Throwable $e) {}
 
+        // Sanitize and normalize items payload
+        if ($request->has('items') && is_array($request->items)) {
+            $cleanedItems = [];
+            foreach ($request->items as $item) {
+                $name = trim($item['item_name'] ?? '');
+                $rawQty = $item['quantity'] ?? 1;
+                $rawCost = $item['estimated_cost'] ?? 0;
+
+                // Skip rows where name is empty and cost is zero/empty
+                if ($name === '' && (empty($rawCost) || $rawCost === '0' || $rawCost === 0)) {
+                    continue;
+                }
+
+                $qty = max(1, (int)$rawQty);
+
+                if (is_string($rawCost)) {
+                    $digits = preg_replace('/[^0-9]/', '', $rawCost);
+                    $cost = $digits !== '' ? (float)$digits : 0;
+                } else {
+                    $cost = (float)$rawCost;
+                }
+
+                $cleanedItems[] = [
+                    'item_name' => $name,
+                    'quantity' => $qty,
+                    'estimated_cost' => $cost,
+                ];
+            }
+            $request->merge(['items' => $cleanedItems]);
+        }
+
         $request->validate([
             'status' => 'required|string|in:' . implode(',', \App\Enums\RequestStatus::ucStatuses()),
             'items' => 'nullable|array',

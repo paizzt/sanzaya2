@@ -224,13 +224,16 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
     };
 
     const handleItemChange = (index, field, value) => {
-        const updated = [...data.items];
-        updated[index][field] = value;
-        setData('items', updated);
+        setData('items', data.items.map((item, i) => {
+            if (i === index) {
+                return { ...item, [field]: value };
+            }
+            return item;
+        }));
     };
 
     const addItem = () => {
-        setData('items', [...data.items, { item_name: '', quantity: 1, estimated_cost: 0 }]);
+        setData('items', [...data.items, { item_name: '', quantity: 1, estimated_cost: '' }]);
     };
 
     const removeItem = (index) => {
@@ -241,8 +244,10 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
 
     const currentTotalApproved = (data.items || []).reduce((sum, item) => {
         const qty = parseFloat(item.quantity) || 0;
-        const cost = parseFloat(item.estimated_cost) || 0;
-        return sum + (qty * cost);
+        const rawCost = typeof item.estimated_cost === 'number'
+            ? item.estimated_cost
+            : (parseFloat(String(item.estimated_cost || 0).replace(/[^0-9]/g, '')) || 0);
+        return sum + (qty * rawCost);
     }, 0);
 
     const submitApproval = (statusChoice) => {
@@ -252,10 +257,44 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
             finalStatus = 'Selesai';
         }
 
+        let cleanedItems = [];
+        if (modalSource === 'uc') {
+            cleanedItems = (data.items || []).map(it => {
+                const cleanCost = typeof it.estimated_cost === 'number'
+                    ? it.estimated_cost
+                    : (parseFloat(String(it.estimated_cost || 0).replace(/[^0-9]/g, '')) || 0);
+                return {
+                    item_name: (it.item_name || '').trim(),
+                    quantity: Math.max(1, parseInt(it.quantity) || 1),
+                    estimated_cost: cleanCost,
+                };
+            });
+
+            const emptyItemIndex = cleanedItems.findIndex(it => !it.item_name);
+            if (emptyItemIndex !== -1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Rincian Belum Lengkap',
+                    text: `Nama item ke-${emptyItemIndex + 1} belum diisi. Silakan lengkapi atau hapus item tersebut sebelum melanjutkan.`,
+                });
+                return;
+            }
+
+            if (cleanedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Rincian Kosong',
+                    text: 'Minimal harus ada 1 item estimasi biaya.',
+                });
+                return;
+            }
+        }
+
         setData('status', finalStatus);
         transform((currData) => ({
             ...currData,
             status: finalStatus,
+            items: modalSource === 'uc' ? cleanedItems : currData.items,
         }));
 
         post(route('requests.uc.approval.update', selectedRequest.id), {
@@ -276,6 +315,15 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                     text: `Pengajuan UC berhasil ${label}`,
                     timer: 1500,
                     showConfirmButton: false
+                });
+            },
+            onError: (errs) => {
+                console.error('Approval update failed:', errs);
+                const firstErr = Object.values(errs || {})[0];
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Menyimpan',
+                    text: typeof firstErr === 'string' ? firstErr : 'Terjadi kesalahan saat memproses data. Silakan periksa kembali formulir.',
                 });
             }
         });
@@ -1483,7 +1531,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                                             }`}
                                         >
                                             {processing && (data.status === 'Disetujui' || data.status === 'ACC' || data.status === 'Selesai') ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                            {modalSource === 'result' ? 'ACC Result' : 'ACC'}
+                                            {modalSource === 'result' ? 'ACC Result' : (modalSource === 'uc' && selectedRequest && Math.round(currentTotalApproved) !== Math.round(getRequestTotal(selectedRequest)) ? 'ACC (Biaya Direvisi)' : 'ACC')}
                                         </button>
                                     </div>
                                 ) : (

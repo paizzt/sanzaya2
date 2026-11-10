@@ -5,9 +5,14 @@ export default function CurrencyInput({ value, onChange, className = '', ...prop
     const formatValue = (val) => {
         if (val === null || val === undefined || val === '') return '';
         
-        let strVal = val.toString();
-        // Remove decimal parts if they exist (either . or ,)
-        strVal = strVal.split('.')[0].split(',')[0];
+        let strVal = val.toString().trim();
+        // If it's SQL decimal format like 150000.00 (single dot followed by 1 or 2 digits at end)
+        if (/^\d+\.\d{1,2}$/.test(strVal)) {
+            strVal = strVal.split('.')[0];
+        } else if (strVal.includes(',')) {
+            strVal = strVal.split(',')[0];
+        }
+
         // Get only digits
         let number_string = strVal.replace(/[^0-9]/g, '');
         if (number_string === '') return '';
