@@ -105,11 +105,19 @@ class UcApprovalController extends Controller
 
                 $qty = max(1, (int)$rawQty);
 
-                if (is_string($rawCost)) {
-                    $digits = preg_replace('/[^0-9]/', '', $rawCost);
-                    $cost = $digits !== '' ? (float)$digits : 0;
-                } else {
+                if (is_numeric($rawCost) && !is_string($rawCost)) {
                     $cost = (float)$rawCost;
+                } else {
+                    $s = trim((string)$rawCost);
+                    if (preg_match('/^\d+\.\d{1,2}$/', $s)) {
+                        $cost = (float)$s;
+                    } else {
+                        if (strpos($s, ',') !== false) {
+                            $s = explode(',', $s)[0];
+                        }
+                        $digits = preg_replace('/[^0-9]/', '', $s);
+                        $cost = $digits !== '' ? (float)$digits : 0;
+                    }
                 }
 
                 $cleanedItems[] = [

@@ -67,9 +67,26 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number || 0);
     };
 
+    const parseNominal = (val) => {
+        if (val === null || val === undefined || val === '') return 0;
+        if (typeof val === 'number') return isNaN(val) ? 0 : val;
+        let s = String(val).trim();
+        // If it's standard SQL decimal like "100000.00" or "50000.5" (1 or 2 digits at end)
+        if (/^\d+\.\d{1,2}$/.test(s)) {
+            return parseFloat(s) || 0;
+        }
+        // If it has comma decimal like "100.000,00"
+        if (s.includes(',')) {
+            s = s.split(',')[0];
+        }
+        // Remove all non-digits (dots are thousands separators in IDR)
+        const cleanDigits = s.replace(/[^0-9]/g, '');
+        return parseFloat(cleanDigits) || 0;
+    };
+
     const calculateItemsTotal = (items) => {
         if (!items || !items.length) return 0;
-        return items.reduce((sum, item) => sum + (parseFloat(item.total_cost || (item.quantity * item.estimated_cost)) || 0), 0);
+        return items.reduce((sum, item) => sum + parseNominal(item.total_cost || (item.quantity * parseNominal(item.estimated_cost))), 0);
     };
 
     const getRequestTotal = (req) => {
@@ -166,26 +183,26 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
             initialItems = req.items.map(item => ({
                 item_name: item.item_name || '',
                 quantity: item.quantity || 1,
-                estimated_cost: item.estimated_cost || 0,
+                estimated_cost: parseNominal(item.estimated_cost),
             }));
         } else {
             if (req.estimated_gas_cost) {
-                initialItems.push({ item_name: 'BBM / Bensin', quantity: 1, estimated_cost: req.estimated_gas_cost });
+                initialItems.push({ item_name: 'BBM / Bensin', quantity: 1, estimated_cost: parseNominal(req.estimated_gas_cost) });
             }
             if (req.estimated_meals_cost) {
-                initialItems.push({ item_name: 'Uang Makan / Konsumsi', quantity: 1, estimated_cost: req.estimated_meals_cost });
+                initialItems.push({ item_name: 'Uang Makan / Konsumsi', quantity: 1, estimated_cost: parseNominal(req.estimated_meals_cost) });
             }
             if (req.estimated_accommodation_cost) {
-                initialItems.push({ item_name: 'Penginapan / Hotel', quantity: 1, estimated_cost: req.estimated_accommodation_cost });
+                initialItems.push({ item_name: 'Penginapan / Hotel', quantity: 1, estimated_cost: parseNominal(req.estimated_accommodation_cost) });
             }
             if (req.flight_ticket_cost) {
-                initialItems.push({ item_name: 'Tiket Pesawat', quantity: 1, estimated_cost: req.flight_ticket_cost });
+                initialItems.push({ item_name: 'Tiket Pesawat', quantity: 1, estimated_cost: parseNominal(req.flight_ticket_cost) });
             }
             if (req.ship_ticket_cost) {
-                initialItems.push({ item_name: 'Tiket Kapal', quantity: 1, estimated_cost: req.ship_ticket_cost });
+                initialItems.push({ item_name: 'Tiket Kapal', quantity: 1, estimated_cost: parseNominal(req.ship_ticket_cost) });
             }
             if (initialItems.length === 0) {
-                initialItems = [{ item_name: '', quantity: 1, estimated_cost: 0 }];
+                initialItems = [{ item_name: '', quantity: 1, estimated_cost: '' }];
             }
         }
 
@@ -244,9 +261,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
 
     const currentTotalApproved = (data.items || []).reduce((sum, item) => {
         const qty = parseFloat(item.quantity) || 0;
-        const rawCost = typeof item.estimated_cost === 'number'
-            ? item.estimated_cost
-            : (parseFloat(String(item.estimated_cost || 0).replace(/[^0-9]/g, '')) || 0);
+        const rawCost = parseNominal(item.estimated_cost);
         return sum + (qty * rawCost);
     }, 0);
 
@@ -260,9 +275,7 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
         let cleanedItems = [];
         if (modalSource === 'uc') {
             cleanedItems = (data.items || []).map(it => {
-                const cleanCost = typeof it.estimated_cost === 'number'
-                    ? it.estimated_cost
-                    : (parseFloat(String(it.estimated_cost || 0).replace(/[^0-9]/g, '')) || 0);
+                const cleanCost = parseNominal(it.estimated_cost);
                 return {
                     item_name: (it.item_name || '').trim(),
                     quantity: Math.max(1, parseInt(it.quantity) || 1),
