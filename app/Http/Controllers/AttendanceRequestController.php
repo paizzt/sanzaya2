@@ -28,7 +28,8 @@ class AttendanceRequestController extends Controller
             
         return Inertia::render('Absensi/Pengajuan', [
             'requests' => $query->get(),
-            'canApprove' => $canApprove
+            'canApprove' => $canApprove,
+            'isSuperAdmin' => $user->isSuperAdminUser()
         ]);
     }
 
@@ -86,6 +87,27 @@ class AttendanceRequestController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Pengajuan berhasil dikirim dan menunggu persetujuan.');
+    }
+
+    public function updateDates(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!$user->isSuperAdminUser()) {
+            return redirect()->back()->with('error', 'Akses ditolak: Hanya Superadmin yang dapat mengubah rentang tanggal pengajuan.');
+        }
+
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $attendanceRequest = AttendanceRequest::findOrFail($id);
+        $attendanceRequest->update([
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+        ]);
+
+        return redirect()->back()->with('success', 'Rentang tanggal pengajuan berhasil diperbarui.');
     }
 
     public function updateStatus(Request $request, $id)

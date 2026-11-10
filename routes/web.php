@@ -106,6 +106,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Pengajuan Izin/Sakit (Wajib di atas wildcard /absensi/{id} agar POST /absensi/pengajuan tidak tertimpa)
     Route::get('/absensi/pengajuan', [AttendanceRequestController::class, 'index'])->name('absensi.pengajuan');
     Route::post('/absensi/pengajuan', [AttendanceRequestController::class, 'store'])->name('absensi.pengajuan.store');
+    Route::match(['put', 'patch', 'post'], '/absensi/pengajuan/{id}/dates', [AttendanceRequestController::class, 'updateDates'])->name('absensi.pengajuan.update-dates');
     Route::put('/absensi/pengajuan/{id}/status', [AttendanceRequestController::class, 'updateStatus'])->name('absensi.pengajuan.status');
     Route::delete('/absensi/pengajuan/{id}', [AttendanceRequestController::class, 'destroy'])->name('absensi.pengajuan.destroy');
 

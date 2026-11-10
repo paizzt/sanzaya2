@@ -11,7 +11,9 @@ import {
     X, 
     Trash2, 
     Image as ImageIcon,
-    Eye
+    Eye,
+    Pencil,
+    Calendar
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
@@ -24,7 +26,7 @@ import CustomDatePicker from '@/Components/CustomDatePicker';
 import Modal from '@/Components/Modal';
 import ClientPagination from '@/Components/ClientPagination';
 
-export default function Pengajuan({ requests = [], canApprove }) {
+export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
     const totalPages = Math.max(1, Math.ceil(requests.length / itemsPerPage));
@@ -48,6 +50,83 @@ export default function Pengajuan({ requests = [], canApprove }) {
 
     const { auth, flash } = usePage().props;
     const currentUser = auth.user;
+    const userIsSuperAdmin = isSuperAdmin || (currentUser?.role && ['super admin', 'superadmin', 'super_admin'].includes(currentUser.role.toLowerCase()));
+
+    // Modal state for editing date range (Superadmin only)
+    const [editModal, setEditModal] = useState({
+        isOpen: false,
+        request: null,
+        start_date: '',
+        end_date: '',
+        processing: false,
+        errors: {},
+    });
+
+    const handleOpenEditModal = (req) => {
+        setEditModal({
+            isOpen: true,
+            request: req,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            processing: false,
+            errors: {},
+        });
+    };
+
+    const handleSaveDates = (e) => {
+        e.preventDefault();
+        if (!editModal.request) return;
+
+        if (!editModal.start_date || !editModal.end_date) {
+            setEditModal(prev => ({
+                ...prev,
+                errors: {
+                    start_date: !prev.start_date ? 'Tanggal mulai wajib diisi.' : null,
+                    end_date: !prev.end_date ? 'Tanggal selesai wajib diisi.' : null,
+                }
+            }));
+            return;
+        }
+
+        if (editModal.start_date > editModal.end_date) {
+            setEditModal(prev => ({
+                ...prev,
+                errors: {
+                    end_date: 'Tanggal selesai tidak boleh sebelum tanggal mulai.'
+                }
+            }));
+            return;
+        }
+
+        setEditModal(prev => ({ ...prev, processing: true }));
+
+        router.put(route('absensi.pengajuan.update-dates', editModal.request.id), {
+            start_date: editModal.start_date,
+            end_date: editModal.end_date
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setEditModal({
+                    isOpen: false,
+                    request: null,
+                    start_date: '',
+                    end_date: '',
+                    processing: false,
+                    errors: {},
+                });
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Rentang tanggal pengajuan berhasil diperbarui.',
+                    icon: 'success',
+                    confirmButtonColor: '#3b82f6',
+                    customClass: { popup: 'rounded-2xl' }
+                });
+            },
+            onError: (errs) => {
+                setEditModal(prev => ({ ...prev, processing: false, errors: errs }));
+            }
+        });
+    };
 
     // Modal state for previewing attachments
     const [previewModal, setPreviewModal] = useState({
@@ -322,6 +401,17 @@ export default function Pengajuan({ requests = [], canApprove }) {
                                                             <span className="text-sm font-semibold text-gray-800">
                                                                 {req.start_date} {req.start_date !== req.end_date ? ` s/d ${req.end_date}` : ''}
                                                             </span>
+                                                            {userIsSuperAdmin && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleOpenEditModal(req)}
+                                                                    className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-md transition-colors"
+                                                                    title="Edit rentang tanggal"
+                                                                >
+                                                                    <Pencil className="w-3 h-3" />
+                                                                    <span>Edit Tanggal</span>
+                                                                </button>
+                                                            )}
                                                             {canApprove && (
                                                                 <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
                                                                     {req.user?.name || 'User'}
@@ -387,6 +477,16 @@ export default function Pengajuan({ requests = [], canApprove }) {
                                                             </div>
                                                         )}
 
+                                                        {userIsSuperAdmin && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleOpenEditModal(req)}
+                                                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mt-0.5"
+                                                                title="Edit Rentang Tanggal"
+                                                            >
+                                                                <Pencil className="w-4 h-4" />
+                                                            </button>
+                                                        )}
                                                         {canDelete && (
                                                             <button
                                                                 onClick={() => handleDelete(req.id)}
@@ -487,6 +587,94 @@ export default function Pengajuan({ requests = [], canApprove }) {
                             </button>
                         </div>
                     </div>
+                </div>
+            </Modal>
+
+            {/* Modal Edit Rentang Tanggal Khusus Superadmin */}
+            <Modal show={editModal.isOpen} onClose={() => setEditModal(prev => ({ ...prev, isOpen: false }))} maxWidth="md">
+                <div className="p-6">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                        <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-blue-600" />
+                            Edit Rentang Tanggal Pengajuan
+                        </h3>
+                        <button 
+                            type="button"
+                            onClick={() => setEditModal(prev => ({ ...prev, isOpen: false }))}
+                            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    {editModal.request && (
+                        <div className="mb-4 p-3.5 bg-gray-50 rounded-2xl text-xs space-y-1.5 text-gray-600 border border-gray-100">
+                            <div className="flex items-center justify-between">
+                                <span className="font-semibold text-gray-700">Karyawan:</span>
+                                <span className="font-bold text-gray-900">{editModal.request.user?.name || 'User'}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="font-semibold text-gray-700">Jenis:</span>
+                                <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold text-white ${
+                                    editModal.request.type === 'Sakit' ? 'bg-rose-600' :
+                                    editModal.request.type === 'Cuti' ? 'bg-purple-600' : 'bg-blue-600'
+                                }`}>{editModal.request.type}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="font-semibold text-gray-700">Status:</span>
+                                <span className={`font-bold ${
+                                    editModal.request.status === 'Disetujui' ? 'text-green-600' :
+                                    editModal.request.status === 'Ditolak' ? 'text-red-600' : 'text-orange-600'
+                                }`}>{editModal.request.status}</span>
+                            </div>
+                            {editModal.request.reason && (
+                                <div className="pt-1.5 border-t border-gray-200/60">
+                                    <span className="font-semibold text-gray-700">Alasan: </span>
+                                    <span>{editModal.request.reason}</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSaveDates} className="space-y-4">
+                        <div>
+                            <InputLabel value="Mulai Tanggal" />
+                            <CustomDatePicker 
+                                value={editModal.start_date}
+                                onChange={(val) => setEditModal(prev => ({ ...prev, start_date: val, errors: { ...prev.errors, start_date: null } }))}
+                            />
+                            {editModal.errors?.start_date && (
+                                <InputError message={editModal.errors.start_date} className="mt-1" />
+                            )}
+                        </div>
+
+                        <div>
+                            <InputLabel value="Sampai Tanggal" />
+                            <CustomDatePicker 
+                                value={editModal.end_date}
+                                onChange={(val) => setEditModal(prev => ({ ...prev, end_date: val, errors: { ...prev.errors, end_date: null } }))}
+                            />
+                            {editModal.errors?.end_date && (
+                                <InputError message={editModal.errors.end_date} className="mt-1" />
+                            )}
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                            <button
+                                type="button"
+                                onClick={() => setEditModal(prev => ({ ...prev, isOpen: false }))}
+                                className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <PrimaryButton 
+                                disabled={editModal.processing}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20"
+                            >
+                                {editModal.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                            </PrimaryButton>
+                        </div>
+                    </form>
                 </div>
             </Modal>
         </AuthenticatedLayout>
