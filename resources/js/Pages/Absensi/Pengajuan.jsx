@@ -466,24 +466,29 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                                             </div>
                                                         )}
 
-                                                        {userIsSuperAdmin && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleOpenEditModal(req)}
-                                                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mt-0.5"
-                                                                title="Edit Rentang Tanggal"
-                                                            >
-                                                                <Pencil className="w-4 h-4" />
-                                                            </button>
-                                                        )}
-                                                        {canDelete && (
-                                                            <button
-                                                                onClick={() => handleDelete(req.id)}
-                                                                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-0.5"
-                                                                title="Hapus Pengajuan"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
+                                                        {(userIsSuperAdmin || canDelete) && (
+                                                            <div className="flex items-center gap-1 mt-0.5">
+                                                                {userIsSuperAdmin && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleOpenEditModal(req)}
+                                                                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                        title="Edit Rentang Tanggal"
+                                                                    >
+                                                                        <Pencil className="w-4 h-4" />
+                                                                    </button>
+                                                                )}
+                                                                {canDelete && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDelete(req.id)}
+                                                                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                                        title="Hapus Pengajuan"
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         )}
                                                     </div>
                                                 </div>
