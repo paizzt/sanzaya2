@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\AttendanceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -119,6 +120,14 @@ class AttendanceController extends Controller
             }
         }
 
+        $approvedLeave = AttendanceRequest::where('user_id', $user->id)
+            ->where('status', 'Disetujui')
+            ->whereIn('type', ['Sakit', 'Izin', 'Izin Khusus', 'Cuti'])
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->orderBy('id', 'desc')
+            ->first();
+
         $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
         $endOfMonth = Carbon::now()->endOfMonth()->format('Y-m-d');
         
@@ -126,6 +135,57 @@ class AttendanceController extends Controller
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
             ->orderBy('date', 'desc')
             ->get();
+
+        $approvedRequestsMonth = AttendanceRequest::where('user_id', $user->id)
+            ->where('status', 'Disetujui')
+            ->whereIn('type', ['Sakit', 'Izin', 'Izin Khusus', 'Cuti'])
+            ->where(function($q) use ($startOfMonth, $endOfMonth) {
+                $q->whereBetween('start_date', [$startOfMonth, $endOfMonth])
+                  ->orWhereBetween('end_date', [$startOfMonth, $endOfMonth])
+                  ->orWhere(function($sub) use ($startOfMonth, $endOfMonth) {
+                      $sub->where('start_date', '<=', $startOfMonth)
+                          ->where('end_date', '>=', $endOfMonth);
+                  });
+            })
+            ->get();
+
+        $existingDates = $history->pluck('date')->map(function($d) {
+            return substr($d, 0, 10);
+        })->toArray();
+
+        $mergedHistory = $history->toArray();
+
+        foreach ($approvedRequestsMonth as $arm) {
+            $st = Carbon::parse($arm->start_date);
+            $en = Carbon::parse($arm->end_date);
+            $monthStart = Carbon::parse($startOfMonth);
+            $monthEnd = Carbon::parse($endOfMonth);
+
+            if ($st->lt($monthStart)) $st = $monthStart->copy();
+            if ($en->gt($monthEnd)) $en = $monthEnd->copy();
+
+            while ($st->lte($en)) {
+                $dateStr = $st->format('Y-m-d');
+                if (!in_array($dateStr, $existingDates)) {
+                    $mergedHistory[] = [
+                        'id' => 'req_' . $arm->id . '_' . $dateStr,
+                        'user_id' => $user->id,
+                        'date' => $dateStr,
+                        'check_in_time' => null,
+                        'check_out_time' => null,
+                        'status' => $arm->type,
+                        'notes' => $arm->reason,
+                        'shift' => null,
+                    ];
+                    $existingDates[] = $dateStr;
+                }
+                $st->addDay();
+            }
+        }
+
+        usort($mergedHistory, function($a, $b) {
+            return strcmp($b['date'], $a['date']);
+        });
 
         $activeDutySatpam = null;
         if ($isSatpam) {
@@ -141,6 +201,14 @@ class AttendanceController extends Controller
 
         return Inertia::render('Absensi/Index', [
             'attendance' => $attendance,
+            'approvedLeave' => $approvedLeave ? [
+                'id' => $approvedLeave->id,
+                'type' => $approvedLeave->type,
+                'start_date' => $approvedLeave->start_date instanceof Carbon ? $approvedLeave->start_date->format('Y-m-d') : substr($approvedLeave->start_date, 0, 10),
+                'end_date' => $approvedLeave->end_date instanceof Carbon ? $approvedLeave->end_date->format('Y-m-d') : substr($approvedLeave->end_date, 0, 10),
+                'reason' => $approvedLeave->reason,
+                'status' => $approvedLeave->status,
+            ] : null,
             'today' => Carbon::now()->isoFormat('dddd, D MMMM Y'),
             'currentTime' => Carbon::now()->format('H:i'),
             'isOvertime' => $isOvertime,
@@ -152,7 +220,7 @@ class AttendanceController extends Controller
             'tanpaKeterlambatan' => $tanpaKeterlambatan,
             'overtimeWeekdayStart' => substr($jamMulaiWeekday, 0, 5),
             'overtimeSaturdayStart' => substr($jamMulaiSabtu, 0, 5),
-            'history' => $history,
+            'history' => $mergedHistory,
             'company' => $user->company,
             'isMarketing' => $user->hasRoleCaseInsensitive(['Marketing', 'Sales']),
             'isSatpam' => $isSatpam,
@@ -215,6 +283,17 @@ class AttendanceController extends Controller
 
         $today = Carbon::today()->format('Y-m-d');
         $currentTime = Carbon::now()->format('H:i:s');
+
+        $approvedLeave = AttendanceRequest::where('user_id', $user->id)
+            ->where('status', 'Disetujui')
+            ->whereIn('type', ['Sakit', 'Izin', 'Izin Khusus', 'Cuti'])
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->first();
+
+        if ($approvedLeave) {
+            return redirect()->back()->with('error', "Anda memiliki pengajuan {$approvedLeave->type} yang telah disetujui untuk hari ini, sehingga tidak dapat melakukan absensi.");
+        }
 
         if ($request->type === 'check_in') {
             // Untuk Satpam: pastikan tidak ada shift aktif sebelumnya yang belum checkout

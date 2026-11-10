@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { CheckCircle2, Check, Clock, CalendarDays, Loader2, Sun, Moon, Camera, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Check, Clock, CalendarDays, Loader2, Sun, Moon, Camera, AlertCircle, HeartPulse, CalendarCheck, FileText } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
@@ -16,7 +16,25 @@ const dataURLtoFile = (dataurl, filename) => {
     return new File([u8arr], filename, {type:mime});
 };
 
-export default function Index({ attendance, today, currentTime, isOvertime, isSaturday, isSunday, isOffDay, userWorkDays, history = [], company, isMarketing, isSatpam, activeDutySatpam, tanpaLembur = false, tanpaKeterlambatan = false, overtimeWeekdayStart = '20:00', overtimeSaturdayStart = '14:00' }) {
+const formatDateRange = (start, end) => {
+    if (!start) return '-';
+    const parseDate = (dStr) => {
+        if (!dStr) return null;
+        const [y, m, d] = dStr.split('-').map(Number);
+        return new Date(y, m - 1, d);
+    };
+    const sDate = parseDate(start);
+    if (!sDate) return start;
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    const sText = sDate.toLocaleDateString('id-ID', options);
+    if (!end || start === end) return sText;
+    const eDate = parseDate(end);
+    if (!eDate) return sText;
+    const eText = eDate.toLocaleDateString('id-ID', options);
+    return `${sText} s/d ${eText}`;
+};
+
+export default function Index({ attendance, approvedLeave = null, today, currentTime, isOvertime, isSaturday, isSunday, isOffDay, userWorkDays, history = [], company, isMarketing, isSatpam, activeDutySatpam, tanpaLembur = false, tanpaKeterlambatan = false, overtimeWeekdayStart = '20:00', overtimeSaturdayStart = '14:00' }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -277,113 +295,231 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                             <p className="text-blue-100 text-lg font-medium">{today}</p>
                             <h2 className="text-6xl font-black mt-2 tracking-tighter tabular-nums">{liveTime}</h2>
                             <p className="text-blue-200 mt-4 max-w-xl mx-auto text-sm">
-                                Pastikan Anda berada di lokasi kantor saat melakukan absensi masuk maupun pulang.
+                                {approvedLeave ? (
+                                    <span>Status Hari Ini: <strong className="text-white font-bold">Anda {approvedLeave.type}</strong> ({formatDateRange(approvedLeave.start_date, approvedLeave.end_date)})</span>
+                                ) : (
+                                    'Pastikan Anda berada di lokasi kantor saat melakukan absensi masuk maupun pulang.'
+                                )}
                             </p>
                         </div>
 
                         {/* Card Absensi Masuk & Keluar (Sederhana untuk Semua Role Termasuk Satpam) */}
-                        <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                            {approvedLeave && (
+                                <div className={`p-5 sm:p-6 rounded-2xl border mb-6 flex flex-col sm:flex-row items-center sm:items-start gap-4 transition-all ${
+                                    approvedLeave.type === 'Sakit'
+                                        ? 'bg-rose-50/80 border-rose-200 text-rose-900'
+                                        : approvedLeave.type === 'Cuti'
+                                        ? 'bg-purple-50/80 border-purple-200 text-purple-900'
+                                        : 'bg-amber-50/80 border-amber-200 text-amber-900'
+                                }`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md ${
+                                        approvedLeave.type === 'Sakit'
+                                            ? 'bg-rose-600 text-white shadow-rose-600/30'
+                                            : approvedLeave.type === 'Cuti'
+                                            ? 'bg-purple-600 text-white shadow-purple-600/30'
+                                            : 'bg-amber-500 text-white shadow-amber-500/30'
+                                    }`}>
+                                        {approvedLeave.type === 'Sakit' ? (
+                                            <HeartPulse className="w-7 h-7" />
+                                        ) : approvedLeave.type === 'Cuti' ? (
+                                            <CalendarCheck className="w-7 h-7" />
+                                        ) : (
+                                            <FileText className="w-7 h-7" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 text-center sm:text-left">
+                                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-600 text-white shadow-sm flex items-center gap-1">
+                                                <Check className="w-3 h-3 stroke-[3]" /> Disetujui
+                                            </span>
+                                            <h4 className="font-black text-xl text-gray-900">
+                                                Anda {approvedLeave.type}
+                                            </h4>
+                                        </div>
+                                        <p className="text-sm font-semibold text-gray-700 mt-1.5 flex items-center justify-center sm:justify-start gap-1.5">
+                                            <CalendarDays className="w-4 h-4 text-blue-600" />
+                                            Rentang Tanggal: <span className="text-gray-900 font-bold">{formatDateRange(approvedLeave.start_date, approvedLeave.end_date)}</span>
+                                        </p>
+                                        {approvedLeave.reason && (
+                                            <p className="text-xs text-gray-600 mt-1.5 bg-white/70 py-1.5 px-3 rounded-lg border border-gray-200/60 inline-block">
+                                                <span className="font-semibold text-gray-700">Alasan: </span>
+                                                {approvedLeave.reason}
+                                            </p>
+                                        )}
+                                        <p className="text-xs text-gray-500 mt-2">
+                                            Pengajuan {approvedLeave.type.toLowerCase()} Anda telah disetujui untuk hari ini, sehingga Anda tidak perlu melakukan absensi masuk maupun pulang.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Check In Status */}
                                 <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
-                                    {hasCheckedIn && (
+                                    {hasCheckedIn ? (
                                         <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-600 text-white shadow-lg shadow-green-600/25">
                                             <Check className="w-7 h-7 stroke-[3]" />
                                         </div>
-                                    )}
+                                    ) : approvedLeave ? (
+                                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-md ${
+                                            approvedLeave.type === 'Sakit'
+                                                ? 'bg-rose-600 shadow-rose-600/25'
+                                                : approvedLeave.type === 'Cuti'
+                                                ? 'bg-purple-600 shadow-purple-600/25'
+                                                : 'bg-amber-500 shadow-amber-500/25'
+                                        }`}>
+                                            {approvedLeave.type === 'Sakit' ? (
+                                                <HeartPulse className="w-7 h-7" />
+                                            ) : approvedLeave.type === 'Cuti' ? (
+                                                <CalendarCheck className="w-7 h-7" />
+                                            ) : (
+                                                <FileText className="w-7 h-7" />
+                                            )}
+                                        </div>
+                                    ) : null}
                                     <div className="flex-1">
                                         <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
-                                        <p className="text-sm font-medium text-gray-500 mt-1">
-                                            {hasCheckedIn 
-                                                ? `Berhasil: ${attendance.check_in_time}${attendance.shift ? ` (${attendance.shift})` : ''}` 
-                                                : 'Belum Absen'}
-                                        </p>
-
-                                        {/* Pilihan Shift Sederhana untuk Satpam Sebelum Masuk */}
-                                        {isSatpam && !hasCheckedIn && (
-                                            <div className="flex items-center gap-2 mt-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setSelectedShift('Shift Siang')}
-                                                    className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
-                                                        selectedShift === 'Shift Siang'
-                                                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                                                    }`}
-                                                >
-                                                    <Sun className="w-3.5 h-3.5" /> Shift Siang
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setSelectedShift('Shift Malam')}
-                                                    className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
-                                                        selectedShift === 'Shift Malam'
-                                                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                                                    }`}
-                                                >
-                                                    <Moon className="w-3.5 h-3.5" /> Shift Malam
-                                                </button>
+                                        
+                                        {approvedLeave ? (
+                                            <div className="mt-1 space-y-1">
+                                                <p className="text-base font-bold text-gray-900">
+                                                    Anda {approvedLeave.type}
+                                                </p>
+                                                <p className="text-xs text-gray-500 font-medium">
+                                                    Rentang: {formatDateRange(approvedLeave.start_date, approvedLeave.end_date)}
+                                                </p>
+                                                <span className="inline-block mt-1 text-[11px] font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                                                    Pengajuan Disetujui (Tidak Perlu Absen)
+                                                </span>
                                             </div>
-                                        )}
+                                        ) : (
+                                            <>
+                                                <p className="text-sm font-medium text-gray-500 mt-1">
+                                                    {hasCheckedIn 
+                                                        ? `Berhasil: ${attendance.check_in_time}${attendance.shift ? ` (${attendance.shift})` : ''}` 
+                                                        : 'Belum Absen'}
+                                                </p>
 
-                                        {!hasCheckedIn && (
-                                            <button
-                                                onClick={() => submitAttendance('check_in')}
-                                                disabled={isLocating}
-                                                className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
-                                            >
-                                                {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Masuk</>}
-                                            </button>
+                                                {/* Pilihan Shift Sederhana untuk Satpam Sebelum Masuk */}
+                                                {isSatpam && !hasCheckedIn && (
+                                                    <div className="flex items-center gap-2 mt-3">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setSelectedShift('Shift Siang')}
+                                                            className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
+                                                                selectedShift === 'Shift Siang'
+                                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                                            }`}
+                                                        >
+                                                            <Sun className="w-3.5 h-3.5" /> Shift Siang
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setSelectedShift('Shift Malam')}
+                                                            className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
+                                                                selectedShift === 'Shift Malam'
+                                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                                            }`}
+                                                        >
+                                                            <Moon className="w-3.5 h-3.5" /> Shift Malam
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {!hasCheckedIn && (
+                                                    <button
+                                                        onClick={() => submitAttendance('check_in')}
+                                                        disabled={isLocating}
+                                                        className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
+                                                    >
+                                                        {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Masuk</>}
+                                                    </button>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Check Out Status */}
                                 <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
-                                    {hasCheckedOut && (
+                                    {hasCheckedOut ? (
                                         <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-600 text-white shadow-lg shadow-green-600/25">
                                             <Check className="w-7 h-7 stroke-[3]" />
                                         </div>
-                                    )}
+                                    ) : approvedLeave ? (
+                                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-md ${
+                                            approvedLeave.type === 'Sakit'
+                                                ? 'bg-rose-600 shadow-rose-600/25'
+                                                : approvedLeave.type === 'Cuti'
+                                                ? 'bg-purple-600 shadow-purple-600/25'
+                                                : 'bg-amber-500 shadow-amber-500/25'
+                                        }`}>
+                                            {approvedLeave.type === 'Sakit' ? (
+                                                <HeartPulse className="w-7 h-7" />
+                                            ) : approvedLeave.type === 'Cuti' ? (
+                                                <CalendarCheck className="w-7 h-7" />
+                                            ) : (
+                                                <FileText className="w-7 h-7" />
+                                            )}
+                                        </div>
+                                    ) : null}
                                     <div className="flex-1">
                                         <p className="font-bold text-lg text-gray-800">Absen Pulang</p>
-                                        <p className="text-sm font-medium text-gray-500 mt-1">
-                                            {hasCheckedOut ? `Berhasil: ${attendance.check_out_time}` : 'Belum Absen'}
-                                        </p>
+                                        
+                                        {approvedLeave ? (
+                                            <div className="mt-1 space-y-1">
+                                                <p className="text-base font-bold text-gray-900">
+                                                    Anda {approvedLeave.type}
+                                                </p>
+                                                <p className="text-xs text-gray-500 font-medium">
+                                                    Rentang: {formatDateRange(approvedLeave.start_date, approvedLeave.end_date)}
+                                                </p>
+                                                <span className="inline-block mt-1 text-[11px] font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                                                    Pengajuan Disetujui (Tidak Perlu Absen)
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <p className="text-sm font-medium text-gray-500 mt-1">
+                                                    {hasCheckedOut ? `Berhasil: ${attendance.check_out_time}` : 'Belum Absen'}
+                                                </p>
 
-                                        {hasCheckedIn && !hasCheckedOut && (
-                                            <div className="mt-4 space-y-4">
-                                                {isOvertime && !isSatpam && !tanpaLembur && (
-                                                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-2">
-                                                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                                                            <Clock className="w-4 h-4 text-gray-500" />
-                                                            Keterangan Jika Lembur
-                                                        </label>
-                                                        <textarea
-                                                            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 placeholder-gray-400"
-                                                            rows="2"
-                                                            value={data.notes}
-                                                            onChange={(e) => setData('notes', e.target.value)}
-                                                            placeholder="Isi keterangan jika lembur. Kosongkan jika pulang biasa (tidak lembur)..."
-                                                        ></textarea>
-                                                        <p className="text-xs text-gray-500">
-                                                            {(isSaturday || new Date().getDay() === 6)
-                                                                ? ((userWorkDays <= 5) ? 'Hari Libur (Sabtu - 5 Hari Kerja): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.' : `Hari Sabtu (lewat ${overtimeSaturdayStart} WITA): Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`)
-                                                                : (isSunday || new Date().getDay() === 0)
-                                                                    ? 'Hari Libur (Minggu): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.'
-                                                                : `Lewat pukul ${overtimeWeekdayStart} WITA: Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`}
-                                                        </p>
+                                                {hasCheckedIn && !hasCheckedOut && (
+                                                    <div className="mt-4 space-y-4">
+                                                        {isOvertime && !isSatpam && !tanpaLembur && (
+                                                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-2">
+                                                                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-1.5">
+                                                                    <Clock className="w-4 h-4 text-gray-500" />
+                                                                    Keterangan Jika Lembur
+                                                                </label>
+                                                                <textarea
+                                                                    className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 placeholder-gray-400"
+                                                                    rows="2"
+                                                                    value={data.notes}
+                                                                    onChange={(e) => setData('notes', e.target.value)}
+                                                                    placeholder="Isi keterangan jika lembur. Kosongkan jika pulang biasa (tidak lembur)..."
+                                                                ></textarea>
+                                                                <p className="text-xs text-gray-500">
+                                                                    {(isSaturday || new Date().getDay() === 6)
+                                                                        ? ((userWorkDays <= 5) ? 'Hari Libur (Sabtu - 5 Hari Kerja): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.' : `Hari Sabtu (lewat ${overtimeSaturdayStart} WITA): Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`)
+                                                                        : (isSunday || new Date().getDay() === 0)
+                                                                            ? 'Hari Libur (Minggu): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.'
+                                                                        : `Lewat pukul ${overtimeWeekdayStart} WITA: Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                        <button
+                                                            onClick={() => submitAttendance('check_out')}
+                                                            disabled={isLocating}
+                                                            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
+                                                        >
+                                                            {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Keluar</>}
+                                                        </button>
                                                     </div>
                                                 )}
-                                                <button
-                                                    onClick={() => submitAttendance('check_out')}
-                                                    disabled={isLocating}
-                                                    className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
-                                                >
-                                                    {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Keluar</>}
-                                                </button>
-                                            </div>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -452,10 +588,12 @@ export default function Index({ attendance, today, currentTime, isOvertime, isSa
                                                     ) : '-'}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                                                         item.status === 'Hadir' ? 'bg-green-100 text-green-700' :
-                                                        item.status === 'Izin' ? 'bg-yellow-100 text-yellow-700' :
-                                                        item.status === 'Sakit' ? 'bg-orange-100 text-orange-700' :
+                                                        item.status === 'Izin' ? 'bg-amber-100 text-amber-700' :
+                                                        item.status === 'Izin Khusus' ? 'bg-amber-100 text-amber-700' :
+                                                        item.status === 'Sakit' ? 'bg-rose-100 text-rose-700' :
+                                                        item.status === 'Cuti' ? 'bg-purple-100 text-purple-700' :
                                                         item.status === 'Terlambat' ? (isLateExempt ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700') :
                                                         'bg-gray-100 text-gray-700'
                                                     }`}>
