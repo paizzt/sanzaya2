@@ -24,7 +24,7 @@ class PaymentRequestController extends Controller
     {
         $user = Auth::user();
         
-        $query = PaymentRequest::with(['requester', 'division', 'vendor'])
+        $query = PaymentRequest::with(['requester', 'division', 'vendor', 'latestRevision.approver'])
             ->latest('created_at');
 
         $query->where('requester_id', $user->id);
@@ -123,7 +123,7 @@ class PaymentRequestController extends Controller
     {
         $user = Auth::user();
         
-        $query = PaymentRequest::with(['requester', 'division', 'vendor'])
+        $query = PaymentRequest::with(['requester', 'division', 'vendor', 'latestRevision.approver'])
             ->latest('created_at');
 
         // RBAC for approvals
@@ -461,7 +461,7 @@ class PaymentRequestController extends Controller
     {
         $paymentRequest = PaymentRequest::with([
             'requester', 'division', 'vendor', 
-            'items', 'attachments', 'approvals.approver', 
+            'items', 'attachments', 'approvals.approver.division', 'latestRevision.approver.division',
             'financeVerifications.verifier', 'payments.processedBy'
         ])->findOrFail($id);
 
@@ -499,11 +499,17 @@ class PaymentRequestController extends Controller
             $canReject = true;
         }
 
+        $isRequester = $paymentRequest->requester_id === $user->id;
+        $canEdit = ($isRequester && in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga'])) || $isSuperAdmin || $isAdmin;
+        $canSubmit = ($isRequester || $isSuperAdmin || $isAdmin) && $paymentRequest->workflow_status === 'draft';
+
         return Inertia::render('PaymentRequests/Show', [
             'paymentRequest' => $paymentRequest,
             'completeness' => $completeness,
             'canApprove' => false,
             'canReject' => false,
+            'canEdit' => $canEdit,
+            'canSubmit' => $canSubmit,
             'isApprovalView' => false,
         ]);
     }
@@ -512,7 +518,7 @@ class PaymentRequestController extends Controller
     {
         $paymentRequest = PaymentRequest::with([
             'requester', 'division', 'vendor', 
-            'items', 'attachments', 'approvals.approver', 
+            'items', 'attachments', 'approvals.approver.division', 'latestRevision.approver.division',
             'financeVerifications.verifier', 'payments.processedBy'
         ])->findOrFail($id);
 
@@ -544,18 +550,24 @@ class PaymentRequestController extends Controller
             $canReject = true;
         }
 
+        $isRequester = $paymentRequest->requester_id === $user->id;
+        $canEdit = ($isRequester && in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga'])) || $isSuperAdmin || $isAdmin || $hasReviewFeature;
+        $canSubmit = ($isRequester || $isSuperAdmin || $isAdmin) && $paymentRequest->workflow_status === 'draft';
+
         return Inertia::render('PaymentRequests/Show', [
             'paymentRequest' => $paymentRequest,
             'completeness' => $completeness,
             'canApprove' => $canApprove,
             'canReject' => $canReject,
+            'canEdit' => $canEdit,
+            'canSubmit' => $canSubmit,
             'isApprovalView' => true
         ]);
     }
 
     public function edit($id)
     {
-        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division', 'attachments'])->findOrFail($id);
+        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division', 'attachments', 'latestRevision.approver', 'approvals.approver'])->findOrFail($id);
         $user = Auth::user();
 
         // Only requester can edit their draft/waiting_ga, except SUPERADMIN/Admin can edit anytime
@@ -575,7 +587,7 @@ class PaymentRequestController extends Controller
 
     public function editApproval($id)
     {
-        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division', 'attachments'])->findOrFail($id);
+        $paymentRequest = PaymentRequest::with(['items', 'requester', 'division', 'attachments', 'latestRevision.approver', 'approvals.approver'])->findOrFail($id);
         $user = Auth::user();
 
         $isSuperAdmin = $user->isSuperAdminUser();
@@ -750,15 +762,36 @@ class PaymentRequestController extends Controller
                 }
             }
 
+            $shouldSubmit = $request->boolean('submit_now') && $paymentRequest->workflow_status === 'draft';
+            if ($shouldSubmit) {
+                $completeness = $this->paymentService->checkCompleteness($paymentRequest);
+                if ($completeness['is_complete']) {
+                    $paymentRequest->update([
+                        'workflow_status' => 'waiting_ga',
+                        'submission_date' => now(),
+                        'submitted_at' => now(),
+                    ]);
+
+                    \App\Models\PaymentRequestApproval::create([
+                        'payment_request_id' => $paymentRequest->id,
+                        'approver_id' => $user->id,
+                        'approval_stage' => 'draft',
+                        'action' => 'resubmitted',
+                        'notes' => 'Pengajuan telah diperbaiki dan diajukan kembali ke Finance.',
+                        'acted_at' => now(),
+                    ]);
+                }
+            }
+
             DB::commit();
 
             if ($request->query('isApprovalView')) {
                 return redirect()->route('payment-approvals.show', $paymentRequest->id)
-                                 ->with('success', 'Draft Pengajuan Pembayaran berhasil diperbarui.');
+                                 ->with('success', $shouldSubmit ? 'Pengajuan berhasil diperbarui dan dikirim ke Finance.' : 'Draft Pengajuan Pembayaran berhasil diperbarui.');
             }
 
             return redirect()->route('payment-requests.show', $paymentRequest->id)
-                             ->with('success', 'Draft Pengajuan Pembayaran berhasil diperbarui.');
+                             ->with('success', $shouldSubmit ? 'Pengajuan berhasil diperbarui dan dikirim ke Finance.' : 'Draft Pengajuan Pembayaran berhasil diperbarui.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -781,6 +814,21 @@ class PaymentRequestController extends Controller
             'submission_date' => now(),
             'submitted_at' => now(),
         ]);
+
+        $hasBeenReturned = \App\Models\PaymentRequestApproval::where('payment_request_id', $paymentRequest->id)
+            ->where('action', 'returned')
+            ->exists();
+
+        if ($hasBeenReturned) {
+            \App\Models\PaymentRequestApproval::create([
+                'payment_request_id' => $paymentRequest->id,
+                'approver_id' => $user->id,
+                'approval_stage' => 'draft',
+                'action' => 'resubmitted',
+                'notes' => 'Pengajuan telah diperbaiki dan diajukan kembali ke Finance.',
+                'acted_at' => now(),
+            ]);
+        }
 
         return redirect()->route('payment-requests.show', $paymentRequest->id)
                          ->with('success', 'Pengajuan berhasil dikirim dan sedang menunggu persetujuan Finance.');

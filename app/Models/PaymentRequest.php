@@ -61,6 +61,20 @@ class PaymentRequest extends Model
         return $this->hasMany(PaymentRequestApproval::class)->orderBy('acted_at');
     }
 
+    public function latestApproval()
+    {
+        return $this->hasOne(PaymentRequestApproval::class)->latestOfMany();
+    }
+
+    public function latestRevision()
+    {
+        return $this->hasOne(PaymentRequestApproval::class)->ofMany([
+            'id' => 'max',
+        ], function ($query) {
+            $query->where('action', 'returned');
+        });
+    }
+
     public function financeVerifications()
     {
         return $this->hasMany(PaymentRequestFinanceVerification::class)->orderBy('verified_at', 'desc');

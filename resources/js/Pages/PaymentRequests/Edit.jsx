@@ -8,9 +8,15 @@ import InputError from '@/Components/InputError';
 import CurrencyInput from '@/Components/CurrencyInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
-import { UploadCloud, X, Trash2, RotateCcw, FileText, File } from 'lucide-react';
+import { UploadCloud, X, Trash2, RotateCcw, FileText, File, AlertTriangle, AlertCircle, Send } from 'lucide-react';
+import dayjs from 'dayjs';
+import 'dayjs/locale/id';
+
+dayjs.locale('id');
 
 export default function Edit({ auth, vendors, companies, paymentRequest, isApprovalView }) {
+    const latestRevision = paymentRequest.latest_revision || 
+        (paymentRequest.approvals && [...paymentRequest.approvals].reverse().find(a => a.action === 'returned'));
     const defaultCategories = ['Pengajuan Umum', 'Entertaint', 'Support', 'Purchasing'];
     const categoryOptions = [
         ...defaultCategories.map(c => ({ value: c, label: c })),
@@ -146,8 +152,8 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
         return emptyFields;
     };
 
-    const submit = (e) => {
-        e.preventDefault();
+    const submit = (e, submitNow = false) => {
+        if (e) e.preventDefault();
 
         const emptyFields = validateForm();
         if (emptyFields.length > 0) {
@@ -168,7 +174,14 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
             return;
         }
 
-        const updateRoute = route('payment-requests.update', paymentRequest.id) + (isApprovalView ? '?isApprovalView=1' : '');
+        let updateRoute = route('payment-requests.update', paymentRequest.id);
+        const queryParams = [];
+        if (isApprovalView) queryParams.push('isApprovalView=1');
+        if (submitNow) queryParams.push('submit_now=1');
+        if (queryParams.length > 0) {
+            updateRoute += '?' + queryParams.join('&');
+        }
+
         post(updateRoute, {
             onError: (errors) => {
                 console.error(errors);
@@ -202,6 +215,37 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
 
                     <form onSubmit={submit} noValidate className="bg-white p-6 shadow sm:rounded-lg space-y-6">
                         
+                        {/* Catatan Revisi dari Finance */}
+                        {latestRevision && (paymentRequest.workflow_status === 'draft' || isApprovalView) && (
+                            <div className="bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 sm:p-5 shadow-sm">
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-sm shrink-0 mt-0.5">
+                                        <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <h4 className="font-bold text-amber-950 text-sm sm:text-base">
+                                                Catatan Revisi dari Finance
+                                            </h4>
+                                            <span className="text-xs text-amber-800 font-semibold bg-amber-200/70 px-2.5 py-0.5 rounded-full">
+                                                {latestRevision.acted_at ? dayjs(latestRevision.acted_at).format('DD MMMM YYYY HH:mm') : ''}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-amber-800 mt-0.5">
+                                            Diminta oleh: <span className="font-semibold">{latestRevision.approver?.name || 'Finance'}</span>
+                                            {latestRevision.approver?.division?.name ? ` (${latestRevision.approver.division.name})` : ''}
+                                        </p>
+                                        <div className="mt-3 p-3.5 bg-white rounded-xl border border-amber-200 text-sm text-gray-800 whitespace-pre-line font-medium shadow-2xs">
+                                            {latestRevision.notes}
+                                        </div>
+                                        <p className="text-xs text-amber-800 mt-2 font-medium">
+                                            * Silakan periksa dan sesuaikan data formulir di bawah ini dengan catatan revisi di atas.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Section A: Informasi Pengajuan */}
                         <div>
                             <h3 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Informasi Pengajuan</h3>
@@ -689,13 +733,23 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                             </div>
                         </div>
 
-                        <div className="flex justify-end pt-6 border-t">
-                            <Link href={route(isApprovalView ? 'payment-approvals.show' : 'payment-requests.show', paymentRequest.id)} className="mr-3 px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50">
+                        <div className="flex flex-wrap items-center justify-end gap-3 pt-6 border-t">
+                            <Link href={route(isApprovalView ? 'payment-approvals.show' : 'payment-requests.show', paymentRequest.id)} className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50 text-sm font-medium">
                                 Batal
                             </Link>
-                            <PrimaryButton type="submit" disabled={processing}>
-                                Simpan
+                            <PrimaryButton type="submit" disabled={processing} className="bg-gray-700 hover:bg-gray-800">
+                                Simpan Draft
                             </PrimaryButton>
+                            {!isApprovalView && paymentRequest.workflow_status === 'draft' && (
+                                <button
+                                    type="button"
+                                    disabled={processing}
+                                    onClick={(e) => submit(e, true)}
+                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-bold shadow transition cursor-pointer"
+                                >
+                                    <Send size={15} /> Simpan & Kirim ke Finance
+                                </button>
+                            )}
                         </div>
                     </form>
                 </div>

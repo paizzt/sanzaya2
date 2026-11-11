@@ -6,7 +6,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
 import Modal from '@/Components/Modal';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Eye, ExternalLink, X, FileText, Download } from 'lucide-react';
+import { Eye, ExternalLink, X, FileText, Download, AlertTriangle, AlertCircle, Edit, Send, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -21,7 +21,7 @@ const formatCurrency = (value) => {
     }).format(value);
 };
 
-export default function Show({ auth, paymentRequest, completeness, canApprove, canReject, isApprovalView = false }) {
+export default function Show({ auth, paymentRequest, completeness, canApprove, canReject, canEdit, canSubmit, isApprovalView = false }) {
     const pageAuth = usePage().props.auth;
     const currentAuth = auth || pageAuth;
     const canDownloadPdf = currentAuth?.can_download_pdf !== undefined
@@ -31,6 +31,8 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
             : true);
     const [selectedImage, setSelectedImage] = useState(null);
     const { post, processing } = useForm();
+    const latestRevision = paymentRequest.latest_revision || 
+        (paymentRequest.approvals && [...paymentRequest.approvals].reverse().find(a => a.action === 'returned'));
 
     const handleAction = (actionRoute) => {
         Swal.fire({
@@ -160,8 +162,12 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                             return { text: 'SELESAI', color: 'bg-emerald-600 text-white' };
                                         case 'rejected':
                                             return { text: 'DI TOLAK', color: 'bg-rose-600 text-white' };
+                                        case 'draft':
+                                            return latestRevision
+                                                ? { text: 'PERLU REVISI', color: 'bg-amber-600 text-white' }
+                                                : { text: 'DRAFT', color: 'bg-gray-600 text-white' };
                                         default:
-                                            return { text: 'DRAFT / REVISI', color: 'bg-gray-600 text-white' };
+                                            return { text: 'DRAFT', color: 'bg-gray-600 text-white' };
                                     }
                                 };
                                 const badge = getStatusBadge(paymentRequest.workflow_status);
@@ -190,6 +196,60 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                         )}
                     </div>
                     
+                    {/* Notice Banner Revisi dari Finance */}
+                    {paymentRequest.workflow_status === 'draft' && latestRevision && (
+                        <div className="bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 sm:p-5 shadow-sm">
+                            <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-sm shrink-0 mt-0.5">
+                                        <AlertTriangle className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <h3 className="text-base font-bold text-amber-950">
+                                                Pengajuan Perlu Direvisi
+                                            </h3>
+                                            <span className="text-xs bg-amber-200/80 text-amber-900 font-semibold px-2.5 py-0.5 rounded-full">
+                                                {latestRevision.acted_at ? dayjs(latestRevision.acted_at).format('DD MMMM YYYY HH:mm') : ''}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-amber-800 mt-0.5">
+                                            Diminta oleh: <span className="font-semibold">{latestRevision.approver?.name || 'Finance'}</span>
+                                            {latestRevision.approver?.division?.name ? ` (${latestRevision.approver.division.name})` : ''}
+                                        </p>
+                                        <div className="mt-3 p-3.5 bg-white/95 rounded-xl border border-amber-200 shadow-2xs">
+                                            <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider block mb-1">
+                                                Catatan Revisi dari Finance:
+                                            </span>
+                                            <p className="text-sm font-medium text-gray-800 whitespace-pre-line leading-relaxed">
+                                                {latestRevision.notes}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {(canEdit || !isApprovalView) && (
+                                    <div className="w-full sm:w-auto shrink-0 flex flex-col gap-2">
+                                        <Link
+                                            href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', paymentRequest.id)}
+                                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition active:scale-98"
+                                        >
+                                            <Edit size={16} /> Edit & Perbaiki
+                                        </Link>
+                                        {completeness?.is_complete && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleAction('payment-requests.submit')}
+                                                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition active:scale-98"
+                                            >
+                                                <Send size={16} /> Kirim Pengajuan
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Status Kelengkapan */}
                     {!completeness.is_complete && (
                         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm">
@@ -337,34 +397,37 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
 
                         {/* Kolom Kanan: Aksi & Timeline */}
                         <div className="space-y-6">
-                            {isApprovalView && (
-                                <div className="bg-white p-6 rounded-lg shadow-sm">
-                                    <h3 className="text-lg font-bold border-b pb-2 mb-4">Aksi</h3>
+                            {(isApprovalView || canEdit || canSubmit || canApprove || canReject || paymentRequest.workflow_status === 'draft') && (
+                                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                    <h3 className="text-lg font-bold border-b pb-2 mb-4 text-gray-800">Aksi</h3>
                                     <div className="space-y-3">
-                                        {(paymentRequest.workflow_status === 'draft' || paymentRequest.workflow_status === 'waiting_ga') && (
-                                            <>
-                                                <Link href={route('payment-approvals.edit', paymentRequest.id)}>
-                                                    <SecondaryButton >Edit Pengajuan</SecondaryButton>
-                                                </Link>
-                                                {paymentRequest.workflow_status === 'draft' && (
-                                                    <PrimaryButton 
-                                                         
-                                                        disabled={!completeness.is_complete}
-                                                        onClick={() => handleAction('payment-requests.submit')}
-                                                    >
-                                                        Kirim
-                                                    </PrimaryButton>
-                                                )}
-                                            </>
+                                        {(canEdit || !isApprovalView) && (paymentRequest.workflow_status === 'draft' || paymentRequest.workflow_status === 'waiting_ga') && (
+                                            <Link 
+                                                href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', paymentRequest.id)}
+                                                className="w-full block"
+                                            >
+                                                <SecondaryButton className="w-full justify-center">
+                                                    Edit Pengajuan
+                                                </SecondaryButton>
+                                            </Link>
+                                        )}
+                                        {paymentRequest.workflow_status === 'draft' && (canSubmit || !isApprovalView) && (
+                                            <PrimaryButton 
+                                                className="w-full justify-center"
+                                                disabled={!completeness?.is_complete}
+                                                onClick={() => handleAction('payment-requests.submit')}
+                                            >
+                                                Kirim Pengajuan
+                                            </PrimaryButton>
                                         )}
                                         
-                                        {(canApprove || canReject) && (
-                                            <div className="flex flex-col gap-2 mt-4 pt-4 border-t">
+                                        {isApprovalView && (canApprove || canReject) && (
+                                            <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-gray-100">
                                                 {canApprove && (
                                                     <button 
                                                         onClick={handleApprove}
                                                         disabled={processing}
-                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 cursor-pointer"
                                                     >
                                                         Setujui
                                                     </button>
@@ -373,7 +436,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                                     <button 
                                                         onClick={handleRevise}
                                                         disabled={processing}
-                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-amber-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-400 focus:bg-amber-400 active:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-amber-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-400 focus:bg-amber-400 active:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition ease-in-out duration-150 cursor-pointer"
                                                     >
                                                         Revisi
                                                     </button>
@@ -382,7 +445,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                                     <button 
                                                         onClick={handleReject}
                                                         disabled={processing}
-                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                                        className="w-full inline-flex justify-center items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150 cursor-pointer"
                                                     >
                                                         Tolak
                                                     </button>
@@ -394,30 +457,135 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                             )}
 
                             {/* Riwayat Persetujuan */}
-                            <div className="bg-white p-6 rounded-lg shadow-sm">
-                                <h3 className="text-lg font-bold border-b pb-2 mb-4">Riwayat Persetujuan</h3>
-                                <div className="space-y-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-sm text-gray-500 font-semibold">Dibuat Oleh</span>
-                                        <span className="text-gray-800 font-medium">{paymentRequest.requester?.name || '-'}</span>
-                                        <span className="text-xs text-gray-500">
-                                            {paymentRequest.created_at ? new Date(paymentRequest.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '-'}
-                                        </span>
+                            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                <h3 className="text-lg font-bold border-b pb-2 mb-4 text-gray-800">Riwayat Persetujuan</h3>
+                                <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+                                    
+                                    {/* Step: Dibuat Oleh */}
+                                    <div className="relative">
+                                        <div className="absolute -left-6 top-1 w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-xs"></div>
+                                        <div className="flex flex-col">
+                                            <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Dibuat Oleh</span>
+                                            <span className="text-gray-900 font-semibold text-sm">{paymentRequest.requester?.name || '-'}</span>
+                                            <span className="text-xs text-gray-500">
+                                                {paymentRequest.created_at ? dayjs(paymentRequest.created_at).format('DD MMM YYYY, HH:mm') : '-'}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <div className="flex flex-col border-t pt-4">
-                                        <span className="text-sm text-gray-500 font-semibold">Disetujui (Finance)</span>
-                                        {paymentRequest.finance_verified_at ? (
-                                            <>
-                                                <span className="text-green-600 font-medium">Disetujui</span>
-                                                <span className="text-xs text-gray-500">
-                                                    {new Date(paymentRequest.finance_verified_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                                    {/* Dynamic Approval Steps */}
+                                    {paymentRequest.approvals && paymentRequest.approvals.length > 0 ? (
+                                        paymentRequest.approvals.map((app, idx) => {
+                                            let badgeColor = 'bg-gray-100 text-gray-700';
+                                            let dotColor = 'bg-gray-400';
+                                            let actionText = app.action;
+
+                                            if (app.action === 'returned') {
+                                                badgeColor = 'bg-amber-100 text-amber-800 border border-amber-300';
+                                                dotColor = 'bg-amber-500';
+                                                actionText = 'Diminta Revisi';
+                                            } else if (app.action === 'approved') {
+                                                badgeColor = 'bg-emerald-100 text-emerald-800 border border-emerald-300';
+                                                dotColor = 'bg-emerald-500';
+                                                actionText = 'Disetujui';
+                                            } else if (app.action === 'rejected') {
+                                                badgeColor = 'bg-rose-100 text-rose-800 border border-rose-300';
+                                                dotColor = 'bg-rose-500';
+                                                actionText = 'Ditolak';
+                                            } else if (app.action === 'resubmitted') {
+                                                badgeColor = 'bg-blue-100 text-blue-800 border border-blue-300';
+                                                dotColor = 'bg-blue-500';
+                                                actionText = 'Diajukan Kembali';
+                                            }
+
+                                            return (
+                                                <div key={app.id || idx} className="relative">
+                                                    <div className={`absolute -left-6 top-1 w-4 h-4 rounded-full ${dotColor} border-2 border-white shadow-xs`}></div>
+                                                    <div className="flex flex-col">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeColor}`}>
+                                                                {actionText}
+                                                            </span>
+                                                            <span className="text-xs text-gray-500">
+                                                                {app.acted_at ? dayjs(app.acted_at).format('DD MMM YYYY, HH:mm') : '-'}
+                                                            </span>
+                                                        </div>
+                                                        <span className="text-gray-900 font-semibold text-sm mt-0.5">
+                                                            {app.approver?.name || 'Otorisator'}
+                                                            {app.approver?.division?.name ? ` (${app.approver.division.name})` : ''}
+                                                        </span>
+                                                        {app.notes && (
+                                                            <div className={`mt-1.5 p-2.5 rounded-lg text-xs whitespace-pre-line ${
+                                                                app.action === 'returned' 
+                                                                    ? 'bg-amber-50 border border-amber-200 text-amber-900 font-medium' 
+                                                                    : 'bg-gray-50 border border-gray-100 text-gray-700'
+                                                            }`}>
+                                                                <span className="font-bold block text-[10px] uppercase mb-0.5">
+                                                                    {app.action === 'returned' ? 'Catatan Revisi:' : 'Catatan:'}
+                                                                </span>
+                                                                {app.notes}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        paymentRequest.finance_verified_at ? (
+                                            <div className="relative">
+                                                <div className="absolute -left-6 top-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-xs"></div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs text-emerald-600 font-bold uppercase tracking-wider">Disetujui (Finance)</span>
+                                                    <span className="text-gray-900 font-semibold text-sm">Finance</span>
+                                                    <span className="text-xs text-gray-500">
+                                                        {dayjs(paymentRequest.finance_verified_at).format('DD MMM YYYY, HH:mm')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ) : null
+                                    )}
+
+                                    {/* Step: Status Saat Ini jika masih Menunggu */}
+                                    {paymentRequest.workflow_status === 'waiting_ga' && (
+                                        <div className="relative">
+                                            <div className="absolute -left-6 top-1 w-4 h-4 rounded-full bg-amber-400 animate-pulse border-2 border-white shadow-xs"></div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs text-amber-600 font-bold uppercase tracking-wider">Status Terkini</span>
+                                                <span className="text-gray-800 font-semibold text-sm">Menunggu Persetujuan Finance</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {paymentRequest.workflow_status === 'waiting_supervisor' && (
+                                        <div className="relative">
+                                            <div className="absolute -left-6 top-1 w-4 h-4 rounded-full bg-amber-400 animate-pulse border-2 border-white shadow-xs"></div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs text-amber-600 font-bold uppercase tracking-wider">Status Terkini</span>
+                                                <span className="text-gray-800 font-semibold text-sm">Menunggu Persetujuan Atasan</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {paymentRequest.workflow_status === 'draft' && (
+                                        <div className="relative">
+                                            <div className="absolute -left-6 top-1 w-4 h-4 rounded-full bg-gray-400 border-2 border-white shadow-xs"></div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Status Terkini</span>
+                                                <span className="text-gray-800 font-semibold text-sm">
+                                                    {latestRevision ? 'Menunggu Perbaikan Pengajuan' : 'Draft Pengajuan'}
                                                 </span>
-                                            </>
-                                        ) : (
-                                            <span className="text-gray-400 italic text-sm">Belum disetujui</span>
-                                        )}
-                                    </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {paymentRequest.workflow_status === 'paid' && (
+                                        <div className="relative">
+                                            <div className="absolute -left-6 top-1 w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow-xs"></div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs text-emerald-600 font-bold uppercase tracking-wider">Pembayaran Selesai</span>
+                                                <span className="text-xs text-gray-500">
+                                                    {paymentRequest.paid_at ? dayjs(paymentRequest.paid_at).format('DD MMM YYYY, HH:mm') : 'Sudah Dibayarkan'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

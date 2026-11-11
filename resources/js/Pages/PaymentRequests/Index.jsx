@@ -6,7 +6,7 @@ import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Pagination from '@/Components/Pagination';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Eye, FileText, Edit, Trash2, Plus, Filter, X, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { Eye, FileText, Edit, Trash2, Plus, Filter, X, ChevronDown, ChevronUp, Calendar, AlertCircle, AlertTriangle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -22,7 +22,7 @@ const formatCurrency = (value) => {
     }).format(value);
 };
 
-const getStatusBadge = (status) => {
+const getStatusBadge = (status, hasRevision = false) => {
     switch (status) {
         case 'waiting_ga':
         case 'waiting_supervisor':
@@ -34,9 +34,13 @@ const getStatusBadge = (status) => {
         case 'rejected':
             return { text: 'DI TOLAK', color: 'text-white font-bold', bg: 'bg-rose-600 text-white' };
         case 'draft':
-            return { text: 'REVISI', color: 'text-white font-bold', bg: 'bg-gray-600 text-white' };
+            return hasRevision
+                ? { text: 'PERLU REVISI', color: 'text-white font-bold', bg: 'bg-amber-600 text-white' }
+                : { text: 'DRAFT', color: 'text-white font-bold', bg: 'bg-gray-600 text-white' };
         default:
-            return { text: 'REVISI', color: 'text-white font-bold', bg: 'bg-gray-600 text-white' };
+            return hasRevision
+                ? { text: 'PERLU REVISI', color: 'text-white font-bold', bg: 'bg-amber-600 text-white' }
+                : { text: 'DRAFT', color: 'text-white font-bold', bg: 'bg-gray-600 text-white' };
     }
 };
 
@@ -445,7 +449,7 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                         <div className="block md:hidden space-y-3">
                             {paymentRequests.data && paymentRequests.data.length > 0 ? (
                                 paymentRequests.data.map((pr) => {
-                                    const badge = getStatusBadge(pr.workflow_status);
+                                    const badge = getStatusBadge(pr.workflow_status, Boolean(pr.latest_revision));
                                     return (
                                         <div
                                             key={pr.id}
@@ -496,7 +500,19 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                 </div>
                                             </div>
 
-                                            {!isApprovalView && pr.notes && (
+                                            {pr.latest_revision && (
+                                                <div className="text-xs bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-amber-900">
+                                                    <div className="flex items-center gap-1 font-bold text-amber-800 mb-1">
+                                                        <AlertCircle size={14} className="text-amber-600 shrink-0" />
+                                                        <span>Catatan Revisi ({pr.latest_revision.approver?.name || 'Finance'}):</span>
+                                                    </div>
+                                                    <p className="text-gray-800 line-clamp-3 whitespace-pre-line font-medium">
+                                                        {pr.latest_revision.notes}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {!isApprovalView && !pr.latest_revision && pr.notes && (
                                                 <div className="text-xs text-gray-600 bg-blue-50/50 border border-blue-100/60 rounded-xl px-2.5 py-1.5 line-clamp-2">
                                                     <span className="font-bold text-blue-900">Catatan:</span> {pr.notes}
                                                 </div>
@@ -532,24 +548,24 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                             }
                                                         />
                                                     )}
+                                                    {((!isApprovalView && pr.workflow_status === 'draft') || isSuperAdmin) && (
+                                                        <Link
+                                                            href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', pr.id)}
+                                                            className="p-2 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-xl transition"
+                                                            title={pr.workflow_status === 'draft' ? "Perbaiki / Edit Pengajuan" : "Edit"}
+                                                        >
+                                                            <Edit size={15} />
+                                                        </Link>
+                                                    )}
                                                     {isSuperAdmin && (
-                                                        <>
-                                                            <Link
-                                                                href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', pr.id)}
-                                                                className="p-2 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-xl transition"
-                                                                title="Edit"
-                                                            >
-                                                                <Edit size={15} />
-                                                            </Link>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleDelete(pr.id)}
-                                                                className="p-2 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-xl transition"
-                                                                title="Hapus"
-                                                            >
-                                                                <Trash2 size={15} />
-                                                            </button>
-                                                        </>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDelete(pr.id)}
+                                                            className="p-2 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-xl transition cursor-pointer"
+                                                            title="Hapus"
+                                                        >
+                                                            <Trash2 size={15} />
+                                                        </button>
                                                     )}
                                                 </div>
                                             </div>
@@ -581,7 +597,7 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                 <tbody className="divide-y divide-gray-200">
                                     {paymentRequests.data && paymentRequests.data.length > 0 ? (
                                         paymentRequests.data.map((pr) => {
-                                            const badge = getStatusBadge(pr.workflow_status);
+                                            const badge = getStatusBadge(pr.workflow_status, Boolean(pr.latest_revision));
                                             return (
                                                 <tr 
                                                     key={pr.id} 
@@ -612,8 +628,20 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                         {pr.recipient_name}
                                                     </td>
                                                     {!isApprovalView && (
-                                                        <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[220px] break-words text-xs text-gray-600">
-                                                            {pr.notes || '-'}
+                                                        <td className="px-4 py-3 whitespace-normal min-w-[180px] max-w-[260px] break-words text-xs">
+                                                            {pr.latest_revision ? (
+                                                                <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-amber-900">
+                                                                    <div className="flex items-center gap-1 font-bold text-[11px] text-amber-800 mb-0.5">
+                                                                        <AlertCircle size={13} className="text-amber-600 shrink-0" />
+                                                                        <span>Revisi ({pr.latest_revision.approver?.name || 'Finance'}):</span>
+                                                                    </div>
+                                                                    <div className="text-gray-800 line-clamp-2" title={pr.latest_revision.notes}>
+                                                                        {pr.latest_revision.notes}
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-gray-600">{pr.notes || '-'}</span>
+                                                            )}
                                                         </td>
                                                     )}
                                                     <td className="px-4 py-3 text-right font-medium">
@@ -635,15 +663,19 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                                 }
                                                             />
                                                         )}
+                                                        {((!isApprovalView && pr.workflow_status === 'draft') || isSuperAdmin) && (
+                                                            <Link 
+                                                                href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', pr.id)} 
+                                                                className="text-blue-600 hover:text-blue-900 inline-block" 
+                                                                title={pr.workflow_status === 'draft' ? "Perbaiki / Edit Pengajuan" : "Edit"}
+                                                            >
+                                                                <Edit size={18} />
+                                                            </Link>
+                                                        )}
                                                         {isSuperAdmin && (
-                                                            <>
-                                                                <Link href={route(isApprovalView ? 'payment-approvals.edit' : 'payment-requests.edit', pr.id)} className="text-blue-600 hover:text-blue-900 inline-block" title="Edit">
-                                                                    <Edit size={18} />
-                                                                </Link>
-                                                                <button onClick={() => handleDelete(pr.id)} className="text-red-600 hover:text-red-900 inline-block" title="Hapus">
-                                                                    <Trash2 size={18} />
-                                                                </button>
-                                                            </>
+                                                            <button onClick={() => handleDelete(pr.id)} className="text-red-600 hover:text-red-900 inline-block cursor-pointer" title="Hapus">
+                                                                <Trash2 size={18} />
+                                                            </button>
                                                         )}
                                                     </td>
                                                 </tr>
