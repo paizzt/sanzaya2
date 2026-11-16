@@ -1,7 +1,7 @@
 -- ============================================================================
 -- SCRIPT UPDATE / TIMPA DATA PIUTANG TERBARU DARI GOOGLE SPREADSHEET 2026
 -- Sumber File: RINCIAN PIUTANG SANZAYA GROUP 2026 - Google Spreadsheet.pdf
--- Target Perusahaan: PT Sanzaya, PT Ruma, PT Harkes
+-- Target Perusahaan: PT Sanzaya Medika Pratama, PT Ruma, PT Harkes
 -- KEAMANAN: Data PT lain (seperti PT MSI, CV Meraki, PT BUMA, dll) 100% AMAN & TIDAK DIHAPUS
 -- Tanggal Update: 16 November 2026
 -- ============================================================================
@@ -9,15 +9,17 @@
 START TRANSACTION;
 
 -- 1. Pastikan entitas 3 PT terdaftar di tabel `companies`
+--    Update nama 'PT Sanzaya' menjadi 'PT Sanzaya Medika Pratama' jika sebelumnya memakai nama singkat
+UPDATE `companies` SET `name` = 'PT Sanzaya Medika Pratama' WHERE `name` = 'PT Sanzaya';
 INSERT INTO `companies` (`name`, `created_at`, `updated_at`)
-SELECT 'PT Sanzaya', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `companies` WHERE `name` = 'PT Sanzaya');
+SELECT 'PT Sanzaya Medika Pratama', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `companies` WHERE `name` = 'PT Sanzaya Medika Pratama');
 INSERT INTO `companies` (`name`, `created_at`, `updated_at`)
 SELECT 'PT Ruma', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `companies` WHERE `name` = 'PT Ruma');
 INSERT INTO `companies` (`name`, `created_at`, `updated_at`)
 SELECT 'PT Harkes', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `companies` WHERE `name` = 'PT Harkes');
 
 -- Ambil dynamic company_id agar kompatibel di semua server/hosting
-SET @id_sanzaya = (SELECT `id` FROM `companies` WHERE `name` = 'PT Sanzaya' LIMIT 1);
+SET @id_sanzaya = (SELECT `id` FROM `companies` WHERE `name` IN ('PT Sanzaya Medika Pratama', 'PT Sanzaya') ORDER BY (`name` = 'PT Sanzaya Medika Pratama') DESC LIMIT 1);
 SET @id_ruma    = (SELECT `id` FROM `companies` WHERE `name` = 'PT Ruma' LIMIT 1);
 SET @id_harkes  = (SELECT `id` FROM `companies` WHERE `name` = 'PT Harkes' LIMIT 1);
 
@@ -398,7 +400,7 @@ COMMIT;
 -- GROUP BY c.id, c.name;
 
 -- Ringkasan Total Sesuai File PDF (16 November 2026):
--- PT Sanzaya: Rp 4.348.164.717,34
+-- PT Sanzaya Medika Pratama: Rp 4.348.164.717,34
 --   * 2024:   Rp 691.455.241,14
 --   * 2025:   Rp 279.827.780,71
 --   * 2026:   Rp 3.376.881.695,49
