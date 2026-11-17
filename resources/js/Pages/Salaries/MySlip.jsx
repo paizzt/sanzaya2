@@ -5,6 +5,8 @@ import Modal from '@/Components/Modal';
 import CustomSelect from '@/Components/CustomSelect';
 import SecondaryButton from '@/Components/SecondaryButton';
 import ClientPagination from '@/Components/ClientPagination';
+import dayjs from 'dayjs';
+import 'dayjs/locale/id';
 import { 
     Receipt, 
     Download, 
@@ -15,6 +17,8 @@ import {
     User,
     Briefcase
 } from 'lucide-react';
+
+dayjs.locale('id');
 
 const MONTHS = [
     { value: 1, label: 'Januari' },
@@ -150,7 +154,6 @@ export default function MySlip({ auth, slips = [], year, user }) {
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
                                 <tr>
                                     <th className="px-6 py-4">Periode Bulan</th>
-                                    <th className="px-6 py-4">Tanggal Pembayaran</th>
                                     <th className="px-6 py-4 text-right">Gaji Pokok</th>
                                     <th className="px-6 py-4 text-right">Total Penerimaan</th>
                                     <th className="px-6 py-4 text-right">Total Potongan</th>
@@ -162,7 +165,7 @@ export default function MySlip({ auth, slips = [], year, user }) {
                             <tbody>
                                 {paginatedSlips.length === 0 ? (
                                     <tr>
-                                        <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
                                             Slip gaji untuk tahun {selectedYear} belum diterbitkan oleh bagian HRD/Keuangan.
                                         </td>
                                     </tr>
@@ -185,9 +188,6 @@ export default function MySlip({ auth, slips = [], year, user }) {
                                                             <div className="text-xs text-gray-500 font-normal">Slip Gaji Bulanan</div>
                                                         </div>
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-gray-600 whitespace-nowrap">
-                                                    {slip.payment_date || '-'}
                                                 </td>
                                                 <td className="px-6 py-4 text-right font-medium text-gray-900 whitespace-nowrap">
                                                     {formatRp(slip.gaji_pokok)}
@@ -306,7 +306,9 @@ export default function MySlip({ auth, slips = [], year, user }) {
                                 </div>
                                 <div>
                                     <span className="text-gray-400 block text-[10px]">Tanggal Pembayaran</span>
-                                    <span className="font-semibold text-gray-900">{previewSlip.payment_date || '-'}</span>
+                                    <span className="font-semibold text-gray-900">
+                                        {previewSlip.payment_date ? dayjs(previewSlip.payment_date).format('DD MMMM YYYY') : '-'}
+                                    </span>
                                 </div>
                             </div>
 
