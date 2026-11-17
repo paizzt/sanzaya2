@@ -449,7 +449,8 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                         <div className="block md:hidden space-y-3">
                             {paymentRequests.data && paymentRequests.data.length > 0 ? (
                                 paymentRequests.data.map((pr) => {
-                                    const badge = getStatusBadge(pr.workflow_status, Boolean(pr.latest_revision));
+                                    const revData = pr.latest_revision || (pr.approvals && [...pr.approvals].reverse().find(a => a.action === 'returned'));
+                                    const badge = getStatusBadge(pr.workflow_status, Boolean(revData));
                                     return (
                                         <div
                                             key={pr.id}
@@ -500,14 +501,14 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                 </div>
                                             </div>
 
-                                            {pr.latest_revision && (
+                                            {revData && (
                                                 <div className="text-xs bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-amber-900">
                                                     <div className="flex items-center gap-1 font-bold text-amber-800 mb-1">
                                                         <AlertCircle size={14} className="text-amber-600 shrink-0" />
-                                                        <span>Catatan Revisi ({pr.latest_revision.approver?.name || 'Finance'}):</span>
+                                                        <span>Catatan Revisi ({revData.approver?.name || 'Finance'}):</span>
                                                     </div>
                                                     <p className="text-gray-800 line-clamp-3 whitespace-pre-line font-medium">
-                                                        {pr.latest_revision.notes}
+                                                        {revData.notes}
                                                     </p>
                                                 </div>
                                             )}
@@ -597,7 +598,8 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                 <tbody className="divide-y divide-gray-200">
                                     {paymentRequests.data && paymentRequests.data.length > 0 ? (
                                         paymentRequests.data.map((pr) => {
-                                            const badge = getStatusBadge(pr.workflow_status, Boolean(pr.latest_revision));
+                                            const revData = pr.latest_revision || (pr.approvals && [...pr.approvals].reverse().find(a => a.action === 'returned'));
+                                            const badge = getStatusBadge(pr.workflow_status, Boolean(revData));
                                             return (
                                                 <tr 
                                                     key={pr.id} 
@@ -614,6 +616,11 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                     <td className="px-4 py-3 whitespace-normal min-w-[150px] max-w-[250px] break-words">
                                                         <div className="font-medium text-gray-800">{pr.purpose || '-'}</div>
                                                         {renderCategoryBadge(pr.category, pr.purpose)}
+                                                        {isApprovalView && revData && (
+                                                            <div className="mt-1 text-[11px] text-amber-900 bg-amber-50 p-1.5 rounded-lg border border-amber-200 whitespace-normal">
+                                                                <span className="font-bold text-amber-800">Catatan Revisi: </span>{revData.notes}
+                                                            </div>
+                                                        )}
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <div className="font-medium text-gray-900">{pr.requester?.name}</div>
@@ -629,14 +636,14 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                     </td>
                                                     {!isApprovalView && (
                                                         <td className="px-4 py-3 whitespace-normal min-w-[180px] max-w-[260px] break-words text-xs">
-                                                            {pr.latest_revision ? (
+                                                            {revData ? (
                                                                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-amber-900">
                                                                     <div className="flex items-center gap-1 font-bold text-[11px] text-amber-800 mb-0.5">
                                                                         <AlertCircle size={13} className="text-amber-600 shrink-0" />
-                                                                        <span>Revisi ({pr.latest_revision.approver?.name || 'Finance'}):</span>
+                                                                        <span>Revisi ({revData.approver?.name || 'Finance'}):</span>
                                                                     </div>
-                                                                    <div className="text-gray-800 line-clamp-2" title={pr.latest_revision.notes}>
-                                                                        {pr.latest_revision.notes}
+                                                                    <div className="text-gray-800 line-clamp-2" title={revData.notes}>
+                                                                        {revData.notes}
                                                                     </div>
                                                                 </div>
                                                             ) : (

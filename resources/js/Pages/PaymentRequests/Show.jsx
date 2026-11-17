@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
@@ -30,7 +30,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
             ? currentAuth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
             : true);
     const [selectedImage, setSelectedImage] = useState(null);
-    const { post, processing } = useForm();
+    const [processing, setProcessing] = useState(false);
     const latestRevision = paymentRequest.latest_revision || 
         (paymentRequest.approvals && [...paymentRequest.approvals].reverse().find(a => a.action === 'returned'));
 
@@ -47,7 +47,11 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
             customClass: { popup: 'rounded-2xl' }
         }).then((result) => {
             if (result.isConfirmed) {
-                post(route(actionRoute, paymentRequest.id));
+                setProcessing(true);
+                router.post(route(actionRoute, paymentRequest.id), {}, {
+                    preserveScroll: true,
+                    onFinish: () => setProcessing(false),
+                });
             }
         });
     };
@@ -64,7 +68,13 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
             cancelButtonText: 'Batal',
         }).then((result) => {
             if (result.isConfirmed) {
-                post(route('payment-requests.approve', paymentRequest.id));
+                setProcessing(true);
+                router.post(route('payment-requests.approve', paymentRequest.id), {
+                    isApprovalView: isApprovalView ? 1 : 0
+                }, {
+                    preserveScroll: true,
+                    onFinish: () => setProcessing(false),
+                });
             }
         });
     };
@@ -91,8 +101,13 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                post(route('payment-requests.reject', paymentRequest.id), {
-                    data: { notes: result.value }
+                setProcessing(true);
+                router.post(route('payment-requests.reject', paymentRequest.id), {
+                    notes: result.value,
+                    isApprovalView: isApprovalView ? 1 : 0
+                }, {
+                    preserveScroll: true,
+                    onFinish: () => setProcessing(false)
                 });
             }
         });
@@ -120,8 +135,13 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                post(route('payment-requests.revise', paymentRequest.id), {
-                    data: { notes: result.value }
+                setProcessing(true);
+                router.post(route('payment-requests.revise', paymentRequest.id), {
+                    notes: result.value,
+                    isApprovalView: isApprovalView ? 1 : 0
+                }, {
+                    preserveScroll: true,
+                    onFinish: () => setProcessing(false)
                 });
             }
         });

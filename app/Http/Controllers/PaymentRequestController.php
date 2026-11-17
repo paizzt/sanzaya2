@@ -24,7 +24,7 @@ class PaymentRequestController extends Controller
     {
         $user = Auth::user();
         
-        $query = PaymentRequest::with(['requester', 'division', 'vendor', 'latestRevision.approver'])
+        $query = PaymentRequest::with(['requester', 'division', 'vendor', 'latestRevision.approver', 'approvals.approver'])
             ->latest('created_at');
 
         $query->where('requester_id', $user->id);
@@ -39,14 +39,6 @@ class PaymentRequestController extends Controller
             });
         }
         
-        if ($request->filled('status')) {
-            if ($request->status === 'pending') {
-                $query->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga']);
-            } else {
-                $query->where('workflow_status', $request->status);
-            }
-        }
-
         if ($request->filled('nominal')) {
             $nominal = $request->nominal;
             if ($nominal === 'under_1m') {
@@ -94,6 +86,20 @@ class PaymentRequestController extends Controller
             $query->where('company_name', $companyFilter);
         }
 
+        // Base query for summary calculations before status filter
+        $baseSummary = PaymentRequest::where('requester_id', $user->id);
+        if (!empty($companyFilter)) {
+            $baseSummary->where('company_name', $companyFilter);
+        }
+
+        if ($request->filled('status')) {
+            if ($request->status === 'pending') {
+                $query->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga']);
+            } else {
+                $query->where('workflow_status', $request->status);
+            }
+        }
+
         $companyNames = \App\Models\Company::orderBy('name')->pluck('name')->toArray();
         $existingNames = PaymentRequest::whereNotNull('company_name')->where('company_name', '!=', '')->distinct()->pluck('company_name')->toArray();
         $allCompanyNames = array_values(array_unique(array_filter(array_merge($companyNames, $existingNames))));
@@ -110,12 +116,15 @@ class PaymentRequestController extends Controller
             'paymentRequests' => $paymentRequests,
             'filters' => $filters,
             'companies' => $allCompanyNames,
-            'summary' => Inertia::defer(fn () => [
-                'total' => PaymentRequest::where('requester_id', $user->id)->count(),
-                'draft' => PaymentRequest::where('requester_id', $user->id)->where('workflow_status', 'draft')->count(),
-                'waiting_approval' => PaymentRequest::where('requester_id', $user->id)->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga'])->count(),
-                'paid' => PaymentRequest::where('requester_id', $user->id)->where('workflow_status', 'paid')->count(),
-            ]),
+            'summary' => Inertia::defer(function () use ($baseSummary) {
+                $data = (clone $baseSummary)->get(['id', 'workflow_status']);
+                return [
+                    'total' => $data->count(),
+                    'draft' => $data->where('workflow_status', 'draft')->count(),
+                    'waiting_approval' => $data->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga'])->count(),
+                    'paid' => $data->where('workflow_status', 'paid')->count(),
+                ];
+            }),
         ]);
     }
 
@@ -123,7 +132,7 @@ class PaymentRequestController extends Controller
     {
         $user = Auth::user();
         
-        $query = PaymentRequest::with(['requester', 'division', 'vendor', 'latestRevision.approver'])
+        $query = PaymentRequest::with(['requester', 'division', 'vendor', 'latestRevision.approver', 'approvals.approver'])
             ->latest('created_at');
 
         // RBAC for approvals
@@ -148,18 +157,28 @@ class PaymentRequestController extends Controller
             }
         }
 
-        if (empty($allowedStatuses)) {
-            $query->whereHas('approvals', function($q) use ($user) {
-                $q->where('approver_id', $user->id);
+        // Base RBAC scope
+        $query->where(function($q) use ($allowedStatuses, $user, $isSuperAdmin, $isAdmin, $isFinance, $isManajemen) {
+            // 1. Sedang menunggu persetujuan
+            if (!empty($allowedStatuses)) {
+                $q->whereIn('workflow_status', $allowedStatuses);
+            }
+            // 2. Berstatus revisi (draft yang pernah dikembalikan reviewer)
+            $q->orWhere(function($subQ) {
+                $subQ->where('workflow_status', 'draft')
+                     ->whereHas('approvals', function($appQ) {
+                         $appQ->where('action', 'returned');
+                     });
             });
-        } else {
-            $query->where(function($q) use ($allowedStatuses, $user) {
-                $q->whereIn('workflow_status', $allowedStatuses)
-                  ->orWhereHas('approvals', function($subQ) use ($user) {
-                      $subQ->where('approver_id', $user->id);
-                  });
+            // 3. Riwayat persetujuan yang pernah diproses oleh user ini
+            $q->orWhereHas('approvals', function($subQ) use ($user) {
+                $subQ->where('approver_id', $user->id);
             });
-        }
+            // 4. Admin / SuperAdmin dapat melihat semua riwayat
+            if ($isSuperAdmin || $isAdmin) {
+                $q->orWhereIn('workflow_status', ['approved', 'rejected', 'paid']);
+            }
+        });
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -168,27 +187,6 @@ class PaymentRequestController extends Controller
                   ->orWhere('purpose', 'like', "%{$search}%")
                   ->orWhere('recipient_name', 'like', "%{$search}%");
             });
-        }
-
-        if ($request->filled('status')) {
-            if ($request->status === 'pending') {
-                $query->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga']);
-            } elseif ($request->status === 'unprocessed') {
-                $query->whereIn('workflow_status', $allowedStatuses);
-            } else {
-                $query->where('workflow_status', $request->status);
-            }
-        }
-
-        if ($request->filled('deadline')) {
-            $now = now()->startOfDay();
-            if ($request->deadline === 'nearing') {
-                $threeDaysLater = now()->addDays(3)->endOfDay();
-                $query->where('payment_deadline', '>=', $now)
-                      ->where('payment_deadline', '<=', $threeDaysLater);
-            } elseif ($request->deadline === 'overdue') {
-                $query->where('payment_deadline', '<', $now);
-            }
         }
 
         if ($request->filled('nominal')) {
@@ -238,6 +236,35 @@ class PaymentRequestController extends Controller
             $query->where('company_name', $companyFilter);
         }
 
+        // Clone query for summary calculation BEFORE applying status and deadline filters
+        $summaryBaseQuery = clone $query;
+
+        if ($request->filled('status')) {
+            if ($request->status === 'pending') {
+                $query->whereIn('workflow_status', ['waiting_supervisor', 'waiting_ga']);
+            } elseif ($request->status === 'unprocessed') {
+                $query->whereIn('workflow_status', $allowedStatuses);
+            } elseif ($request->status === 'draft') {
+                $query->where('workflow_status', 'draft')
+                      ->whereHas('approvals', function($appQ) {
+                          $appQ->where('action', 'returned');
+                      });
+            } else {
+                $query->where('workflow_status', $request->status);
+            }
+        }
+
+        if ($request->filled('deadline')) {
+            $now = now()->startOfDay();
+            if ($request->deadline === 'nearing') {
+                $threeDaysLater = now()->addDays(3)->endOfDay();
+                $query->where('payment_deadline', '>=', $now)
+                      ->where('payment_deadline', '<=', $threeDaysLater);
+            } elseif ($request->deadline === 'overdue') {
+                $query->where('payment_deadline', '<', $now);
+            }
+        }
+
         $companyNames = \App\Models\Company::orderBy('name')->pluck('name')->toArray();
         $existingNames = PaymentRequest::whereNotNull('company_name')->where('company_name', '!=', '')->distinct()->pluck('company_name')->toArray();
         $allCompanyNames = array_values(array_unique(array_filter(array_merge($companyNames, $existingNames))));
@@ -255,21 +282,23 @@ class PaymentRequestController extends Controller
             'filters' => $filters,
             'isApprovalView' => true,
             'companies' => $allCompanyNames,
-            'summary' => Inertia::defer(function () use ($query, $allowedStatuses) {
-                $summaryData = (clone $query)->get(['id', 'payment_deadline', 'workflow_status']);
+            'summary' => Inertia::defer(function () use ($summaryBaseQuery, $allowedStatuses) {
+                $summaryData = $summaryBaseQuery->get(['id', 'payment_deadline', 'workflow_status']);
                 $now = now()->startOfDay();
                 $threeDaysLater = now()->addDays(3)->endOfDay();
                 
                 return [
-                    'waiting_approval' => $summaryData->count(),
+                    'waiting_approval' => $summaryData->filter(function($pr) use ($allowedStatuses) {
+                        return in_array($pr->workflow_status, $allowedStatuses);
+                    })->count(),
                     'unprocessed' => $summaryData->filter(function($pr) use ($allowedStatuses) {
                         return in_array($pr->workflow_status, $allowedStatuses);
                     })->count(),
-                    'nearing_deadline' => $summaryData->filter(function($pr) use ($now, $threeDaysLater) {
-                        return $pr->payment_deadline >= $now && $pr->payment_deadline <= $threeDaysLater;
+                    'nearing_deadline' => $summaryData->filter(function($pr) use ($now, $threeDaysLater, $allowedStatuses) {
+                        return in_array($pr->workflow_status, $allowedStatuses) && $pr->payment_deadline && $pr->payment_deadline >= $now && $pr->payment_deadline <= $threeDaysLater;
                     })->count(),
-                    'overdue' => $summaryData->filter(function($pr) use ($now) {
-                        return $pr->payment_deadline < $now;
+                    'overdue' => $summaryData->filter(function($pr) use ($now, $allowedStatuses) {
+                        return in_array($pr->workflow_status, $allowedStatuses) && $pr->payment_deadline && $pr->payment_deadline < $now;
                     })->count(),
                     'draft' => $summaryData->filter(function($pr) {
                         return $pr->workflow_status === 'draft';
@@ -890,13 +919,23 @@ class PaymentRequestController extends Controller
             ]);
         });
 
+        $isApprovalView = $request->boolean('isApprovalView') || ($request->header('referer') && str_contains($request->header('referer'), 'payment-approvals'));
+
+        if ($isApprovalView) {
+            return redirect()->route('payment-approvals.index')
+                             ->with('success', 'Pengajuan berhasil disetujui.');
+        }
+
         return redirect()->route('payment-requests.show', $paymentRequest->id)
                          ->with('success', 'Pengajuan berhasil disetujui.');
     }
 
     public function reject(Request $request, $id)
     {
-        $request->validate(['notes' => 'required|string']);
+        $notes = $request->input('notes') ?? $request->input('data.notes') ?? $request->input('alasan');
+        if (empty($notes)) {
+            return back()->with('error', 'Alasan penolakan wajib diisi.');
+        }
 
         $paymentRequest = PaymentRequest::findOrFail($id);
         $user = Auth::user();
@@ -920,13 +959,13 @@ class PaymentRequestController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk menolak tahap ini.');
         }
 
-        DB::transaction(function () use ($paymentRequest, $user, $request) {
+        DB::transaction(function () use ($paymentRequest, $user, $notes) {
             \App\Models\PaymentRequestApproval::create([
                 'payment_request_id' => $paymentRequest->id,
                 'approver_id' => $user->id,
                 'approval_stage' => $paymentRequest->workflow_status,
                 'action' => 'rejected',
-                'notes' => $request->notes,
+                'notes' => $notes,
                 'acted_at' => now(),
             ]);
 
@@ -935,13 +974,23 @@ class PaymentRequestController extends Controller
             ]);
         });
 
+        $isApprovalView = $request->boolean('isApprovalView') || ($request->header('referer') && str_contains($request->header('referer'), 'payment-approvals'));
+
+        if ($isApprovalView) {
+            return redirect()->route('payment-approvals.index')
+                             ->with('success', 'Pengajuan berhasil ditolak.');
+        }
+
         return redirect()->route('payment-requests.show', $paymentRequest->id)
                          ->with('success', 'Pengajuan berhasil ditolak.');
     }
 
     public function revise(Request $request, $id)
     {
-        $request->validate(['notes' => 'required|string']);
+        $notes = $request->input('notes') ?? $request->input('data.notes') ?? $request->input('catatan');
+        if (empty($notes)) {
+            return back()->with('error', 'Catatan revisi wajib diisi.');
+        }
 
         $paymentRequest = PaymentRequest::findOrFail($id);
         $user = Auth::user();
@@ -965,13 +1014,13 @@ class PaymentRequestController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk meminta revisi tahap ini.');
         }
 
-        DB::transaction(function () use ($paymentRequest, $user, $request) {
+        DB::transaction(function () use ($paymentRequest, $user, $notes) {
             \App\Models\PaymentRequestApproval::create([
                 'payment_request_id' => $paymentRequest->id,
                 'approver_id' => $user->id,
                 'approval_stage' => $paymentRequest->workflow_status,
                 'action' => 'returned',
-                'notes' => $request->notes,
+                'notes' => $notes,
                 'acted_at' => now(),
             ]);
 
@@ -979,6 +1028,13 @@ class PaymentRequestController extends Controller
                 'workflow_status' => 'draft',
             ]);
         });
+
+        $isApprovalView = $request->boolean('isApprovalView') || ($request->header('referer') && str_contains($request->header('referer'), 'payment-approvals'));
+
+        if ($isApprovalView) {
+            return redirect()->route('payment-approvals.index')
+                             ->with('success', 'Pengajuan berhasil dikembalikan untuk direvisi.');
+        }
 
         return redirect()->route('payment-requests.show', $paymentRequest->id)
                          ->with('success', 'Pengajuan berhasil dikembalikan untuk direvisi.');
