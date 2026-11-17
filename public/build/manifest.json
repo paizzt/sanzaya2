@@ -855,7 +855,7 @@
     ]
   },
   "resources/js/Pages/Salaries/MySlip.jsx": {
-    "file": "assets/MySlip-BtpcWpzn.js",
+    "file": "assets/MySlip-BG-9D7Lu.js",
     "name": "MySlip",
     "src": "resources/js/Pages/Salaries/MySlip.jsx",
     "isDynamicEntry": true,
@@ -885,7 +885,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-D4CodE1d.js",
+    "file": "assets/Index-C-JHKEMq.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -906,7 +906,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-oXPusYaG.js",
+    "file": "assets/Show-DKgyHWHr.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1083,7 +1083,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-uNBKAKMx.js",
+    "file": "assets/app-BevFKpTU.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,

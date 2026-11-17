@@ -183,10 +183,7 @@ export default function MySlip({ auth, slips = [], year, user }) {
                                                         <div className="w-10 h-10 flex-shrink-0 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
                                                             {String(monthLabel).slice(0, 3).toUpperCase()}
                                                         </div>
-                                                        <div>
-                                                            <div className="text-gray-900 font-semibold">{monthLabel} {slip.period_year}</div>
-                                                            <div className="text-xs text-gray-500 font-normal">Slip Gaji Bulanan</div>
-                                                        </div>
+                                                        <div className="text-gray-900 font-semibold">{monthLabel} {slip.period_year}</div>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-right font-medium text-gray-900 whitespace-nowrap">
