@@ -5,6 +5,11 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cpanel
+  cancel-in-progress: false
 
 jobs:
   web-deploy:
@@ -34,7 +39,34 @@ jobs:
         npm run build
         
     - name: Sync files via FTP
+      id: ftp_deploy
+      continue-on-error: true
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      env:
+        NODE_OPTIONS: "--dns-result-order=ipv4first --no-network-family-autoselection"
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        timeout: 600000
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          vendor/**
+          .env
+          tests/**
+          README.md
+
+    - name: Wait before retrying FTP deploy
+      if: steps.ftp_deploy.outcome == 'failure'
+      run: sleep 10
+
+    - name: Retry Sync files via FTP
+      if: steps.ftp_deploy.outcome == 'failure'
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      env:
+        NODE_OPTIONS: "--dns-result-order=ipv4first --no-network-family-autoselection"
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
