@@ -181,6 +181,22 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         return url.toString();
     };
 
+    const exportButton = (
+        <ExportDropdown
+            pdfRoute={getExportUrl('pdf')}
+            excelRoute={getExportUrl('excel')}
+            trigger={
+                <button
+                    type="button"
+                    className="inline-flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors min-h-[40px] shrink-0 cursor-pointer"
+                >
+                    <Download className="w-4 h-4 shrink-0" />
+                    <span>Unduh</span>
+                </button>
+            }
+        />
+    );
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -188,67 +204,67 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
         >
             <Head title="Rekap Semua Marketing" />
 
-            <div className="pb-6 pt-0 space-y-8">
+            <div className="pb-6 pt-0 space-y-4 sm:space-y-6">
                 
                 {/* Daily Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     <div 
-                        className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                        className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm border border-gray-200 flex items-center justify-between gap-3 cursor-pointer hover:border-indigo-300 transition-colors"
                         onClick={() => setSummaryModalType('reported')}
                     >
-                        <div>
-                            <p className="text-sm font-medium text-gray-500 mb-1">Total Laporan Hari Ini</p>
-                            <h4 className="text-2xl font-bold text-gray-800">{summary?.reports_today_count || 0}</h4>
+                        <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-medium text-gray-600 mb-0.5 truncate">Total Laporan Hari Ini</p>
+                            <h4 className="text-2xl font-bold text-gray-900 tabular-nums">{summary?.reports_today_count || 0}</h4>
                         </div>
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
-                            <CheckCircle className="w-6 h-6 text-indigo-600" />
+                        <div className="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                            <CheckCircle className="w-5 h-5" />
                         </div>
                     </div>
 
                     <div 
-                        className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                        className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm border border-gray-200 flex items-center justify-between gap-3 cursor-pointer hover:border-blue-300 transition-colors"
                         onClick={() => setSummaryModalType('period_reported')}
                     >
-                        <div>
-                            <p className="text-sm font-medium text-gray-500 mb-1">Total Laporan</p>
-                            <h4 className="text-2xl font-bold text-gray-800">{summary?.total_reports_period_count || 0}</h4>
+                        <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-medium text-gray-600 mb-0.5 truncate">Total Laporan</p>
+                            <h4 className="text-2xl font-bold text-gray-900 tabular-nums">{summary?.total_reports_period_count || 0}</h4>
                         </div>
-                        <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                            <ClipboardList className="w-6 h-6 text-blue-600" />
+                        <div className="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                            <ClipboardList className="w-5 h-5" />
                         </div>
                     </div>
                     
                     <div 
-                        className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                        className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm border border-gray-200 flex items-center justify-between gap-3 cursor-pointer hover:border-orange-300 transition-colors"
                         onClick={() => setSummaryModalType('unreported')}
                     >
-                        <div>
-                            <p className="text-sm font-medium text-gray-500 mb-1">Jumlah Yang Belum Melapor</p>
-                            <h4 className="text-2xl font-bold text-gray-800">{summary?.not_reported_users?.length || 0}</h4>
+                        <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-medium text-gray-600 mb-0.5 truncate">Jumlah Yang Belum Melapor</p>
+                            <h4 className="text-2xl font-bold text-gray-900 tabular-nums">{summary?.not_reported_users?.length || 0}</h4>
                         </div>
-                        <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center">
-                            <Clock className="w-6 h-6 text-amber-600" />
+                        <div className="w-11 h-11 rounded-2xl bg-orange-600 text-white flex items-center justify-center shrink-0">
+                            <Clock className="w-5 h-5" />
                         </div>
                     </div>
                 </div>
 
                 {/* Filter Section */}
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full xl:w-auto">
-                        <div className="bg-blue-100 p-3 rounded-full shrink-0">
-                            <Filter className="w-5 h-5 text-blue-600" />
+                <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-200 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3.5 sm:gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="bg-blue-600 text-white p-2.5 rounded-xl shrink-0">
+                            <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
-                        <div>
-                            <h3 className="font-bold text-gray-800">Filter Data Marketing</h3>
-                            <p className="text-sm text-gray-500">
+                        <div className="min-w-0">
+                            <h3 className="font-bold text-sm sm:text-base text-gray-900 leading-tight">Filter Data Marketing</h3>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-0.5 truncate">
                                 {filters.start_date && filters.end_date 
                                     ? `Rentang aktif: ${filters.start_date} s/d ${filters.end_date}` 
                                     : 'Pilih rentang tanggal dan nama sales.'}
                             </p>
                         </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full xl:w-auto">
-                        {/* Filter Rentang Tanggal (1 kali klik kalender untuk pilih rentang tgl 1 s/d 5) */}
+                    <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full xl:w-auto">
+                        {/* Filter Rentang Tanggal */}
                         <div className="w-full sm:w-72">
                             <CustomDateRangePicker
                                 value={{
@@ -258,11 +274,12 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                 onChange={handleDateRangeChange}
                                 placeholder="Rentang Tanggal (cth: 1 s/d 5)..."
                                 primaryColor="blue"
+                                readOnly={true}
                             />
                         </div>
 
                         {/* Filter Bulan Opsional */}
-                        <div className="w-full sm:w-36">
+                        <div className="w-full sm:w-40">
                             <TextInput
                                 type="month"
                                 className="w-full text-sm"
@@ -289,7 +306,7 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                             <button
                                 type="button"
                                 onClick={handleResetFilter}
-                                className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors h-[42px] shrink-0"
+                                className="flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors min-h-[42px] shrink-0 cursor-pointer"
                                 title="Reset Filter"
                             >
                                 <X className="w-4 h-4" /> Reset
@@ -298,47 +315,118 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                     </div>
                 </div>
 
-                {/* Tab Navigation & Export */}
-                {/* Tab Navigation & Export */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full pb-2">
-                    <div className="flex overflow-x-auto gap-3 w-full md:w-auto p-2 pb-4 md:pb-2 -ml-2 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                        <button onClick={() => setActiveTab('laporan')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'laporan' ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
-                            <ClipboardList className="w-5 h-5"/> Rekap Laporan Harian
-                        </button>
-                        <button onClick={() => setActiveTab('target')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'target' ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
-                            <CalendarDays className="w-5 h-5"/> Rekap Target Bulanan
-                        </button>
-                        <button onClick={() => setActiveTab('kendala')} className={`flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold transition-all duration-300 whitespace-nowrap snap-start ${activeTab === 'kendala' ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
-                            <AlertCircle className="w-5 h-5"/> Kesimpulan & Kendala
-                        </button>
-                    </div>
-                    
-                    <div className="w-full md:w-auto mt-2 md:mt-0">
-                        <ExportDropdown 
-                            pdfRoute={getExportUrl('pdf')} 
-                            excelRoute={getExportUrl('excel')} 
-                            trigger={
-                                <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] shrink-0 w-full sm:w-auto">
-                                    <Download className="w-4 h-4 mr-2" /> Unduh
-                                </button>
-                            } 
-                        />
-                    </div>
+                {/* Tab Navigation (Responsif Tanpa Scroll Horizontal di Mobile) */}
+                <div className="grid grid-cols-3 md:flex md:flex-wrap items-center gap-2 w-full">
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('laporan')}
+                        className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-colors text-center min-w-0 min-h-[44px] border cursor-pointer ${
+                            activeTab === 'laporan'
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                        }`}
+                    >
+                        <ClipboardList className="w-4 h-4 shrink-0" />
+                        <span className="md:hidden truncate max-w-full">Laporan</span>
+                        <span className="hidden md:inline whitespace-nowrap">Rekap Laporan Harian</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('target')}
+                        className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-colors text-center min-w-0 min-h-[44px] border cursor-pointer ${
+                            activeTab === 'target'
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                        }`}
+                    >
+                        <CalendarDays className="w-4 h-4 shrink-0" />
+                        <span className="md:hidden truncate max-w-full">Target</span>
+                        <span className="hidden md:inline whitespace-nowrap">Rekap Target Bulanan</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('kendala')}
+                        className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-colors text-center min-w-0 min-h-[44px] border cursor-pointer ${
+                            activeTab === 'kendala'
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                        }`}
+                    >
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span className="md:hidden truncate max-w-full">Kendala</span>
+                        <span className="hidden md:inline whitespace-nowrap">Kesimpulan & Kendala</span>
+                    </button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-8">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6">
                     {/* Rekap Laporan Harian */}
                     {activeTab === 'laporan' && (
-                        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden hide-scrollbar">
-                            <div className="p-6 border-b border-gray-50">
-                                <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                                    <ClipboardList className="text-indigo-600 w-5 h-5" />
-                                    Rekap Laporan Harian
+                        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="px-4 py-3.5 sm:px-6 sm:py-5 border-b border-gray-200 flex items-center justify-between gap-2">
+                                <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-2 min-w-0">
+                                    <ClipboardList className="text-indigo-600 w-5 h-5 shrink-0" />
+                                    <span className="truncate">Rekap Laporan Harian</span>
                                 </h3>
+                                {exportButton}
                             </div>
-                            <div className="overflow-x-auto hide-scrollbar">
-                                <table className="block md:table w-full text-sm text-left">
-                                    <thead className="hidden md:table-header-group bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider">
+
+                            {/* Tampilan Mobile: Kartu Ringkas Tanpa Scroll Horizontal */}
+                            <div className="block md:hidden p-3 space-y-2.5 bg-gray-50">
+                                {reports?.data?.length > 0 ? reports.data.map((r) => (
+                                    <div
+                                        key={r.id}
+                                        onClick={() => openModal(r)}
+                                        className="bg-white border border-gray-200 rounded-2xl p-3.5 space-y-2 cursor-pointer active:bg-gray-50 transition-colors"
+                                    >
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="min-w-0">
+                                                <div className="font-bold text-sm text-gray-900 truncate">{r.user?.name || '-'}</div>
+                                                <div className="text-xs text-gray-600 mt-0.5 tabular-nums">
+                                                    {new Date(r.visit_date).toLocaleDateString('id-ID')} &bull; {r.visit_time}
+                                                </div>
+                                            </div>
+                                            <span className="bg-indigo-600 text-white px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0">
+                                                {r.activity_type}
+                                            </span>
+                                        </div>
+
+                                        {!r.activity_type?.includes('Non-Kunjungan') && (
+                                            <div className="pt-2 border-t border-gray-100 text-xs min-w-0">
+                                                <div className="font-semibold text-gray-800 break-words">
+                                                    {r.outlet?.name || r.outlet_id || '-'}
+                                                </div>
+                                                {r.pic_name && (
+                                                    <div className="text-gray-600 mt-0.5 break-words">PIC: {r.pic_name}</div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {(r.visit_result || (r.issue_type && r.issue_type !== 'Tidak Ada Kendala')) && (
+                                            <div className="pt-2 border-t border-gray-100 space-y-1 min-w-0">
+                                                {r.issue_type && r.issue_type !== 'Tidak Ada Kendala' && (
+                                                    <div className="text-[11px] text-orange-700 font-semibold">
+                                                        Kendala: {r.issue_type}
+                                                    </div>
+                                                )}
+                                                {r.visit_result && (
+                                                    <div className="text-xs text-gray-700 line-clamp-2 break-words" title={r.visit_result}>
+                                                        {r.visit_result}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )) : (
+                                    <div className="py-8 text-center text-sm text-gray-600">
+                                        Belum ada data laporan harian.
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Tampilan Desktop / Tablet: Tabel */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-gray-100 text-gray-700 text-xs font-bold uppercase tracking-wider">
                                         <tr>
                                             <th className="px-6 py-4 w-12 text-center">No</th>
                                             <th className="px-6 py-4">Nama Sales</th>
@@ -348,214 +436,234 @@ export default function RecapAll({ reports, allTargets, sales_users, filters, au
                                             <th className="px-6 py-4">Kendala / Hasil</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50 bg-gray-50/30 md:bg-white p-4 md:p-0">
+                                    <tbody className="divide-y divide-gray-200 bg-white">
                                         {reports?.data?.length > 0 ? reports.data.map((r, i) => (
-                                            <tr key={r.id} onClick={() => openModal(r)} className="block md:table-row hover:bg-indigo-50/30 cursor-pointer transition-colors mb-4 md:mb-0 bg-white md:bg-transparent border border-gray-100 md:border-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0">
-                                                <td className="hidden md:table-cell px-6 py-4 text-center text-gray-500 font-medium">
+                                            <tr key={r.id} onClick={() => openModal(r)} className="hover:bg-gray-50 cursor-pointer transition-colors">
+                                                <td className="px-6 py-4 text-center text-gray-600 font-medium">
                                                     {(reports.current_page - 1) * reports.per_page + i + 1}
                                                 </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                    <div className="flex justify-between md:block items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Sales</span>
-                                                        <div className="font-bold text-gray-800 text-base md:text-sm">{r.user?.name || '-'}</div>
-                                                    </div>
+                                                <td className="px-6 py-4 font-bold text-gray-900">
+                                                    {r.user?.name || '-'}
                                                 </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                    <div className="flex justify-between md:block items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Waktu</span>
-                                                        <div className="text-right md:text-left">
-                                                            <div className="font-medium text-gray-800">{new Date(r.visit_date).toLocaleDateString('id-ID')}</div>
-                                                            <div className="text-xs text-gray-500">{r.visit_time}</div>
-                                                        </div>
-                                                    </div>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="font-medium text-gray-800">{new Date(r.visit_date).toLocaleDateString('id-ID')}</div>
+                                                    <div className="text-xs text-gray-600">{r.visit_time}</div>
                                                 </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                    <div className="flex justify-between md:block items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Aktivitas</span>
-                                                        <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md text-xs font-semibold">{r.activity_type}</span>
-                                                    </div>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className="bg-indigo-600 text-white px-2.5 py-1 rounded-md text-xs font-semibold">{r.activity_type}</span>
                                                 </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                    <div className="flex justify-between md:block items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Outlet</span>
-                                                        <div className="text-right md:text-left">
-                                                            {r.activity_type?.includes('Non-Kunjungan') ? '-' : (
-                                                                <>
-                                                                    <div className="font-medium text-gray-800">{r.outlet?.name || r.outlet_id || '-'}</div>
-                                                                    <div className="text-xs text-gray-500">{r.pic_name ? `PIC: ${r.pic_name}` : ''}</div>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    </div>
+                                                <td className="px-6 py-4">
+                                                    {r.activity_type?.includes('Non-Kunjungan') ? '-' : (
+                                                        <>
+                                                            <div className="font-medium text-gray-800">{r.outlet?.name || r.outlet_id || '-'}</div>
+                                                            <div className="text-xs text-gray-600">{r.pic_name ? `PIC: ${r.pic_name}` : ''}</div>
+                                                        </>
+                                                    )}
                                                 </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4">
-                                                    <div className="flex justify-between md:block items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Hasil</span>
-                                                        <div className="text-right md:text-left">
-                                                            <div className="text-xs text-orange-600 font-medium">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
-                                                            <div className="text-gray-600 line-clamp-2 text-sm mt-1" title={r.visit_result}>{r.visit_result}</div>
-                                                        </div>
-                                                    </div>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-xs text-orange-700 font-semibold">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
+                                                    <div className="text-gray-700 line-clamp-2 text-sm mt-0.5" title={r.visit_result}>{r.visit_result}</div>
                                                 </td>
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan="7" className="px-4 py-8 text-center text-gray-400">Belum ada data laporan harian.</td>
+                                                <td colSpan="6" className="px-4 py-8 text-center text-gray-600">Belum ada data laporan harian.</td>
                                             </tr>
                                         )}
                                     </tbody>
                                 </table>
                             </div>
-                            <div className="mt-4">
-                                <Pagination links={reports.links} from={reports.from} to={reports.to} total={reports.total} />
-                            </div>
+                            <Pagination links={reports.links} from={reports.from} to={reports.to} total={reports.total} />
                         </div>
                     )}
 
                     {/* Rekap Target Bulanan */}
                     {activeTab === 'target' && (
-                        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden hide-scrollbar">
-                            <div className="p-6 border-b border-gray-50">
-                                <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                                    <CalendarDays className="text-teal-600 w-5 h-5" />
-                                    Rekap Target Bulanan
+                        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="px-4 py-3.5 sm:px-6 sm:py-5 border-b border-gray-200 flex items-center justify-between gap-2">
+                                <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-2 min-w-0">
+                                    <CalendarDays className="text-teal-600 w-5 h-5 shrink-0" />
+                                    <span className="truncate">Rekap Target Bulanan</span>
                                 </h3>
+                                {exportButton}
                             </div>
-                            <div className="overflow-x-auto hide-scrollbar">
-                                <table className="block md:table w-full text-sm text-left">
-                                    <thead className="hidden md:table-header-group bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider">
+
+                            {/* Tampilan Mobile: Kartu Ringkas Tanpa Scroll Horizontal */}
+                            <div className="block md:hidden p-3 space-y-2.5 bg-gray-50">
+                                {allTargets?.data?.length > 0 ? allTargets.data.map((t) => {
+                                    const pct = t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0;
+                                    return (
+                                        <div key={t.id} className="bg-white border border-gray-200 rounded-2xl p-3.5 space-y-2.5">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="min-w-0">
+                                                    <div className="font-bold text-sm text-gray-900 truncate">{t.user?.name || '-'}</div>
+                                                    <div className="text-xs text-gray-600 mt-0.5">
+                                                        {new Date(t.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSelectedTarget(t)}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white transition-colors px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer shrink-0"
+                                                >
+                                                    {t.target_visits} Outlet
+                                                </button>
+                                            </div>
+                                            <div className="pt-2 border-t border-gray-100 space-y-1.5">
+                                                <div className="flex items-center justify-between text-xs">
+                                                    <span className="font-semibold text-gray-600">Capaian</span>
+                                                    <span className="font-bold text-gray-900 tabular-nums">
+                                                        {t.realized_visits || 0} / {t.target_visits} <span className="text-blue-700">({pct}%)</span>
+                                                    </span>
+                                                </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${pct}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                }) : (
+                                    <div className="py-8 text-center text-sm text-gray-600">
+                                        Belum ada data target bulanan.
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Tampilan Desktop / Tablet: Tabel */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-gray-100 text-gray-700 text-xs font-bold uppercase tracking-wider">
                                         <tr>
                                             <th className="px-6 py-4 w-12 text-center">No</th>
                                             <th className="px-6 py-4">Nama Sales</th>
                                             <th className="px-6 py-4">Bulan/Tahun</th>
-
                                             <th className="px-6 py-4 text-center">Target Kunjungan</th>
                                             <th className="px-6 py-4 text-center">Capaian (%)</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50 bg-gray-50/30 md:bg-white p-4 md:p-0">
-                                        {allTargets?.data?.length > 0 ? allTargets.data.map((t, i) => (
-                                            <tr key={t.id} className="block md:table-row hover:bg-teal-50/30 transition-colors mb-4 md:mb-0 bg-white md:bg-transparent border border-gray-100 md:border-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0">
-                                                <td className="hidden md:table-cell px-6 py-4 text-center text-gray-500 font-medium">
-                                                    {(allTargets.current_page - 1) * allTargets.per_page + i + 1}
-                                                </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                    <div className="flex justify-between md:block items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Sales</span>
-                                                        <div className="font-bold text-gray-800 text-base md:text-sm">{t.user?.name || '-'}</div>
-                                                    </div>
-                                                </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0 font-medium text-gray-800">
-                                                    <div className="flex justify-between md:block items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Bulan/Tahun</span>
-                                                        <span>{new Date(t.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
-                                                    </div>
-                                                </td>
-
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                    <div className="flex justify-between md:justify-center items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Kunjungan</span>
+                                    <tbody className="divide-y divide-gray-200 bg-white">
+                                        {allTargets?.data?.length > 0 ? allTargets.data.map((t, i) => {
+                                            const pct = t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0;
+                                            return (
+                                                <tr key={t.id} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="px-6 py-4 text-center text-gray-600 font-medium">
+                                                        {(allTargets.current_page - 1) * allTargets.per_page + i + 1}
+                                                    </td>
+                                                    <td className="px-6 py-4 font-bold text-gray-900">
+                                                        {t.user?.name || '-'}
+                                                    </td>
+                                                    <td className="px-6 py-4 font-medium text-gray-800">
+                                                        {new Date(t.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
                                                         <button 
                                                             type="button"
                                                             onClick={() => setSelectedTarget(t)}
-                                                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors px-3 py-1 rounded-full text-xs font-bold cursor-pointer border border-blue-100 shadow-sm"
+                                                            className="bg-blue-600 hover:bg-blue-700 text-white transition-colors px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer"
                                                         >
                                                             {t.target_visits} Outlet
                                                         </button>
-                                                    </div>
-                                                </td>
-                                                <td className="block md:table-cell px-0 md:px-6 py-2 md:py-4 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                    <div className="flex justify-between md:justify-center items-center">
-                                                        <span className="md:hidden font-semibold text-gray-400 text-xs uppercase tracking-wider">Capaian</span>
-                                                        <div className="flex flex-col items-end md:items-center">
-                                                            <span className="font-bold text-gray-800">{t.realized_visits || 0} <span className="text-gray-400 font-normal text-xs">/ {t.target_visits}</span></span>
-                                                            <div className="w-16 bg-gray-200 rounded-full h-1.5 mt-1 overflow-hidden">
-                                                                <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0}%` }}></div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex flex-col items-center">
+                                                            <span className="font-bold text-gray-800">{t.realized_visits || 0} <span className="text-gray-500 font-normal text-xs">/ {t.target_visits}</span></span>
+                                                            <div className="w-20 bg-gray-200 rounded-full h-1.5 mt-1 overflow-hidden">
+                                                                <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${pct}%` }}></div>
                                                             </div>
-                                                            <span className="text-[10px] font-semibold text-blue-600 mt-0.5">
-                                                                {t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0}%
+                                                            <span className="text-[11px] font-semibold text-blue-700 mt-0.5">
+                                                                {pct}%
                                                             </span>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )) : (
-                                            <tr className="block md:table-row">
-                                                <td colSpan="6" className="block md:table-cell px-6 py-12 text-center text-gray-400 font-medium">Belum ada data target bulanan.</td>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }) : (
+                                            <tr>
+                                                <td colSpan="5" className="px-6 py-12 text-center text-gray-600 font-medium">Belum ada data target bulanan.</td>
                                             </tr>
                                         )}
                                     </tbody>
                                 </table>
                             </div>
-                            <div className="mt-4">
-                                <Pagination links={allTargets.links} from={allTargets.from} to={allTargets.to} total={allTargets.total} />
-                            </div>
+                            <Pagination links={allTargets.links} from={allTargets.from} to={allTargets.to} total={allTargets.total} />
                         </div>
                     )}
 
                     {/* Kesimpulan & Kendala */}
                     {activeTab === 'kendala' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {summary?.kendala_per_user_period && summary.kendala_per_user_period.length > 0 ? (
-                                summary.kendala_per_user_period.map((mkt, idx) => (
-                                    <div key={idx} className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col hover:border-red-100 transition-colors">
-                                        <div className="flex items-center gap-3 mb-4 border-b border-gray-50 pb-4">
-                                            <div className="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center font-bold">
-                                                <Users className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-gray-800 text-lg leading-none">{mkt.name}</h3>
-                                                <p className="text-xs text-gray-500 mt-1">{mkt.kendal_list.length} Laporan Kendala</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar" style={{maxHeight: '300px'}}>
-                                            {mkt.kendal_list.length > 0 ? (
-                                                <ul className="space-y-4">
-                                                    {mkt.kendal_list.map((k, i) => (
-                                                        <li key={i} className="flex gap-3">
-                                                            <div className="mt-1 w-2 h-2 rounded-full bg-red-400 shrink-0"></div>
-                                                            <div>
-                                                                <p className="text-xs font-bold text-gray-800">{k.outlet} <span className="font-normal text-gray-400">({k.date})</span></p>
-                                                                <p className="text-sm text-gray-600 mt-1 leading-relaxed whitespace-pre-line">{k.description}</p>
-                                                            </div>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            ) : (
-                                                <div className="h-full flex flex-col items-center justify-center text-gray-400 p-4">
-                                                    <CheckCircle className="w-8 h-8 mb-2 text-green-400 opacity-50" />
-                                                    <p className="text-sm text-center">Tidak ada kendala yang dilaporkan pada periode ini.</p>
+                        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="px-4 py-3.5 sm:px-6 sm:py-5 border-b border-gray-200 flex items-center justify-between gap-2">
+                                <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-2 min-w-0">
+                                    <AlertCircle className="text-red-600 w-5 h-5 shrink-0" />
+                                    <span className="truncate">Kesimpulan & Kendala</span>
+                                </h3>
+                                {exportButton}
+                            </div>
+
+                            <div className="p-3 sm:p-6 bg-gray-50 sm:bg-white">
+                                {summary?.kendala_per_user_period && summary.kendala_per_user_period.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
+                                        {summary.kendala_per_user_period.map((mkt, idx) => (
+                                            <div key={idx} className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 flex flex-col">
+                                                <div className="flex items-center gap-3 mb-3 border-b border-gray-100 pb-3">
+                                                    <div className="w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center shrink-0">
+                                                        <Users className="w-4 h-4" />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <h4 className="font-bold text-gray-900 text-sm sm:text-base leading-tight truncate">{mkt.name}</h4>
+                                                        <p className="text-xs text-gray-600 mt-0.5">{mkt.kendal_list.length} Laporan Kendala</p>
+                                                    </div>
                                                 </div>
-                                            )}
+                                                
+                                                <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar" style={{maxHeight: '300px'}}>
+                                                    {mkt.kendal_list.length > 0 ? (
+                                                        <ul className="space-y-3">
+                                                            {mkt.kendal_list.map((k, i) => (
+                                                                <li key={i} className="flex gap-2.5 min-w-0">
+                                                                    <div className="mt-1.5 w-2 h-2 rounded-full bg-red-600 shrink-0"></div>
+                                                                    <div className="min-w-0">
+                                                                        <p className="text-xs font-bold text-gray-800 break-words">{k.outlet} <span className="font-normal text-gray-500">({k.date})</span></p>
+                                                                        <p className="text-xs sm:text-sm text-gray-700 mt-0.5 leading-relaxed whitespace-pre-line break-words">{k.description}</p>
+                                                                    </div>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    ) : (
+                                                        <div className="h-full flex flex-col items-center justify-center text-gray-500 p-4">
+                                                            <CheckCircle className="w-7 h-7 mb-1.5 text-emerald-600" />
+                                                            <p className="text-xs sm:text-sm text-center">Tidak ada kendala yang dilaporkan pada periode ini.</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="py-10 px-4 flex flex-col items-center justify-center text-center">
+                                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                                            <AlertCircle className="w-6 h-6 text-gray-500" />
                                         </div>
+                                        <h4 className="text-base font-bold text-gray-800">Belum Ada Data Kendala</h4>
+                                        <p className="text-xs sm:text-sm text-gray-600 max-w-md mt-1">Tidak ditemukan catatan kendala lapangan untuk filter periode dan sales yang dipilih.</p>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="col-span-full bg-white rounded-3xl p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col items-center justify-center text-center">
-                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                        <AlertCircle className="w-8 h-8 text-gray-300" />
-                                    </div>
-                                    <h3 className="text-lg font-bold text-gray-800">Belum Ada Data Kendala</h3>
-                                    <p className="text-gray-500 max-w-md mt-2">Tidak ditemukan catatan kendala lapangan untuk filter periode dan sales yang dipilih.</p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
             </div>
 
             <Modal show={isModalOpen} onClose={closeModal} maxWidth="2xl">
-                <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
-                    <h2 className="text-xl font-black text-gray-800">Detail Laporan Harian</h2>
-                    <button onClick={closeModal} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
+                <div className="flex justify-between items-center px-4 sm:px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-2xl">
+                    <h2 className="text-lg sm:text-xl font-black text-gray-800">Detail Laporan Harian</h2>
+                    <button onClick={closeModal} className="text-gray-600 hover:text-gray-900 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full border border-gray-200 min-h-[44px] min-w-[44px] flex items-center justify-center">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto max-h-[75vh]">
+                <div className="p-4 sm:p-6 overflow-y-auto max-h-[75vh]">
                     {selectedReport && (
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4 sm:space-y-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                                     <div className="text-sm text-gray-500 mb-1">Nama Sales</div>
                                     <div className="font-bold text-gray-800">{selectedReport.user?.name || '-'}</div>
