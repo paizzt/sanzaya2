@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Activity, Truck, Calendar, FileText, Image as ImageIcon, Trash2, ArrowLeft } from 'lucide-react';
+import { Activity, Truck, Calendar, FileText, Image as ImageIcon, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 
@@ -175,19 +175,39 @@ export default function Usages({ usages, vehicles, filters }) {
                 {/* Pagination */}
                 {usages.links && usages.links.length > 3 && (
                     <div className="flex justify-center mt-6">
-                        <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
-                            {usages.links.map((link, k) => (
-                                <Link
-                                    key={k}
-                                    href={link.url || '#'}
-                                    className={`px-3 py-1 text-sm rounded-lg border font-medium ${
-                                        link.active 
-                                            ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/30 border-blue-500' 
-                                            : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-blue-600 border-gray-200'
-                                    }`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ))}
+                        <div className="flex flex-wrap items-center justify-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+                            {usages.links.map((link, k) => {
+                                const labelStr = String(link.label || '');
+                                const isPrev = k === 0 || /previous|&laquo;|«/i.test(labelStr);
+                                const isNext = k === usages.links.length - 1 || /next|&raquo;|»/i.test(labelStr);
+                                const navTitle = isPrev ? 'Halaman sebelumnya' : isNext ? 'Halaman selanjutnya' : undefined;
+                                const content = isPrev ? <ChevronLeft className="w-4 h-4" /> : isNext ? <ChevronRight className="w-4 h-4" /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />;
+
+                                return link.url ? (
+                                    <Link
+                                        key={k}
+                                        href={link.url}
+                                        aria-label={navTitle}
+                                        title={navTitle}
+                                        className={`inline-flex items-center justify-center text-sm rounded-lg border font-medium ${isPrev || isNext ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'} ${
+                                            link.active 
+                                                ? 'bg-blue-600 text-white font-semibold border-blue-600' 
+                                                : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 border-gray-200'
+                                        }`}
+                                    >
+                                        {content}
+                                    </Link>
+                                ) : (
+                                    <span
+                                        key={k}
+                                        aria-label={navTitle}
+                                        title={navTitle}
+                                        className={`inline-flex items-center justify-center text-sm rounded-lg border font-medium bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed ${isPrev || isNext ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'}`}
+                                    >
+                                        {content}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </div>
                 )}

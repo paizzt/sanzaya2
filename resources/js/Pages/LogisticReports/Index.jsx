@@ -2,7 +2,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router, Link } from '@inertiajs/react';
-import { ClipboardList, Plus, Edit, Trash2, Filter, DollarSign, Package, Stethoscope, RefreshCw } from 'lucide-react';
+import { ClipboardList, Plus, Edit, Trash2, Filter, DollarSign, Package, Stethoscope, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Modal from '@/Components/Modal';
@@ -498,27 +498,36 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         <div>
                                             <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                                                 {items.links.map((link, index) => {
-                                                    let label = link.label;
-                                                    if (label.includes('Previous')) label = '« Previous';
-                                                    if (label.includes('Next')) label = 'Next »';
+                                                    const labelStr = String(link.label || '');
+                                                    const isPrev = index === 0 || /previous|&laquo;|«/i.test(labelStr);
+                                                    const isNext = index === items.links.length - 1 || /next|&raquo;|»/i.test(labelStr);
+                                                    const navTitle = isPrev ? 'Halaman sebelumnya' : isNext ? 'Halaman selanjutnya' : undefined;
+                                                    const content = isPrev ? <ChevronLeft className="w-4 h-4" /> : isNext ? <ChevronRight className="w-4 h-4" /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />;
+
                                                     return link.url ? (
                                                         <Link
                                                             key={index}
                                                             href={link.url}
                                                             preserveState
-                                                            className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium ${
+                                                            aria-label={navTitle}
+                                                            title={navTitle}
+                                                            className={`relative inline-flex items-center justify-center border ${isPrev || isNext ? 'px-2.5' : 'px-4'} py-2 text-sm font-medium ${
                                                                 link.active
-                                                                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 focus:z-20'
-                                                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                                                    ? 'z-10 bg-blue-600 border-blue-600 text-white focus:z-20'
+                                                                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
                                                             } ${index === 0 ? 'rounded-l-md' : ''} ${index === items.links.length - 1 ? 'rounded-r-md' : ''}`}
-                                                            dangerouslySetInnerHTML={{ __html: label }}
-                                                        />
+                                                        >
+                                                            {content}
+                                                        </Link>
                                                     ) : (
                                                         <span
                                                             key={index}
-                                                            className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium text-gray-400 bg-white cursor-not-allowed ${index === 0 ? 'rounded-l-md' : ''} ${index === items.links.length - 1 ? 'rounded-r-md' : ''}`}
-                                                            dangerouslySetInnerHTML={{ __html: label }}
-                                                        />
+                                                            aria-label={navTitle}
+                                                            title={navTitle}
+                                                            className={`relative inline-flex items-center justify-center border ${isPrev || isNext ? 'px-2.5' : 'px-4'} py-2 text-sm font-medium text-gray-400 bg-white cursor-not-allowed ${index === 0 ? 'rounded-l-md' : ''} ${index === items.links.length - 1 ? 'rounded-r-md' : ''}`}
+                                                        >
+                                                            {content}
+                                                        </span>
                                                     );
                                                 })}
                                             </nav>

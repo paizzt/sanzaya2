@@ -3,7 +3,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import Modal from '@/Components/Modal';
 import { Head, usePage, router, Link, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2';
-import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown, PieChart, Table } from 'lucide-react';
+import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown, ChevronLeft, ChevronRight, PieChart, Table } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
@@ -1542,19 +1542,35 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                             <span className="text-sm text-gray-500">
                                 Menampilkan <span className="font-medium text-gray-900">{reportData.from || 0}</span> - <span className="font-medium text-gray-900">{reportData.to || 0}</span> dari <span className="font-medium text-gray-900">{reportData.total || reportRows.length}</span> data
                             </span>
-                            <div className="flex gap-1">
-                                {reportData.links.map((link, index) => (
-                                    link.url ? (
+                            <div className="flex flex-wrap items-center justify-center gap-1">
+                                {reportData.links.map((link, index) => {
+                                    const labelStr = String(link.label || '');
+                                    const isPrev = index === 0 || /previous|&laquo;|«/i.test(labelStr);
+                                    const isNext = index === reportData.links.length - 1 || /next|&raquo;|»/i.test(labelStr);
+                                    const navTitle = isPrev ? 'Halaman sebelumnya' : isNext ? 'Halaman selanjutnya' : undefined;
+                                    const content = isPrev ? <ChevronLeft className="w-4 h-4" /> : isNext ? <ChevronRight className="w-4 h-4" /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />;
+
+                                    return link.url ? (
                                         <Link 
                                             key={index} 
-                                            href={link.url} 
-                                            className={`px-3 py-1 text-sm rounded-lg border ${link.active ? 'bg-blue-50 text-blue-600 border-blue-200 font-bold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
+                                            href={link.url}
+                                            aria-label={navTitle}
+                                            title={navTitle}
+                                            className={`inline-flex items-center justify-center text-sm rounded-lg border ${isPrev || isNext ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'} ${link.active ? 'bg-blue-600 text-white border-blue-600 font-bold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                                        >
+                                            {content}
+                                        </Link>
                                     ) : (
-                                        <span key={index} className="px-3 py-1 text-sm rounded-lg border bg-gray-50 text-gray-400 border-gray-100" dangerouslySetInnerHTML={{ __html: link.label }}></span>
-                                    )
-                                ))}
+                                        <span
+                                            key={index}
+                                            aria-label={navTitle}
+                                            title={navTitle}
+                                            className={`inline-flex items-center justify-center text-sm rounded-lg border bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed ${isPrev || isNext ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'}`}
+                                        >
+                                            {content}
+                                        </span>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}

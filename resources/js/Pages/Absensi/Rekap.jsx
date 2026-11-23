@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip, Wallet, Settings, X, Save } from 'lucide-react';
+import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip, Wallet, Settings, X, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -1499,16 +1499,20 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                         <div className="flex justify-center py-4 sm:py-6 px-3 border-t border-gray-100 bg-white">
                             <nav className="flex flex-wrap justify-center items-center gap-1.5 sm:gap-2">
                                 <button 
+                                    type="button"
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    aria-label="Halaman sebelumnya"
+                                    title="Halaman sebelumnya"
+                                    className="inline-flex items-center justify-center min-w-[34px] sm:min-w-[40px] h-8 sm:h-10 px-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
-                                    &laquo; Prev
+                                    <ChevronLeft className="w-4 h-4" />
                                 </button>
                                 
                                 <div className="flex flex-wrap items-center gap-1">
                                     {getPageNumbers().map(page => (
                                         <button
+                                            type="button"
                                             key={page}
                                             onClick={() => setCurrentPage(page)}
                                             className={`min-w-[32px] sm:min-w-[40px] h-8 sm:h-10 flex items-center justify-center rounded-lg text-xs sm:text-sm font-medium transition-colors ${
@@ -1523,11 +1527,14 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                 </div>
                                 
                                 <button 
+                                    type="button"
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    aria-label="Halaman selanjutnya"
+                                    title="Halaman selanjutnya"
+                                    className="inline-flex items-center justify-center min-w-[34px] sm:min-w-[40px] h-8 sm:h-10 px-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
-                                    Next &raquo;
+                                    <ChevronRight className="w-4 h-4" />
                                 </button>
                             </nav>
                         </div>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import dayjs from 'dayjs';
-import { MessageSquare, Download, FileText, Calendar, Clock, X, User, UserX, Send, Loader2 } from 'lucide-react';
+import { MessageSquare, Download, FileText, Calendar, Clock, X, User, UserX, Send, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import 'dayjs/locale/id';
 import Swal from 'sweetalert2';
 
@@ -189,18 +189,38 @@ export default function Index({ auth, reports }) {
                             </table>
                         </div>
                         
-                        {/* Pagination Component can be added here if needed */}
+                        {/* Pagination */}
                         {reports.links && reports.links.length > 3 && (
                             <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-                                <div className="flex flex-wrap gap-1">
-                                    {reports.links.map((link, i) => (
-                                        <Link
-                                            key={i}
-                                            href={link.url}
-                                            className={`px-3 py-1 text-sm border rounded-lg ${link.active ? 'bg-sky-50 text-sky-600 border-sky-200 font-bold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    ))}
+                                <div className="flex flex-wrap items-center gap-1">
+                                    {reports.links.map((link, i) => {
+                                        const labelStr = String(link.label || '');
+                                        const isPrev = i === 0 || /previous|&laquo;|«/i.test(labelStr);
+                                        const isNext = i === reports.links.length - 1 || /next|&raquo;|»/i.test(labelStr);
+                                        const navTitle = isPrev ? 'Halaman sebelumnya' : isNext ? 'Halaman selanjutnya' : undefined;
+                                        const content = isPrev ? <ChevronLeft className="w-4 h-4" /> : isNext ? <ChevronRight className="w-4 h-4" /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />;
+
+                                        return link.url ? (
+                                            <Link
+                                                key={i}
+                                                href={link.url}
+                                                aria-label={navTitle}
+                                                title={navTitle}
+                                                className={`inline-flex items-center justify-center text-sm border rounded-lg ${isPrev || isNext ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'} ${link.active ? 'bg-blue-600 text-white border-blue-600 font-bold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                                            >
+                                                {content}
+                                            </Link>
+                                        ) : (
+                                            <span
+                                                key={i}
+                                                aria-label={navTitle}
+                                                title={navTitle}
+                                                className={`inline-flex items-center justify-center text-sm border rounded-lg bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed ${isPrev || isNext ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'}`}
+                                            >
+                                                {content}
+                                            </span>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

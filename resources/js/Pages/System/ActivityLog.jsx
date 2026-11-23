@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
-import { History, Search, ArrowRight, Eye, MonitorSmartphone, Globe } from 'lucide-react';
+import { History, Search, ArrowRight, Eye, MonitorSmartphone, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import dayjs from 'dayjs';
@@ -232,20 +232,31 @@ export default function ActivityLog({ auth, logs, filters, modules = [] }) {
                             <span className="text-sm text-gray-500">
                                 Menampilkan {logs.from || 0} - {logs.to || 0} dari {logs.total} data
                             </span>
-                            <div className="flex gap-1">
-                                {logs.links.map((link, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => link.url && router.get(link.url)}
-                                        disabled={!link.url}
-                                        className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                                            link.active 
-                                                ? 'bg-blue-600 text-white' 
-                                                : 'text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
-                                        }`}
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                ))}
+                            <div className="flex flex-wrap items-center justify-center gap-1">
+                                {logs.links.map((link, index) => {
+                                    const labelStr = String(link.label || '');
+                                    const isPrev = index === 0 || /previous|&laquo;|«/i.test(labelStr);
+                                    const isNext = index === logs.links.length - 1 || /next|&raquo;|»/i.test(labelStr);
+                                    const navTitle = isPrev ? 'Halaman sebelumnya' : isNext ? 'Halaman selanjutnya' : undefined;
+
+                                    return (
+                                        <button
+                                            type="button"
+                                            key={index}
+                                            onClick={() => link.url && router.get(link.url)}
+                                            disabled={!link.url}
+                                            aria-label={navTitle}
+                                            title={navTitle}
+                                            className={`inline-flex items-center justify-center text-sm rounded-lg transition-colors ${isPrev || isNext ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'} ${
+                                                link.active 
+                                                    ? 'bg-blue-600 text-white' 
+                                                    : 'text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                                            }`}
+                                        >
+                                            {isPrev ? <ChevronLeft className="w-4 h-4" /> : isNext ? <ChevronRight className="w-4 h-4" /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
