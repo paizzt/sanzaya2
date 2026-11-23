@@ -263,10 +263,6 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
         loadCalendarMonth(nextMonth, nextYear);
     };
 
-    const goToCurrentMonth = () => {
-        loadCalendarMonth(resolvedActualMonth, resolvedActualYear);
-    };
-
     const defaultShift = (() => {
         const hour = new Date().getHours();
         return (hour >= 7 && hour < 19) ? 'Shift Siang' : 'Shift Malam';
@@ -701,14 +697,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                             {historyView === 'calendar' ? <List className="w-5 h-5" /> : <CalendarDays className="w-5 h-5" />}
                         </button>
                         <div>
-                            <h3 className="font-bold text-lg text-gray-800">Riwayat Absensi Bulan Ini</h3>
-                            <p className="text-sm text-gray-600">
-                                {historyView === 'calendar'
-                                    ? `Kalender kehadiran ${calendarData.monthLabel}`
-                                    : isViewingCurrentMonth
-                                    ? 'Rekapan kehadiran Anda selama bulan ini'
-                                    : `Rekapan kehadiran Anda pada ${calendarData.monthLabel}`}
-                            </p>
+                            <h3 className="font-bold text-lg text-gray-800">Riwayat Absensi</h3>
                         </div>
                     </div>
 
@@ -741,16 +730,6 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                     >
                                         <ChevronRight className="w-4 h-4" />
                                     </button>
-                                    {!isViewingCurrentMonth && (
-                                        <button
-                                            type="button"
-                                            onClick={goToCurrentMonth}
-                                            disabled={isLoadingMonth}
-                                            className="px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 transition-colors cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                                        >
-                                            Bulan Ini
-                                        </button>
-                                    )}
                                 </div>
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-medium text-gray-700">
                                     <span className="inline-flex items-center gap-1.5">
