@@ -248,71 +248,74 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
         >
             <Head title="Riwayat & Result UC" />
 
-            <div className="pb-6 pt-0 space-y-8">
+            <div className="pb-6 pt-0 space-y-4 sm:space-y-6">
 
                 {/* Siapa yang Sedang UC Hari Ini */}
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                    <div className="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
-                        <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
-                            <PlaneTakeoff className="text-blue-600" /> Sedang UC Hari Ini
+                <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                        <h3 className="font-bold text-base sm:text-xl text-gray-800 flex items-center gap-2 min-w-0">
+                            <PlaneTakeoff className="text-blue-600 w-5 h-5 shrink-0" />
+                            <span className="truncate">Sedang UC Hari Ini</span>
                         </h3>
                     </div>
 
                     {activeUcs.length === 0 ? (
-                        <div className="text-center py-6 text-gray-400">
+                        <div className="text-center py-5 text-sm text-gray-500">
                             <p>Tidak ada UC hari ini</p>
                         </div>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             {activeUcs.map(uc => (
-                                <div key={uc.id} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+                                <div key={uc.id} className="border border-gray-200 rounded-2xl overflow-hidden">
                                     <div 
-                                        className="p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer flex justify-between items-center transition-colors"
+                                        className="p-3.5 sm:p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors"
                                         onClick={() => setExpandedActiveUc(expandedActiveUc === uc.id ? null : uc.id)}
                                     >
-                                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                                            <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm sm:text-base shrink-0">
                                                 {uc.user?.name?.charAt(0) || '?'}
                                             </div>
-                                            <div>
-                                                <h4 className="font-bold text-gray-800">{uc.user?.name}</h4>
-                                                <p className="text-xs text-gray-500">{uc.department} - {uc.destination_city}</p>
+                                            <div className="min-w-0 flex-1">
+                                                <h4 className="font-bold text-sm sm:text-base text-gray-900 break-words leading-snug">{uc.user?.name}</h4>
+                                                <p className="text-xs text-gray-600 break-words mt-0.5">{uc.department} - {uc.destination_city}</p>
                                             </div>
                                         </div>
-                                        <span className="text-xs font-bold text-blue-600">Sedang Berlangsung</span>
+                                        <span className="inline-flex items-center self-start sm:self-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-600 text-white shrink-0">
+                                            Sedang Berlangsung
+                                        </span>
                                     </div>
                                     
                                     {expandedActiveUc === uc.id && (
-                                        <div className="p-4 bg-white border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm animate-in slide-in-from-top-2">
-                                            <div>
-                                                <p className="text-gray-500 mb-1">Tanggal</p>
-                                                <p className="font-semibold text-gray-800"><Calendar className="inline w-4 h-4 mr-1 text-gray-400"/> {uc.departure_date} s/d {uc.return_date}</p>
+                                        <div className="p-3.5 sm:p-4 bg-white border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm animate-in slide-in-from-top-2">
+                                            <div className="min-w-0">
+                                                <p className="text-gray-500 mb-0.5">Tanggal</p>
+                                                <p className="font-semibold text-gray-800 break-words"><Calendar className="inline w-4 h-4 mr-1 text-gray-500"/> {uc.departure_date} s/d {uc.return_date}</p>
                                             </div>
-                                            <div>
-                                                <p className="text-gray-500 mb-1">Durasi & Kendaraan</p>
-                                                <p className="font-semibold text-gray-800">{uc.estimated_days} Hari - {uc.transport_type} {uc.vehicle_number ? `(${uc.vehicle_number})` : ''}</p>
+                                            <div className="min-w-0">
+                                                <p className="text-gray-500 mb-0.5">Durasi & Kendaraan</p>
+                                                <p className="font-semibold text-gray-800 break-words">{uc.estimated_days} Hari - {uc.transport_type} {uc.vehicle_number ? `(${uc.vehicle_number})` : ''}</p>
                                             </div>
-                                            <div className="col-span-1 md:col-span-2 mt-2">
+                                            <div className="col-span-1 md:col-span-2 min-w-0">
                                                 <p className="text-gray-500 mb-1">Pendamping</p>
-                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                <div className="flex flex-wrap gap-1.5 mt-1">
                                                     {uc.companions && uc.companions.length > 0 ? (
                                                         uc.companions.map((comp, idx) => (
-                                                            <span key={idx} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
+                                                            <span key={idx} className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-medium break-words max-w-full">
                                                                 {comp}
                                                             </span>
                                                         ))
                                                     ) : (
-                                                        <span className="text-gray-400 italic">Tidak ada pendamping</span>
+                                                        <span className="text-gray-500 italic">Tidak ada pendamping</span>
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="col-span-1 md:col-span-2 mt-2 pt-2 border-t border-gray-50 flex justify-end">
+                                            <div className="col-span-1 md:col-span-2 pt-2 border-t border-gray-100 flex justify-end">
                                                 <ExportDropdown 
                                                     pdfRoute={route('requests.uc.pdf', { id: uc.id, without_result: 1 })}
                                                     trigger={
                                                         <button 
                                                             type="button"
-                                                            className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs font-bold rounded-lg shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                                                            className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs font-bold rounded-lg transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                                                             title="Pratinjau & Unduh PDF Formulir UC (Tanpa Result)"
                                                         >
                                                             <FileText className="w-3.5 h-3.5" /> Unduh PDF UC
@@ -329,22 +332,19 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                 </div>
                 
                 {/* Daftar Riwayat Pengajuan UC */}
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-5 border-b border-gray-50 pb-4">
-                        <div>
-                            <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
-                                <FileCheck className="text-blue-600" /> Riwayat Pengajuan UC
-                            </h3>
-                        </div>
-                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                            <div className="w-full">
-                                <ExportDropdown pdfRoute={route('requests.uc.export.pdf')} excelRoute={route('requests.uc.export.excel')} className="w-full justify-center" />
-                            </div>
+                <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <div className="flex flex-wrap justify-between items-center gap-3 mb-4 border-b border-gray-100 pb-3">
+                        <h3 className="font-bold text-base sm:text-xl text-gray-800 flex items-center gap-2 min-w-0">
+                            <FileCheck className="text-blue-600 w-5 h-5 shrink-0" />
+                            <span className="truncate">Riwayat Pengajuan UC</span>
+                        </h3>
+                        <div className="shrink-0">
+                            <ExportDropdown pdfRoute={route('requests.uc.export.pdf')} excelRoute={route('requests.uc.export.excel')} />
                         </div>
                     </div>
 
-                    {/* Filter Tabs Status */}
-                    <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 border-b border-gray-100">
+                    {/* Filter Tabs Status (Wrap rapi tanpa scroll horizontal di mobile) */}
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pb-3 mb-4 sm:mb-6 border-b border-gray-100">
                         <button
                             type="button"
                             onClick={() => setSelectedTab('Semua')}
@@ -466,36 +466,41 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                 const isExpanded = expandedRequest === req.id || selectedUc === req.id;
 
                                 return (
-                                    <div key={req.id} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm bg-white transition-all">
+                                    <div key={req.id} className="border border-gray-200 rounded-2xl overflow-hidden bg-white transition-all">
                                         {/* Header Ringkasan: Nama sales, tujuan, berapa hari (Klik untuk buka/tutup) */}
                                         <div 
-                                            className="p-4 bg-gray-50 hover:bg-gray-100/80 cursor-pointer flex justify-between items-center transition-colors select-none"
+                                            className="p-3.5 sm:p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors select-none"
                                             onClick={() => setExpandedRequest(expandedRequest === req.id ? null : req.id)}
                                         >
-                                            <div className="flex items-center gap-3 min-w-0">
-                                                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                                            <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
                                                     {req.user?.name?.charAt(0) || '?'}
                                                 </div>
-                                                <div className="min-w-0">
-                                                    <h4 className="font-bold text-gray-800 text-sm sm:text-base truncate">{req.user?.name || '-'}</h4>
-                                                    <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                                                        <span>Tujuan: <strong className="text-gray-700 capitalize">{req.destination_city || '-'}</strong></span>
-                                                        <span>•</span>
-                                                        <span className="font-medium text-gray-600">{req.estimated_days || 0} Hari</span>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <h4 className="font-bold text-gray-900 text-sm sm:text-base break-words leading-snug">{req.user?.name || '-'}</h4>
+                                                        <div className={`sm:hidden p-1 rounded-lg text-gray-500 transition-transform duration-200 shrink-0 ${isExpanded ? 'rotate-180 text-blue-600' : ''}`}>
+                                                            <ChevronDown className="w-4 h-4" />
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-xs text-gray-600 mt-0.5 break-words leading-relaxed">
+                                                        Tujuan: <strong className="text-gray-800 capitalize">{req.destination_city || '-'}</strong>
+                                                        <span className="mx-1.5 text-gray-400">&bull;</span>
+                                                        <span className="font-medium text-gray-700 whitespace-nowrap">{req.estimated_days || 0} Hari</span>
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-3 shrink-0">
-                                                <div className="text-right">
-                                                    <span className={`text-xs ${stInfo.color} font-semibold block`}>
+                                            <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 border-t border-gray-200 sm:pt-0 sm:border-t-0 shrink-0">
+                                                <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2 sm:gap-0.5">
+                                                    <span className={`text-xs ${stInfo.color} font-bold`}>
                                                         {stInfo.label}
                                                     </span>
-                                                    <span className="text-xs font-bold text-gray-900 block mt-0.5">
+                                                    <span className="text-xs sm:text-sm font-bold text-gray-900 tabular-nums whitespace-nowrap">
                                                         {formatRupiah(total)}
                                                     </span>
                                                 </div>
-                                                <div className={`p-1.5 rounded-lg text-gray-400 hover:text-gray-600 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-blue-600' : ''}`}>
+                                                <div className={`hidden sm:block p-1.5 rounded-lg text-gray-500 hover:text-gray-700 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-blue-600' : ''}`}>
                                                     <ChevronDown className="w-5 h-5" />
                                                 </div>
                                             </div>
@@ -503,42 +508,42 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
                                         {/* Rincian Lengkap Saat Ditekan */}
                                         {isExpanded && (
-                                            <div className="p-5 border-t border-gray-100 bg-white space-y-4 animate-in slide-in-from-top-2">
+                                            <div className="p-3.5 sm:p-5 border-t border-gray-200 bg-white space-y-4 animate-in slide-in-from-top-2">
                                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pb-3 border-b border-gray-100">
-                                                    <div>
-                                                        <div className="flex items-center gap-2 flex-wrap">
-                                                            <span className="font-bold text-gray-900 text-sm">{req.request_number}</span>
-                                                            <span className="text-xs text-gray-400">•</span>
-                                                            <span className="text-xs text-gray-600">{req.user?.name} ({req.department})</span>
+                                                    <div className="min-w-0 w-full md:flex-1">
+                                                        <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap">
+                                                            <span className="font-bold text-gray-900 text-xs sm:text-sm break-all">{req.request_number}</span>
+                                                            <span className="text-xs text-gray-400">&bull;</span>
+                                                            <span className="text-xs text-gray-700 break-words">{req.user?.name} ({req.department})</span>
                                                             {req.entity && (
                                                                 <>
-                                                                    <span className="text-xs text-gray-400">•</span>
-                                                                    <span className="text-xs text-gray-500">{req.entity}</span>
+                                                                    <span className="text-xs text-gray-400">&bull;</span>
+                                                                    <span className="text-xs text-gray-600 break-words">{req.entity}</span>
                                                                 </>
                                                             )}
                                                         </div>
-                                                        <h4 className="font-bold text-base text-gray-800 mt-1 capitalize">Tujuan: {req.destination_city}</h4>
+                                                        <h4 className="font-bold text-sm sm:text-base text-gray-900 mt-1 capitalize break-words">Tujuan: {req.destination_city}</h4>
                                                         {req.description && (
-                                                            <p className="text-xs text-gray-600 mt-0.5"><span className="font-medium text-gray-500">Keterangan:</span> {req.description}</p>
+                                                            <p className="text-xs text-gray-700 mt-1 break-words whitespace-pre-wrap"><span className="font-semibold text-gray-600">Keterangan:</span> {req.description}</p>
                                                         )}
-                                                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                                                            <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                                                            {req.departure_date} s/d {req.return_date} ({req.estimated_days} Hari)
+                                                        <p className="text-xs text-gray-600 mt-1.5 flex items-center gap-1 flex-wrap">
+                                                            <Calendar className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                                                            <span>{req.departure_date} s/d {req.return_date} ({req.estimated_days} Hari)</span>
                                                         </p>
-                                                        <p className="text-xs text-gray-500 mt-1">
-                                                            Transportasi: <strong className="text-gray-700">{req.transport_type || '-'}</strong> {req.vehicle_number ? `(${req.vehicle_number})` : ''}
+                                                        <p className="text-xs text-gray-600 mt-1 break-words">
+                                                            Transportasi: <strong className="text-gray-800">{req.transport_type || '-'}</strong> {req.vehicle_number ? `(${req.vehicle_number})` : ''}
                                                         </p>
                                                     </div>
-                                                    <div className="text-left md:text-right w-full md:w-auto">
-                                                        <div className="text-xs text-gray-400 mb-0.5">Status Pengajuan:</div>
-                                                        <span className={`text-sm ${stInfo.color} block`}>
+                                                    <div className="text-left md:text-right w-full md:w-auto shrink-0 pt-2 border-t border-gray-100 md:pt-0 md:border-t-0">
+                                                        <div className="text-xs text-gray-500 mb-0.5">Status Pengajuan:</div>
+                                                        <span className={`text-sm font-bold ${stInfo.color} block`}>
                                                             {stInfo.label}
                                                         </span>
-                                                        <div className="text-xs font-bold text-gray-900 mt-1">
+                                                        <div className="text-sm font-bold text-gray-900 mt-0.5 tabular-nums">
                                                             {formatRupiah(total)}
                                                         </div>
                                                         {req.payment_option && (
-                                                            <div className="text-[11px] text-gray-500 font-medium">
+                                                            <div className="text-[11px] text-gray-600 font-medium break-words">
                                                                 {req.payment_option}
                                                             </div>
                                                         )}
@@ -547,11 +552,11 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
                                                 {/* Pendamping jika ada */}
                                                 {req.companions && req.companions.length > 0 && (
-                                                    <div className="text-xs">
-                                                        <span className="text-gray-400 block mb-1">Pendamping:</span>
+                                                    <div className="text-xs min-w-0">
+                                                        <span className="text-gray-500 block mb-1">Pendamping:</span>
                                                         <div className="flex flex-wrap gap-1.5">
                                                             {req.companions.map((comp, idx) => (
-                                                                <span key={idx} className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-medium">
+                                                                <span key={idx} className="bg-gray-100 text-gray-800 px-2.5 py-1 rounded-lg text-xs font-medium break-words max-w-full">
                                                                     {comp}
                                                                 </span>
                                                             ))}
@@ -561,13 +566,17 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
                                                 {/* Rincian Item Estimasi Biaya */}
                                                 {req.items && req.items.length > 0 && (
-                                                    <div className="bg-gray-50/70 rounded-xl p-3 border border-gray-100 text-xs">
-                                                        <span className="font-bold text-gray-700 block mb-1.5">Rincian Item Estimasi Biaya:</span>
-                                                        <div className="space-y-1">
+                                                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-200 text-xs">
+                                                        <span className="font-bold text-gray-800 block mb-1.5">Rincian Item Estimasi Biaya:</span>
+                                                        <div className="divide-y divide-gray-200">
                                                             {req.items.map((item, idx) => (
-                                                                <div key={idx} className="flex justify-between items-center text-gray-600">
-                                                                    <span>{item.item_name} <span className="text-gray-400">({item.quantity}x @{formatRupiah(item.estimated_cost)})</span></span>
-                                                                    <span className="font-semibold text-gray-800">{formatRupiah(item.total_cost || (item.quantity * item.estimated_cost))}</span>
+                                                                <div key={idx} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 sm:gap-3 py-1.5 first:pt-0 last:pb-0 text-gray-700">
+                                                                    <span className="min-w-0 break-words">
+                                                                        {item.item_name} <span className="text-gray-500">({item.quantity}x @{formatRupiah(item.estimated_cost)})</span>
+                                                                    </span>
+                                                                    <span className="font-semibold text-gray-900 shrink-0 tabular-nums">
+                                                                        {formatRupiah(item.total_cost || (item.quantity * item.estimated_cost))}
+                                                                    </span>
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -576,17 +585,19 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
                                                 {/* Catatan Finance / Alasan Penolakan / Catatan Revisi */}
                                                 {req.finance_note && (
-                                                    <div className={`p-3 rounded-xl text-xs border ${
+                                                    <div className={`p-3 rounded-xl text-xs border-2 bg-white min-w-0 ${
                                                         isTolak 
-                                                            ? 'bg-rose-50 border-rose-200 text-rose-800' 
+                                                            ? 'border-red-600 text-gray-900' 
                                                             : (isRevisi 
-                                                                ? 'bg-amber-50 border-amber-200 text-amber-800' 
-                                                                : 'bg-gray-50 border-gray-200 text-gray-800')
+                                                                ? 'border-amber-500 text-gray-900' 
+                                                                : 'border-gray-300 text-gray-900')
                                                     }`}>
-                                                        <span className="font-bold block mb-0.5">
+                                                        <span className={`font-bold block mb-0.5 ${
+                                                            isTolak ? 'text-red-700' : (isRevisi ? 'text-amber-700' : 'text-gray-800')
+                                                        }`}>
                                                             {isTolak ? 'Alasan Penolakan:' : (isRevisi ? 'Catatan Revisi:' : 'Catatan Finance:')}
                                                         </span>
-                                                        <p className="whitespace-pre-wrap">{req.finance_note}</p>
+                                                        <p className="whitespace-pre-wrap break-words text-gray-800">{req.finance_note}</p>
                                                     </div>
                                                 )}
 
@@ -761,9 +772,9 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                         <InputLabel value="Upload Foto Nota (Bisa lebih dari 1) *" />
                                                         <div className="mt-1 flex items-center justify-center w-full">
                                                             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-white hover:bg-gray-50 transition-colors">
-                                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                                    <UploadCloud className="w-8 h-8 text-gray-400 mb-2" />
-                                                                    <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Klik untuk memilih beberapa foto nota</span></p>
+                                                                <div className="flex flex-col items-center justify-center py-4 px-3 text-center">
+                                                                    <UploadCloud className="w-8 h-8 text-gray-400 mb-1.5" />
+                                                                    <p className="mb-1 text-xs sm:text-sm text-gray-600"><span className="font-semibold">Klik untuk memilih beberapa foto nota</span></p>
                                                                     <p className="text-xs text-gray-500">Format: PNG, JPG (Tersimpan otomatis)</p>
                                                                 </div>
                                                                 <input 
@@ -783,9 +794,10 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => removeFile(i)}
-                                                                            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                                                            aria-label="Hapus foto nota"
+                                                                            className="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-sm"
                                                                         >
-                                                                            <X className="w-4 h-4" />
+                                                                            <X className="w-3.5 h-3.5" />
                                                                         </button>
                                                                     </div>
                                                                 ))}
@@ -817,31 +829,31 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
                                         {/* Tampilan Result jika sudah pernah dikirim */}
                                         {req.result_report && (
-                                            <div className="mt-3 pt-3 border-t border-gray-100 bg-gray-50/70 p-4 rounded-xl space-y-3">
-                                                <div>
-                                                    <div className="text-xs font-bold text-gray-700 mb-1">Hasil Perjalanan / Result:</div>
-                                                    <p className="text-xs text-gray-600 whitespace-pre-wrap">{req.result_report}</p>
+                                            <div className="mt-3 pt-3 border-t border-gray-200 bg-gray-50 p-3.5 sm:p-4 rounded-xl space-y-3 min-w-0">
+                                                <div className="min-w-0">
+                                                    <div className="text-xs font-bold text-gray-800 mb-1">Hasil Perjalanan / Result:</div>
+                                                    <p className="text-xs text-gray-700 whitespace-pre-wrap break-words leading-relaxed">{req.result_report}</p>
                                                 </div>
 
                                                 {/* Rekap Finansial Nota */}
-                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-gray-200 text-xs">
-                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 shadow-xs">
-                                                        <span className="text-gray-500 block text-[11px]">Total Nota:</span>
-                                                        <span className="font-bold text-gray-900">{formatRupiah(req.total_nota)}</span>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-2 border-t border-gray-200 text-xs">
+                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 flex items-center justify-between gap-2 sm:block min-w-0">
+                                                        <span className="text-gray-600 text-[11px] sm:block">Total Nota:</span>
+                                                        <span className="font-bold text-gray-900 tabular-nums shrink-0">{formatRupiah(req.total_nota)}</span>
                                                     </div>
-                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 shadow-xs">
-                                                        <span className="text-gray-500 block text-[11px]">Dibayarkan:</span>
-                                                        <span className="font-bold text-gray-900">{formatRupiah(req.dibayarkan)}</span>
+                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 flex items-center justify-between gap-2 sm:block min-w-0">
+                                                        <span className="text-gray-600 text-[11px] sm:block">Dibayarkan:</span>
+                                                        <span className="font-bold text-gray-900 tabular-nums shrink-0">{formatRupiah(req.dibayarkan)}</span>
                                                     </div>
-                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 shadow-xs">
-                                                        <span className="text-gray-500 block text-[11px]">Reimburse Sisa Dana:</span>
-                                                        <span className={`font-bold ${Number(req.reimburse_sisa_dana) > 0 ? 'text-emerald-700' : 'text-gray-400'}`}>
+                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 flex items-center justify-between gap-2 sm:block min-w-0">
+                                                        <span className="text-gray-600 text-[11px] sm:block">Reimburse Sisa Dana:</span>
+                                                        <span className={`font-bold tabular-nums shrink-0 ${Number(req.reimburse_sisa_dana) > 0 ? 'text-emerald-700' : 'text-gray-500'}`}>
                                                             {formatRupiah(req.reimburse_sisa_dana)}
                                                         </span>
                                                     </div>
-                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 shadow-xs">
-                                                        <span className="text-gray-500 block text-[11px]">Pengembalian Dana:</span>
-                                                        <span className={`font-bold ${Number(req.pengembalian_dana) > 0 ? 'text-blue-700' : 'text-gray-400'}`}>
+                                                    <div className="bg-white p-2.5 rounded-lg border border-gray-200 flex items-center justify-between gap-2 sm:block min-w-0">
+                                                        <span className="text-gray-600 text-[11px] sm:block">Pengembalian Dana:</span>
+                                                        <span className={`font-bold tabular-nums shrink-0 ${Number(req.pengembalian_dana) > 0 ? 'text-blue-700' : 'text-gray-500'}`}>
                                                             {formatRupiah(req.pengembalian_dana)}
                                                         </span>
                                                     </div>
@@ -849,19 +861,20 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
 
                                                 {photos.length > 0 && (
                                                     <div className="pt-2 border-t border-gray-200 flex gap-2 flex-wrap items-center">
-                                                        <span className="text-xs text-gray-500 font-medium">Bukti Nota:</span>
+                                                        <span className="text-xs text-gray-600 font-medium">Bukti Nota:</span>
                                                         {photos.map((photo, i) => {
-                                                            const photoUrl = photo.startsWith('http') 
-                                                                ? (photo.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(photo)}` : photo)
-                                                                : `/storage/${photo}`;
+                                                            const normalizedPhoto = photo.replace('://i.ibb.co/', '://i.ibb.co.com/');
+                                                            const photoUrl = normalizedPhoto.startsWith('http') 
+                                                                ? (normalizedPhoto.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(normalizedPhoto)}` : normalizedPhoto)
+                                                                : `/storage/${normalizedPhoto}`;
                                                             return (
                                                                 <button 
                                                                     key={i} 
                                                                     type="button"
                                                                     onClick={() => setPreviewImage({ url: photoUrl, title: `Nota ${i + 1} (${req.destination_city || ''})` })}
-                                                                    className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                                                                    className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors cursor-pointer"
                                                                 >
-                                                                    [Lihat Nota {i + 1}]
+                                                                    Lihat Nota {i + 1}
                                                                 </button>
                                                             );
                                                         })}
@@ -904,24 +917,26 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                         className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]"
                         onClick={e => e.stopPropagation()}
                     >
-                        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50/60">
-                            <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm sm:text-base">
-                                <FileImage className="w-5 h-5 text-blue-500" />
-                                {previewImage.title || 'Foto Nota'}
+                        <div className="flex justify-between items-center gap-2 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50">
+                            <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm sm:text-base min-w-0">
+                                <FileImage className="w-5 h-5 text-blue-600 shrink-0" />
+                                <span className="truncate">{previewImage.title || 'Foto Nota'}</span>
                             </h3>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 shrink-0">
                                 <a 
                                     href={previewImage.url} 
                                     target="_blank" 
                                     rel="noreferrer" 
-                                    className="text-xs text-blue-600 hover:text-blue-800 font-semibold px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors flex items-center gap-1.5"
+                                    className="text-xs text-white font-semibold px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors flex items-center gap-1.5"
                                 >
-                                    <ExternalLink className="w-3.5 h-3.5" /> Buka Tab Baru
+                                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                                    <span className="hidden sm:inline">Buka Tab Baru</span>
+                                    <span className="sm:hidden">Buka</span>
                                 </a>
                                 <button 
                                     type="button" 
                                     onClick={() => setPreviewImage(null)} 
-                                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-xl transition-colors"
+                                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-200 p-1.5 rounded-xl transition-colors"
                                     title="Tutup"
                                 >
                                     <X className="w-5 h-5" />
