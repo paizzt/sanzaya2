@@ -401,7 +401,7 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                                 <p className="mb-1 text-sm text-gray-600"><span className="font-semibold text-blue-600">Klik untuk upload lampiran</span></p>
                                                 <p className="text-xs text-gray-400">PNG, JPG, PDF (Maks 5MB)</p>
                                                 {data.attachment && (
-                                                    <p className="text-xs font-bold text-emerald-600 mt-2 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 truncate max-w-[220px]">
+                                                    <p className="text-xs font-bold text-white mt-2 bg-emerald-700 px-2.5 py-1 rounded-md truncate max-w-[220px]">
                                                         {data.attachment.name}
                                                     </p>
                                                 )}
@@ -493,16 +493,16 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => handleOpenPreview(req)}
-                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 rounded-xl text-xs font-semibold transition-all hover:shadow-sm"
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
                                                                     title="Pratinjau lampiran"
                                                                 >
                                                                     {isAttachmentPdf ? (
-                                                                        <FileText className="w-3.5 h-3.5 text-rose-600" />
+                                                                        <FileText className="w-3.5 h-3.5 text-white" />
                                                                     ) : (
-                                                                        <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
+                                                                        <ImageIcon className="w-3.5 h-3.5 text-white" />
                                                                     )}
                                                                     <span>Lihat Lampiran {isAttachmentPdf ? '(PDF)' : ''}</span>
-                                                                    <Eye className="w-3 h-3 opacity-60 ml-0.5" />
+                                                                    <Eye className="w-3.5 h-3.5 text-white ml-0.5" />
                                                                 </button>
                                                             </div>
                                                         ) : (
@@ -594,13 +594,13 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                 <div className="p-6">
                     <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100">
                         <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
-                                previewModal.type === 'pdf' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-blue-50 text-blue-600 border border-blue-100'
+                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 text-white ${
+                                previewModal.type === 'pdf' ? 'bg-red-600' : 'bg-blue-600'
                             }`}>
                                 {previewModal.type === 'pdf' ? (
-                                    <FileText className="w-5 h-5 text-rose-600" />
+                                    <FileText className="w-5 h-5 text-white" />
                                 ) : (
-                                    <ImageIcon className="w-5 h-5 text-blue-600" />
+                                    <ImageIcon className="w-5 h-5 text-white" />
                                 )}
                             </div>
                             <div>
