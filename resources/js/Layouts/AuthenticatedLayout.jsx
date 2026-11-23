@@ -464,14 +464,21 @@ export default function Authenticated({ user, header, children }) {
                                 
                                 <div className="h-6 sm:h-8 w-px bg-gray-200 mx-1 sm:mx-2"></div>
 
-                                <div className="flex items-center gap-1.5 sm:gap-3 cursor-pointer group">
-                                    <div className="text-right hidden md:block">
-                                        <p className="text-sm font-semibold text-gray-700">{user.name}</p>
-                                        <p className="text-xs text-gray-500">{user.roles?.length > 0 ? user.roles[0].name : 'Pengguna'}</p>
-                                    </div>
-                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center border-2 border-white shadow-sm font-bold text-xs sm:text-base shrink-0">
-                                        {user.name.charAt(0)}
-                                    </div>
+                                <div className="flex items-center gap-1.5 sm:gap-3">
+                                    <Link
+                                        href={route('profile.edit')}
+                                        title="Profil & Akun"
+                                        aria-label="Buka Profil & Akun"
+                                        className="flex items-center gap-1.5 sm:gap-3 rounded-xl px-1.5 py-1 hover:bg-gray-100 transition-colors cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                    >
+                                        <div className="text-right hidden md:block">
+                                            <p className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">{user.name}</p>
+                                            <p className="text-xs text-gray-500">{user.roles?.length > 0 ? user.roles[0].name : 'Pengguna'}</p>
+                                        </div>
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center border-2 border-white shadow-sm font-bold text-xs sm:text-base shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                            {user.name.charAt(0)}
+                                        </div>
+                                    </Link>
                                     <button onClick={handleLogout} className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 transition-colors rounded-full hover:bg-red-50 shrink-0" title="Keluar">
                                         <LogOut className="w-5 h-5" />
                                     </button>
