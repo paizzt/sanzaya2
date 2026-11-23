@@ -764,7 +764,7 @@
     ]
   },
   "resources/js/Pages/Requests/UC.jsx": {
-    "file": "assets/UC-BDZnu_M_.js",
+    "file": "assets/UC-DZe2dZIw.js",
     "name": "UC",
     "src": "resources/js/Pages/Requests/UC.jsx",
     "isDynamicEntry": true,
@@ -802,7 +802,7 @@
     ]
   },
   "resources/js/Pages/Requests/UcEdit.jsx": {
-    "file": "assets/UcEdit-DLu5Gc6l.js",
+    "file": "assets/UcEdit-BCl1WGLb.js",
     "name": "UcEdit",
     "src": "resources/js/Pages/Requests/UcEdit.jsx",
     "isDynamicEntry": true,
@@ -892,7 +892,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-_J43LbQ5.js",
+    "file": "assets/Index-BFFCRPDn.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -913,7 +913,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-2ty-F_x0.js",
+    "file": "assets/Show-BodN7L-H.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -1090,7 +1090,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-Wl1IlkMj.js",
+    "file": "assets/app-D9rKCJU_.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1160,7 +1160,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-B-QvfpY_.css"
+      "assets/app-CPIyLi-n.css"
     ]
   },
   "resources/js/assets/logo.png": {

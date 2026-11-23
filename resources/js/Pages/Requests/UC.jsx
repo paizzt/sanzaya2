@@ -176,11 +176,11 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                             </div>
                         </div>
 
-                        <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-50 space-y-4">
+                        <div className="space-y-4">
                             <div>
                                 <InputLabel value="Kota Tujuan *" className="flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-500"/> Tujuan</InputLabel>
                                 <TextInput 
-                                    className="mt-1 block w-full bg-white" 
+                                    className="mt-1 block w-full" 
                                     value={data.destination_city}
                                     onChange={(e) => setData('destination_city', e.target.value)}
                                     placeholder="Contoh: Surabaya, Palu, dll..."
@@ -191,7 +191,7 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                             <div>
                                 <InputLabel value="Keterangan" className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-500"/> Keterangan</InputLabel>
                                 <textarea 
-                                    className="mt-1 block w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm" 
+                                    className="mt-1 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm" 
                                     rows="3"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
