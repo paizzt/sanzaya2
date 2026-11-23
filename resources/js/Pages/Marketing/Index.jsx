@@ -466,7 +466,7 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                 </div>
 
                                 {data.activity_type === 'Kunjungan' && (
-                                    <div className="p-5 bg-blue-50/50 rounded-2xl border border-blue-100 space-y-6 mt-4">
+                                    <div className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
                                                 <InputLabel value="Jenis Outlet" />
