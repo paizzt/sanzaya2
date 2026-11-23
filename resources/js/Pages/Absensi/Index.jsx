@@ -41,39 +41,39 @@ const CALENDAR_DAY_HEADERS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
 const CALENDAR_STYLES = {
     hadir: {
-        cell: 'bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200/80',
-        dot: 'bg-emerald-500',
+        cell: 'bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800',
+        dot: 'bg-white',
     },
     lembur: {
-        cell: 'bg-blue-100 text-blue-900 border-blue-300 hover:bg-blue-200/80',
-        dot: 'bg-blue-600',
+        cell: 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700',
+        dot: 'bg-white',
     },
     sakit: {
-        cell: 'bg-orange-100 text-orange-900 border-orange-300 hover:bg-orange-200/80',
-        dot: 'bg-orange-500',
+        cell: 'bg-orange-700 text-white border-orange-700 hover:bg-orange-800',
+        dot: 'bg-white',
     },
     tidak_hadir: {
-        cell: 'bg-red-100 text-red-900 border-red-300 hover:bg-red-200/80',
-        dot: 'bg-red-500',
+        cell: 'bg-red-600 text-white border-red-600 hover:bg-red-700',
+        dot: 'bg-white',
     },
     izin: {
-        cell: 'bg-yellow-100 text-yellow-900 border-yellow-300 hover:bg-yellow-200/80',
-        dot: 'bg-yellow-500',
+        cell: 'bg-amber-400 text-gray-950 border-amber-500 hover:bg-amber-500',
+        dot: 'bg-gray-950',
     },
     cuti: {
-        cell: 'bg-purple-100 text-purple-900 border-purple-300 hover:bg-purple-200/80',
-        dot: 'bg-purple-500',
+        cell: 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700',
+        dot: 'bg-white',
     },
     belum_absen: {
-        cell: 'bg-white text-blue-700 border-blue-400 border-dashed hover:bg-blue-50/50',
-        dot: 'bg-blue-400',
+        cell: 'bg-white text-blue-700 border-blue-600 border-dashed hover:bg-gray-100',
+        dot: 'bg-blue-600',
     },
     libur: {
-        cell: 'bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100/80',
-        dot: 'bg-gray-300',
+        cell: 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200',
+        dot: 'bg-gray-500',
     },
     mendatang: {
-        cell: 'bg-white text-gray-400 border-gray-100 hover:bg-gray-50',
+        cell: 'bg-white text-gray-600 border-gray-200 hover:bg-gray-100',
         dot: 'bg-transparent',
     },
 };
@@ -518,10 +518,10 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Status Section */}
                     <div className="lg:col-span-3 space-y-6">
-                        <div className="rounded-3xl p-8 text-white shadow-xl text-center bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-500/20">
+                        <div className="rounded-3xl p-8 text-white shadow-sm text-center bg-blue-700">
                             <p className="text-blue-100 text-lg font-medium">{today}</p>
                             <h2 className="text-6xl font-black mt-2 tracking-tighter tabular-nums">{liveTime}</h2>
-                            <p className="text-blue-200 mt-4 max-w-xl mx-auto text-sm">
+                            <p className="text-blue-100 mt-4 max-w-xl mx-auto text-sm">
                                 {approvedLeave ? (
                                     <span>Status Hari Ini: <strong className="text-white font-bold">Anda {approvedLeave.type}</strong> ({formatDateRange(approvedLeave.start_date, approvedLeave.end_date)})</span>
                                 ) : (
@@ -531,21 +531,21 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                         </div>
 
                         {/* Card Absensi Masuk & Keluar (Sederhana untuk Semua Role Termasuk Satpam) */}
-                        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-200">
                             {approvedLeave ? (
-                                <div className={`p-6 sm:p-8 rounded-2xl border flex flex-col sm:flex-row items-center sm:items-start gap-5 transition-all ${
+                                <div className={`p-6 sm:p-8 rounded-2xl border-2 bg-white flex flex-col sm:flex-row items-center sm:items-start gap-5 transition-all ${
                                     approvedLeave.type === 'Sakit'
-                                        ? 'bg-rose-50/80 border-rose-200 text-rose-900'
+                                        ? 'border-orange-700 text-gray-900'
                                         : approvedLeave.type === 'Cuti'
-                                        ? 'bg-purple-50/80 border-purple-200 text-purple-900'
-                                        : 'bg-amber-50/80 border-amber-200 text-amber-900'
+                                        ? 'border-purple-600 text-gray-900'
+                                        : 'border-amber-500 text-gray-900'
                                 }`}>
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md ${
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${
                                         approvedLeave.type === 'Sakit'
-                                            ? 'bg-rose-600 text-white shadow-rose-600/30'
+                                            ? 'bg-orange-700 text-white'
                                             : approvedLeave.type === 'Cuti'
-                                            ? 'bg-purple-600 text-white shadow-purple-600/30'
-                                            : 'bg-amber-500 text-white shadow-amber-500/30'
+                                            ? 'bg-purple-600 text-white'
+                                            : 'bg-amber-400 text-gray-950'
                                     }`}>
                                         {approvedLeave.type === 'Sakit' ? (
                                             <HeartPulse className="w-7 h-7" />
@@ -557,7 +557,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                     </div>
                                     <div className="flex-1 text-center sm:text-left space-y-2">
                                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                                            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-600 text-white shadow-sm flex items-center gap-1">
+                                            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-700 text-white flex items-center gap-1">
                                                 <Check className="w-3 h-3 stroke-[3]" /> Disetujui
                                             </span>
                                             <h4 className="font-black text-xl text-gray-900">
@@ -565,11 +565,11 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                             </h4>
                                         </div>
                                         <p className="text-sm font-semibold text-gray-700 flex items-center justify-center sm:justify-start gap-1.5">
-                                            <CalendarDays className="w-4 h-4 text-blue-600" />
+                                            <CalendarDays className="w-4 h-4 text-blue-700" />
                                             Rentang Tanggal: <span className="text-gray-900 font-bold">{formatDateRange(approvedLeave.start_date, approvedLeave.end_date)}</span>
                                         </p>
                                         {approvedLeave.reason && (
-                                            <p className="text-xs sm:text-sm text-gray-700 bg-white/70 py-1.5 px-3 rounded-lg border border-gray-200/60 inline-block">
+                                            <p className="text-xs sm:text-sm text-gray-700 bg-gray-100 py-1.5 px-3 rounded-lg border border-gray-200 inline-block">
                                                 <span className="font-semibold text-gray-800">Alasan: </span>
                                                 {approvedLeave.reason}
                                             </p>
@@ -579,15 +579,15 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {/* Check In Status */}
-                                    <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
+                                    <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-200 bg-gray-50">
                                         {hasCheckedIn && (
-                                            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-600 text-white shadow-lg shadow-green-600/25">
+                                            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-700 text-white">
                                                 <Check className="w-7 h-7 stroke-[3]" />
                                             </div>
                                         )}
                                         <div className="flex-1">
                                             <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
-                                            <p className="text-sm font-medium text-gray-500 mt-1">
+                                            <p className="text-sm font-medium text-gray-600 mt-1">
                                                 {hasCheckedIn 
                                                     ? `Berhasil: ${attendance.check_in_time}${attendance.shift ? ` (${attendance.shift})` : ''}` 
                                                     : 'Belum Absen'}
@@ -601,8 +601,8 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                         onClick={() => setSelectedShift('Shift Siang')}
                                                         className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
                                                             selectedShift === 'Shift Siang'
-                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                                                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
                                                         }`}
                                                     >
                                                         <Sun className="w-3.5 h-3.5" /> Shift Siang
@@ -612,8 +612,8 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                         onClick={() => setSelectedShift('Shift Malam')}
                                                         className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
                                                             selectedShift === 'Shift Malam'
-                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                                                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
                                                         }`}
                                                     >
                                                         <Moon className="w-3.5 h-3.5" /> Shift Malam
@@ -625,7 +625,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                 <button
                                                     onClick={() => submitAttendance('check_in')}
                                                     disabled={isLocating}
-                                                    className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
+                                                    className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
                                                 >
                                                     {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Masuk</>}
                                                 </button>
@@ -634,34 +634,34 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                     </div>
 
                                     {/* Check Out Status */}
-                                    <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
+                                    <div className="flex gap-4 items-start p-6 rounded-2xl border border-gray-200 bg-gray-50">
                                         {hasCheckedOut && (
-                                            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-600 text-white shadow-lg shadow-green-600/25">
+                                            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-700 text-white">
                                                 <Check className="w-7 h-7 stroke-[3]" />
                                             </div>
                                         )}
                                         <div className="flex-1">
                                             <p className="font-bold text-lg text-gray-800">Absen Pulang</p>
-                                            <p className="text-sm font-medium text-gray-500 mt-1">
+                                            <p className="text-sm font-medium text-gray-600 mt-1">
                                                 {hasCheckedOut ? `Berhasil: ${attendance.check_out_time}` : 'Belum Absen'}
                                             </p>
 
                                             {hasCheckedIn && !hasCheckedOut && (
                                                 <div className="mt-4 space-y-4">
                                                     {isOvertime && !isSatpam && !tanpaLembur && (
-                                                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-2">
+                                                        <div className="bg-white border border-gray-200 rounded-xl p-3.5 space-y-2">
                                                             <label className="block text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                                                                <Clock className="w-4 h-4 text-gray-500" />
+                                                                <Clock className="w-4 h-4 text-gray-600" />
                                                                 Keterangan Jika Lembur
                                                             </label>
                                                             <textarea
-                                                                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 placeholder-gray-400"
+                                                                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-600 focus:border-blue-600 bg-white text-gray-800 placeholder-gray-500"
                                                                 rows="2"
                                                                 value={data.notes}
                                                                 onChange={(e) => setData('notes', e.target.value)}
                                                                 placeholder="Isi keterangan jika lembur. Kosongkan jika pulang biasa (tidak lembur)..."
                                                             ></textarea>
-                                                            <p className="text-xs text-gray-500">
+                                                            <p className="text-xs text-gray-600">
                                                                 {(isSaturday || new Date().getDay() === 6)
                                                                     ? ((userWorkDays <= 5) ? 'Hari Libur (Sabtu - 5 Hari Kerja): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.' : `Hari Sabtu (lewat ${overtimeSaturdayStart} WITA): Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`)
                                                                     : (isSunday || new Date().getDay() === 0)
@@ -673,7 +673,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                     <button
                                                         onClick={() => submitAttendance('check_out')}
                                                         disabled={isLocating}
-                                                        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/30"
+                                                        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
                                                     >
                                                         {isLocating ? <><Loader2 className="w-4 h-4 animate-spin" /> Mencari Lokasi...</> : <>Keluar</>}
                                                     </button>
@@ -688,7 +688,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                 </div>
 
                 {/* Riwayat Absensi 1 Bulan */}
-                <div className="mt-8 bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                <div className="mt-8 bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-200">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                         <div className="flex items-center gap-3">
                             <button
@@ -697,17 +697,17 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                 aria-pressed={historyView === 'calendar'}
                                 aria-label={historyView === 'calendar' ? 'Ubah ke tampilan tabel riwayat absensi' : 'Ubah ke tampilan kalender riwayat absensi'}
                                 title={historyView === 'calendar' ? 'Klik untuk kembali ke Tampilan Tabel' : 'Klik untuk melihat Tampilan Kalender'}
-                                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 shrink-0 ${
+                                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 shrink-0 ${
                                     historyView === 'calendar'
-                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 hover:bg-blue-700'
-                                        : 'bg-blue-50 text-blue-600 border border-blue-200/80 hover:bg-blue-600 hover:text-white'
+                                        ? 'bg-gray-900 text-white hover:bg-gray-800'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                             >
                                 {historyView === 'calendar' ? <List className="w-5 h-5" /> : <CalendarDays className="w-5 h-5" />}
                             </button>
                             <div>
                                 <h3 className="font-bold text-lg text-gray-800">Riwayat Absensi Bulan Ini</h3>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-600">
                                     {historyView === 'calendar'
                                         ? `Kalender kehadiran ${calendarData.monthLabel}`
                                         : isViewingCurrentMonth
@@ -720,7 +720,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                         <button
                             type="button"
                             onClick={toggleHistoryView}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                         >
                             {historyView === 'calendar' ? (
                                 <>
@@ -739,7 +739,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                     {historyView === 'calendar' ? (
                         <div className="space-y-4">
                             {/* Navigasi Bulan & Legend Warna Status */}
-                            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
+                            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-200">
                                 <div className="flex flex-wrap items-center gap-2">
                                     <button
                                         type="button"
@@ -747,7 +747,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                         disabled={isLoadingMonth}
                                         aria-label="Bulan sebelumnya"
                                         title="Bulan sebelumnya"
-                                        className="w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                        className="w-10 h-10 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                                     >
                                         <ChevronLeft className="w-4 h-4" />
                                     </button>
@@ -761,7 +761,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                         disabled={isLoadingMonth}
                                         aria-label="Bulan selanjutnya"
                                         title="Bulan selanjutnya"
-                                        className="w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                        className="w-10 h-10 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                                     >
                                         <ChevronRight className="w-4 h-4" />
                                     </button>
@@ -770,7 +770,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                             type="button"
                                             onClick={goToCurrentMonth}
                                             disabled={isLoadingMonth}
-                                            className="px-3 py-2 min-h-[40px] rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                            className="px-3 py-2 min-h-[40px] rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 transition-colors cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                                         >
                                             Bulan Ini
                                         </button>
@@ -778,15 +778,15 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                 </div>
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-medium text-gray-700">
                                     <span className="inline-flex items-center gap-1.5">
-                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-700 shrink-0" />
                                         Hadir ({calendarData.stats.hadir})
                                     </span>
                                     <span className="inline-flex items-center gap-1.5">
-                                        <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0" />
+                                        <span className="w-2.5 h-2.5 rounded-full bg-orange-700 shrink-0" />
                                         Sakit ({calendarData.stats.sakit})
                                     </span>
                                     <span className="inline-flex items-center gap-1.5">
-                                        <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0" />
+                                        <span className="w-2.5 h-2.5 rounded-full bg-red-600 shrink-0" />
                                         Tidak Hadir ({calendarData.stats.tidak_hadir})
                                     </span>
                                     <span className="inline-flex items-center gap-1.5">
@@ -795,13 +795,13 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                     </span>
                                     {calendarData.stats.izin > 0 && (
                                         <span className="inline-flex items-center gap-1.5">
-                                            <span className="w-2.5 h-2.5 rounded-full bg-yellow-500 shrink-0" />
+                                            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 border border-amber-500 shrink-0" />
                                             Izin ({calendarData.stats.izin})
                                         </span>
                                     )}
                                     {calendarData.stats.cuti > 0 && (
                                         <span className="inline-flex items-center gap-1.5">
-                                            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0" />
+                                            <span className="w-2.5 h-2.5 rounded-full bg-purple-600 shrink-0" />
                                             Cuti ({calendarData.stats.cuti})
                                         </span>
                                     )}
@@ -845,11 +845,11 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                             aria-label={`${fullDateLabel}, status ${day.fullLabel}`}
                                             aria-pressed={isSelected}
                                             title={`${fullDateLabel} (${day.fullLabel})`}
-                                            className={`min-h-[48px] sm:min-h-[68px] p-1 sm:p-2 rounded-xl border transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1 ${style.cell} ${
+                                            className={`min-h-[48px] sm:min-h-[68px] p-1 sm:p-2 rounded-xl border transition-colors flex flex-col items-center justify-center gap-0.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1 ${style.cell} ${
                                                 isSelected
-                                                    ? 'ring-2 ring-gray-800 ring-offset-1'
+                                                    ? 'ring-2 ring-gray-900 ring-offset-2'
                                                     : day.isToday
-                                                    ? 'ring-2 ring-blue-500/80 ring-offset-1'
+                                                    ? 'ring-2 ring-blue-600 ring-offset-2'
                                                     : ''
                                             }`}
                                         >
@@ -874,7 +874,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
 
                             {/* Panel Detail Tanggal Terpilih */}
                             {selectedDayInfo && (
-                                <div className="p-4 rounded-2xl bg-gray-50/90 border border-gray-200/80 space-y-1">
+                                <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-1">
                                     <div className="flex flex-wrap items-center gap-2">
                                         <p className="font-bold text-sm sm:text-base text-gray-900">
                                             {selectedDayInfo.dateObj.toLocaleDateString('id-ID', {
@@ -934,8 +934,8 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                     )}
 
                                     {selectedDayInfo.record?.notes && (
-                                        <p className="text-xs text-gray-600 bg-white px-2.5 py-1.5 rounded-lg border border-gray-200/70 inline-block mt-1 break-words max-w-full">
-                                            <span className="font-semibold text-gray-700">Catatan:</span> {selectedDayInfo.record.notes}
+                                        <p className="text-xs text-gray-700 bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 inline-block mt-1 break-words max-w-full">
+                                            <span className="font-semibold text-gray-800">Catatan:</span> {selectedDayInfo.record.notes}
                                         </p>
                                     )}
                                 </div>
@@ -945,7 +945,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                         <>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-left">
-                                    <thead className="text-xs text-gray-500 uppercase bg-gray-50/50">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                                         <tr>
                                             <th className="px-4 py-3 font-medium rounded-l-xl">Tanggal</th>
                                             {isSatpam && <th className="px-4 py-3 font-medium">Shift</th>}
@@ -954,7 +954,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                             <th className="px-4 py-3 font-medium rounded-r-xl">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-50">
+                                    <tbody className="divide-y divide-gray-200">
                                         {paginatedHistory.length > 0 ? (
                                             paginatedHistory.map((item, index) => {
                                                 const itemShift = item.shift || ((item.check_in_time && item.check_in_time >= '18:00') ? 'Shift Malam' : 'Shift Siang');
@@ -964,48 +964,48 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                 const itemIsOffDay = itemIsSunday || (itemIsSaturday && (userWorkDays || 6) <= 5);
                                                 const isLateExempt = tanpaKeterlambatan || itemIsOffDay;
                                                 return (
-                                                    <tr key={item.id || index} className="hover:bg-gray-50/50 transition-colors">
+                                                    <tr key={item.id || index} className="hover:bg-gray-50 transition-colors">
                                                         <td className="px-4 py-3 font-medium text-gray-900">{itemDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td>
                                                         {isSatpam && (
                                                             <td className="px-4 py-3">
                                                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
                                                                     itemShift === 'Shift Malam'
-                                                                        ? 'bg-indigo-100 text-indigo-700'
-                                                                        : 'bg-amber-100 text-amber-700'
+                                                                        ? 'bg-indigo-700 text-white'
+                                                                        : 'bg-amber-400 text-gray-950'
                                                                 }`}>
                                                                     {itemShift === 'Shift Malam' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
                                                                     {itemShift}
                                                                 </span>
                                                             </td>
                                                         )}
-                                                        <td className="px-4 py-3 text-gray-600">
+                                                        <td className="px-4 py-3 text-gray-700">
                                                             {item.check_in_time ? (
-                                                                <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500"/> {item.check_in_time}</span>
+                                                                <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-600"/> {item.check_in_time}</span>
                                                             ) : '-'}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-600">
+                                                        <td className="px-4 py-3 text-gray-700">
                                                             {item.check_out_time ? (
                                                                 <span className="inline-flex items-center gap-1.5">
-                                                                    <Clock className="w-3.5 h-3.5 text-green-500"/> {item.check_out_time}
+                                                                    <Clock className="w-3.5 h-3.5 text-emerald-700"/> {item.check_out_time}
                                                                 </span>
                                                             ) : '-'}
                                                         </td>
                                                         <td className="px-4 py-3">
                                                             <div className="flex flex-wrap items-center gap-1.5">
-                                                                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                                                                    item.status === 'Lembur' ? 'bg-blue-100 text-blue-700' :
-                                                                    item.status === 'Hadir' ? 'bg-green-100 text-green-700' :
-                                                                    item.status === 'Izin' ? 'bg-yellow-100 text-yellow-700' :
-                                                                    item.status === 'Izin Khusus' ? 'bg-amber-100 text-amber-700' :
-                                                                    item.status === 'Sakit' ? 'bg-orange-100 text-orange-700' :
-                                                                    item.status === 'Cuti' ? 'bg-purple-100 text-purple-700' :
-                                                                    item.status === 'Terlambat' ? (isLateExempt ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700') :
-                                                                    'bg-gray-100 text-gray-700'
+                                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                                                    item.status === 'Lembur' ? 'bg-blue-600 text-white' :
+                                                                    item.status === 'Hadir' ? 'bg-emerald-700 text-white' :
+                                                                    item.status === 'Izin' ? 'bg-amber-400 text-gray-950' :
+                                                                    item.status === 'Izin Khusus' ? 'bg-amber-400 text-gray-950' :
+                                                                    item.status === 'Sakit' ? 'bg-orange-700 text-white' :
+                                                                    item.status === 'Cuti' ? 'bg-purple-600 text-white' :
+                                                                    item.status === 'Terlambat' ? (isLateExempt ? 'bg-emerald-700 text-white' : 'bg-red-600 text-white') :
+                                                                    'bg-gray-700 text-white'
                                                                 }`}>
                                                                     {(isLateExempt && item.status === 'Terlambat') ? 'Hadir' : (item.status || 'Hadir')}
                                                                 </span>
                                                                 {item.is_lembur && item.status !== 'Lembur' && (
-                                                                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-700">
+                                                                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-600 text-white">
                                                                         Lembur
                                                                     </span>
                                                                 )}
@@ -1016,7 +1016,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                             })
                                         ) : (
                                             <tr>
-                                                <td colSpan={isSatpam ? "5" : "4"} className="px-4 py-8 text-center text-gray-500">Belum ada riwayat absensi bulan ini.</td>
+                                                <td colSpan={isSatpam ? "5" : "4"} className="px-4 py-8 text-center text-gray-600">Belum ada riwayat absensi bulan ini.</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -1097,7 +1097,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                     />
                                     <button
                                         onClick={() => setFacingMode(prev => prev === "user" ? "environment" : "user")}
-                                        className="absolute bottom-4 right-4 bg-white/20 hover:bg-white/40 p-3 rounded-full backdrop-blur-sm text-white shadow-lg transition-colors"
+                                        className="absolute bottom-4 right-4 bg-gray-900 hover:bg-gray-800 p-3 rounded-full text-white border border-gray-700 transition-colors"
                                         title="Flip Kamera"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
