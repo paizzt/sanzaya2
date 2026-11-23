@@ -145,6 +145,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                     shortLabel = 'Lembur';
                     fullLabel = 'Lembur';
                     stats.lembur += 1;
+                    stats.hadir += 1;
                 } else if (st === 'sakit') {
                     category = 'sakit';
                     shortLabel = 'Sakit';
