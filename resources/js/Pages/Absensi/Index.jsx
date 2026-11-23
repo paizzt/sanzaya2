@@ -279,13 +279,25 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
     const webcamRef = useRef(null);
     const fileInputRef = useRef(null);
 
+    const isOffDayOvertime = Boolean(isOffDay && !isSatpam && !tanpaLembur);
+    const offDayLabel = isSunday ? 'Minggu' : 'Sabtu - Jadwal 5 Hari Kerja';
+
     const { data, setData, post, processing } = useForm({
         type: '',
-        notes: '',
+        notes: isOffDayOvertime ? (attendance?.check_out_notes || attendance?.notes || '') : '',
         latitude: '',
         longitude: '',
         shift: defaultShift,
     });
+
+    useEffect(() => {
+        if (isOffDayOvertime && attendance?.check_in_time && !attendance?.check_out_time) {
+            const existingReason = attendance?.check_out_notes || attendance?.notes || '';
+            if (existingReason && !data.notes) {
+                setData('notes', existingReason);
+            }
+        }
+    }, [attendance?.id, attendance?.check_in_time, attendance?.check_out_time, attendance?.notes, attendance?.check_out_notes, isOffDayOvertime]);
 
     const [liveTime, setLiveTime] = useState(currentTime + ':00');
 
@@ -325,6 +337,19 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
     }, [flash]);
 
     const submitAttendance = (type) => {
+        if (isOffDayOvertime && !String(data.notes || '').trim()) {
+            Swal.fire({
+                title: 'Alasan Lembur Wajib Diisi',
+                text: type === 'check_in'
+                    ? `Anda masuk di luar hari kerja (${offDayLabel}). Silakan isi alasan lembur terlebih dahulu sebelum absen masuk.`
+                    : `Anda absen pulang di luar hari kerja (${offDayLabel}). Silakan isi alasan lembur terlebih dahulu sebelum absen pulang.`,
+                icon: 'warning',
+                confirmButtonColor: '#2563eb',
+                customClass: { popup: 'rounded-2xl' }
+            });
+            return;
+        }
+
         setIsLocating(true);
         if (!navigator.geolocation) {
             setIsLocating(false);
@@ -614,6 +639,32 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                 </div>
                                             )}
 
+                                            {!hasCheckedIn && isOffDayOvertime && (
+                                                <div className="mt-4 bg-white border border-gray-200 rounded-xl p-3.5 space-y-2">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <label htmlFor="check-in-overtime-notes" className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+                                                            <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+                                                            <span>Alasan Lembur <span className="text-red-600">*</span></span>
+                                                        </label>
+                                                        <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-600 text-white shrink-0">
+                                                            Wajib
+                                                        </span>
+                                                    </div>
+                                                    <textarea
+                                                        id="check-in-overtime-notes"
+                                                        className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-600 focus:border-blue-600 bg-white text-gray-800 placeholder-gray-500"
+                                                        rows="2"
+                                                        value={data.notes}
+                                                        onChange={(e) => setData('notes', e.target.value)}
+                                                        placeholder="Tuliskan alasan lembur masuk di luar hari kerja..."
+                                                        required
+                                                    ></textarea>
+                                                    <p className="text-xs text-gray-600">
+                                                        Masuk di luar hari kerja ({offDayLabel}): Wajib mengisi alasan lembur sebelum absen masuk.
+                                                    </p>
+                                                </div>
+                                            )}
+
                                             {!hasCheckedIn && (
                                                 <button
                                                     onClick={() => submitAttendance('check_in')}
@@ -641,24 +692,39 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
 
                                             {hasCheckedIn && !hasCheckedOut && (
                                                 <div className="mt-4 space-y-4">
-                                                    {isOvertime && !isSatpam && !tanpaLembur && (
+                                                    {(isOvertime || isOffDay) && !isSatpam && !tanpaLembur && (
                                                         <div className="bg-white border border-gray-200 rounded-xl p-3.5 space-y-2">
-                                                            <label className="block text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                                                                <Clock className="w-4 h-4 text-gray-600" />
-                                                                Keterangan Jika Lembur
-                                                            </label>
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <label htmlFor="check-out-overtime-notes" className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+                                                                    <Clock className={`w-4 h-4 shrink-0 ${isOffDayOvertime ? 'text-blue-600' : 'text-gray-600'}`} />
+                                                                    {isOffDayOvertime ? (
+                                                                        <span>Alasan Lembur <span className="text-red-600">*</span></span>
+                                                                    ) : (
+                                                                        <span>Keterangan Jika Lembur</span>
+                                                                    )}
+                                                                </label>
+                                                                {isOffDayOvertime && (
+                                                                    <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-600 text-white shrink-0">
+                                                                        Wajib
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             <textarea
+                                                                id="check-out-overtime-notes"
                                                                 className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-600 focus:border-blue-600 bg-white text-gray-800 placeholder-gray-500"
                                                                 rows="2"
                                                                 value={data.notes}
                                                                 onChange={(e) => setData('notes', e.target.value)}
-                                                                placeholder="Isi keterangan jika lembur. Kosongkan jika pulang biasa (tidak lembur)..."
+                                                                placeholder={isOffDayOvertime
+                                                                    ? 'Tuliskan alasan / pekerjaan lembur Anda di luar hari kerja...'
+                                                                    : 'Isi keterangan jika lembur. Kosongkan jika pulang biasa (tidak lembur)...'}
+                                                                required={isOffDayOvertime}
                                                             ></textarea>
                                                             <p className="text-xs text-gray-600">
-                                                                {(isSaturday || new Date().getDay() === 6)
-                                                                    ? ((userWorkDays <= 5) ? 'Hari Libur (Sabtu - 5 Hari Kerja): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.' : `Hari Sabtu (lewat ${overtimeSaturdayStart} WITA): Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`)
-                                                                    : (isSunday || new Date().getDay() === 0)
-                                                                        ? 'Hari Libur (Minggu): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.'
+                                                                {isOffDayOvertime
+                                                                    ? `Masuk di luar hari kerja (${offDayLabel}): Seluruh jam kerja terhitung sebagai lembur. Pastikan alasan lembur sudah sesuai sebelum absen pulang.`
+                                                                    : (isSaturday || new Date().getDay() === 6)
+                                                                        ? `Hari Sabtu (lewat ${overtimeSaturdayStart} WITA): Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`
                                                                         : `Lewat pukul ${overtimeWeekdayStart} WITA: Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`}
                                                             </p>
                                                         </div>

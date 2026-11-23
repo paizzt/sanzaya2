@@ -65,7 +65,11 @@ class AttendanceController extends Controller
             foreach ($uncompletedPast as $uncompleted) {
                 $isSatDate = Carbon::parse(substr($uncompleted->date, 0, 10))->dayOfWeek === Carbon::SATURDAY;
                 $uncompleted->check_out_time = $isSatDate ? $autoCheckoutTimeSabtu : $autoCheckoutTimeWeekday;
-                $uncompleted->notes = 'Auto checkout oleh sistem (Lupa absen pulang)';
+                if (empty(trim((string)($uncompleted->notes ?? '')))) {
+                    $uncompleted->notes = 'Auto checkout oleh sistem (Lupa absen pulang)';
+                } elseif (empty(trim((string)($uncompleted->check_out_notes ?? '')))) {
+                    $uncompleted->check_out_notes = trim((string)$uncompleted->notes);
+                }
                 $uncompleted->save();
             }
         }
@@ -312,6 +316,7 @@ class AttendanceController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'shift' => 'nullable|string|in:Shift Siang,Shift Malam',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         $user = Auth::user();
@@ -360,6 +365,19 @@ class AttendanceController extends Controller
         }
 
         if ($request->type === 'check_in') {
+            $todayDate = Carbon::parse($today);
+            $isCheckInSat = $todayDate->dayOfWeek === Carbon::SATURDAY;
+            $isCheckInSun = $todayDate->dayOfWeek === Carbon::SUNDAY;
+            $userWorkDays = (int)($user->work_days_per_week ?? 6);
+            $isCheckInOffDay = ($isCheckInSun || ($isCheckInSat && $userWorkDays <= 5));
+            $tanpaLembur = (bool)($user->tanpa_lembur ?? false);
+            $checkInReason = trim((string)($request->notes ?? ''));
+
+            if (!$user->isSatpam() && !$tanpaLembur && $isCheckInOffDay && $checkInReason === '') {
+                $dayInfo = $isCheckInSun ? 'Minggu' : 'Sabtu - Jadwal 5 Hari Kerja';
+                return redirect()->back()->with('error', "Masuk di luar hari kerja ({$dayInfo}) wajib mengisi alasan lembur terlebih dahulu.");
+            }
+
             // Untuk Satpam: pastikan tidak ada shift aktif sebelumnya yang belum checkout
             if ($user->isSatpam()) {
                 $activeShift = Attendance::where('user_id', $user->id)
@@ -388,6 +406,10 @@ class AttendanceController extends Controller
                 $defaultShift = (Carbon::now()->hour >= 7 && Carbon::now()->hour < 19) ? 'Shift Siang' : 'Shift Malam';
                 $attendance->shift = $request->shift ?: $defaultShift;
             }
+            if (!$user->isSatpam() && !$tanpaLembur && $isCheckInOffDay) {
+                $attendance->notes = $checkInReason;
+                $attendance->overtime_status = 'Menunggu';
+            }
             if (!empty($request->photo_url)) {
                 $attendance->check_in_photo = $request->photo_url;
             }
@@ -412,7 +434,7 @@ class AttendanceController extends Controller
             $isSaturday = false;
             $isSunday = false;
             $isOffDay = false;
-            $userWorkDays = $user->work_days_per_week ?? 6;
+            $userWorkDays = (int)($user->work_days_per_week ?? 6);
             $tanpaLembur = (bool)($user->tanpa_lembur ?? false);
 
             $settings = PayrollController::getPayrollSettings();
@@ -437,6 +459,12 @@ class AttendanceController extends Controller
                 }
             }
 
+            $notes = trim((string)($request->notes ?? ''));
+            if (!$user->isSatpam() && !$tanpaLembur && $isOffDay && $notes === '') {
+                $dayInfo = $isSunday ? 'Minggu' : 'Sabtu - Jadwal 5 Hari Kerja';
+                return redirect()->back()->with('error', "Absen pulang di luar hari kerja ({$dayInfo}) wajib mengisi alasan lembur terlebih dahulu.");
+            }
+
             // Atur jam check out
             if (!$user->isSatpam() && $isCrossDay) {
                 // Untuk karyawan biasa jika checkout di hari berikutnya, dicap 23:59:59
@@ -449,22 +477,14 @@ class AttendanceController extends Controller
             $attendance->latitude = $userLat;
             $attendance->longitude = $userLon;
             
-            $notes = trim($request->notes ?? '');
-            if (!$tanpaLembur) {
-                if (!empty($notes)) {
-                    $attendance->notes = $notes;
-                    $attendance->check_out_notes = $notes;
-                    if ($isOvertime && !$user->isSatpam()) {
-                        $attendance->overtime_status = 'Menunggu';
-                    }
-                } elseif ($isOvertime && $isOffDay && !$user->isSatpam()) {
-                    // Masuk di hari libur otomatis set status lembur Menunggu
-                    $defaultOffNote = $isSunday ? 'Lembur Hari Libur (Minggu)' : 'Lembur Hari Libur (Sabtu)';
-                    $attendance->notes = $defaultOffNote;
-                    $attendance->check_out_notes = $defaultOffNote;
+            if (!$tanpaLembur && !empty($notes)) {
+                $attendance->notes = $notes;
+                $attendance->check_out_notes = $notes;
+                if ($isOvertime && !$user->isSatpam()) {
                     $attendance->overtime_status = 'Menunggu';
                 }
-            } elseif ($user->isSatpam() && $isCrossDay) {
+            }
+            if ($user->isSatpam() && $isCrossDay) {
                 if (empty($attendance->notes)) {
                     $attendance->notes = ($attendance->shift ?? 'Shift Malam') . ' (Lintas hari: selesai ' . $now->isoFormat('D MMM Y') . ' ' . $now->format('H:i') . ')';
                 }

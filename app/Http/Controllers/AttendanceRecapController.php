@@ -123,8 +123,10 @@ class AttendanceRecapController extends Controller
                 if (empty($userIsSatpam[$pu->user_id])) {
                     $isSatDate = Carbon::parse(substr($pu->date, 0, 10))->dayOfWeek === Carbon::SATURDAY;
                     $pu->check_out_time = $isSatDate ? $jamPulangOtomatisSabtu : $jamPulangOtomatisWeekday;
-                    if (empty($pu->check_out_notes)) {
-                        $pu->check_out_notes = 'Otomatis keluar oleh sistem';
+                    if (empty(trim((string)($pu->check_out_notes ?? '')))) {
+                        $pu->check_out_notes = !empty(trim((string)($pu->notes ?? '')))
+                            ? trim((string)$pu->notes)
+                            : 'Otomatis keluar oleh sistem';
                     }
                     $pu->save();
                 }
