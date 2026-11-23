@@ -138,7 +138,7 @@ class AttendanceController extends Controller
 
         $approvedRequestsMonth = AttendanceRequest::where('user_id', $user->id)
             ->where('status', 'Disetujui')
-            ->whereIn('type', ['Sakit', 'Izin', 'Izin Khusus', 'Cuti'])
+            ->whereIn('type', ['Sakit', 'Izin', 'Izin Khusus', 'Cuti', 'Lembur'])
             ->where(function($q) use ($startOfMonth, $endOfMonth) {
                 $q->whereBetween('start_date', [$startOfMonth, $endOfMonth])
                   ->orWhereBetween('end_date', [$startOfMonth, $endOfMonth])
@@ -149,11 +149,41 @@ class AttendanceController extends Controller
             })
             ->get();
 
-        $existingDates = $history->pluck('date')->map(function($d) {
-            return substr($d, 0, 10);
-        })->toArray();
+        $mergedHistory = [];
+        $dateIndexMap = [];
 
-        $mergedHistory = $history->toArray();
+        foreach ($history as $att) {
+            $dateStr = substr($att->date, 0, 10);
+            $attDate = Carbon::parse($dateStr);
+            $attIsSat = $attDate->dayOfWeek === Carbon::SATURDAY;
+            $attIsSun = $attDate->dayOfWeek === Carbon::SUNDAY;
+            $attIsOff = ($attIsSun || ($attIsSat && $userWorkDays <= 5));
+            $attOvertimeThreshold = $attIsOff ? '00:00:00' : (($attIsSat && $userWorkDays >= 6) ? $jamMulaiSabtu : $jamMulaiWeekday);
+
+            $checkOutNotes = $att->check_out_notes ?? null;
+            $rawNotes = trim($att->notes ?? '');
+            $isAutoCheckoutNote = str_contains($rawNotes, 'Auto checkout') || str_contains($rawNotes, 'Otomatis keluar');
+            $hasOvertimeNotes = !empty(trim($checkOutNotes ?? '')) || (!empty($rawNotes) && !str_starts_with($rawNotes, 'Masuk:') && !$isAutoCheckoutNote);
+
+            $attIsLembur = false;
+            if (!$isSatpam && !$tanpaLembur && $att->overtime_status !== 'Ditolak') {
+                if ($att->status === 'Lembur' || $att->overtime_status === 'Disetujui') {
+                    $attIsLembur = true;
+                } elseif ($attIsOff && $att->check_out_time) {
+                    $attIsLembur = true;
+                } elseif ($att->check_out_time && $att->check_out_time >= $attOvertimeThreshold && $hasOvertimeNotes) {
+                    $attIsLembur = true;
+                }
+            }
+
+            $row = $att->toArray();
+            $row['date'] = $dateStr;
+            $row['is_lembur'] = $attIsLembur;
+            $row['overtime_status'] = $attIsLembur ? ($att->overtime_status ?: ($att->status === 'Lembur' ? 'Disetujui' : 'Menunggu')) : $att->overtime_status;
+
+            $dateIndexMap[$dateStr] = count($mergedHistory);
+            $mergedHistory[] = $row;
+        }
 
         foreach ($approvedRequestsMonth as $arm) {
             $st = Carbon::parse($arm->start_date);
@@ -164,9 +194,25 @@ class AttendanceController extends Controller
             if ($st->lt($monthStart)) $st = $monthStart->copy();
             if ($en->gt($monthEnd)) $en = $monthEnd->copy();
 
+            $isLemburReq = strtolower($arm->type) === 'lembur';
+
             while ($st->lte($en)) {
                 $dateStr = $st->format('Y-m-d');
-                if (!in_array($dateStr, $existingDates)) {
+                if (isset($dateIndexMap[$dateStr])) {
+                    if ($isLemburReq && !$isSatpam && !$tanpaLembur) {
+                        $idx = $dateIndexMap[$dateStr];
+                        $mergedHistory[$idx]['is_lembur'] = true;
+                        $mergedHistory[$idx]['overtime_status'] = 'Disetujui';
+                        if (empty($mergedHistory[$idx]['notes']) && !empty($arm->reason)) {
+                            $mergedHistory[$idx]['notes'] = $arm->reason;
+                        }
+                    }
+                } else {
+                    if ($isLemburReq && ($isSatpam || $tanpaLembur)) {
+                        $st->addDay();
+                        continue;
+                    }
+                    $dateIndexMap[$dateStr] = count($mergedHistory);
                     $mergedHistory[] = [
                         'id' => 'req_' . $arm->id . '_' . $dateStr,
                         'user_id' => $user->id,
@@ -176,8 +222,9 @@ class AttendanceController extends Controller
                         'status' => $arm->type,
                         'notes' => $arm->reason,
                         'shift' => null,
+                        'is_lembur' => $isLemburReq,
+                        'overtime_status' => $isLemburReq ? 'Disetujui' : null,
                     ];
-                    $existingDates[] = $dateStr;
                 }
                 $st->addDay();
             }
@@ -210,6 +257,9 @@ class AttendanceController extends Controller
                 'status' => $approvedLeave->status,
             ] : null,
             'today' => Carbon::now()->isoFormat('dddd, D MMMM Y'),
+            'todayDate' => $today,
+            'currentMonth' => (int) Carbon::now()->month,
+            'currentYear' => (int) Carbon::now()->year,
             'currentTime' => Carbon::now()->format('H:i'),
             'isOvertime' => $isOvertime,
             'isSaturday' => $isSaturday,
