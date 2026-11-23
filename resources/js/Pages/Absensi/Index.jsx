@@ -10,10 +10,10 @@ import ClientPagination from '@/Components/ClientPagination';
 const dataURLtoFile = (dataurl, filename) => {
     var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
         bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-    while(n--){
+    while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
-    return new File([u8arr], filename, {type:mime});
+    return new File([u8arr], filename, { type: mime });
 };
 
 const parseLocalDate = (dStr) => {
@@ -281,7 +281,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
     const [facingMode, setFacingMode] = useState("user");
     const webcamRef = useRef(null);
     const fileInputRef = useRef(null);
-    
+
     const { data, setData, post, processing } = useForm({
         type: '',
         notes: '',
@@ -341,26 +341,26 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const { latitude, longitude } = position.coords;
-                
+
                 let isFar = false;
                 if (!isMarketing && company) {
                     const compLat = company.latitude;
                     const compLon = company.longitude;
                     const maxRadius = company.radius || 300;
-                    
-                    const R = 6371e3;
-                    const phi1 = compLat * Math.PI/180;
-                    const phi2 = latitude * Math.PI/180;
-                    const dPhi = (latitude-compLat) * Math.PI/180;
-                    const dLam = (longitude-compLon) * Math.PI/180;
 
-                    const a = Math.sin(dPhi/2) * Math.sin(dPhi/2) +
-                            Math.cos(phi1) * Math.cos(phi2) *
-                            Math.sin(dLam/2) * Math.sin(dLam/2);
-                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    const R = 6371e3;
+                    const phi1 = compLat * Math.PI / 180;
+                    const phi2 = latitude * Math.PI / 180;
+                    const dPhi = (latitude - compLat) * Math.PI / 180;
+                    const dLam = (longitude - compLon) * Math.PI / 180;
+
+                    const a = Math.sin(dPhi / 2) * Math.sin(dPhi / 2) +
+                        Math.cos(phi1) * Math.cos(phi2) *
+                        Math.sin(dLam / 2) * Math.sin(dLam / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
                     const distance = R * c;
-                    
+
                     if (distance > maxRadius) {
                         isFar = true;
                     }
@@ -379,7 +379,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
             (error) => {
                 setIsLocating(false);
                 // Langsung minta foto absensi jika akses lokasi ditolak atau lokasi bermasalah
-                const reason = error.code === 1 
+                const reason = error.code === 1
                     ? 'Akses lokasi ditolak oleh browser/perangkat. Silakan ambil foto bukti kehadiran langsung.'
                     : 'Lokasi/GPS bermasalah atau tidak terdeteksi. Silakan ambil foto bukti kehadiran langsung.';
 
@@ -465,7 +465,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
             }
             return;
         }
-        
+
         setShowWebcamModal(false);
         Swal.fire({
             title: 'Memproses...',
@@ -482,17 +482,17 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                 useWebWorker: true
             };
             const compressedFile = await imageCompression(file, options);
-            
+
             const formData = new FormData();
             formData.append('image', compressedFile);
-            
+
             const response = await fetch('https://api.imgbb.com/1/upload?key=5950b44b24860057ff810fe73f58868b', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const imgData = await response.json();
-            
+
             if (imgData.success) {
                 sendAttendancePost(pendingAttendance.type, pendingAttendance.latitude, pendingAttendance.longitude, imgData.data.url, pendingAttendance.shift);
             } else {
@@ -518,10 +518,10 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Status Section */}
                     <div className="lg:col-span-3 space-y-6">
-                        <div className="rounded-3xl p-8 text-white shadow-sm text-center bg-blue-700">
-                            <p className="text-blue-100 text-lg font-medium">{today}</p>
-                            <h2 className="text-6xl font-black mt-2 tracking-tighter tabular-nums">{liveTime}</h2>
-                            <p className="text-blue-100 mt-4 max-w-xl mx-auto text-sm">
+                        <div className="rounded-3xl p-5 sm:p-8 text-white shadow-sm text-center bg-blue-700">
+                            <p className="text-blue-100 text-base sm:text-lg font-medium">{today}</p>
+                            <h2 className="text-4xl sm:text-6xl font-black mt-2 tracking-tighter tabular-nums">{liveTime}</h2>
+                            <p className="text-blue-100 mt-3 sm:mt-4 max-w-xl mx-auto text-xs sm:text-sm">
                                 {approvedLeave ? (
                                     <span>Status Hari Ini: <strong className="text-white font-bold">Anda {approvedLeave.type}</strong> ({formatDateRange(approvedLeave.start_date, approvedLeave.end_date)})</span>
                                 ) : (
@@ -533,20 +533,18 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                         {/* Card Absensi Masuk & Keluar (Sederhana untuk Semua Role Termasuk Satpam) */}
                         <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-200">
                             {approvedLeave ? (
-                                <div className={`p-6 sm:p-8 rounded-2xl border-2 bg-white flex flex-col sm:flex-row items-center sm:items-start gap-5 transition-all ${
-                                    approvedLeave.type === 'Sakit'
-                                        ? 'border-orange-700 text-gray-900'
-                                        : approvedLeave.type === 'Cuti'
+                                <div className={`p-6 sm:p-8 rounded-2xl border-2 bg-white flex flex-col sm:flex-row items-center sm:items-start gap-5 transition-all ${approvedLeave.type === 'Sakit'
+                                    ? 'border-orange-700 text-gray-900'
+                                    : approvedLeave.type === 'Cuti'
                                         ? 'border-purple-600 text-gray-900'
                                         : 'border-amber-500 text-gray-900'
-                                }`}>
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-                                        approvedLeave.type === 'Sakit'
-                                            ? 'bg-orange-700 text-white'
-                                            : approvedLeave.type === 'Cuti'
+                                    }`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${approvedLeave.type === 'Sakit'
+                                        ? 'bg-orange-700 text-white'
+                                        : approvedLeave.type === 'Cuti'
                                             ? 'bg-purple-600 text-white'
                                             : 'bg-amber-400 text-gray-950'
-                                    }`}>
+                                        }`}>
                                         {approvedLeave.type === 'Sakit' ? (
                                             <HeartPulse className="w-7 h-7" />
                                         ) : approvedLeave.type === 'Cuti' ? (
@@ -588,8 +586,8 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                         <div className="flex-1">
                                             <p className="font-bold text-lg text-gray-800">Absen Masuk</p>
                                             <p className="text-sm font-medium text-gray-600 mt-1">
-                                                {hasCheckedIn 
-                                                    ? `Berhasil: ${attendance.check_in_time}${attendance.shift ? ` (${attendance.shift})` : ''}` 
+                                                {hasCheckedIn
+                                                    ? `Berhasil: ${attendance.check_in_time}${attendance.shift ? ` (${attendance.shift})` : ''}`
                                                     : 'Belum Absen'}
                                             </p>
 
@@ -599,22 +597,20 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                     <button
                                                         type="button"
                                                         onClick={() => setSelectedShift('Shift Siang')}
-                                                        className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
-                                                            selectedShift === 'Shift Siang'
-                                                                ? 'bg-blue-600 text-white border-blue-600'
-                                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                                                        }`}
+                                                        className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${selectedShift === 'Shift Siang'
+                                                            ? 'bg-blue-600 text-white border-blue-600'
+                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                                                            }`}
                                                     >
                                                         <Sun className="w-3.5 h-3.5" /> Shift Siang
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => setSelectedShift('Shift Malam')}
-                                                        className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
-                                                            selectedShift === 'Shift Malam'
-                                                                ? 'bg-blue-600 text-white border-blue-600'
-                                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                                                        }`}
+                                                        className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${selectedShift === 'Shift Malam'
+                                                            ? 'bg-blue-600 text-white border-blue-600'
+                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                                                            }`}
                                                     >
                                                         <Moon className="w-3.5 h-3.5" /> Shift Malam
                                                     </button>
@@ -666,7 +662,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                                     ? ((userWorkDays <= 5) ? 'Hari Libur (Sabtu - 5 Hari Kerja): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.' : `Hari Sabtu (lewat ${overtimeSaturdayStart} WITA): Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`)
                                                                     : (isSunday || new Date().getDay() === 0)
                                                                         ? 'Hari Libur (Minggu): Seluruh jam kerja Anda terhitung sebagai lembur. Anda dapat menambahkan keterangan tugas lembur di atas.'
-                                                                    : `Lewat pukul ${overtimeWeekdayStart} WITA: Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`}
+                                                                        : `Lewat pukul ${overtimeWeekdayStart} WITA: Isi keterangan jika Anda lembur. Jika tidak diisi, Anda terhitung pulang biasa (tidak lembur).`}
                                                             </p>
                                                         </div>
                                                     )}
@@ -727,11 +723,11 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                         disabled={isLoadingMonth}
                                         aria-label="Bulan sebelumnya"
                                         title="Bulan sebelumnya"
-                                        className="w-10 h-10 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                        className="w-11 h-11 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                                     >
                                         <ChevronLeft className="w-4 h-4" />
                                     </button>
-                                    <span className="text-sm sm:text-base font-bold text-gray-800 min-w-[135px] text-center inline-flex items-center justify-center gap-1.5">
+                                    <span className="text-sm sm:text-base font-bold text-gray-800 min-w-[125px] text-center inline-flex items-center justify-center gap-1.5">
                                         {isLoadingMonth && <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />}
                                         {calendarData.monthLabel}
                                     </span>
@@ -741,7 +737,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                         disabled={isLoadingMonth}
                                         aria-label="Bulan selanjutnya"
                                         title="Bulan selanjutnya"
-                                        className="w-10 h-10 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                        className="w-11 h-11 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                                     >
                                         <ChevronRight className="w-4 h-4" />
                                     </button>
@@ -750,7 +746,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                             type="button"
                                             onClick={goToCurrentMonth}
                                             disabled={isLoadingMonth}
-                                            className="px-3 py-2 min-h-[40px] rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 transition-colors cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                            className="px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 transition-colors cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                                         >
                                             Bulan Ini
                                         </button>
@@ -789,13 +785,12 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                             </div>
 
                             {/* Grid Header Hari (Senin - Minggu) */}
-                            <div className={`grid grid-cols-7 gap-1.5 sm:gap-2 transition-opacity ${isLoadingMonth ? 'opacity-60 pointer-events-none' : ''}`}>
+                            <div className={`grid grid-cols-7 gap-1 sm:gap-2 transition-opacity ${isLoadingMonth ? 'opacity-60 pointer-events-none' : ''}`}>
                                 {CALENDAR_DAY_HEADERS.map((dayName, idx) => (
                                     <div
                                         key={dayName}
-                                        className={`text-center text-[11px] sm:text-xs font-semibold py-1.5 ${
-                                            idx === 6 ? 'text-rose-600' : 'text-gray-500'
-                                        }`}
+                                        className={`text-center text-[11px] sm:text-xs font-semibold py-1.5 ${idx === 6 ? 'text-rose-600' : 'text-gray-500'
+                                            }`}
                                     >
                                         {dayName}
                                     </div>
@@ -825,13 +820,12 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                             aria-label={`${fullDateLabel}, status ${day.fullLabel}`}
                                             aria-pressed={isSelected}
                                             title={`${fullDateLabel} (${day.fullLabel})`}
-                                            className={`min-h-[48px] sm:min-h-[68px] p-1 sm:p-2 rounded-xl border transition-colors flex flex-col items-center justify-center gap-0.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1 ${style.cell} ${
-                                                isSelected
-                                                    ? 'ring-2 ring-gray-900 ring-offset-2'
-                                                    : day.isToday
+                                            className={`min-w-0 w-full min-h-[44px] sm:min-h-[68px] p-1 sm:p-2 rounded-xl border transition-colors flex flex-col items-center justify-center gap-0.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1 ${style.cell} ${isSelected
+                                                ? 'ring-2 ring-gray-900 ring-offset-2'
+                                                : day.isToday
                                                     ? 'ring-2 ring-blue-600 ring-offset-2'
                                                     : ''
-                                            }`}
+                                                }`}
                                         >
                                             <span className={`text-sm sm:text-base tabular-nums leading-none ${day.isToday ? 'font-black' : 'font-bold'}`}>
                                                 {day.day}
@@ -906,10 +900,10 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                             {selectedDayInfo.category === 'tidak_hadir'
                                                 ? 'Tidak ada catatan kehadiran atau pengajuan izin/sakit pada tanggal ini.'
                                                 : selectedDayInfo.category === 'libur'
-                                                ? (isSatpam ? 'Tidak ada jadwal shift tercatat pada tanggal ini.' : 'Hari libur kerja.')
-                                                : selectedDayInfo.category === 'belum_absen'
-                                                ? 'Anda belum melakukan absensi hari ini.'
-                                                : 'Tanggal belum berlangsung.'}
+                                                    ? (isSatpam ? 'Tidak ada jadwal shift tercatat pada tanggal ini.' : 'Hari libur kerja.')
+                                                    : selectedDayInfo.category === 'belum_absen'
+                                                        ? 'Anda belum melakukan absensi hari ini.'
+                                                        : 'Tanggal belum berlangsung.'}
                                         </p>
                                     )}
 
@@ -923,7 +917,99 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                         </div>
                     ) : (
                         <>
-                            <div className="overflow-x-auto">
+                            {/* Tampilan Mobile: Daftar Kartu Responsif Tanpa Scroll Horizontal */}
+                            <div className="block md:hidden space-y-3">
+                                {paginatedHistory.length > 0 ? (
+                                    paginatedHistory.map((item, index) => {
+                                        const itemShift = item.shift || ((item.check_in_time && item.check_in_time >= '18:00') ? 'Shift Malam' : 'Shift Siang');
+                                        const itemDate = parseLocalDate(item.date) || new Date(item.date);
+                                        const itemIsSunday = itemDate.getDay() === 0;
+                                        const itemIsSaturday = itemDate.getDay() === 6;
+                                        const itemIsOffDay = itemIsSunday || (itemIsSaturday && (userWorkDays || 6) <= 5);
+                                        const isLateExempt = tanpaKeterlambatan || itemIsOffDay;
+                                        const statusClass =
+                                            item.status === 'Lembur' ? 'bg-blue-600 text-white' :
+                                            item.status === 'Hadir' ? 'bg-emerald-700 text-white' :
+                                            item.status === 'Izin' ? 'bg-amber-400 text-gray-950' :
+                                            item.status === 'Izin Khusus' ? 'bg-amber-400 text-gray-950' :
+                                            item.status === 'Sakit' ? 'bg-orange-700 text-white' :
+                                            item.status === 'Cuti' ? 'bg-purple-600 text-white' :
+                                            item.status === 'Terlambat' ? (isLateExempt ? 'bg-emerald-700 text-white' : 'bg-red-600 text-white') :
+                                            'bg-gray-700 text-white';
+
+                                        return (
+                                            <div
+                                                key={item.id || index}
+                                                className="p-3.5 rounded-2xl border border-gray-200 bg-gray-50 space-y-2.5"
+                                            >
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-bold text-gray-900 leading-snug">
+                                                            {itemDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                                        </p>
+                                                        {isSatpam && (
+                                                            <span className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                                                                itemShift === 'Shift Malam'
+                                                                    ? 'bg-indigo-700 text-white'
+                                                                    : 'bg-amber-400 text-gray-950'
+                                                            }`}>
+                                                                {itemShift === 'Shift Malam' ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
+                                                                {itemShift}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-wrap items-center justify-end gap-1 shrink-0">
+                                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusClass}`}>
+                                                            {(isLateExempt && item.status === 'Terlambat') ? 'Hadir' : (item.status || 'Hadir')}
+                                                        </span>
+                                                        {item.is_lembur && item.status !== 'Lembur' && (
+                                                            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-600 text-white">
+                                                                Lembur
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-2 pt-2.5 border-t border-gray-200">
+                                                    <div className="min-w-0">
+                                                        <span className="block text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+                                                            Jam Masuk
+                                                        </span>
+                                                        <div className="mt-0.5 text-sm font-semibold text-gray-900 tabular-nums">
+                                                            {item.check_in_time ? (
+                                                                <span className="inline-flex items-center gap-1.5">
+                                                                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                                                    {item.check_in_time}
+                                                                </span>
+                                                            ) : '-'}
+                                                        </div>
+                                                    </div>
+                                                    <div className="min-w-0 border-l border-gray-200 pl-3">
+                                                        <span className="block text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+                                                            Jam Keluar
+                                                        </span>
+                                                        <div className="mt-0.5 text-sm font-semibold text-gray-900 tabular-nums">
+                                                            {item.check_out_time ? (
+                                                                <span className="inline-flex items-center gap-1.5">
+                                                                    <Clock className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                                                                    {item.check_out_time}
+                                                                </span>
+                                                            ) : '-'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="py-8 text-center text-sm text-gray-600">
+                                        Belum ada riwayat absensi bulan ini.
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Tampilan Desktop / Tablet: Tabel */}
+                            <div className="hidden md:block overflow-x-auto">
                                 <table className="w-full text-sm text-left">
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                                         <tr>
@@ -948,11 +1034,10 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                         <td className="px-4 py-3 font-medium text-gray-900">{itemDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td>
                                                         {isSatpam && (
                                                             <td className="px-4 py-3">
-                                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                                                    itemShift === 'Shift Malam'
-                                                                        ? 'bg-indigo-700 text-white'
-                                                                        : 'bg-amber-400 text-gray-950'
-                                                                }`}>
+                                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${itemShift === 'Shift Malam'
+                                                                    ? 'bg-indigo-700 text-white'
+                                                                    : 'bg-amber-400 text-gray-950'
+                                                                    }`}>
                                                                     {itemShift === 'Shift Malam' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
                                                                     {itemShift}
                                                                 </span>
@@ -960,28 +1045,27 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                         )}
                                                         <td className="px-4 py-3 text-gray-700">
                                                             {item.check_in_time ? (
-                                                                <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-600"/> {item.check_in_time}</span>
+                                                                <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-600" /> {item.check_in_time}</span>
                                                             ) : '-'}
                                                         </td>
                                                         <td className="px-4 py-3 text-gray-700">
                                                             {item.check_out_time ? (
                                                                 <span className="inline-flex items-center gap-1.5">
-                                                                    <Clock className="w-3.5 h-3.5 text-emerald-700"/> {item.check_out_time}
+                                                                    <Clock className="w-3.5 h-3.5 text-emerald-700" /> {item.check_out_time}
                                                                 </span>
                                                             ) : '-'}
                                                         </td>
                                                         <td className="px-4 py-3">
                                                             <div className="flex flex-wrap items-center gap-1.5">
-                                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                                                    item.status === 'Lembur' ? 'bg-blue-600 text-white' :
+                                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'Lembur' ? 'bg-blue-600 text-white' :
                                                                     item.status === 'Hadir' ? 'bg-emerald-700 text-white' :
-                                                                    item.status === 'Izin' ? 'bg-amber-400 text-gray-950' :
-                                                                    item.status === 'Izin Khusus' ? 'bg-amber-400 text-gray-950' :
-                                                                    item.status === 'Sakit' ? 'bg-orange-700 text-white' :
-                                                                    item.status === 'Cuti' ? 'bg-purple-600 text-white' :
-                                                                    item.status === 'Terlambat' ? (isLateExempt ? 'bg-emerald-700 text-white' : 'bg-red-600 text-white') :
-                                                                    'bg-gray-700 text-white'
-                                                                }`}>
+                                                                        item.status === 'Izin' ? 'bg-amber-400 text-gray-950' :
+                                                                            item.status === 'Izin Khusus' ? 'bg-amber-400 text-gray-950' :
+                                                                                item.status === 'Sakit' ? 'bg-orange-700 text-white' :
+                                                                                    item.status === 'Cuti' ? 'bg-purple-600 text-white' :
+                                                                                        item.status === 'Terlambat' ? (isLateExempt ? 'bg-emerald-700 text-white' : 'bg-red-600 text-white') :
+                                                                                            'bg-gray-700 text-white'
+                                                                    }`}>
                                                                     {(isLateExempt && item.status === 'Terlambat') ? 'Hadir' : (item.status || 'Hadir')}
                                                                 </span>
                                                                 {item.is_lembur && item.status !== 'Lembur' && (
@@ -1005,11 +1089,11 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
 
                             {history.length > 0 && (
                                 <div className="mt-4">
-                                    <ClientPagination 
-                                        total={history.length} 
-                                        itemsPerPage={itemsPerPage} 
-                                        currentPage={currentPage} 
-                                        onPageChange={setCurrentPage} 
+                                    <ClientPagination
+                                        total={history.length}
+                                        itemsPerPage={itemsPerPage}
+                                        currentPage={currentPage}
+                                        onPageChange={setCurrentPage}
                                     />
                                 </div>
                             )}
@@ -1021,13 +1105,13 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
             {/* Webcam Modal */}
             {showWebcamModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-                    <input 
-                        type="file" 
-                        accept="image/*" 
-                        capture="user" 
-                        ref={fileInputRef} 
-                        onChange={handleFileInput} 
-                        className="hidden" 
+                    <input
+                        type="file"
+                        accept="image/*"
+                        capture="user"
+                        ref={fileInputRef}
+                        onChange={handleFileInput}
+                        className="hidden"
                     />
                     <div className="bg-white rounded-2xl overflow-hidden w-full max-w-md shadow-2xl flex flex-col">
                         <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-start gap-3">
