@@ -42,7 +42,7 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
         transportation_type: 'Darat',
         vehicle_number: '',
         items: [{ item_name: '', quantity: 1, estimated_cost: '' }],
-        payment_option: 'PANJAR BIAYA 50%',
+        payment_option: 'BAYAR FULL',
     });
 
     const { flash } = usePage().props;
@@ -396,23 +396,23 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
                                     <input 
                                         type="radio" 
                                         name="payment_option"
-                                        value="PANJAR BIAYA 50%"
-                                        checked={data.payment_option === 'PANJAR BIAYA 50%'}
-                                        onChange={(e) => setData('payment_option', e.target.value)}
-                                        className="text-blue-600 border-gray-300 focus:ring-blue-500 w-5 h-5"
-                                    />
-                                    <span className="text-gray-700 font-medium">PANJAR BIAYA 50%</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="radio" 
-                                        name="payment_option"
                                         value="BAYAR FULL"
                                         checked={data.payment_option === 'BAYAR FULL'}
                                         onChange={(e) => setData('payment_option', e.target.value)}
                                         className="text-blue-600 border-gray-300 focus:ring-blue-500 w-5 h-5"
                                     />
                                     <span className="text-gray-700 font-medium">BAYAR FULL</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        name="payment_option"
+                                        value="PANJAR BIAYA 50%"
+                                        checked={data.payment_option === 'PANJAR BIAYA 50%'}
+                                        onChange={(e) => setData('payment_option', e.target.value)}
+                                        className="text-blue-600 border-gray-300 focus:ring-blue-500 w-5 h-5"
+                                    />
+                                    <span className="text-gray-700 font-medium">PANJAR BIAYA 50%</span>
                                 </label>
                             </div>
                             <InputError message={errors.payment_option} className="mt-2" />

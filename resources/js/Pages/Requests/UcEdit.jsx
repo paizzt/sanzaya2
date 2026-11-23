@@ -398,23 +398,23 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
                                     <input 
                                         type="radio" 
                                         name="payment_option"
-                                        value="PANJAR BIAYA 50%"
-                                        checked={data.payment_option === 'PANJAR BIAYA 50%'}
-                                        onChange={(e) => setData('payment_option', e.target.value)}
-                                        className="text-blue-600 border-gray-300 focus:ring-blue-500 w-5 h-5"
-                                    />
-                                    <span className="text-gray-700 font-medium">PANJAR BIAYA 50%</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="radio" 
-                                        name="payment_option"
                                         value="BAYAR FULL"
                                         checked={data.payment_option === 'BAYAR FULL'}
                                         onChange={(e) => setData('payment_option', e.target.value)}
                                         className="text-blue-600 border-gray-300 focus:ring-blue-500 w-5 h-5"
                                     />
                                     <span className="text-gray-700 font-medium">BAYAR FULL</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        name="payment_option"
+                                        value="PANJAR BIAYA 50%"
+                                        checked={data.payment_option === 'PANJAR BIAYA 50%'}
+                                        onChange={(e) => setData('payment_option', e.target.value)}
+                                        className="text-blue-600 border-gray-300 focus:ring-blue-500 w-5 h-5"
+                                    />
+                                    <span className="text-gray-700 font-medium">PANJAR BIAYA 50%</span>
                                 </label>
                             </div>
                             <InputError message={errors.payment_option} className="mt-2" />
