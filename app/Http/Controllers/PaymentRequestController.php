@@ -310,7 +310,7 @@ class PaymentRequestController extends Controller
 
     public function create()
     {
-        if (!Auth::user()->hasPermissionTo('payment-request.create')) {
+        if (!Auth::user()->can('payment-request.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -329,7 +329,7 @@ class PaymentRequestController extends Controller
         \Illuminate\Support\Facades\Log::info('PaymentRequest store hit!', $request->all());
         $user = Auth::user();
 
-        if (!$user->hasPermissionTo('payment-request.create')) {
+        if (!$user->can('payment-request.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -374,6 +374,35 @@ class PaymentRequestController extends Controller
             'items.*.unit_price.required' => 'Harga satuan rincian anggaran wajib diisi.',
         ]);
 
+        // Ensure optional columns exist BEFORE starting any DB transaction (DDL causes implicit commit in MySQL)
+        $hasNotesCol = false;
+        $hasLetterNumberCol = false;
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'notes')) {
+                \Illuminate\Support\Facades\Schema::table('payment_requests', function ($table) {
+                    $table->text('notes')->nullable()->after('purpose');
+                });
+            }
+            $hasNotesCol = \Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'notes');
+        } catch (\Throwable $e) {}
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'letter_number')) {
+                \Illuminate\Support\Facades\Schema::table('payment_requests', function ($table) {
+                    $table->string('letter_number')->nullable()->after('purpose');
+                });
+            }
+            $hasLetterNumberCol = \Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'letter_number');
+        } catch (\Throwable $e) {}
+
+        $normalizeDate = function ($val) {
+            if (empty($val)) return null;
+            $str = trim((string) $val);
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $str)) {
+                return $str;
+            }
+            return \Carbon\Carbon::parse($str)->timezone(config('app.timezone'))->format('Y-m-d');
+        };
+
         try {
             DB::beginTransaction();
 
@@ -384,57 +413,61 @@ class PaymentRequestController extends Controller
                     $projectOrOutlet = $mapping->outlet->name;
                 }
             }
-            
-            // Ensure notes column exists
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'notes')) {
-                try {
-                    \Illuminate\Support\Facades\Schema::table('payment_requests', function ($table) {
-                        $table->text('notes')->nullable()->after('purpose');
-                    });
-                } catch (\Throwable $e) {}
-            }
 
-            // Create the record
-            $paymentRequest = PaymentRequest::create([
+            $discount = (float) ($request->discount ?? 0);
+            $otherCost = (float) ($request->other_cost ?? 0);
+            $vatStatus = $request->vat_status ?: 'Tidak Dikenakan';
+            $vatRate = (float) ($request->vat_rate ?? 0);
+
+            $createData = [
                 'reference_number' => $this->paymentService->generateReferenceNumber($user->division_id),
                 'company_name' => $request->company_name,
                 'requester_id' => $user->id,
                 'division_id' => $user->division_id,
-                'payment_deadline' => $request->payment_deadline,
-                'transaction_date' => $request->transaction_date,
+                'payment_deadline' => $normalizeDate($request->payment_deadline),
+                'transaction_date' => $normalizeDate($request->transaction_date),
                 'category' => $request->category,
                 'purpose' => $request->purpose,
-                'notes' => $request->notes,
                 'recipient_name' => $request->recipient_name,
-                'letter_number' => $request->letter_number,
-                'vendor_id' => $request->vendor_id,
+                'vendor_id' => $request->filled('vendor_id') ? $request->vendor_id : null,
                 'invoice_reference' => $request->invoice_reference,
                 'project_or_outlet' => $projectOrOutlet,
                 'payment_method' => $request->payment_method,
                 'bank_or_wallet' => $request->bank_or_wallet,
                 'account_number' => $request->account_number,
                 'account_name' => $request->account_name,
-                'account_used_before' => $request->account_used_before ?? false,
-                'account_changed' => $request->account_changed ?? false,
+                'account_used_before' => $request->boolean('account_used_before'),
+                'account_changed' => $request->boolean('account_changed'),
                 'account_change_note' => $request->account_change_note,
-                'vat_status' => $request->vat_status ?? 'Tidak Dikenakan',
-                'vat_rate' => $request->vat_rate ?? 0,
+                'vat_status' => $vatStatus,
+                'vat_rate' => $vatRate,
                 'workflow_status' => 'waiting_ga',
                 'created_by' => $user->id,
-                'submission_date' => now(),
+                'submission_date' => now()->format('Y-m-d'),
                 'submitted_at' => now(),
-            ]);
+            ];
+            if ($hasNotesCol) {
+                $createData['notes'] = $request->notes;
+            }
+            if ($hasLetterNumberCol) {
+                $createData['letter_number'] = $request->letter_number;
+            }
+
+            // Create the record
+            $paymentRequest = PaymentRequest::create($createData);
 
             // Save items
             $items = [];
             foreach ($request->items as $index => $item) {
+                $qty = max(1, (int) round((float) ($item['quantity'] ?? 1)));
+                $unitPrice = (float) ($item['unit_price'] ?? 0);
                 $items[] = [
                     'payment_request_id' => $paymentRequest->id,
                     'description' => $item['description'],
-                    'quantity' => $item['quantity'],
+                    'quantity' => $qty,
                     'unit' => $item['unit'] ?? null,
-                    'unit_price' => $item['unit_price'],
-                    'amount' => $item['quantity'] * $item['unit_price'],
+                    'unit_price' => $unitPrice,
+                    'amount' => $qty * $unitPrice,
                     'sort_order' => $index,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -445,16 +478,16 @@ class PaymentRequestController extends Controller
             // Calculate totals
             $totals = $this->paymentService->calculateTotals(
                 $request->items,
-                $request->discount ?? 0,
-                $request->other_cost ?? 0,
-                $request->vat_status ?? 'Tidak Dikenakan',
-                $request->vat_rate ?? 0
+                $discount,
+                $otherCost,
+                $vatStatus,
+                $vatRate
             );
 
             $paymentRequest->update([
                 'subtotal' => $totals['subtotal'],
-                'discount' => $request->discount ?? 0,
-                'other_cost' => $request->other_cost ?? 0,
+                'discount' => $discount,
+                'other_cost' => $otherCost,
                 'vat_amount' => $totals['vat_amount'],
                 'grand_total' => $totals['grand_total'],
             ]);
@@ -474,13 +507,17 @@ class PaymentRequestController extends Controller
                 }
             }
 
-            DB::commit();
+            if (DB::transactionLevel() > 0) {
+                DB::commit();
+            }
 
             return redirect()->route('payment-requests.show', $paymentRequest->id)
                              ->with('success', 'Draft Pengajuan Pembayaran berhasil dibuat.');
 
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (\Throwable $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
             \Illuminate\Support\Facades\Log::error('PaymentRequest Store Error: ' . $e->getMessage() . ' Trace: ' . $e->getTraceAsString());
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -503,11 +540,11 @@ class PaymentRequestController extends Controller
         $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
         $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
 
-        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->hasPermissionTo('payment-request.view-all')) {
-            if ($user->hasPermissionTo('payment-request.view-division') && $paymentRequest->division_id !== $user->division_id) {
+        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->can('payment-request.view-all')) {
+            if ($user->can('payment-request.view-division') && $paymentRequest->division_id !== $user->division_id) {
                 abort(403);
             }
-            if (!$user->hasPermissionTo('payment-request.view-division') && $paymentRequest->requester_id !== $user->id) {
+            if (!$user->can('payment-request.view-division') && $paymentRequest->requester_id !== $user->id) {
                 abort(403);
             }
         }
@@ -559,7 +596,7 @@ class PaymentRequestController extends Controller
         $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
         $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
 
-        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->hasPermissionTo('payment-request.review')) {
+        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->can('payment-request.review')) {
             abort(403);
         }
 
@@ -623,7 +660,7 @@ class PaymentRequestController extends Controller
         $isAdmin = $user->isAdminUser();
         $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
 
-        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->hasPermissionTo('payment-request.review')) {
+        if (!$isSuperAdmin && !$isAdmin && !$hasReviewFeature && !$user->can('payment-request.review')) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
@@ -643,7 +680,13 @@ class PaymentRequestController extends Controller
         $paymentRequest = PaymentRequest::findOrFail($id);
         $user = Auth::user();
 
-        if (!$user->isSuperAdminUser() && !$user->isAdminUser() && ($paymentRequest->requester_id !== $user->id || !in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga']))) {
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
+        $canReview = $hasReviewFeature || $user->can('payment-request.review');
+        $isEditableByRequester = ($paymentRequest->requester_id === $user->id && in_array($paymentRequest->workflow_status, ['draft', 'waiting_ga']));
+
+        if (!$isSuperAdmin && !$isAdmin && !$canReview && !$isEditableByRequester) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit pengajuan ini.');
         }
 
@@ -684,6 +727,35 @@ class PaymentRequestController extends Controller
             'items.*.unit_price.required' => 'Harga satuan rincian anggaran wajib diisi.',
         ]);
 
+        // Ensure optional columns exist BEFORE starting DB transaction (DDL causes implicit commit in MySQL)
+        $hasNotesCol = false;
+        $hasLetterNumberCol = false;
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'notes')) {
+                \Illuminate\Support\Facades\Schema::table('payment_requests', function ($table) {
+                    $table->text('notes')->nullable()->after('purpose');
+                });
+            }
+            $hasNotesCol = \Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'notes');
+        } catch (\Throwable $e) {}
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'letter_number')) {
+                \Illuminate\Support\Facades\Schema::table('payment_requests', function ($table) {
+                    $table->string('letter_number')->nullable()->after('purpose');
+                });
+            }
+            $hasLetterNumberCol = \Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'letter_number');
+        } catch (\Throwable $e) {}
+
+        $normalizeDate = function ($val) {
+            if (empty($val)) return null;
+            $str = trim((string) $val);
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $str)) {
+                return $str;
+            }
+            return \Carbon\Carbon::parse($str)->timezone(config('app.timezone'))->format('Y-m-d');
+        };
+
         try {
             DB::beginTransaction();
             
@@ -695,25 +767,19 @@ class PaymentRequestController extends Controller
                 }
             }
 
-            // Ensure notes column exists
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('payment_requests', 'notes')) {
-                try {
-                    \Illuminate\Support\Facades\Schema::table('payment_requests', function ($table) {
-                        $table->text('notes')->nullable()->after('purpose');
-                    });
-                } catch (\Throwable $e) {}
-            }
+            $discount = (float) ($request->discount ?? 0);
+            $otherCost = (float) ($request->other_cost ?? 0);
+            $vatStatus = $request->vat_status ?: 'Tidak Dikenakan';
+            $vatRate = (float) ($request->vat_rate ?? 0);
 
-            $paymentRequest->update([
+            $updateData = [
                 'company_name' => $request->company_name,
-                'payment_deadline' => $request->payment_deadline,
-                'transaction_date' => $request->transaction_date,
+                'payment_deadline' => $normalizeDate($request->payment_deadline),
+                'transaction_date' => $normalizeDate($request->transaction_date),
                 'category' => $request->category,
                 'purpose' => $request->purpose,
-                'notes' => $request->notes,
                 'recipient_name' => $request->recipient_name,
-                'letter_number' => $request->letter_number,
-                'vendor_id' => $request->vendor_id,
+                'vendor_id' => $request->filled('vendor_id') ? $request->vendor_id : null,
                 'invoice_reference' => $request->invoice_reference,
                 'project_or_outlet' => $projectOrOutlet,
                 
@@ -721,40 +787,52 @@ class PaymentRequestController extends Controller
                 'bank_or_wallet' => $request->bank_or_wallet,
                 'account_number' => $request->account_number,
                 'account_name' => $request->account_name,
-                'account_used_before' => $request->account_used_before,
-                'account_changed' => $request->account_changed,
+                'account_used_before' => $request->boolean('account_used_before'),
+                'account_changed' => $request->boolean('account_changed'),
                 'account_change_note' => $request->account_change_note,
                 
-                'vat_status' => $request->vat_status,
-                'vat_rate' => $request->vat_rate,
-                'discount' => $request->discount,
-                'other_cost' => $request->other_cost,
-            ]);
+                'vat_status' => $vatStatus,
+                'vat_rate' => $vatRate,
+                'discount' => $discount,
+                'other_cost' => $otherCost,
+                'updated_by' => $user->id,
+            ];
+            if ($hasNotesCol) {
+                $updateData['notes'] = $request->notes;
+            }
+            if ($hasLetterNumberCol) {
+                $updateData['letter_number'] = $request->letter_number;
+            }
+
+            $paymentRequest->update($updateData);
 
             // Sync items
             $paymentRequest->items()->delete();
             $totals = $this->paymentService->calculateTotals(
                 $request->items,
-                $request->discount ?? 0,
-                $request->other_cost ?? 0,
-                $request->vat_status ?? 'Tidak Dikenakan',
-                $request->vat_rate ?? 0
+                $discount,
+                $otherCost,
+                $vatStatus,
+                $vatRate
             );
 
-            foreach ($request->items as $item) {
+            foreach ($request->items as $index => $item) {
+                $qty = max(1, (int) round((float) ($item['quantity'] ?? 1)));
+                $unitPrice = (float) ($item['unit_price'] ?? 0);
                 $paymentRequest->items()->create([
                     'description' => $item['description'],
-                    'quantity' => $item['quantity'],
-                    'unit' => $item['unit'] ?? 'pcs',
-                    'unit_price' => $item['unit_price'],
-                    'amount' => $item['quantity'] * $item['unit_price'],
+                    'quantity' => $qty,
+                    'unit' => !empty($item['unit']) ? $item['unit'] : 'pcs',
+                    'unit_price' => $unitPrice,
+                    'amount' => $qty * $unitPrice,
+                    'sort_order' => $index,
                 ]);
             }
 
             $paymentRequest->update([
                 'subtotal' => $totals['subtotal'],
-                'discount' => $request->discount ?? 0,
-                'other_cost' => $request->other_cost ?? 0,
+                'discount' => $discount,
+                'other_cost' => $otherCost,
                 'vat_amount' => $totals['vat_amount'],
                 'grand_total' => $totals['grand_total'],
             ]);
@@ -765,16 +843,19 @@ class PaymentRequestController extends Controller
             if ($request->filled('deleted_attachment_ids')) {
                 $deletedIds = $request->deleted_attachment_ids;
                 if (!is_array($deletedIds)) {
-                    $deletedIds = explode(',', $deletedIds);
+                    $deletedIds = explode(',', (string) $deletedIds);
                 }
-                $toDelete = \App\Models\PaymentRequestAttachment::where('payment_request_id', $paymentRequest->id)
-                    ->whereIn('id', $deletedIds)
-                    ->get();
-                foreach ($toDelete as $att) {
-                    if (!str_starts_with($att->file_path, 'http')) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($att->file_path);
+                $deletedIds = array_values(array_filter(array_map('intval', $deletedIds)));
+                if (!empty($deletedIds)) {
+                    $toDelete = \App\Models\PaymentRequestAttachment::where('payment_request_id', $paymentRequest->id)
+                        ->whereIn('id', $deletedIds)
+                        ->get();
+                    foreach ($toDelete as $att) {
+                        if (!empty($att->file_path) && !str_starts_with($att->file_path, 'http')) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($att->file_path);
+                        }
+                        $att->delete();
                     }
-                    $att->delete();
                 }
             }
 
@@ -797,7 +878,7 @@ class PaymentRequestController extends Controller
                 if ($completeness['is_complete']) {
                     $paymentRequest->update([
                         'workflow_status' => 'waiting_ga',
-                        'submission_date' => now(),
+                        'submission_date' => now()->format('Y-m-d'),
                         'submitted_at' => now(),
                     ]);
 
@@ -812,19 +893,23 @@ class PaymentRequestController extends Controller
                 }
             }
 
-            DB::commit();
+            if (DB::transactionLevel() > 0) {
+                DB::commit();
+            }
 
-            if ($request->query('isApprovalView')) {
+            if ($request->boolean('isApprovalView') || $request->query('isApprovalView')) {
                 return redirect()->route('payment-approvals.show', $paymentRequest->id)
-                                 ->with('success', $shouldSubmit ? 'Pengajuan berhasil diperbarui dan dikirim ke Finance.' : 'Draft Pengajuan Pembayaran berhasil diperbarui.');
+                                 ->with('success', $shouldSubmit ? 'Pengajuan berhasil diperbarui dan dikirim ke Finance.' : 'Pengajuan Pembayaran berhasil diperbarui.');
             }
 
             return redirect()->route('payment-requests.show', $paymentRequest->id)
-                             ->with('success', $shouldSubmit ? 'Pengajuan berhasil diperbarui dan dikirim ke Finance.' : 'Draft Pengajuan Pembayaran berhasil diperbarui.');
+                             ->with('success', $shouldSubmit ? 'Pengajuan berhasil diperbarui dan dikirim ke Finance.' : 'Pengajuan Pembayaran berhasil diperbarui.');
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('PaymentRequest Update Error: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+            \Illuminate\Support\Facades\Log::error('PaymentRequest Update Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
@@ -1052,9 +1137,9 @@ class PaymentRequestController extends Controller
         $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
         $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
 
-        if ($isSuperAdmin || $isAdmin || $hasReviewFeature || $user->hasPermissionTo('payment-request.view-all')) {
+        if ($isSuperAdmin || $isAdmin || $hasReviewFeature || $user->can('payment-request.view-all')) {
             $canView = true;
-        } elseif ($user->hasPermissionTo('payment-request.view-division') && $paymentRequest->division_id == $user->division_id) {
+        } elseif ($user->can('payment-request.view-division') && $paymentRequest->division_id == $user->division_id) {
             $canView = true;
         } elseif ($paymentRequest->requester_id == $user->id) {
             $canView = true;

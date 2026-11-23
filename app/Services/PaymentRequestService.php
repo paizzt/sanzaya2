@@ -78,9 +78,12 @@ class PaymentRequestService
     public function calculateTotals($items, $discount = 0, $otherCost = 0, $vatStatus = 'Tidak Dikenakan', $vatRate = 0)
     {
         $subtotal = collect($items)->sum(function ($item) {
-            return $item['quantity'] * $item['unit_price'];
+            return (float) ($item['quantity'] ?? 0) * (float) ($item['unit_price'] ?? 0);
         });
 
+        $discount = (float) ($discount ?? 0);
+        $otherCost = (float) ($otherCost ?? 0);
+        $vatRate = (float) ($vatRate ?? 0);
         $vatAmount = 0;
         
         if ($vatStatus === 'Belum Termasuk' && $vatRate > 0) {

@@ -14,6 +14,16 @@ import 'dayjs/locale/id';
 
 dayjs.locale('id');
 
+const formatDateForInput = (value) => {
+    if (!value) return '';
+    const str = String(value).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        return str;
+    }
+    const parsed = dayjs(str);
+    return parsed.isValid() ? parsed.format('YYYY-MM-DD') : '';
+};
+
 export default function Edit({ auth, vendors, companies, paymentRequest, isApprovalView }) {
     const latestRevision = paymentRequest.latest_revision || 
         (paymentRequest.approvals && [...paymentRequest.approvals].reverse().find(a => a.action === 'returned'));
@@ -28,8 +38,8 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         company_name: paymentRequest.company_name || '',
-        payment_deadline: paymentRequest.payment_deadline || '',
-        transaction_date: paymentRequest.transaction_date || '',
+        payment_deadline: formatDateForInput(paymentRequest.payment_deadline),
+        transaction_date: formatDateForInput(paymentRequest.transaction_date),
         category: paymentRequest.category || '',
         purpose: paymentRequest.purpose || '',
         letter_number: paymentRequest.letter_number || '',
@@ -46,10 +56,10 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
         account_changed: paymentRequest.account_changed === 1 || paymentRequest.account_changed === true,
         account_change_note: paymentRequest.account_change_note || '',
         vat_status: paymentRequest.vat_status || 'Tidak Dikenakan',
-        vat_rate: paymentRequest.vat_rate || 0,
-        discount: paymentRequest.discount || 0,
-        other_cost: paymentRequest.other_cost || 0,
-        items: paymentRequest.items && paymentRequest.items.length > 0 ? paymentRequest.items : [{ description: '', quantity: 1, unit: '', unit_price: 0 }],
+        vat_rate: Number(paymentRequest.vat_rate) || 0,
+        discount: Number(paymentRequest.discount) || 0,
+        other_cost: Number(paymentRequest.other_cost) || 0,
+        items: paymentRequest.items && paymentRequest.items.length > 0 ? paymentRequest.items.map(it => ({ description: it.description || '', quantity: Number(it.quantity) || 1, unit: it.unit || '', unit_price: Number(it.unit_price) || 0 })) : [{ description: '', quantity: 1, unit: '', unit_price: 0 }],
         lampiran_foto: [],
         deleted_attachment_ids: []
     });
@@ -94,13 +104,13 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
 
     const handleItemChange = (index, field, value) => {
         const newItems = [...data.items];
-        newItems[index][field] = value;
+        newItems[index] = { ...newItems[index], [field]: value };
         setData('items', newItems);
     };
 
-    const subtotal = data.items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
-    const vatAmount = data.vat_status === 'Belum Termasuk' ? subtotal * (data.vat_rate / 100) : 0;
-    const grandTotal = subtotal - Number(data.discount) + Number(data.other_cost) + vatAmount;
+    const subtotal = data.items.reduce((acc, item) => acc + ((Number(item.quantity) || 0) * (Number(item.unit_price) || 0)), 0);
+    const vatAmount = data.vat_status === 'Belum Termasuk' ? subtotal * ((Number(data.vat_rate) || 0) / 100) : 0;
+    const grandTotal = subtotal - (Number(data.discount) || 0) + (Number(data.other_cost) || 0) + vatAmount;
 
     const validateForm = () => {
         const emptyFields = [];
@@ -183,6 +193,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
         }
 
         post(updateRoute, {
+            forceFormData: true,
             onError: (errors) => {
                 console.error(errors);
                 Swal.fire({
@@ -738,7 +749,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                 Batal
                             </Link>
                             <PrimaryButton type="submit" disabled={processing} className="bg-gray-700 hover:bg-gray-800">
-                                Simpan Draft
+                                {paymentRequest.workflow_status === 'draft' ? 'Simpan Draft' : 'Simpan Perubahan'}
                             </PrimaryButton>
                             {!isApprovalView && paymentRequest.workflow_status === 'draft' && (
                                 <button

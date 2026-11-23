@@ -12,9 +12,9 @@ class PaymentRequest extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'submission_date' => 'date',
-        'payment_deadline' => 'date',
-        'transaction_date' => 'date',
+        'submission_date' => 'date:Y-m-d',
+        'payment_deadline' => 'date:Y-m-d',
+        'transaction_date' => 'date:Y-m-d',
         'subtotal' => 'decimal:2',
         'discount' => 'decimal:2',
         'other_cost' => 'decimal:2',
