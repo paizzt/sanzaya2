@@ -111,11 +111,12 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             return;
         }
 
-        // Bypass blokir ISP Indonesia (ERR_SSL_VERSION_OR_CIPHER_MISMATCH) terhadap i.ibb.co
-        // dengan menggunakan proxy gambar publik wsrv.nl
+        // Bypass blokir ISP Indonesia (ERR_CERT_COMMON_NAME_INVALID / ERR_SSL_VERSION_OR_CIPHER_MISMATCH) terhadap i.ibb.co
+        // dengan menormalkan ke CDN i.ibb.co.com lalu melalui proxy gambar publik wsrv.nl
         let finalUrl = url;
         if (url.includes('i.ibb.co')) {
-            finalUrl = `https://wsrv.nl/?url=${encodeURIComponent(url)}`;
+            const normalizedUrl = url.replace('://i.ibb.co/', '://i.ibb.co.com/');
+            finalUrl = `https://wsrv.nl/?url=${encodeURIComponent(normalizedUrl)}`;
         }
 
         Swal.fire({

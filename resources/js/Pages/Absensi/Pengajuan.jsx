@@ -132,6 +132,9 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
     const [previewModal, setPreviewModal] = useState({
         isOpen: false,
         url: '',
+        downloadUrl: '',
+        fallbackUrl: '',
+        loadError: false,
         type: '', // 'pdf' or 'image'
         title: '',
         fileName: '',
@@ -220,8 +223,36 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
         }
     };
 
+    const buildAttachmentRoute = (id, download = false) => {
+        let base = `/absensi/pengajuan/${id}/attachment`;
+        try {
+            if (typeof route === 'function' && route().has && route().has('absensi.pengajuan.attachment')) {
+                base = route('absensi.pengajuan.attachment', id);
+            }
+        } catch (e) {
+            // Fallback ke path relatif
+        }
+        if (!download) return base;
+        return `${base}${base.includes('?') ? '&' : '?'}download=1`;
+    };
+
+    const getFallbackImageUrl = (rawAttachment) => {
+        if (!rawAttachment || !rawAttachment.startsWith('http')) return '';
+        const cdnUrl = rawAttachment.replace('://i.ibb.co/', '://i.ibb.co.com/');
+        if (cdnUrl.includes('i.ibb.co')) {
+            return `https://wsrv.nl/?url=${encodeURIComponent(cdnUrl)}`;
+        }
+        return cdnUrl;
+    };
+
     const getAttachmentUrl = (req) => {
-        if (req.attachment_url) return req.attachment_url;
+        if (!req?.attachment && !req?.attachment_url) return null;
+        if (req.attachment && (req.attachment.includes('://i.ibb.co/') || req.attachment.includes('://i.ibb.co.com/'))) {
+            return req.id ? buildAttachmentRoute(req.id, false) : getFallbackImageUrl(req.attachment);
+        }
+        if (req.attachment_url && !req.attachment_url.includes('://i.ibb.co/')) {
+            return req.attachment_url;
+        }
         if (!req.attachment) return null;
         if (req.attachment.startsWith('http://') || req.attachment.startsWith('https://')) {
             return req.attachment;
@@ -239,9 +270,14 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
         const url = getAttachmentUrl(req);
         if (!url) return;
         const isPdfFile = isPdf(req.attachment || url);
+        const downloadUrl = req.id ? buildAttachmentRoute(req.id, true) : url;
+        const fallbackUrl = !isPdfFile ? getFallbackImageUrl(req.attachment) : '';
         setPreviewModal({
             isOpen: true,
             url: url,
+            downloadUrl: downloadUrl,
+            fallbackUrl: fallbackUrl,
+            loadError: false,
             type: isPdfFile ? 'pdf' : 'image',
             title: `Lampiran ${req.type} - ${req.user?.name || 'User'} (${req.start_date})`,
             fileName: (req.attachment || 'lampiran').split('/').pop(),
@@ -249,7 +285,7 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
     };
 
     const handleClosePreview = () => {
-        setPreviewModal(prev => ({ ...prev, isOpen: false }));
+        setPreviewModal(prev => ({ ...prev, isOpen: false, loadError: false }));
     };
 
     return (
@@ -551,10 +587,26 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                 className="w-full h-[65vh] rounded-xl bg-white border border-gray-200"
                                 title={previewModal.title}
                             />
+                        ) : previewModal.loadError ? (
+                            <div className="flex flex-col items-center justify-center gap-2 py-10 px-4 text-center text-gray-500">
+                                <ImageIcon className="w-10 h-10 text-gray-300" />
+                                <p className="text-sm font-medium text-gray-600">Gagal memuat pratinjau gambar.</p>
+                                <p className="text-xs text-gray-400">Silakan gunakan tombol Unduh di bawah untuk menyimpan lampiran.</p>
+                            </div>
                         ) : (
                             <img
+                                key={previewModal.url}
                                 src={previewModal.url}
                                 alt={previewModal.title}
+                                onError={(e) => {
+                                    const img = e.currentTarget;
+                                    if (previewModal.fallbackUrl && !img.dataset.retried) {
+                                        img.dataset.retried = '1';
+                                        img.src = previewModal.fallbackUrl;
+                                    } else {
+                                        setPreviewModal(prev => ({ ...prev, loadError: true }));
+                                    }
+                                }}
                                 className="max-h-[65vh] w-auto max-w-full rounded-xl object-contain shadow-sm bg-white"
                             />
                         )}
@@ -566,8 +618,8 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                         </span>
                         <div className="flex items-center gap-2">
                             <a
-                                href={previewModal.url}
-                                download
+                                href={previewModal.downloadUrl || previewModal.url}
+                                download={previewModal.fileName || true}
                                 className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition-colors"
                             >
                                 <Download className="w-4 h-4" />

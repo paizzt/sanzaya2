@@ -108,6 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/absensi/pengajuan', [AttendanceRequestController::class, 'store'])->name('absensi.pengajuan.store');
     Route::match(['put', 'patch', 'post'], '/absensi/pengajuan/{id}/dates', [AttendanceRequestController::class, 'updateDates'])->name('absensi.pengajuan.update-dates');
     Route::put('/absensi/pengajuan/{id}/status', [AttendanceRequestController::class, 'updateStatus'])->name('absensi.pengajuan.status');
+    Route::get('/absensi/pengajuan/{id}/attachment', [AttendanceRequestController::class, 'attachment'])->name('absensi.pengajuan.attachment');
     Route::delete('/absensi/pengajuan/{id}', [AttendanceRequestController::class, 'destroy'])->name('absensi.pengajuan.destroy');
 
     // Modul Absensi (Otorisasi ditangani di controller via FeatureToggle)
