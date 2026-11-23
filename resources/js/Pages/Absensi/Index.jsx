@@ -689,51 +689,31 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
 
                 {/* Riwayat Absensi 1 Bulan */}
                 <div className="mt-8 bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-200">
-                    <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                        <div className="flex items-center gap-3">
-                            <button
-                                type="button"
-                                onClick={toggleHistoryView}
-                                aria-pressed={historyView === 'calendar'}
-                                aria-label={historyView === 'calendar' ? 'Ubah ke tampilan tabel riwayat absensi' : 'Ubah ke tampilan kalender riwayat absensi'}
-                                title={historyView === 'calendar' ? 'Klik untuk kembali ke Tampilan Tabel' : 'Klik untuk melihat Tampilan Kalender'}
-                                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 shrink-0 ${
-                                    historyView === 'calendar'
-                                        ? 'bg-gray-900 text-white hover:bg-gray-800'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                                }`}
-                            >
-                                {historyView === 'calendar' ? <List className="w-5 h-5" /> : <CalendarDays className="w-5 h-5" />}
-                            </button>
-                            <div>
-                                <h3 className="font-bold text-lg text-gray-800">Riwayat Absensi Bulan Ini</h3>
-                                <p className="text-sm text-gray-600">
-                                    {historyView === 'calendar'
-                                        ? `Kalender kehadiran ${calendarData.monthLabel}`
-                                        : isViewingCurrentMonth
-                                        ? 'Rekapan kehadiran Anda selama bulan ini'
-                                        : `Rekapan kehadiran Anda pada ${calendarData.monthLabel}`}
-                                </p>
-                            </div>
-                        </div>
-
+                    <div className="flex items-center gap-3 mb-6">
                         <button
                             type="button"
                             onClick={toggleHistoryView}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-semibold border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                            aria-pressed={historyView === 'calendar'}
+                            aria-label={historyView === 'calendar' ? 'Ubah ke tampilan tabel riwayat absensi' : 'Ubah ke tampilan kalender riwayat absensi'}
+                            title={historyView === 'calendar' ? 'Klik untuk kembali ke Tampilan Tabel' : 'Klik untuk melihat Tampilan Kalender'}
+                            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 shrink-0 ${
+                                historyView === 'calendar'
+                                    ? 'bg-gray-900 text-white hover:bg-gray-800'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
                         >
-                            {historyView === 'calendar' ? (
-                                <>
-                                    <List className="w-3.5 h-3.5" />
-                                    <span>Tampilan Tabel</span>
-                                </>
-                            ) : (
-                                <>
-                                    <CalendarDays className="w-3.5 h-3.5" />
-                                    <span>Tampilan Kalender</span>
-                                </>
-                            )}
+                            {historyView === 'calendar' ? <List className="w-5 h-5" /> : <CalendarDays className="w-5 h-5" />}
                         </button>
+                        <div>
+                            <h3 className="font-bold text-lg text-gray-800">Riwayat Absensi Bulan Ini</h3>
+                            <p className="text-sm text-gray-600">
+                                {historyView === 'calendar'
+                                    ? `Kalender kehadiran ${calendarData.monthLabel}`
+                                    : isViewingCurrentMonth
+                                    ? 'Rekapan kehadiran Anda selama bulan ini'
+                                    : `Rekapan kehadiran Anda pada ${calendarData.monthLabel}`}
+                            </p>
+                        </div>
                     </div>
 
                     {historyView === 'calendar' ? (
