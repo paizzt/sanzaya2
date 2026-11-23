@@ -318,8 +318,8 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                         {/* Card 1: Target Kunjungan Bulanan (Merged) */}
                         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-blue-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-400/30 text-white shadow-inner">
-                                    <Target className="w-6 h-6" />
+                                <div className="min-w-[48px] h-12 px-2 rounded-2xl flex items-center justify-center bg-white text-blue-700 shadow-sm font-bold text-sm shrink-0 tabular-nums">
+                                    {target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold text-blue-100">Target Kunjungan Bulanan</p>
