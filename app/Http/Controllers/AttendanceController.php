@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
 
 class AttendanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             PayrollController::ensurePayrollTablesStatic();
@@ -128,8 +128,20 @@ class AttendanceController extends Controller
             ->orderBy('id', 'desc')
             ->first();
 
-        $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
-        $endOfMonth = Carbon::now()->endOfMonth()->format('Y-m-d');
+        $nowMonth = (int) Carbon::now()->month;
+        $nowYear = (int) Carbon::now()->year;
+        $selectedMonth = (int) $request->input('month', $nowMonth);
+        $selectedYear = (int) $request->input('year', $nowYear);
+        if ($selectedMonth < 1 || $selectedMonth > 12) {
+            $selectedMonth = $nowMonth;
+        }
+        if ($selectedYear < 2000 || $selectedYear > 2100) {
+            $selectedYear = $nowYear;
+        }
+
+        $targetMonthStart = Carbon::create($selectedYear, $selectedMonth, 1)->startOfMonth();
+        $startOfMonth = $targetMonthStart->format('Y-m-d');
+        $endOfMonth = $targetMonthStart->copy()->endOfMonth()->format('Y-m-d');
         
         $history = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
@@ -258,8 +270,10 @@ class AttendanceController extends Controller
             ] : null,
             'today' => Carbon::now()->isoFormat('dddd, D MMMM Y'),
             'todayDate' => $today,
-            'currentMonth' => (int) Carbon::now()->month,
-            'currentYear' => (int) Carbon::now()->year,
+            'currentMonth' => $selectedMonth,
+            'currentYear' => $selectedYear,
+            'actualMonth' => $nowMonth,
+            'actualYear' => $nowYear,
             'currentTime' => Carbon::now()->format('H:i'),
             'isOvertime' => $isOvertime,
             'isSaturday' => $isSaturday,

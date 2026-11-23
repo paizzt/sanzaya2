@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { CheckCircle2, Check, Clock, CalendarDays, List, Loader2, Sun, Moon, Camera, AlertCircle, HeartPulse, CalendarCheck, FileText } from 'lucide-react';
+import { CheckCircle2, Check, Clock, CalendarDays, List, ChevronLeft, ChevronRight, Loader2, Sun, Moon, Camera, AlertCircle, HeartPulse, CalendarCheck, FileText } from 'lucide-react';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
@@ -78,9 +78,10 @@ const CALENDAR_STYLES = {
     },
 };
 
-export default function Index({ attendance, approvedLeave = null, today, todayDate = null, currentMonth = null, currentYear = null, currentTime, isOvertime, isSaturday, isSunday, isOffDay, userWorkDays, history = [], company, isMarketing, isSatpam, activeDutySatpam, tanpaLembur = false, tanpaKeterlambatan = false, overtimeWeekdayStart = '20:00', overtimeSaturdayStart = '14:00' }) {
+export default function Index({ attendance, approvedLeave = null, today, todayDate = null, currentMonth = null, currentYear = null, actualMonth = null, actualYear = null, currentTime, isOvertime, isSaturday, isSunday, isOffDay, userWorkDays, history = [], company, isMarketing, isSatpam, activeDutySatpam, tanpaLembur = false, tanpaKeterlambatan = false, overtimeWeekdayStart = '20:00', overtimeSaturdayStart = '14:00' }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [historyView, setHistoryView] = useState('table');
+    const [isLoadingMonth, setIsLoadingMonth] = useState(false);
     const itemsPerPage = 5;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedHistory = history.slice(startIndex, startIndex + itemsPerPage);
@@ -88,6 +89,9 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
     const nowLocal = new Date();
     const resolvedYear = currentYear || nowLocal.getFullYear();
     const resolvedMonth = currentMonth || (nowLocal.getMonth() + 1);
+    const resolvedActualYear = actualYear || nowLocal.getFullYear();
+    const resolvedActualMonth = actualMonth || (nowLocal.getMonth() + 1);
+    const isViewingCurrentMonth = resolvedYear === resolvedActualYear && resolvedMonth === resolvedActualMonth;
     const resolvedTodayDate = todayDate || `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, '0')}-${String(nowLocal.getDate()).padStart(2, '0')}`;
     const [selectedCalendarDate, setSelectedCalendarDate] = useState(resolvedTodayDate);
 
@@ -212,8 +216,55 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
         );
     }, [calendarData.days, selectedCalendarDate]);
 
+    useEffect(() => {
+        if (isViewingCurrentMonth) {
+            setSelectedCalendarDate(resolvedTodayDate);
+        } else {
+            const firstOfMonth = `${resolvedYear}-${String(resolvedMonth).padStart(2, '0')}-01`;
+            const latestWithRecord = history.length > 0 && history[0]?.date
+                ? String(history[0].date).slice(0, 10)
+                : firstOfMonth;
+            setSelectedCalendarDate(latestWithRecord);
+        }
+    }, [resolvedMonth, resolvedYear, isViewingCurrentMonth, resolvedTodayDate]);
+
     const toggleHistoryView = () => {
         setHistoryView((prev) => (prev === 'table' ? 'calendar' : 'table'));
+    };
+
+    const loadCalendarMonth = (targetMonth, targetYear) => {
+        if (isLoadingMonth) return;
+        setIsLoadingMonth(true);
+        router.get(
+            route('absensi.index'),
+            { month: targetMonth, year: targetYear },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: ['history', 'currentMonth', 'currentYear', 'actualMonth', 'actualYear', 'todayDate'],
+                onFinish: () => {
+                    setIsLoadingMonth(false);
+                    setCurrentPage(1);
+                },
+            }
+        );
+    };
+
+    const navigateCalendarMonth = (delta) => {
+        let nextMonth = resolvedMonth + delta;
+        let nextYear = resolvedYear;
+        if (nextMonth < 1) {
+            nextMonth = 12;
+            nextYear -= 1;
+        } else if (nextMonth > 12) {
+            nextMonth = 1;
+            nextYear += 1;
+        }
+        loadCalendarMonth(nextMonth, nextYear);
+    };
+
+    const goToCurrentMonth = () => {
+        loadCalendarMonth(resolvedActualMonth, resolvedActualYear);
     };
 
     const defaultShift = (() => {
@@ -659,7 +710,9 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                 <p className="text-sm text-gray-500">
                                     {historyView === 'calendar'
                                         ? `Kalender kehadiran ${calendarData.monthLabel}`
-                                        : 'Rekapan kehadiran Anda selama bulan ini'}
+                                        : isViewingCurrentMonth
+                                        ? 'Rekapan kehadiran Anda selama bulan ini'
+                                        : `Rekapan kehadiran Anda pada ${calendarData.monthLabel}`}
                                 </p>
                             </div>
                         </div>
@@ -685,9 +738,44 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
 
                     {historyView === 'calendar' ? (
                         <div className="space-y-4">
-                            {/* Legend Warna Status */}
+                            {/* Navigasi Bulan & Legend Warna Status */}
                             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
-                                <span className="text-sm font-bold text-gray-800">{calendarData.monthLabel}</span>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => navigateCalendarMonth(-1)}
+                                        disabled={isLoadingMonth}
+                                        aria-label="Bulan sebelumnya"
+                                        title="Bulan sebelumnya"
+                                        className="w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <span className="text-sm sm:text-base font-bold text-gray-800 min-w-[135px] text-center inline-flex items-center justify-center gap-1.5">
+                                        {isLoadingMonth && <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />}
+                                        {calendarData.monthLabel}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigateCalendarMonth(1)}
+                                        disabled={isLoadingMonth}
+                                        aria-label="Bulan selanjutnya"
+                                        title="Bulan selanjutnya"
+                                        className="w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                    >
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                    {!isViewingCurrentMonth && (
+                                        <button
+                                            type="button"
+                                            onClick={goToCurrentMonth}
+                                            disabled={isLoadingMonth}
+                                            className="px-3 py-2 min-h-[40px] rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                        >
+                                            Bulan Ini
+                                        </button>
+                                    )}
+                                </div>
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-medium text-gray-700">
                                     <span className="inline-flex items-center gap-1.5">
                                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
@@ -721,7 +809,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                             </div>
 
                             {/* Grid Header Hari (Senin - Minggu) */}
-                            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+                            <div className={`grid grid-cols-7 gap-1.5 sm:gap-2 transition-opacity ${isLoadingMonth ? 'opacity-60 pointer-events-none' : ''}`}>
                                 {CALENDAR_DAY_HEADERS.map((dayName, idx) => (
                                     <div
                                         key={dayName}
