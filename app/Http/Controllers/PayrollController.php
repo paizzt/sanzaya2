@@ -57,6 +57,9 @@ class PayrollController extends Controller
                     if (!Schema::hasColumn('payrolls', 'tarif_lembur_sabtu')) {
                         $table->decimal('tarif_lembur_sabtu', 15, 2)->default(20000)->after('jumlah_jam_lembur_sabtu');
                     }
+                    if (!Schema::hasColumn('payrolls', 'tanpa_potongan_bpjs')) {
+                        $table->boolean('tanpa_potongan_bpjs')->default(false)->after('bpjs_ketenagakerjaan');
+                    }
                 });
             }
 
@@ -105,6 +108,9 @@ class PayrollController extends Controller
                     }
                     if (!Schema::hasColumn('users', 'tanpa_lembur')) {
                         $table->boolean('tanpa_lembur')->default(false);
+                    }
+                    if (!Schema::hasColumn('users', 'tanpa_potongan_bpjs')) {
+                        $table->boolean('tanpa_potongan_bpjs')->default(false);
                     }
                 });
             }
@@ -750,6 +756,7 @@ class PayrollController extends Controller
         }
 
         $metrics = self::calculateAttendanceMetrics($user, $month, $year);
+        $tanpaBpjs = (bool)($user->tanpa_potongan_bpjs ?? false);
 
         return response()->json([
             'user' => $user,
@@ -757,8 +764,9 @@ class PayrollController extends Controller
             'default_values' => [
                 'gaji_pokok' => (float)($user->salary ?? 0),
                 'operasional' => (float)($user->operational_allowance ?? 0),
-                'bpjs_kesehatan_persen' => 1.0,
-                'bpjs_ketenagakerjaan_persen' => 2.0,
+                'tanpa_potongan_bpjs' => $tanpaBpjs,
+                'bpjs_kesehatan_persen' => $tanpaBpjs ? 0.0 : 1.0,
+                'bpjs_ketenagakerjaan_persen' => $tanpaBpjs ? 0.0 : 2.0,
                 'bpjs_kesehatan_perusahaan_persen' => 4.0,
                 'bpjs_ketenagakerjaan_perusahaan_persen' => 4.24,
                 'jumlah_terlambat' => $metrics['jumlah_terlambat'],
@@ -807,6 +815,7 @@ class PayrollController extends Controller
             'tarif_lembur_sabtu' => 'nullable|numeric|min:0',
 
             // Potongan
+            'tanpa_potongan_bpjs' => 'nullable|boolean',
             'bpjs_kesehatan_persen' => 'nullable|numeric|min:0|max:100',
             'bpjs_kesehatan' => 'nullable|numeric|min:0',
             'bpjs_ketenagakerjaan_persen' => 'nullable|numeric|min:0|max:100',
@@ -859,10 +868,19 @@ class PayrollController extends Controller
         $payroll->tarif_lembur_sabtu = (float)($request->tarif_lembur_sabtu ?? $settings['tarif_lembur_sabtu']);
 
         // Potongan
-        $payroll->bpjs_kesehatan_persen = (float)($request->bpjs_kesehatan_persen ?? 1.0);
-        $payroll->bpjs_kesehatan = (float)($request->bpjs_kesehatan ?? 0);
-        $payroll->bpjs_ketenagakerjaan_persen = (float)($request->bpjs_ketenagakerjaan_persen ?? 2.0);
-        $payroll->bpjs_ketenagakerjaan = (float)($request->bpjs_ketenagakerjaan ?? 0);
+        $tanpaBpjs = $request->boolean('tanpa_potongan_bpjs');
+        $payroll->tanpa_potongan_bpjs = $tanpaBpjs;
+        if ($tanpaBpjs) {
+            $payroll->bpjs_kesehatan_persen = 0;
+            $payroll->bpjs_kesehatan = 0;
+            $payroll->bpjs_ketenagakerjaan_persen = 0;
+            $payroll->bpjs_ketenagakerjaan = 0;
+        } else {
+            $payroll->bpjs_kesehatan_persen = (float)($request->bpjs_kesehatan_persen ?? 1.0);
+            $payroll->bpjs_kesehatan = (float)($request->bpjs_kesehatan ?? 0);
+            $payroll->bpjs_ketenagakerjaan_persen = (float)($request->bpjs_ketenagakerjaan_persen ?? 2.0);
+            $payroll->bpjs_ketenagakerjaan = (float)($request->bpjs_ketenagakerjaan ?? 0);
+        }
         $payroll->pajak = (float)($request->pajak ?? 0);
         $payroll->piutang = (float)($request->piutang ?? 0);
         $payroll->potongan_absen = (float)($request->potongan_absen ?? 0);
@@ -877,7 +895,7 @@ class PayrollController extends Controller
         $payroll->recalculate();
         $payroll->save();
 
-        // Two-way sync: Sync gaji_pokok and operasional to User
+        // Two-way sync: Sync gaji_pokok, operasional, and tanpa_potongan_bpjs to User
         $userUpdated = false;
         if ($request->has('gaji_pokok') && (int)$user->salary !== (int)$payroll->gaji_pokok) {
             $user->salary = (int)$payroll->gaji_pokok;
@@ -885,6 +903,10 @@ class PayrollController extends Controller
         }
         if ($request->has('operasional') && (int)$user->operational_allowance !== (int)$payroll->operasional) {
             $user->operational_allowance = (int)$payroll->operasional;
+            $userUpdated = true;
+        }
+        if ($request->has('tanpa_potongan_bpjs') && (bool)$user->tanpa_potongan_bpjs !== $tanpaBpjs) {
+            $user->tanpa_potongan_bpjs = $tanpaBpjs;
             $userUpdated = true;
         }
         if ($userUpdated) {
@@ -923,6 +945,7 @@ class PayrollController extends Controller
             'tarif_lembur_sabtu' => 'nullable|numeric|min:0',
 
             // Potongan
+            'tanpa_potongan_bpjs' => 'nullable|boolean',
             'bpjs_kesehatan_persen' => 'nullable|numeric|min:0|max:100',
             'bpjs_kesehatan' => 'nullable|numeric|min:0',
             'bpjs_ketenagakerjaan_persen' => 'nullable|numeric|min:0|max:100',
@@ -963,10 +986,20 @@ class PayrollController extends Controller
         if ($request->has('tarif_lembur_sabtu')) $payroll->tarif_lembur_sabtu = (float)$request->tarif_lembur_sabtu;
 
         // Potongan
-        if ($request->has('bpjs_kesehatan_persen')) $payroll->bpjs_kesehatan_persen = (float)$request->bpjs_kesehatan_persen;
-        if ($request->has('bpjs_kesehatan')) $payroll->bpjs_kesehatan = (float)$request->bpjs_kesehatan;
-        if ($request->has('bpjs_ketenagakerjaan_persen')) $payroll->bpjs_ketenagakerjaan_persen = (float)$request->bpjs_ketenagakerjaan_persen;
-        if ($request->has('bpjs_ketenagakerjaan')) $payroll->bpjs_ketenagakerjaan = (float)$request->bpjs_ketenagakerjaan;
+        if ($request->has('tanpa_potongan_bpjs')) {
+            $payroll->tanpa_potongan_bpjs = $request->boolean('tanpa_potongan_bpjs');
+        }
+        if ($payroll->tanpa_potongan_bpjs) {
+            $payroll->bpjs_kesehatan_persen = 0;
+            $payroll->bpjs_kesehatan = 0;
+            $payroll->bpjs_ketenagakerjaan_persen = 0;
+            $payroll->bpjs_ketenagakerjaan = 0;
+        } else {
+            if ($request->has('bpjs_kesehatan_persen')) $payroll->bpjs_kesehatan_persen = (float)$request->bpjs_kesehatan_persen;
+            if ($request->has('bpjs_kesehatan')) $payroll->bpjs_kesehatan = (float)$request->bpjs_kesehatan;
+            if ($request->has('bpjs_ketenagakerjaan_persen')) $payroll->bpjs_ketenagakerjaan_persen = (float)$request->bpjs_ketenagakerjaan_persen;
+            if ($request->has('bpjs_ketenagakerjaan')) $payroll->bpjs_ketenagakerjaan = (float)$request->bpjs_ketenagakerjaan;
+        }
         if ($request->has('pajak')) $payroll->pajak = (float)$request->pajak;
         if ($request->has('piutang')) $payroll->piutang = (float)$request->piutang;
         if ($request->has('potongan_absen')) $payroll->potongan_absen = (float)$request->potongan_absen;
@@ -993,12 +1026,55 @@ class PayrollController extends Controller
                 $user->operational_allowance = (int)$payroll->operasional;
                 $userUpdated = true;
             }
+            if ($request->has('tanpa_potongan_bpjs') && (bool)$user->tanpa_potongan_bpjs !== (bool)$payroll->tanpa_potongan_bpjs) {
+                $user->tanpa_potongan_bpjs = (bool)$payroll->tanpa_potongan_bpjs;
+                $userUpdated = true;
+            }
             if ($userUpdated) {
                 $user->save();
             }
         }
 
         return redirect()->back()->with('success', 'Data gaji berhasil diperbarui dan disinkronkan.');
+    }
+
+    /**
+     * Quick toggle Tanpa Potongan BPJS for a payroll record (syncs with User)
+     */
+    public function toggleTanpaBpjs(Payroll $payroll)
+    {
+        $this->ensureTableAndFeatures();
+
+        $newState = !(bool)$payroll->tanpa_potongan_bpjs;
+        $payroll->tanpa_potongan_bpjs = $newState;
+
+        if ($newState) {
+            $payroll->bpjs_kesehatan_persen = 0;
+            $payroll->bpjs_kesehatan = 0;
+            $payroll->bpjs_ketenagakerjaan_persen = 0;
+            $payroll->bpjs_ketenagakerjaan = 0;
+        } else {
+            $bpjsBase = (float)$payroll->gaji_pokok;
+            $payroll->bpjs_kesehatan_persen = 1.0;
+            $payroll->bpjs_kesehatan = round(($bpjsBase * 1.0) / 100);
+            $payroll->bpjs_ketenagakerjaan_persen = 2.0;
+            $payroll->bpjs_ketenagakerjaan = round(($bpjsBase * 2.0) / 100);
+        }
+
+        $payroll->recalculate();
+        $payroll->save();
+
+        if ($payroll->user) {
+            $payroll->user->tanpa_potongan_bpjs = $newState;
+            $payroll->user->save();
+        }
+
+        return redirect()->back()->with(
+            'success',
+            $newState
+                ? 'Potongan BPJS karyawan dinonaktifkan (Tanpa Potongan BPJS).'
+                : 'Potongan BPJS karyawan diaktifkan kembali.'
+        );
     }
 
     /**
@@ -1069,16 +1145,25 @@ class PayrollController extends Controller
             $payroll->tarif_lembur_sabtu = $metrics['tarif_lembur_sabtu'];
             $payroll->lembur = $metrics['total_nominal_lembur'];
 
-            // Default percentages
-            $payroll->bpjs_kesehatan_persen = 1.0;
-            $payroll->bpjs_ketenagakerjaan_persen = 2.0;
+            // Default percentages & BPJS amounts from base salary
+            $bpjsBase = (float)$payroll->gaji_pokok;
+            $tanpaBpjs = (bool)($user->tanpa_potongan_bpjs ?? false);
+            $payroll->tanpa_potongan_bpjs = $tanpaBpjs;
+
+            if ($tanpaBpjs) {
+                $payroll->bpjs_kesehatan_persen = 0;
+                $payroll->bpjs_ketenagakerjaan_persen = 0;
+                $payroll->bpjs_kesehatan = 0;
+                $payroll->bpjs_ketenagakerjaan = 0;
+            } else {
+                $payroll->bpjs_kesehatan_persen = 1.0;
+                $payroll->bpjs_ketenagakerjaan_persen = 2.0;
+                $payroll->bpjs_kesehatan = round(($bpjsBase * 1.0) / 100);
+                $payroll->bpjs_ketenagakerjaan = round(($bpjsBase * 2.0) / 100);
+            }
+
             $payroll->bpjs_kesehatan_perusahaan_persen = 4.0;
             $payroll->bpjs_ketenagakerjaan_perusahaan_persen = 4.24;
-
-            // Compute BPJS amounts from base salary
-            $bpjsBase = (float)$payroll->gaji_pokok;
-            $payroll->bpjs_kesehatan = round(($bpjsBase * 1.0) / 100);
-            $payroll->bpjs_ketenagakerjaan = round(($bpjsBase * 2.0) / 100);
             $payroll->bpjs_kesehatan_perusahaan = round(($bpjsBase * 4.0) / 100);
             $payroll->bpjs_ketenagakerjaan_perusahaan = round(($bpjsBase * 4.24) / 100);
 

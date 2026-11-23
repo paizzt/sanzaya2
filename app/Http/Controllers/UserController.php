@@ -225,6 +225,7 @@ class UserController extends Controller
             'work_days_per_week' => 'nullable|integer|in:5,6',
             'tanpa_keterlambatan' => 'nullable|boolean',
             'tanpa_lembur' => 'nullable|boolean',
+            'tanpa_potongan_bpjs' => 'nullable|boolean',
         ]);
 
         $division = null;
@@ -251,6 +252,7 @@ class UserController extends Controller
             'work_days_per_week' => $request->work_days_per_week ?? 6,
             'tanpa_keterlambatan' => (bool)$request->boolean('tanpa_keterlambatan'),
             'tanpa_lembur' => (bool)$request->boolean('tanpa_lembur'),
+            'tanpa_potongan_bpjs' => (bool)$request->boolean('tanpa_potongan_bpjs'),
             
             'nik' => $request->nik ?: null,
             'start_date' => $request->start_date ?: null,
@@ -369,6 +371,7 @@ class UserController extends Controller
             'work_days_per_week' => 'nullable|integer|in:5,6',
             'tanpa_keterlambatan' => 'nullable|boolean',
             'tanpa_lembur' => 'nullable|boolean',
+            'tanpa_potongan_bpjs' => 'nullable|boolean',
         ]);
 
         PayrollController::ensurePayrollTablesStatic();
@@ -389,6 +392,9 @@ class UserController extends Controller
         }
         if ($request->has('tanpa_lembur')) {
             $user->tanpa_lembur = (bool)$request->boolean('tanpa_lembur');
+        }
+        if ($request->has('tanpa_potongan_bpjs')) {
+            $user->tanpa_potongan_bpjs = (bool)$request->boolean('tanpa_potongan_bpjs');
         }
 
         if ($request->has('allowed_companies')) {
@@ -441,6 +447,26 @@ class UserController extends Controller
                 if ($payroll) {
                     $payroll->gaji_pokok = (float)($user->salary ?? 0);
                     $payroll->operasional = (float)($user->operational_allowance ?? 0);
+                    if ($request->has('tanpa_potongan_bpjs')) {
+                        $tanpaBpjs = (bool)$user->tanpa_potongan_bpjs;
+                        $payroll->tanpa_potongan_bpjs = $tanpaBpjs;
+                        if ($tanpaBpjs) {
+                            $payroll->bpjs_kesehatan_persen = 0;
+                            $payroll->bpjs_kesehatan = 0;
+                            $payroll->bpjs_ketenagakerjaan_persen = 0;
+                            $payroll->bpjs_ketenagakerjaan = 0;
+                        } else {
+                            if ((float)$payroll->bpjs_kesehatan_persen <= 0) {
+                                $payroll->bpjs_kesehatan_persen = 1.0;
+                            }
+                            if ((float)$payroll->bpjs_ketenagakerjaan_persen <= 0) {
+                                $payroll->bpjs_ketenagakerjaan_persen = 2.0;
+                            }
+                            $bpjsBase = (float)$payroll->gaji_pokok;
+                            $payroll->bpjs_kesehatan = round(($bpjsBase * (float)$payroll->bpjs_kesehatan_persen) / 100);
+                            $payroll->bpjs_ketenagakerjaan = round(($bpjsBase * (float)$payroll->bpjs_ketenagakerjaan_persen) / 100);
+                        }
+                    }
                     $payroll->recalculate();
                     $payroll->save();
                 }

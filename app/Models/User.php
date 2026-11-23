@@ -36,6 +36,7 @@ class User extends Authenticatable
             'allowed_companies' => 'array',
             'tanpa_keterlambatan' => 'boolean',
             'tanpa_lembur' => 'boolean',
+            'tanpa_potongan_bpjs' => 'boolean',
         ];
     }
 

@@ -47,6 +47,7 @@ class Payroll extends Model
             'tarif_lembur_weekday_berikutnya' => 'float',
             'jumlah_jam_lembur_sabtu' => 'integer',
             'tarif_lembur_sabtu' => 'float',
+            'tanpa_potongan_bpjs' => 'boolean',
         ];
     }
 
@@ -87,11 +88,18 @@ class Payroll extends Model
         $bpjsBase = (float)$this->gaji_pokok;
 
         // 2. BPJS Karyawan
-        if (($this->bpjs_kesehatan_persen ?? 0) > 0 && empty($this->bpjs_kesehatan)) {
-            $this->bpjs_kesehatan = round(($bpjsBase * (float)$this->bpjs_kesehatan_persen) / 100);
-        }
-        if (($this->bpjs_ketenagakerjaan_persen ?? 0) > 0 && empty($this->bpjs_ketenagakerjaan)) {
-            $this->bpjs_ketenagakerjaan = round(($bpjsBase * (float)$this->bpjs_ketenagakerjaan_persen) / 100);
+        if ($this->tanpa_potongan_bpjs) {
+            $this->bpjs_kesehatan_persen = 0;
+            $this->bpjs_kesehatan = 0;
+            $this->bpjs_ketenagakerjaan_persen = 0;
+            $this->bpjs_ketenagakerjaan = 0;
+        } else {
+            if (($this->bpjs_kesehatan_persen ?? 0) > 0 && ($this->bpjs_kesehatan === null || $this->bpjs_kesehatan === '')) {
+                $this->bpjs_kesehatan = round(($bpjsBase * (float)$this->bpjs_kesehatan_persen) / 100);
+            }
+            if (($this->bpjs_ketenagakerjaan_persen ?? 0) > 0 && ($this->bpjs_ketenagakerjaan === null || $this->bpjs_ketenagakerjaan === '')) {
+                $this->bpjs_ketenagakerjaan = round(($bpjsBase * (float)$this->bpjs_ketenagakerjaan_persen) / 100);
+            }
         }
 
         // 3. BPJS Perusahaan

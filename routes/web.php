@@ -214,6 +214,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/salaries/generate', [PayrollController::class, 'generate'])->name('salaries.generate');
     Route::post('/salaries/settings', [PayrollController::class, 'updateSettings'])->name('salaries.settings.update');
     Route::get('/salaries/user-summary', [PayrollController::class, 'userSummary'])->name('salaries.user-summary');
+    Route::post('/salaries/{payroll}/toggle-bpjs', [PayrollController::class, 'toggleTanpaBpjs'])->name('salaries.toggle-bpjs');
     Route::post('/salaries/{payroll}', [PayrollController::class, 'update'])->name('salaries.update');
     Route::put('/salaries/{payroll}', [PayrollController::class, 'update']);
     Route::delete('/salaries/{payroll}', [PayrollController::class, 'destroy'])->name('salaries.destroy');

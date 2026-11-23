@@ -123,6 +123,7 @@ export default function Index({
         jumlah_jam_lembur_sabtu: 0,
         tarif_lembur_sabtu: defaultRates.tarif_lembur_sabtu,
 
+        tanpa_potongan_bpjs: false,
         bpjs_kesehatan_persen: '1.0',
         bpjs_kesehatan: '',
         bpjs_ketenagakerjaan_persen: '2.0',
@@ -194,8 +195,8 @@ export default function Index({
         const kesCoPercent = parseFloat(data.bpjs_kesehatan_perusahaan_persen) || 0;
         const tkCoPercent = parseFloat(data.bpjs_ketenagakerjaan_perusahaan_persen) || 0;
 
-        const bpjsKes = data.bpjs_kesehatan !== '' ? parseFloat(data.bpjs_kesehatan) || 0 : Math.round((gajiPokok * kesPercent) / 100);
-        const bpjsTk = data.bpjs_ketenagakerjaan !== '' ? parseFloat(data.bpjs_ketenagakerjaan) || 0 : Math.round((gajiPokok * tkPercent) / 100);
+        const bpjsKes = data.tanpa_potongan_bpjs ? 0 : (data.bpjs_kesehatan !== '' ? parseFloat(data.bpjs_kesehatan) || 0 : Math.round((gajiPokok * kesPercent) / 100));
+        const bpjsTk = data.tanpa_potongan_bpjs ? 0 : (data.bpjs_ketenagakerjaan !== '' ? parseFloat(data.bpjs_ketenagakerjaan) || 0 : Math.round((gajiPokok * tkPercent) / 100));
 
         const bpjsKesCo = data.bpjs_kesehatan_perusahaan !== '' ? parseFloat(data.bpjs_kesehatan_perusahaan) || 0 : Math.round((gajiPokok * kesCoPercent) / 100);
         const bpjsTkCo = data.bpjs_ketenagakerjaan_perusahaan !== '' ? parseFloat(data.bpjs_ketenagakerjaan_perusahaan) || 0 : Math.round((gajiPokok * tkCoPercent) / 100);
@@ -281,11 +282,12 @@ export default function Index({
         if (selected) {
             const baseSalary = selected.salary || '';
             const operasional = selected.operational_allowance || '';
+            const isTanpaBpjs = Boolean(selected.tanpa_potongan_bpjs);
 
             setData(prev => {
                 const gaji = parseFloat(baseSalary) || 0;
-                const kesPct = parseFloat(prev.bpjs_kesehatan_persen) || 1.0;
-                const tkPct = parseFloat(prev.bpjs_ketenagakerjaan_persen) || 2.0;
+                const kesPct = isTanpaBpjs ? 0 : (parseFloat(prev.bpjs_kesehatan_persen) || 1.0);
+                const tkPct = isTanpaBpjs ? 0 : (parseFloat(prev.bpjs_ketenagakerjaan_persen) || 2.0);
                 const kesCoPct = parseFloat(prev.bpjs_kesehatan_perusahaan_persen) || 4.0;
                 const tkCoPct = parseFloat(prev.bpjs_ketenagakerjaan_perusahaan_persen) || 4.24;
 
@@ -294,8 +296,11 @@ export default function Index({
                     user_id: selectedUserId,
                     gaji_pokok: baseSalary,
                     operasional: operasional,
-                    bpjs_kesehatan: gaji ? Math.round((gaji * kesPct) / 100) : '',
-                    bpjs_ketenagakerjaan: gaji ? Math.round((gaji * tkPct) / 100) : '',
+                    tanpa_potongan_bpjs: isTanpaBpjs,
+                    bpjs_kesehatan_persen: isTanpaBpjs ? '0' : (prev.bpjs_kesehatan_persen === '0' ? '1.0' : prev.bpjs_kesehatan_persen),
+                    bpjs_kesehatan: isTanpaBpjs ? 0 : (gaji ? Math.round((gaji * (kesPct || 1.0)) / 100) : ''),
+                    bpjs_ketenagakerjaan_persen: isTanpaBpjs ? '0' : (prev.bpjs_ketenagakerjaan_persen === '0' ? '2.0' : prev.bpjs_ketenagakerjaan_persen),
+                    bpjs_ketenagakerjaan: isTanpaBpjs ? 0 : (gaji ? Math.round((gaji * (tkPct || 2.0)) / 100) : ''),
                     bpjs_kesehatan_perusahaan: gaji ? Math.round((gaji * kesCoPct) / 100) : '',
                     bpjs_ketenagakerjaan_perusahaan: gaji ? Math.round((gaji * tkCoPct) / 100) : '',
                 };
@@ -303,6 +308,35 @@ export default function Index({
 
             fetchAttendanceSummary(selectedUserId, data.period_month, data.period_year, true);
         }
+    };
+
+    const handleToggleFormTanpaBpjs = () => {
+        setData(prev => {
+            const nextTanpa = !prev.tanpa_potongan_bpjs;
+            const gaji = parseFloat(prev.gaji_pokok) || 0;
+            if (nextTanpa) {
+                return {
+                    ...prev,
+                    tanpa_potongan_bpjs: true,
+                    bpjs_kesehatan_persen: '0',
+                    bpjs_kesehatan: 0,
+                    bpjs_ketenagakerjaan_persen: '0',
+                    bpjs_ketenagakerjaan: 0,
+                };
+            }
+            return {
+                ...prev,
+                tanpa_potongan_bpjs: false,
+                bpjs_kesehatan_persen: '1.0',
+                bpjs_kesehatan: gaji ? Math.round((gaji * 1.0) / 100) : '',
+                bpjs_ketenagakerjaan_persen: '2.0',
+                bpjs_ketenagakerjaan: gaji ? Math.round((gaji * 2.0) / 100) : '',
+            };
+        });
+    };
+
+    const handleQuickToggleBpjs = (p) => {
+        router.post(route('salaries.toggle-bpjs', p.id), {}, { preserveScroll: true });
     };
 
     const openAddModal = () => {
@@ -329,6 +363,7 @@ export default function Index({
             tarif_lembur_weekday_berikutnya: defaultRates.tarif_lembur_weekday_berikutnya,
             jumlah_jam_lembur_sabtu: 0,
             tarif_lembur_sabtu: defaultRates.tarif_lembur_sabtu,
+            tanpa_potongan_bpjs: false,
             bpjs_kesehatan_persen: '1.0',
             bpjs_kesehatan: '',
             bpjs_ketenagakerjaan_persen: '2.0',
@@ -349,6 +384,13 @@ export default function Index({
         clearErrors();
         setEditingPayroll(p);
         setUserAttendance(null);
+        const isTanpaBpjs = Boolean(
+            p.tanpa_potongan_bpjs ||
+            (Number(p.bpjs_kesehatan_persen ?? 1) === 0 &&
+                Number(p.bpjs_ketenagakerjaan_persen ?? 2) === 0 &&
+                Number(p.bpjs_kesehatan ?? 0) === 0 &&
+                Number(p.bpjs_ketenagakerjaan ?? 0) === 0)
+        );
         setData({
             user_id: p.user_id,
             period_month: p.period_month,
@@ -372,19 +414,20 @@ export default function Index({
             jumlah_jam_lembur_sabtu: p.jumlah_jam_lembur_sabtu ?? 0,
             tarif_lembur_sabtu: p.tarif_lembur_sabtu ?? defaultRates.tarif_lembur_sabtu,
 
-            bpjs_kesehatan_persen: p.bpjs_kesehatan_persen || '1.0',
-            bpjs_kesehatan: p.bpjs_kesehatan || '',
-            bpjs_ketenagakerjaan_persen: p.bpjs_ketenagakerjaan_persen || '2.0',
-            bpjs_ketenagakerjaan: p.bpjs_ketenagakerjaan || '',
+            tanpa_potongan_bpjs: isTanpaBpjs,
+            bpjs_kesehatan_persen: isTanpaBpjs ? '0' : String(p.bpjs_kesehatan_persen ?? '1.0'),
+            bpjs_kesehatan: isTanpaBpjs ? 0 : (p.bpjs_kesehatan ?? ''),
+            bpjs_ketenagakerjaan_persen: isTanpaBpjs ? '0' : String(p.bpjs_ketenagakerjaan_persen ?? '2.0'),
+            bpjs_ketenagakerjaan: isTanpaBpjs ? 0 : (p.bpjs_ketenagakerjaan ?? ''),
             pajak: p.pajak || '',
             piutang: p.piutang || '',
             potongan_absen: p.potongan_absen || '',
             potongan_lainnya: p.potongan_lainnya || '',
 
-            bpjs_kesehatan_perusahaan_persen: p.bpjs_kesehatan_perusahaan_persen || '4.0',
-            bpjs_kesehatan_perusahaan: p.bpjs_kesehatan_perusahaan || '',
-            bpjs_ketenagakerjaan_perusahaan_persen: p.bpjs_ketenagakerjaan_perusahaan_persen || '4.24',
-            bpjs_ketenagakerjaan_perusahaan: p.bpjs_ketenagakerjaan_perusahaan || '',
+            bpjs_kesehatan_perusahaan_persen: String(p.bpjs_kesehatan_perusahaan_persen ?? '4.0'),
+            bpjs_kesehatan_perusahaan: p.bpjs_kesehatan_perusahaan ?? '',
+            bpjs_ketenagakerjaan_perusahaan_persen: String(p.bpjs_ketenagakerjaan_perusahaan_persen ?? '4.24'),
+            bpjs_ketenagakerjaan_perusahaan: p.bpjs_ketenagakerjaan_perusahaan ?? '',
         });
         setIsFormOpen(true);
         fetchAttendanceSummary(p.user_id, p.period_month, p.period_year, false);
@@ -418,8 +461,11 @@ export default function Index({
 
         const payload = {
             ...data,
-            bpjs_kesehatan: data.bpjs_kesehatan !== '' ? data.bpjs_kesehatan : computedTotals.bpjsKes,
-            bpjs_ketenagakerjaan: data.bpjs_ketenagakerjaan !== '' ? data.bpjs_ketenagakerjaan : computedTotals.bpjsTk,
+            tanpa_potongan_bpjs: Boolean(data.tanpa_potongan_bpjs),
+            bpjs_kesehatan_persen: data.tanpa_potongan_bpjs ? 0 : data.bpjs_kesehatan_persen,
+            bpjs_kesehatan: data.tanpa_potongan_bpjs ? 0 : (data.bpjs_kesehatan !== '' ? data.bpjs_kesehatan : computedTotals.bpjsKes),
+            bpjs_ketenagakerjaan_persen: data.tanpa_potongan_bpjs ? 0 : data.bpjs_ketenagakerjaan_persen,
+            bpjs_ketenagakerjaan: data.tanpa_potongan_bpjs ? 0 : (data.bpjs_ketenagakerjaan !== '' ? data.bpjs_ketenagakerjaan : computedTotals.bpjsTk),
             bpjs_kesehatan_perusahaan: data.bpjs_kesehatan_perusahaan !== '' ? data.bpjs_kesehatan_perusahaan : computedTotals.bpjsKesCo,
             bpjs_ketenagakerjaan_perusahaan: data.bpjs_ketenagakerjaan_perusahaan !== '' ? data.bpjs_ketenagakerjaan_perusahaan : computedTotals.bpjsTkCo,
         };
@@ -722,6 +768,11 @@ export default function Index({
                                                 <div>
                                                     <span className="text-[10px] text-gray-400 block font-medium">Total Potongan</span>
                                                     <span className="font-bold text-red-600">{formatRp(p.total_potongan)}</span>
+                                                    {p.tanpa_potongan_bpjs && (
+                                                        <span className="inline-block ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-600 text-white">
+                                                            Tanpa BPJS
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -782,14 +833,28 @@ export default function Index({
                                         {isExpanded && (
                                             <div className="pt-2 space-y-3">
                                                 <div className="bg-blue-50/50 p-3.5 rounded-2xl border border-blue-100 space-y-2.5 text-xs">
-                                                    <div className="flex items-center justify-between pb-1.5 border-b border-blue-200/60">
+                                                    <div className="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-blue-200/60">
                                                         <span className="font-bold text-blue-900">Rincian Lengkap Penggajian</span>
-                                                        <Link
-                                                            href={route('absensi.rekap', { month: p.period_month, year: p.period_year, user_id: p.user_id })}
-                                                            className="text-[11px] font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded transition-colors"
-                                                        >
-                                                            Buka Absensi
-                                                        </Link>
+                                                        <div className="flex flex-wrap items-center gap-1.5">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleQuickToggleBpjs(p)}
+                                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${
+                                                                    p.tanpa_potongan_bpjs
+                                                                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+                                                                }`}
+                                                            >
+                                                                <span className={`inline-block w-2 h-2 rounded-full ${p.tanpa_potongan_bpjs ? 'bg-white' : 'bg-gray-400'}`} />
+                                                                Tanpa Potongan BPJS
+                                                            </button>
+                                                            <Link
+                                                                href={route('absensi.rekap', { month: p.period_month, year: p.period_year, user_id: p.user_id })}
+                                                                className="text-[11px] font-bold text-gray-800 bg-white border border-gray-300 hover:bg-gray-100 px-2.5 py-1 rounded-lg transition-colors"
+                                                            >
+                                                                Buka Absensi
+                                                            </Link>
+                                                        </div>
                                                     </div>
 
                                                     {/* Penerimaan Sub-card */}
@@ -910,7 +975,12 @@ export default function Index({
                                                         {formatRp(p.lembur)}
                                                     </td>
                                                     <td className="px-5 py-3.5 text-right font-medium text-red-600 whitespace-nowrap">
-                                                        {formatRp(p.total_potongan)}
+                                                        <div>{formatRp(p.total_potongan)}</div>
+                                                        {p.tanpa_potongan_bpjs && (
+                                                            <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-600 text-white">
+                                                                Tanpa BPJS
+                                                            </span>
+                                                        )}
                                                     </td>
                                                     <td className="px-5 py-3.5 text-right font-bold text-emerald-600 whitespace-nowrap">
                                                         {formatRp(p.total_diterima)}
@@ -969,7 +1039,20 @@ export default function Index({
                                                                     <div className="text-xs font-bold text-gray-800">
                                                                         {p.user?.name} &bull; {MONTHS.find(m => m.value === p.period_month)?.label} {p.period_year}
                                                                     </div>
-                                                                    <div className="flex items-center gap-2">
+                                                                    <div className="flex flex-wrap items-center gap-2">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleQuickToggleBpjs(p)}
+                                                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                                                                                p.tanpa_potongan_bpjs
+                                                                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+                                                                            }`}
+                                                                            title="Aktifkan/Nonaktifkan Potongan BPJS Karyawan"
+                                                                        >
+                                                                            <span className={`inline-block w-2 h-2 rounded-full ${p.tanpa_potongan_bpjs ? 'bg-white' : 'bg-gray-400'}`} />
+                                                                            Tanpa Potongan BPJS
+                                                                        </button>
                                                                         <Link
                                                                             href={route('absensi.rekap', { month: p.period_month, year: p.period_year, user_id: p.user_id })}
                                                                             className="px-3 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-semibold"
@@ -1406,13 +1489,30 @@ export default function Index({
 
                         {/* 2. Potongan */}
                         <div className="bg-white p-4 rounded-xl border border-gray-200">
-                            <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
-                                <h4 className="font-bold text-gray-800 text-xs uppercase">2. Potongan</h4>
+                            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-gray-100 pb-2">
+                                <div className="flex flex-wrap items-center gap-2.5">
+                                    <h4 className="font-bold text-gray-800 text-xs uppercase">2. Potongan</h4>
+                                    <button
+                                        type="button"
+                                        onClick={handleToggleFormTanpaBpjs}
+                                        aria-pressed={Boolean(data.tanpa_potongan_bpjs)}
+                                        className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                                            data.tanpa_potongan_bpjs
+                                                ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                                                : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        <span>Tanpa Potongan BPJS</span>
+                                        <span className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${data.tanpa_potongan_bpjs ? 'bg-blue-800' : 'bg-gray-300'}`}>
+                                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${data.tanpa_potongan_bpjs ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                                        </span>
+                                    </button>
+                                </div>
                                 <span className="text-xs font-bold text-red-600">{formatRp(computedTotals.totalPotongan)}</span>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div>
+                                <div className={data.tanpa_potongan_bpjs ? 'opacity-60' : ''}>
                                     <div className="flex justify-between items-center">
                                         <InputLabel value="BPJS Kesehatan" />
                                         <div className="flex items-center gap-1">
@@ -1421,7 +1521,8 @@ export default function Index({
                                                 step="0.1"
                                                 min="0"
                                                 max="100"
-                                                value={data.bpjs_kesehatan_persen}
+                                                disabled={Boolean(data.tanpa_potongan_bpjs)}
+                                                value={data.tanpa_potongan_bpjs ? '0' : data.bpjs_kesehatan_persen}
                                                 onChange={(e) => {
                                                     const pct = e.target.value;
                                                     setData('bpjs_kesehatan_persen', pct);
@@ -1430,20 +1531,21 @@ export default function Index({
                                                         setData(prev => ({ ...prev, bpjs_kesehatan_persen: pct, bpjs_kesehatan: val }));
                                                     }
                                                 }}
-                                                className="w-12 text-xs py-0.5 px-1 rounded border-gray-300 text-right"
+                                                className="w-12 text-xs py-0.5 px-1 rounded border-gray-300 text-right disabled:bg-gray-100"
                                             />
                                             <span className="text-xs text-gray-500">%</span>
                                         </div>
                                     </div>
                                     <CurrencyInput
-                                        className="mt-1 block w-full"
-                                        value={data.bpjs_kesehatan !== '' ? data.bpjs_kesehatan : computedTotals.bpjsKes}
+                                        className={`mt-1 block w-full ${data.tanpa_potongan_bpjs ? 'bg-gray-100' : ''}`}
+                                        disabled={Boolean(data.tanpa_potongan_bpjs)}
+                                        value={data.tanpa_potongan_bpjs ? 0 : (data.bpjs_kesehatan !== '' ? data.bpjs_kesehatan : computedTotals.bpjsKes)}
                                         onChange={(val) => setData('bpjs_kesehatan', val)}
                                         placeholder="0"
                                     />
                                 </div>
 
-                                <div>
+                                <div className={data.tanpa_potongan_bpjs ? 'opacity-60' : ''}>
                                     <div className="flex justify-between items-center">
                                         <InputLabel value="BPJS TK" />
                                         <div className="flex items-center gap-1">
@@ -1452,7 +1554,8 @@ export default function Index({
                                                 step="0.1"
                                                 min="0"
                                                 max="100"
-                                                value={data.bpjs_ketenagakerjaan_persen}
+                                                disabled={Boolean(data.tanpa_potongan_bpjs)}
+                                                value={data.tanpa_potongan_bpjs ? '0' : data.bpjs_ketenagakerjaan_persen}
                                                 onChange={(e) => {
                                                     const pct = e.target.value;
                                                     setData('bpjs_ketenagakerjaan_persen', pct);
@@ -1461,14 +1564,15 @@ export default function Index({
                                                         setData(prev => ({ ...prev, bpjs_ketenagakerjaan_persen: pct, bpjs_ketenagakerjaan: val }));
                                                     }
                                                 }}
-                                                className="w-12 text-xs py-0.5 px-1 rounded border-gray-300 text-right"
+                                                className="w-12 text-xs py-0.5 px-1 rounded border-gray-300 text-right disabled:bg-gray-100"
                                             />
                                             <span className="text-xs text-gray-500">%</span>
                                         </div>
                                     </div>
                                     <CurrencyInput
-                                        className="mt-1 block w-full"
-                                        value={data.bpjs_ketenagakerjaan !== '' ? data.bpjs_ketenagakerjaan : computedTotals.bpjsTk}
+                                        className={`mt-1 block w-full ${data.tanpa_potongan_bpjs ? 'bg-gray-100' : ''}`}
+                                        disabled={Boolean(data.tanpa_potongan_bpjs)}
+                                        value={data.tanpa_potongan_bpjs ? 0 : (data.bpjs_ketenagakerjaan !== '' ? data.bpjs_ketenagakerjaan : computedTotals.bpjsTk)}
                                         onChange={(val) => setData('bpjs_ketenagakerjaan', val)}
                                         placeholder="0"
                                     />
