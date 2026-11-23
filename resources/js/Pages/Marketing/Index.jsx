@@ -314,9 +314,6 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
 
                 {/* Target vs Realization */}
                 <div>
-                    <h3 className="font-bold text-xl text-gray-800 mb-4 flex items-center gap-2">
-                        <Target className="text-blue-600" /> Target Bulanan vs Realisasi
-                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Card 1: Target Kunjungan Bulanan (Merged) */}
                         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-blue-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300">
