@@ -43,47 +43,38 @@ const CALENDAR_STYLES = {
     hadir: {
         cell: 'bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200/80',
         dot: 'bg-emerald-500',
-        badge: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     },
     lembur: {
         cell: 'bg-blue-100 text-blue-900 border-blue-300 hover:bg-blue-200/80',
         dot: 'bg-blue-600',
-        badge: 'bg-blue-100 text-blue-800 border-blue-200',
     },
     sakit: {
         cell: 'bg-orange-100 text-orange-900 border-orange-300 hover:bg-orange-200/80',
         dot: 'bg-orange-500',
-        badge: 'bg-orange-100 text-orange-800 border-orange-200',
     },
     tidak_hadir: {
         cell: 'bg-red-100 text-red-900 border-red-300 hover:bg-red-200/80',
         dot: 'bg-red-500',
-        badge: 'bg-red-100 text-red-800 border-red-200',
     },
     izin: {
         cell: 'bg-yellow-100 text-yellow-900 border-yellow-300 hover:bg-yellow-200/80',
         dot: 'bg-yellow-500',
-        badge: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     },
     cuti: {
         cell: 'bg-purple-100 text-purple-900 border-purple-300 hover:bg-purple-200/80',
         dot: 'bg-purple-500',
-        badge: 'bg-purple-100 text-purple-800 border-purple-200',
     },
     belum_absen: {
         cell: 'bg-white text-blue-700 border-blue-400 border-dashed hover:bg-blue-50/50',
         dot: 'bg-blue-400',
-        badge: 'bg-blue-50 text-blue-700 border-blue-200',
     },
     libur: {
         cell: 'bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100/80',
         dot: 'bg-gray-300',
-        badge: 'bg-gray-100 text-gray-600 border-gray-200',
     },
     mendatang: {
         cell: 'bg-white text-gray-400 border-gray-100 hover:bg-gray-50',
         dot: 'bg-transparent',
-        badge: 'bg-gray-100 text-gray-600 border-gray-200',
     },
 };
 
@@ -795,73 +786,70 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
 
                             {/* Panel Detail Tanggal Terpilih */}
                             {selectedDayInfo && (
-                                <div className="p-4 rounded-2xl bg-gray-50/90 border border-gray-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                    <div className="space-y-1 min-w-0">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <p className="font-bold text-sm sm:text-base text-gray-900">
-                                                {selectedDayInfo.dateObj.toLocaleDateString('id-ID', {
-                                                    weekday: 'long',
-                                                    day: 'numeric',
-                                                    month: 'long',
-                                                    year: 'numeric',
-                                                })}
-                                            </p>
-                                            {selectedDayInfo.isToday && (
-                                                <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-600 text-white">
-                                                    Hari Ini
+                                <div className="p-4 rounded-2xl bg-gray-50/90 border border-gray-200/80 space-y-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <p className="font-bold text-sm sm:text-base text-gray-900">
+                                            {selectedDayInfo.dateObj.toLocaleDateString('id-ID', {
+                                                weekday: 'long',
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric',
+                                            })}
+                                        </p>
+                                        {selectedDayInfo.isToday && (
+                                            <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-600 text-white">
+                                                Hari Ini
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {selectedDayInfo.record ? (
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-600">
+                                            {!selectedDayInfo.record.check_in_time && !selectedDayInfo.record.check_out_time && (
+                                                <span>
+                                                    Status: <strong className="text-gray-900">{selectedDayInfo.fullLabel}</strong>
+                                                </span>
+                                            )}
+                                            {selectedDayInfo.record.check_in_time && (
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                                    Masuk: <strong className="text-gray-900 tabular-nums">{selectedDayInfo.record.check_in_time}</strong>
+                                                </span>
+                                            )}
+                                            {selectedDayInfo.record.check_out_time && (
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                                    Keluar: <strong className="text-gray-900 tabular-nums">{selectedDayInfo.record.check_out_time}</strong>
+                                                </span>
+                                            )}
+                                            {isSatpam && selectedDayInfo.record.check_in_time && (
+                                                <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-700">
+                                                    Shift: <strong>{selectedDayInfo.record.shift || (selectedDayInfo.record.check_in_time >= '18:00' ? 'Shift Malam' : 'Shift Siang')}</strong>
+                                                </span>
+                                            )}
+                                            {selectedDayInfo.category === 'lembur' && selectedDayInfo.record.overtime_status && (
+                                                <span className="text-xs font-semibold text-blue-700">
+                                                    Status Lembur: {selectedDayInfo.record.overtime_status}
                                                 </span>
                                             )}
                                         </div>
+                                    ) : (
+                                        <p className="text-xs sm:text-sm text-gray-500">
+                                            {selectedDayInfo.category === 'tidak_hadir'
+                                                ? 'Tidak ada catatan kehadiran atau pengajuan izin/sakit pada tanggal ini.'
+                                                : selectedDayInfo.category === 'libur'
+                                                ? (isSatpam ? 'Tidak ada jadwal shift tercatat pada tanggal ini.' : 'Hari libur kerja.')
+                                                : selectedDayInfo.category === 'belum_absen'
+                                                ? 'Anda belum melakukan absensi hari ini.'
+                                                : 'Tanggal belum berlangsung.'}
+                                        </p>
+                                    )}
 
-                                        {selectedDayInfo.record ? (
-                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-600">
-                                                {selectedDayInfo.record.check_in_time && (
-                                                    <span className="inline-flex items-center gap-1.5">
-                                                        <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                                                        Masuk: <strong className="text-gray-900 tabular-nums">{selectedDayInfo.record.check_in_time}</strong>
-                                                    </span>
-                                                )}
-                                                {selectedDayInfo.record.check_out_time && (
-                                                    <span className="inline-flex items-center gap-1.5">
-                                                        <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                                        Keluar: <strong className="text-gray-900 tabular-nums">{selectedDayInfo.record.check_out_time}</strong>
-                                                    </span>
-                                                )}
-                                                {isSatpam && selectedDayInfo.record.check_in_time && (
-                                                    <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-700">
-                                                        Shift: <strong>{selectedDayInfo.record.shift || (selectedDayInfo.record.check_in_time >= '18:00' ? 'Shift Malam' : 'Shift Siang')}</strong>
-                                                    </span>
-                                                )}
-                                                {selectedDayInfo.category === 'lembur' && selectedDayInfo.record.overtime_status && (
-                                                    <span className="text-xs font-semibold text-blue-700">
-                                                        Status Lembur: {selectedDayInfo.record.overtime_status}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <p className="text-xs sm:text-sm text-gray-500">
-                                                {selectedDayInfo.category === 'tidak_hadir'
-                                                    ? 'Tidak ada catatan kehadiran atau pengajuan izin/sakit pada tanggal ini.'
-                                                    : selectedDayInfo.category === 'libur'
-                                                    ? (isSatpam ? 'Tidak ada jadwal shift tercatat pada tanggal ini.' : 'Hari libur kerja.')
-                                                    : selectedDayInfo.category === 'belum_absen'
-                                                    ? 'Anda belum melakukan absensi hari ini.'
-                                                    : 'Tanggal belum berlangsung.'}
-                                            </p>
-                                        )}
-
-                                        {selectedDayInfo.record?.notes && (
-                                            <p className="text-xs text-gray-600 bg-white px-2.5 py-1.5 rounded-lg border border-gray-200/70 inline-block mt-1 break-words max-w-full">
-                                                <span className="font-semibold text-gray-700">Catatan:</span> {selectedDayInfo.record.notes}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="shrink-0">
-                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border ${(CALENDAR_STYLES[selectedDayInfo.category] || CALENDAR_STYLES.mendatang).badge}`}>
-                                            <span className={`w-2 h-2 rounded-full ${(CALENDAR_STYLES[selectedDayInfo.category] || CALENDAR_STYLES.mendatang).dot}`} />
-                                            {selectedDayInfo.fullLabel}
-                                        </span>
-                                    </div>
+                                    {selectedDayInfo.record?.notes && (
+                                        <p className="text-xs text-gray-600 bg-white px-2.5 py-1.5 rounded-lg border border-gray-200/70 inline-block mt-1 break-words max-w-full">
+                                            <span className="font-semibold text-gray-700">Catatan:</span> {selectedDayInfo.record.notes}
+                                        </p>
+                                    )}
                                 </div>
                             )}
                         </div>
