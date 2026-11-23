@@ -546,6 +546,7 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                             currentPage={currentPage} 
                                             onPageChange={setCurrentPage}
                                             alwaysShow={true}
+                                            iconOnlyNav={true}
                                         />
                                     </div>
                                 </>

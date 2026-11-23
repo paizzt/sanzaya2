@@ -1,6 +1,7 @@
 import React from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function ClientPagination({ total, itemsPerPage, currentPage, onPageChange, onItemsPerPageChange, perPageOptions = [20, 50, 100], alwaysShow = false }) {
+export default function ClientPagination({ total, itemsPerPage, currentPage, onPageChange, onItemsPerPageChange, perPageOptions = [20, 50, 100], alwaysShow = false, iconOnlyNav = false }) {
     if (total === 0) return null;
     if (!alwaysShow && total <= itemsPerPage && !onItemsPerPageChange) return null;
 
@@ -54,17 +55,23 @@ export default function ClientPagination({ total, itemsPerPage, currentPage, onP
                 )}
             </div>
             
-            <div className="flex flex-wrap justify-center gap-1">
+            <div className="flex flex-wrap items-center justify-center gap-1">
                 <button
+                    type="button"
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Halaman sebelumnya"
+                    title="Halaman sebelumnya"
+                    className={`inline-flex items-center justify-center text-sm text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        iconOnlyNav ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'
+                    }`}
                 >
-                    &laquo; Previous
+                    {iconOnlyNav ? <ChevronLeft className="w-4 h-4" /> : <>&laquo; Previous</>}
                 </button>
                 
                 {getPages().map((page, idx) => (
                     <button
+                        type="button"
                         key={idx}
                         onClick={() => typeof page === 'number' ? onPageChange(page) : null}
                         disabled={typeof page !== 'number'}
@@ -79,11 +86,16 @@ export default function ClientPagination({ total, itemsPerPage, currentPage, onP
                 ))}
 
                 <button
+                    type="button"
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages || totalPages === 0}
-                    className="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Halaman selanjutnya"
+                    title="Halaman selanjutnya"
+                    className={`inline-flex items-center justify-center text-sm text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        iconOnlyNav ? 'px-2.5 py-1.5 min-w-[34px]' : 'px-3 py-1'
+                    }`}
                 >
-                    Next &raquo;
+                    {iconOnlyNav ? <ChevronRight className="w-4 h-4" /> : <>Next &raquo;</>}
                 </button>
             </div>
         </div>

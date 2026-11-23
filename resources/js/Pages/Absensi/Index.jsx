@@ -1073,6 +1073,7 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                         itemsPerPage={itemsPerPage}
                                         currentPage={currentPage}
                                         onPageChange={setCurrentPage}
+                                        iconOnlyNav={true}
                                     />
                                 </div>
                             )}
