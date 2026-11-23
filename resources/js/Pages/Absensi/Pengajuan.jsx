@@ -26,6 +26,14 @@ import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 import Modal from '@/Components/Modal';
 import ClientPagination from '@/Components/ClientPagination';
 
+const getTodayDateString = () => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+};
+
 export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
@@ -47,6 +55,9 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
         reason: '',
         attachment: null,
     });
+
+    const todayDateStr = getTodayDateString();
+    const isTodayOnlySelected = data.start_date === todayDateStr && data.end_date === todayDateStr;
 
     const { auth, flash } = usePage().props;
     const currentUser = auth.user;
@@ -323,7 +334,28 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                 </div>
 
                                 <div>
-                                    <InputLabel value="Rentang Tanggal" />
+                                    <div className="flex items-center justify-between gap-2">
+                                        <InputLabel value="Rentang Tanggal" />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const today = getTodayDateString();
+                                                setData((prev) => ({
+                                                    ...prev,
+                                                    start_date: today,
+                                                    end_date: today,
+                                                }));
+                                            }}
+                                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                                                isTodayOnlySelected
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                                            }`}
+                                        >
+                                            <Calendar className="w-3.5 h-3.5" />
+                                            <span>Hari Ini Saja</span>
+                                        </button>
+                                    </div>
                                     <div className="mt-1">
                                         <CustomDateRangePicker
                                             value={{
@@ -692,7 +724,29 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
 
                     <form onSubmit={handleSaveDates} className="space-y-4">
                         <div>
-                            <InputLabel value="Rentang Tanggal" />
+                            <div className="flex items-center justify-between gap-2">
+                                <InputLabel value="Rentang Tanggal" />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const today = getTodayDateString();
+                                        setEditModal(prev => ({
+                                            ...prev,
+                                            start_date: today,
+                                            end_date: today,
+                                            errors: { ...prev.errors, start_date: null, end_date: null },
+                                        }));
+                                    }}
+                                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                                        editModal.start_date === todayDateStr && editModal.end_date === todayDateStr
+                                            ? 'bg-blue-600 text-white border-blue-600'
+                                            : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    <span>Hari Ini Saja</span>
+                                </button>
+                            </div>
                             <div className="mt-1">
                                 <CustomDateRangePicker
                                     value={{
