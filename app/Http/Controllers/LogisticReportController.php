@@ -25,9 +25,9 @@ class LogisticReportController extends Controller
 
         return $items->map(function ($item) use ($totalsByFaktur) {
             if (!empty($item->no_faktur) && isset($totalsByFaktur[$item->no_faktur])) {
-                $item->grand_total = $totalsByFaktur[$item->no_faktur];
+                $item->grand_total = round($totalsByFaktur[$item->no_faktur], 2);
             } else {
-                $item->grand_total = (float) $item->total;
+                $item->grand_total = round((float) $item->total, 2);
             }
             return $item;
         });
@@ -124,8 +124,66 @@ class LogisticReportController extends Controller
         ]);
     }
 
+    private function parseFlexibleNumber($value): float
+    {
+        if ($value === null || $value === '') {
+            return 0.0;
+        }
+        if (is_int($value) || is_float($value)) {
+            return (float) $value;
+        }
+
+        $str = preg_replace('/[^0-9.,-]/', '', trim((string) $value));
+        if ($str === '' || $str === '-') {
+            return 0.0;
+        }
+
+        $hasDot = str_contains($str, '.');
+        $hasComma = str_contains($str, ',');
+
+        if ($hasDot && $hasComma) {
+            if (strrpos($str, ',') > strrpos($str, '.')) {
+                $str = str_replace('.', '', $str);
+                $str = str_replace(',', '.', $str);
+            } else {
+                $str = str_replace(',', '', $str);
+            }
+        } elseif ($hasComma) {
+            if (substr_count($str, ',') > 1 || preg_match('/^-?[1-9]\d{0,2},\d{3}$/', $str)) {
+                $str = str_replace(',', '', $str);
+            } else {
+                $str = str_replace(',', '.', $str);
+            }
+        } elseif ($hasDot) {
+            if (substr_count($str, '.') > 1 || preg_match('/^-?[1-9]\d{0,2}\.\d{3}$/', $str)) {
+                $str = str_replace('.', '', $str);
+            }
+        }
+
+        return (float) $str;
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->merge(['id' => $id]);
+        return $this->store($request);
+    }
+
     public function store(Request $request)
     {
+        $normalizedMerge = [];
+        foreach (['hna', 'subtotal', 'ppn'] as $numField) {
+            if ($request->has($numField) && $request->input($numField) !== null && $request->input($numField) !== '') {
+                $normalizedMerge[$numField] = $this->parseFlexibleNumber($request->input($numField));
+            }
+        }
+        if ($request->has('qty') && $request->input('qty') !== null) {
+            $normalizedMerge['qty'] = trim((string) $request->input('qty'));
+        }
+        if (!empty($normalizedMerge)) {
+            $request->merge($normalizedMerge);
+        }
+
         $validated = $request->validate([
             'company_id' => 'nullable|exists:companies,id',
             'outlet_name' => 'nullable|string',
@@ -144,11 +202,12 @@ class LogisticReportController extends Controller
             'jenis_barang' => 'nullable|string',
         ]);
         
-        $qty = (float)str_replace(',', '.', $validated['qty'] ?? 0);
-        $hna = (float)($validated['hna'] ?? 0);
-        $validated['subtotal'] = $qty * $hna;
-
-        $validated['total'] = $validated['subtotal'] + (float)($validated['ppn'] ?? 0);
+        $qty = $this->parseFlexibleNumber($validated['qty'] ?? 0);
+        $hna = $this->parseFlexibleNumber($validated['hna'] ?? 0);
+        $validated['hna'] = round($hna, 2);
+        $validated['subtotal'] = round($qty * $hna, 2);
+        $validated['ppn'] = round($this->parseFlexibleNumber($validated['ppn'] ?? 0), 2);
+        $validated['total'] = round($validated['subtotal'] + $validated['ppn'], 2);
         $validated['grand_total'] = 0; // Field ini diabaikan karena akan dikalkulasi ulang
 
         if (!empty($validated['outlet_name'])) {
@@ -259,7 +318,14 @@ class LogisticReportController extends Controller
             return in_array($h, $requestedColumns);
         }));
 
-        $rows = $items->map(function($item, $key) use ($allHeadings, $headings) {
+        $fmtNum = function ($v) {
+            $rounded = round((float) $v, 2);
+            return abs($rounded - round($rounded)) > 0.00001
+                ? number_format($rounded, 2, ',', '.')
+                : number_format($rounded, 0, ',', '.');
+        };
+
+        $rows = $items->map(function($item, $key) use ($allHeadings, $headings, $fmtNum) {
             $fullRow = [
                 'No' => $key + 1, 
                 'Nama PT' => $item->company ? $item->company->name : '-', 
@@ -273,11 +339,11 @@ class LogisticReportController extends Controller
                 'Nama Produk' => $item->nama_produk, 
                 'Qty' => $item->qty, 
                 'Satuan' => $item->satuan, 
-                'HNA' => number_format((float)$item->hna, 0, ',', '.'), 
-                'Subtotal' => number_format((float)$item->subtotal, 0, ',', '.'), 
-                'PPN' => number_format((float)$item->ppn, 0, ',', '.'), 
-                'Total' => number_format((float)$item->total, 0, ',', '.'), 
-                'Grand Total' => number_format((float)$item->grand_total, 0, ',', '.'),
+                'HNA' => $fmtNum($item->hna), 
+                'Subtotal' => $fmtNum($item->subtotal), 
+                'PPN' => $fmtNum($item->ppn), 
+                'Total' => $fmtNum($item->total), 
+                'Grand Total' => $fmtNum($item->grand_total),
                 'Jenis Brg' => $item->jenis_barang
             ];
             

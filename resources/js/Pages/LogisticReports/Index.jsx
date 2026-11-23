@@ -12,8 +12,6 @@ import InputError from '@/Components/InputError';
 import CustomDatePicker from '@/Components/CustomDatePicker';
 import SearchableSelect from '@/Components/SearchableSelect';
 import MultiSelect from '@/Components/MultiSelect';
-import NumberInput from '@/Components/NumberInput';
-import CurrencyInput from '@/Components/CurrencyInput';
 import Swal from 'sweetalert2';
 import {
   Chart as ChartJS,
@@ -34,6 +32,78 @@ ChartJS.register(
   ChartTooltip,
   ChartLegend
 );
+
+const sanitizeNumericText = (raw) => {
+    if (raw === null || raw === undefined) return '';
+    return String(raw).replace(/[^0-9.,]/g, '');
+};
+
+const parseFlexibleNumber = (raw) => {
+    if (raw === null || raw === undefined || raw === '') return 0;
+    if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
+
+    let str = String(raw).trim().replace(/[^0-9.,-]/g, '');
+    if (str === '' || str === '-') return 0;
+
+    const hasDot = str.includes('.');
+    const hasComma = str.includes(',');
+
+    if (hasDot && hasComma) {
+        if (str.lastIndexOf(',') > str.lastIndexOf('.')) {
+            // Format Indonesia: 1.705.164.713,82
+            str = str.replace(/\./g, '').replace(',', '.');
+        } else {
+            // Format Inggris/US: 1,705,164,713.82
+            str = str.replace(/,/g, '');
+        }
+    } else if (hasComma) {
+        const commaCount = (str.match(/,/g) || []).length;
+        if (commaCount > 1 || /^-?[1-9]\d{0,2},\d{3}$/.test(str)) {
+            str = str.replace(/,/g, '');
+        } else {
+            str = str.replace(',', '.');
+        }
+    } else if (hasDot) {
+        const dotCount = (str.match(/\./g) || []).length;
+        if (dotCount > 1 || /^-?[1-9]\d{0,2}\.\d{3}$/.test(str)) {
+            str = str.replace(/\./g, '');
+        }
+    }
+
+    const num = parseFloat(str);
+    return Number.isFinite(num) ? num : 0;
+};
+
+const hasFraction = (num) => Math.abs(num - Math.round(num)) > 0.00001;
+
+const formatIdNumber = (val) => {
+    if (val === null || val === undefined || val === '') return '0';
+    const rawNum = typeof val === 'number' ? val : parseFlexibleNumber(val);
+    const rounded = Math.round(rawNum * 100) / 100;
+    const digits = hasFraction(rounded) ? 2 : 0;
+    return rounded.toLocaleString('id-ID', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+};
+
+const formatRupiah = (val) => {
+    const rawNum = typeof val === 'number' ? val : parseFlexibleNumber(val);
+    const rounded = Math.round((rawNum || 0) * 100) / 100;
+    const digits = hasFraction(rounded) ? 2 : 0;
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits,
+    }).format(rounded);
+};
+
+const formatInitialNumberInput = (val) => {
+    if (val === null || val === undefined || val === '') return '';
+    const num = parseFloat(val);
+    if (!Number.isFinite(num)) return String(val);
+    const rounded = Math.round(num * 100) / 100;
+    const digits = hasFraction(rounded) ? 2 : 0;
+    return rounded.toLocaleString('id-ID', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+};
 
 export default function Index({ auth, items, sales, outlets, companies, filters, summary, chartData }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,7 +172,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
         return today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
     };
 
-    const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors, transform } = useForm({
         tanggal: getTodayDate(),
         company_id: '',
         outlet_name: '',
@@ -125,24 +195,24 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
 
     // Kalkulasi otomatis
     useEffect(() => {
-        const q = parseFloat(data.qty) || 0;
-        const h = parseFloat(data.hna) || 0;
-        const sub = q * h;
+        const q = parseFlexibleNumber(data.qty);
+        const h = parseFlexibleNumber(data.hna);
+        const sub = Math.round(q * h * 100) / 100;
         
-        if (sub !== parseFloat(data.subtotal)) {
-            setData(current => ({ ...current, subtotal: sub }));
+        if (sub !== parseFlexibleNumber(data.subtotal) || (data.qty === '' && data.hna === '' && data.subtotal !== '')) {
+            setData(current => ({ ...current, subtotal: (data.qty === '' && data.hna === '') ? '' : sub }));
         }
     }, [data.qty, data.hna]);
 
     useEffect(() => {
         if (data.subtotal === '' && data.ppn_percentage === '') return;
         
-        const subtotal = parseFloat(data.subtotal) || 0;
-        const ppn_percent = parseFloat(data.ppn_percentage) || 0;
-        const p = subtotal * (ppn_percent / 100); 
-        const tot = subtotal + p;
+        const subtotal = parseFlexibleNumber(data.subtotal);
+        const ppn_percent = parseFlexibleNumber(data.ppn_percentage);
+        const p = Math.round(subtotal * (ppn_percent / 100) * 100) / 100;
+        const tot = Math.round((subtotal + p) * 100) / 100;
         
-        if (p !== parseFloat(data.ppn) || tot !== parseFloat(data.total)) {
+        if (p !== parseFlexibleNumber(data.ppn) || tot !== parseFlexibleNumber(data.total)) {
             setData(current => ({ ...current, ppn: p, total: tot }));
         }
     }, [data.subtotal, data.ppn_percentage]);
@@ -151,9 +221,10 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
         if (item) {
             setEditingItem(item);
             
-            let ppnPercent = 11;
-            if (item.subtotal > 0 && item.ppn !== null) {
-                ppnPercent = Math.round((item.ppn / item.subtotal) * 100);
+            let ppnPercent = '11';
+            if (Number(item.subtotal) > 0 && item.ppn !== null && item.ppn !== undefined) {
+                const calcPct = Math.round((Number(item.ppn) / Number(item.subtotal)) * 10000) / 100;
+                ppnPercent = String(calcPct).replace('.', ',');
             }
             
             setData({
@@ -166,13 +237,13 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                 id_paket: item.id_paket || '',
                 brand: item.brand || '',
                 nama_produk: item.nama_produk || '',
-                qty: item.qty || '',
+                qty: item.qty !== null && item.qty !== undefined ? String(item.qty) : '',
                 satuan: item.satuan || '',
-                hna: item.hna || '',
-                subtotal: item.subtotal || '',
+                hna: formatInitialNumberInput(item.hna),
+                subtotal: item.subtotal !== null && item.subtotal !== undefined ? Number(item.subtotal) : '',
                 ppn_percentage: ppnPercent,
-                ppn: item.ppn || '',
-                total: item.total || '',
+                ppn: item.ppn !== null && item.ppn !== undefined ? Number(item.ppn) : '',
+                total: item.total !== null && item.total !== undefined ? Number(item.total) : '',
                 grand_total: item.grand_total || '',
                 jenis_barang: item.jenis_barang || '' 
             });
@@ -183,7 +254,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                 setData(current => ({
                     ...current,
                     tanggal: getTodayDate(),
-                    ppn_percentage: 11
+                    ppn_percentage: '11'
                 }));
             }, 0);
         }
@@ -199,6 +270,14 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
 
     const submit = (e) => {
         e.preventDefault();
+
+        transform((formData) => ({
+            ...formData,
+            hna: formData.hna === '' ? '' : parseFlexibleNumber(formData.hna),
+            subtotal: formData.subtotal === '' ? '' : parseFlexibleNumber(formData.subtotal),
+            ppn: formData.ppn === '' ? '' : parseFlexibleNumber(formData.ppn),
+            total: formData.total === '' ? '' : parseFlexibleNumber(formData.total),
+        }));
         
         if (editingItem) {
             put(route('logistic-reports.update', editingItem.id), {
@@ -286,7 +365,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                             </div>
                             <h4 className="text-gray-500 text-sm font-medium">Total Pendapatan</h4>
                             <p className="text-xl font-bold text-gray-900">
-                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(summary?.total_pendapatan || 0)}
+                                {formatRupiah(summary?.total_pendapatan || 0)}
                             </p>
                         </div>
                         <div 
@@ -298,7 +377,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                             </div>
                             <h4 className="text-gray-500 text-sm font-medium">Pendapatan BMHP</h4>
                             <p className="text-xl font-bold text-gray-900">
-                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(summary?.pendapatan_bmhp || 0)}
+                                {formatRupiah(summary?.pendapatan_bmhp || 0)}
                             </p>
                         </div>
                         <div 
@@ -310,7 +389,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                             </div>
                             <h4 className="text-gray-500 text-sm font-medium">Pendapatan ALAT</h4>
                             <p className="text-xl font-bold text-gray-900">
-                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(summary?.pendapatan_alat || 0)}
+                                {formatRupiah(summary?.pendapatan_alat || 0)}
                             </p>
                         </div>
                     </div>
@@ -339,7 +418,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                         tooltip: {
                                             callbacks: {
                                                 label: function(context) {
-                                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.raw);
+                                                    return formatRupiah(context.raw);
                                                 }
                                             }
                                         }
@@ -466,7 +545,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                                 <td className="px-6 py-4 whitespace-normal break-words min-w-[120px]">{item.nama_sales}</td>
                                                 <td className="px-6 py-4 whitespace-normal break-words min-w-[200px]" title={item.nama_produk}>{item.nama_produk}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{item.qty} {item.satuan}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{item.grand_total ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.grand_total) : ''}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item.grand_total ? formatRupiah(item.grand_total) : ''}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openModal(item)} className="text-blue-600 hover:text-blue-900 mr-4">
                                                         <Edit className="w-4 h-4" />
@@ -615,7 +694,15 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                         
                         <div>
                             <InputLabel htmlFor="qty" value="Qty" />
-                            <NumberInput id="qty" className="mt-1 block w-full" value={data.qty} onChange={val => setData('qty', val)} />
+                            <TextInput
+                                id="qty"
+                                type="text"
+                                inputMode="decimal"
+                                placeholder="0"
+                                className="mt-1 block w-full"
+                                value={data.qty}
+                                onChange={e => setData('qty', sanitizeNumericText(e.target.value))}
+                            />
                             <InputError message={errors.qty} className="mt-2" />
                         </div>
                         <div>
@@ -635,31 +722,51 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                         
                         <div>
                             <InputLabel htmlFor="hna" value="HNA (Rp)" />
-                            <CurrencyInput id="hna" className="mt-1 block w-full" value={data.hna} onChange={val => setData('hna', val)} />
+                            <div className="relative w-full mt-1">
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none">Rp</span>
+                                <input
+                                    id="hna"
+                                    type="text"
+                                    inputMode="decimal"
+                                    placeholder="0"
+                                    className="block w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
+                                    value={data.hna}
+                                    onChange={e => setData('hna', sanitizeNumericText(e.target.value))}
+                                />
+                            </div>
                             <InputError message={errors.hna} className="mt-2" />
                         </div>
                         <div>
                             <InputLabel value="Subtotal" />
-                            <div className="mt-1 block w-full py-2 px-3 bg-gray-50 border border-gray-200 rounded-md shadow-sm font-semibold text-gray-700">
-                                {data.subtotal ? `Rp ${Number(data.subtotal).toLocaleString('id-ID')}` : 'Rp 0'}
+                            <div className="mt-1 block w-full py-2.5 px-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm font-semibold text-gray-700 tabular-nums">
+                                {data.subtotal ? `Rp ${formatIdNumber(data.subtotal)}` : 'Rp 0'}
                             </div>
                         </div>
                         <div className="flex gap-2">
                             <div className="w-1/3">
                                 <InputLabel htmlFor="ppn_percentage" value="PPN (%)" />
-                                <TextInput id="ppn_percentage" type="number" step="any" className="mt-1 block w-full" value={data.ppn_percentage} onChange={e => setData('ppn_percentage', e.target.value)} />
+                                <TextInput
+                                    id="ppn_percentage"
+                                    type="text"
+                                    inputMode="decimal"
+                                    className="mt-1 block w-full"
+                                    value={data.ppn_percentage}
+                                    onChange={e => setData('ppn_percentage', sanitizeNumericText(e.target.value))}
+                                />
                             </div>
                             <div className="w-2/3">
                                 <InputLabel htmlFor="ppn" value="PPN (Rp)" />
-                                <CurrencyInput id="ppn" className="mt-1 block w-full bg-gray-100" readOnly value={data.ppn} onChange={val => setData('ppn', val)} />
+                                <div className="mt-1 block w-full py-2.5 px-4 bg-gray-100 border border-gray-200 rounded-xl shadow-sm font-semibold text-gray-700 tabular-nums">
+                                    {data.ppn ? `Rp ${formatIdNumber(data.ppn)}` : 'Rp 0'}
+                                </div>
                                 <InputError message={errors.ppn} className="mt-2" />
                             </div>
                         </div>
                         
                         <div>
                             <InputLabel value="Total" />
-                            <div className="mt-1 block w-full py-2 px-3 bg-gray-50 border border-gray-200 rounded-md shadow-sm font-semibold text-gray-700">
-                                {data.total ? `Rp ${Number(data.total).toLocaleString('id-ID')}` : 'Rp 0'}
+                            <div className="mt-1 block w-full py-2.5 px-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm font-semibold text-gray-700 tabular-nums">
+                                {data.total ? `Rp ${formatIdNumber(data.total)}` : 'Rp 0'}
                             </div>
                         </div>
                     </div>
