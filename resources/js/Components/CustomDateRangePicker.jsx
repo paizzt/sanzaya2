@@ -8,6 +8,9 @@ export default function CustomDateRangePicker({
     primaryColor = "blue",
     showShortcuts = true,
     showFooter = false,
+    displayFormat = "DD/MM/YYYY",
+    separator = "s/d",
+    readOnly = false,
     inputClassName = ""
 }) {
     const handleValueChange = (newValue) => {
@@ -34,9 +37,10 @@ export default function CustomDateRangePicker({
                 onChange={handleValueChange}
                 showShortcuts={showShortcuts}
                 showFooter={showFooter}
-                displayFormat={"DD/MM/YYYY"}
-                separator={"s/d"}
+                displayFormat={displayFormat}
+                separator={separator}
                 placeholder={placeholder}
+                readOnly={readOnly}
                 popoverDirection="down"
                 configs={{
                     shortcuts: {

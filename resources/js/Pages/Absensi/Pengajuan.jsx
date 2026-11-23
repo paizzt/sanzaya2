@@ -22,7 +22,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
-import CustomDatePicker from '@/Components/CustomDatePicker';
+import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 import Modal from '@/Components/Modal';
 import ClientPagination from '@/Components/ClientPagination';
 
@@ -322,23 +322,30 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                     <InputError message={errors.type} className="mt-2" />
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <InputLabel value="Mulai Tanggal" />
-                                        <CustomDatePicker 
-                                            value={data.start_date}
-                                            onChange={(val) => setData('start_date', val)}
+                                <div>
+                                    <InputLabel value="Rentang Tanggal" />
+                                    <div className="mt-1">
+                                        <CustomDateRangePicker
+                                            value={{
+                                                startDate: data.start_date || null,
+                                                endDate: data.end_date || null,
+                                            }}
+                                            onChange={(range) => {
+                                                setData((prev) => ({
+                                                    ...prev,
+                                                    start_date: range?.startDate || '',
+                                                    end_date: range?.endDate || range?.startDate || '',
+                                                }));
+                                            }}
+                                            placeholder="DD MMM YYYY s/d DD MMM YYYY"
+                                            primaryColor="blue"
+                                            showShortcuts={false}
+                                            showFooter={false}
+                                            displayFormat="DD MMM YYYY"
+                                            readOnly={true}
                                         />
-                                        <InputError message={errors.start_date} className="mt-2" />
                                     </div>
-                                    <div>
-                                        <InputLabel value="Sampai Tanggal" />
-                                        <CustomDatePicker 
-                                            value={data.end_date}
-                                            onChange={(val) => setData('end_date', val)}
-                                        />
-                                        <InputError message={errors.end_date} className="mt-2" />
-                                    </div>
+                                    <InputError message={errors.start_date || errors.end_date} className="mt-2" />
                                 </div>
 
                                 <div>
@@ -637,8 +644,8 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
             </Modal>
 
             {/* Modal Edit Rentang Tanggal Khusus Superadmin */}
-            <Modal show={editModal.isOpen} onClose={() => setEditModal(prev => ({ ...prev, isOpen: false }))} maxWidth="md">
-                <div className="p-6">
+            <Modal show={editModal.isOpen} onClose={() => setEditModal(prev => ({ ...prev, isOpen: false }))} maxWidth="xl">
+                <div className="p-6 min-h-[420px]">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
                         <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-blue-600" />
@@ -684,24 +691,29 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
 
                     <form onSubmit={handleSaveDates} className="space-y-4">
                         <div>
-                            <InputLabel value="Mulai Tanggal" />
-                            <CustomDatePicker 
-                                value={editModal.start_date}
-                                onChange={(val) => setEditModal(prev => ({ ...prev, start_date: val, errors: { ...prev.errors, start_date: null } }))}
-                            />
-                            {editModal.errors?.start_date && (
-                                <InputError message={editModal.errors.start_date} className="mt-1" />
-                            )}
-                        </div>
-
-                        <div>
-                            <InputLabel value="Sampai Tanggal" />
-                            <CustomDatePicker 
-                                value={editModal.end_date}
-                                onChange={(val) => setEditModal(prev => ({ ...prev, end_date: val, errors: { ...prev.errors, end_date: null } }))}
-                            />
-                            {editModal.errors?.end_date && (
-                                <InputError message={editModal.errors.end_date} className="mt-1" />
+                            <InputLabel value="Rentang Tanggal" />
+                            <div className="mt-1">
+                                <CustomDateRangePicker
+                                    value={{
+                                        startDate: editModal.start_date || null,
+                                        endDate: editModal.end_date || null,
+                                    }}
+                                    onChange={(range) => setEditModal(prev => ({
+                                        ...prev,
+                                        start_date: range?.startDate || '',
+                                        end_date: range?.endDate || range?.startDate || '',
+                                        errors: { ...prev.errors, start_date: null, end_date: null },
+                                    }))}
+                                    placeholder="DD MMM YYYY s/d DD MMM YYYY"
+                                    primaryColor="blue"
+                                    showShortcuts={false}
+                                    showFooter={false}
+                                    displayFormat="DD MMM YYYY"
+                                    readOnly={true}
+                                />
+                            </div>
+                            {(editModal.errors?.start_date || editModal.errors?.end_date) && (
+                                <InputError message={editModal.errors.start_date || editModal.errors.end_date} className="mt-1" />
                             )}
                         </div>
 
