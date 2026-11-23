@@ -169,7 +169,12 @@ class MarketingDailyReportController extends Controller
                 'competitor_notes' => 'nullable|string',
                 'visit_result' => 'nullable|string',
                 'signature' => 'nullable',
-                'photos' => 'nullable|file|mimes:jpeg,png,jpg,webp,heic|max:15360',
+                'photos' => 'required|file|mimes:jpeg,png,jpg,webp,heic|max:15360',
+            ], [
+                'photos.required' => 'Foto dokumentasi wajib diisi sebelum mengirim laporan.',
+                'photos.file' => 'Foto dokumentasi harus berupa file gambar yang valid.',
+                'photos.mimes' => 'Format foto dokumentasi harus JPEG, PNG, JPG, WEBP, atau HEIC.',
+                'photos.max' => 'Ukuran foto dokumentasi maksimal 15 MB.',
             ]);
 
             $photoUrl = null;
@@ -184,9 +189,14 @@ class MarketingDailyReportController extends Controller
                     }
                 } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::error('Marketing Photo Error: ' . $e->getMessage());
-                    // If it fails completely, we gracefully leave it as null
                     $photoUrl = null;
                 }
+            }
+
+            if (empty($photoUrl)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'photos' => ['Foto dokumentasi wajib diunggah. Silakan pilih foto dan coba lagi.'],
+                ]);
             }
 
             $signatureUrl = $request->signature;
