@@ -334,8 +334,29 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                 </div>
 
                                 <div>
-                                    <div className="flex items-center justify-between gap-2">
-                                        <InputLabel value="Rentang Tanggal" />
+                                    <InputLabel value="Rentang Tanggal" />
+                                    <div className="mt-1 flex items-stretch gap-2">
+                                        <div className="flex-1 min-w-0">
+                                            <CustomDateRangePicker
+                                                value={{
+                                                    startDate: data.start_date || null,
+                                                    endDate: data.end_date || null,
+                                                }}
+                                                onChange={(range) => {
+                                                    setData((prev) => ({
+                                                        ...prev,
+                                                        start_date: range?.startDate || '',
+                                                        end_date: range?.endDate || range?.startDate || '',
+                                                    }));
+                                                }}
+                                                placeholder="Pilih Rentang Tanggal"
+                                                primaryColor="blue"
+                                                showShortcuts={false}
+                                                showFooter={false}
+                                                displayFormat="DD MMM YYYY"
+                                                readOnly={true}
+                                            />
+                                        </div>
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -346,36 +367,15 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                                     end_date: today,
                                                 }));
                                             }}
-                                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                                            className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold border shadow-sm whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                                                 isTodayOnlySelected
                                                     ? 'bg-blue-600 text-white border-blue-600'
                                                     : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
                                             }`}
                                         >
-                                            <Calendar className="w-3.5 h-3.5" />
+                                            <Calendar className="w-4 h-4 shrink-0" />
                                             <span>Hari Ini Saja</span>
                                         </button>
-                                    </div>
-                                    <div className="mt-1">
-                                        <CustomDateRangePicker
-                                            value={{
-                                                startDate: data.start_date || null,
-                                                endDate: data.end_date || null,
-                                            }}
-                                            onChange={(range) => {
-                                                setData((prev) => ({
-                                                    ...prev,
-                                                    start_date: range?.startDate || '',
-                                                    end_date: range?.endDate || range?.startDate || '',
-                                                }));
-                                            }}
-                                            placeholder="DD MMM YYYY s/d DD MMM YYYY"
-                                            primaryColor="blue"
-                                            showShortcuts={false}
-                                            showFooter={false}
-                                            displayFormat="DD MMM YYYY"
-                                            readOnly={true}
-                                        />
                                     </div>
                                     <InputError message={errors.start_date || errors.end_date} className="mt-2" />
                                 </div>
@@ -724,8 +724,28 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
 
                     <form onSubmit={handleSaveDates} className="space-y-4">
                         <div>
-                            <div className="flex items-center justify-between gap-2">
-                                <InputLabel value="Rentang Tanggal" />
+                            <InputLabel value="Rentang Tanggal" />
+                            <div className="mt-1 flex items-stretch gap-2">
+                                <div className="flex-1 min-w-0">
+                                    <CustomDateRangePicker
+                                        value={{
+                                            startDate: editModal.start_date || null,
+                                            endDate: editModal.end_date || null,
+                                        }}
+                                        onChange={(range) => setEditModal(prev => ({
+                                            ...prev,
+                                            start_date: range?.startDate || '',
+                                            end_date: range?.endDate || range?.startDate || '',
+                                            errors: { ...prev.errors, start_date: null, end_date: null },
+                                        }))}
+                                        placeholder="Pilih Rentang Tanggal"
+                                        primaryColor="blue"
+                                        showShortcuts={false}
+                                        showFooter={false}
+                                        displayFormat="DD MMM YYYY"
+                                        readOnly={true}
+                                    />
+                                </div>
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -737,35 +757,15 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                             errors: { ...prev.errors, start_date: null, end_date: null },
                                         }));
                                     }}
-                                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                                    className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold border shadow-sm whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                                         editModal.start_date === todayDateStr && editModal.end_date === todayDateStr
                                             ? 'bg-blue-600 text-white border-blue-600'
                                             : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
                                     }`}
                                 >
-                                    <Calendar className="w-3.5 h-3.5" />
+                                    <Calendar className="w-4 h-4 shrink-0" />
                                     <span>Hari Ini Saja</span>
                                 </button>
-                            </div>
-                            <div className="mt-1">
-                                <CustomDateRangePicker
-                                    value={{
-                                        startDate: editModal.start_date || null,
-                                        endDate: editModal.end_date || null,
-                                    }}
-                                    onChange={(range) => setEditModal(prev => ({
-                                        ...prev,
-                                        start_date: range?.startDate || '',
-                                        end_date: range?.endDate || range?.startDate || '',
-                                        errors: { ...prev.errors, start_date: null, end_date: null },
-                                    }))}
-                                    placeholder="DD MMM YYYY s/d DD MMM YYYY"
-                                    primaryColor="blue"
-                                    showShortcuts={false}
-                                    showFooter={false}
-                                    displayFormat="DD MMM YYYY"
-                                    readOnly={true}
-                                />
                             </div>
                             {(editModal.errors?.start_date || editModal.errors?.end_date) && (
                                 <InputError message={editModal.errors.start_date || editModal.errors.end_date} className="mt-1" />
