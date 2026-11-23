@@ -131,7 +131,7 @@
             <tr>
                 <th class="text-center" style="width: 5%;">No</th>
                 <th style="width: 18%;">Karyawan</th>
-                <th style="width: 15%;">Tanggal / Periode</th>
+                <th style="width: 15%;">Tanggal</th>
                 <th style="width: 13%;">Tipe Absen</th>
                 <th class="text-center" style="width: 17%;">Jam Masuk</th>
                 <th class="text-center" style="width: 17%;">Jam Keluar</th>
@@ -148,7 +148,47 @@
                             <br><small style="color: #4f46e5; font-weight: bold;">[SATPAM]</small>
                         @endif
                     </td>
-                    <td>{{ $item['date'] }}</td>
+                    <td>
+                        @php
+                            $idDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                            $idMonths = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                            $rawDate = trim((string) ($item['date'] ?? ''));
+                            $dayLabel = '';
+                            $dateLabel = $rawDate;
+
+                            try {
+                                if (str_contains($rawDate, ' s/d ')) {
+                                    [$sRaw, $eRaw] = explode(' s/d ', $rawDate, 2);
+                                    $sC = \Carbon\Carbon::parse(substr(trim($sRaw), 0, 10));
+                                    $eC = \Carbon\Carbon::parse(substr(trim($eRaw), 0, 10));
+                                    if ($sC->isSameDay($eC)) {
+                                        $dayLabel = $idDays[$sC->dayOfWeek];
+                                        $dateLabel = $sC->day . ' ' . $idMonths[$sC->month];
+                                    } else {
+                                        $dayLabel = $sC->dayOfWeek === $eC->dayOfWeek
+                                            ? $idDays[$sC->dayOfWeek]
+                                            : $idDays[$sC->dayOfWeek] . ' - ' . $idDays[$eC->dayOfWeek];
+                                        $dateLabel = ($sC->month === $eC->month && $sC->year === $eC->year)
+                                            ? ($sC->day . ' - ' . $eC->day . ' ' . $idMonths[$sC->month])
+                                            : ($sC->day . ' ' . $idMonths[$sC->month] . ' - ' . $eC->day . ' ' . $idMonths[$eC->month]);
+                                    }
+                                } elseif (preg_match('/^\d{4}-\d{2}-\d{2}/', $rawDate)) {
+                                    $c = \Carbon\Carbon::parse(substr($rawDate, 0, 10));
+                                    $dayLabel = $idDays[$c->dayOfWeek];
+                                    $dateLabel = $c->day . ' ' . $idMonths[$c->month];
+                                }
+                            } catch (\Throwable $e) {
+                                $dayLabel = '';
+                                $dateLabel = $rawDate;
+                            }
+                        @endphp
+                        @if($dayLabel !== '')
+                            <strong>{{ $dayLabel }}</strong><br>
+                            <span>{{ $dateLabel }}</span>
+                        @else
+                            {{ $dateLabel }}
+                        @endif
+                    </td>
                     <td>
                         {{ $item['type'] }}
                         @if(!empty($item['shift']))

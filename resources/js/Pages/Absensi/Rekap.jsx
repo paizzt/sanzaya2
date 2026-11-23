@@ -8,6 +8,58 @@ import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
+const ID_DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const ID_MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+const parseDatePart = (raw) => {
+    if (!raw) return null;
+    const match = String(raw).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return null;
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const d = new Date(year, month - 1, day);
+    if (Number.isNaN(d.getTime())) return null;
+    return {
+        dayName: ID_DAYS[d.getDay()],
+        dayNum: day,
+        monthName: ID_MONTHS[month - 1],
+        month,
+        year,
+    };
+};
+
+const formatRecapDate = (rawDate) => {
+    if (!rawDate) return { dayLabel: '', dateLabel: '-' };
+    const str = String(rawDate).trim();
+    if (str.includes(' s/d ')) {
+        const [startRaw, endRaw] = str.split(' s/d ');
+        const start = parseDatePart(startRaw);
+        const end = parseDatePart(endRaw);
+        if (start && end) {
+            if (start.year === end.year && start.month === end.month && start.dayNum === end.dayNum) {
+                return {
+                    dayLabel: start.dayName,
+                    dateLabel: `${start.dayNum} ${start.monthName}`,
+                };
+            }
+            const dayLabel = start.dayName === end.dayName ? start.dayName : `${start.dayName} - ${end.dayName}`;
+            const dateLabel = start.month === end.month && start.year === end.year
+                ? `${start.dayNum} - ${end.dayNum} ${start.monthName}`
+                : `${start.dayNum} ${start.monthName} - ${end.dayNum} ${end.monthName}`;
+            return { dayLabel, dateLabel };
+        }
+    }
+    const single = parseDatePart(str);
+    if (single) {
+        return {
+            dayLabel: single.dayName,
+            dateLabel: `${single.dayNum} ${single.monthName}`,
+        };
+    }
+    return { dayLabel: '', dateLabel: str };
+};
+
 export default function Rekap({ auth, recapList, summary, userSummaries, filters, users, isAdmin, payrollSettings = {} }) {
     const isSuperAdmin = auth?.user?.roles?.some(r => {
         const name = (r.name || '').toLowerCase().replace(/[\s_-]/g, '');
@@ -946,7 +998,17 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     <span className="text-[11px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold">Satpam</span>
                                                 )}
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-0.5">{item.date}</p>
+                                            {(() => {
+                                                const fmt = formatRecapDate(item.date);
+                                                return fmt.dayLabel ? (
+                                                    <div className="mt-0.5 leading-tight">
+                                                        <p className="text-xs font-semibold text-gray-700">{fmt.dayLabel}</p>
+                                                        <p className="text-xs text-gray-500">{fmt.dateLabel}</p>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-xs text-gray-500 mt-0.5">{item.date}</p>
+                                                );
+                                            })()}
                                         </div>
                                         <div className="flex items-center gap-1.5 shrink-0">
                                             <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
@@ -1182,7 +1244,7 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                             <thead>
                                 <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
                                     <th className="py-4 px-6 font-semibold">Karyawan</th>
-                                    <th className="py-4 px-6 font-semibold">Tanggal / Periode</th>
+                                    <th className="py-4 px-6 font-semibold">Tanggal</th>
                                     <th className="py-4 px-6 font-semibold">Tipe Absen</th>
                                     <th className="py-4 px-6 font-semibold text-center">Shift</th>
                                     <th className="py-4 px-6 font-semibold text-center">
@@ -1215,7 +1277,19 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-6">{item.date}</td>
+                                            <td className="py-4 px-6 whitespace-nowrap">
+                                                {(() => {
+                                                    const fmt = formatRecapDate(item.date);
+                                                    return fmt.dayLabel ? (
+                                                        <div className="leading-tight">
+                                                            <div className="font-semibold text-gray-900">{fmt.dayLabel}</div>
+                                                            <div className="text-xs text-gray-600 mt-0.5">{fmt.dateLabel}</div>
+                                                        </div>
+                                                    ) : (
+                                                        <span>{item.date}</span>
+                                                    );
+                                                })()}
+                                            </td>
                                             <td className="py-4 px-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                                     item.type === 'Hadir' ? 'bg-blue-600 text-white' :
