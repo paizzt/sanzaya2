@@ -183,6 +183,19 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
     };
 
+    const getDurationDays = (item) => {
+        if (item?.departure_date && item?.return_date) {
+            const [sy, sm, sd] = String(item.departure_date).substring(0, 10).split('-').map(Number);
+            const [ey, em, ed] = String(item.return_date).substring(0, 10).split('-').map(Number);
+            if (sy && sm && sd && ey && em && ed) {
+                const utc1 = Date.UTC(sy, sm - 1, sd);
+                const utc2 = Date.UTC(ey, em - 1, ed);
+                return Math.round(Math.abs(utc2 - utc1) / (1000 * 60 * 60 * 24)) + 1;
+            }
+        }
+        return Number(item?.estimated_days) || 0;
+    };
+
     const getRequestTotal = (req) => {
         if (req.approved_gas_cost) return Number(req.approved_gas_cost);
         if (req.items && req.items.length > 0) {
@@ -293,7 +306,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                             </div>
                                             <div className="min-w-0">
                                                 <p className="text-gray-500 mb-0.5">Durasi & Kendaraan</p>
-                                                <p className="font-semibold text-gray-800 break-words">{uc.estimated_days} Hari - {uc.transport_type} {uc.vehicle_number ? `(${uc.vehicle_number})` : ''}</p>
+                                                <p className="font-semibold text-gray-800 break-words">{getDurationDays(uc)} Hari - {uc.transport_type} {uc.vehicle_number ? `(${uc.vehicle_number})` : ''}</p>
                                             </div>
                                             <div className="col-span-1 md:col-span-2 min-w-0">
                                                 <p className="text-gray-500 mb-1">Pendamping</p>
@@ -486,7 +499,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                     <p className="text-xs text-gray-600 mt-0.5 break-words leading-relaxed">
                                                         Tujuan: <strong className="text-gray-800 capitalize">{req.destination_city || '-'}</strong>
                                                         <span className="mx-1.5 text-gray-400">&bull;</span>
-                                                        <span className="font-medium text-gray-700 whitespace-nowrap">{req.estimated_days || 0} Hari</span>
+                                                        <span className="font-medium text-gray-700 whitespace-nowrap">{getDurationDays(req)} Hari</span>
                                                     </p>
                                                 </div>
                                             </div>
@@ -528,7 +541,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                         )}
                                                         <p className="text-xs text-gray-600 mt-1.5 flex items-center gap-1 flex-wrap">
                                                             <Calendar className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-                                                            <span>{req.departure_date} s/d {req.return_date} ({req.estimated_days} Hari)</span>
+                                                            <span>{req.departure_date} s/d {req.return_date} ({getDurationDays(req)} Hari)</span>
                                                         </p>
                                                         <p className="text-xs text-gray-600 mt-1 break-words">
                                                             Transportasi: <strong className="text-gray-800">{req.transport_type || '-'}</strong> {req.vehicle_number ? `(${req.vehicle_number})` : ''}

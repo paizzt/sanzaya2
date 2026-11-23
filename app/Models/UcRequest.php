@@ -15,6 +15,36 @@ class UcRequest extends Model
     ];
     protected $appends = ['creator_name', 'creator_division'];
 
+    public static function calculateInclusiveDays($departureDate, $returnDate): int
+    {
+        if (empty($departureDate) || empty($returnDate)) {
+            return 0;
+        }
+
+        try {
+            $start = \Carbon\Carbon::parse($departureDate)->startOfDay();
+            $end = \Carbon\Carbon::parse($returnDate)->startOfDay();
+            return (int) abs($start->diffInDays($end)) + 1;
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    public function getEstimatedDaysAttribute($value): int
+    {
+        $departure = $this->attributes['departure_date'] ?? null;
+        $return = $this->attributes['return_date'] ?? null;
+
+        if (!empty($departure) && !empty($return)) {
+            $calculated = self::calculateInclusiveDays($departure, $return);
+            if ($calculated > 0) {
+                return $calculated;
+            }
+        }
+
+        return (int) ($value ?? 0);
+    }
+
     public function getKeteranganAttribute()
     {
         return $this->description;

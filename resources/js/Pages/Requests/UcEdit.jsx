@@ -17,14 +17,16 @@ import CurrencyInput from '@/Components/CurrencyInput';
 export default function UcEdit({ ucRequest, users, vehicles, companies = [], isAdmin }) {
     const user = usePage().props.auth.user;
     
-    // Calculate Days Diff
+    // Calculate inclusive days between departure and return dates
     const calculateDays = (start, end) => {
         if (!start || !end) return 0;
-        const date1 = new Date(start);
-        const date2 = new Date(end);
-        const diffTime = Math.abs(date2 - date1);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-        return diffDays;
+        const [sy, sm, sd] = String(start).substring(0, 10).split('-').map(Number);
+        const [ey, em, ed] = String(end).substring(0, 10).split('-').map(Number);
+        if (!sy || !sm || !sd || !ey || !em || !ed) return 0;
+        const utc1 = Date.UTC(sy, sm - 1, sd);
+        const utc2 = Date.UTC(ey, em - 1, ed);
+        const diffDays = Math.round(Math.abs(utc2 - utc1) / (1000 * 60 * 60 * 24));
+        return diffDays + 1;
     };
 
     const { data, setData, put, processing, errors, reset } = useForm({
