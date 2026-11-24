@@ -34,6 +34,30 @@ const getTodayDateString = () => {
     return `${y}-${m}-${d}`;
 };
 
+const ID_DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const ID_MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+const formatDayAndDate = (raw) => {
+    if (!raw) return '-';
+    const match = String(raw).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return String(raw);
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const dateObj = new Date(year, month - 1, day);
+    if (Number.isNaN(dateObj.getTime())) return String(raw);
+    return `${ID_DAYS[dateObj.getDay()]}, ${day} ${ID_MONTHS[month - 1]} ${year}`;
+};
+
+const formatDateRangeWithDay = (startDate, endDate) => {
+    if (!startDate) return '-';
+    const startFormatted = formatDayAndDate(startDate);
+    if (!endDate || startDate === endDate) {
+        return startFormatted;
+    }
+    return `${startFormatted} s/d ${formatDayAndDate(endDate)}`;
+};
+
 export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
@@ -290,7 +314,7 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
             fallbackUrl: fallbackUrl,
             loadError: false,
             type: isPdfFile ? 'pdf' : 'image',
-            title: `Lampiran ${req.type} - ${req.user?.name || 'User'} (${req.start_date})`,
+            title: `Lampiran ${req.type} - ${req.user?.name || 'User'} (${formatDateRangeWithDay(req.start_date, req.end_date)})`,
             fileName: (req.attachment || 'lampiran').split('/').pop(),
         });
     };
@@ -474,7 +498,7 @@ export default function Pengajuan({ requests = [], canApprove, isSuperAdmin }) {
                                                                 {req.type}
                                                             </span>
                                                             <span className="text-sm font-semibold text-gray-800">
-                                                                {req.start_date} {req.start_date !== req.end_date ? ` s/d ${req.end_date}` : ''}
+                                                                {formatDateRangeWithDay(req.start_date, req.end_date)}
                                                             </span>
                                                             {canApprove && (
                                                                 <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
