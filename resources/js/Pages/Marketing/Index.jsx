@@ -85,10 +85,10 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                         outlets = [];
                     }
                 }
-                
+
                 // convert string IDs to integers since outlet IDs in state are integers
                 const parsedOutlets = Array.isArray(outlets) ? outlets.map(id => parseInt(id)) : [];
-                
+
                 if (parsedOutlets.length > 0) {
                     setTargetData('target_outlets', parsedOutlets);
                     Swal.fire({
@@ -153,8 +153,8 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
         .filter(outlet => {
             if (!outletSearch) return true;
             const searchLower = outletSearch.toLowerCase();
-            return (outlet.name && outlet.name.toLowerCase().includes(searchLower)) || 
-                   (outlet.city && outlet.city.toLowerCase().includes(searchLower));
+            return (outlet.name && outlet.name.toLowerCase().includes(searchLower)) ||
+                (outlet.city && outlet.city.toLowerCase().includes(searchLower));
         })
         .reduce((acc, outlet) => {
             const type = outlet.type || 'Lainnya';
@@ -180,7 +180,7 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
 
     const submit = (e) => {
         e.preventDefault();
-        
+
         transform((data) => {
             const newData = { ...data };
             if (newData.signature && typeof newData.signature === 'string' && newData.signature.startsWith('data:image')) {
@@ -190,11 +190,11 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                     const bstr = atob(arr[1]);
                     let n = bstr.length;
                     const u8arr = new Uint8Array(n);
-                    while(n--){
+                    while (n--) {
                         u8arr[n] = bstr.charCodeAt(n);
                     }
-                    newData.signature = new File([u8arr], 'signature.png', {type:mime});
-                } catch(err) {
+                    newData.signature = new File([u8arr], 'signature.png', { type: mime });
+                } catch (err) {
                     console.error("Signature conversion error", err);
                 }
             }
@@ -242,7 +242,7 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        
+
                         canvas.toBlob((blob) => {
                             if (blob) {
                                 const compressedFile = new File([blob], fileToProcess.name, {
@@ -287,7 +287,7 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
             e.target.value = null; // reset input
             return;
         }
-        
+
         if (!isCompressible) {
             setData('photos', file);
             return;
@@ -308,79 +308,76 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
         >
             <Head title="Marketing" />
 
-            <div className="pb-6 pt-0 space-y-8">
-                
-
+            <div className="pb-6 pt-0 space-y-4 sm:space-y-6 lg:space-y-8 min-w-0 max-w-full">
 
                 {/* Target vs Realization */}
-                <div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="min-w-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5 lg:gap-6">
                         {/* Card 1: Target Kunjungan Bulanan (Merged) */}
-                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-blue-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="min-w-[48px] h-12 px-2 rounded-2xl flex items-center justify-center bg-white text-blue-700 shadow-sm font-bold text-sm shrink-0 tabular-nums">
+                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-blue-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 min-w-0">
+                            <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4 min-w-0">
+                                <div className="min-w-[44px] h-11 sm:min-w-[48px] sm:h-12 px-2 rounded-2xl flex items-center justify-center bg-white text-blue-700 shadow-sm font-bold text-xs sm:text-sm shrink-0 tabular-nums">
                                     {target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%
                                 </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-blue-100">Target Kunjungan Bulanan</p>
-                                    <div className="flex items-end gap-2">
-                                        <h3 className="text-2xl font-black text-white">{realization.visits}</h3>
-                                        <span className="text-blue-200 text-sm mb-1">/ {target?.target_visits || 0} Outlet</span>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs sm:text-sm font-semibold text-blue-100 truncate">Target Kunjungan Bulanan</p>
+                                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mt-0.5">
+                                        <h3 className="text-xl sm:text-2xl font-black text-white tabular-nums">{realization.visits}</h3>
+                                        <span className="text-blue-100 text-xs sm:text-sm">/ {target?.target_visits || 0} Outlet</span>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div className="flex justify-between items-center text-xs text-blue-100 mb-2">
+
+                            <div className="flex justify-between items-center text-xs text-blue-100 mb-1.5 sm:mb-2">
                                 <span>Realisasi Kunjungan</span>
-                                <span className="font-bold text-white">
+                                <span className="font-bold text-white tabular-nums">
                                     {target?.target_visits > 0 ? Math.round((realization.visits / target.target_visits) * 100) : 0}%
                                 </span>
                             </div>
-                            <div className="w-full bg-blue-700/50 rounded-full h-2.5 overflow-hidden">
-                                <div 
-                                    className="bg-white h-full rounded-full transition-all duration-500" 
+                            <div className="w-full bg-blue-700/50 rounded-full h-2 sm:h-2.5 overflow-hidden">
+                                <div
+                                    className="bg-white h-full rounded-full transition-all duration-500"
                                     style={{ width: `${Math.min(100, target?.target_visits > 0 ? (realization.visits / target.target_visits) * 100 : 0)}%` }}
                                 ></div>
                             </div>
                         </div>
 
                         {/* Card ke-2: Total Penjualan Perbulan */}
-                        <Link href={route('reports.index')} className="bg-gradient-to-br from-white to-emerald-50/40 rounded-3xl p-5 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 block">
-                            <div className="flex items-center gap-3.5 sm:gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-600 text-white shadow-sm font-bold text-sm shrink-0">
-                                    {spreadsheet?.monthly_target > 0 
-                                        ? Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
+                        <Link href={route('reports.index')} className="bg-gradient-to-br from-white to-emerald-50/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 block min-w-0">
+                            <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4 min-w-0">
+                                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center bg-emerald-600 text-white shadow-sm font-bold text-xs sm:text-sm shrink-0 tabular-nums">
+                                    {spreadsheet?.monthly_target > 0
+                                        ? Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100)
                                         : 0}%
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-xs sm:text-sm font-semibold text-gray-500">Total Penjualan Perbulan</p>
-                                    <h3 className="text-lg sm:text-2xl font-black text-gray-800 break-words leading-tight">
+                                    <p className="text-xs sm:text-sm font-semibold text-gray-500 truncate">Total Penjualan Perbulan</p>
+                                    <h3 className="text-base sm:text-2xl font-black text-gray-800 break-words leading-tight tabular-nums">
                                         Rp {new Intl.NumberFormat('id-ID').format(spreadsheet?.total_monthly || 0)}
                                     </h3>
                                     {spreadsheet?.monthly_target > 0 && (
-                                        <p className="text-xs text-gray-500 font-medium mt-0.5">
-                                            Target: <span className="font-bold text-emerald-700">Rp {new Intl.NumberFormat('id-ID').format(spreadsheet.monthly_target)}</span>
+                                        <p className="text-xs text-gray-500 font-medium mt-0.5 break-words">
+                                            Target: <span className="font-bold text-emerald-700 tabular-nums">Rp {new Intl.NumberFormat('id-ID').format(spreadsheet.monthly_target)}</span>
                                         </p>
                                     )}
                                 </div>
                             </div>
-                            
-                            
-                            <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
+
+                            <div className="flex justify-between items-center text-xs text-gray-500 mb-1.5 sm:mb-2">
                                 <span>Progres Pencapaian</span>
-                                <span className="font-bold text-gray-700">
-                                    {spreadsheet?.monthly_target > 0 
-                                        ? Math.min(100, Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100)) 
+                                <span className="font-bold text-gray-700 tabular-nums">
+                                    {spreadsheet?.monthly_target > 0
+                                        ? Math.min(100, Math.round(((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100))
                                         : 0}%
                                 </span>
                             </div>
-                            <div className="w-full bg-emerald-100/50 rounded-full h-2.5 overflow-hidden">
-                                <div 
-                                    className="bg-emerald-500 h-full rounded-full transition-all duration-1000" 
-                                    style={{ 
-                                        width: `${spreadsheet?.monthly_target > 0 
-                                            ? Math.min(100, ((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100) 
-                                            : 0}%` 
+                            <div className="w-full bg-emerald-100/50 rounded-full h-2 sm:h-2.5 overflow-hidden">
+                                <div
+                                    className="bg-emerald-500 h-full rounded-full transition-all duration-1000"
+                                    style={{
+                                        width: `${spreadsheet?.monthly_target > 0
+                                            ? Math.min(100, ((spreadsheet?.total_monthly || 0) / spreadsheet.monthly_target) * 100)
+                                            : 0}%`
                                     }}
                                 ></div>
                             </div>
@@ -388,9 +385,8 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                     </div>
                 </div>
 
-                
                 {/* Tab Navigation (Dropdown) */}
-                <div className="w-full md:w-72 mb-6 mt-4">
+                <div className="w-full sm:w-72">
                     <CustomSelect
                         value={activeTab}
                         onChange={(val) => setActiveTab(val)}
@@ -403,212 +399,217 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                     />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 min-w-0">
 
                     {/* Form Laporan Harian */}
                     {activeTab === 'laporan' && (
-                    <div className="lg:col-span-2 min-w-0">
-                        <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                            <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4">
-                                Form Laporan Harian
-                            </h3>
+                        <div className="lg:col-span-2 min-w-0">
+                            <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 min-w-0">
+                                <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-3 sm:mb-5 border-b border-gray-100 pb-3 sm:pb-4">
+                                    Form Laporan Harian
+                                </h3>
 
-                            <form onSubmit={submit} className="space-y-6">
-                                <p className="text-sm text-gray-500 mb-6">Lengkapi detail kunjungan lapangan atau aktivitas kantor di bawah ini.</p>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <InputLabel value="Nama Sales" />
-                                        <TextInput 
-                                            className="mt-1 block w-full bg-gray-100 text-gray-500" 
-                                            value={user.name}
-                                            disabled
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <InputLabel value="Tanggal" />
-                                            <div className="mt-1">
-                                                <CustomDatePicker 
+                                <form onSubmit={submit} className="space-y-4 sm:space-y-5 min-w-0">
+                                    <p className="text-xs sm:text-sm text-gray-500">Lengkapi detail kunjungan lapangan atau aktivitas kantor di bawah ini.</p>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
+                                        <div className="min-w-0">
+                                            <InputLabel value="Nama Sales" />
+                                            <TextInput
+                                                className="mt-1 block w-full bg-gray-100 text-gray-600 text-sm"
+                                                value={user.name}
+                                                disabled
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 min-w-0">
+                                            <div className="min-w-0">
+                                                <InputLabel value="Tanggal" />
+                                                <CustomDatePicker
                                                     value={data.visit_date}
                                                     onChange={(val) => setData('visit_date', val)}
                                                 />
+                                                <InputError message={errors.visit_date} className="mt-1.5" />
                                             </div>
-                                            <InputError message={errors.visit_date} className="mt-2" />
-                                        </div>
-                                        <div>
-                                            <InputLabel value="Waktu" />
-                                            <TextInput 
-                                                type="time" 
-                                                className="mt-1 block w-full" 
-                                                value={data.visit_time}
-                                                onChange={(e) => setData('visit_time', e.target.value)}
-                                            />
-                                            <InputError message={errors.visit_time} className="mt-2" />
+                                            <div className="min-w-0">
+                                                <InputLabel value="Waktu" />
+                                                <TextInput
+                                                    type="time"
+                                                    className="mt-1 block w-full max-w-full min-w-0 text-sm"
+                                                    value={data.visit_time}
+                                                    onChange={(e) => setData('visit_time', e.target.value)}
+                                                />
+                                                <InputError message={errors.visit_time} className="mt-1.5" />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div>
-                                    <InputLabel value="Pilih Jenis Aktivitas Hari Ini" />
-                                    <CustomSelect
-                                        value={data.activity_type}
-                                        onChange={(val) => setData('activity_type', val)}
-                                        options={[
-                                            { value: 'Kunjungan', label: 'Kunjungan' },
-                                            { value: 'Non-Kunjungan', label: 'Non-Kunjungan' },
-                                        ]}
-                                    />
-                                    <InputError message={errors.activity_type} className="mt-2" />
-                                </div>
+                                    <div className="min-w-0">
+                                        <InputLabel value="Pilih Jenis Aktivitas Hari Ini" />
+                                        <CustomSelect
+                                            className="mt-1"
+                                            value={data.activity_type}
+                                            onChange={(val) => setData('activity_type', val)}
+                                            options={[
+                                                { value: 'Kunjungan', label: 'Kunjungan' },
+                                                { value: 'Non-Kunjungan', label: 'Non-Kunjungan' },
+                                            ]}
+                                        />
+                                        <InputError message={errors.activity_type} className="mt-1.5" />
+                                    </div>
 
-                                {data.activity_type === 'Kunjungan' && (
-                                    <div className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
-                                                <InputLabel value="Jenis Outlet" />
-                                                <CustomSelect
-                                                    value={data.outlet_type}
-                                                    onChange={(val) => setData('outlet_type', val)}
-                                                    options={[
-                                                        { value: '', label: '-- Pilih Jenis Outlet --' },
-                                                        { value: 'RS (Rumah Sakit)', label: 'RS (Rumah Sakit)' },
-                                                        { value: 'Dinas Kesehatan (DINKES)', label: 'Dinas Kesehatan (DINKES)' },
-                                                        { value: 'Klinik', label: 'Klinik' }
-                                                    ]}
-                                                />
-                                            </div>
-                                            <div>
-                                                <InputLabel value="Nama Outlet" />
-                                                <TextInput 
-                                                    className="mt-1 block w-full bg-white" 
-                                                    value={data.outlet_name}
-                                                    onChange={(e) => setData('outlet_name', e.target.value)}
-                                                    placeholder="Ketik nama outlet..."
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <div>
-                                                <InputLabel value="Nama PIC Outlet" />
-                                                <TextInput 
-                                                    className="mt-1 block w-full bg-white" 
-                                                    value={data.pic_name}
-                                                    onChange={(e) => setData('pic_name', e.target.value)}
-                                                />
-                                            </div>
-                                            <div>
-                                                <InputLabel value="No HP PIC Outlet" />
-                                                <TextInput 
-                                                    className="mt-1 block w-full bg-white" 
-                                                    value={data.pic_phone}
-                                                    onChange={(e) => setData('pic_phone', e.target.value)}
-                                                />
-                                            </div>
-                                            <div>
-                                                <InputLabel value="Jabatan PIC Outlet" />
-                                                <TextInput 
-                                                    className="mt-1 block w-full bg-white" 
-                                                    value={data.pic_position}
-                                                    onChange={(e) => setData('pic_position', e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
-                                                <InputLabel value="Status Outlet" />
-                                                <CustomSelect
-                                                    value={data.outlet_status}
-                                                    onChange={(val) => setData('outlet_status', val)}
-                                                    options={[
-                                                        { value: 'Prospek Lama', label: 'Prospek Lama' },
-                                                        { value: 'Prospek Baru', label: 'Prospek Baru' }
-                                                    ]}
-                                                />
-                                            </div>
-                                            <div>
-                                                <InputLabel value="Jenis Kunjungan" />
-                                                <CustomSelect
-                                                    value={data.visit_type}
-                                                    onChange={(val) => setData('visit_type', val)}
-                                                    options={[
-                                                        { value: 'Kunjungan Awal', label: 'Kunjungan Awal' },
-                                                        { value: 'Follow Up', label: 'Follow Up' },
-                                                        { value: 'Negosiasi', label: 'Negosiasi' },
-                                                        { value: 'Administrasi', label: 'Administrasi' },
-                                                        { value: 'Penagihan', label: 'Penagihan' }
-                                                    ]}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                            <div>
-                                                <InputLabel value="Kendala / Jenis Kendala" />
-                                                <CustomSelect
-                                                    value={data.issue_type}
-                                                    onChange={(val) => setData('issue_type', val)}
-                                                    options={[
-                                                        { value: 'Tidak Ada Kendala', label: 'Tidak Ada Kendala' },
-                                                        { value: 'Kompetitor', label: 'Kompetitor' },
-                                                        { value: 'Harga', label: 'Harga' },
-                                                        { value: 'Administrasi', label: 'Administrasi' }
-                                                    ]}
-                                                />
-                                            </div>
-                                            <div>
-                                                <InputLabel value="Identifikasi Kompetitor" />
-                                                <TextInput 
-                                                    className="mt-1 block w-full bg-white" 
-                                                    value={data.competitor_notes}
-                                                    onChange={(e) => setData('competitor_notes', e.target.value)}
+                                    {data.activity_type === 'Kunjungan' && (
+                                        <div className="space-y-4 sm:space-y-5 min-w-0">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
+                                                <div className="min-w-0">
+                                                    <InputLabel value="Jenis Outlet" />
+                                                    <CustomSelect
+                                                        className="mt-1"
+                                                        value={data.outlet_type}
+                                                        onChange={(val) => setData('outlet_type', val)}
+                                                        options={[
+                                                            { value: '', label: '-- Pilih Jenis Outlet --' },
+                                                            { value: 'RS (Rumah Sakit)', label: 'RS (Rumah Sakit)' },
+                                                            { value: 'Dinas Kesehatan (DINKES)', label: 'Dinas Kesehatan (DINKES)' },
+                                                            { value: 'Klinik', label: 'Klinik' }
+                                                        ]}
                                                     />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <InputLabel value="Nama Outlet" />
+                                                    <TextInput
+                                                        className="mt-1 block w-full bg-white text-sm"
+                                                        value={data.outlet_name}
+                                                        onChange={(e) => setData('outlet_name', e.target.value)}
+                                                        placeholder="Ketik nama outlet..."
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-5">
+                                                <div className="min-w-0">
+                                                    <InputLabel value="Nama PIC Outlet" />
+                                                    <TextInput
+                                                        className="mt-1 block w-full bg-white text-sm"
+                                                        value={data.pic_name}
+                                                        onChange={(e) => setData('pic_name', e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <InputLabel value="No HP PIC Outlet" />
+                                                    <TextInput
+                                                        type="tel"
+                                                        className="mt-1 block w-full bg-white text-sm"
+                                                        value={data.pic_phone}
+                                                        onChange={(e) => setData('pic_phone', e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="min-w-0 sm:col-span-2 md:col-span-1">
+                                                    <InputLabel value="Jabatan PIC Outlet" />
+                                                    <TextInput
+                                                        className="mt-1 block w-full bg-white text-sm"
+                                                        value={data.pic_position}
+                                                        onChange={(e) => setData('pic_position', e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
+                                                <div className="min-w-0">
+                                                    <InputLabel value="Status Outlet" />
+                                                    <CustomSelect
+                                                        className="mt-1"
+                                                        value={data.outlet_status}
+                                                        onChange={(val) => setData('outlet_status', val)}
+                                                        options={[
+                                                            { value: 'Prospek Lama', label: 'Prospek Lama' },
+                                                            { value: 'Prospek Baru', label: 'Prospek Baru' }
+                                                        ]}
+                                                    />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <InputLabel value="Jenis Kunjungan" />
+                                                    <CustomSelect
+                                                        className="mt-1"
+                                                        value={data.visit_type}
+                                                        onChange={(val) => setData('visit_type', val)}
+                                                        options={[
+                                                            { value: 'Kunjungan Awal', label: 'Kunjungan Awal' },
+                                                            { value: 'Follow Up', label: 'Follow Up' },
+                                                            { value: 'Negosiasi', label: 'Negosiasi' },
+                                                            { value: 'Administrasi', label: 'Administrasi' },
+                                                            { value: 'Penagihan', label: 'Penagihan' }
+                                                        ]}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
+                                                <div className="min-w-0">
+                                                    <InputLabel value="Kendala / Jenis Kendala" />
+                                                    <CustomSelect
+                                                        className="mt-1"
+                                                        value={data.issue_type}
+                                                        onChange={(val) => setData('issue_type', val)}
+                                                        options={[
+                                                            { value: 'Tidak Ada Kendala', label: 'Tidak Ada Kendala' },
+                                                            { value: 'Kompetitor', label: 'Kompetitor' },
+                                                            { value: 'Harga', label: 'Harga' },
+                                                            { value: 'Administrasi', label: 'Administrasi' }
+                                                        ]}
+                                                    />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <InputLabel value="Identifikasi Kompetitor" />
+                                                    <TextInput
+                                                        className="mt-1 block w-full bg-white text-sm"
+                                                        value={data.competitor_notes}
+                                                        onChange={(e) => setData('competitor_notes', e.target.value)}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                <div>
-                                    <InputLabel 
-                                        value={data.activity_type === 'Non-Kunjungan' 
-                                            ? "Keterangan / Detail Aktivitas" 
-                                            : "Hasil Kunjungan / Laporan Aktivitas"} 
-                                    />
-                                    <textarea 
-                                        className="mt-1 block w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 shadow-sm"
-                                        rows="4"
-                                        value={data.visit_result}
-                                        onChange={(e) => setData('visit_result', e.target.value)}
+                                    <div className="min-w-0">
+                                        <InputLabel
+                                            value={data.activity_type === 'Non-Kunjungan'
+                                                ? "Keterangan / Detail Aktivitas"
+                                                : "Hasil Kunjungan / Laporan Aktivitas"}
+                                        />
+                                        <textarea
+                                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm text-sm"
+                                            rows="4"
+                                            value={data.visit_result}
+                                            onChange={(e) => setData('visit_result', e.target.value)}
                                         ></textarea>
-                                </div>
-
-                                <div>
-                                    <InputLabel value="Tanda Tangan (Dokter / Staff / PIC di Lokasi Kunjungan)" />
-                                    <div className="mt-1">
-                                        <SignaturePad onEnd={(base64String) => setData('signature', base64String)} />
                                     </div>
-                                </div>
 
-                                <div>
-                                    <InputLabel value="Foto Dokumentasi" />
-                                    <input 
-                                        type="file" 
-                                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                        onChange={handlePhotoChange}
-                                        accept="image/*"
-                                    />
-                                    <InputError message={errors.photos} className="mt-2" />
-                                </div>
+                                    <div className="min-w-0">
+                                        <InputLabel value="Tanda Tangan (Dokter / Staff / PIC di Lokasi Kunjungan)" />
+                                        <div className="mt-1.5">
+                                            <SignaturePad onEnd={(base64String) => setData('signature', base64String)} />
+                                        </div>
+                                    </div>
 
-                                <div className="pt-4 border-t border-gray-100 flex justify-end">
-                                    <PrimaryButton disabled={processing} >
-                                        {processing ? 'Menyimpan...' : 'Simpan'}
-                                    </PrimaryButton>
-                                </div>
-                            </form>
+                                    <div className="min-w-0">
+                                        <InputLabel value="Foto Dokumentasi" />
+                                        <input
+                                            type="file"
+                                            className="mt-1 block w-full max-w-full overflow-hidden text-xs sm:text-sm text-gray-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                            onChange={handlePhotoChange}
+                                            accept="image/*"
+                                        />
+                                        <InputError message={errors.photos} className="mt-2" />
+                                    </div>
+
+                                    <div className="pt-4 border-t border-gray-100 flex justify-end">
+                                        <PrimaryButton disabled={processing} className="w-full sm:w-auto justify-center min-h-[44px]">
+                                            {processing ? 'Menyimpan...' : 'Simpan'}
+                                        </PrimaryButton>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </div>
 
                     )}
 
@@ -616,19 +617,20 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                     {/* Form Target Bulanan */}
                     {activeTab === 'target' && (
                         <div className="lg:col-span-2 min-w-0">
-                            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                <h3 className="font-bold text-lg text-gray-800 mb-2">
+                            <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 min-w-0">
+                                <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-1.5">
                                     Target Bulanan Sales
                                 </h3>
-                                <p className="text-gray-500 text-sm mb-6 pb-4 border-b border-gray-50">
+                                <p className="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100">
                                     Tentukan target kunjungan dan sebaran outlet untuk periode bulan depan.
                                 </p>
 
-                                <form onSubmit={submitTarget} className="space-y-6">
+                                <form onSubmit={submitTarget} className="space-y-4 sm:space-y-6 min-w-0">
                                     {isAdminMarketing && (
-                                        <div>
+                                        <div className="min-w-0">
                                             <InputLabel value="Nama Sales" />
                                             <CustomSelect
+                                                className="mt-1"
                                                 value={targetData.user_id}
                                                 onChange={(val) => setTargetData('user_id', val)}
                                                 options={[
@@ -640,21 +642,21 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                         </div>
                                     )}
 
-                                    <div className="grid grid-cols-1 gap-6">
-                                        <div>
-                                            <div className="flex justify-between items-center mb-1">
+                                    <div className="grid grid-cols-1 gap-4 sm:gap-6 min-w-0">
+                                        <div className="min-w-0">
+                                            <div className="flex flex-wrap justify-between items-center gap-2 mb-1.5">
                                                 <InputLabel value="Periode Target (Bulan)" className="mb-0" />
-                                                <button 
-                                                    type="button" 
+                                                <button
+                                                    type="button"
                                                     onClick={copyLastTarget}
                                                     disabled={isCopyingLastTarget}
-                                                    className="inline-flex items-center text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 disabled:opacity-50"
+                                                    className="inline-flex items-center text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-2 min-h-[36px] rounded-xl transition-colors border border-blue-200 disabled:opacity-50 shrink-0"
                                                 >
-                                                    <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                                                    <svg className="w-3.5 h-3.5 mr-1.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                                                     {isCopyingLastTarget ? 'Menyalin...' : 'Salin Outlet Bulan Lalu'}
                                                 </button>
                                             </div>
-                                            <div className="relative mt-1">
+                                            <div className="relative mt-1 min-w-0">
                                                 <input
                                                     type="month"
                                                     value={targetData.start_date ? targetData.start_date.substring(0, 7) : ''}
@@ -669,14 +671,14 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                                         // Get the last day of the month
                                                         const end = new Date(year, month, 0);
                                                         const endDate = `${year}-${month}-${String(end.getDate()).padStart(2, '0')}`;
-                                                        
+
                                                         setTargetData(data => ({
                                                             ...data,
                                                             start_date: startDate,
                                                             end_date: endDate
                                                         }));
                                                     }}
-                                                    className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm px-4 py-2.5 transition-shadow"
+                                                    className="w-full max-w-full min-w-0 box-border text-sm border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm px-3.5 py-2.5 transition-shadow"
                                                 />
                                             </div>
                                             <InputError message={targetErrors.start_date} className="mt-2" />
@@ -684,24 +686,22 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                         </div>
                                     </div>
 
-                                    <div className="pt-4 border-t border-gray-100">
-
-
-                                        <div className="mb-4">
+                                    <div className="pt-4 border-t border-gray-100 min-w-0">
+                                        <div className="mb-4 min-w-0">
                                             <InputLabel value="Cari / Tambah Outlet" />
-                                            <div className="flex flex-col sm:flex-row gap-2 mt-1">
-                                                <div className="flex-1">
-                                                    <TextInput 
-                                                        className="block w-full text-sm placeholder-gray-400" 
-                                                        placeholder="Cari nama atau kota outlet dari daftar..." 
+                                            <div className="flex flex-col sm:flex-row gap-2.5 mt-1 min-w-0">
+                                                <div className="flex-1 min-w-0">
+                                                    <TextInput
+                                                        className="block w-full text-sm placeholder-gray-400"
+                                                        placeholder="Cari nama atau kota outlet..."
                                                         value={outletSearch}
                                                         onChange={(e) => setOutletSearch(e.target.value)}
                                                     />
                                                 </div>
-                                                <div className="flex-1 flex gap-2">
+                                                <div className="flex-1 flex gap-2 min-w-0">
                                                     <TextInput
-                                                        className="block w-full text-sm placeholder-gray-400 bg-white"
-                                                        placeholder="Atau ketik nama outlet baru..."
+                                                        className="block w-full min-w-0 flex-1 text-sm placeholder-gray-400 bg-white"
+                                                        placeholder="Ketik outlet baru..."
                                                         value={targetData.custom_outlet || ''}
                                                         onChange={(e) => setTargetData('custom_outlet', e.target.value)}
                                                         onKeyDown={(e) => {
@@ -736,7 +736,7 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                                                 }));
                                                             }
                                                         }}
-                                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 min-h-[44px] rounded-xl text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                                                     >
                                                         Tambah
                                                     </button>
@@ -745,18 +745,19 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                         </div>
 
                                         {targetData.target_outlets.filter(item => typeof item === 'string').length > 0 && (
-                                            <div className="mb-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                                                <h4 className="font-bold text-gray-700 mb-2 text-sm">Outlet Tambahan Manual:</h4>
+                                            <div className="mb-4 bg-blue-50/50 p-3.5 sm:p-4 rounded-xl border border-blue-100 min-w-0">
+                                                <h4 className="font-bold text-gray-700 mb-2 text-xs sm:text-sm">Outlet Tambahan Manual:</h4>
                                                 <div className="flex flex-wrap gap-2">
                                                     {targetData.target_outlets.filter(item => typeof item === 'string').map((outletName, idx) => (
-                                                        <div key={idx} className="flex items-center gap-1 bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm">
-                                                            <span>{outletName}</span>
-                                                            <button 
+                                                        <div key={idx} className="flex items-center gap-1.5 bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium shadow-sm max-w-full min-w-0">
+                                                            <span className="break-words min-w-0">{outletName}</span>
+                                                            <button
                                                                 type="button"
                                                                 onClick={() => {
                                                                     setTargetData('target_outlets', targetData.target_outlets.filter(item => item !== outletName));
                                                                 }}
-                                                                className="ml-1 text-blue-400 hover:text-red-500 transition-colors focus:outline-none"
+                                                                className="ml-0.5 p-0.5 text-blue-500 hover:text-red-600 transition-colors focus:outline-none shrink-0"
+                                                                aria-label={`Hapus ${outletName}`}
                                                             >
                                                                 <X className="w-4 h-4" />
                                                             </button>
@@ -766,49 +767,51 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                             </div>
                                         )}
 
-                                        <div className="space-y-6">
+                                        <div className="space-y-4 sm:space-y-6 min-w-0">
                                             {Object.entries(groupedOutlets).map(([type, typeOutlets]) => {
                                                 const isExpanded = expandedTypes.includes(type) || outletSearch.trim() !== '';
                                                 const visibleOutlets = isExpanded ? typeOutlets : typeOutlets.slice(0, 5);
 
                                                 return (
-                                                    <div key={type} className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                                                        <h4 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
-                                                            <Building className="w-4 h-4 text-gray-400" /> {type} <span className="text-sm font-normal text-gray-500">({typeOutlets.length})</span>
+                                                    <div key={type} className="bg-gray-50 rounded-2xl p-3.5 sm:p-4 border border-gray-100 min-w-0">
+                                                        <h4 className="font-bold text-sm sm:text-base text-gray-700 mb-3 flex items-center gap-2 min-w-0">
+                                                            <Building className="w-4 h-4 text-gray-400 shrink-0" />
+                                                            <span className="break-words min-w-0">{type}</span>
+                                                            <span className="text-xs sm:text-sm font-normal text-gray-500 shrink-0">({typeOutlets.length})</span>
                                                         </h4>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                                                             {visibleOutlets.map(outlet => (
-                                                                <label key={outlet.id} className="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-colors">
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+                                                                <label key={outlet.id} className="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-colors min-w-0">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 shrink-0"
                                                                         checked={targetData.target_outlets.includes(outlet.id)}
                                                                         onChange={() => handleOutletToggle(outlet.id)}
                                                                     />
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-sm font-medium text-gray-800 leading-tight">{outlet.name}</span>
-                                                                        <span className="text-xs text-gray-500">{outlet.city || '-'}</span>
+                                                                    <div className="flex flex-col min-w-0 flex-1">
+                                                                        <span className="text-sm font-medium text-gray-800 leading-snug break-words">{outlet.name}</span>
+                                                                        <span className="text-xs text-gray-500 break-words">{outlet.city || '-'}</span>
                                                                     </div>
                                                                 </label>
                                                             ))}
                                                         </div>
                                                         {typeOutlets.length > 5 && !isExpanded && (
-                                                            <div className="mt-4 text-center">
-                                                                <button 
-                                                                    type="button" 
+                                                            <div className="mt-3.5 text-center">
+                                                                <button
+                                                                    type="button"
                                                                     onClick={() => setExpandedTypes([...expandedTypes, type])}
-                                                                    className="text-blue-600 hover:text-blue-700 text-sm font-semibold transition-colors bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg"
+                                                                    className="w-full sm:w-auto text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold transition-colors bg-blue-50 hover:bg-blue-100 px-4 py-2.5 min-h-[40px] rounded-xl"
                                                                 >
                                                                     Tampilkan {typeOutlets.length - 5} lainnya...
                                                                 </button>
                                                             </div>
                                                         )}
                                                         {typeOutlets.length > 5 && isExpanded && !outletSearch.trim() && (
-                                                            <div className="mt-4 text-center">
-                                                                <button 
-                                                                    type="button" 
+                                                            <div className="mt-3.5 text-center">
+                                                                <button
+                                                                    type="button"
                                                                     onClick={() => setExpandedTypes(expandedTypes.filter(t => t !== type))}
-                                                                    className="text-gray-500 hover:text-gray-700 text-sm transition-colors bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg"
+                                                                    className="w-full sm:w-auto text-gray-600 hover:text-gray-800 text-xs sm:text-sm font-medium transition-colors bg-gray-100 hover:bg-gray-200 px-4 py-2.5 min-h-[40px] rounded-xl"
                                                                 >
                                                                     Tampilkan lebih sedikit
                                                                 </button>
@@ -821,8 +824,8 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                         <InputError message={targetErrors.target_outlets} className="mt-2" />
                                     </div>
 
-                                    <div className="pt-6 border-t border-gray-100 flex justify-end">
-                                        <PrimaryButton disabled={targetProcessing} >
+                                    <div className="pt-4 sm:pt-6 border-t border-gray-100 flex justify-end">
+                                        <PrimaryButton disabled={targetProcessing} className="w-full sm:w-auto justify-center min-h-[44px]">
                                             {targetProcessing ? 'Menyimpan...' : 'Simpan'}
                                         </PrimaryButton>
                                     </div>
@@ -834,17 +837,19 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                     {/* Rekap Laporan Harian */}
                     {activeTab === 'rekap_laporan' && (
                         <div className="lg:col-span-2 min-w-0">
-                            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                <h3 className="font-bold text-lg text-gray-800 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-gray-50 pb-4">
-                                    <div>
+                            <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 min-w-0">
+                                <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3 sm:pb-4">
+                                    <h3 className="font-bold text-base sm:text-lg text-gray-800">
                                         Rekap Laporan Harian
+                                    </h3>
+                                    <div className="w-full sm:w-auto">
+                                        <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
+                                            <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all min-h-[42px] shrink-0 w-full sm:w-auto">
+                                                <Download className="w-4 h-4" /> Unduh
+                                            </button>
+                                        } />
                                     </div>
-                                    <ExportDropdown pdfRoute={route('marketing.export.pdf')} excelRoute={route('marketing.export.excel')} trigger={
-                                        <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all h-[42px] shrink-0 w-full sm:w-auto">
-                                            <Download className="w-4 h-4 mr-2" /> Unduh
-                                        </button>
-                                    } />
-                                </h3>
+                                </div>
                                 <div className="overflow-x-auto hide-scrollbar">
                                     <table className="block md:table w-full text-sm text-left">
                                         <thead className="hidden md:table-header-group bg-gray-50 text-gray-600 font-medium">
@@ -858,52 +863,52 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                         </thead>
                                         <tbody className="block md:table-row-group divide-y divide-transparent md:divide-gray-50">
                                             {reports.length > 0 ? reports.map(r => (
-                                                <tr key={r.id} className="block md:table-row hover:bg-gray-50/50 mb-4 md:mb-0 bg-white md:bg-transparent border border-gray-100 md:border-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 transition-colors">
-                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                        <div className="flex justify-between md:block items-center">
-                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Tanggal & Waktu</span>
-                                                            <div className="text-right md:text-left">
+                                                <tr key={r.id} className="block md:table-row hover:bg-gray-50/50 mb-3 md:mb-0 bg-white md:bg-transparent border border-gray-200 md:border-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none p-3.5 md:p-0 transition-colors">
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-100 md:border-none">
+                                                        <div className="flex justify-between md:block items-start gap-3">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs shrink-0">Tanggal & Waktu</span>
+                                                            <div className="text-right md:text-left min-w-0">
                                                                 <div className="font-bold text-gray-800">{new Date(r.visit_date).toLocaleDateString('id-ID')}</div>
                                                                 <div className="text-xs text-gray-500">{r.visit_time}</div>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                        <div className="flex justify-between md:block items-center">
-                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Aktivitas</span>
-                                                            <div className="text-right md:text-left">
-                                                                <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md text-xs font-semibold">{r.activity_type}</span>
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-100 md:border-none">
+                                                        <div className="flex justify-between md:block items-center gap-3">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs shrink-0">Aktivitas</span>
+                                                            <div className="text-right md:text-left min-w-0">
+                                                                <span className="inline-block bg-blue-600 text-white px-2.5 py-0.5 rounded-md text-xs font-semibold">{r.activity_type}</span>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                        <div className="flex justify-between md:block items-center">
-                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Outlet / PIC</span>
-                                                            <div className="text-right md:text-left">
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-100 md:border-none">
+                                                        <div className="flex justify-between md:block items-start gap-3">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs shrink-0">Outlet / PIC</span>
+                                                            <div className="text-right md:text-left min-w-0 flex-1 break-words">
                                                                 {r.activity_type?.includes('Non-Kunjungan') ? '-' : (
                                                                     <>
-                                                                        <div className="font-medium text-gray-800">{r.outlet?.name || r.outlet_id || '-'}</div>
-                                                                        <div className="text-xs text-gray-500">{r.pic_name ? `PIC: ${r.pic_name}` : ''}</div>
+                                                                        <div className="font-medium text-gray-800 break-words">{r.outlet?.name || r.outlet_id || '-'}</div>
+                                                                        <div className="text-xs text-gray-500 break-words">{r.pic_name ? `PIC: ${r.pic_name}` : ''}</div>
                                                                     </>
                                                                 )}
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-50 md:border-none mb-2 md:mb-0">
-                                                        <div className="flex justify-between md:block items-center">
-                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Kendala / Hasil</span>
-                                                            <div className="text-right md:text-left">
-                                                                <div className="text-xs text-orange-600 font-medium">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
-                                                                <div className="text-gray-600 line-clamp-2 text-sm mt-1" title={r.visit_result}>{r.visit_result}</div>
+                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3 border-b border-gray-100 md:border-none">
+                                                        <div className="flex flex-col sm:flex-row sm:justify-between md:block items-start gap-1 sm:gap-3">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs shrink-0">Kendala / Hasil</span>
+                                                            <div className="text-left sm:text-right md:text-left min-w-0 flex-1 break-words w-full">
+                                                                <div className="text-xs text-orange-600 font-medium break-words">{r.issue_type && r.issue_type !== 'Tidak Ada Kendala' ? `Kendala: ${r.issue_type}` : ''}</div>
+                                                                <div className="text-gray-600 line-clamp-2 text-xs sm:text-sm mt-0.5 break-words" title={r.visit_result}>{r.visit_result || '-'}</div>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="block md:table-cell px-0 md:px-4 py-2 md:py-3">
-                                                        <div className="flex justify-between md:justify-end items-center">
-                                                            <span className="md:hidden font-semibold text-gray-500 text-xs">Estimasi/Aktual</span>
-                                                            <div className="text-right">
+                                                    <td className="block md:table-cell px-0 md:px-4 pt-2 pb-0 md:py-3">
+                                                        <div className="flex justify-between md:justify-end items-start gap-3">
+                                                            <span className="md:hidden font-semibold text-gray-500 text-xs shrink-0">Estimasi/Aktual</span>
+                                                            <div className="text-right min-w-0 tabular-nums">
                                                                 <div className="text-gray-500 text-xs">Est: {formatRupiah(r.estimated_value)}</div>
-                                                                <div className="font-medium text-emerald-600">Akt: {formatRupiah(r.actual_value)}</div>
+                                                                <div className="font-medium text-emerald-600 text-xs sm:text-sm">Akt: {formatRupiah(r.actual_value)}</div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -923,50 +928,50 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                     {/* Rekap Target Bulanan */}
                     {activeTab === 'rekap_target' && (
                         <div className="lg:col-span-2 min-w-0">
-                            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                <h3 className="font-bold text-lg text-gray-800 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-gray-50 pb-4">
-                                    <div>
+                            <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 min-w-0">
+                                <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3 sm:pb-4">
+                                    <h3 className="font-bold text-base sm:text-lg text-gray-800">
                                         Rekap Target Bulanan
+                                    </h3>
+                                    <div className="w-full sm:w-auto">
+                                        <ExportDropdown pdfRoute={route('marketing.export_target.pdf')} trigger={
+                                            <button className="inline-flex items-center justify-center w-full sm:w-auto min-h-[42px] rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-bold text-white transition duration-150 shrink-0 shadow-sm">
+                                                <Download className="w-4 h-4 mr-2" /> Unduh
+                                            </button>
+                                        } />
                                     </div>
-                                    <ExportDropdown pdfRoute={route('marketing.export_target.pdf')} trigger={
-                                        <button className="inline-flex items-center rounded-md border border-emerald-400 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition duration-150 hover:bg-emerald-100 shrink-0">
-                                            <Download className="w-4 h-4 mr-2" /> Unduh
-                                        </button>
-                                    } />
-                                </h3>
+                                </div>
                                 <div className="overflow-x-auto">
-                                    <table className="w-full text-sm text-left">
+                                    <table className="w-full text-xs sm:text-sm text-left">
                                         <thead className="bg-gray-50 text-gray-600 font-medium">
                                             <tr>
-                                                <th className="px-4 py-3 rounded-l-xl">Bulan/Tahun</th>
-
-                                                <th className="px-4 py-3 text-center">Target Kunjungan</th>
-                                                <th className="px-4 py-3 text-center rounded-r-xl">Capaian (%)</th>
+                                                <th className="px-2.5 sm:px-4 py-2.5 sm:py-3 rounded-l-xl">Bulan/Tahun</th>
+                                                <th className="px-2.5 sm:px-4 py-2.5 sm:py-3 text-center">Target</th>
+                                                <th className="px-2.5 sm:px-4 py-2.5 sm:py-3 text-center rounded-r-xl">Capaian</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-50">
+                                        <tbody className="divide-y divide-gray-100">
                                             {allTargets && allTargets.length > 0 ? allTargets.map(t => (
                                                 <tr key={t.id} className="hover:bg-gray-50/50">
-                                                    <td className="px-4 py-3 font-medium text-gray-800">
+                                                    <td className="px-2.5 sm:px-4 py-3 font-medium text-gray-800">
                                                         {new Date(t.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
                                                     </td>
-
-                                                    <td className="px-4 py-3 text-center">
-                                                        <button 
+                                                    <td className="px-2.5 sm:px-4 py-3 text-center">
+                                                        <button
                                                             type="button"
                                                             onClick={() => setSelectedTarget(t)}
-                                                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 transition-colors px-3 py-1 rounded-full text-xs font-bold cursor-pointer border border-blue-100 shadow-sm"
+                                                            className="bg-blue-600 text-white hover:bg-blue-700 transition-colors px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer shadow-sm whitespace-nowrap"
                                                         >
                                                             {t.target_visits} Outlet
                                                         </button>
                                                     </td>
-                                                    <td className="px-4 py-3">
+                                                    <td className="px-2.5 sm:px-4 py-3">
                                                         <div className="flex flex-col items-center">
-                                                            <span className="font-bold text-gray-800">{t.realized_visits || 0} <span className="text-gray-400 font-normal text-xs">/ {t.target_visits}</span></span>
-                                                            <div className="w-16 bg-gray-200 rounded-full h-1.5 mt-1 overflow-hidden">
+                                                            <span className="font-bold text-gray-800 tabular-nums">{t.realized_visits || 0} <span className="text-gray-400 font-normal text-xs">/ {t.target_visits}</span></span>
+                                                            <div className="w-14 sm:w-16 bg-gray-200 rounded-full h-1.5 mt-1 overflow-hidden">
                                                                 <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0}%` }}></div>
                                                             </div>
-                                                            <span className="text-[10px] font-semibold text-blue-600 mt-0.5">
+                                                            <span className="text-[10px] font-semibold text-blue-600 mt-0.5 tabular-nums">
                                                                 {t.target_visits > 0 ? Math.min(100, Math.round(((t.realized_visits || 0) / t.target_visits) * 100)) : 0}%
                                                             </span>
                                                         </div>
@@ -974,7 +979,7 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                                                 </tr>
                                             )) : (
                                                 <tr>
-                                                    <td colSpan="4" className="px-4 py-8 text-center text-gray-400">Belum ada data target bulanan.</td>
+                                                    <td colSpan="3" className="px-4 py-8 text-center text-gray-400">Belum ada data target bulanan.</td>
                                                 </tr>
                                             )}
                                         </tbody>
@@ -986,28 +991,30 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
 
                     {/* Riwayat Kunjungan */}
                     <div className="lg:col-span-1 min-w-0">
-                        <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full">
-                            <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-full min-w-0">
+                            <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-4 sm:mb-6 border-b border-gray-100 pb-3 sm:pb-4">
                                 Riwayat Kunjungan
                             </h3>
-                            
+
                             {reports.length === 0 ? (
-                                <div className="text-center py-10 text-gray-400">
-                                    <MapPin className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                                <div className="text-center py-8 sm:py-10 text-gray-400 text-sm">
+                                    <MapPin className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 opacity-20" />
                                     <p>Belum ada riwayat hari ini</p>
                                 </div>
                             ) : (
-                                <div className="space-y-4">
+                                <div className="space-y-3 sm:space-y-4">
                                     {reports.map(rep => (
-                                        <div key={rep.id} className="p-4 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden">
+                                        <div key={rep.id} className="p-3.5 sm:p-4 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden min-w-0">
                                             <div className={`absolute left-0 top-0 bottom-0 w-1 ${rep.visit_result === 'Closing / Deal' ? 'bg-green-500' : 'bg-blue-500'}`}></div>
-                                            <div className="pl-3">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-bold text-gray-800 text-sm">{rep.outlet ? rep.outlet.name : 'Outlet Umum'}</h4>
-                                                    <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-md">{rep.visit_time.substring(0,5)}</span>
+                                            <div className="pl-2.5 sm:pl-3 min-w-0">
+                                                <div className="flex justify-between items-start gap-2 mb-1.5 min-w-0">
+                                                    <h4 className="font-bold text-gray-800 text-sm break-words min-w-0 flex-1 leading-snug">{rep.outlet ? rep.outlet.name : 'Outlet Umum'}</h4>
+                                                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md shrink-0 tabular-nums">{rep.visit_time ? rep.visit_time.substring(0, 5) : '-'}</span>
                                                 </div>
-                                                <p className="text-xs text-gray-500 mb-2">{rep.visit_type} - {rep.visit_result}</p>
-                                                <p className="text-sm text-gray-700 line-clamp-2">{rep.summary}</p>
+                                                <p className="text-xs text-gray-600 mb-1.5 break-words">{[rep.visit_type, rep.visit_result].filter(Boolean).join(' - ') || '-'}</p>
+                                                {rep.summary && (
+                                                    <p className="text-xs sm:text-sm text-gray-700 line-clamp-2 break-words">{rep.summary}</p>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -1020,28 +1027,28 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
 
             {/* Target Outlets Modal */}
             <Modal show={selectedTarget !== null} onClose={() => setSelectedTarget(null)} maxWidth="lg">
-                <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
-                    <h2 className="text-lg font-black text-gray-800">
+                <div className="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl gap-3">
+                    <h2 className="text-base sm:text-lg font-black text-gray-800">
                         List Outlet Target
                     </h2>
-                    <button onClick={() => setSelectedTarget(null)} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
+                    <button onClick={() => setSelectedTarget(null)} className="text-gray-400 hover:text-gray-800 transition-colors bg-white hover:bg-gray-100 p-2 rounded-full shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
+                <div className="p-4 sm:p-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
                     {selectedTarget?.target_outlet_names?.length > 0 ? (
                         <ul className="space-y-2">
                             {selectedTarget.target_outlet_names.map((outletName, idx) => (
-                                <li key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-sm">
+                                <li key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 min-w-0">
+                                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
                                         {idx + 1}
                                     </div>
-                                    <span className="font-semibold text-gray-700">{outletName}</span>
+                                    <span className="font-semibold text-sm text-gray-700 break-words min-w-0 flex-1">{outletName}</span>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <div className="text-center py-8 text-gray-500 italic">Tidak ada outlet.</div>
+                        <div className="text-center py-8 text-gray-500 italic text-sm">Tidak ada outlet.</div>
                     )}
                 </div>
             </Modal>

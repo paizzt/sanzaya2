@@ -91,13 +91,14 @@ export default function SignaturePad({ onEnd }) {
     };
 
     return (
-        <div className="w-full flex flex-col items-start gap-2">
-            <div className="border border-gray-300 rounded-lg overflow-hidden bg-white touch-none w-full max-w-lg shadow-inner">
+        <div className="w-full min-w-0 flex flex-col items-start gap-2">
+            <div className="border border-gray-300 rounded-xl overflow-hidden bg-white touch-none w-full max-w-lg shadow-inner">
                 <canvas
                     ref={canvasRef}
                     width={400}
                     height={200}
-                    className="w-full h-[200px] cursor-crosshair bg-white"
+                    style={{ touchAction: 'none' }}
+                    className="block w-full max-w-full h-[160px] sm:h-[200px] cursor-crosshair bg-white touch-none"
                     onMouseDown={startDrawing}
                     onMouseMove={draw}
                     onMouseUp={stopDrawing}
@@ -110,7 +111,7 @@ export default function SignaturePad({ onEnd }) {
             <button
                 type="button"
                 onClick={clearCanvas}
-                className="text-sm text-red-600 hover:text-red-800 font-medium px-2 py-1 rounded bg-red-50 hover:bg-red-100 transition-colors"
+                className="inline-flex items-center justify-center min-h-[40px] text-xs sm:text-sm text-red-700 hover:text-red-800 font-semibold px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
             >
                 Hapus Tanda Tangan
             </button>
