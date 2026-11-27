@@ -13,6 +13,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
+    private static ?array $sheetToPtMapCache = null;
+    private static array $ptAliasesCache = [];
+
     /**
      * Parse Indonesian / numeric currency string to float with decimal precision.
      */
@@ -62,6 +65,10 @@ class ReportController extends Controller
      */
     public static function getSheetToPtMap(): array
     {
+        if (self::$sheetToPtMapCache !== null) {
+            return self::$sheetToPtMapCache;
+        }
+
         $sheetToPtMap = [];
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('spreadsheet_configurations')) {
@@ -79,6 +86,7 @@ class ReportController extends Controller
         } catch (\Throwable $e) {
             // Fallback gracefully
         }
+        self::$sheetToPtMapCache = $sheetToPtMap;
         return $sheetToPtMap;
     }
 
@@ -113,6 +121,11 @@ class ReportController extends Controller
      */
     public static function getPtAliases(array $targetPtNames): array
     {
+        $cacheKey = md5(json_encode(array_values($targetPtNames)));
+        if (isset(self::$ptAliasesCache[$cacheKey])) {
+            return self::$ptAliasesCache[$cacheKey];
+        }
+
         $aliases = [];
         $logistikConfig = null;
         try {
@@ -187,7 +200,8 @@ class ReportController extends Controller
             }
         }
 
-        return array_values(array_unique(array_filter($aliases)));
+        self::$ptAliasesCache[$cacheKey] = array_values(array_unique(array_filter($aliases)));
+        return self::$ptAliasesCache[$cacheKey];
     }
 
     /**
@@ -470,8 +484,8 @@ class ReportController extends Controller
                 }
             });
         }
-        if ($monthFilter) {
-            $monthNum = array_search($monthFilter, $months) + 1;
+        if ($monthFilter && ($monthIdx = array_search($monthFilter, $months)) !== false) {
+            $monthNum = $monthIdx + 1;
             $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
             $shortMonth = substr($monthFilter, 0, 3);
             $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
@@ -525,8 +539,8 @@ class ReportController extends Controller
                     }
                 });
             }
-            if ($monthFilter) {
-                $monthNum = array_search($monthFilter, $months) + 1;
+            if ($monthFilter && ($monthIdx = array_search($monthFilter, $months)) !== false) {
+                $monthNum = $monthIdx + 1;
                 $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
                 $shortMonth = substr($monthFilter, 0, 3);
                 $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
@@ -564,8 +578,8 @@ class ReportController extends Controller
                     }
                 });
             }
-            if ($monthFilter) {
-                $monthNum = array_search($monthFilter, $months) + 1;
+            if ($monthFilter && ($monthIdx = array_search($monthFilter, $months)) !== false) {
+                $monthNum = $monthIdx + 1;
                 $query->whereMonth('created_at', $monthNum);
             }
             if ($search) {
@@ -1191,23 +1205,26 @@ class ReportController extends Controller
             }
             if ($monthFilter) {
                 $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                $monthNum = array_search($monthFilter, $months) + 1;
-                $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
-                $shortMonth = substr($monthFilter, 0, 3);
-                $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
-                
-                $summaryPesananQuery->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
-                    $q->where('sheet_name', 'like', "%{$monthFilter}%")
-                      ->orWhere('tanggal', 'like', "%{$monthFilter}%")
-                      ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
-                      ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
-                      ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
-                      ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
-                      ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
-                      ->orWhere('tanggal', 'like', "% {$shortMonth}%")
-                      ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
-                      ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
-                });
+                $monthIdx = array_search($monthFilter, $months);
+                if ($monthIdx !== false) {
+                    $monthNum = $monthIdx + 1;
+                    $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                    $shortMonth = substr($monthFilter, 0, 3);
+                    $shortMonthEng = date('M', mktime(0, 0, 0, $monthNum, 1));
+                    
+                    $summaryPesananQuery->where(function($q) use ($monthFilter, $monthNum, $monthNumStr, $shortMonth, $shortMonthEng) {
+                        $q->where('sheet_name', 'like', "%{$monthFilter}%")
+                          ->orWhere('tanggal', 'like', "%{$monthFilter}%")
+                          ->orWhere('tanggal', 'like', "%-{$monthNumStr}-%")
+                          ->orWhere('tanggal', 'like', "%/{$monthNumStr}/%")
+                          ->orWhere('tanggal', 'like', "%-{$monthNum}-%")
+                          ->orWhere('tanggal', 'like', "%/{$monthNum}/%")
+                          ->orWhere('tanggal', 'like', "%-{$shortMonth}%")
+                          ->orWhere('tanggal', 'like', "% {$shortMonth}%")
+                          ->orWhere('tanggal', 'like', "%-{$shortMonthEng}%")
+                          ->orWhere('tanggal', 'like', "% {$shortMonthEng}%");
+                    });
+                }
             }
             if ($search) {
                 $summaryPesananQuery->where(function($q) use ($search) {
@@ -1221,11 +1238,11 @@ class ReportController extends Controller
             $totalFaktur = 0; $totalTerkirim = 0; $totalBelumTerkirim = 0;
             $fakturOutlet = []; $terkirimOutlet = []; $belumTerkirimOutlet = []; $pesananOutlet = [];
             foreach ($pesananAll as $row) {
-                $f = (float) str_replace(['.', ','], ['', '.'], (string)$row->total_faktur);
+                $f = self::parseCurrency($row->total_faktur);
                 $totalFaktur += $f;
-                $t = (float) str_replace(['.', ','], ['', '.'], (string)$row->terkirim);
+                $t = self::parseCurrency($row->terkirim);
                 $totalTerkirim += $t;
-                $bt = (float) str_replace(['.', ','], ['', '.'], (string)$row->belum_terkirim);
+                $bt = self::parseCurrency($row->belum_terkirim);
                 $totalBelumTerkirim += $bt;
 
                 if ($row->nama_outlet) {
@@ -1272,8 +1289,8 @@ class ReportController extends Controller
                     }
                 });
             }
-            if ($monthFilter) {
-                $monthNum = array_search($monthFilter, $months) + 1;
+            if ($monthFilter && ($monthIdx = array_search($monthFilter, $months)) !== false) {
+                $monthNum = $monthIdx + 1;
                 $summaryPiutangQuery->whereMonth('created_at', $monthNum);
             }
             if ($search) {
@@ -1284,11 +1301,11 @@ class ReportController extends Controller
             $sanzayaOutlet = []; $rumaOutlet = []; $gabunganOutlet = [];
             
             foreach ($piutangAll as $row) {
-                $s = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_sanzaya));
+                $s = self::parseCurrency($row->total_sanzaya);
                 $totalSanzaya += $s;
-                $r = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_ruma));
+                $r = self::parseCurrency($row->total_ruma);
                 $totalRuma += $r;
-                $g = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->total_gabungan));
+                $g = self::parseCurrency($row->total_gabungan);
                 $totalGabungan += $g;
                 
                 if ($row->nama_outlet) {
@@ -1323,7 +1340,7 @@ class ReportController extends Controller
             $hutangPenyedia = [];
             
             foreach ($hutangAll as $row) {
-                $n = (float) str_replace(['.', ','], ['', '.'], preg_replace('/[^0-9,\.-]/', '', (string)$row->nominal));
+                $n = self::parseCurrency($row->nominal);
                 $totalNominalHutang += $n;
                 if ($row->nama_penyedia) {
                     $penyediaList[] = $row->nama_penyedia;
@@ -1432,6 +1449,9 @@ class ReportController extends Controller
             
             $logistikQuery = SyncLogistikData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
                 foreach($selectedMonths as $m) {
+                    if (!isset($monthsNameMap[$m])) {
+                        continue;
+                    }
                     $monthName = $monthsNameMap[$m];
                     $monthNum = (int)$m;
                     $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
@@ -1455,6 +1475,9 @@ class ReportController extends Controller
             
             $pesananQuery = SyncPesananData::where(function($q) use ($selectedMonths, $monthsNameMap, $currentYear) {
                 foreach($selectedMonths as $m) {
+                    if (!isset($monthsNameMap[$m])) {
+                        continue;
+                    }
                     $monthName = $monthsNameMap[$m];
                     $monthNum = (int)$m;
                     $monthNumStr = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
@@ -1769,7 +1792,12 @@ class ReportController extends Controller
         $pesananTerkirim = 0;
         $pesananBelum = 0;
         foreach ($pesanan as $row) {
-            if (strtolower(trim($row->status_pengiriman)) === 'terkirim') {
+            $t = self::parseCurrency($row->terkirim ?? 0);
+            $bt = self::parseCurrency($row->belum_terkirim ?? 0);
+            if ($t > 0 || $bt > 0) {
+                $pesananTerkirim += $t;
+                $pesananBelum += $bt;
+            } elseif (!empty($row->status_pengiriman) && strtolower(trim((string) $row->status_pengiriman)) === 'terkirim') {
                 $pesananTerkirim++;
             } else {
                 $pesananBelum++;

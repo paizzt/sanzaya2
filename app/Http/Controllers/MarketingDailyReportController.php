@@ -110,14 +110,12 @@ class MarketingDailyReportController extends Controller
             $logistikData = (clone $query)->where('nama_sales', $spreadsheetSalesName)->get();
                 
             foreach ($logistikData as $row) {
-                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
-                $spreadsheetSalesTotal += $val;
+                $spreadsheetSalesTotal += $this->parseNumericAmount($row->grand_total);
             }
         } elseif ($user->isAdminUser()) {
             $logistikData = (clone $query)->get();
             foreach ($logistikData as $row) {
-                $val = (float) str_replace(['.', ','], ['', '.'], (string)$row->grand_total);
-                $spreadsheetSalesTotal += $val;
+                $spreadsheetSalesTotal += $this->parseNumericAmount($row->grand_total);
             }
             $spreadsheetSalesName = 'Semua Data (Admin View)';
             $monthlyTarget = \App\Models\User::sum('monthly_target');
@@ -201,6 +199,9 @@ class MarketingDailyReportController extends Controller
 
             $signatureUrl = $request->signature;
             if ($request->hasFile('signature')) {
+                $request->validate([
+                    'signature' => 'file|mimes:jpeg,png,jpg,webp|max:5120',
+                ]);
                 try {
                     $sigFile = $request->file('signature');
                     $base64Sig = base64_encode(file_get_contents($sigFile->path()));
@@ -215,6 +216,8 @@ class MarketingDailyReportController extends Controller
                 }
             } elseif ($request->filled('signature') && is_string($request->signature) && str_starts_with($request->signature, 'data:image')) {
                 $signatureUrl = $this->uploadBase64ToImgBB($request->signature) ?? $request->signature;
+            } else {
+                $signatureUrl = null;
             }
 
             $outletId = $request->outlet_id;
@@ -252,8 +255,47 @@ class MarketingDailyReportController extends Controller
             throw $e;
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Marketing Store Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
-            return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage() . ' (Line: ' . $e->getLine() . ')');
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem saat menyimpan laporan. Silakan coba lagi.');
         }
+    }
+
+    private function parseNumericAmount($value): float
+    {
+        if ($value === null || $value === '') {
+            return 0.0;
+        }
+        if (is_int($value) || is_float($value)) {
+            return (float) $value;
+        }
+
+        $str = preg_replace('/[^0-9.,-]/', '', trim((string) $value));
+        if ($str === '' || $str === '-') {
+            return 0.0;
+        }
+
+        $hasDot = str_contains($str, '.');
+        $hasComma = str_contains($str, ',');
+
+        if ($hasDot && $hasComma) {
+            if (strrpos($str, ',') > strrpos($str, '.')) {
+                $str = str_replace('.', '', $str);
+                $str = str_replace(',', '.', $str);
+            } else {
+                $str = str_replace(',', '', $str);
+            }
+        } elseif ($hasComma) {
+            if (substr_count($str, ',') > 1 || preg_match('/^-?[1-9]\d{0,2},\d{3}$/', $str)) {
+                $str = str_replace(',', '', $str);
+            } else {
+                $str = str_replace(',', '.', $str);
+            }
+        } elseif ($hasDot) {
+            if (substr_count($str, '.') > 1 || preg_match('/^-?[1-9]\d{0,2}\.\d{3}$/', $str)) {
+                $str = str_replace('.', '', $str);
+            }
+        }
+
+        return (float) $str;
     }
 
     private function uploadBase64ToImgBB($base64String)
@@ -304,6 +346,11 @@ class MarketingDailyReportController extends Controller
             'target_outlets' => 'nullable|array',
         ]);
 
+        $authUser = Auth::user();
+        $targetUserId = ($authUser->isAdminUser() || $authUser->isAdminMarketing())
+            ? (int) $request->user_id
+            : (int) $authUser->id;
+
         $outlets = [];
         if ($request->has('target_outlets') && is_array($request->target_outlets)) {
             foreach ($request->target_outlets as $item) {
@@ -321,21 +368,33 @@ class MarketingDailyReportController extends Controller
             }
         }
 
-        $weekNumber = Carbon::parse($request->start_date)->weekOfYear;
+        $parsedStart = Carbon::parse($request->start_date);
+        $weekNumber = $parsedStart->weekOfYear;
+        $targetYear = $parsedStart->year;
         $targetVisits = count($outlets);
 
-        MarketingWeeklyTarget::updateOrCreate(
-            [
-                'user_id' => $request->user_id,
-                'week_number' => $weekNumber,
-            ],
-            [
+        $existingTarget = MarketingWeeklyTarget::where('user_id', $targetUserId)
+            ->where('week_number', $weekNumber)
+            ->whereYear('start_date', $targetYear)
+            ->first();
+
+        if ($existingTarget) {
+            $existingTarget->update([
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
                 'target_visits' => $targetVisits,
                 'target_outlets' => $outlets,
-            ]
-        );
+            ]);
+        } else {
+            MarketingWeeklyTarget::create([
+                'user_id' => $targetUserId,
+                'week_number' => $weekNumber,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'target_visits' => $targetVisits,
+                'target_outlets' => $outlets,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Target mingguan berhasil ditetapkan!');
     }
@@ -418,6 +477,6 @@ class MarketingDailyReportController extends Controller
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Laporan Marketing') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Laporan Marketing') . '.xlsx');
     }
 }

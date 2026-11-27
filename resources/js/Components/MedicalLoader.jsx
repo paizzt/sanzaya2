@@ -8,10 +8,12 @@ export default function MedicalLoader() {
         let timeoutId;
         
         const start = () => {
+            clearTimeout(timeoutId);
             setIsLoading(true);
         };
         
         const finish = () => {
+            clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {
                 setIsLoading(false);
             }, 400); // 400ms delay to ensure the animation shows nicely

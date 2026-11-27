@@ -1,20 +1,37 @@
-import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { Link, usePage, router, useForm } from '@inertiajs/react';
+import { Fragment, useState, useEffect } from 'react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { Menu, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import Modal from '@/Components/Modal';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Menu as LucideMenu, X, Bell, User, CheckCircle, ChevronDown, LogOut, LayoutDashboard, Settings, FileText, Camera, Users, ChevronLeft, ChevronRight, Briefcase, PlaneTakeoff, ShoppingCart, Database, Store, BarChart2, ClipboardList, FileCheck, Clock, TrendingUp, Truck, Package, Wallet, CreditCard, Building, BookOpen, Download, MessageSquareWarning, Loader2, Map } from 'lucide-react';
+import {
+    Menu as LucideMenu,
+    X,
+    Bell,
+    ChevronDown,
+    LogOut,
+    LayoutDashboard,
+    Settings,
+    FileText,
+    Camera,
+    ChevronLeft,
+    ChevronRight,
+    Briefcase,
+    Database,
+    FileCheck,
+    Truck,
+    Wallet,
+    BookOpen,
+    Download,
+} from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
 const SidebarItem = ({ item, sidebarCollapsed, setSidebarCollapsed }) => {
-    const [isOpen, setIsOpen] = useState(item.active || (item.children && item.children.some(c => c.active)));
+    const hasActiveChild = Boolean(item.children && item.children.some(c => c.active));
+    const [isOpen, setIsOpen] = useState(item.active || hasActiveChild);
 
     useEffect(() => {
-        if ((item.active || (item.children && item.children.some(c => c.active))) && !sidebarCollapsed) setIsOpen(true);
-    }, [item.active, item.children, sidebarCollapsed]);
+        if ((item.active || hasActiveChild) && !sidebarCollapsed) setIsOpen(true);
+    }, [item.active, hasActiveChild, sidebarCollapsed]);
 
     if (!item.children) {
         return (
@@ -76,15 +93,7 @@ export default function Authenticated({ user, header, children }) {
     const { auth, flash } = usePage().props;
     const notifications = auth?.notifications || [];
     const unreadCount = auth?.unread_count || 0;
-
-
-    const hasPermission = (permission) => {
-        if (auth.user?.roles?.some(r => {
-            const name = (r.name || '').toLowerCase().replace(/[\s_-]/g, '');
-            return name === 'superadmin';
-        })) return true;
-        return auth.permissions?.includes(permission);
-    };
+    const currentUser = user || auth?.user;
 
     const hasFeature = (featureName) => {
         if (!auth?.active_feature_names) return true;
@@ -102,7 +111,6 @@ export default function Authenticated({ user, header, children }) {
                 timer: 3000,
                 showConfirmButton: false,
             });
-            flash.success = null;
         }
         if (flash?.error) {
             Swal.fire({
@@ -110,9 +118,8 @@ export default function Authenticated({ user, header, children }) {
                 title: 'Gagal',
                 text: flash.error,
             });
-            flash.error = null;
         }
-    }, [flash]);
+    }, [flash?.success, flash?.error]);
 
     useEffect(() => {
         const handleBeforeInstallPrompt = (e) => {
@@ -121,15 +128,17 @@ export default function Authenticated({ user, header, children }) {
             setIsInstallable(true);
         };
 
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-        window.addEventListener('appinstalled', () => {
+        const handleAppInstalled = () => {
             setIsInstallable(false);
             setDeferredPrompt(null);
-        });
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.addEventListener('appinstalled', handleAppInstalled);
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            window.removeEventListener('appinstalled', handleAppInstalled);
         };
     }, []);
 
@@ -154,8 +163,8 @@ export default function Authenticated({ user, header, children }) {
 
     useEffect(() => {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
-            if (Notification.permission === 'denied') {
-                return; // Do not attempt to subscribe if blocked
+            if ('Notification' in window && Notification.permission === 'denied') {
+                return;
             }
             
             navigator.serviceWorker.ready.then(registration => {
@@ -164,23 +173,22 @@ export default function Authenticated({ user, header, children }) {
                         subscribeUser(registration);
                     }
                 });
-            }).catch(err => console.log('Service Worker not ready:', err));
+            }).catch(() => {});
         }
     }, []);
 
     const subscribeUser = async (registration) => {
         try {
-            const response = await axios.get('/settings/vapid-public-key');
+            const response = await axios.get(route('notifications.vapidPublicKey'));
             if (!response.data.publicKey) return;
             const applicationServerKey = urlB64ToUint8Array(response.data.publicKey);
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: applicationServerKey
             });
-            await axios.post('/settings/push-subscription', subscription);
-            console.log('User is subscribed.');
-        } catch (err) {
-            console.log('Failed to subscribe the user: ', err);
+            await axios.post(route('push.subscribe'), subscription);
+        } catch {
+            // Silently ignore push subscription failures (e.g., user dismissed prompt)
         }
     };
 
@@ -271,7 +279,7 @@ export default function Authenticated({ user, header, children }) {
             name: 'Manajemen', icon: Database,
             active: url.startsWith('/vehicles') || url.startsWith('/vehicle-usages') || url.startsWith('/company') || url.startsWith('/users') || (url.startsWith('/salaries') && !url.startsWith('/salaries/my-slip')) || url.startsWith('/sops') || url.startsWith('/absensi/rekap') || (url.startsWith('/wbs-reports') && !url.startsWith('/wbs-reports/my-reports')),
             children: [
-                { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url === '/wbs-reports', show: hasFeature('Laporan WBS') },
+                { name: 'Laporan WBS', href: route('wbs-reports.index'), active: url === '/wbs-reports' || url.startsWith('/wbs-reports?'), show: hasFeature('Laporan WBS') },
                 { name: 'Data Armada', href: route('vehicles.index'), active: url.startsWith('/vehicles'), show: hasFeature('Data Armada') },
                 { name: 'Penggunaan Kendaraan', href: route('vehicle-usages.index'), active: url.startsWith('/vehicle-usages'), show: hasFeature('Penggunaan Kendaraan') },
                 { name: 'Data Perusahaan', href: route('company.index'), active: url.startsWith('/company'), show: hasFeature('Data Perusahaan') },
@@ -312,8 +320,12 @@ export default function Authenticated({ user, header, children }) {
 
     const navItems = baseNavItems.map(item => {
         if (item.children) {
-            item.children = item.children.filter(child => child.show !== false);
-            item.show = item.children.length > 0;
+            const visibleChildren = item.children.filter(child => child.show !== false);
+            return {
+                ...item,
+                children: visibleChildren,
+                show: visibleChildren.length > 0,
+            };
         }
         return item;
     }).filter(item => item.show !== false);
@@ -448,9 +460,9 @@ export default function Authenticated({ user, header, children }) {
                                                                 >
                                                                     <div className="flex items-center gap-2">
                                                                         <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-                                                                        <span className="text-sm font-bold text-gray-800">{notif.data.title || 'Pemberitahuan'}</span>
+                                                                        <span className="text-sm font-bold text-gray-800">{notif.data?.title || 'Pemberitahuan'}</span>
                                                                     </div>
-                                                                    <p className="text-xs text-gray-600 ml-4">{notif.data.message}</p>
+                                                                    <p className="text-xs text-gray-600 ml-4">{notif.data?.message || ''}</p>
                                                                     <span className="text-[10px] text-gray-400 ml-4 mt-1">Baru saja</span>
                                                                 </button>
                                                             )}
@@ -472,11 +484,11 @@ export default function Authenticated({ user, header, children }) {
                                         className="flex items-center gap-1.5 sm:gap-3 rounded-xl px-1.5 py-1 hover:bg-gray-100 transition-colors cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                                     >
                                         <div className="text-right hidden md:block">
-                                            <p className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">{user.name}</p>
-                                            <p className="text-xs text-gray-500">{user.roles?.length > 0 ? user.roles[0].name : 'Pengguna'}</p>
+                                            <p className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">{currentUser?.name || 'Pengguna'}</p>
+                                            <p className="text-xs text-gray-500">{currentUser?.roles?.length > 0 ? currentUser.roles[0].name : 'Pengguna'}</p>
                                         </div>
                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center border-2 border-white shadow-sm font-bold text-xs sm:text-base shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                            {user.name.charAt(0)}
+                                            {(currentUser?.name || 'U').charAt(0).toUpperCase()}
                                         </div>
                                     </Link>
                                     <button onClick={handleLogout} className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 transition-colors rounded-full hover:bg-red-50 shrink-0" title="Keluar">
@@ -562,15 +574,18 @@ export default function Authenticated({ user, header, children }) {
                     });
                     
                     const defaultPrefs = ['Dashboard', 'Ambil Absensi', 'Form Marketing', 'Izin/Sakit'];
-                    let prefs = auth.user?.preferences?.bottom_nav || defaultPrefs;
+                    const rawPrefs = Array.isArray(auth.user?.preferences?.bottom_nav)
+                        ? auth.user.preferences.bottom_nav
+                        : defaultPrefs;
                     // Migrate old keys if they were saved previously
                     const keyMap = {
                         'dashboard': 'Dashboard',
                         'absensi': 'Ambil Absensi',
                         'marketing': 'Form Marketing',
-                        'izin': 'Izin/Sakit'
+                        'izin': 'Izin/Sakit',
+                        'Pemetaan Outlet': 'Pemetaan',
                     };
-                    prefs = prefs.map(p => keyMap[p] || p);
+                    const prefs = rawPrefs.map(p => keyMap[p] || p);
                     
                     return allItems.filter(item => {
                         return item.show && prefs.includes(item.id);

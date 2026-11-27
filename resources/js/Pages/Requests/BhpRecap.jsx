@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { 
-    Search, ShoppingCart, Calendar, User, FileText, Download, CheckCircle, Clock, Check, X, FileBarChart
+    Search, ShoppingCart, Calendar, FileText, Download, CheckCircle, Clock, Check, X
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
@@ -43,9 +43,9 @@ export default function BhpRecap({ requests }) {
     const filteredRequests = useMemo(() => {
         return requests.filter(req => {
             const matchesSearch = 
-                req.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                req.request_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                req.user?.name.toLowerCase().includes(searchTerm.toLowerCase());
+                (req.product_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (req.request_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (req.user?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
             
             const matchesStatus = statusFilter === 'Semua' || req.status === statusFilter;
             
@@ -111,7 +111,7 @@ export default function BhpRecap({ requests }) {
         setSelectedRequest(null);
     };
 
-    const exportUrl = route('requests.bhp.recap.export') + `?month=${monthFilter}&year=${yearFilter}&status=${statusFilter}&search=${searchTerm}`;
+    const exportUrl = `${route('requests.bhp.recap.export')}?${new URLSearchParams({ month: monthFilter, year: yearFilter, status: statusFilter, search: searchTerm }).toString()}`;
 
     return (
         <AuthenticatedLayout

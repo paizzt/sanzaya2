@@ -214,7 +214,9 @@ class FeatureToggle extends Model
                         $items[$i]->delete();
                     }
                 } else {
-                    $primary->save();
+                    if ($primary->isDirty()) {
+                        $primary->save();
+                    }
                 }
             }
         } catch (\Throwable $e) {}

@@ -91,8 +91,8 @@ export default function Show({ auth, division }) {
         let images = [null];
         
         if (sop.steps && sop.steps.length > 0) {
-            texts = sop.steps.map(s => typeof s === 'string' ? s : (s.text || ''));
-            images = sop.steps.map(s => typeof s === 'string' ? null : (s.image || null));
+            texts = sop.steps.map(s => typeof s === 'string' ? s : (s?.text || ''));
+            images = sop.steps.map(s => typeof s === 'string' ? null : (s?.image || null));
         }
 
         setEditData({
@@ -416,8 +416,8 @@ export default function Show({ auth, division }) {
                                         {selectedSop.steps && selectedSop.steps.length > 0 && selectedSop.steps[0] !== '' && (typeof selectedSop.steps[0] === 'object' || typeof selectedSop.steps[0] === 'string') ? (
                                             <div className="space-y-6">
                                                 {selectedSop.steps.map((step, idx) => {
-                                                    const text = typeof step === 'object' ? step.text : step;
-                                                    const image = typeof step === 'object' ? step.image : null;
+                                                    const text = step && typeof step === 'object' ? step.text : step;
+                                                    const image = step && typeof step === 'object' ? step.image : null;
                                                     
                                                     if ((!text || text.trim() === '') && !image) return null;
                                                     

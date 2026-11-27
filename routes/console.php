@@ -8,8 +8,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('app:sync-spreadsheets')->dailyAt('07:00');
-Schedule::command('app:sync-spreadsheets')->dailyAt('12:00');
-Schedule::command('app:sync-spreadsheets')->dailyAt('17:00');
-Schedule::command('app:sync-spreadsheets')->dailyAt('18:00'); // Jam 6 sore
-Schedule::command('sanzaya:daily-notifications')->dailyAt('09:00');
+Schedule::command('app:sync-spreadsheets')->dailyAt('07:00')->withoutOverlapping();
+Schedule::command('app:sync-spreadsheets')->dailyAt('12:00')->withoutOverlapping();
+Schedule::command('app:sync-spreadsheets')->dailyAt('17:00')->withoutOverlapping();
+Schedule::command('app:sync-spreadsheets')->dailyAt('18:00')->withoutOverlapping(); // Jam 6 sore
+Schedule::command('sanzaya:daily-notifications')->dailyAt('09:00')->withoutOverlapping();

@@ -224,7 +224,7 @@ class LogisticReportController extends Controller
         unset($validated['outlet_name']);
 
         if ($request->id) {
-            LogisticReport::find($request->id)->update($validated);
+            LogisticReport::findOrFail($request->id)->update($validated);
         } else {
             LogisticReport::create($validated);
         }
@@ -312,6 +312,9 @@ class LogisticReportController extends Controller
         $allHeadings = ['No', 'Nama PT', 'Pelanggan', 'Jenis', 'Tanggal', 'Sales Name', 'No Faktur', 'ID PAKET', 'BRAND', 'Nama Produk', 'Qty', 'Satuan', 'HNA', 'Subtotal', 'PPN', 'Total', 'Grand Total', 'Jenis Brg'];
         
         $requestedColumns = $request->query('columns', $allHeadings);
+        if (!is_array($requestedColumns)) {
+            $requestedColumns = $allHeadings;
+        }
         
         // Filter headings based on requested columns, keeping original order
         $headings = array_values(array_filter($allHeadings, function($h) use ($requestedColumns) {
@@ -403,6 +406,9 @@ class LogisticReportController extends Controller
         $allHeadings = ['No', 'Nama PT', 'Pelanggan', 'Jenis', 'Tanggal', 'Sales Name', 'No Faktur', 'ID PAKET', 'BRAND', 'Nama Produk', 'Qty', 'Satuan', 'HNA', 'Subtotal', 'PPN', 'Total', 'Grand Total', 'Jenis Brg'];
         
         $requestedColumns = $request->query('columns', $allHeadings);
+        if (!is_array($requestedColumns)) {
+            $requestedColumns = $allHeadings;
+        }
         
         $headings = array_values(array_filter($allHeadings, function($h) use ($requestedColumns) {
             return in_array($h, $requestedColumns);
@@ -437,6 +443,6 @@ class LogisticReportController extends Controller
             return $filteredRow;
         });
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), 'Laporan_Logistik.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), 'Laporan_Logistik.xlsx');
     }
 }

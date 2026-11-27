@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 import { Box, Search, Package } from 'lucide-react';
 import Fuse from 'fuse.js';
 
-export default function WarehouseStocksPublic({ items, filters }) {
+export default function WarehouseStocksPublic({ items = [], filters }) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     
     // Parse URL for active columns, default to all if not specified
@@ -104,7 +104,7 @@ export default function WarehouseStocksPublic({ items, filters }) {
                                             {showCol('quantity') && (
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`px-2.5 py-0.5 rounded-full font-medium ${
-                                                        item.quantity <= item.minimum_stock 
+                                                        item.minimum_stock !== null && item.minimum_stock !== undefined && Number(item.quantity) <= Number(item.minimum_stock) 
                                                             ? 'bg-red-50 text-red-700' 
                                                             : 'bg-green-50 text-green-700'
                                                     }`}>

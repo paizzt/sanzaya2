@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link } from '@inertiajs/react';
-import { Target, TrendingUp, Building, MapPin, Send, AlertTriangle, CalendarDays, CheckSquare, ClipboardList, Download, X } from 'lucide-react';
+import { Target, Building, MapPin, Download, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -10,17 +10,20 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
-import CustomDateRangePicker from '@/Components/CustomDateRangePicker';
 import CustomDatePicker from '@/Components/CustomDatePicker';
-import SearchableSelect from '@/Components/SearchableSelect';
 import SignaturePad from '@/Components/SignaturePad';
 import Modal from '@/Components/Modal';
 import heic2any from 'heic2any';
 
+const getLocalToday = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 export default function Index({ auth, outlets, reports, target, allTargets, realization, spreadsheet, isAdminMarketing, sales_users }) {
     const { data, setData, post, processing, errors, reset, transform } = useForm({
         activity_type: 'Kunjungan',
-        visit_date: new Date().toISOString().split('T')[0],
+        visit_date: getLocalToday(),
         visit_time: new Date().toTimeString().split(' ')[0].substring(0, 5),
         outlet_type: '',
         outlet_name: '',
@@ -86,8 +89,10 @@ export default function Index({ auth, outlets, reports, target, allTargets, real
                     }
                 }
 
-                // convert string IDs to integers since outlet IDs in state are integers
-                const parsedOutlets = Array.isArray(outlets) ? outlets.map(id => parseInt(id)) : [];
+                // Convert numeric string IDs to integers while preserving custom string outlet names
+                const parsedOutlets = Array.isArray(outlets)
+                    ? outlets.map(id => (/^\d+$/.test(String(id).trim()) ? parseInt(id, 10) : String(id)))
+                    : [];
 
                 if (parsedOutlets.length > 0) {
                     setTargetData('target_outlets', parsedOutlets);

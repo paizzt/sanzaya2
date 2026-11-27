@@ -1,8 +1,8 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import ClientPagination from '@/Components/ClientPagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { Users, Plus, Edit, Trash2, X, Save, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight, QrCode, Sliders, FileText } from 'lucide-react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { Users, Plus, Edit, Trash2, X, Lock, User, Briefcase, MapPin, Building, ShieldCheck, Mail, ToggleRight, QrCode, Sliders, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -15,7 +15,7 @@ import CustomDatePicker from '@/Components/CustomDatePicker';
 import CurrencyInput from '@/Components/CurrencyInput';
 
 export default function Index({ users = [], divisions = [], positions = [], areas = [], roles = [], companies = [], featureToggles = [], userFeatures = {}, pdfFeatureId = null, spreadsheetSalesNames = [] }) {
-    const { flash } = usePage().props;
+    const { auth, flash } = usePage().props;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
@@ -26,7 +26,6 @@ export default function Index({ users = [], divisions = [], positions = [], area
     const [searchTerm, setSearchTerm] = useState('');
     const [searchUserTerm, setSearchUserTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [togglingUserId, setTogglingUserId] = useState(null);
     const itemsPerPage = 50;
 
     const pdfFeature = featureToggles?.find(f => f.name.toLowerCase().trim() === 'unduh pdf');
@@ -38,23 +37,6 @@ export default function Index({ users = [], divisions = [], positions = [], area
             return userFeatures[userId][resolvedPdfFeatureId];
         }
         return true;
-    };
-
-    const handleToggleUserPdf = (targetUser) => {
-        setTogglingUserId(targetUser.id);
-        router.post(route('users.toggle-pdf', targetUser.id), {}, {
-            preserveScroll: true,
-            onSuccess: (page) => {
-                const successMsg = page?.props?.flash?.success || 'Status Unduh PDF berhasil diperbarui.';
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: successMsg,
-                    icon: 'success',
-                    customClass: { popup: 'rounded-2xl' }
-                });
-            },
-            onFinish: () => setTogglingUserId(null),
-        });
     };
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
@@ -365,15 +347,15 @@ export default function Index({ users = [], divisions = [], positions = [], area
     const filteredAreas = areas.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const filteredUsers = users.filter(user => 
-        user.name.toLowerCase().includes(searchUserTerm.toLowerCase()) || 
-        user.email.toLowerCase().includes(searchUserTerm.toLowerCase()) ||
-        (user.roles && user.roles.length > 0 && user.roles[0].name.toLowerCase().includes(searchUserTerm.toLowerCase())) ||
-        (user.company && user.company.name.toLowerCase().includes(searchUserTerm.toLowerCase()))
+        (user.name || '').toLowerCase().includes(searchUserTerm.toLowerCase()) || 
+        (user.email || '').toLowerCase().includes(searchUserTerm.toLowerCase()) ||
+        (user.roles && user.roles.length > 0 && (user.roles[0].name || '').toLowerCase().includes(searchUserTerm.toLowerCase())) ||
+        (user.company && (user.company.name || '').toLowerCase().includes(searchUserTerm.toLowerCase()))
     );
 
     return (
         <AuthenticatedLayout
-            user={usePage().props.auth.user}
+            user={auth.user}
             header={<h2 className="font-bold text-2xl text-gray-800 leading-tight">Manajemen Pengguna</h2>}
         >
             <Head title="Pengguna" />
@@ -394,6 +376,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                         <div className="relative w-full sm:w-auto">
                             <input 
                                 type="text"
+                                placeholder="Cari nama, email, role, PT..."
                                 value={searchUserTerm}
                                 onChange={(e) => { setSearchUserTerm(e.target.value); setCurrentPage(1); }}
                                 className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl shadow-sm text-sm px-4 py-2.5 w-full sm:w-64"
@@ -481,7 +464,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                                     <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                         <button type="button" onClick={() => openBarcodeModal(user)} className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Unduh Barcode (Tanda Tangan)"><QrCode className="w-4 h-4" /></button>
                                                         <button onClick={() => openEditModal(user)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Pengguna"><Edit className="w-4 h-4" /></button>
-                                                        {usePage().props.auth.user.id !== user.id && (
+                                                        {auth?.user?.id !== user.id && (
                                                             <button onClick={() => handleDelete(user.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Pengguna"><Trash2 className="w-4 h-4" /></button>
                                                         )}
                                                     </div>
@@ -490,7 +473,7 @@ export default function Index({ users = [], divisions = [], positions = [], area
                                         ))}
                                         {filteredUsers.length === 0 && (
                                             <tr>
-                                                <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
                                                     Belum ada pengguna terdaftar.
                                                 </td>
                                             </tr>

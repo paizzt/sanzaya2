@@ -1,5 +1,3 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Link } from '@inertiajs/react';
 import PWAInstallPrompt from '@/Components/PWAInstallPrompt';
 
 export default function Guest({ children }) {

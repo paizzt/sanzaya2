@@ -1,15 +1,16 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
-import { FileCheck, Edit3, X, Loader2, Trash2, Edit, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2, Clock, Building2, Filter, Receipt } from 'lucide-react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { FileCheck, X, Loader2, CheckCircle, RotateCcw, XCircle, FileImage, ExternalLink, PlaneTakeoff, FileText, CheckCircle2, Clock, Receipt } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useMemo } from 'react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
-import PrimaryButton from '@/Components/PrimaryButton';
 import CustomSelect from '@/Components/CustomSelect';
 import CurrencyInput from '@/Components/CurrencyInput';
 import InputError from '@/Components/InputError';
+
+const escapeHtml = (val) => String(val ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
 export default function UcApproval({ requests = [], isAdmin = false, companies = [], savedPt = '' }) {
     const user = usePage().props.auth.user;
@@ -416,11 +417,11 @@ export default function UcApproval({ requests = [], isAdmin = false, companies =
                 title: actionTitle,
                 html: `
                     <div class="text-left text-sm space-y-1.5 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                        <p><span class="text-gray-500">No. Request:</span> <strong>${req.request_number}</strong></p>
-                        <p><span class="text-gray-500">Pengaju:</span> <strong>${req.user?.name || '-'}</strong> (${req.department || '-'})</p>
-                        <p><span class="text-gray-500">Tujuan:</span> <strong>${req.destination_city || '-'}</strong></p>
-                        <p><span class="text-gray-500">Total Biaya:</span> <strong>${formatRupiah(req.approved_gas_cost || getRequestTotal(req))}</strong></p>
-                        ${req.result_report ? `<p><span class="text-gray-500">Laporan:</span> <span class="italic text-gray-700 block mt-0.5 line-clamp-2">${req.result_report}</span></p>` : ''}
+                        <p><span class="text-gray-500">No. Request:</span> <strong>${escapeHtml(req.request_number)}</strong></p>
+                        <p><span class="text-gray-500">Pengaju:</span> <strong>${escapeHtml(req.user?.name || '-')}</strong> (${escapeHtml(req.department || '-')})</p>
+                        <p><span class="text-gray-500">Tujuan:</span> <strong>${escapeHtml(req.destination_city || '-')}</strong></p>
+                        <p><span class="text-gray-500">Total Biaya:</span> <strong>${escapeHtml(formatRupiah(req.approved_gas_cost || getRequestTotal(req)))}</strong></p>
+                        ${req.result_report ? `<p><span class="text-gray-500">Laporan:</span> <span class="italic text-gray-700 block mt-0.5 line-clamp-2">${escapeHtml(req.result_report)}</span></p>` : ''}
                         <p class="text-xs text-blue-600 font-medium pt-1">${actionText}</p>
                     </div>
                 `,

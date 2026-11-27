@@ -2,14 +2,13 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Wallet, Plus, Edit, Trash2, ClipboardList } from 'lucide-react';
+import { Wallet, Plus, Edit, Trash2 } from 'lucide-react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
-import SearchableSelect from '@/Components/SearchableSelect';
 import ClientPagination from '@/Components/ClientPagination';
 import MultiSelect from '@/Components/MultiSelect';
 import Swal from 'sweetalert2';
@@ -31,6 +30,7 @@ export default function Index({ auth, items = [], providers, companies, filters,
     const [filterSort, setFilterSort] = useState(typeof safeFilters.sort === 'string' ? safeFilters.sort : '');
 
     const applyFilter = () => {
+        setCurrentPage(1);
         router.get(route('payables.index'), {
             search: filterSearch,
             pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt,
@@ -40,6 +40,7 @@ export default function Index({ auth, items = [], providers, companies, filters,
     };
 
     const resetFilter = () => {
+        setCurrentPage(1);
         setFilterSearch('');
         setFilterPt([]);
         setFilterYear([]);
@@ -134,11 +135,22 @@ export default function Index({ auth, items = [], providers, companies, filters,
     const openModal = (item = null) => {
         if (item) {
             setEditingItem(item);
+            let parsedDetails = item.details;
+            if (typeof parsedDetails === 'string') {
+                try {
+                    parsedDetails = JSON.parse(parsedDetails);
+                } catch {
+                    parsedDetails = [];
+                }
+            }
+            const safeDetails = Array.isArray(parsedDetails) && parsedDetails.length > 0
+                ? parsedDetails.map(d => ({ ...d }))
+                : [{ year: new Date().getFullYear().toString(), amount: '' }];
             setData({
                 id: item.id,
                 company_id: item.company_id || '',
                 provider_name: item.provider ? item.provider.name : '',
-                details: item.details && item.details.length > 0 ? item.details : [{ year: new Date().getFullYear().toString(), amount: '' }]
+                details: safeDetails
             });
         } else {
             setEditingItem(null);
@@ -197,32 +209,6 @@ export default function Index({ auth, items = [], providers, companies, filters,
                             timer: 3000
                         });
                     }
-                });
-            }
-        });
-    };
-
-    const dailyForm = useForm({
-        billing_date: new Date().toISOString().split('T')[0],
-        user_id: auth.user.id.toString(),
-        provider_id: '',
-        result: ''
-    });
-
-    const submitDaily = (e) => {
-        e.preventDefault();
-        dailyForm.post(route('payables.dailyReport.store'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                dailyForm.reset('provider_id', 'result');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: 'Laporan harian berhasil disimpan',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
                 });
             }
         });
@@ -414,7 +400,7 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                             </tr>
                                             )) : (
                                             <tr>
-                                                <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                                                <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
                                                     Belum ada data hutang.
                                                 </td>
                                             </tr>
@@ -491,8 +477,9 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                             className="w-full"
                                             value={detail.year}
                                             onChange={e => {
-                                                const newDetails = [...data.details];
-                                                newDetails[index].year = e.target.value;
+                                                const newDetails = data.details.map((item, i) =>
+                                                    i === index ? { ...item, year: e.target.value } : item
+                                                );
                                                 setData('details', newDetails);
                                             }}
                                         />
@@ -513,8 +500,9 @@ export default function Index({ auth, items = [], providers, companies, filters,
                                                     parts = rawStr.split('.');
                                                     if (parts.length > 1) rawStr = parts[0] + '.' + parts[1].substring(0, 2);
                                                     
-                                                    const newDetails = [...data.details];
-                                                    newDetails[index].amount = rawStr;
+                                                    const newDetails = data.details.map((item, i) =>
+                                                        i === index ? { ...item, amount: rawStr } : item
+                                                    );
                                                     setData('details', newDetails);
                                                 }}
                                             />

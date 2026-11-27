@@ -39,26 +39,26 @@ class NotificationObserver
             }
             elseif ($model instanceof UcRequest) {
                 NotificationService::notifyFeatureUsers(
-                    'Rekap Kasbon',
-                    'Pengajuan Kasbon Baru',
-                    "$userName baru saja membuat pengajuan kasbon.",
-                    url('/uc-requests') // Adjust url if necessary
+                    'Menu Persetujuan UC',
+                    'Pengajuan UC Baru',
+                    "$userName baru saja membuat pengajuan UC.",
+                    route('requests.uc.approval.index')
                 );
             }
             elseif ($model instanceof BhpRequest) {
                 NotificationService::notifyFeatureUsers(
-                    'Rekap Pembelian',
-                    'Pengajuan Pembelian Baru',
-                    "$userName baru saja membuat pengajuan pembelian.",
-                    url('/bhp-requests')
+                    'Rekap BHP',
+                    'Pengajuan BHP Baru',
+                    "$userName baru saja membuat pengajuan BHP.",
+                    route('requests.bhp.recap.index')
                 );
             }
             elseif ($model instanceof WbsReport) {
                 NotificationService::notifyFeatureUsers(
-                    'Lapor WBS',
+                    'Laporan WBS',
                     'Laporan WBS Baru',
                     "Ada laporan WBS baru yang masuk.",
-                    url('/wbs-reports')
+                    route('wbs-reports.index')
                 );
             }
         } catch (\Exception $e) {

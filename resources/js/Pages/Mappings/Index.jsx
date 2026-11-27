@@ -1,11 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm, router } from '@inertiajs/react';
-import { Check, X, Search, Database, ArrowLeft, Store, Truck } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { Check, X, Search, Database, Store, Truck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 import CustomSelect from '@/Components/CustomSelect';
 
-export default function Index({ auth, unmappedOutlets, outletMappings, masterOutlets, unmappedProviders, providerMappings, masterProviders }) {
+export default function Index({ auth, unmappedOutlets = [], outletMappings = [], masterOutlets = [], unmappedProviders = [], providerMappings = [], masterProviders = [] }) {
     const [activeTab, setActiveTab] = useState('outlet');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedOutlets, setSelectedOutlets] = useState({});
@@ -13,13 +13,25 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
 
     useEffect(() => {
         const initial = {};
-        unmappedOutlets.forEach((item, idx) => {
+        unmappedOutlets.forEach((item) => {
             if (item.suggested_outlet_id) {
-                initial[idx] = item.suggested_outlet_id;
+                initial[item.raw_name] = item.suggested_outlet_id;
             }
         });
         setSelectedOutlets(initial);
     }, [unmappedOutlets]);
+
+    useEffect(() => {
+        setSelectedProviders((prev) => {
+            const next = {};
+            unmappedProviders.forEach((item) => {
+                if (prev[item.raw_name]) {
+                    next[item.raw_name] = prev[item.raw_name];
+                }
+            });
+            return next;
+        });
+    }, [unmappedProviders]);
 
     const handleConfirmOutlet = (rawName, outletId) => {
         router.post(route('outlet-mappings.store'), {
@@ -267,8 +279,8 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredUnmappedOutlets.length > 0 ? filteredUnmappedOutlets.map((item, idx) => (
-                                                <tr key={idx} className="bg-white border-b hover:bg-gray-50 transition-colors">
+                                            {filteredUnmappedOutlets.length > 0 ? filteredUnmappedOutlets.map((item) => (
+                                                <tr key={item.raw_name} className="bg-white border-b hover:bg-gray-50 transition-colors">
                                                     <td className="px-6 py-4 font-medium text-red-600">
                                                         {item.raw_name}
                                                     </td>
@@ -278,8 +290,8 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                     <td className="px-6 py-4">
                                                         <div className="min-w-[200px]">
                                                             <CustomSelect 
-                                                                value={selectedOutlets[idx] || ''} 
-                                                                onChange={(val) => setSelectedOutlets(prev => ({ ...prev, [idx]: val }))} 
+                                                                value={selectedOutlets[item.raw_name] || ''} 
+                                                                onChange={(val) => setSelectedOutlets(prev => ({ ...prev, [item.raw_name]: val }))} 
                                                                 options={[
                                                                     { value: '', label: 'Pilih Outlet Benar...' },
                                                                     ...masterOutlets.map(mo => ({ value: mo.id, label: mo.name }))
@@ -299,7 +311,7 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                         <div className="flex justify-end gap-2">
                                                             <button 
                                                                 onClick={() => {
-                                                                    const val = selectedOutlets[idx];
+                                                                    const val = selectedOutlets[item.raw_name];
                                                                     if (!val) {
                                                                         Swal.fire('Pilih outlet dulu', '', 'warning');
                                                                         return;
@@ -323,7 +335,7 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                 </tr>
                                             )) : (
                                                 <tr>
-                                                    <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
+                                                    <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                                                         Semua outlet sudah terpetakan atau tidak ada data yang dicari.
                                                     </td>
                                                 </tr>
@@ -419,8 +431,8 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredUnmappedProviders.length > 0 ? filteredUnmappedProviders.map((item, idx) => (
-                                                <tr key={idx} className="bg-white border-b hover:bg-gray-50 transition-colors">
+                                            {filteredUnmappedProviders.length > 0 ? filteredUnmappedProviders.map((item) => (
+                                                <tr key={item.raw_name} className="bg-white border-b hover:bg-gray-50 transition-colors">
                                                     <td className="px-6 py-4 font-medium text-red-600">
                                                         {item.raw_name}
                                                     </td>
@@ -430,8 +442,8 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                     <td className="px-6 py-4">
                                                         <div className="min-w-[200px]">
                                                             <CustomSelect 
-                                                                value={selectedProviders[idx] || ''} 
-                                                                onChange={(val) => setSelectedProviders(prev => ({ ...prev, [idx]: val }))} 
+                                                                value={selectedProviders[item.raw_name] || ''} 
+                                                                onChange={(val) => setSelectedProviders(prev => ({ ...prev, [item.raw_name]: val }))} 
                                                                 options={[
                                                                     { value: '', label: 'Pilih Penyedia Benar...' },
                                                                     ...masterProviders.map(mp => ({ value: mp.id, label: mp.name }))
@@ -443,7 +455,7 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                         <div className="flex justify-end gap-2">
                                                             <button 
                                                                 onClick={() => {
-                                                                    const val = selectedProviders[idx];
+                                                                    const val = selectedProviders[item.raw_name];
                                                                     if (!val) {
                                                                         Swal.fire('Pilih penyedia dulu', '', 'warning');
                                                                         return;
@@ -467,7 +479,7 @@ export default function Index({ auth, unmappedOutlets, outletMappings, masterOut
                                                 </tr>
                                             )) : (
                                                 <tr>
-                                                    <td colSpan="3" className="px-6 py-8 text-center text-gray-500">
+                                                    <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
                                                         Semua penyedia sudah terpetakan atau tidak ada data yang dicari.
                                                     </td>
                                                 </tr>

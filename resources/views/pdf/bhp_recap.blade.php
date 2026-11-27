@@ -6,9 +6,14 @@
     <style>
         @page { margin: 1.27cm; }
 
+        @php
+            $allowedFonts = ['sans-serif', 'serif', 'Arial, Helvetica, sans-serif', "'Times New Roman', Times, serif", 'monospace', 'Arial, sans-serif', 'Helvetica, sans-serif'];
+            $pdfFont = in_array(request('font'), $allowedFonts, true) ? request('font') : 'sans-serif';
+            $pdfSize = max(8, min(24, (int) request('size', 12)));
+        @endphp
         body {
-            font-family: {{ request('font', 'sans-serif') }} !important;
-            font-size: {{ request('size', '12') }}px !important;
+            font-family: {!! $pdfFont !!} !important;
+            font-size: {{ $pdfSize }}px !important;
         }
     
         body { font-family: sans-serif; font-size: 12px; }
@@ -62,12 +67,12 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $item->request_number }}</td>
-                    <td>{{ date('d-m-Y', strtotime($item->request_date)) }}</td>
+                    <td>{{ !empty($item->request_date) ? date('d-m-Y', strtotime($item->request_date)) : '-' }}</td>
                     <td>{{ $item->user->name ?? 'Unknown' }}</td>
                     <td>{{ $item->division_name }}</td>
                     <td>{{ $item->product_name }}</td>
                     <td>{{ $item->specifications }}</td>
-                    <td>{{ date('d-m-Y', strtotime($item->target_date)) }}</td>
+                    <td>{{ !empty($item->target_date) ? date('d-m-Y', strtotime($item->target_date)) : '-' }}</td>
                     <td class="status-{{ strtolower($item->status) }}">{{ $item->status }}</td>
                 </tr>
             @endforeach

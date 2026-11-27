@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    @php
+        $allowedFonts = ['sans-serif', 'serif', 'Arial, Helvetica, sans-serif', "'Times New Roman', Times, serif", 'monospace', 'Arial, sans-serif', 'Helvetica, sans-serif'];
+        $pdfFont = in_array(request('font'), $allowedFonts, true) ? request('font') : 'sans-serif';
+        $pdfSize = max(8, min(24, (int) request('size', 12)));
+    @endphp
     <style>
         body {
-            font-family: {{ request('font', 'sans-serif') }} !important;
-            font-size: {{ request('size', '12') }}px !important;
+            font-family: {!! $pdfFont !!} !important;
+            font-size: {{ $pdfSize }}px !important;
         }
     
         @page { margin: 1.27cm; }
@@ -16,6 +21,11 @@
         table {
             border-collapse: collapse;
             width: 100%;
+        }
+        .bordered-table th,
+        .bordered-table td {
+            border: 1px solid #d1d5db;
+            padding: 5px 6px;
         }
         .header {
             width: 100%;
@@ -352,7 +362,7 @@
     </table>
 
     <div class="red-text">
-        <div>Rek {{ $paymentRequest->bank_or_wallet ?? '...' }} A/N {{ $paymentRequest->recipient_name }} ({{ $paymentRequest->account_number ?? '...' }})</div>
+        <div>Rek {{ $paymentRequest->bank_or_wallet ?? '...' }} A/N {{ $paymentRequest->account_name ?: $paymentRequest->recipient_name }} ({{ $paymentRequest->account_number ?? '...' }})</div>
         @if($paymentRequest->payment_deadline)
             <div style="margin-top: 4px; color: #b91c1c;">
                 * Batas Akhir Pembayaran: {{ \Carbon\Carbon::parse($paymentRequest->payment_deadline)->locale('id')->translatedFormat('d F Y') }}

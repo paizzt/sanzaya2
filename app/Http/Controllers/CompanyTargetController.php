@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\CompanyTarget;
 
 class CompanyTargetController extends Controller
@@ -17,15 +18,17 @@ class CompanyTargetController extends Controller
             'company_ids.*' => 'exists:companies,id'
         ]);
 
-        $target = CompanyTarget::create([
-            'name' => $request->name,
-            'monthly_target' => $request->monthly_target ?? 0,
-            'annual_target' => $request->annual_target ?? 0,
-        ]);
+        DB::transaction(function () use ($request) {
+            $target = CompanyTarget::create([
+                'name' => $request->name,
+                'monthly_target' => $request->monthly_target ?? 0,
+                'annual_target' => $request->annual_target ?? 0,
+            ]);
 
-        if ($request->has('company_ids') && is_array($request->company_ids)) {
-            \App\Models\Company::whereIn('id', $request->company_ids)->update(['company_target_id' => $target->id]);
-        }
+            if ($request->has('company_ids') && is_array($request->company_ids)) {
+                \App\Models\Company::whereIn('id', $request->company_ids)->update(['company_target_id' => $target->id]);
+            }
+        });
 
         return redirect()->back()->with('success', 'Target Perusahaan berhasil dibuat.');
     }
@@ -41,19 +44,22 @@ class CompanyTargetController extends Controller
         ]);
 
         $target = CompanyTarget::findOrFail($id);
-        $target->update([
-            'name' => $request->name,
-            'monthly_target' => $request->monthly_target ?? 0,
-            'annual_target' => $request->annual_target ?? 0,
-        ]);
 
-        // Reset existing relationships
-        \App\Models\Company::where('company_target_id', $target->id)->update(['company_target_id' => null]);
-        
-        // Add new relationships
-        if ($request->has('company_ids') && is_array($request->company_ids)) {
-            \App\Models\Company::whereIn('id', $request->company_ids)->update(['company_target_id' => $target->id]);
-        }
+        DB::transaction(function () use ($request, $target) {
+            $target->update([
+                'name' => $request->name,
+                'monthly_target' => $request->monthly_target ?? 0,
+                'annual_target' => $request->annual_target ?? 0,
+            ]);
+
+            // Reset existing relationships
+            \App\Models\Company::where('company_target_id', $target->id)->update(['company_target_id' => null]);
+
+            // Add new relationships
+            if ($request->has('company_ids') && is_array($request->company_ids)) {
+                \App\Models\Company::whereIn('id', $request->company_ids)->update(['company_target_id' => $target->id]);
+            }
+        });
 
         return redirect()->back()->with('success', 'Target Perusahaan berhasil diperbarui.');
     }
@@ -61,8 +67,12 @@ class CompanyTargetController extends Controller
     public function destroy($id)
     {
         $target = CompanyTarget::findOrFail($id);
-        \App\Models\Company::where('company_target_id', $target->id)->update(['company_target_id' => null]);
-        $target->delete();
+
+        DB::transaction(function () use ($target) {
+            \App\Models\Company::where('company_target_id', $target->id)->update(['company_target_id' => null]);
+            $target->delete();
+        });
 
         return redirect()->back()->with('success', 'Target Perusahaan berhasil dihapus.');
-    }}
+    }
+}

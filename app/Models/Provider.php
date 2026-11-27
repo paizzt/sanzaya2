@@ -22,6 +22,7 @@ class Provider extends Model
         'pic_name',
         'pic_phone',
         'notes',
+        'is_pending',
     ];
 
     public function products()

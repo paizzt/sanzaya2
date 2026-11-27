@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, Link } from '@inertiajs/react';
-import { PlaneTakeoff, Send, MapPin, Calendar, Users, Car, Loader2, X, FileText } from 'lucide-react';
+import { PlaneTakeoff, MapPin, Calendar, Users, Car, Loader2, X, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -44,7 +44,7 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
         items: ucRequest.items && ucRequest.items.length > 0 
                 ? ucRequest.items.map(i => ({ item_name: i.item_name, quantity: i.quantity, estimated_cost: i.estimated_cost })) 
                 : [{ item_name: '', quantity: 1, estimated_cost: '' }],
-        payment_option: ucRequest.payment_option || 'PANJAR BIAYA 50%',
+        payment_option: ucRequest.payment_option || 'BAYAR FULL',
     });
 
     const { flash } = usePage().props;
@@ -72,7 +72,7 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
     }, [data.departure_date, data.return_date]);
 
     useEffect(() => {
-        if (flash.success) {
+        if (flash?.success) {
             Swal.fire({
                 title: 'Berhasil!',
                 text: flash.success,
@@ -80,7 +80,6 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
                 confirmButtonColor: '#3b82f6',
                 customClass: { popup: 'rounded-2xl' }
             });
-            reset();
         }
     }, [flash]);
 
@@ -96,8 +95,9 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
     };
 
     const handleItemChange = (index, field, value) => {
-        const newItems = [...data.items];
-        newItems[index][field] = value;
+        const newItems = data.items.map((item, i) =>
+            i === index ? { ...item, [field]: value } : item
+        );
         setData('items', newItems);
     };
 

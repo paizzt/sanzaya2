@@ -1,13 +1,13 @@
 import ExportDropdown from '@/Components/ExportDropdown';
-import CustomSelect from '@/Components/CustomSelect';
-import SearchableSelect from '@/Components/SearchableSelect';
+
+
 import ClientPagination from '@/Components/ClientPagination';
 import React, { useState, useMemo } from 'react';
-import { Head, Link, usePage, useForm } from '@inertiajs/react';
+import { Head, usePage, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Fuse from 'fuse.js';
 import { 
-    Plus, Search, Edit, Trash2, Box, Eye, CheckCircle, XCircle, X
+    Plus, Search, Edit, Trash2, Box, X
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -195,8 +195,8 @@ export default function Index({ products }) {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
-                            Total Data: <span className="text-gray-900 font-bold">{filteredProducts.length}</span>
+                        <div className="flex items-center gap-3"><ExportDropdown pdfRoute={route('products.export.pdf')} excelRoute={route('products.export.excel')} /><div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                            Total Data: <span className="text-gray-900 font-bold">{filteredProducts.length}</span></div>
                         </div>
                     </div>
                     
@@ -269,7 +269,7 @@ export default function Index({ products }) {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                                             Tidak ada data produk yang ditemukan.
                                         </td>
                                     </tr>
@@ -403,7 +403,7 @@ export default function Index({ products }) {
                                 <div className="mt-4 flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
                                     <SecondaryButton type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl px-6 py-3">Batal</SecondaryButton>
                                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                                <ExportDropdown pdfRoute={route('products.export.pdf')} excelRoute={route('products.export.excel')} />
+
                                 <PrimaryButton disabled={processing} >
                                         {processing ? 'Menyimpan...' : 'Simpan'}
                                     </PrimaryButton>

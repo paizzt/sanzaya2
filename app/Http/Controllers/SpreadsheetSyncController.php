@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\SpreadsheetConfiguration;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class SpreadsheetSyncController extends Controller
 {

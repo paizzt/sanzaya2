@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Database, RefreshCw, Save, Key, AlertTriangle, Plus, Trash2, Package, ShoppingCart, CreditCard, Copy, ChevronDown } from 'lucide-react';
+import { Database, RefreshCw, Key, Plus, Trash2, Package, ShoppingCart, CreditCard, Copy, ChevronDown } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -22,7 +22,7 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
     const pesananForm = useForm({
         type: 'pesanan',
         spreadsheet_id: config_pesanan?.spreadsheet_id || '',
-        sheets_config: config_pesanan?.sheets_config || [{sheet_name:'', col_tanggal:'', col_nama_outlet:'', col_nama_produk:'', col_jumlah:'', col_satuan:'', col_total_faktur:'', col_terkirim:'', col_belum_terkirim:'', col_persen_terpenuhi:'', col_persen_belum_terpenuhi:'', col_keterangan:''}],
+        sheets_config: config_pesanan?.sheets_config || [{sheet_name:'', col_tanggal:'', col_nomor_klikkan:'', col_nama_outlet:'', col_nama_produk:'', col_jumlah:'', col_satuan:'', col_harga_faktur:'', col_total_faktur:'', col_terkirim:'', col_belum_terkirim:'', col_nominal_sdh_kirim:'', col_nominal_blm_kirim:'', col_persen_terpenuhi:'', col_persen_belum_terpenuhi:'', col_keterangan:''}],
     });
 
     const piutangForm = useForm({
@@ -40,13 +40,13 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
     const { post: postSync, processing: syncProcessing } = useForm({});
 
     useEffect(() => {
-        if (flash.success) {
+        if (flash?.success) {
             Swal.fire({ title: 'Berhasil!', text: flash.success, icon: 'success', customClass: { popup: 'rounded-2xl' } });
         }
-        if (flash.warning) {
+        if (flash?.warning) {
             Swal.fire({ title: 'Perhatian!', text: flash.warning, icon: 'warning', customClass: { popup: 'rounded-2xl' } });
         }
-        if (flash.error) {
+        if (flash?.error) {
             Swal.fire({ title: 'Gagal!', text: flash.error, icon: 'error', customClass: { popup: 'rounded-2xl' } });
         }
     }, [flash]);

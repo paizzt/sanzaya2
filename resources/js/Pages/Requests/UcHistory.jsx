@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
-import { PlaneTakeoff, FileCheck, Calendar, Download, FileImage, UploadCloud, X, FileText, ExternalLink, AlertCircle, CheckCircle, Clock, AlertTriangle, Edit, Ban, ChevronDown } from 'lucide-react';
+import { PlaneTakeoff, FileCheck, Calendar, FileImage, UploadCloud, X, FileText, ExternalLink, Edit, Ban, ChevronDown } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -168,9 +168,12 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
         
         const newUrls = newFiles.map(file => URL.createObjectURL(file));
         setPreviewUrls([...previewUrls, ...newUrls]);
+        e.target.value = '';
     };
 
     const removeFile = (indexToRemove) => {
+        const removedUrl = previewUrls[indexToRemove];
+        if (removedUrl && removedUrl.startsWith('blob:')) URL.revokeObjectURL(removedUrl);
         const newFiles = resultData.receipt_photos.filter((_, index) => index !== indexToRemove);
         setResultData('receipt_photos', newFiles);
         

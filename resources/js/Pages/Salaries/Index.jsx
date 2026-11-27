@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useState, useMemo, useEffect } from 'react';
+import { Fragment, useState, useMemo, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -15,9 +15,7 @@ import ClientPagination from '@/Components/ClientPagination';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { 
-    DollarSign, 
     Users, 
-    FileText, 
     Download, 
     Plus, 
     Sparkles, 
@@ -30,12 +28,16 @@ import {
     ShieldCheck, 
     Wallet, 
     X, 
-    Clock, 
     ChevronDown,
     Settings,
     RefreshCw,
     CalendarCheck
 } from 'lucide-react';
+
+const getLocalTodayDate = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
 const MONTHS = [
     { value: 1, label: 'Januari' },
@@ -100,11 +102,11 @@ export default function Index({
         sync_existing: true,
     });
 
-    const { data, setData, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, transform, processing, errors, clearErrors } = useForm({
         user_id: '',
         period_month: month,
         period_year: year,
-        payment_date: new Date().toISOString().split('T')[0],
+        payment_date: getLocalTodayDate(),
         status: 'published',
         notes: '',
 
@@ -343,11 +345,11 @@ export default function Index({
         clearErrors();
         setEditingPayroll(null);
         setUserAttendance(null);
-        reset({
+        setData({
             user_id: '',
             period_month: month,
             period_year: year,
-            payment_date: new Date().toISOString().split('T')[0],
+            payment_date: getLocalTodayDate(),
             status: 'published',
             notes: '',
             gaji_pokok: '',
@@ -395,7 +397,7 @@ export default function Index({
             user_id: p.user_id,
             period_month: p.period_month,
             period_year: p.period_year,
-            payment_date: p.payment_date ? String(p.payment_date).slice(0, 10) : new Date().toISOString().split('T')[0],
+            payment_date: p.payment_date ? String(p.payment_date).slice(0, 10) : getLocalTodayDate(),
             status: p.status || 'published',
             notes: p.notes || '',
 
@@ -459,30 +461,27 @@ export default function Index({
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const payload = {
-            ...data,
-            tanpa_potongan_bpjs: Boolean(data.tanpa_potongan_bpjs),
-            bpjs_kesehatan_persen: data.tanpa_potongan_bpjs ? 0 : data.bpjs_kesehatan_persen,
-            bpjs_kesehatan: data.tanpa_potongan_bpjs ? 0 : (data.bpjs_kesehatan !== '' ? data.bpjs_kesehatan : computedTotals.bpjsKes),
-            bpjs_ketenagakerjaan_persen: data.tanpa_potongan_bpjs ? 0 : data.bpjs_ketenagakerjaan_persen,
-            bpjs_ketenagakerjaan: data.tanpa_potongan_bpjs ? 0 : (data.bpjs_ketenagakerjaan !== '' ? data.bpjs_ketenagakerjaan : computedTotals.bpjsTk),
-            bpjs_kesehatan_perusahaan: data.bpjs_kesehatan_perusahaan !== '' ? data.bpjs_kesehatan_perusahaan : computedTotals.bpjsKesCo,
-            bpjs_ketenagakerjaan_perusahaan: data.bpjs_ketenagakerjaan_perusahaan !== '' ? data.bpjs_ketenagakerjaan_perusahaan : computedTotals.bpjsTkCo,
-        };
+        transform((currentData) => ({
+            ...currentData,
+            tanpa_potongan_bpjs: Boolean(currentData.tanpa_potongan_bpjs),
+            bpjs_kesehatan_persen: currentData.tanpa_potongan_bpjs ? 0 : currentData.bpjs_kesehatan_persen,
+            bpjs_kesehatan: currentData.tanpa_potongan_bpjs ? 0 : (currentData.bpjs_kesehatan !== '' ? currentData.bpjs_kesehatan : computedTotals.bpjsKes),
+            bpjs_ketenagakerjaan_persen: currentData.tanpa_potongan_bpjs ? 0 : currentData.bpjs_ketenagakerjaan_persen,
+            bpjs_ketenagakerjaan: currentData.tanpa_potongan_bpjs ? 0 : (currentData.bpjs_ketenagakerjaan !== '' ? currentData.bpjs_ketenagakerjaan : computedTotals.bpjsTk),
+            bpjs_kesehatan_perusahaan: currentData.bpjs_kesehatan_perusahaan !== '' ? currentData.bpjs_kesehatan_perusahaan : computedTotals.bpjsKesCo,
+            bpjs_ketenagakerjaan_perusahaan: currentData.bpjs_ketenagakerjaan_perusahaan !== '' ? currentData.bpjs_ketenagakerjaan_perusahaan : computedTotals.bpjsTkCo,
+        }));
 
-        if (editingPayroll) {
-            router.post(route('salaries.update', editingPayroll.id), payload, {
-                onSuccess: () => {
-                    setIsFormOpen(false);
-                }
-            });
-        } else {
-            router.post(route('salaries.store'), payload, {
-                onSuccess: () => {
-                    setIsFormOpen(false);
-                }
-            });
-        }
+        const targetUrl = editingPayroll
+            ? route('salaries.update', editingPayroll.id)
+            : route('salaries.store');
+
+        post(targetUrl, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsFormOpen(false);
+            }
+        });
     };
 
     const handleBatchGenerate = () => {
@@ -939,9 +938,8 @@ export default function Index({
                                         const isExpanded = expandedId === p.id;
                                         const jmlTerlambat = Number(p.jumlah_terlambat || 0);
                                         return (
-                                            <>
+                                            <Fragment key={p.id}>
                                                 <tr 
-                                                    key={p.id} 
                                                     onClick={() => setExpandedId(isExpanded ? null : p.id)}
                                                     className={`border-b border-gray-100 transition-colors cursor-pointer ${
                                                         isExpanded ? 'bg-blue-50' : 'bg-white hover:bg-gray-50'
@@ -1123,7 +1121,7 @@ export default function Index({
                                                         </td>
                                                     </tr>
                                                 )}
-                                            </>
+                                            </Fragment>
                                         );
                                     })
                                 )}

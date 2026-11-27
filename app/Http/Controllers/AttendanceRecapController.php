@@ -26,6 +26,11 @@ class AttendanceRecapController extends Controller
 
     public function exportPdf(Request $request)
     {
+        $user = Auth::user();
+        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Rekap Absensi') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Rekap Absensi dinonaktifkan untuk akun Anda.');
+        }
+
         @ini_set('memory_limit', '-1');
         @ini_set('max_execution_time', 300);
 
@@ -44,7 +49,7 @@ class AttendanceRecapController extends Controller
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Attendance Recap PDF Export Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return response()->json([
-                'error' => 'Gagal menghasilkan PDF: ' . $e->getMessage()
+                'error' => 'Gagal menghasilkan PDF rekap absensi. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -85,18 +90,28 @@ class AttendanceRecapController extends Controller
         $jamMulaiWeekday = substr($payrollSettings['jam_mulai_lembur_weekday'] ?? '20:00', 0, 5) . ':00';
         $jamMulaiSabtu = substr($payrollSettings['jam_mulai_lembur_sabtu'] ?? '14:00', 0, 5) . ':00';
         $jamBatasTerlambat = substr($payrollSettings['jam_batas_terlambat'] ?? '08:15', 0, 5);
-        $toleransiLemburJam = (int)($payrollSettings['toleransi_terlambat_lembur_jam'] ?? 1);
+        $toleransiLemburJam = (float)($payrollSettings['toleransi_terlambat_lembur_jam'] ?? 1);
         $normalLateThreshold = $jamBatasTerlambat . ':00';
         $overtimeLateThreshold = Carbon::createFromFormat('H:i', $jamBatasTerlambat)
-            ->addHours($toleransiLemburJam)
+            ->addMinutes((int) round($toleransiLemburJam * 60))
             ->format('H:i:s');
         $startWeekdayHour = (int)substr($jamMulaiWeekday, 0, 2);
         $startSabtuHour = (int)substr($jamMulaiSabtu, 0, 2);
 
-        // Default filters
-        $month = $request->input('month', Carbon::now()->month);
-        $year = $request->input('year', Carbon::now()->year);
+        // Default filters (validasi rentang bulan & tahun agar Carbon::create aman)
+        $month = (int) $request->input('month', Carbon::now()->month);
+        $year = (int) $request->input('year', Carbon::now()->year);
+        if ($month < 1 || $month > 12) {
+            $month = (int) Carbon::now()->month;
+        }
+        if ($year < 2000 || $year > 2100) {
+            $year = (int) Carbon::now()->year;
+        }
         $selectedUserId = $request->input('user_id', 'all');
+        $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $startOfMonthStr = $startOfMonth->format('Y-m-d');
+        $endOfMonthStr = $endOfMonth->format('Y-m-d');
 
         // Fetch all users with relations once to avoid N+1 queries
         $allUsers = \App\Models\User::with(['roles', 'division'])->get();
@@ -164,12 +179,8 @@ class AttendanceRecapController extends Controller
             ->orderBy('date', 'asc');
             
         $requestsQuery = AttendanceRequest::with('user')
-            ->where(function ($q) use ($month, $year) {
-                $q->whereMonth('start_date', $month)
-                  ->whereYear('start_date', $year)
-                  ->orWhereMonth('end_date', $month)
-                  ->whereYear('end_date', $year);
-            });
+            ->whereDate('start_date', '<=', $endOfMonthStr)
+            ->whereDate('end_date', '>=', $startOfMonthStr);
 
         if ($selectedUserId !== 'all') {
             $attendancesQuery->where('user_id', $selectedUserId);
@@ -191,11 +202,14 @@ class AttendanceRecapController extends Controller
             'terlambat' => 0
         ];
 
-        // Process Attendance Requests to count days
+        // Process Attendance Requests to count days (clamped to selected month boundaries)
         foreach ($attendanceRequests as $req) {
             if ($req->status !== 'Ditolak') {
-                $start = Carbon::parse($req->start_date);
-                $end = Carbon::parse($req->end_date);
+                $start = Carbon::parse($req->start_date)->max($startOfMonth);
+                $end = Carbon::parse($req->end_date)->min($endOfMonth);
+                if ($end->lt($start)) {
+                    continue;
+                }
                 $days = $start->diffInDays($end) + 1;
 
                 if (strtolower($req->type) === 'sakit') {
@@ -366,8 +380,11 @@ class AttendanceRecapController extends Controller
                         'shift_siang' => 0, 'shift_malam' => 0,
                     ];
                 }
-                $start = Carbon::parse($req->start_date);
-                $end = Carbon::parse($req->end_date);
+                $start = Carbon::parse($req->start_date)->max($startOfMonth);
+                $end = Carbon::parse($req->end_date)->min($endOfMonth);
+                if ($end->lt($start)) {
+                    continue;
+                }
                 $days = $start->diffInDays($end) + 1;
                 
                 if (strtolower($req->type) === 'sakit') {
@@ -382,8 +399,6 @@ class AttendanceRecapController extends Controller
             }
         }
         // Calculate working days in month
-        $startOfMonth = Carbon::create($year, $month, 1);
-        $endOfMonth = $startOfMonth->copy()->endOfMonth();
         $totalWorkingDays5 = 0;
         $totalWorkingDays6 = 0;
         $tempDate = $startOfMonth->copy();
@@ -418,6 +433,7 @@ class AttendanceRecapController extends Controller
                 $summary['alpa'] += $uSum['alpa']; // add to total alpa summary
             }
         }
+        unset($uSum);
 
         $userSummaries = array_values($userSummaries);
 
@@ -719,7 +735,7 @@ class AttendanceRecapController extends Controller
                     if (!$isUserTanpaLembur) {
                         $overtimeThreshold = ($isSaturday && $workDays >= 6) ? $jamMulaiSabtu : $jamMulaiWeekday;
 
-                        $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || !empty(trim($att->notes ?? ''));
+                        $hasOvertimeNotes = !empty(trim($att->check_out_notes ?? '')) || (!empty(trim($att->notes ?? '')) && !str_starts_with($att->notes, 'Masuk:'));
                         $isEligible = false;
                         if ($isOffDay) {
                             $isEligible = ($att->check_out_time || $att->status === 'Lembur');

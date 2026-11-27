@@ -165,7 +165,7 @@
         </tr>
     </table>
     @else
-        @if(isset($revenuePerPt) && (is_array($revenuePerPt) || $revenuePerPt->isNotEmpty()))
+        @if(isset($revenuePerPt) && ((is_array($revenuePerPt) && count($revenuePerPt) > 0) || ($revenuePerPt instanceof \Illuminate\Support\Collection && $revenuePerPt->isNotEmpty())))
         <div style="margin-bottom: 15px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px;">
             <div style="font-size: 10px; font-weight: bold; margin-bottom: 8px; color: #475569; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Ringkasan per PT</div>
             <table style="width: 100%; border-collapse: collapse;">

@@ -6,7 +6,6 @@ use App\Models\Product;
 use App\Models\ProviderProduct;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
 
 class MarketingProductController extends Controller
 {

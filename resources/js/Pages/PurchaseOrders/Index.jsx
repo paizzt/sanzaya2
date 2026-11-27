@@ -35,7 +35,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import CustomDatePicker from '@/Components/CustomDatePicker';
-import SearchableSelect from '@/Components/SearchableSelect';
+
 import Swal from 'sweetalert2';
 
 export default function Index({ auth, items, outlets, summary }) {

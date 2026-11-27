@@ -2,7 +2,7 @@ import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router, Link } from '@inertiajs/react';
-import { ClipboardList, Plus, Edit, Trash2, Filter, DollarSign, Package, Stethoscope, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ClipboardList, Plus, Edit, Trash2, Filter, Package, Stethoscope, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Modal from '@/Components/Modal';
@@ -169,7 +169,7 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
 
     const getTodayDate = () => {
         const today = new Date();
-        return today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     };
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors, transform } = useForm({
@@ -512,8 +512,8 @@ export default function Index({ auth, items, sales, outlets, companies, filters,
                                 </h3>
                                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                                 <ExportDropdown 
-                                    pdfRoute={`${route('logistic-reports.export.pdf')}?${new URLSearchParams(Object.entries(filterData).filter(([_, v]) => v !== '')).toString()}`} 
-                                    excelRoute={`${route('logistic-reports.export.excel')}?${new URLSearchParams(Object.entries(filterData).filter(([_, v]) => v !== '')).toString()}`} 
+                                    pdfRoute={`${route('logistic-reports.export.pdf')}?${getQueryString()}`}
+                                    excelRoute={`${route('logistic-reports.export.excel')}?${getQueryString()}`}
                                     availableColumns={['No', 'Nama PT', 'Pelanggan', 'Jenis', 'Tanggal', 'Sales Name', 'No Faktur', 'ID PAKET', 'BRAND', 'Nama Produk', 'Qty', 'Satuan', 'HNA', 'Subtotal', 'PPN', 'Total', 'Grand Total', 'Jenis Brg']}
                                 />
                                 <PrimaryButton onClick={() => openModal()}>

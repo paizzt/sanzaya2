@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
-import { Package, Plus, ChevronDown, ChevronRight, ChevronLeft, Edit, Trash2, Search, Link as LinkIcon, DollarSign, Store, Download, FileText, FileSpreadsheet, Share2, Truck, AlertCircle, ShoppingCart } from 'lucide-react';
-import { Menu, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { Package, Plus, ChevronRight, Edit, Trash2, Search, Link as LinkIcon, DollarSign, Store, Share2, Truck, AlertCircle, ShoppingCart } from 'lucide-react';
+
+
 import Modal from '@/Components/Modal';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
@@ -176,10 +176,10 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
         let unitMatch = true;
 
         if (detailFilters.month) {
-            monthMatch = item.month_year.toLowerCase().includes(detailFilters.month.toLowerCase());
+            monthMatch = (item.month_year || '').toLowerCase().includes(detailFilters.month.toLowerCase());
         }
         if (detailFilters.year) {
-            yearMatch = item.month_year.includes(detailFilters.year);
+            yearMatch = (item.month_year || '').includes(detailFilters.year);
         }
         if (detailFilters.unit) {
             unitMatch = (item.unit || '').toLowerCase().includes(detailFilters.unit.toLowerCase());
@@ -583,12 +583,9 @@ export default function Index({ auth, groupedItems, outlets, companies = [], fil
                                 </div>
                                 <div>
                                     <InputLabel value="Harga Satuan (Rp)" />
-                                    <div className="relative mt-1">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span className="text-gray-500 sm:text-sm">Rp</span>
-                                        </div>
+                                    <div className="mt-1">
                                         <CurrencyInput
-                                            className="block w-full pl-10 rounded-xl"
+                                            className="rounded-xl"
                                             value={formData.price}
                                             onChange={(val) => setFormData({...formData, price: parseInt(val) || 0})}
                                             required

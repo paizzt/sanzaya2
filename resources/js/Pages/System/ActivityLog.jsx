@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
-import { History, Search, ArrowRight, Eye, MonitorSmartphone, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
+import { History, Search, Eye, MonitorSmartphone, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import dayjs from 'dayjs';
@@ -11,8 +11,8 @@ import Modal from '@/Components/Modal';
 dayjs.locale('id');
 
 export default function ActivityLog({ auth, logs, filters, modules = [] }) {
-    const [search, setSearch] = useState(filters.search || '');
-    const [moduleFilter, setModuleFilter] = useState(filters.module || '');
+    const [search, setSearch] = useState(filters?.search || '');
+    const [moduleFilter, setModuleFilter] = useState(filters?.module || '');
     const [selectedLog, setSelectedLog] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 

@@ -1,7 +1,7 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { Building, Upload, Save, Building2, MapPin, Plus, Edit, Trash2, X, Target } from 'lucide-react';
 import Swal from 'sweetalert2';
 import InputError from '@/Components/InputError';
@@ -141,7 +141,7 @@ export default function Index({ auth, companies, companyTargets = [], is_super_a
         const file = e.target.files[0];
         if (file) {
             setData('logo', file);
-            setLogoPreview(URL.createObjectURL(file));
+            setLogoPreview((prev) => { if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
         }
     };
 

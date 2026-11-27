@@ -13,15 +13,6 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             ? auth.active_feature_names.some(n => typeof n === 'string' && n.toLowerCase().trim() === 'unduh pdf')
             : true);
 
-    // Jika saklar unduh dimatikan untuk user ini, sembunyikan semua tombol unduh (baik PDF maupun Excel)
-    if (!canDownloadPdf) {
-        return null;
-    }
-
-    if (!pdfRoute && !excelRoute) {
-        return null;
-    }
-
     const effectivePdfRoute = pdfRoute;
     const effectiveExcelRoute = excelRoute;
 
@@ -37,7 +28,6 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     
     // Column Selection State
     const [selectedColumns, setSelectedColumns] = useState(() => {
-        // Default to all columns if provided
         return availableColumns.length > 0 ? [...availableColumns] : [];
     });
     
@@ -52,11 +42,35 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
     // Outlet Filter State
     const [selectedOutlets, setSelectedOutlets] = useState(() => normalizedOutletNames);
 
-    // Pareto Outlet State
-    const [selectedParetoOutlets, setSelectedParetoOutlets] = useState([]);
-
     // Loading State for Preview
     const [isLoadingPreview, setIsLoadingPreview] = useState(true);
+
+    const availableColumnsKey = availableColumns.join('|');
+    useEffect(() => {
+        if (availableColumns.length > 0) {
+            setSelectedColumns([...availableColumns]);
+        }
+    }, [availableColumnsKey]);
+
+    const normalizedOutletsKey = normalizedOutletNames.join('|');
+    useEffect(() => {
+        setSelectedOutlets([...normalizedOutletNames]);
+    }, [normalizedOutletsKey]);
+
+    useEffect(() => {
+        if (isOpen) {
+            setIsLoadingPreview(true);
+        }
+    }, [isOpen, currentTab, paperSize, orientation, fontFamily, fontSize, selectedDatasets, selectedMonths, selectedOutlets, selectedColumns]);
+
+    // Jika saklar unduh dimatikan untuk user ini, sembunyikan semua tombol unduh (baik PDF maupun Excel)
+    if (!canDownloadPdf) {
+        return null;
+    }
+
+    if (!pdfRoute && !excelRoute) {
+        return null;
+    }
 
     const handleOpen = () => {
         if (!effectivePdfRoute && effectiveExcelRoute) {
@@ -68,12 +82,6 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
         setIsOpen(true);
     };
     const handleClose = () => setIsOpen(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            setIsLoadingPreview(true);
-        }
-    }, [isOpen, currentTab, paperSize, orientation, fontFamily, fontSize, selectedDatasets, selectedMonths, selectedOutlets, selectedColumns, selectedParetoOutlets]);
 
     const toggleColumn = (col) => {
         if (col === 'No') return; // Prevent unchecking "No"
@@ -95,14 +103,6 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             prev.includes(m) 
                 ? prev.filter(x => x !== m) 
                 : [...prev, m]
-        );
-    };
-
-    const toggleParetoOutlet = (outlet) => {
-        setSelectedParetoOutlets(prev => 
-            prev.includes(outlet) 
-                ? prev.filter(x => x !== outlet) 
-                : [...prev, outlet]
         );
     };
 
@@ -135,7 +135,6 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
             params.append('size', fontSize);
             selectedDatasets.forEach(ds => params.append('datasets[]', ds));
             selectedMonths.forEach(m => params.append('months[]', m));
-            selectedParetoOutlets.forEach(po => params.append('pareto_outlets[]', po));
             
             if (normalizedOutletNames && selectedOutlets.length === normalizedOutletNames.length) {
                 // Skip appending to keep URL short, backend defaults to all

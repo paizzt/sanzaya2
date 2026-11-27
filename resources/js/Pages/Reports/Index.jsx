@@ -1,16 +1,16 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import Modal from '@/Components/Modal';
-import { Head, usePage, router, Link, useForm } from '@inertiajs/react';
-import Swal from 'sweetalert2';
-import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Store as StoreIcon, Database, Download, ChevronDown, ChevronLeft, ChevronRight, PieChart, Table } from 'lucide-react';
+import { Head, usePage, router, Link } from '@inertiajs/react';
+
+import { Package, ShoppingCart, CreditCard, Search, TrendingUp, Activity, Store, BarChart2, MapPin, Calendar, User as UserIcon, Database, Download, ChevronDown, ChevronLeft, ChevronRight, PieChart, Table } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import TextInput from '@/Components/TextInput';
-import InputLabel from '@/Components/InputLabel';
-import InputError from '@/Components/InputError';
-import PrimaryButton from '@/Components/PrimaryButton';
+
+
+
 import CustomSelect from '@/Components/CustomSelect';
-import SearchableSelect from '@/Components/SearchableSelect';
+
 import MultiSelect from '@/Components/MultiSelect';
 import { ErrorBoundary } from '@/Components/ErrorBoundary';
 import {
@@ -25,7 +25,7 @@ import {
   LineElement,
   ArcElement
 } from 'chart.js';
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 ChartJS.register(
@@ -39,6 +39,39 @@ ChartJS.register(
   ChartTooltip,
   ChartLegend
 );
+
+const DesktopDetailView = ({ isDesktop, detailModal, onClose, renderDetailContent, children }) => {
+    const detailRef = useRef(null);
+
+    useEffect(() => {
+        if (isDesktop && detailModal.isOpen && detailRef.current) {
+            detailRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [isDesktop, detailModal.isOpen]);
+
+    if (isDesktop && detailModal.isOpen) {
+        return (
+            <div ref={detailRef} className="scroll-mt-24 space-y-6">
+                <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6">
+                    <div className="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
+                        <button onClick={onClose} className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100 flex-shrink-0" title="Kembali">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left w-5 h-5" aria-hidden="true">
+                                <path d="m12 19-7-7 7-7"></path>
+                                <path d="M19 12H5"></path>
+                            </svg>
+                        </button>
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Detail {detailModal.title}</h3>
+                    </div>
+                    <div className="custom-scrollbar max-h-[80vh] overflow-y-auto pr-2">
+                        {renderDetailContent()}
+                    </div>
+                </div>
+                {children}
+            </div>
+        );
+    }
+    return <>{children}</>;
+};
 
 export default function Index({ tab = 'logistik', is_super_admin, global_target_value, global_annual_target_value, search, salesFilter, outletFilter, monthFilter, ptFilter, keteranganFilter, salesNames = [], outletNames = [], ptNames = [], keteranganNames = [], months: propMonths, reportData = { data: [] }, summary, summaryPesanan, summaryPiutang, summaryHutang }) {
     const reportRows = Array.isArray(reportData)
@@ -59,39 +92,6 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
             return () => window.removeEventListener('resize', handleResize);
         }
     }, []);
-
-    const DesktopDetailView = ({ children }) => {
-        const detailRef = useRef(null);
-        
-        useEffect(() => {
-            if (isDesktop && detailModal.isOpen && detailRef.current) {
-                detailRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, [isDesktop, detailModal.isOpen]);
-
-        if (isDesktop && detailModal.isOpen) {
-            return (
-                <div ref={detailRef} className="scroll-mt-24 space-y-6">
-                    <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6">
-                        <div className="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
-                            <button onClick={() => setDetailModal({ ...detailModal, isOpen: false })} className="p-2.5 bg-white text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl shadow-sm transition-all border border-gray-100 flex-shrink-0" title="Kembali">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left w-5 h-5" aria-hidden="true">
-                                    <path d="m12 19-7-7 7-7"></path>
-                                    <path d="M19 12H5"></path>
-                                </svg>
-                            </button>
-                            <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Detail {detailModal.title}</h3>
-                        </div>
-                        <div className="custom-scrollbar max-h-[80vh] overflow-y-auto pr-2">
-                            {renderDetailContent()}
-                        </div>
-                    </div>
-                    {children}
-                </div>
-            );
-        }
-        return <>{children}</>;
-    };
 
     const [selectedSales, setSelectedSales] = useState(salesFilter || '');
     const [selectedOutlet, setSelectedOutlet] = useState(outletFilter || '');
@@ -140,7 +140,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
         if (!str) return 0;
         if (typeof str === 'number') return str;
         let s = str.toString().trim();
-        if (/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+        if (/^-?\d+\.\d{1,2}$/.test(s)) return parseFloat(s);
         return parseFloat(s.replace(/Rp/gi, '').replace(/\./g, '').replace(/,/g, '.').replace(/ /g, '')) || 0;
     };
 
@@ -1353,7 +1353,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Faktur</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPesanan.total_faktur}>{summaryPesanan.total_faktur}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPesanan.total_faktur}>{summaryPesanan.total_faktur}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total akumulasi dari Total Faktur</p>
@@ -1398,7 +1398,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Surat</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPesanan.total_pesanan}>{summaryPesanan.total_pesanan}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPesanan.total_pesanan}>{summaryPesanan.total_pesanan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris surat pesanan tercatat</p>
@@ -1417,7 +1417,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Piutang (Gabungan)</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPiutang.total_gabungan}>{summaryPiutang.total_gabungan}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPiutang.total_gabungan}>{summaryPiutang.total_gabungan}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Total keseluruhan piutang</p>
@@ -1462,7 +1462,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Data Piutang</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPiutang.total_outlet}>{summaryPiutang.total_outlet}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-1" title={summaryPiutang.total_outlet}>{summaryPiutang.total_outlet}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris data piutang tercatat</p>
@@ -1496,7 +1496,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Penyedia</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryHutang.total_penyedia}>{summaryHutang.total_penyedia}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-1" title={summaryHutang.total_penyedia}>{summaryHutang.total_penyedia}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah penyedia berbeda</p>
@@ -1511,7 +1511,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
 
     <div className="relative z-10 mb-4">
         <p className="text-sm font-semibold text-gray-500">Total Data</p>
-        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words text-base sm:text-lg xl: leading-snug break-words font-bold text-gray-900 mt-1" title={summaryHutang.total_data}>{summaryHutang.total_data}</h4>
+        <h4 className="text-base sm:text-lg xl:text-xl leading-snug break-words font-bold text-gray-900 mt-1" title={summaryHutang.total_data}>{summaryHutang.total_data}</h4>
     </div>
     <div className="relative z-10">
         <p className="text-xs text-gray-400">Jumlah baris data hutang tercatat</p>
@@ -1521,7 +1521,7 @@ export default function Index({ tab = 'logistik', is_super_admin, global_target_
                 )}
 
 
-                                <DesktopDetailView>
+                                <DesktopDetailView isDesktop={isDesktop} detailModal={detailModal} onClose={() => setDetailModal(prev => ({ ...prev, isOpen: false }))} renderDetailContent={renderDetailContent}>
                 {/* Charts Area */}
                 {tab === 'logistik' && renderLogistikChart()}
                 {tab === 'pesanan' && renderPesananChart()}

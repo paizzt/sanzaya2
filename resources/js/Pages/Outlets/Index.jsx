@@ -1,7 +1,7 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { Store, Plus, Edit, Trash2, X, Save, MapPin, Phone, User as UserIcon, Building, Briefcase, Search } from 'lucide-react';
+import { Store, Plus, Edit, Trash2, X, MapPin, Phone, User as UserIcon, Building, Briefcase, Search } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -113,12 +113,12 @@ export default function Index({ outlets, areas }) {
     });
 
     useEffect(() => {
-        if (flash.success) {
+        if (flash?.success) {
             Swal.fire({ title: 'Berhasil!', text: flash.success, icon: 'success', customClass: { popup: 'rounded-2xl' } });
             setIsModalOpen(false);
             reset();
         }
-        if (flash.error) {
+        if (flash?.error) {
             Swal.fire({ title: 'Gagal!', text: flash.error, icon: 'error', customClass: { popup: 'rounded-2xl' } });
         }
     }, [flash]);
@@ -419,7 +419,7 @@ export default function Index({ outlets, areas }) {
                                         </td>
                                     </tr>
                                 ))}
-                                {outlets.length === 0 && (
+                                {filteredOutlets.length === 0 && (
                                     <tr>
                                         <td colSpan="6" className="px-6 py-8 text-center text-gray-500 font-medium">Belum ada data outlet.</td>
                                     </tr>

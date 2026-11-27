@@ -2,12 +2,18 @@ import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { Check, ChevronDown } from 'lucide-react';
 
-export default function CustomSelect({ value, onChange, options, placeholder = "Pilih...", className = "", icon: Icon, compact = false }) {
-    const selectedOption = options.find(opt => String(opt.value) === String(value))
-        || options.find(opt => {
-            const oClean = String(opt.value).toLowerCase().replace(/[^a-z0-9]/g, '');
-            const vClean = String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-            return oClean && vClean && (oClean.includes(vClean) || vClean.includes(oClean));
+export default function CustomSelect({ value, onChange, options = [], placeholder = "Pilih...", className = "", icon: Icon, compact = false }) {
+    const safeOptions = Array.isArray(options) ? options : [];
+    const vClean = String(value ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const selectedOption = safeOptions.find(opt => String(opt.value) === String(value))
+        || safeOptions.find(opt => {
+            const oClean = String(opt.value ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            return oClean && vClean && oClean === vClean;
+        })
+        || safeOptions.find(opt => {
+            const oClean = String(opt.value ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const isNumeric = /^\d+$/.test(vClean) || /^\d+$/.test(oClean);
+            return !isNumeric && oClean && vClean.length >= 3 && (oClean.includes(vClean) || vClean.includes(oClean));
         })
         || null;
 
@@ -35,7 +41,7 @@ export default function CustomSelect({ value, onChange, options, placeholder = "
                         leaveTo="opacity-0"
                     >
                         <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-[0_10px_40px_-15px_rgba(0,0,0,0.3)] ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                            {options.map((option, idx) => (
+                            {safeOptions.map((option, idx) => (
                                 <Listbox.Option
                                     key={idx}
                                     className={({ active }) =>

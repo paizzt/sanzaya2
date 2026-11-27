@@ -1,6 +1,100 @@
 import React from 'react';
 
-export default function UcPreview({ data, user, creator, users = [], companies = [] }) {
+const PageContainer = ({ children }) => (
+    <div
+        className="bg-white mx-auto shadow-md border border-gray-300 overflow-hidden text-black mb-8 relative font-sans leading-relaxed"
+        style={{ width: '100%', aspectRatio: '210/297', padding: '8% 10% 12% 10%' }}
+    >
+        {/* Footer Watermark */}
+        <div className="absolute bottom-6 left-0 right-0 bg-[#799fbb] text-white italic font-bold py-2 px-10 text-[8px] sm:text-[10px] lg:text-xs text-left w-full h-8 flex items-center">
+            Make a Different
+        </div>
+
+        <div className="h-full flex flex-col text-[7px] sm:text-[9px] lg:text-[11px] xl:text-xs">
+            {children}
+        </div>
+    </div>
+);
+
+const SignatureBlock = ({ employeeName, creatorName, approverName, creatorDivision }) => (
+    <table className="w-full text-center border-collapse border border-black mt-4">
+        <thead>
+            <tr>
+                <th className="border border-black p-1">Dibuat Oleh</th>
+                <th className="border border-black p-1">Diperiksa Oleh</th>
+                <th className="border border-black p-1">Disetujui Oleh</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
+                    <div className="font-bold underline">{employeeName}</div>
+                </td>
+                <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
+                    <div className="font-bold underline">{creatorName}</div>
+                </td>
+                <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
+                    <div className="font-bold underline">{approverName}</div>
+                </td>
+            </tr>
+            <tr>
+                <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">Staff</td>
+                <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">{creatorDivision}</td>
+                <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">Finance</td>
+            </tr>
+        </tbody>
+    </table>
+);
+
+const HeaderBlock = ({ title, showSignature = false, className = "mb-4", currentCompany, addressText, entity, signatureProps }) => (
+    <div className={`flex flex-col ${className}`}>
+        <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
+            <div className="mb-2 md:mb-0 w-1/3 flex items-center justify-start">
+                <img
+                    key={currentCompany.logo}
+                    src={currentCompany.logo}
+                    alt={currentCompany.name}
+                    className="max-h-12 max-w-[140px] object-contain"
+                    onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        const clean = (entity || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                        if (clean.includes('harkes')) e.currentTarget.src = '/img/company/harkes.png';
+                        else if (clean.includes('meraki')) e.currentTarget.src = '/img/company/meraki.png';
+                        else if (clean.includes('msi')) e.currentTarget.src = '/img/company/msi.png';
+                        else if (clean.includes('ruma')) e.currentTarget.src = '/img/company/ruma.png';
+                        else e.currentTarget.src = '/img/logo.png';
+                    }}
+                />
+            </div>
+            <div className="text-center w-2/3">
+                <h2 className="text-sm lg:text-base font-bold text-indigo-900 font-serif tracking-wide mb-1 uppercase">
+                    {currentCompany.name}
+                </h2>
+                {addressText && (
+                    <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight whitespace-pre-line">
+                        {addressText}
+                    </p>
+                )}
+            </div>
+        </div>
+
+        <div className="flex justify-between items-start mt-2">
+            <div className={showSignature ? "w-1/2" : "w-full"}>
+                <p className="font-bold text-xs lg:text-sm leading-tight mt-0">{title}</p>
+                <p className="font-bold text-sm lg:text-base leading-tight mt-0.5">UPCOUNTRY (UC)</p>
+            </div>
+            {showSignature && (
+                <div className="w-1/2 pl-4 flex justify-end">
+                    <div className="w-full max-w-[220px] lg:max-w-[280px]">
+                        <SignatureBlock {...signatureProps} />
+                    </div>
+                </div>
+            )}
+        </div>
+    </div>
+);
+
+export default function UcPreview({ data = {}, user, creator, users = [], companies = [] }) {
     const employee = (users && users.length > 0)
         ? (users.find(u => String(u.id) === String(data?.user_id)) || user)
         : user;
@@ -33,7 +127,8 @@ export default function UcPreview({ data, user, creator, users = [], companies =
     
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
-        const d = new Date(dateStr);
+        const m = String(dateStr).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(dateStr);
         if (isNaN(d.getTime())) return '-';
         return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
     };
@@ -42,10 +137,10 @@ export default function UcPreview({ data, user, creator, users = [], companies =
         const clean = (entityName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
         let found = null;
-        if (companies && companies.length > 0) {
+        if (clean && companies && companies.length > 0) {
             found = companies.find(c => {
                 const cClean = (c.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                return clean.includes(cClean) || cClean.includes(clean);
+                return cClean && (clean.includes(cClean) || cClean.includes(clean));
             });
         }
 
@@ -107,108 +202,25 @@ export default function UcPreview({ data, user, creator, users = [], companies =
 
     let itemCounter = 1;
 
-    const PageContainer = ({ children }) => (
-        <div className="bg-white mx-auto shadow-md border border-gray-300 overflow-hidden text-black mb-8 relative font-sans leading-relaxed" 
-             style={{ width: '100%', aspectRatio: '210/297', padding: '8% 10% 12% 10%' }}>
-            
-            {/* Footer Watermark */}
-            <div className="absolute bottom-6 left-0 right-0 bg-[#799fbb] text-white italic font-bold py-2 px-10 text-[8px] sm:text-[10px] lg:text-xs text-left w-full h-8 flex items-center">
-                Make a Different
-            </div>
-
-            <div className="h-full flex flex-col text-[7px] sm:text-[9px] lg:text-[11px] xl:text-xs">
-                {children}
-            </div>
-        </div>
-    );
-
-    const SignatureBlock = () => (
-        <table className="w-full text-center border-collapse border border-black mt-4">
-            <thead>
-                <tr>
-                    <th className="border border-black p-1">Dibuat Oleh</th>
-                    <th className="border border-black p-1">Diperiksa Oleh</th>
-                    <th className="border border-black p-1">Disetujui Oleh</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
-                        <div className="font-bold underline">{employeeName}</div>
-                    </td>
-                    <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
-                        <div className="font-bold underline">{creatorName}</div>
-                    </td>
-                    <td className="border border-black p-2 h-12 lg:h-16 align-bottom">
-                        <div className="font-bold underline">{approverName}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">Staff</td>
-                    <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">{creatorDivision}</td>
-                    <td className="border border-black text-[6px] sm:text-[8px] lg:text-[10px]">Finance</td>
-                </tr>
-            </tbody>
-        </table>
-    );
-
-    const HeaderBlock = ({ title, showSignature = false, className = "mb-4" }) => (
-        <div className={`flex flex-col ${className}`}>
-            <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
-                <div className="mb-2 md:mb-0 w-1/3 flex items-center justify-start">
-                    <img 
-                        key={currentCompany.logo}
-                        src={currentCompany.logo} 
-                        alt={currentCompany.name} 
-                        className="max-h-12 max-w-[140px] object-contain" 
-                        onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            const clean = (data?.entity || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                            if (clean.includes('harkes')) e.currentTarget.src = '/img/company/harkes.png';
-                            else if (clean.includes('meraki')) e.currentTarget.src = '/img/company/meraki.png';
-                            else if (clean.includes('msi')) e.currentTarget.src = '/img/company/msi.png';
-                            else if (clean.includes('ruma')) e.currentTarget.src = '/img/company/ruma.png';
-                            else e.currentTarget.src = '/img/logo.png';
-                        }}
-                    />
-                </div>
-                <div className="text-center w-2/3">
-                    <h2 className="text-sm lg:text-base font-bold text-indigo-900 font-serif tracking-wide mb-1 uppercase">
-                        {currentCompany.name}
-                    </h2>
-                    {addressText && (
-                        <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight whitespace-pre-line">
-                            {addressText}
-                        </p>
-                    )}
-                </div>
-            </div>
-            
-            <div className="flex justify-between items-start mt-2">
-                <div className={showSignature ? "w-1/2" : "w-full"}>
-                    <p className="font-bold text-xs lg:text-sm leading-tight mt-0">{title}</p>
-                    <p className="font-bold text-sm lg:text-base leading-tight mt-0.5">UPCOUNTRY (UC)</p>
-                </div>
-                {showSignature && (
-                    <div className="w-1/2 pl-4 flex justify-end">
-                        <div className="w-full max-w-[220px] lg:max-w-[280px]">
-                            <SignatureBlock />
-                        </div>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+    const signatureProps = { employeeName, creatorName, approverName, creatorDivision };
 
     return (
         <div className="w-full h-full max-h-[85vh] overflow-y-auto custom-scrollbar pr-2">
             
             {/* PAGE 1: FORM PENGAJUAN */}
             <PageContainer>
-                <HeaderBlock title="FORM PENGAJUAN BIAYA" showSignature={false} className="mb-1" />
+                <HeaderBlock
+                    title="FORM PENGAJUAN BIAYA"
+                    showSignature={false}
+                    className="mb-1"
+                    currentCompany={currentCompany}
+                    addressText={addressText}
+                    entity={data?.entity}
+                    signatureProps={signatureProps}
+                />
 
                 <div className="text-right font-bold mt-1 mb-3">
-                    Makassar, {formatDate(new Date().toISOString())}
+                    Makassar, {formatDate(new Date())}
                 </div>
 
                 <div className="mb-4 leading-normal text-justify">
@@ -324,7 +336,14 @@ export default function UcPreview({ data, user, creator, users = [], companies =
 
             {/* PAGE 2: LAMPIRAN */}
             <PageContainer>
-                <HeaderBlock title="LAMPIRAN PENGAJUAN" showSignature={true} />
+                <HeaderBlock
+                    title="LAMPIRAN PENGAJUAN"
+                    showSignature={true}
+                    currentCompany={currentCompany}
+                    addressText={addressText}
+                    entity={data?.entity}
+                    signatureProps={signatureProps}
+                />
 
                 <table className="w-full border-collapse border border-black mt-6">
                     <thead>

@@ -1,9 +1,9 @@
 import ExportDropdown from '@/Components/ExportDropdown';
 import React, { useState, useEffect, useRef } from 'react';
-import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
+import { Head, usePage, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { 
-    Users, Plus, Search, Edit, Trash2, Eye, Building, Phone, User, Store, FileText, Wrench, X, ShieldCheck, MessageCircle
+    Plus, Search, Edit, Trash2, Eye, Building, Phone, User, Store, FileText, Wrench, X, ShieldCheck
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -130,7 +130,7 @@ export default function Index({ providers, filters }) {
     const handleDeleteMapping = (id, rawName) => {
         Swal.fire({
             title: 'Hapus Pemetaan?',
-            html: `Yakin ingin menghapus typo <b>${rawName}</b> dari penyedia ini?`,
+            text: `Yakin ingin menghapus typo "${rawName}" dari penyedia ini?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',

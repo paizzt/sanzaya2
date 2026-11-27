@@ -29,7 +29,7 @@ class MarketingRecapController extends Controller
         if ($filterDate) {
             $startDate = $filterDate;
             $endDate = $filterDate;
-        } elseif ($filterMonth) {
+        } elseif ($filterMonth && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $filterMonth)) {
             $startDate = $filterMonth . '-01';
             $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
         } elseif ($startDate && !$endDate) {
@@ -55,18 +55,18 @@ class MarketingRecapController extends Controller
         }
         $reports = $reportsQuery->paginate(50)->withQueryString();
 
-        // Query Targets
+        // Query Targets (gunakan overlap rentang tanggal agar target lintas awal/akhir bulan tetap muncul)
         $targetsQuery = MarketingWeeklyTarget::with('user')->orderBy('start_date', 'desc');
         if ($salesUserId) {
             $targetsQuery->where('user_id', $salesUserId);
         }
         if ($startDate) {
-            $targetsQuery->where('start_date', '>=', $startDate);
+            $targetsQuery->where('end_date', '>=', $startDate);
         }
         if ($endDate) {
-            $targetsQuery->where('end_date', '<=', $endDate);
+            $targetsQuery->where('start_date', '<=', $endDate);
         }
-        $allTargets = $targetsQuery->paginate(50)->withQueryString();
+        $allTargets = $targetsQuery->paginate(50, ['*'], 'targets_page')->withQueryString();
 
         // Get all active sales users for the filter dropdown
         $salesUsers = User::where('is_active', true)
@@ -226,7 +226,7 @@ class MarketingRecapController extends Controller
         if ($filterDate) {
             $startDate = $filterDate;
             $endDate = $filterDate;
-        } elseif ($filterMonth) {
+        } elseif ($filterMonth && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $filterMonth)) {
             $startDate = $filterMonth . '-01';
             $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
         } elseif ($startDate && !$endDate) {
@@ -334,8 +334,8 @@ class MarketingRecapController extends Controller
         } else {
             $query = MarketingWeeklyTarget::with('user')->orderBy('start_date', 'desc')->orderBy('week_number', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
-            if ($startDate) $query->where('start_date', '>=', $startDate);
-            if ($endDate) $query->where('end_date', '<=', $endDate);
+            if ($startDate) $query->where('end_date', '>=', $startDate);
+            if ($endDate) $query->where('start_date', '<=', $endDate);
             $data['targets'] = $query->get();
         }
 
@@ -372,7 +372,7 @@ class MarketingRecapController extends Controller
         if ($filterDate) {
             $startDate = $filterDate;
             $endDate = $filterDate;
-        } elseif ($filterMonth) {
+        } elseif ($filterMonth && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $filterMonth)) {
             $startDate = $filterMonth . '-01';
             $endDate = \Carbon\Carbon::parse($startDate)->endOfMonth()->toDateString();
         } elseif ($startDate && !$endDate) {
@@ -409,8 +409,8 @@ class MarketingRecapController extends Controller
         } else {
             $query = MarketingWeeklyTarget::with('user')->orderBy('start_date', 'desc')->orderBy('week_number', 'desc');
             if ($salesUserId) $query->where('user_id', $salesUserId);
-            if ($startDate) $query->where('start_date', '>=', $startDate);
-            if ($endDate) $query->where('end_date', '<=', $endDate);
+            if ($startDate) $query->where('end_date', '>=', $startDate);
+            if ($endDate) $query->where('start_date', '<=', $endDate);
             $items = $query->get();
             
             $headings = ['No', 'Nama Sales', 'Bulan Tahun', 'Outlet Target', 'Capaian'];

@@ -22,8 +22,8 @@ class SendReminders extends Command
         $currentDay = $now->dayOfWeekIso; // 1 (Mon) - 7 (Sun)
         $currentTime = $now->format('H:i');
 
-        $activeDays = explode(',', $setting->days_active);
-        if (!in_array($currentDay, $activeDays)) return;
+        $activeDays = array_filter(array_map('trim', explode(',', (string) ($setting->days_active ?? ''))));
+        if (!in_array((string) $currentDay, $activeDays, true)) return;
 
         $auth = [
             'VAPID' => [
@@ -54,7 +54,11 @@ class SendReminders extends Command
                 ]);
                 $webPush->queueNotification($subscription, $payload);
             }
-            $webPush->flush();
+            foreach ($webPush->flush() as $report) {
+                if (!$report->isSuccess() && $report->isSubscriptionExpired()) {
+                    PushSubscription::where('endpoint', $report->getEndpoint())->delete();
+                }
+            }
             $this->info("Notifications sent for $currentTime");
         } else {
             $this->info("No notification needed at $currentTime");

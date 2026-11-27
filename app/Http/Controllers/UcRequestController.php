@@ -10,7 +10,6 @@ use App\Models\UcRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
@@ -43,10 +42,14 @@ class UcRequestController extends Controller
     public function history()
     {
         $user = Auth::user();
+        $isAdmin = $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc') || $user->can('approve uc requests');
         $query = UcRequest::with(['user.division', 'creator.division', 'items', 'approver.division'])->orderBy('created_at', 'desc');
 
-        if (!$user->isSuperAdminUser() && !$user->isAdminUser() && !$user->can('approve uc')) {
-            $query->where('user_id', $user->id);
+        if (!$isAdmin) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('created_by', $user->id);
+            });
         }
 
         $requests = $query->get();
@@ -61,14 +64,20 @@ class UcRequestController extends Controller
         return Inertia::render('Requests/UcHistory', [
             'requests' => $requests,
             'activeUcs' => $activeUcs,
-            'isAdmin' => $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc'),
+            'isAdmin' => $isAdmin,
         ]);
     }
     
     public function generatePdf($id)
     {
         $uc = UcRequest::with(['user.division', 'creator.division', 'items', 'approver.division'])->findOrFail($id);
-        
+        $user = Auth::user();
+        $isOwner = (int) $uc->user_id === (int) $user->id || (int) $uc->created_by === (int) $user->id;
+        $isAdmin = $user->isSuperAdminUser() || $user->isAdminUser() || $user->can('approve uc') || $user->can('approve uc requests');
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Anda tidak memiliki akses untuk mengunduh PDF pengajuan UC ini.');
+        }
+
         $qrUrl = route('requests.uc.index'); // Can be a verification URL
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
         
@@ -532,8 +541,8 @@ class UcRequestController extends Controller
                     $item->departure_city,
                     $item->destination_city,
                     $item->description ?? '-',
-                    date('d/m/Y', strtotime($item->departure_date)),
-                    date('d/m/Y', strtotime($item->return_date)),
+                    $item->departure_date ? date('d/m/Y', strtotime($item->departure_date)) : '-',
+                    $item->return_date ? date('d/m/Y', strtotime($item->return_date)) : '-',
                     $item->transport_type,
                     $item->status
                 ];
@@ -574,14 +583,14 @@ class UcRequestController extends Controller
                     $item->departure_city,
                     $item->destination_city,
                     $item->description ?? '-',
-                    date('d/m/Y', strtotime($item->departure_date)),
-                    date('d/m/Y', strtotime($item->return_date)),
+                    $item->departure_date ? date('d/m/Y', strtotime($item->departure_date)) : '-',
+                    $item->return_date ? date('d/m/Y', strtotime($item->return_date)) : '-',
                     $item->transport_type,
                     $item->status
                 ];
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Form UC') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Form UC') . '.xlsx');
     }
 }

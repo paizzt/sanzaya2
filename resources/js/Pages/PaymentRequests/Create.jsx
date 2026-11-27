@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -8,7 +8,18 @@ import InputError from '@/Components/InputError';
 import CurrencyInput from '@/Components/CurrencyInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
-import { UploadCloud, X, FileText, File } from 'lucide-react';
+import { UploadCloud, X, FileText } from 'lucide-react';
+
+function FileImagePreview({ file }) {
+    const [src, setSrc] = useState(null);
+    useEffect(() => {
+        const url = URL.createObjectURL(file);
+        setSrc(url);
+        return () => URL.revokeObjectURL(url);
+    }, [file]);
+    if (!src) return null;
+    return <img src={src} alt={file.name} className="w-full h-full object-cover" />;
+}
 
 export default function Create({ auth, vendors, companies, user }) {
     const categoryOptions = [
@@ -70,14 +81,15 @@ export default function Create({ auth, vendors, companies, user }) {
     };
 
     const handleItemChange = (index, field, value) => {
-        const newItems = [...data.items];
-        newItems[index][field] = value;
+        const newItems = data.items.map((item, i) =>
+            i === index ? { ...item, [field]: value } : item
+        );
         setData('items', newItems);
     };
 
-    const subtotal = data.items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
-    const vatAmount = data.vat_status === 'Belum Termasuk' ? subtotal * (data.vat_rate / 100) : 0;
-    const grandTotal = subtotal - Number(data.discount) + Number(data.other_cost) + vatAmount;
+    const subtotal = data.items.reduce((acc, item) => acc + ((Number(item.quantity) || 0) * (Number(item.unit_price) || 0)), 0);
+    const vatAmount = data.vat_status === 'Belum Termasuk' ? subtotal * ((Number(data.vat_rate) || 0) / 100) : 0;
+    const grandTotal = subtotal - (Number(data.discount) || 0) + (Number(data.other_cost) || 0) + vatAmount;
 
     const validateForm = () => {
         const emptyFields = [];
@@ -529,11 +541,7 @@ export default function Create({ auth, vendors, companies, user }) {
                                                     <div key={idx} className="relative group border rounded-xl overflow-hidden bg-white shadow-sm p-2 flex flex-col items-center">
                                                         <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 flex flex-col items-center justify-center mb-2">
                                                             {isImg ? (
-                                                                <img 
-                                                                    src={URL.createObjectURL(file)} 
-                                                                    alt={file.name} 
-                                                                    className="w-full h-full object-cover" 
-                                                                />
+                                                                <FileImagePreview file={file} />
                                                             ) : (
                                                                 <div className="flex flex-col items-center justify-center p-2 text-center">
                                                                     <FileText className={`w-8 h-8 mb-1 ${isPdf ? 'text-red-500' : (isSheet ? 'text-emerald-600' : (isDoc ? 'text-blue-600' : 'text-indigo-500'))}`} />

@@ -26,7 +26,8 @@ export default function Modal({
         '2xl': 'sm:max-w-2xl',
         '3xl': 'sm:max-w-3xl',
         '4xl': 'sm:max-w-4xl',
-    }[maxWidth];
+        '5xl': 'sm:max-w-5xl',
+    }[maxWidth] || 'sm:max-w-2xl';
 
     return (
         <Transition show={show} leave="duration-200">

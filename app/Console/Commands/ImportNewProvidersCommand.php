@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use App\Models\Provider;
 use App\Models\ProviderProduct;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\DB;
 
 class ImportNewProvidersCommand extends Command
 {

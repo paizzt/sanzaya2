@@ -58,17 +58,25 @@ class WbsReportController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file')) {
-            // Upload to ImgBB
-            $response = Http::withoutVerifying()->timeout(15)->attach(
-                'image', 
-                file_get_contents($request->file('file')->getRealPath()), 
-                $request->file('file')->getClientOriginalName()
-            )->post('https://api.imgbb.com/1/upload', [
-                'key' => '5950b44b24860057ff810fe73f58868b'
-            ]);
+            try {
+                // Upload to ImgBB
+                $response = Http::withoutVerifying()->timeout(15)->attach(
+                    'image',
+                    file_get_contents($request->file('file')->getRealPath()),
+                    $request->file('file')->getClientOriginalName()
+                )->post('https://api.imgbb.com/1/upload', [
+                    'key' => '5950b44b24860057ff810fe73f58868b'
+                ]);
 
-            if ($response->successful()) {
-                $filePath = $response->json('data.url');
+                if ($response->successful()) {
+                    $filePath = $response->json('data.url');
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('WBS ImgBB upload failed, falling back to local storage: ' . $e->getMessage());
+            }
+
+            if (!$filePath) {
+                $filePath = $request->file('file')->store('wbs_reports', 'public');
             }
         }
 
@@ -98,10 +106,20 @@ class WbsReportController extends Controller
         return redirect()->back()->with('success', 'Laporan WBS berhasil dikirim.');
     }
 
+    private function canManageWbs($user): bool
+    {
+        return $user && ($user->isAdminUser() || \App\Models\FeatureToggle::userHasFeature($user, 'Laporan WBS'));
+    }
+
     public function download($id)
     {
         $report = WbsReport::findOrFail($id);
-        
+        $user = Auth::user();
+
+        if (!$this->canManageWbs($user) && (!$user || (int) $report->user_id !== (int) $user->id)) {
+            abort(403, 'Anda tidak memiliki izin untuk mengunduh lampiran laporan ini.');
+        }
+
         if (!$report->file_path) {
             return back()->with('error', 'File tidak ditemukan.');
         }
@@ -110,9 +128,13 @@ class WbsReportController extends Controller
             try {
                 $response = Http::get($report->file_path);
                 if ($response->successful()) {
-                    $contentType = $response->header('Content-Type');
+                    $rawType = strtolower(trim(explode(';', (string) $response->header('Content-Type'))[0]));
+                    $safeType = in_array($rawType, ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'], true)
+                        ? $rawType
+                        : 'image/jpeg';
                     return response($response->body(), 200, [
-                        'Content-Type' => $contentType ?: 'image/jpeg',
+                        'Content-Type' => $safeType,
+                        'X-Content-Type-Options' => 'nosniff',
                         'Content-Disposition' => 'inline; filename="Laporan-WBS-'.$id.'.jpg"'
                     ]);
                 }
@@ -132,6 +154,10 @@ class WbsReportController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        if (!$this->canManageWbs(Auth::user())) {
+            abort(403, 'Anda tidak memiliki izin untuk mengubah status laporan WBS.');
+        }
+
         $request->validate([
             'status' => 'required|in:belum proses,di proses,selesai'
         ]);

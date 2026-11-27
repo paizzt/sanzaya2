@@ -10,7 +10,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Loader2, Eye, EyeOff, MessageCircle, Send, Upload, X, CheckCircle } from 'lucide-react';
+import { Loader2, Eye, EyeOff, MessageCircle, X } from 'lucide-react';
 
 export default function Login({ status, canResetPassword }) {
     const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +25,7 @@ export default function Login({ status, canResetPassword }) {
         if (Object.keys(errors).length > 0) {
             Swal.fire({
                 title: 'Login Gagal',
-                text: errors.email || 'Silakan periksa kembali kredensial Anda.',
+                text: errors.email || errors.password || 'Silakan periksa kembali kredensial Anda.',
                 icon: 'error',
                 confirmButtonColor: '#3b82f6',
                 customClass: {

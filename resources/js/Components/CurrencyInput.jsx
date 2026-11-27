@@ -6,8 +6,8 @@ export default function CurrencyInput({ value, onChange, className = '', ...prop
         if (val === null || val === undefined || val === '') return '';
         
         let strVal = val.toString().trim();
-        // If it's SQL decimal format like 150000.00 (single dot followed by 1 or 2 digits at end)
-        if (/^\d+\.\d{1,2}$/.test(strVal)) {
+        // If it's SQL/float decimal format like 150000.00 or 150000.125 (single dot with digits)
+        if (/^\d+\.\d+$/.test(strVal)) {
             strVal = strVal.split('.')[0];
         } else if (strVal.includes(',')) {
             strVal = strVal.split(',')[0];
@@ -18,8 +18,8 @@ export default function CurrencyInput({ value, onChange, className = '', ...prop
         if (number_string === '') return '';
 
         let sisa = number_string.length % 3;
-        let rupiah = number_string.substr(0, sisa);
-        let ribuan = number_string.substr(sisa).match(/\d{3}/g);
+        let rupiah = number_string.slice(0, sisa);
+        let ribuan = number_string.slice(sisa).match(/\d{3}/g);
 
         if (ribuan) {
             let separator = sisa ? '.' : '';

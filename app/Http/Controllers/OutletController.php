@@ -50,7 +50,7 @@ class OutletController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|string',
             'marketing_area_id' => 'required|exists:marketing_areas,id',
@@ -61,14 +61,14 @@ class OutletController extends Controller
             'is_pareto' => 'nullable|boolean',
         ]);
 
-        Outlet::create($request->all());
+        Outlet::create($validated);
 
         return redirect()->back()->with('success', 'Data outlet berhasil ditambahkan.');
     }
 
     public function update(Request $request, Outlet $outlet)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|string',
             'marketing_area_id' => 'required|exists:marketing_areas,id',
@@ -79,7 +79,7 @@ class OutletController extends Controller
             'is_pareto' => 'nullable|boolean',
         ]);
 
-        $outlet->update($request->all());
+        $outlet->update($validated);
 
         return redirect()->back()->with('success', 'Data outlet berhasil diperbarui.');
     }
@@ -146,6 +146,6 @@ class OutletController extends Controller
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Outlet') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Outlet') . '.xlsx');
     }
 }

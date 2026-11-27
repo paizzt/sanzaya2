@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -8,11 +8,22 @@ import InputError from '@/Components/InputError';
 import CurrencyInput from '@/Components/CurrencyInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Swal from 'sweetalert2';
-import { UploadCloud, X, Trash2, RotateCcw, FileText, File, AlertTriangle, AlertCircle, Send } from 'lucide-react';
+import { UploadCloud, X, Trash2, RotateCcw, FileText, AlertTriangle, Send } from 'lucide-react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 
 dayjs.locale('id');
+
+function FileImagePreview({ file }) {
+    const [src, setSrc] = useState(null);
+    useEffect(() => {
+        const url = URL.createObjectURL(file);
+        setSrc(url);
+        return () => URL.revokeObjectURL(url);
+    }, [file]);
+    if (!src) return null;
+    return <img src={src} alt={file.name} className="w-full h-full object-cover" />;
+}
 
 const formatDateForInput = (value) => {
     if (!value) return '';
@@ -579,9 +590,10 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                                 {existingAttachments.map(att => {
                                                     const isDeleted = deletedIds.includes(att.id);
-                                                    const rawUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
+                                                    const safePath = att.file_path || '';
+                                                    const rawUrl = safePath.startsWith('http') ? safePath : `/storage/${safePath}`;
                                                     const imgUrl = rawUrl.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}` : rawUrl;
-                                                    const ext = (att.original_name ? att.original_name.split('.').pop() : (att.file_path.split('.').pop() || '')).toUpperCase();
+                                                    const ext = (att.original_name ? att.original_name.split('.').pop() : (safePath.split('.').pop() || '')).toUpperCase();
                                                     const isImg = att.attachment_type === 'Lampiran Foto' || ['JPG', 'JPEG', 'PNG', 'WEBP', 'GIF', 'BMP'].includes(ext);
                                                     const isPdf = ext === 'PDF';
                                                     const isSheet = ['XLS', 'XLSX', 'CSV'].includes(ext);
@@ -706,11 +718,7 @@ export default function Edit({ auth, vendors, companies, paymentRequest, isAppro
                                                         <div key={idx} className="relative group border rounded-xl overflow-hidden bg-white shadow-sm p-2 flex flex-col items-center">
                                                             <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 flex flex-col items-center justify-center mb-2">
                                                                 {isImg ? (
-                                                                    <img 
-                                                                        src={URL.createObjectURL(file)} 
-                                                                        alt={file.name} 
-                                                                        className="w-full h-full object-cover" 
-                                                                    />
+                                                                    <FileImagePreview file={file} />
                                                                 ) : (
                                                                     <div className="flex flex-col items-center justify-center p-2 text-center">
                                                                         <FileText className={`w-8 h-8 mb-1 ${isPdf ? 'text-red-500' : (isSheet ? 'text-emerald-600' : (isDoc ? 'text-blue-600' : 'text-indigo-500'))}`} />

@@ -14,10 +14,12 @@ export default function Products({ auth, products, filters }) {
 
     const handleSearch = (e) => {
         e.preventDefault();
+        setCurrentPage(1);
         router.get(route('marketing.products.index'), { search, type, source }, { preserveState: true, preserveScroll: true });
     };
 
     const handleFilterChange = (key, value) => {
+        setCurrentPage(1);
         if (key === 'type') setType(value);
         if (key === 'source') setSource(value);
         

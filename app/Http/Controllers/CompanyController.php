@@ -88,12 +88,13 @@ class CompanyController extends Controller
     public function destroy($id)
     {
         $company = Company::findOrFail($id);
-
-        if ($company->logo && Storage::disk('public')->exists($company->logo)) {
-            Storage::disk('public')->delete($company->logo);
-        }
+        $logoPath = $company->logo;
 
         $company->delete();
+
+        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+            Storage::disk('public')->delete($logoPath);
+        }
 
         return redirect()->back()->with('success', 'Data perusahaan berhasil dihapus.');
     }
@@ -149,6 +150,6 @@ class CompanyController extends Controller
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Perusahaan') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Perusahaan') . '.xlsx');
     }
 }

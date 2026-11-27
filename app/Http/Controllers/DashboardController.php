@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Attendance;
 use App\Models\MarketingDailyReport;
@@ -19,7 +18,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        if ($user && !$user->isSuperAdminUser() && !$user->isAdminUser() && !\App\Models\FeatureToggle::userHasFeature($user, 'Dashboard')) {
+        if ($user && !$user->isAdminUser() && !\App\Models\FeatureToggle::userHasFeature($user, 'Dashboard')) {
             return redirect()->route('profile.edit');
         }
 
@@ -28,32 +27,36 @@ class DashboardController extends Controller
         $isAdmin = $user->isAdminUser();
 
         // Base Queries
-        $attendanceQuery = Attendance::whereDate('created_at', $today);
+        $attendanceQuery = Attendance::whereDate('date', $today);
         $marketingQuery = MarketingDailyReport::whereDate('visit_date', $today);
-        $ucQuery = UcRequest::where('status', 'Pending');
-        $bhpQuery = BhpRequest::where('status', 'Pending');
+        $ucQuery = UcRequest::whereIn('status', ['Menunggu', 'Pending']);
+        $bhpQuery = BhpRequest::whereIn('status', ['Menunggu', 'Pending']);
         
-        // If not admin, maybe scope some queries
         if (!$isAdmin) {
             $marketingQuery->where('user_id', $user->id);
             $ucQuery->where('user_id', $user->id);
             $bhpQuery->where('user_id', $user->id);
-            // Absensi is company wide? Let's just keep it company wide for the dashboard or just their own.
             $attendanceQuery->where('user_id', $user->id);
         }
 
-        $cacheKey = "dashboard_stats_user_{$user->id}_" . $today->format('Y_m_d');
+        $scopeTag = $isAdmin ? 'admin' : 'user';
+        $cacheKey = "dashboard_stats_{$scopeTag}_{$user->id}_" . $today->format('Y_m_d');
         
         $stats = \Illuminate\Support\Facades\Cache::remember($cacheKey, 600, function () use ($attendanceQuery, $marketingQuery, $ucQuery, $bhpQuery, $isAdmin) {
+            $attendanceList = $attendanceQuery->with('user:id,name')->get();
+            $marketingList = $marketingQuery->with('user:id,name')->get();
+            $ucList = $ucQuery->with(['user:id,name', 'items'])->get();
+            $bhpList = $bhpQuery->with('user:id,name')->get();
+
             $data = [
-                'attendance_today' => $attendanceQuery->count(),
-                'marketing_visits_today' => $marketingQuery->count(),
-                'uc_pending' => $ucQuery->count(),
-                'bhp_pending' => $bhpQuery->count(),
-                'attendance_list' => $attendanceQuery->with('user:id,name')->get(),
-                'marketing_list' => $marketingQuery->with('user:id,name')->get(),
-                'uc_list' => $ucQuery->with('user:id,name')->get(),
-                'bhp_list' => $bhpQuery->with('user:id,name')->get()
+                'attendance_today' => $attendanceList->count(),
+                'marketing_visits_today' => $marketingList->count(),
+                'uc_pending' => $ucList->count(),
+                'bhp_pending' => $bhpList->count(),
+                'attendance_list' => $attendanceList,
+                'marketing_list' => $marketingList,
+                'uc_list' => $ucList,
+                'bhp_list' => $bhpList,
             ];
 
             if ($isAdmin) {

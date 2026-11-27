@@ -33,6 +33,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
     const [filterSort, setFilterSort] = useState(typeof safeFilters.sort === 'string' ? safeFilters.sort : '');
 
     const applyFilter = () => {
+        setCurrentPage(1);
         router.get(route('receivables.index'), {
             search: filterSearch,
             pt: Array.isArray(filterPt) ? filterPt.join(',') : filterPt,
@@ -42,6 +43,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
     };
 
     const resetFilter = () => {
+        setCurrentPage(1);
         setFilterSearch('');
         setFilterPt([]);
         setFilterYear([]);
@@ -50,9 +52,17 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
     };
 
     const getFilteredDetails = (details) => {
-        if (!details) return [];
-        if (filterYear.length === 0) return details;
-        return details.filter(d => filterYear.includes(String(d.year)));
+        let detailsArray = details;
+        if (typeof details === 'string') {
+            try {
+                detailsArray = JSON.parse(details);
+            } catch {
+                detailsArray = [];
+            }
+        }
+        if (!Array.isArray(detailsArray)) return [];
+        if (filterYear.length === 0) return detailsArray;
+        return detailsArray.filter(d => filterYear.includes(String(d.year)));
     };
 
     const getFilteredTotal = (details) => {
@@ -131,11 +141,22 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
     const openModal = (item = null) => {
         if (item) {
             setEditingItem(item);
+            let parsedDetails = item.details;
+            if (typeof parsedDetails === 'string') {
+                try {
+                    parsedDetails = JSON.parse(parsedDetails);
+                } catch {
+                    parsedDetails = [];
+                }
+            }
+            const safeDetails = Array.isArray(parsedDetails) && parsedDetails.length > 0
+                ? parsedDetails.map(d => ({ ...d }))
+                : [{ year: new Date().getFullYear().toString(), amount: '' }];
             setData({
                 id: item.id,
                 company_id: item.company_id || '',
                 outlet_name: item.outlet ? item.outlet.name : '',
-                details: item.details && item.details.length > 0 ? item.details : [{ year: new Date().getFullYear().toString(), amount: '' }]
+                details: safeDetails
             });
         } else {
             setEditingItem(null);
@@ -199,8 +220,13 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
         });
     };
 
+    const getLocalToday = () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
     const dailyForm = useForm({
-        billing_date: new Date().toISOString().split('T')[0],
+        billing_date: getLocalToday(),
         user_id: auth.user.id.toString(),
         outlet_name: '',
         result: ''
@@ -211,7 +237,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
         dailyForm.post(route('receivables.dailyReport.store'), {
             preserveScroll: true,
             onSuccess: () => {
-                dailyForm.reset('outlet_id', 'result');
+                dailyForm.reset('outlet_name', 'result');
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',
@@ -432,7 +458,7 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                                             </tr>
                                             )) : (
                                             <tr>
-                                                <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                                                <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
                                                     Belum ada data piutang.
                                                 </td>
                                             </tr>
@@ -537,7 +563,13 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {dailyReports.length > 0 ? dailyReports.map((report) => (
                                                 <tr key={report.id}>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{new Date(report.billing_date).toLocaleDateString('id-ID')}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        {report.billing_date ? (() => {
+                                                            const m = String(report.billing_date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+                                                            const dt = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(report.billing_date);
+                                                            return Number.isNaN(dt.getTime()) ? '-' : dt.toLocaleDateString('id-ID');
+                                                        })() : '-'}
+                                                    </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">{report.user?.name}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap">{report.outlet?.name}</td>
                                                     <td className="px-6 py-4 text-sm text-gray-900">{report.result}</td>
@@ -609,8 +641,9 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                                             className="w-full"
                                             value={detail.year}
                                             onChange={e => {
-                                                const newDetails = [...data.details];
-                                                newDetails[index].year = e.target.value;
+                                                const newDetails = data.details.map((item, i) =>
+                                                    i === index ? { ...item, year: e.target.value } : item
+                                                );
                                                 setData('details', newDetails);
                                             }}
                                         />
@@ -631,8 +664,9 @@ export default function Index({ auth, items = [], outlets, companies, filters, d
                                                     parts = rawStr.split('.');
                                                     if (parts.length > 1) rawStr = parts[0] + '.' + parts[1].substring(0, 2);
                                                     
-                                                    const newDetails = [...data.details];
-                                                    newDetails[index].amount = rawStr;
+                                                    const newDetails = data.details.map((item, i) =>
+                                                        i === index ? { ...item, amount: rawStr } : item
+                                                    );
                                                     setData('details', newDetails);
                                                 }}
                                             />

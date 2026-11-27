@@ -1,7 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Activity, Truck, Calendar, FileText, Image as ImageIcon, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Activity, Truck, FileText, Image as ImageIcon, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import dayjs from 'dayjs';
+import 'dayjs/locale/id';
+dayjs.locale('id');
 import Swal from 'sweetalert2';
 
 export default function Usages({ usages, vehicles, filters }) {
@@ -162,7 +164,7 @@ export default function Usages({ usages, vehicles, filters }) {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                                             Belum ada data log penggunaan.
                                         </td>
                                     </tr>

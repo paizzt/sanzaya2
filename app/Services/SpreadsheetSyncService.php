@@ -8,6 +8,8 @@ use Carbon\Carbon;
 class SpreadsheetSyncService
 {
     private static array $lastErrors = [];
+    private static ?array $outletMappingCache = null;
+    private static ?array $providerMappingCache = null;
 
     public static function getLastErrors(): array
     {
@@ -17,6 +19,8 @@ class SpreadsheetSyncService
     public static function syncType($type)
     {
         self::$lastErrors = [];
+        self::$outletMappingCache = null;
+        self::$providerMappingCache = null;
         $config = SpreadsheetConfiguration::where('type', $type)->first();
         if (!$config) {
             throw new \Exception('Konfigurasi untuk tipe ' . $type . ' tidak ditemukan.');
@@ -94,32 +98,26 @@ class SpreadsheetSyncService
             throw new \Exception('Gagal sinkronisasi data: ' . $errMsg);
         }
 
+        $modelMap = [
+            'logistik' => \App\Models\SyncLogistikData::class,
+            'pesanan' => \App\Models\SyncPesananData::class,
+            'piutang' => \App\Models\SyncPiutangData::class,
+            'hutang' => \App\Models\SyncHutangData::class,
+        ];
+
         $now = Carbon::now();
         \Illuminate\Support\Facades\DB::beginTransaction();
         try {
-            if ($type == 'logistik') {
-                \App\Models\SyncLogistikData::query()->delete();
+            if (isset($modelMap[$type])) {
+                $modelClass = $modelMap[$type];
+                $modelClass::query()->delete();
                 foreach (array_chunk($collectedRows, 300) as $chunk) {
-                    foreach ($chunk as &$item) { $item['created_at'] = $now; $item['updated_at'] = $now; }
-                    \App\Models\SyncLogistikData::insert($chunk);
-                }
-            } elseif ($type == 'pesanan') {
-                \App\Models\SyncPesananData::query()->delete();
-                foreach (array_chunk($collectedRows, 300) as $chunk) {
-                    foreach ($chunk as &$item) { $item['created_at'] = $now; $item['updated_at'] = $now; }
-                    \App\Models\SyncPesananData::insert($chunk);
-                }
-            } elseif ($type == 'piutang') {
-                \App\Models\SyncPiutangData::query()->delete();
-                foreach (array_chunk($collectedRows, 300) as $chunk) {
-                    foreach ($chunk as &$item) { $item['created_at'] = $now; $item['updated_at'] = $now; }
-                    \App\Models\SyncPiutangData::insert($chunk);
-                }
-            } elseif ($type == 'hutang') {
-                \App\Models\SyncHutangData::query()->delete();
-                foreach (array_chunk($collectedRows, 300) as $chunk) {
-                    foreach ($chunk as &$item) { $item['created_at'] = $now; $item['updated_at'] = $now; }
-                    \App\Models\SyncHutangData::insert($chunk);
+                    foreach ($chunk as &$item) {
+                        $item['created_at'] = $now;
+                        $item['updated_at'] = $now;
+                    }
+                    unset($item);
+                    $modelClass::insert($chunk);
                 }
             }
 
@@ -245,19 +243,27 @@ class SpreadsheetSyncService
 
     private static function getMappedOutletName($rawName) {
         if (!$rawName) return $rawName;
-        $mapping = \App\Models\OutletMapping::where('raw_name', $rawName)->with('outlet')->first();
-        if ($mapping && $mapping->outlet) {
-            return $mapping->outlet->name;
+        if (self::$outletMappingCache === null) {
+            self::$outletMappingCache = [];
+            foreach (\App\Models\OutletMapping::with('outlet:id,name')->get() as $mapping) {
+                if ($mapping->outlet) {
+                    self::$outletMappingCache[$mapping->raw_name] = $mapping->outlet->name;
+                }
+            }
         }
-        return $rawName;
+        return self::$outletMappingCache[$rawName] ?? $rawName;
     }
 
     private static function getMappedProviderName($rawName) {
         if (!$rawName) return $rawName;
-        $mapping = \App\Models\ProviderMapping::where('raw_name', $rawName)->with('provider')->first();
-        if ($mapping && $mapping->provider) {
-            return $mapping->provider->name;
+        if (self::$providerMappingCache === null) {
+            self::$providerMappingCache = [];
+            foreach (\App\Models\ProviderMapping::with('provider:id,name')->get() as $mapping) {
+                if ($mapping->provider) {
+                    self::$providerMappingCache[$mapping->raw_name] = $mapping->provider->name;
+                }
+            }
         }
-        return $rawName;
+        return self::$providerMappingCache[$rawName] ?? $rawName;
     }
 }

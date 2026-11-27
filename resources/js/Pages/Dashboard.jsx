@@ -224,11 +224,11 @@ export default function Dashboard({ auth, stats, isAdmin }) {
                         {activeModal === 'uc' && (
                             <div className="space-y-3">
                                 {stats.uc_list?.length > 0 ? stats.uc_list.map((item, idx) => {
-                                    const totalAmount = (Number(item.estimated_gas_cost) || 0) + 
+                                    const itemsTotal = Array.isArray(item.items) && item.items.length > 0 ? item.items.reduce((sum, it) => sum + ((Number(it.quantity) || 0) * (Number(it.estimated_cost) || 0)), 0) : 0; const totalAmount = itemsTotal > 0 ? itemsTotal : ((Number(item.estimated_gas_cost) || 0) +
                                                         (Number(item.estimated_meals_cost) || 0) + 
                                                         (Number(item.estimated_accommodation_cost) || 0) + 
                                                         (Number(item.flight_ticket_cost) || 0) + 
-                                                        (Number(item.ship_ticket_cost) || 0);
+                                                        (Number(item.ship_ticket_cost) || 0));
                                     return (
                                         <div key={idx} className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center hover:border-emerald-200 transition-colors">
                                             <div className="flex items-center gap-3">

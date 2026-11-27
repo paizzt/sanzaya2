@@ -71,13 +71,13 @@ export default function DeleteUserForm({ className = '' }) {
 
                     <form onSubmit={deleteUser}>
                         <div className="mt-6">
-                            <InputLabel htmlFor="password" value="Kata Sandi" className="sr-only" />
+                            <InputLabel htmlFor="delete_account_password" value="Kata Sandi" className="sr-only" />
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <Key className="h-5 w-5 text-gray-400" />
                                 </div>
                                 <TextInput
-                                    id="password"
+                                    id="delete_account_password"
                                     type="password"
                                     name="password"
                                     ref={passwordInput}

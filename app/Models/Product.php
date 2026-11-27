@@ -19,7 +19,6 @@ class Product extends Model
         'is_active',
         'jenis',
         'link',
-        'provider_id',
         'registration_no',
         'qty',
         'unit',

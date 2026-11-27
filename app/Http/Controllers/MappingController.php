@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\OutletMapping;
 use App\Models\ProviderMapping;
 use App\Models\Outlet;
@@ -74,14 +75,9 @@ class MappingController extends Controller
         $outletMappings = OutletMapping::with('outlet')->orderBy('created_at', 'desc')->get();
 
         // 2. PROVIDER MAPPINGS
-        $payableProviders = \App\Models\Payable::select('provider_id')->distinct()->whereNotNull('provider_id')->pluck('provider_id')->toArray();
-        
         $masterProviders = Provider::select('id', 'name')->where(function($q) {
             $q->whereNull('is_pending')->orWhere('is_pending', false);
         })->get();
-        $masterProviderNames = $masterProviders->pluck('name')->toArray();
-        
-        $mappedProviderNames = ProviderMapping::pluck('raw_name')->toArray();
 
         // Currently, what data holds raw provider names? 
         // For now, if we don't have a direct raw table for providers (like SyncData for outlets), 
@@ -120,24 +116,26 @@ class MappingController extends Controller
             'is_ignored' => 'boolean'
         ]);
 
-        OutletMapping::updateOrCreate(
-            ['raw_name' => $request->raw_name],
-            [
-                'outlet_id' => $request->outlet_id,
-                'is_ignored' => $request->is_ignored ?? false,
-                'is_confirmed' => true
-            ]
-        );
+        DB::transaction(function () use ($request) {
+            OutletMapping::updateOrCreate(
+                ['raw_name' => $request->raw_name],
+                [
+                    'outlet_id' => $request->outlet_id,
+                    'is_ignored' => $request->is_ignored ?? false,
+                    'is_confirmed' => true
+                ]
+            );
 
-        if ($request->outlet_id) {
-            $pendingOutlet = \App\Models\Outlet::where('name', $request->raw_name)->where('is_pending', true)->first();
-            if ($pendingOutlet) {
-                \App\Models\Receivable::where('outlet_id', $pendingOutlet->id)->update(['outlet_id' => $request->outlet_id]);
-                \App\Models\ReceivableDailyReport::where('outlet_id', $pendingOutlet->id)->update(['outlet_id' => $request->outlet_id]);
-                // Delete pending
-                $pendingOutlet->delete();
+            if ($request->outlet_id) {
+                $pendingOutlet = \App\Models\Outlet::where('name', $request->raw_name)->where('is_pending', true)->first();
+                if ($pendingOutlet && (int) $pendingOutlet->id !== (int) $request->outlet_id) {
+                    \App\Models\Receivable::where('outlet_id', $pendingOutlet->id)->update(['outlet_id' => $request->outlet_id]);
+                    \App\Models\ReceivableDailyReport::where('outlet_id', $pendingOutlet->id)->update(['outlet_id' => $request->outlet_id]);
+                    // Delete pending
+                    $pendingOutlet->delete();
+                }
             }
-        }
+        });
 
         if ($request->is_ignored) {
             return redirect()->back()->with('success', 'Nama berhasil diabaikan.');
@@ -162,24 +160,26 @@ class MappingController extends Controller
             'is_ignored' => 'boolean'
         ]);
 
-        ProviderMapping::updateOrCreate(
-            ['raw_name' => $request->raw_name],
-            [
-                'provider_id' => $request->provider_id,
-                'is_ignored' => $request->is_ignored ?? false,
-                'is_confirmed' => true
-            ]
-        );
+        DB::transaction(function () use ($request) {
+            ProviderMapping::updateOrCreate(
+                ['raw_name' => $request->raw_name],
+                [
+                    'provider_id' => $request->provider_id,
+                    'is_ignored' => $request->is_ignored ?? false,
+                    'is_confirmed' => true
+                ]
+            );
 
-        if ($request->provider_id) {
-            $pendingProvider = \App\Models\Provider::where('name', $request->raw_name)->where('is_pending', true)->first();
-            if ($pendingProvider) {
-                \App\Models\Payable::where('provider_id', $pendingProvider->id)->update(['provider_id' => $request->provider_id]);
-                // Any other tables? Maybe ProviderProduct?
-                \App\Models\ProviderProduct::where('provider_id', $pendingProvider->id)->update(['provider_id' => $request->provider_id]);
-                $pendingProvider->delete();
+            if ($request->provider_id) {
+                $pendingProvider = \App\Models\Provider::where('name', $request->raw_name)->where('is_pending', true)->first();
+                if ($pendingProvider && (int) $pendingProvider->id !== (int) $request->provider_id) {
+                    \App\Models\Payable::where('provider_id', $pendingProvider->id)->update(['provider_id' => $request->provider_id]);
+                    // Any other tables? Maybe ProviderProduct?
+                    \App\Models\ProviderProduct::where('provider_id', $pendingProvider->id)->update(['provider_id' => $request->provider_id]);
+                    $pendingProvider->delete();
+                }
             }
-        }
+        });
 
         if ($request->is_ignored) {
             return redirect()->back()->with('success', 'Nama penyedia berhasil diabaikan.');

@@ -1,22 +1,21 @@
 import { Fragment, useState, useRef } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
-import { Check, ChevronDown, Search } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 
-export default function SearchableSelect({ value, onChange, options, placeholder = "Cari atau pilih...", className = "", icon: Icon, compact = false }) {
+export default function SearchableSelect({ value, onChange, options = [], placeholder = "Cari atau pilih...", className = "", icon: Icon, compact = false }) {
     const [query, setQuery] = useState('');
     const buttonRef = useRef(null);
+    const safeOptions = Array.isArray(options) ? options : [];
 
     const filteredOptions =
         query === ''
-            ? options
-            : options.filter((option) =>
-                  option.label
+            ? safeOptions
+            : safeOptions.filter((option) =>
+                  String(option.label ?? '')
                       .toLowerCase()
                       .replace(/\s+/g, '')
                       .includes(query.toLowerCase().replace(/\s+/g, ''))
               );
-
-    const selectedOption = options.find(opt => String(opt.value) === String(value)) || null;
 
     return (
         <div className={`relative ${className}`}>
@@ -30,9 +29,10 @@ export default function SearchableSelect({ value, onChange, options, placeholder
                                 </span>
                             )}
                             <Combobox.Input
-                                className={`w-full border-none py-2.5 text-sm leading-5 text-gray-900 focus:ring-0 cursor-text ${compact ? 'md:px-0 md:group-hover:pl-10 md:group-hover:pr-10 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 bg-transparent relative z-10' : ''} ${Icon ? (compact ? 'pl-10 pr-10' : 'pl-10 pr-10') : 'pl-4 pr-10'}`}
+                                placeholder={placeholder}
+                                className={`w-full border-none py-2.5 text-sm leading-5 text-gray-900 focus:ring-0 cursor-text ${compact ? 'md:px-0 md:group-hover:pl-10 md:group-hover:pr-10 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 bg-transparent relative z-10' : ''} ${Icon ? 'pl-10 pr-10' : 'pl-4 pr-10'}`}
                                 displayValue={(val) => {
-                                    const opt = options.find(o => String(o.value) === String(val));
+                                    const opt = safeOptions.find(o => String(o.value) === String(val));
                                     return opt ? opt.label : '';
                                 }}
                                 onChange={(event) => setQuery(event.target.value)}

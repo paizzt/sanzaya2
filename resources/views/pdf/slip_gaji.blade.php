@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Slip Gaji - {{ $payroll->user->name }} - {{ $payroll->period_formatted }}</title>
+    <title>Slip Gaji - {{ $payroll->user?->name ?? 'Karyawan' }} - {{ $payroll->period_formatted }}</title>
     <style>
         * {
             box-sizing: border-box;
@@ -181,8 +181,6 @@
             <td style="width: 60%; vertical-align: middle;">
                 @if(!empty($logoBase64))
                     <img src="{{ $logoBase64 }}" class="logo-img" alt="Logo">
-                @else
-                    <div class="company-name">{{ $company->name ?? 'SANZAYA GROUP' }}</div>
                 @endif
                 <div class="company-name" style="margin-top: 4px;">{{ $company->name ?? 'SANZAYA GROUP' }}</div>
                 <div class="company-address">

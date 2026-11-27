@@ -43,8 +43,9 @@ class LoginRequest extends FormRequest
             $query->whereRaw('LOWER(email) = ?', [$loginLower])
                   ->orWhereRaw('LOWER(name) = ?', [$loginLower]);
 
-            if (! str_contains($loginLower, '@')) {
-                $query->orWhereRaw('LOWER(email) LIKE ?', [$loginLower . '@%']);
+            if (! str_contains($loginLower, '@') && $loginLower !== '') {
+                $escapedLogin = addcslashes($loginLower, '%_\\');
+                $query->orWhereRaw('LOWER(email) LIKE ?', [$escapedLogin . '@%']);
             }
         })->get();
 

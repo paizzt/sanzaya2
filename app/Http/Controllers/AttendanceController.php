@@ -6,8 +6,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
@@ -252,14 +251,13 @@ class AttendanceController extends Controller
 
         $activeDutySatpam = null;
         if ($isSatpam) {
-            $activeDutySatpam = Attendance::with('user')
-                ->whereHas('user', function($q) use ($user) {
-                    $q->where('id', '!=', $user->id);
-                })
+            $activeDutySatpam = Attendance::with(['user.roles', 'user.division'])
+                ->where('user_id', '!=', $user->id)
                 ->whereNotNull('check_in_time')
                 ->whereNull('check_out_time')
                 ->orderBy('date', 'desc')
-                ->first();
+                ->get()
+                ->first(fn ($att) => $att->user && $att->user->isSatpam());
         }
 
         return Inertia::render('Absensi/Index', [
@@ -311,15 +309,19 @@ class AttendanceController extends Controller
             }
         } catch (\Throwable $e) {}
 
+        $user = Auth::user();
+        if (!\App\Models\FeatureToggle::userHasFeature($user, 'Ambil Absensi') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Ambil Absensi dinonaktifkan untuk akun Anda.');
+        }
+
         $request->validate([
             'type' => 'required|in:check_in,check_out',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'shift' => 'nullable|string|in:Shift Siang,Shift Malam',
             'notes' => 'nullable|string|max:1000',
+            'photo_url' => 'nullable|string|max:2048',
         ]);
-
-        $user = Auth::user();
         
         $company = $user->company;
         if (!$company || !$company->latitude || !$company->longitude) {
@@ -344,7 +346,6 @@ class AttendanceController extends Controller
         if (!$user->hasRoleCaseInsensitive(['Marketing', 'Sales'])) {
             if ($distance > $maxRadius || ($userLat == 0 && $userLon == 0)) {
                 if (empty($request->photo_url)) {
-                    $formattedDistance = number_format($distance, 0, ',', '.');
                     return redirect()->back()->with('error', "Lokasi GPS tidak terdeteksi atau berada di luar jangkauan area absen PT. Wajib sertakan foto bukti kehadiran.");
                 }
             }
@@ -693,15 +694,16 @@ class AttendanceController extends Controller
 
         PayrollController::ensurePayrollTablesStatic();
 
+        $timeRegex = 'regex:/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/';
         $request->validate([
-            'jam_pulang_otomatis' => ['required', 'string', 'max:10'],
-            'jam_pulang_otomatis_sabtu' => ['nullable', 'string', 'max:10'],
-            'jam_mulai_lembur_weekday' => ['required', 'string', 'max:10'],
-            'jam_mulai_lembur_sabtu' => ['required', 'string', 'max:10'],
-            'jam_batas_terlambat' => ['required', 'string', 'max:10'],
+            'jam_pulang_otomatis' => ['required', 'string', $timeRegex],
+            'jam_pulang_otomatis_sabtu' => ['nullable', 'string', $timeRegex],
+            'jam_mulai_lembur_weekday' => ['required', 'string', $timeRegex],
+            'jam_mulai_lembur_sabtu' => ['required', 'string', $timeRegex],
+            'jam_batas_terlambat' => ['required', 'string', $timeRegex],
             'toleransi_terlambat_lembur_jam' => ['required', 'numeric', 'min:0', 'max:12'],
-            'month' => ['nullable', 'integer'],
-            'year' => ['nullable', 'integer'],
+            'month' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'year' => ['nullable', 'integer', 'min:2000', 'max:2100'],
         ]);
 
         $jamPulang = substr(trim($request->jam_pulang_otomatis), 0, 5);
@@ -711,51 +713,53 @@ class AttendanceController extends Controller
         $jamTerlambat = substr(trim($request->jam_batas_terlambat), 0, 5);
         $toleransiJam = (float)$request->toleransi_terlambat_lembur_jam;
 
-        $row = \Illuminate\Support\Facades\DB::table('payroll_settings')->first();
-        if ($row) {
-            \Illuminate\Support\Facades\DB::table('payroll_settings')->where('id', $row->id)->update([
-                'jam_pulang_otomatis' => $jamPulang,
-                'jam_pulang_otomatis_sabtu' => $jamPulangSabtu,
-                'jam_mulai_lembur_weekday' => $jamWeekday,
-                'jam_mulai_lembur_sabtu' => $jamSabtu,
-                'jam_batas_terlambat' => $jamTerlambat,
-                'toleransi_terlambat_lembur_jam' => $toleransiJam,
-                'updated_at' => now(),
-            ]);
-        } else {
-            \Illuminate\Support\Facades\DB::table('payroll_settings')->insert([
-                'tarif_potongan_terlambat' => 20000,
-                'tarif_lembur_weekday_pertama' => 30000,
-                'tarif_lembur_weekday_berikutnya' => 20000,
-                'tarif_lembur_sabtu' => 20000,
-                'jam_pulang_otomatis' => $jamPulang,
-                'jam_pulang_otomatis_sabtu' => $jamPulangSabtu,
-                'jam_mulai_lembur_weekday' => $jamWeekday,
-                'jam_mulai_lembur_sabtu' => $jamSabtu,
-                'jam_batas_terlambat' => $jamTerlambat,
-                'toleransi_terlambat_lembur_jam' => $toleransiJam,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-
         $targetMonth = (int)($request->input('month') ?: date('n'));
         $targetYear = (int)($request->input('year') ?: date('Y'));
 
-        // Perbarui jam checkout pada absensi auto-checkout di bulan terkait (Senin-Jumat vs Sabtu)
-        $autoCheckouts = Attendance::whereMonth('date', $targetMonth)
-            ->whereYear('date', $targetYear)
-            ->where(function ($q) {
-                $q->where('notes', 'Auto checkout oleh sistem (Lupa absen pulang)')
-                  ->orWhere('check_out_notes', 'Otomatis keluar oleh sistem');
-            })
-            ->get();
+        DB::transaction(function () use ($jamPulang, $jamPulangSabtu, $jamWeekday, $jamSabtu, $jamTerlambat, $toleransiJam, $targetMonth, $targetYear) {
+            $row = DB::table('payroll_settings')->first();
+            if ($row) {
+                DB::table('payroll_settings')->where('id', $row->id)->update([
+                    'jam_pulang_otomatis' => $jamPulang,
+                    'jam_pulang_otomatis_sabtu' => $jamPulangSabtu,
+                    'jam_mulai_lembur_weekday' => $jamWeekday,
+                    'jam_mulai_lembur_sabtu' => $jamSabtu,
+                    'jam_batas_terlambat' => $jamTerlambat,
+                    'toleransi_terlambat_lembur_jam' => $toleransiJam,
+                    'updated_at' => now(),
+                ]);
+            } else {
+                DB::table('payroll_settings')->insert([
+                    'tarif_potongan_terlambat' => 20000,
+                    'tarif_lembur_weekday_pertama' => 30000,
+                    'tarif_lembur_weekday_berikutnya' => 20000,
+                    'tarif_lembur_sabtu' => 20000,
+                    'jam_pulang_otomatis' => $jamPulang,
+                    'jam_pulang_otomatis_sabtu' => $jamPulangSabtu,
+                    'jam_mulai_lembur_weekday' => $jamWeekday,
+                    'jam_mulai_lembur_sabtu' => $jamSabtu,
+                    'jam_batas_terlambat' => $jamTerlambat,
+                    'toleransi_terlambat_lembur_jam' => $toleransiJam,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
-        foreach ($autoCheckouts as $ac) {
-            $isSatDate = Carbon::parse(substr($ac->date, 0, 10))->dayOfWeek === Carbon::SATURDAY;
-            $ac->check_out_time = ($isSatDate ? $jamPulangSabtu : $jamPulang) . ':00';
-            $ac->save();
-        }
+            // Perbarui jam checkout pada absensi auto-checkout di bulan terkait (Senin-Jumat vs Sabtu)
+            $autoCheckouts = Attendance::whereMonth('date', $targetMonth)
+                ->whereYear('date', $targetYear)
+                ->where(function ($q) {
+                    $q->where('notes', 'Auto checkout oleh sistem (Lupa absen pulang)')
+                      ->orWhere('check_out_notes', 'Otomatis keluar oleh sistem');
+                })
+                ->get();
+
+            foreach ($autoCheckouts as $ac) {
+                $isSatDate = Carbon::parse(substr($ac->date, 0, 10))->dayOfWeek === Carbon::SATURDAY;
+                $ac->check_out_time = ($isSatDate ? $jamPulangSabtu : $jamPulang) . ':00';
+                $ac->save();
+            }
+        });
 
         // Sinkronkan ulang data gaji bulan tersebut jika ada
         try {

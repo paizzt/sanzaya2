@@ -6,6 +6,47 @@ import { NumericFormat } from 'react-number-format';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import 'dayjs/locale/id';
+import Pagination from '@/Components/Pagination';
+
+dayjs.locale('id');
+
+const isVehicleExpiringSoon = (date) => {
+    if (!date) return false;
+    const today = dayjs().startOf('day');
+    const expiryDate = dayjs(date).startOf('day');
+    const diff = expiryDate.diff(today, 'day');
+    return diff <= 30 && diff >= 0;
+};
+
+const isVehicleExpired = (date) => {
+    if (!date) return false;
+    return dayjs(date).startOf('day').isBefore(dayjs().startOf('day'));
+};
+
+const StatusBadge = ({ date, label }) => {
+    if (!date) return null;
+    if (isVehicleExpired(date)) {
+        return <span className="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> {label} Exp</span>;
+    }
+    if (isVehicleExpiringSoon(date)) {
+        return <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> {label} H-30</span>;
+    }
+    return <span className="text-[10px] text-emerald-700 font-bold w-max">{label} Aman</span>;
+};
+
+const OdoServiceBadge = ({ initialOdo, currentOdo }) => {
+    if (initialOdo == null || currentOdo == null) return null;
+    const diff = currentOdo - initialOdo;
+
+    if (diff >= 10000) {
+        return <span className="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> Service Segera</span>;
+    }
+    if (diff >= 8000) {
+        return <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> Mendekati Service</span>;
+    }
+    return <span className="text-[10px] text-emerald-700 font-bold w-max">Aman</span>;
+};
 
 export default function Index({ vehicles }) {
     const { flash, auth } = usePage().props;
@@ -43,10 +84,10 @@ export default function Index({ vehicles }) {
     };
 
     useEffect(() => {
-        if (flash.success) {
+        if (flash?.success) {
             Swal.fire({ title: 'Berhasil!', text: flash.success, icon: 'success', customClass: { popup: 'rounded-2xl' } });
         }
-        if (flash.error) {
+        if (flash?.error) {
             Swal.fire({ title: 'Gagal!', text: flash.error, icon: 'error', customClass: { popup: 'rounded-2xl' } });
         }
     }, [flash]);
@@ -69,45 +110,9 @@ export default function Index({ vehicles }) {
         });
     };
 
-    const isExpiringSoon = (date) => {
-        if (!date) return false;
-        const today = dayjs();
-        const expiryDate = dayjs(date);
-        return expiryDate.diff(today, 'day') <= 30 && expiryDate.diff(today, 'day') >= 0;
-    };
-
-    const isExpired = (date) => {
-        if (!date) return false;
-        return dayjs(date).isBefore(dayjs());
-    };
-
-    const StatusBadge = ({ date, label }) => {
-        if (!date) return null;
-        if (isExpired(date)) {
-            return <span className="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> {label} Exp</span>;
-        }
-        if (isExpiringSoon(date)) {
-            return <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> {label} H-30</span>;
-        }
-        return <span className="text-[10px] text-emerald-700 font-bold w-max">{label} Aman</span>;
-    };
-
-    const OdoServiceBadge = ({ initialOdo, currentOdo }) => {
-        if (initialOdo == null || currentOdo == null) return null;
-        const diff = currentOdo - initialOdo;
-        
-        if (diff >= 10000) {
-            return <span className="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> Service Segera</span>;
-        }
-        if (diff >= 8000) {
-            return <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold w-max flex items-center gap-1 shadow-xs"><AlertTriangle className="w-3 h-3" /> Mendekati Service</span>;
-        }
-        return <span className="text-[10px] text-emerald-700 font-bold w-max">Aman</span>;
-    };
-
     return (
         <AuthenticatedLayout
-            user={usePage().props.auth.user}
+            user={auth.user}
             header={<h2 className="font-bold text-2xl text-gray-800 leading-tight">Manajemen Armada</h2>}
         >
             <Head title="Data Armada" />
@@ -273,6 +278,11 @@ export default function Index({ vehicles }) {
                             </tbody>
                         </table>
                     </div>
+                    {vehicles?.links && vehicles.links.length > 3 && (
+                        <div className="px-6 py-4 border-t border-gray-100">
+                            <Pagination links={vehicles.links} />
+                        </div>
+                    )}
                 </div>
             </div>
 

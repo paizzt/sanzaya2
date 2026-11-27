@@ -7,7 +7,6 @@ use App\Models\PaymentApprovalThreshold;
 use App\Models\Division;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PaymentRequestService
 {
@@ -33,12 +32,13 @@ class PaymentRequestService
             'Interior' => 'INT',
         ];
         
-        $code = $divisionCodes[$division->name] ?? 'DIV';
+        $code = $divisionCodes[$division?->name ?? ''] ?? 'DIV';
 
         return DB::transaction(function () use ($code, $year, $month) {
             $prefix = "PAY/{$code}/{$year}/{$month}/";
             
-            $lastRequest = PaymentRequest::where('reference_number', 'like', $prefix . '%')
+            $lastRequest = PaymentRequest::withTrashed()
+                ->where('reference_number', 'like', $prefix . '%')
                 ->lockForUpdate()
                 ->orderBy('reference_number', 'desc')
                 ->first();

@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ExportDropdown from '@/Components/ExportDropdown';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { ShoppingCart, Send, FileCheck, Calendar, PackageOpen, Box, Download, FileText } from 'lucide-react';
+import { ShoppingCart, Calendar, PackageOpen, Box, Download, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';

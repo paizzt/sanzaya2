@@ -547,10 +547,22 @@ class PayrollController extends Controller
     }
 
     /**
+     * Pastikan pengguna memiliki hak akses Manajemen Gaji (Admin/Superadmin atau FeatureToggle aktif).
+     */
+    private function authorizePayrollManagement(): void
+    {
+        $user = auth()->user();
+        if (!$user || (!$user->isSuperAdminUser() && !$user->isAdminUser() && !\App\Models\FeatureToggle::userHasFeature($user, 'Manajemen Gaji'))) {
+            abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk mengelola data gaji.');
+        }
+    }
+
+    /**
      * Update global overtime & late deduction tariff settings, and optionally sync current period payrolls from Rekap Absensi
      */
     public function updateSettings(Request $request)
     {
+        $this->authorizePayrollManagement();
         $this->ensureTableAndFeatures();
 
         $request->validate([
@@ -740,6 +752,7 @@ class PayrollController extends Controller
      */
     public function userSummary(Request $request)
     {
+        $this->authorizePayrollManagement();
         $this->ensureTableAndFeatures();
 
         $userId = $request->input('user_id');
@@ -788,6 +801,7 @@ class PayrollController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizePayrollManagement();
         $this->ensureTableAndFeatures();
 
         $validated = $request->validate([
@@ -921,6 +935,7 @@ class PayrollController extends Controller
      */
     public function update(Request $request, Payroll $payroll)
     {
+        $this->authorizePayrollManagement();
         $this->ensureTableAndFeatures();
 
         $validated = $request->validate([
@@ -1043,6 +1058,7 @@ class PayrollController extends Controller
      */
     public function toggleTanpaBpjs(Payroll $payroll)
     {
+        $this->authorizePayrollManagement();
         $this->ensureTableAndFeatures();
 
         $newState = !(bool)$payroll->tanpa_potongan_bpjs;
@@ -1082,6 +1098,7 @@ class PayrollController extends Controller
      */
     public function destroy(Payroll $payroll)
     {
+        $this->authorizePayrollManagement();
         $payroll->delete();
         return redirect()->back()->with('success', 'Data gaji berhasil dihapus.');
     }
@@ -1091,6 +1108,7 @@ class PayrollController extends Controller
      */
     public function generate(Request $request)
     {
+        $this->authorizePayrollManagement();
         $this->ensureTableAndFeatures();
 
         $month = (int)$request->input('month', date('n'));
@@ -1192,7 +1210,7 @@ class PayrollController extends Controller
         }
 
         $payroll->load(['user.division', 'user.position', 'user.company', 'company']);
-        $company = $payroll->company ?? $payroll->user->company ?? Company::first();
+        $company = $payroll->company ?? $payroll->user?->company ?? Company::first();
 
         // Convert company logo to base64 if present for clean DomPDF rendering
         $logoBase64 = null;
@@ -1212,7 +1230,8 @@ class PayrollController extends Controller
             'terbilang' => $payroll->terbilang,
         ])->setPaper('a4', 'portrait');
 
-        $filename = 'Slip_Gaji_' . str_replace(' ', '_', $payroll->user->name) . '_' . $payroll->month_name . '_' . $payroll->period_year . '.pdf';
+        $employeeName = $payroll->user?->name ?? 'Karyawan';
+        $filename = 'Slip_Gaji_' . str_replace(' ', '_', $employeeName) . '_' . $payroll->month_name . '_' . $payroll->period_year . '.pdf';
         return $pdf->download($filename);
     }
 
@@ -1221,6 +1240,7 @@ class PayrollController extends Controller
      */
     public function exportPdf(Request $request)
     {
+        $this->authorizePayrollManagement();
         $this->ensureTableAndFeatures();
 
         $month = (int)$request->input('month', date('n'));
@@ -1288,6 +1308,7 @@ class PayrollController extends Controller
      */
     public function exportExcel(Request $request)
     {
+        $this->authorizePayrollManagement();
         $this->ensureTableAndFeatures();
 
         $month = (int)$request->input('month', date('n'));

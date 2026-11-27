@@ -6,7 +6,6 @@ use App\Models\Sop;
 use App\Models\SopDivision;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class SopController extends Controller
 {
@@ -24,13 +23,13 @@ class SopController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255'
         ]);
 
-        SopDivision::create($request->all());
+        SopDivision::create($validated);
 
-        return redirect()->back()->with('success', 'Devisi SOP berhasil ditambahkan');
+        return redirect()->back()->with('success', 'Divisi SOP berhasil ditambahkan');
     }
 
     public function destroyDivision(SopDivision $sop_division)
@@ -40,7 +39,7 @@ class SopController extends Controller
         }
 
         $sop_division->delete();
-        return redirect()->back()->with('success', 'Devisi SOP berhasil dihapus');
+        return redirect()->back()->with('success', 'Divisi SOP berhasil dihapus');
     }
 
     public function show(SopDivision $sop_division)
@@ -83,37 +82,43 @@ class SopController extends Controller
         $data = $request->only(['title', 'description']);
 
         $stepTexts = $request->input('step_texts', []);
-        $stepImages = $request->file('step_images', []);
         $existingImages = $request->input('existing_step_images', []);
+        $allowedOldImages = is_array($sop->steps)
+            ? array_values(array_filter(array_map(fn ($s) => is_array($s) ? ($s['image'] ?? null) : null, $sop->steps)))
+            : [];
         $stepsData = [];
 
         foreach ($stepTexts as $index => $text) {
             $hasNewImage = $request->hasFile("step_images.$index");
             $oldImage = $existingImages[$index] ?? null;
             
-            if (trim($text) === '' && !$hasNewImage && empty($oldImage)) {
+            if (trim((string) $text) === '' && !$hasNewImage && empty($oldImage)) {
                 continue;
             }
 
             $imagePath = $oldImage;
 
             if ($hasNewImage) {
-                if ($oldImage && !str_starts_with($oldImage, 'http') && \Storage::disk('public')->exists($oldImage)) {
+                if ($oldImage && in_array($oldImage, $allowedOldImages, true) && !str_starts_with($oldImage, 'http') && \Storage::disk('public')->exists($oldImage)) {
                     \Storage::disk('public')->delete($oldImage);
                 }
 
                 $file = $request->file("step_images.$index");
-                $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->attach(
-                    'image', 
-                    file_get_contents($file->getRealPath()), 
-                    $file->getClientOriginalName()
-                )->post('https://api.imgbb.com/1/upload', [
-                    'key' => '5950b44b24860057ff810fe73f58868b'
-                ]);
+                try {
+                    $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(15)->attach(
+                        'image',
+                        file_get_contents($file->getRealPath()),
+                        $file->getClientOriginalName()
+                    )->post('https://api.imgbb.com/1/upload', [
+                        'key' => '5950b44b24860057ff810fe73f58868b'
+                    ]);
 
-                if ($response->successful()) {
-                    $imagePath = $response->json('data.url');
-                } else {
+                    if ($response->successful() && $response->json('data.url')) {
+                        $imagePath = $response->json('data.url');
+                    } else {
+                        $imagePath = $file->store('sops/steps', 'public');
+                    }
+                } catch (\Throwable $e) {
                     $imagePath = $file->store('sops/steps', 'public');
                 }
             }

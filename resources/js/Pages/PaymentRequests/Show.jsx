@@ -3,10 +3,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import DangerButton from '@/Components/DangerButton';
 import Modal from '@/Components/Modal';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Eye, ExternalLink, X, FileText, Download, AlertTriangle, AlertCircle, Edit, Send, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
+import { Eye, ExternalLink, X, FileText, Download, AlertTriangle, Edit, Send } from 'lucide-react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -258,8 +257,9 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                         {completeness?.is_complete && (
                                             <button
                                                 type="button"
+                                                disabled={processing}
                                                 onClick={() => handleAction('payment-requests.submit')}
-                                                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition active:scale-98"
+                                                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition active:scale-98 disabled:opacity-50"
                                             >
                                                 <Send size={16} /> Kirim Pengajuan
                                             </button>
@@ -271,15 +271,15 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                     )}
 
                     {/* Status Kelengkapan */}
-                    {!completeness.is_complete && (
+                    {!completeness?.is_complete && (
                         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm">
                             <h3 className="text-red-800 font-bold mb-2">BELUM LENGKAP - TIDAK DAPAT DIAJUKAN</h3>
                             <ul className="list-disc list-inside text-sm text-red-700">
-                                {completeness.missing.map((item, idx) => <li key={idx}>{item}</li>)}
+                                {(completeness?.missing || []).map((item, idx) => <li key={idx}>{item}</li>)}
                             </ul>
                         </div>
                     )}
-                    {completeness.is_complete && paymentRequest.workflow_status === 'draft' && (
+                    {completeness?.is_complete && paymentRequest.workflow_status === 'draft' && (
                         <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded shadow-sm">
                             <h3 className="text-green-800 font-bold">LENGKAP - DAPAT DIAJUKAN</h3>
                         </div>
@@ -434,7 +434,7 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                         {paymentRequest.workflow_status === 'draft' && (canSubmit || !isApprovalView) && (
                                             <PrimaryButton 
                                                 className="w-full justify-center"
-                                                disabled={!completeness?.is_complete}
+                                                disabled={processing || !completeness?.is_complete}
                                                 onClick={() => handleAction('payment-requests.submit')}
                                             >
                                                 Kirim Pengajuan
@@ -622,9 +622,10 @@ export default function Show({ auth, paymentRequest, completeness, canApprove, c
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {attachments.map((att, idx) => {
-                                                const rawUrl = att.file_path.startsWith('http') ? att.file_path : `/storage/${att.file_path}`;
+                                                const safePath = att.file_path || '';
+                                                const rawUrl = safePath.startsWith('http') ? safePath : `/storage/${safePath}`;
                                                 const imgUrl = rawUrl.includes('i.ibb.co') ? `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}` : rawUrl;
-                                                const ext = (att.original_name ? att.original_name.split('.').pop() : (att.file_path.split('.').pop() || '')).toUpperCase();
+                                                const ext = (att.original_name ? att.original_name.split('.').pop() : (safePath.split('.').pop() || '')).toUpperCase();
                                                 const isImg = att.attachment_type === 'Lampiran Foto' || ['JPG', 'JPEG', 'PNG', 'WEBP', 'GIF', 'BMP'].includes(ext);
                                                 const isPdf = ext === 'PDF';
                                                 const isSheet = ['XLS', 'XLSX', 'CSV'].includes(ext);

@@ -6,7 +6,7 @@ import TextInput from '@/Components/TextInput';
 import CustomSelect from '@/Components/CustomSelect';
 import Pagination from '@/Components/Pagination';
 import ExportDropdown from '@/Components/ExportDropdown';
-import { Eye, FileText, Edit, Trash2, Plus, Filter, X, ChevronDown, ChevronUp, Calendar, AlertCircle, AlertTriangle } from 'lucide-react';
+import { Eye, FileText, Edit, Trash2, Plus, Filter, X, ChevronDown, ChevronUp, Calendar, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -513,7 +513,7 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                 </div>
                                             )}
 
-                                            {!isApprovalView && !pr.latest_revision && pr.notes && (
+                                            {!isApprovalView && !revData && pr.notes && (
                                                 <div className="text-xs text-gray-600 bg-blue-50/50 border border-blue-100/60 rounded-xl px-2.5 py-1.5 line-clamp-2">
                                                     <span className="font-bold text-blue-900">Catatan:</span> {pr.notes}
                                                 </div>
@@ -659,7 +659,7 @@ export default function Index({ auth, paymentRequests, summary, filters, compani
                                                             {badge.text}
                                                         </span>
                                                     </td>
-                                                    <td className="px-4 py-3 text-center space-x-3">
+                                                    <td className="px-4 py-3 text-center space-x-3" onClick={(e) => e.stopPropagation()}>
                                                         {canDownloadPdf && (
                                                             <ExportDropdown 
                                                                 pdfRoute={route('payment-requests.pdf', pr.id)}

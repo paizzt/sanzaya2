@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
-import { Package, ChevronDown, ChevronRight, ChevronLeft, Store, Link as LinkIcon } from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { Package, ChevronRight, ChevronLeft, Store, Link as LinkIcon } from 'lucide-react';
 
-export default function ItemRequirementsPublic({ groupedItems, outletName, filterMonth, filterYear }) {
+export default function ItemRequirementsPublic({ groupedItems = {}, outletName, filterMonth, filterYear }) {
     const [selectedOutlet, setSelectedOutlet] = useState(outletName || null);
 
     // If an outlet is selected, show its data
@@ -84,7 +84,7 @@ export default function ItemRequirementsPublic({ groupedItems, outletName, filte
                                                     </span>
                                                 </td>
                                                 <td className="px-3 py-2 text-right whitespace-nowrap">
-                                                    Rp {item.price.toLocaleString('id-ID')}
+                                                    Rp {Number(item.price || 0).toLocaleString('id-ID')}
                                                 </td>
                                                 <td className="px-3 py-2 text-center text-emerald-600 font-medium">
                                                     {item.sent}
@@ -93,7 +93,7 @@ export default function ItemRequirementsPublic({ groupedItems, outletName, filte
                                                     {item.not_sent}
                                                 </td>
                                                 <td className="px-3 py-2 text-right font-semibold text-blue-600 whitespace-nowrap">
-                                                    Rp {item.total.toLocaleString('id-ID')}
+                                                    Rp {Number(item.total || 0).toLocaleString('id-ID')}
                                                 </td>
                                                 <td className="px-3 py-2">
                                                     <div className="flex justify-center">

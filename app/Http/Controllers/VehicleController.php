@@ -161,6 +161,8 @@ class VehicleController extends Controller
                 Storage::disk('public')->delete($vehicle->photo);
             }
             $validated['photo'] = $this->uploadToImgBB($request->file('photo'), 'vehicles');
+        } else {
+            unset($validated['photo']);
         }
 
         $vehicle->update($validated);
@@ -173,10 +175,11 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        if ($vehicle->photo && !str_starts_with($vehicle->photo, 'http')) {
-            Storage::disk('public')->delete($vehicle->photo);
-        }
+        $photoPath = $vehicle->photo;
         $vehicle->delete();
+        if ($photoPath && !str_starts_with($photoPath, 'http')) {
+            Storage::disk('public')->delete($photoPath);
+        }
 
         return redirect()->route('vehicles.index')->with('success', 'Data armada berhasil dihapus.');
     }
@@ -225,6 +228,6 @@ class VehicleController extends Controller
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Armada') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Armada') . '.xlsx');
     }
 }

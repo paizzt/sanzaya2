@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\PaymentRequest;
-use App\Models\PaymentApprovalThreshold;
 use App\Models\Provider;
 use App\Services\PaymentRequestService;
 use Illuminate\Support\Facades\Auth;
@@ -326,7 +325,6 @@ class PaymentRequestController extends Controller
 
     public function store(Request $request)
     {
-        \Illuminate\Support\Facades\Log::info('PaymentRequest store hit!', $request->all());
         $user = Auth::user();
 
         if (!$user->can('payment-request.create')) {
@@ -1180,7 +1178,7 @@ class PaymentRequestController extends Controller
             return (request()->has('preview') || request()->has('stream')) ? $pdf->stream($filename) : $pdf->download($filename);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("PR PDF Error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
-            return response("Terjadi kesalahan saat membuat PDF: " . $e->getMessage() . " (Baris " . $e->getLine() . ")", 500);
+            return response("Terjadi kesalahan saat membuat PDF pengajuan pembayaran.", 500);
         }
     }
 
@@ -1269,7 +1267,7 @@ class PaymentRequestController extends Controller
         $user = Auth::user();
         $pr = $attachment->paymentRequest;
 
-        if (!$user->isSuperAdminUser() && !$user->isAdminUser() && $pr->requester_id !== $user->id) {
+        if (!$user->isSuperAdminUser() && !$user->isAdminUser() && (!$pr || (int) $pr->requester_id !== (int) $user->id)) {
             abort(403);
         }
 
@@ -1287,6 +1285,28 @@ class PaymentRequestController extends Controller
     public function downloadAttachment($id)
     {
         $attachment = \App\Models\PaymentRequestAttachment::findOrFail($id);
+        $user = Auth::user();
+        $pr = $attachment->paymentRequest;
+
+        $isSuperAdmin = $user->isSuperAdminUser();
+        $isAdmin = $user->isAdminUser();
+        $isManajemen = $user->hasRoleCaseInsensitive(['MANAJEMEN', 'Manajemen', 'Manager', 'Direktur']);
+        $isFinance = $user->hasRoleCaseInsensitive(['FINANCE', 'Finance', 'Keuangan']);
+        $hasReviewFeature = \App\Models\FeatureToggle::userHasFeature($user, 'Persetujuan Pembayaran');
+
+        $canView = $isSuperAdmin
+            || $isAdmin
+            || $hasReviewFeature
+            || $user->can('payment-request.view-all')
+            || $isManajemen
+            || $isFinance
+            || ($pr && $user->can('payment-request.view-division') && $pr->division_id == $user->division_id)
+            || ($pr && (int) $pr->requester_id === (int) $user->id)
+            || ($pr && $pr->approvals()->where('approver_id', $user->id)->exists());
+
+        if (!$canView) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengunduh lampiran ini.');
+        }
 
         if (str_starts_with($attachment->file_path, 'http')) {
             if (str_contains($attachment->file_path, 'i.ibb.co')) {

@@ -108,15 +108,31 @@ class UcApprovalController extends Controller
                 if (is_numeric($rawCost) && !is_string($rawCost)) {
                     $cost = (float)$rawCost;
                 } else {
-                    $s = trim((string)$rawCost);
-                    if (preg_match('/^\d+\.\d{1,2}$/', $s)) {
+                    $s = preg_replace('/[^0-9.,]/', '', trim((string)$rawCost));
+                    if ($s === '') {
+                        $cost = 0;
+                    } elseif (str_contains($s, '.') && str_contains($s, ',')) {
+                        if (strrpos($s, ',') > strrpos($s, '.')) {
+                            $s = str_replace('.', '', $s);
+                            $s = str_replace(',', '.', $s);
+                        } else {
+                            $s = str_replace(',', '', $s);
+                        }
+                        $cost = (float)$s;
+                    } elseif (str_contains($s, ',')) {
+                        if (substr_count($s, ',') > 1 || preg_match('/^[1-9]\d{0,2},\d{3}$/', $s)) {
+                            $s = str_replace(',', '', $s);
+                        } else {
+                            $s = str_replace(',', '.', $s);
+                        }
+                        $cost = (float)$s;
+                    } elseif (str_contains($s, '.')) {
+                        if (substr_count($s, '.') > 1 || preg_match('/^[1-9]\d{0,2}\.\d{3}$/', $s)) {
+                            $s = str_replace('.', '', $s);
+                        }
                         $cost = (float)$s;
                     } else {
-                        if (strpos($s, ',') !== false) {
-                            $s = explode(',', $s)[0];
-                        }
-                        $digits = preg_replace('/[^0-9]/', '', $s);
-                        $cost = $digits !== '' ? (float)$digits : 0;
+                        $cost = (float)$s;
                     }
                 }
 
@@ -221,8 +237,8 @@ class UcApprovalController extends Controller
                     $item->departure_city,
                     $item->destination_city,
                     $item->description ?? '-',
-                    date('d/m/Y', strtotime($item->departure_date)),
-                    date('d/m/Y', strtotime($item->return_date)),
+                    $item->departure_date ? date('d/m/Y', strtotime($item->departure_date)) : '-',
+                    $item->return_date ? date('d/m/Y', strtotime($item->return_date)) : '-',
                     $item->transport_type,
                     $item->status
                 ];
@@ -269,14 +285,14 @@ class UcApprovalController extends Controller
                     $item->departure_city,
                     $item->destination_city,
                     $item->description ?? '-',
-                    date('d/m/Y', strtotime($item->departure_date)),
-                    date('d/m/Y', strtotime($item->return_date)),
+                    $item->departure_date ? date('d/m/Y', strtotime($item->departure_date)) : '-',
+                    $item->return_date ? date('d/m/Y', strtotime($item->return_date)) : '-',
                     $item->transport_type,
                     $item->status
                 ];
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Persetujuan UC') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Persetujuan UC') . '.xlsx');
     }
 }

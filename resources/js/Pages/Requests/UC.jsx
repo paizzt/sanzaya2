@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { PlaneTakeoff, Send, MapPin, Calendar, Users, Car, Loader2, X, FileText } from 'lucide-react';
+import { PlaneTakeoff, MapPin, Calendar, Users, Car, Loader2, X, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -94,8 +94,9 @@ export default function UC({ requests, users, vehicles, companies = [], isAdmin 
     };
 
     const handleItemChange = (index, field, value) => {
-        const newItems = [...data.items];
-        newItems[index][field] = value;
+        const newItems = data.items.map((item, i) =>
+            i === index ? { ...item, [field]: value } : item
+        );
         setData('items', newItems);
     };
 

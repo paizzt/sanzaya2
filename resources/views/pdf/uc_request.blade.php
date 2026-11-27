@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+    @php
+        $allowedFonts = ['sans-serif', 'serif', 'Arial, Helvetica, sans-serif', "'Times New Roman', Times, serif", 'monospace', 'Arial, sans-serif', 'Helvetica, sans-serif'];
+        $pdfFont = in_array(request('font'), $allowedFonts, true) ? request('font') : 'sans-serif';
+        $pdfSize = max(8, min(24, (int) request('size', 12)));
+    @endphp
     <style>
 
         body {
-            font-family: {{ request('font', 'sans-serif') }} !important;
-            font-size: {{ request('size', '12') }}px !important;
+            font-family: {!! $pdfFont !!} !important;
+            font-size: {{ $pdfSize }}px !important;
         }
     
         @page { margin: 1.27cm; }
@@ -303,13 +308,13 @@
             <td>6.</td>
             <td>Tanggal Berangkat</td>
             <td>:</td>
-            <td><div class="box-outline">{{ \Carbon\Carbon::parse($uc->departure_date)->format('d F Y') }}</div></td>
+            <td><div class="box-outline">{{ $uc->departure_date ? \Carbon\Carbon::parse($uc->departure_date)->format('d F Y') : '-' }}</div></td>
         </tr>
         <tr>
             <td>7.</td>
             <td>Tanggal Pulang</td>
             <td>:</td>
-            <td><div class="box-outline">{{ \Carbon\Carbon::parse($uc->return_date)->format('d F Y') }}</div></td>
+            <td><div class="box-outline">{{ $uc->return_date ? \Carbon\Carbon::parse($uc->return_date)->format('d F Y') : '-' }}</div></td>
         </tr>
         <tr>
             <td>8.</td>
@@ -317,11 +322,13 @@
             <td>:<br>&nbsp;</td>
             <td>
                 @php
-                    $companions = is_array($uc->companions) ? $uc->companions : json_decode($uc->companions, true) ?? [];
-                    $comp1 = is_array($companions[0] ?? null) ? ($companions[0]['name'] ?? '-') : ($companions[0] ?? '-');
-                    $pos1 = !empty($companions[0]['position'] ?? null) ? '('.$companions[0]['position'].')' : '';
-                    $comp2 = is_array($companions[1] ?? null) ? ($companions[1]['name'] ?? '-') : ($companions[1] ?? '-');
-                    $pos2 = !empty($companions[1]['position'] ?? null) ? '('.$companions[1]['position'].')' : '';
+                    $companions = is_array($uc->companions) ? $uc->companions : (json_decode((string)$uc->companions, true) ?? []);
+                    $rawComp1 = $companions[0] ?? null;
+                    $rawComp2 = $companions[1] ?? null;
+                    $comp1 = is_array($rawComp1) ? ($rawComp1['name'] ?? '-') : ($rawComp1 ?? '-');
+                    $pos1 = is_array($rawComp1) && !empty($rawComp1['position']) ? '('.$rawComp1['position'].')' : '';
+                    $comp2 = is_array($rawComp2) ? ($rawComp2['name'] ?? '-') : ($rawComp2 ?? '-');
+                    $pos2 = is_array($rawComp2) && !empty($rawComp2['position']) ? '('.$rawComp2['position'].')' : '';
                 @endphp
                 <div style="margin-bottom: 5px;">
                     1. <div class="box-outline" style="display: inline-block; width: 90%;">{{ !empty($comp1) ? $comp1 : '-' }} {{ $pos1 }}</div>
@@ -610,7 +617,7 @@
     </div>
 
     @php
-        $receipts = json_decode($uc->result_receipts, true) ?? [];
+        $receipts = is_array($uc->result_receipts) ? $uc->result_receipts : (json_decode((string)$uc->result_receipts, true) ?? []);
     @endphp
     
     @if(count($receipts) > 0)

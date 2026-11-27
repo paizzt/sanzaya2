@@ -3,7 +3,7 @@ import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Pagination from '@/Components/Pagination';
 import { 
-    ArrowLeft, Plus, Search, Edit, Trash2, Store, Phone, MapPin, User, MessageCircle, Package, ExternalLink
+    Plus, Search, Edit, Trash2, Store, Phone, MapPin, User, MessageCircle, Package, ExternalLink
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -88,7 +88,7 @@ export default function Show({ provider, products, filters }) {
             cancelButtonColor: '#6b7280',
             confirmButtonText: 'Ya, Hapus!',
             cancelButtonText: 'Batal',
-            shape: 'rounded-xl'
+            customClass: { popup: 'rounded-xl' }
         }).then((result) => {
             if (result.isConfirmed) {
                 destroy(route('provider-products.destroy', id), {
@@ -372,7 +372,7 @@ export default function Show({ provider, products, filters }) {
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                                            <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                                                         <Package className="w-8 h-8 text-gray-400" />

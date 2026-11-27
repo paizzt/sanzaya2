@@ -1,6 +1,7 @@
 import { useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 import { LayoutDashboard, PanelBottom } from 'lucide-react';
+import InputError from '@/Components/InputError';
 
 export default function UpdatePreferencesForm({ className = '' }) {
     const user = usePage().props.auth.user;
@@ -11,10 +12,12 @@ export default function UpdatePreferencesForm({ className = '' }) {
 
     const currentPreferences = user.preferences || defaultPreferences;
 
-    const { data, setData, patch, processing, recentlySuccessful } = useForm({
+    const { data, setData, patch, processing, errors, recentlySuccessful } = useForm({
+        name: user.name || '',
+        email: user.email || '',
         preferences: {
-            bottom_nav: currentPreferences.bottom_nav || defaultPreferences.bottom_nav,
-            dashboard: currentPreferences.dashboard || defaultPreferences.dashboard,
+            bottom_nav: Array.isArray(currentPreferences.bottom_nav) ? currentPreferences.bottom_nav : defaultPreferences.bottom_nav,
+            dashboard: Array.isArray(currentPreferences.dashboard) ? currentPreferences.dashboard : defaultPreferences.dashboard,
         }
     });
 
@@ -152,6 +155,10 @@ export default function UpdatePreferencesForm({ className = '' }) {
                         </div>
                     </div>
                 </div>
+
+                {(errors.preferences || errors.name || errors.email) && (
+                    <InputError message={errors.preferences || errors.name || errors.email} />
+                )}
 
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
                     <button

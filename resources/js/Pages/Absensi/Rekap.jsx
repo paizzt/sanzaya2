@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import ExportDropdown from '@/Components/ExportDropdown';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { Calendar, Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip, Wallet, Settings, X, Save, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, ClipboardCheck, Clock, CheckCircle2, AlertCircle, FileText, Search, Download, Camera, Trash2, Edit, UserCheck, Paperclip, Wallet, Settings, X, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
 import CustomSelect from '@/Components/CustomSelect';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+
+const escapeHtml = (val) => String(val ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
 const ID_DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const ID_MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -247,22 +249,22 @@ export default function Rekap({ auth, recapList, summary, userSummaries, filters
             title: 'Edit Keterangan Absensi',
             html: `
                 <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl mb-4 text-left text-xs space-y-1">
-                    <p><strong class="text-gray-700">Karyawan:</strong> <span class="text-gray-900 font-semibold">${item.user_name}</span></p>
-                    <p><strong class="text-gray-700">Tanggal:</strong> <span class="text-gray-900">${item.date}</span></p>
+                    <p><strong class="text-gray-700">Karyawan:</strong> <span class="text-gray-900 font-semibold">${escapeHtml(item.user_name)}</span></p>
+                    <p><strong class="text-gray-700">Tanggal:</strong> <span class="text-gray-900">${escapeHtml(item.date)}</span></p>
                     <div class="flex items-center gap-4 pt-1 font-medium text-gray-700">
-                        <span>Jam Masuk: <b class="text-blue-600">${item.check_in && item.check_in !== '-' ? item.check_in : '-'}</b></span>
-                        <span>Jam Keluar: <b class="text-green-600">${item.check_out && item.check_out !== '-' ? item.check_out : '-'}</b></span>
+                        <span>Jam Masuk: <b class="text-blue-600">${escapeHtml(item.check_in && item.check_in !== '-' ? item.check_in : '-')}</b></span>
+                        <span>Jam Keluar: <b class="text-green-600">${escapeHtml(item.check_out && item.check_out !== '-' ? item.check_out : '-')}</b></span>
                     </div>
                 </div>
                 <div class="text-left mb-3">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Keterangan Masuk</label>
-                    <textarea id="swal-input-notes-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/keterangan saat masuk...">${currentInNotes}</textarea>
+                    <textarea id="swal-input-notes-in" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/keterangan saat masuk...">${escapeHtml(currentInNotes)}</textarea>
                 </div>
                 <div class="text-left mb-3">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         ${item.is_lembur ? 'Keterangan Pulang / Keterangan Jika Lembur' : 'Keterangan Pulang'}
                     </label>
-                    <textarea id="swal-input-notes-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/alasan saat pulang atau lembur...">${currentOutNotes}</textarea>
+                    <textarea id="swal-input-notes-out" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="2" placeholder="Catatan/alasan saat pulang atau lembur...">${escapeHtml(currentOutNotes)}</textarea>
                     ${item.is_lembur ? '<p class="text-[11px] text-blue-600 font-medium mt-1">Jika terhitung lembur, isi keterangan lembur di sini. Kosongkan jika pulang biasa.</p>' : ''}
                 </div>
                 ${item.is_satpam ? `

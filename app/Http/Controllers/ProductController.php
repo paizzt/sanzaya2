@@ -32,7 +32,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'manufacturer' => 'nullable|string|max:255',
             'code' => 'nullable|string|max:100',
@@ -48,14 +48,14 @@ class ProductController extends Controller
             'hna' => 'nullable|numeric|min:0'
         ]);
 
-        Product::create($request->all());
+        Product::create($validated);
 
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan.');
     }
 
     public function update(Request $request, Product $product)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'manufacturer' => 'nullable|string|max:255',
             'code' => 'nullable|string|max:100',
@@ -71,7 +71,7 @@ class ProductController extends Controller
             'hna' => 'nullable|numeric|min:0'
         ]);
 
-        $product->update($request->all());
+        $product->update($validated);
 
         return redirect()->back()->with('success', 'Produk berhasil diperbarui.');
     }
@@ -127,6 +127,6 @@ class ProductController extends Controller
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Produk') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Produk') . '.xlsx');
     }
 }

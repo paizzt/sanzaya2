@@ -25,7 +25,7 @@ class PurchaseOrderController extends Controller
         ];
         
         $summary['persen_terkirim'] = $summary['total_jumlah'] > 0 ? round(($summary['total_terkirim'] / $summary['total_jumlah']) * 100, 1) : 0;
-        $summary['persen_belum_terkirim'] = $summary['total_jumlah'] > 0 ? 100 - $summary['persen_terkirim'] : 0;
+        $summary['persen_belum_terkirim'] = $summary['total_jumlah'] > 0 ? max(0, round(100 - $summary['persen_terkirim'], 1)) : 0;
 
         $summary['faktur_detail'] = $items->groupBy(function($item) {
             return $item->outlet ? $item->outlet->name : 'Lainnya';
@@ -70,7 +70,7 @@ class PurchaseOrderController extends Controller
         unset($validated['outlet_name']);
 
         if ($request->id) {
-            PurchaseOrder::find($request->id)->update($validated);
+            PurchaseOrder::findOrFail($request->id)->update($validated);
         } else {
             PurchaseOrder::create($validated);
         }
@@ -134,6 +134,6 @@ class PurchaseOrderController extends Controller
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Surat Pesanan') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Surat Pesanan') . '.xlsx');
     }
 }

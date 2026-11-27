@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { BellRing, Key, Save, Clock, CalendarDays } from 'lucide-react';
+import { BellRing, Key, Clock, CalendarDays } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -20,7 +20,7 @@ export default function Notifications({ setting }) {
     const { flash } = usePage().props;
 
     useEffect(() => {
-        if (flash.success) {
+        if (flash?.success) {
             Swal.fire({
                 title: 'Berhasil!',
                 text: flash.success,
@@ -147,7 +147,7 @@ export default function Notifications({ setting }) {
                         </div>
 
                         <div>
-                            <InputLabel value="Hari Aktif Notifikasi (1=Senin, 7=Minggu)" className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-gray-400"/> Pisahkan dengan koma</InputLabel>
+                            <InputLabel className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-gray-400"/> Hari Aktif Notifikasi (1=Senin, 7=Minggu, pisahkan dengan koma)</InputLabel>
                             <TextInput 
                                 className="mt-1 block w-full md:w-1/2" 
                                 value={data.days_active}

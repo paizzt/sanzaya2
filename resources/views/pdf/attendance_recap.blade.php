@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Rekap Absensi</title>
+    @php
+        $allowedFonts = ['sans-serif', 'serif', 'Arial, Helvetica, sans-serif', "'Times New Roman', Times, serif", 'monospace', 'Arial, sans-serif', 'Helvetica, sans-serif'];
+        $pdfFont = in_array(request('font'), $allowedFonts, true) ? request('font') : 'sans-serif';
+        $pdfSize = max(8, min(24, (int) request('size', 10)));
+    @endphp
     <style>
         @page { margin-top: 1.27cm; margin-left: 1.27cm; margin-right: 1.27cm; margin-bottom: 1.8cm; }
 
         body {
-            font-family: {!! request('font', 'sans-serif') !!};
-            font-size: {{ (int)request('size', 10) }}px;
+            font-family: {!! $pdfFont !!};
+            font-size: {{ $pdfSize }}px;
             color: #374151;
             margin: 0;
             padding: 0;

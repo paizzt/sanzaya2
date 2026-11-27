@@ -27,7 +27,7 @@ class HandleInertiaRequests extends Middleware
      *
      * @return array<string, mixed>
      */
-        public function share(Request $request): array
+    public function share(Request $request): array
     {
         $setting = \App\Models\NotificationSetting::first();
         
@@ -118,6 +118,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'success' => $request->session()->pull('success'),
+                'warning' => $request->session()->pull('warning'),
                 'error' => $request->session()->pull('error'),
             ],
         ];

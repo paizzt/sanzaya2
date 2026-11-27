@@ -5,7 +5,7 @@ import { Head, usePage, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Fuse from 'fuse.js';
 import { 
-    Plus, Search, Edit, Trash2, Box, X, Share2, Copy, CheckCircle, Info, DollarSign, Boxes, Banknote
+    Plus, Search, Edit, Trash2, Box, X, Share2, Copy, CheckCircle, Info, Boxes, Banknote
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -131,7 +131,7 @@ export default function Index({ items, isShared, providers = [] }) {
             link: item.link || '',
             incoming_date: item.incoming_date || '',
             po_date: item.po_date || '',
-            provider_id: item.provider_id || '',
+            provider_name: item.provider ? item.provider.name : '',
             price: item.price || '',
         });
         setIsDetailModalOpen(true);
@@ -388,7 +388,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`font-bold ${item.quantity <= item.minimum_stock ? 'text-red-600' : 'text-gray-900'}`}>
+                                            <span className={`font-bold ${item.minimum_stock !== null && item.minimum_stock !== undefined && Number(item.quantity) <= Number(item.minimum_stock) ? 'text-red-600' : 'text-gray-900'}`}>
                                                 {item.quantity}
                                             </span>
                                         </td>
@@ -423,7 +423,7 @@ export default function Index({ items, isShared, providers = [] }) {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                                             Tidak ada data stok yang ditemukan.
                                         </td>
                                     </tr>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BhpRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class BhpRecapController extends Controller
@@ -25,7 +26,7 @@ class BhpRecapController extends Controller
 
         $bhp = BhpRequest::findOrFail($id);
         $bhp->status = $request->status;
-        $bhp->approved_by = \Illuminate\Support\Facades\Auth::id();
+        $bhp->approved_by = $request->status === 'Menunggu' ? null : Auth::id();
         $bhp->save();
 
         return redirect()->back()->with('success', 'Status pengajuan BHP berhasil diperbarui.');
@@ -35,27 +36,27 @@ class BhpRecapController extends Controller
     {
         $query = BhpRequest::with('user')->orderBy('created_at', 'desc');
 
-        if ($request->has('year') && $request->year != 'Semua') {
+        if ($request->filled('year') && $request->year != 'Semua') {
             $query->whereYear('request_date', $request->year);
         }
 
-        if ($request->has('month') && $request->month != 'Semua') {
+        if ($request->filled('month') && $request->month != 'Semua') {
             $query->whereMonth('request_date', $request->month);
         }
 
-        if ($request->has('status') && $request->status != 'Semua') {
+        if ($request->filled('status') && $request->status != 'Semua') {
             $query->where('status', $request->status);
         }
 
         $requests = $query->get();
 
         // Perform additional search filtering if 'search' is provided
-        if ($request->has('search') && $request->search != '') {
-            $search = strtolower($request->search);
+        if ($request->filled('search')) {
+            $search = strtolower((string) $request->search);
             $requests = $requests->filter(function($req) use ($search) {
-                return str_contains(strtolower($req->product_name), $search) ||
-                       str_contains(strtolower($req->request_number), $search) ||
-                       ($req->user && str_contains(strtolower($req->user->name), $search));
+                return str_contains(strtolower((string) ($req->product_name ?? '')), $search) ||
+                       str_contains(strtolower((string) ($req->request_number ?? '')), $search) ||
+                       ($req->user && str_contains(strtolower((string) ($req->user->name ?? '')), $search));
             });
         }
 

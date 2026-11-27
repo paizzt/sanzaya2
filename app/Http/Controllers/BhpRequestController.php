@@ -29,7 +29,12 @@ class BhpRequestController extends Controller
     public function generatePdf($id)
     {
         $bhp = BhpRequest::with('user')->findOrFail($id);
-        
+
+        $user = Auth::user();
+        if (!$user->isAdminUser() && !$user->can('approve bhp requests') && (int) $bhp->user_id !== (int) $user->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengunduh PDF pengajuan BHP ini.');
+        }
+
         $qrUrl = route('requests.bhp.index');
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
         

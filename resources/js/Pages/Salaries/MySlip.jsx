@@ -11,7 +11,6 @@ import {
     Receipt, 
     Download, 
     Eye, 
-    Building, 
     Wallet, 
     X, 
     User,

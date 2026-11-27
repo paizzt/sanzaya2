@@ -78,7 +78,7 @@ class User extends Authenticatable
      */
     public function getAllowedCompanyIds(): ?array
     {
-        if ($this->hasAnyRole(['Super Admin', 'super_admin', 'super-admin', 'Superadmin', 'superadmin', 'SUPERADMIN', 'SUPER ADMIN'])) {
+        if ($this->isSuperAdminUser()) {
             return null; // Null means all access
         }
         if ($this->allowed_companies !== null && is_array($this->allowed_companies)) {
@@ -165,7 +165,7 @@ class User extends Authenticatable
      */
     public function isSatpam(): bool
     {
-        if ($this->hasAnyRole(['SATPAM', 'Satpam', 'satpam', 'SECURITY', 'Security', 'security'])) {
+        if ($this->hasRoleCaseInsensitive(['satpam', 'security'])) {
             return true;
         }
         if ($this->division && in_array(strtoupper(trim($this->division->name)), ['SATPAM', 'SECURITY', 'SATPAM/SECURITY'])) {

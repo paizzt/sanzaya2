@@ -3,12 +3,17 @@
 <head>
     <meta charset="utf-8">
     <title>Rekap Marketing - {{ ucfirst($type) }}</title>
+    @php
+        $allowedFonts = ['sans-serif', 'serif', 'Arial, Helvetica, sans-serif', "'Times New Roman', Times, serif", 'monospace', 'Arial, sans-serif', 'Helvetica, sans-serif'];
+        $pdfFont = in_array(request('font'), $allowedFonts, true) ? request('font') : 'sans-serif';
+        $pdfSize = max(8, min(24, (int) request('size', 11)));
+    @endphp
     <style>
         @page { margin: 1cm; }
 
         body {
-            font-family: {{ request('font', 'sans-serif') }} !important;
-            font-size: {{ request('size', '11') }}px !important;
+            font-family: {!! $pdfFont !!} !important;
+            font-size: {{ $pdfSize }}px !important;
             color: #333;
         }
     
@@ -94,7 +99,7 @@
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $report->user ? $report->user->name : '-' }}</td>
-                    <td>{{ date('d-m-Y', strtotime($report->visit_date)) }} <br> {{ $report->visit_time }}</td>
+                    <td>{{ !empty($report->visit_date) ? date('d-m-Y', strtotime($report->visit_date)) : '-' }} <br> {{ $report->visit_time }}</td>
                     <td>{{ $report->activity_type }}</td>
                     <td>
                         {{ str_contains($report->activity_type, 'Non-Kunjungan') ? '-' : ($report->outlet ? $report->outlet->name : $report->outlet_id) }}<br>
@@ -135,7 +140,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center">Tidak ada data laporan.</td>
+                    <td colspan="8" class="text-center">Tidak ada data laporan.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -166,7 +171,7 @@
                         {{ $target->start_date ? \Carbon\Carbon::parse($target->start_date)->locale('id')->translatedFormat('F Y') : '-' }}
                     </td>
                     <td style="vertical-align: top;">
-                        @if(!empty($outletList) && count($outletList) > 0)
+                        @if(is_array($outletList) && count($outletList) > 0)
                             <ol style="margin: 0; padding-left: 18px; line-height: 1.4;">
                                 @foreach($outletList as $outletName)
                                     <li>{{ $outletName }}</li>

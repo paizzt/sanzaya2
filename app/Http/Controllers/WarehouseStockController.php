@@ -48,6 +48,7 @@ class WarehouseStockController extends Controller
             'location' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
             'link' => 'nullable|string',
+            'incoming_date' => 'nullable|date',
             'po_date' => 'nullable|date',
             'provider_name' => 'nullable|string',
             'price' => 'nullable|numeric|min:0'
@@ -175,7 +176,7 @@ class WarehouseStockController extends Controller
             });
         }
         
-        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : \Maatwebsite\Excel\Facades\Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Stok Gudang') . '.xlsx');
+        return request()->has('preview') ? response(\App\Helpers\ExcelPreviewHelper::render(new GenericExport($rows, $headings)))->header('Content-Type', 'text/html') : Excel::download(new GenericExport($rows, $headings), str_replace(' ', '_', 'Data Stok Gudang') . '.xlsx');
     }
 
     public function toggleShare(Request $request)

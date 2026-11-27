@@ -17,41 +17,114 @@ use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\BhpRecapController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\PayrollController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Route to fix storage link on shared hosting
-Route::get('/linkstorage', function () {
-    \Illuminate\Support\Facades\Artisan::call('storage:link');
-    return 'Storage Link Berhasil Dibuat!';
-});
+// Maintenance & developer utility routes (Superadmin only)
+Route::middleware(['auth', 'verified'])->group(function () {
+    $ensureSuperAdmin = function () {
+        if (!auth()->user()?->isSuperAdminUser()) {
+            abort(403, 'Hanya Superadmin yang diizinkan mengakses endpoint pemeliharaan ini.');
+        }
+    };
 
-// Route to run database migrations on shared hosting
-Route::get('/run-migrations', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return 'Migrasi Database Berhasil Dijalankan!';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
+    Route::get('/linkstorage', function () use ($ensureSuperAdmin) {
+        $ensureSuperAdmin();
+        Artisan::call('storage:link');
+        return 'Storage Link Berhasil Dibuat!';
+    });
 
-// Route to seed new features and deduplicate
-Route::get('/seed-features', function () {
-    try {
-        \App\Models\FeatureToggle::deduplicateFeatures();
-        \App\Models\FeatureToggle::ensureAllFeaturesExist();
-        return 'Data Fitur Berhasil Ditambahkan & Duplikasi Dibersihkan!';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
+    Route::get('/run-migrations', function () use ($ensureSuperAdmin) {
+        $ensureSuperAdmin();
+        try {
+            Artisan::call('migrate', ['--force' => true]);
+            return 'Migrasi Database Berhasil Dijalankan: <br><pre>' . e(Artisan::output()) . '</pre>';
+        } catch (\Exception $e) {
+            return 'Error: ' . e($e->getMessage());
+        }
+    });
+
+    Route::get('/seed-features', function () use ($ensureSuperAdmin) {
+        $ensureSuperAdmin();
+        try {
+            \App\Models\FeatureToggle::deduplicateFeatures();
+            \App\Models\FeatureToggle::ensureAllFeaturesExist();
+            return 'Data Fitur Berhasil Ditambahkan & Duplikasi Dibersihkan!';
+        } catch (\Exception $e) {
+            return 'Error: ' . e($e->getMessage());
+        }
+    });
+
+    Route::get('/import-providers', function () use ($ensureSuperAdmin) {
+        $ensureSuperAdmin();
+        try {
+            $providers = [
+                ['name' => 'PT Indowell Medtech Indonesia', 'business_type' => 'Distributor', 'address' => 'RUKO Apartment city Home, Jalan Raya Boulevard Block M56, RT.006/RW.019, Kelapa Gading', 'phone' => '+622121698396'],
+                ['name' => 'PT SNA Medika', 'business_type' => 'Non distributor'],
+                ['name' => 'PT. STANDARD BIOSENSOR HEALTHCARE', 'business_type' => 'Non distributor'],
+                ['name' => 'PT. YUWELL MEDICA INDONESIA', 'business_type' => 'Distributor'],
+                ['name' => 'PT. GOLDEN GLOBE MEDICA', 'business_type' => 'Distributor']
+            ];
+
+            foreach ($providers as $data) {
+                \App\Models\Provider::updateOrCreate(['name' => $data['name']], $data);
+            }
+            return 'Data 5 Penyedia berhasil ditambahkan ke database hosting!';
+        } catch (\Exception $e) {
+            return 'Error: ' . e($e->getMessage());
+        }
+    });
+
+    Route::get('/fix-db-columns', function () use ($ensureSuperAdmin) {
+        $ensureSuperAdmin();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('sync_logistik_data')) {
+                \Illuminate\Support\Facades\Schema::table('sync_logistik_data', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'pelanggan')) {
+                        $table->string('pelanggan')->nullable();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'nama_pt')) {
+                        $table->string('nama_pt')->nullable();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'jenis_pelanggan')) {
+                        $table->string('jenis_pelanggan')->nullable();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'no_faktur')) {
+                        $table->string('no_faktur')->nullable();
+                    }
+                });
+            }
+            return 'Pengecekan dan perbaikan kolom database selesai.';
+        } catch (\Exception $e) {
+            return 'Terjadi kesalahan: ' . e($e->getMessage());
+        }
+    });
+
+    Route::get('/developer/run-build', function () use ($ensureSuperAdmin) {
+        $ensureSuperAdmin();
+        try {
+            $output = shell_exec('cd ' . escapeshellarg(base_path()) . ' && npm run build 2>&1');
+            return '<pre>Berhasil menjalankan build:' . "\n\n" . e((string) $output) . '</pre>';
+        } catch (\Exception $e) {
+            return '<pre>Gagal menjalankan build: ' . e($e->getMessage()) . '</pre>';
+        }
+    });
+
+    Route::get('/debug-logs', function () use ($ensureSuperAdmin) {
+        $ensureSuperAdmin();
+        $path = storage_path('logs/laravel.log');
+        if (!file_exists($path)) {
+            return 'No logs found.';
+        }
+
+        $lines = file($path);
+        $lastLines = array_slice($lines, -1000);
+        return '<pre>' . e(implode('', $lastLines)) . '</pre>';
+    });
 });
 
 // Public Share Routes
@@ -78,8 +151,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/provider-products-export-pdf/{provider}', [\App\Http\Controllers\ProviderProductController::class, 'exportPdf'])->name('provider-products.export.pdf');
         Route::get('/products-export-pdf', [\App\Http\Controllers\ProductController::class, 'exportPdf'])->name('products.export.pdf');
         Route::get('/users-export-pdf', [\App\Http\Controllers\UserController::class, 'exportPdf'])->name('users.export.pdf');
-        Route::get('/marketing-export-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportPdf'])->name('marketing.export.pdf');
-        Route::get('/marketing-export-target-pdf', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportTargetPdf'])->name('marketing.export_target.pdf');
         Route::get('/uc-export-pdf', [\App\Http\Controllers\UcRequestController::class, 'exportPdf'])->name('requests.uc.export.pdf');
         Route::get('/uc-approval-export-pdf', [\App\Http\Controllers\UcApprovalController::class, 'exportPdf'])->name('requests.uc.approval.export.pdf');
     });
@@ -96,7 +167,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/provider-products-export-excel/{provider}', [\App\Http\Controllers\ProviderProductController::class, 'exportExcel'])->name('provider-products.export.excel');
     Route::get('/products-export-excel', [\App\Http\Controllers\ProductController::class, 'exportExcel'])->name('products.export.excel');
     Route::get('/users-export-excel', [\App\Http\Controllers\UserController::class, 'exportExcel'])->name('users.export.excel');
-    Route::get('/marketing-export-excel', [\App\Http\Controllers\MarketingDailyReportController::class, 'exportExcel'])->name('marketing.export.excel');
     Route::get('/uc-export-excel', [\App\Http\Controllers\UcRequestController::class, 'exportExcel'])->name('requests.uc.export.excel');
     Route::get('/uc-approval-export-excel', [\App\Http\Controllers\UcApprovalController::class, 'exportExcel'])->name('requests.uc.approval.export.excel');
 
@@ -148,7 +218,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/requests/uc/{id}/cancel', [UcRequestController::class, 'cancel'])->name('requests.uc.cancel');
         Route::post('/requests/uc/{id}/result', [UcRequestController::class, 'storeResult'])->name('requests.uc.storeResult');
         Route::get('/requests/uc/{id}/pdf', [UcRequestController::class, 'generatePdf'])->name('requests.uc.pdf')->middleware('can.pdf');
-        Route::resource('uc-requests', UcRequestController::class);
+        Route::resource('uc-requests', UcRequestController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);
     });
 
     Route::middleware(['can:approve uc requests'])->group(function() {
@@ -162,7 +232,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/requests/bhp', [BhpRequestController::class, 'index'])->name('requests.bhp.index');
         Route::post('/requests/bhp', [BhpRequestController::class, 'store'])->name('requests.bhp.store');
         Route::get('/requests/bhp/{id}/pdf', [BhpRequestController::class, 'generatePdf'])->name('requests.bhp.pdf')->middleware('can.pdf');
-        Route::resource('bhp-requests', BhpRequestController::class);
+        Route::resource('bhp-requests', BhpRequestController::class)->only(['index', 'store']);
     });
 
     Route::middleware(['can:approve bhp requests'])->group(function() {
@@ -200,7 +270,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['can:view users'])->group(function() {
         // Kelola Pengguna
         Route::post('/users/{user}/toggle-pdf', [UserController::class, 'togglePdf'])->name('users.toggle-pdf');
-        Route::resource('users', UserController::class);
+        Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 
     // Slip Gaji Karyawan (Self-Service untuk semua pengguna yang login)
@@ -237,13 +307,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['can:manage master data'])->group(function() {
         // Data Outlet
         Route::post('outlets/bulk-delete', [OutletController::class, 'bulkDestroy'])->name('outlets.bulkDestroy');
-        Route::resource('outlets', OutletController::class);
 
         // Item Requirements
         Route::post('item-requirements/toggle-share', [\App\Http\Controllers\ItemRequirementController::class, 'toggleShare'])->name('item-requirements.toggleShare');
         Route::get('item-requirements/export/pdf', [\App\Http\Controllers\ItemRequirementController::class, 'exportPdf'])->name('item-requirements.export.pdf')->middleware('can.pdf');
         Route::get('item-requirements/export/excel', [\App\Http\Controllers\ItemRequirementController::class, 'exportExcel'])->name('item-requirements.export.excel');
-        Route::resource('item-requirements', \App\Http\Controllers\ItemRequirementController::class);
 
         // Warehouse Stocks
         Route::post('warehouse-stocks/toggle-share', [\App\Http\Controllers\WarehouseStockController::class, 'toggleShare'])->name('warehouse-stocks.toggleShare');
@@ -270,8 +338,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['can:view purchase orders'])->group(function() {
         // Modul Logistik & Keuangan
-        Route::resource('logistic-reports', \App\Http\Controllers\LogisticReportController::class);
-        Route::resource('purchase-orders', \App\Http\Controllers\PurchaseOrderController::class);
+        Route::resource('logistic-reports', \App\Http\Controllers\LogisticReportController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('purchase-orders', \App\Http\Controllers\PurchaseOrderController::class)->only(['index', 'store', 'destroy']);
     });
 
     // Vehicle Usages (Open to all authenticated users)
@@ -282,11 +350,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['can:view receivables'])->group(function() {
         Route::post('receivables/daily-report', [\App\Http\Controllers\ReceivableController::class, 'storeDailyReport'])->name('receivables.dailyReport.store');
-        Route::resource('receivables', \App\Http\Controllers\ReceivableController::class);
+        Route::resource('receivables', \App\Http\Controllers\ReceivableController::class)->only(['index', 'store', 'destroy']);
     });
 
     Route::middleware(['can:view payables'])->group(function() {
-        Route::resource('payables', \App\Http\Controllers\PayableController::class);
+        Route::resource('payables', \App\Http\Controllers\PayableController::class)->only(['index', 'store', 'destroy']);
     });
 
     // SOP Read-Only Access for all authenticated users
@@ -310,10 +378,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Payment Request PDF & File Download (Can be downloaded by authenticated users)
-    Route::middleware('auth')->group(function() {
-        Route::get('payment-requests/{payment_request}/pdf', [\App\Http\Controllers\PaymentRequestController::class, 'downloadPdf'])->name('payment-requests.pdf')->middleware('can.pdf');
-        Route::get('payment-requests/attachments/{id}/download', [\App\Http\Controllers\PaymentRequestController::class, 'downloadAttachment'])->name('payment-requests.attachments.download');
-    });
+    Route::get('payment-requests/{payment_request}/pdf', [\App\Http\Controllers\PaymentRequestController::class, 'downloadPdf'])->name('payment-requests.pdf')->middleware('can.pdf');
+    Route::get('payment-requests/attachments/{id}/download', [\App\Http\Controllers\PaymentRequestController::class, 'downloadAttachment'])->name('payment-requests.attachments.download');
 
     // Payment Approvals
     Route::middleware(['can:payment-request.review'])->group(function() {
@@ -348,82 +414,8 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// WBS Public Route
-Route::post('/wbs-reports', [\App\Http\Controllers\WbsReportController::class, 'store'])->name('wbs-reports.store');
-
-// Route sementara untuk import data penyedia ke database cPanel
-Route::get('/import-providers', function () {
-    try {
-        $providers = [
-            ['name' => 'PT Indowell Medtech Indonesia', 'type' => 'Distributor', 'address' => 'RUKO Apartment city Home, Jalan Raya Boulevard Block M56, RT.006/RW.019, Kelapa Gading', 'phone' => '+622121698396'],
-            ['name' => 'PT SNA Medika', 'type' => 'Non distributor'],
-            ['name' => 'PT. STANDARD BIOSENSOR HEALTHCARE', 'type' => 'Non distributor'],
-            ['name' => 'PT. YUWELL MEDICA INDONESIA', 'type' => 'Distributor'],
-            ['name' => 'PT. GOLDEN GLOBE MEDICA', 'type' => 'Distributor']
-        ];
-
-        foreach ($providers as $data) {
-            \App\Models\Provider::updateOrCreate(['name' => $data['name']], $data);
-        }
-        return 'Data 5 Penyedia berhasil ditambahkan ke database hosting!';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
-
-// Route untuk menjalankan migrasi database di server/hosting
-Route::get('/run-migrations', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return "Migrasi database berhasil dijalankan: <br><pre>" . \Illuminate\Support\Facades\Artisan::output() . "</pre>";
-    } catch (\Exception $e) {
-        return "Terjadi kesalahan saat migrasi: <br>" . $e->getMessage();
-    }
-});
-
-// Route untuk memperbaiki kolom yang hilang di database (jika migrasi terlewat)
-Route::get('/fix-db-columns', function () {
-    try {
-        if (\Illuminate\Support\Facades\Schema::hasTable('sync_logistik_data')) {
-            \Illuminate\Support\Facades\Schema::table('sync_logistik_data', function (\Illuminate\Database\Schema\Blueprint $table) {
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'pelanggan')) {
-                    $table->string('pelanggan')->nullable();
-                }
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'nama_pt')) {
-                    $table->string('nama_pt')->nullable();
-                }
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'jenis_pelanggan')) {
-                    $table->string('jenis_pelanggan')->nullable();
-                }
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('sync_logistik_data', 'no_faktur')) {
-                    $table->string('no_faktur')->nullable();
-                }
-            });
-        }
-        return "Pengecekan dan perbaikan kolom database selesai.";
-    } catch (\Exception $e) {
-        return "Terjadi kesalahan: " . $e->getMessage();
-    }
-});
-
-Route::get('/developer/run-build', function () {
-    try {
-        $output = shell_exec('cd ' . base_path() . ' && npm run build 2>&1');
-        return "<pre>Berhasil menjalankan build:\n\n" . $output . "</pre>";
-    } catch (\Exception $e) {
-        return "<pre>Gagal menjalankan build: " . $e->getMessage() . "</pre>";
-    }
-});
-
-Route::get('/debug-logs', function () {
-    $path = storage_path('logs/laravel.log');
-    if (!file_exists($path)) {
-        return "No logs found.";
-    }
-    
-    // Read the last 1000 lines
-    $lines = file($path);
-    $lastLines = array_slice($lines, -1000);
-    return "<pre>" . implode("", $lastLines) . "</pre>";
-});
+// WBS Public Route (rate-limited to prevent spam)
+Route::post('/wbs-reports', [\App\Http\Controllers\WbsReportController::class, 'store'])
+    ->middleware('throttle:15,1')
+    ->name('wbs-reports.store');
 

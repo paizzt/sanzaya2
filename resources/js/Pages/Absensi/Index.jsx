@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { CheckCircle2, Check, Clock, CalendarDays, List, ChevronLeft, ChevronRight, Loader2, Sun, Moon, Camera, AlertCircle, HeartPulse, CalendarCheck, FileText } from 'lucide-react';
+import { Check, Clock, CalendarDays, List, ChevronLeft, ChevronRight, Loader2, Sun, Moon, Camera, AlertCircle, HeartPulse, CalendarCheck, FileText } from 'lucide-react';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Swal from 'sweetalert2';
 import imageCompression from 'browser-image-compression';
@@ -428,12 +428,21 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
             shift: shiftParam || selectedShift
         }, {
             preserveScroll: true,
+            onError: (errs) => {
+                const firstErr = Object.values(errs || {})[0];
+                if (firstErr) {
+                    Swal.fire('Gagal!', String(firstErr), 'error');
+                } else {
+                    Swal.close();
+                }
+            },
             onFinish: () => setIsLocating(false)
         });
     };
 
     const handleFileInput = async (e) => {
         const file = e.target.files?.[0];
+        e.target.value = '';
         if (!file || !pendingAttendance) return;
 
         setShowWebcamModal(false);
@@ -755,11 +764,10 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                             aria-pressed={historyView === 'calendar'}
                             aria-label={historyView === 'calendar' ? 'Ubah ke tampilan tabel riwayat absensi' : 'Ubah ke tampilan kalender riwayat absensi'}
                             title={historyView === 'calendar' ? 'Klik untuk kembali ke Tampilan Tabel' : 'Klik untuk melihat Tampilan Kalender'}
-                            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 shrink-0 ${
-                                historyView === 'calendar'
-                                    ? 'bg-gray-900 text-white hover:bg-gray-800'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                            }`}
+                            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 shrink-0 ${historyView === 'calendar'
+                                ? 'bg-gray-900 text-white hover:bg-gray-800'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                                }`}
                         >
                             {historyView === 'calendar' ? <List className="w-5 h-5" /> : <CalendarDays className="w-5 h-5" />}
                         </button>
@@ -975,13 +983,13 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                         const isLateExempt = tanpaKeterlambatan || itemIsOffDay;
                                         const statusClass =
                                             item.status === 'Lembur' ? 'bg-blue-600 text-white' :
-                                            item.status === 'Hadir' ? 'bg-emerald-700 text-white' :
-                                            item.status === 'Izin' ? 'bg-amber-400 text-gray-950' :
-                                            item.status === 'Izin Khusus' ? 'bg-amber-400 text-gray-950' :
-                                            item.status === 'Sakit' ? 'bg-orange-700 text-white' :
-                                            item.status === 'Cuti' ? 'bg-purple-600 text-white' :
-                                            item.status === 'Terlambat' ? (isLateExempt ? 'bg-emerald-700 text-white' : 'bg-red-600 text-white') :
-                                            'bg-gray-700 text-white';
+                                                item.status === 'Hadir' ? 'bg-emerald-700 text-white' :
+                                                    item.status === 'Izin' ? 'bg-amber-400 text-gray-950' :
+                                                        item.status === 'Izin Khusus' ? 'bg-amber-400 text-gray-950' :
+                                                            item.status === 'Sakit' ? 'bg-orange-700 text-white' :
+                                                                item.status === 'Cuti' ? 'bg-purple-600 text-white' :
+                                                                    item.status === 'Terlambat' ? (isLateExempt ? 'bg-emerald-700 text-white' : 'bg-red-600 text-white') :
+                                                                        'bg-gray-700 text-white';
 
                                         return (
                                             <div
@@ -994,11 +1002,10 @@ export default function Index({ attendance, approvedLeave = null, today, todayDa
                                                             {itemDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                                                         </p>
                                                         {isSatpam && (
-                                                            <span className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                                                                itemShift === 'Shift Malam'
-                                                                    ? 'bg-indigo-700 text-white'
-                                                                    : 'bg-amber-400 text-gray-950'
-                                                            }`}>
+                                                            <span className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${itemShift === 'Shift Malam'
+                                                                ? 'bg-indigo-700 text-white'
+                                                                : 'bg-amber-400 text-gray-950'
+                                                                }`}>
                                                                 {itemShift === 'Shift Malam' ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
                                                                 {itemShift}
                                                             </span>

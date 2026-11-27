@@ -3,6 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>{{ $title }}</title>
+    @php
+        $allowedFonts = ['sans-serif', 'serif', 'Arial, Helvetica, sans-serif', "'Times New Roman', Times, serif", 'monospace', 'Arial, sans-serif', 'Helvetica, sans-serif'];
+        $pdfFont = in_array(request('font'), $allowedFonts, true) ? request('font') : 'sans-serif';
+        $pdfSize = max(8, min(24, (int) request('size', 12)));
+    @endphp
     <style>
         @page { margin: 1.27cm; }
 
@@ -10,8 +15,8 @@
             background-color: #ffffff !important;
             background: #ffffff !important;
             color: #111827 !important;
-            font-family: {{ request('font', 'sans-serif') }} !important;
-            font-size: {{ request('size', '12') }}px !important;
+            font-family: {!! $pdfFont !!} !important;
+            font-size: {{ $pdfSize }}px !important;
         }
         h2, h3 { color: #333; }
         table { 
