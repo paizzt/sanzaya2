@@ -12,10 +12,12 @@ import CustomDatePicker from '@/Components/CustomDatePicker';
 import CustomSelect from '@/Components/CustomSelect';
 import UcPreview from '@/Components/UcPreview';
 import CurrencyInput from '@/Components/CurrencyInput';
+import { buildCompanySelectOptions, findMatchingCompany, getDefaultUcEntity } from '@/Utils/ucCompany';
 
 
 export default function UcEdit({ ucRequest, users, vehicles, companies = [], isAdmin }) {
     const user = usePage().props.auth.user;
+    const initialEntity = findMatchingCompany(ucRequest.entity, companies)?.name || ucRequest.entity || getDefaultUcEntity(companies);
     
     // Calculate inclusive days between departure and return dates
     const calculateDays = (start, end) => {
@@ -31,7 +33,7 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
 
     const { data, setData, put, processing, errors, reset } = useForm({
         user_id: ucRequest.user_id || user.id,
-        entity: ucRequest.entity || 'PT. Sanzaya Medika Pratama',
+        entity: initialEntity,
         department: ucRequest.department || 'Sales',
         destination_city: ucRequest.destination_city || '',
         description: ucRequest.description || ucRequest.keterangan || '',
@@ -49,21 +51,7 @@ export default function UcEdit({ ucRequest, users, vehicles, companies = [], isA
 
     const { flash } = usePage().props;
 
-    const companySelectOptions = companies && companies.length > 0
-        ? companies.map(c => {
-            const shortName = c.name.replace(/^(PT\.?|CV\.?)\s*/i, '');
-            return {
-                value: c.name,
-                label: `${c.name} (${shortName})`
-            };
-        })
-        : [
-            { value: 'PT. Sanzaya Medika Pratama', label: 'PT. Sanzaya Medika Pratama (Sanzaya)' },
-            { value: 'PT. Harkes', label: 'PT. Harkes (Harkes)' },
-            { value: 'CV. Meraki', label: 'CV. Meraki (Meraki)' },
-            { value: 'PT. MSI', label: 'PT. MSI (MSI)' },
-            { value: 'PT. Ruma', label: 'PT. Ruma (Ruma)' }
-        ];
+    const companySelectOptions = buildCompanySelectOptions(companies, data.entity);
 
     useEffect(() => {
         if (data.departure_date && data.return_date) {

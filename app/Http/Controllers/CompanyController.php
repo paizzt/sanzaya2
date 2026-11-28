@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Exports\GenericExport;
+use App\Helpers\CompanyKopHelper;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Company;
@@ -23,6 +24,43 @@ class CompanyController extends Controller
             'companies' => $companies,
             'companyTargets' => $companyTargets,
             'is_super_admin' => $is_super_admin
+        ]);
+    }
+
+    public function logo($id)
+    {
+        $company = Company::findOrFail($id);
+        $path = CompanyKopHelper::resolveLocalLogoPath($company, $company->name);
+
+        if (empty($path)) {
+            abort(404);
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return redirect($path);
+        }
+
+        if (!is_file($path)) {
+            abort(404);
+        }
+
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $mimeMap = [
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+        ];
+        if (!isset($mimeMap[$ext])) {
+            abort(404);
+        }
+
+        return response()->file($path, [
+            'Content-Type' => $mimeMap[$ext],
+            'Cache-Control' => 'public, max-age=86400',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 

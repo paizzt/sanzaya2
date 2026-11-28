@@ -9,8 +9,37 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ClientPagination from '@/Components/ClientPagination';
 import CurrencyInput from '@/Components/CurrencyInput';
+import { resolveUcCompanyInfo } from '@/Utils/ucCompany';
 
-export default function UcHistory({ requests = [], activeUcs = [], isAdmin = false }) {
+const CompanyMiniLogo = ({ logo, fallbackLogo, alt }) => {
+    const [src, setSrc] = useState(logo || null);
+    const [triedFallback, setTriedFallback] = useState(false);
+
+    useEffect(() => {
+        setSrc(logo || null);
+        setTriedFallback(false);
+    }, [logo, fallbackLogo]);
+
+    if (!src) return null;
+
+    return (
+        <img
+            src={src}
+            alt={alt}
+            className="h-4 max-w-[48px] object-contain inline-block shrink-0"
+            onError={() => {
+                if (!triedFallback && fallbackLogo && fallbackLogo !== src) {
+                    setTriedFallback(true);
+                    setSrc(fallbackLogo);
+                } else {
+                    setSrc(null);
+                }
+            }}
+        />
+    );
+};
+
+export default function UcHistory({ requests = [], activeUcs = [], companies = [], isAdmin = false }) {
     const user = usePage().props.auth.user;
     
     // Form Result State
@@ -281,7 +310,9 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {activeUcs.map(uc => (
+                            {activeUcs.map(uc => {
+                                const activeCompany = uc.entity ? resolveUcCompanyInfo(uc.entity, companies) : null;
+                                return (
                                 <div key={uc.id} className="border border-gray-200 rounded-2xl overflow-hidden">
                                     <div 
                                         className="p-3.5 sm:p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors"
@@ -303,6 +334,15 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                     
                                     {expandedActiveUc === uc.id && (
                                         <div className="p-3.5 sm:p-4 bg-white border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm animate-in slide-in-from-top-2">
+                                            {activeCompany && (
+                                                <div className="col-span-1 md:col-span-2 min-w-0">
+                                                    <p className="text-gray-500 mb-0.5">Perusahaan (PT)</p>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <CompanyMiniLogo logo={activeCompany.logo} fallbackLogo={activeCompany.fallbackLogo} alt={activeCompany.name} />
+                                                        <span className="font-semibold text-gray-800 break-words">{activeCompany.name}</span>
+                                                    </div>
+                                                </div>
+                                            )}
                                             <div className="min-w-0">
                                                 <p className="text-gray-500 mb-0.5">Tanggal</p>
                                                 <p className="font-semibold text-gray-800 break-words"><Calendar className="inline w-4 h-4 mr-1 text-gray-500"/> {uc.departure_date} s/d {uc.return_date}</p>
@@ -342,7 +382,8 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                         </div>
                                     )}
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -480,6 +521,7 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                 } catch (e) {}
 
                                 const isExpanded = expandedRequest === req.id || selectedUc === req.id;
+                                const reqCompany = req.entity ? resolveUcCompanyInfo(req.entity, companies) : null;
 
                                 return (
                                     <div key={req.id} className="border border-gray-200 rounded-2xl overflow-hidden bg-white transition-all">
@@ -531,10 +573,13 @@ export default function UcHistory({ requests = [], activeUcs = [], isAdmin = fal
                                                             <span className="font-bold text-gray-900 text-xs sm:text-sm break-all">{req.request_number}</span>
                                                             <span className="text-xs text-gray-400">&bull;</span>
                                                             <span className="text-xs text-gray-700 break-words">{req.user?.name} ({req.department})</span>
-                                                            {req.entity && (
+                                                            {reqCompany && (
                                                                 <>
                                                                     <span className="text-xs text-gray-400">&bull;</span>
-                                                                    <span className="text-xs text-gray-600 break-words">{req.entity}</span>
+                                                                    <span className="inline-flex items-center gap-1.5 text-xs text-gray-700 font-medium break-words">
+                                                                        <CompanyMiniLogo logo={reqCompany.logo} fallbackLogo={reqCompany.fallbackLogo} alt={reqCompany.name} />
+                                                                        <span>{reqCompany.name}</span>
+                                                                    </span>
                                                                 </>
                                                             )}
                                                         </div>

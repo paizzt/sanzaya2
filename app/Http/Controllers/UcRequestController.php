@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Exports\GenericExport;
+use App\Helpers\CompanyKopHelper;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\UcRequest;
@@ -29,7 +30,7 @@ class UcRequestController extends Controller
 
         $users = \App\Models\User::select('id', 'name', 'bank_name', 'bank_account_number')->orderBy('name')->get();
         $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
-        $companies = \App\Models\Company::select('id', 'name', 'logo', 'address')->get();
+        $companies = CompanyKopHelper::formatCompaniesForFrontend();
             
         return Inertia::render('Requests/UC', [
             'users' => $users,
@@ -61,9 +62,12 @@ class UcRequestController extends Controller
             ->whereIn('status', ['Disetujui', 'Selesai / Result Dikirim', 'Dicairkan'])
             ->get();
 
+        $companies = CompanyKopHelper::formatCompaniesForFrontend();
+
         return Inertia::render('Requests/UcHistory', [
             'requests' => $requests,
             'activeUcs' => $activeUcs,
+            'companies' => $companies,
             'isAdmin' => $isAdmin,
         ]);
     }
@@ -80,67 +84,23 @@ class UcRequestController extends Controller
 
         $qrUrl = route('requests.uc.index'); // Can be a verification URL
         $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
-        
-        $entityName = $uc->entity;
-        $logoPath = public_path('img/logo.png');
-        $companyAddress = null;
 
-        $clean = strtolower(preg_replace('/[^a-z0-9]/', '', $entityName ?? ''));
-        $company = \App\Models\Company::all()->first(function($c) use ($clean) {
-            $cClean = strtolower(preg_replace('/[^a-z0-9]/', '', $c->name ?? ''));
-            return str_contains($clean, $cClean) || str_contains($cClean, $clean);
-        });
+        $kop = CompanyKopHelper::resolveKop($uc->entity);
+        $companyName = $kop['name'];
+        $companyAddress = $kop['address'];
+        $logoPath = $kop['logo_path'];
 
-        if ($company) {
-            $companyAddress = $company->address;
-            if ($company->logo && file_exists(public_path('storage/' . $company->logo))) {
-                $logoPath = !str_contains($clean, 'sanzaya') ? public_path('storage/' . $company->logo) : public_path('img/logo.png');
-            }
-        }
-
-        if (str_contains($clean, 'harkes')) {
-            $logoPath = file_exists(public_path('img/company/harkes.png')) ? public_path('img/company/harkes.png') : public_path('img/logo.png');
-        } elseif (str_contains($clean, 'meraki')) {
-            $logoPath = file_exists(public_path('img/company/meraki.png')) ? public_path('img/company/meraki.png') : public_path('img/logo.png');
-        } elseif (str_contains($clean, 'msi')) {
-            $logoPath = file_exists(public_path('img/company/msi.png')) ? public_path('img/company/msi.png') : public_path('img/logo.png');
-        } elseif (str_contains($clean, 'ruma')) {
-            $logoPath = file_exists(public_path('img/company/ruma.png')) ? public_path('img/company/ruma.png') : public_path('img/logo.png');
-        } elseif (str_contains($clean, 'sanzaya')) {
-            $logoPath = public_path('img/logo.png');
-        } elseif ($company && $company->logo && file_exists(public_path('storage/' . $company->logo))) {
-            $logoPath = public_path('storage/' . $company->logo);
-        }
-
-        if (!$companyAddress) {
-            if (str_contains($clean, 'sanzaya')) {
-                $companyAddress = "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id";
-            } elseif (str_contains($clean, 'msi')) {
-                $companyAddress = 'Jl. Taman Makam Pahlawan, Makassar, Indonesia.';
-            } else {
-                $companyAddress = '';
-            }
-        }
-
-        // Convert logo to DomPDF-safe Base64 data URI so it reliably renders in all environments
-        $logoBase64 = \App\Helpers\PdfImageHelper::toPdfSrc($logoPath, 400);
-        if (empty($logoBase64) && !empty($logoPath) && file_exists($logoPath)) {
-            $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION)) ?: 'png';
-            $bytes = @file_get_contents($logoPath);
-            if (!empty($bytes)) {
-                $logoBase64 = 'data:image/' . ($ext === 'svg' ? 'svg+xml' : $ext) . ';base64,' . base64_encode($bytes);
-            }
-        }
-        if (empty($logoBase64) && file_exists(public_path('img/company/sanzaya.png'))) {
-            $bytes = @file_get_contents(public_path('img/company/sanzaya.png'));
-            if (!empty($bytes)) {
-                $logoBase64 = 'data:image/png;base64,' . base64_encode($bytes);
-            }
-        }
-        if (empty($logoBase64) && file_exists(public_path('img/logo.png'))) {
-            $bytes = @file_get_contents(public_path('img/logo.png'));
-            if (!empty($bytes)) {
-                $logoBase64 = 'data:image/png;base64,' . base64_encode($bytes);
+        // Convert logo to DomPDF-safe Base64 data URI strictly for the matched company
+        $logoBase64 = '';
+        if (!empty($logoPath)) {
+            $logoBase64 = \App\Helpers\PdfImageHelper::toPdfSrc($logoPath, 400);
+            if (empty($logoBase64) && is_file($logoPath)) {
+                $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION)) ?: 'png';
+                $bytes = @file_get_contents($logoPath);
+                if (!empty($bytes)) {
+                    $mime = $ext === 'svg' ? 'svg+xml' : ($ext === 'jpg' ? 'jpeg' : $ext);
+                    $logoBase64 = 'data:image/' . $mime . ';base64,' . base64_encode($bytes);
+                }
             }
         }
         $logoPath = $logoBase64;
@@ -152,7 +112,7 @@ class UcRequestController extends Controller
             || request('type') === 'uc_only';
 
         $pdf = Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])
-            ->loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'logoBase64', 'companyAddress', 'withoutResult'))
+            ->loadView('pdf.uc_request', compact('uc', 'qrCode', 'logoPath', 'logoBase64', 'companyName', 'companyAddress', 'withoutResult'))
             ->setPaper(request()->query('paper') === 'f4' ? [0, 0, 609.4488, 935.433] : request()->query('paper', 'a4'), request()->query('orientation', 'landscape'));
         
         $safeNumber = preg_replace('/[^A-Za-z0-9_-]/', '_', $uc->request_number ?? ('UC_' . $uc->id));
@@ -364,7 +324,7 @@ class UcRequestController extends Controller
 
         $users = \App\Models\User::select('id', 'name', 'bank_name', 'bank_account_number')->orderBy('name')->get();
         $vehicles = \App\Models\Vehicle::select('id', 'license_plate', 'brand_type')->orderBy('license_plate')->get();
-        $companies = \App\Models\Company::select('id', 'name', 'logo', 'address')->get();
+        $companies = CompanyKopHelper::formatCompaniesForFrontend();
 
         return Inertia::render('Requests/UcEdit', [
             'ucRequest' => $uc,

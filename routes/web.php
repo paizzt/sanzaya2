@@ -291,6 +291,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/salaries-export-pdf', [PayrollController::class, 'exportPdf'])->name('salaries.export.pdf');
     Route::get('/salaries-export-excel', [PayrollController::class, 'exportExcel'])->name('salaries.export.excel');
 
+    Route::get('/company/{id}/logo', [CompanyController::class, 'logo'])->name('company.logo');
+
     Route::middleware(['can:manage company'])->group(function() {
         // Data Perusahaan
         Route::get('/company', [CompanyController::class, 'index'])->name('company.index');

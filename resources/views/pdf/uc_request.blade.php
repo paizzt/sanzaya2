@@ -209,24 +209,16 @@
 </head>
 <body>
     @php
+        $resolvedCompanyName = trim((string)($companyName ?? $uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA'));
         $logoSrc = !empty($logoBase64)
             ? $logoBase64
             : (!empty($logoPath) && str_starts_with($logoPath, 'data:image')
                 ? $logoPath
-                : \App\Helpers\PdfImageHelper::toPdfSrc($logoPath ?? public_path('img/logo.png'), 400));
+                : (!empty($logoPath) ? \App\Helpers\PdfImageHelper::toPdfSrc($logoPath, 400) : ''));
 
-        if (empty($logoSrc)) {
-            if (file_exists(public_path('img/company/sanzaya.png'))) {
-                $fbBytes = @file_get_contents(public_path('img/company/sanzaya.png'));
-                if (!empty($fbBytes)) {
-                    $logoSrc = 'data:image/png;base64,' . base64_encode($fbBytes);
-                }
-            } elseif (file_exists(public_path('img/logo.png'))) {
-                $fbBytes = @file_get_contents(public_path('img/logo.png'));
-                if (!empty($fbBytes)) {
-                    $logoSrc = 'data:image/png;base64,' . base64_encode($fbBytes);
-                }
-            }
+        $cleanAddr = trim((string)($companyAddress ?? ''));
+        if (!empty($cleanAddr) && !str_starts_with(strtolower($cleanAddr), 'alamat')) {
+            $cleanAddr = 'Alamat: ' . $cleanAddr;
         }
     @endphp
     <div class="footer">
@@ -236,23 +228,24 @@
     <!-- PAGE 1: FORM PENGAJUAN -->
     <table class="kop-table">
         <tr>
-            <td width="35%">
-                @if(!empty($logoSrc))
+            @if(!empty($logoSrc))
+                <td width="35%">
                     <img src="{{ $logoSrc }}" style="max-height: 60px; max-width: 160px;" />
-                @endif
-            </td>
-            <td width="65%" align="center">
-                <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
-                <div class="kop-text">
-                    @php
-                        $cleanAddr = trim($companyAddress ?? '');
-                        if (!empty($cleanAddr) && !str_starts_with(strtolower($cleanAddr), 'alamat:')) {
-                            $cleanAddr = 'Alamat: ' . $cleanAddr;
-                        }
-                    @endphp
-                    {!! nl2br(e($cleanAddr)) !!}
-                </div>
-            </td>
+                </td>
+                <td width="65%" align="center">
+                    <div class="kop-title">{{ strtoupper($resolvedCompanyName) }}</div>
+                    @if(!empty($cleanAddr))
+                        <div class="kop-text">{!! nl2br(e($cleanAddr)) !!}</div>
+                    @endif
+                </td>
+            @else
+                <td width="100%" align="center">
+                    <div class="kop-title">{{ strtoupper($resolvedCompanyName) }}</div>
+                    @if(!empty($cleanAddr))
+                        <div class="kop-text">{!! nl2br(e($cleanAddr)) !!}</div>
+                    @endif
+                </td>
+            @endif
         </tr>
     </table>
 
@@ -375,23 +368,24 @@
     <!-- PAGE 2: LAMPIRAN -->
     <table class="kop-table">
         <tr>
-            <td width="35%">
-                @if(!empty($logoSrc))
+            @if(!empty($logoSrc))
+                <td width="35%">
                     <img src="{{ $logoSrc }}" style="max-height: 60px; max-width: 160px;" />
-                @endif
-            </td>
-            <td width="65%" align="center">
-                <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
-                <div class="kop-text">
-                    @php
-                        $cleanAddr = trim($companyAddress ?? '');
-                        if (!empty($cleanAddr) && !str_starts_with(strtolower($cleanAddr), 'alamat:')) {
-                            $cleanAddr = 'Alamat: ' . $cleanAddr;
-                        }
-                    @endphp
-                    {!! nl2br(e($cleanAddr)) !!}
-                </div>
-            </td>
+                </td>
+                <td width="65%" align="center">
+                    <div class="kop-title">{{ strtoupper($resolvedCompanyName) }}</div>
+                    @if(!empty($cleanAddr))
+                        <div class="kop-text">{!! nl2br(e($cleanAddr)) !!}</div>
+                    @endif
+                </td>
+            @else
+                <td width="100%" align="center">
+                    <div class="kop-title">{{ strtoupper($resolvedCompanyName) }}</div>
+                    @if(!empty($cleanAddr))
+                        <div class="kop-text">{!! nl2br(e($cleanAddr)) !!}</div>
+                    @endif
+                </td>
+            @endif
         </tr>
     </table>
 
@@ -528,23 +522,24 @@
     <!-- PAGE 3: RESULT PERJALANAN -->
     <table class="kop-table">
         <tr>
-            <td width="35%">
-                @if(!empty($logoSrc))
+            @if(!empty($logoSrc))
+                <td width="35%">
                     <img src="{{ $logoSrc }}" style="max-height: 60px; max-width: 160px;" />
-                @endif
-            </td>
-            <td width="65%" align="center">
-                <div class="kop-title">{{ strtoupper($uc->entity ?? 'PT. SANZAYA MEDIKA PRATAMA') }}</div>
-                <div class="kop-text">
-                    @php
-                        $cleanAddr = trim($companyAddress ?? '');
-                        if (!empty($cleanAddr) && !str_starts_with(strtolower($cleanAddr), 'alamat:')) {
-                            $cleanAddr = 'Alamat: ' . $cleanAddr;
-                        }
-                    @endphp
-                    {!! nl2br(e($cleanAddr)) !!}
-                </div>
-            </td>
+                </td>
+                <td width="65%" align="center">
+                    <div class="kop-title">{{ strtoupper($resolvedCompanyName) }}</div>
+                    @if(!empty($cleanAddr))
+                        <div class="kop-text">{!! nl2br(e($cleanAddr)) !!}</div>
+                    @endif
+                </td>
+            @else
+                <td width="100%" align="center">
+                    <div class="kop-title">{{ strtoupper($resolvedCompanyName) }}</div>
+                    @if(!empty($cleanAddr))
+                        <div class="kop-text">{!! nl2br(e($cleanAddr)) !!}</div>
+                    @endif
+                </td>
+            @endif
         </tr>
     </table>
 

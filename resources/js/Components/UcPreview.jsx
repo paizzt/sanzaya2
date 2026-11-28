@@ -1,4 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { resolveUcCompanyInfo } from '@/Utils/ucCompany';
+
+const CompanyLogo = ({ logo, fallbackLogo, alt }) => {
+    const [src, setSrc] = useState(logo || null);
+    const [triedFallback, setTriedFallback] = useState(false);
+
+    useEffect(() => {
+        setSrc(logo || null);
+        setTriedFallback(false);
+    }, [logo, fallbackLogo]);
+
+    if (!src) return null;
+
+    return (
+        <img
+            src={src}
+            alt={alt}
+            className="max-h-12 max-w-[140px] object-contain"
+            onError={() => {
+                if (!triedFallback && fallbackLogo && fallbackLogo !== src) {
+                    setTriedFallback(true);
+                    setSrc(fallbackLogo);
+                } else {
+                    setSrc(null);
+                }
+            }}
+        />
+    );
+};
 
 const PageContainer = ({ children }) => (
     <div
@@ -46,53 +75,48 @@ const SignatureBlock = ({ employeeName, creatorName, approverName, creatorDivisi
     </table>
 );
 
-const HeaderBlock = ({ title, showSignature = false, className = "mb-4", currentCompany, addressText, entity, signatureProps }) => (
-    <div className={`flex flex-col ${className}`}>
-        <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
-            <div className="mb-2 md:mb-0 w-1/3 flex items-center justify-start">
-                <img
-                    key={currentCompany.logo}
-                    src={currentCompany.logo}
-                    alt={currentCompany.name}
-                    className="max-h-12 max-w-[140px] object-contain"
-                    onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        const clean = (entity || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                        if (clean.includes('harkes')) e.currentTarget.src = '/img/company/harkes.png';
-                        else if (clean.includes('meraki')) e.currentTarget.src = '/img/company/meraki.png';
-                        else if (clean.includes('msi')) e.currentTarget.src = '/img/company/msi.png';
-                        else if (clean.includes('ruma')) e.currentTarget.src = '/img/company/ruma.png';
-                        else e.currentTarget.src = '/img/logo.png';
-                    }}
-                />
+const HeaderBlock = ({ title, showSignature = false, className = "mb-4", currentCompany, addressText, signatureProps }) => {
+    const hasLogo = Boolean(currentCompany?.logo);
+    return (
+        <div className={`flex flex-col ${className}`}>
+            <div className="flex flex-col md:flex-row items-center justify-between border-b-2 border-indigo-900 pb-2 mb-4">
+                {hasLogo && (
+                    <div className="mb-2 md:mb-0 w-1/3 flex items-center justify-start">
+                        <CompanyLogo
+                            logo={currentCompany.logo}
+                            fallbackLogo={currentCompany.fallbackLogo}
+                            alt={currentCompany.name}
+                        />
+                    </div>
+                )}
+                <div className={`text-center ${hasLogo ? 'w-2/3' : 'w-full'}`}>
+                    <h2 className="text-sm lg:text-base font-bold text-indigo-900 font-serif tracking-wide mb-1 uppercase">
+                        {currentCompany.name}
+                    </h2>
+                    {addressText && (
+                        <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight whitespace-pre-line">
+                            {addressText}
+                        </p>
+                    )}
+                </div>
             </div>
-            <div className="text-center w-2/3">
-                <h2 className="text-sm lg:text-base font-bold text-indigo-900 font-serif tracking-wide mb-1 uppercase">
-                    {currentCompany.name}
-                </h2>
-                {addressText && (
-                    <p className="text-[8px] lg:text-[10px] text-gray-700 leading-tight whitespace-pre-line">
-                        {addressText}
-                    </p>
+
+            <div className="flex justify-between items-start mt-2">
+                <div className={showSignature ? "w-1/2" : "w-full"}>
+                    <p className="font-bold text-xs lg:text-sm leading-tight mt-0">{title}</p>
+                    <p className="font-bold text-sm lg:text-base leading-tight mt-0.5">UPCOUNTRY (UC)</p>
+                </div>
+                {showSignature && (
+                    <div className="w-1/2 pl-4 flex justify-end">
+                        <div className="w-full max-w-[220px] lg:max-w-[280px]">
+                            <SignatureBlock {...signatureProps} />
+                        </div>
+                    </div>
                 )}
             </div>
         </div>
-
-        <div className="flex justify-between items-start mt-2">
-            <div className={showSignature ? "w-1/2" : "w-full"}>
-                <p className="font-bold text-xs lg:text-sm leading-tight mt-0">{title}</p>
-                <p className="font-bold text-sm lg:text-base leading-tight mt-0.5">UPCOUNTRY (UC)</p>
-            </div>
-            {showSignature && (
-                <div className="w-1/2 pl-4 flex justify-end">
-                    <div className="w-full max-w-[220px] lg:max-w-[280px]">
-                        <SignatureBlock {...signatureProps} />
-                    </div>
-                </div>
-            )}
-        </div>
-    </div>
-);
+    );
+};
 
 export default function UcPreview({ data = {}, user, creator, users = [], companies = [] }) {
     const employee = (users && users.length > 0)
@@ -133,54 +157,7 @@ export default function UcPreview({ data = {}, user, creator, users = [], compan
         return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
     };
 
-    const getCompanyInfo = (entityName) => {
-        const clean = (entityName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-
-        let found = null;
-        if (clean && companies && companies.length > 0) {
-            found = companies.find(c => {
-                const cClean = (c.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                return cClean && (clean.includes(cClean) || cClean.includes(clean));
-            });
-        }
-
-        // Dedicated logo resolution:
-        // Dedicated static assets in /img/company/ exist and work directly in production
-        let logoUrl = '/img/logo.png';
-        if (clean.includes('harkes')) {
-            logoUrl = '/img/company/harkes.png';
-        } else if (clean.includes('meraki')) {
-            logoUrl = '/img/company/meraki.png';
-        } else if (clean.includes('msi')) {
-            logoUrl = '/img/company/msi.png';
-        } else if (clean.includes('ruma')) {
-            logoUrl = '/img/company/ruma.png';
-        } else if (clean.includes('sanzaya')) {
-            logoUrl = '/img/logo.png';
-        } else if (found && found.logo) {
-            logoUrl = found.logo.startsWith('/') ? found.logo : `/storage/${found.logo}`;
-        }
-
-        // Determine Address from Data Perusahaan
-        let address = '';
-        if (found && found.address && found.address.trim()) {
-            address = found.address.trim();
-        } else if (clean.includes('sanzaya')) {
-            address = "Jl. Tamangapa Raya 3 No.47b, Bangkala, Kec. Manggala,\nKota Makassar, Sulawesi Selatan 90235\nTelp/WA: +6281264304010 | Email: admin@Sanzaya.id";
-        } else if (clean.includes('msi')) {
-            address = 'Jl. Taman Makam Pahlawan, Makassar, Indonesia.';
-        } else {
-            address = '';
-        }
-
-        return {
-            name: (found && found.name) ? found.name : (entityName || 'PT. SANZAYA MEDIKA PRATAMA'),
-            logo: logoUrl,
-            address: address
-        };
-    };
-
-    const currentCompany = getCompanyInfo(data?.entity);
+    const currentCompany = resolveUcCompanyInfo(data?.entity, companies);
 
     const formatAddress = (addr) => {
         if (!addr || !addr.trim()) {
@@ -215,7 +192,6 @@ export default function UcPreview({ data = {}, user, creator, users = [], compan
                     className="mb-1"
                     currentCompany={currentCompany}
                     addressText={addressText}
-                    entity={data?.entity}
                     signatureProps={signatureProps}
                 />
 
@@ -341,7 +317,6 @@ export default function UcPreview({ data = {}, user, creator, users = [], compan
                     showSignature={true}
                     currentCompany={currentCompany}
                     addressText={addressText}
-                    entity={data?.entity}
                     signatureProps={signatureProps}
                 />
 
