@@ -721,7 +721,7 @@
     ]
   },
   "resources/js/Pages/Reports/Index.jsx": {
-    "file": "assets/Index-Bg_33bOa.js",
+    "file": "assets/Index-BBmJuzYE.js",
     "name": "Index",
     "src": "resources/js/Pages/Reports/Index.jsx",
     "isDynamicEntry": true,
@@ -900,7 +900,7 @@
     ]
   },
   "resources/js/Pages/Sops/Index.jsx": {
-    "file": "assets/Index-Q2f9_R50.js",
+    "file": "assets/Index-BJZeemYN.js",
     "name": "Index",
     "src": "resources/js/Pages/Sops/Index.jsx",
     "isDynamicEntry": true,
@@ -921,7 +921,7 @@
     ]
   },
   "resources/js/Pages/Sops/Show.jsx": {
-    "file": "assets/Show-BSWW6v60.js",
+    "file": "assets/Show-ChxuzqRl.js",
     "name": "Show",
     "src": "resources/js/Pages/Sops/Show.jsx",
     "isDynamicEntry": true,
@@ -942,7 +942,7 @@
     ]
   },
   "resources/js/Pages/Spreadsheet/Index.jsx": {
-    "file": "assets/Index-BC4FMfTG.js",
+    "file": "assets/Index-DlSO4nok.js",
     "name": "Index",
     "src": "resources/js/Pages/Spreadsheet/Index.jsx",
     "isDynamicEntry": true,
@@ -1099,7 +1099,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-DA5e6ku7.js",
+    "file": "assets/app-sYpax1KV.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -1169,7 +1169,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-Dt0-C6WS.css"
+      "assets/app-CQP1PIIP.css"
     ]
   },
   "resources/js/assets/logo.png": {

@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Database, RefreshCw, Key, Plus, Trash2, Package, ShoppingCart, CreditCard, Copy, ChevronDown } from 'lucide-react';
+import { Database, RefreshCw, Key, Plus, Trash2, Package, ShoppingCart, CreditCard, Copy } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
@@ -8,9 +8,43 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 
+const REPORT_TABS = [
+    {
+        id: 'logistik',
+        label: 'Laporan Logistik',
+        shortLabel: 'Logistik',
+        icon: Package,
+        activeClass: 'bg-blue-600 text-white border-blue-600 shadow-sm',
+        inactiveClass: 'bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200',
+    },
+    {
+        id: 'pesanan',
+        label: 'Surat Pesanan',
+        shortLabel: 'Surat Pesanan',
+        icon: ShoppingCart,
+        activeClass: 'bg-emerald-600 text-white border-emerald-600 shadow-sm',
+        inactiveClass: 'bg-white text-gray-600 border-gray-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200',
+    },
+    {
+        id: 'piutang',
+        label: 'Data Piutang',
+        shortLabel: 'Data Piutang',
+        icon: CreditCard,
+        activeClass: 'bg-indigo-600 text-white border-indigo-600 shadow-sm',
+        inactiveClass: 'bg-white text-gray-600 border-gray-200 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200',
+    },
+    {
+        id: 'hutang',
+        label: 'Data Hutang',
+        shortLabel: 'Data Hutang',
+        icon: CreditCard,
+        activeClass: 'bg-orange-600 text-white border-orange-600 shadow-sm',
+        inactiveClass: 'bg-white text-gray-600 border-gray-200 hover:bg-orange-50 hover:text-orange-700 hover:border-orange-200',
+    },
+];
+
 export default function Index({ config_logistik, config_pesanan, config_piutang, config_hutang }) {
     const [activeTab, setActiveTab] = useState('logistik');
-    const [isTabDropdownOpen, setIsTabDropdownOpen] = useState(false);
     const { flash } = usePage().props;
 
     const logistikForm = useForm({
@@ -74,6 +108,28 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
         });
     };
 
+    const handleCopyEmail = async () => {
+        const email = 'sanzaya@sanzaya.iam.gserviceaccount.com';
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(email);
+            } else {
+                const el = document.createElement('textarea');
+                el.value = email;
+                el.setAttribute('readonly', '');
+                el.style.position = 'absolute';
+                el.style.left = '-9999px';
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+            }
+            Swal.fire({ title: 'Disalin!', text: 'Email berhasil disalin ke clipboard.', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+        } catch {
+            Swal.fire({ title: 'Info', text: 'Salin manual: ' + email, icon: 'info', customClass: { popup: 'rounded-2xl' } });
+        }
+    };
+
     const addSheet = (form, template) => {
         form.setData('sheets_config', [...form.data.sheets_config, template]);
     };
@@ -85,160 +141,308 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
     };
 
     const handleSheetChange = (form, index, field, value) => {
-        const newSheets = [...form.data.sheets_config];
-        newSheets[index][field] = value;
+        const newSheets = form.data.sheets_config.map((item, idx) =>
+            idx === index ? { ...item, [field]: value } : item
+        );
         form.setData('sheets_config', newSheets);
     };
 
+    const renderField = (label, value, onChange, extraClass = '') => (
+        <div className={`flex flex-col justify-end min-w-0 ${extraClass}`}>
+            <InputLabel value={label} className="text-xs leading-snug break-words" />
+            <TextInput
+                className="mt-1 block w-full min-w-0 text-sm"
+                value={value || ''}
+                onChange={(e) => onChange(e.target.value)}
+            />
+        </div>
+    );
+
     const renderLogistikForm = () => (
-        <form onSubmit={(e) => submit(e, logistikForm)} className="space-y-6">
-            <div>
+        <form onSubmit={(e) => submit(e, logistikForm)} className="space-y-5 sm:space-y-6">
+            <div className="min-w-0">
                 <InputLabel value="Spreadsheet ID Laporan Logistik *" />
-                <TextInput className="mt-1 block w-full" value={logistikForm.data.spreadsheet_id} onChange={(e) => logistikForm.setData('spreadsheet_id', e.target.value)} />
+                <TextInput
+                    className="mt-1 block w-full min-w-0 text-sm"
+                    value={logistikForm.data.spreadsheet_id}
+                    onChange={(e) => logistikForm.setData('spreadsheet_id', e.target.value)}
+                />
                 <InputError message={logistikForm.errors.spreadsheet_id} className="mt-2" />
             </div>
 
-            <div className="pt-4 space-y-6">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h4 className="font-bold text-gray-700">Pemetaan Kolom Logistik</h4>
-                    <button type="button" onClick={() => addSheet(logistikForm, {sheet_name:'', col_nama_pt:'', col_pelanggan:'', col_jenis_pelanggan:'', col_tanggal:'', col_nama_sales:'', col_no_faktur:'', col_id_paket:'', col_brand:'', col_nama_produk:'', col_qty:'', col_satuan:'', col_hna:'', col_subtotal:'', col_ppn:'', col_total:'', col_grand_total:'', col_jenis_barang:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
+            <div className="pt-2 space-y-4 sm:space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                    <h4 className="font-bold text-gray-800 text-sm sm:text-base">Pemetaan Kolom Logistik</h4>
+                    <button
+                        type="button"
+                        onClick={() => addSheet(logistikForm, {sheet_name:'', col_nama_pt:'', col_pelanggan:'', col_jenis_pelanggan:'', col_tanggal:'', col_nama_sales:'', col_no_faktur:'', col_id_paket:'', col_brand:'', col_nama_produk:'', col_qty:'', col_satuan:'', col_hna:'', col_subtotal:'', col_ppn:'', col_total:'', col_grand_total:'', col_jenis_barang:''})}
+                        className="inline-flex items-center justify-center gap-1.5 text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3.5 py-2 min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold transition-colors shrink-0"
+                    >
+                        <Plus className="w-4 h-4 shrink-0" /> Tambah Sheet
+                    </button>
                 </div>
                 {logistikForm.data.sheets_config.map((sheet, index) => (
-                    <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
-                        {logistikForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(logistikForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
-                        <div className="mb-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                    <div key={index} className="p-4 sm:p-5 bg-gray-50/90 rounded-2xl border border-gray-200 space-y-4">
+                        <div className="flex items-center justify-between gap-3 pb-3 border-b border-gray-200/80">
+                            <span className="text-xs sm:text-sm font-bold text-gray-700">Konfigurasi Sheet #{index + 1}</span>
+                            {logistikForm.data.sheets_config.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeSheet(logistikForm, index)}
+                                    aria-label={`Hapus Sheet #${index + 1}`}
+                                    className="inline-flex items-center justify-center gap-1.5 text-red-600 hover:text-red-700 bg-white hover:bg-red-50 border border-red-200 px-2.5 py-1.5 min-h-[36px] rounded-xl text-xs font-semibold transition-colors shrink-0"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Hapus</span>
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <div className="min-w-0">
                                 <InputLabel value={`Nama Sheet #${index + 1} *`} />
-                                <TextInput className="mt-1 block w-full" value={sheet.sheet_name} onChange={(e) => handleSheetChange(logistikForm, index, 'sheet_name', e.target.value)} />
+                                <TextInput className="mt-1 block w-full min-w-0 text-sm" value={sheet.sheet_name} onChange={(e) => handleSheetChange(logistikForm, index, 'sheet_name', e.target.value)} />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <InputLabel value="Nama PT (Penanda)" />
-                                <TextInput className="mt-1 block w-full" value={sheet.col_nama_pt} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_pt', e.target.value)} placeholder="Misal: Data_Sanzaya_Ruma" />
+                                <TextInput className="mt-1 block w-full min-w-0 text-sm" value={sheet.col_nama_pt} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_pt', e.target.value)} placeholder="Misal: Data_Sanzaya_Ruma" />
                             </div>
                         </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Pelanggan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_pelanggan} onChange={(e) => handleSheetChange(logistikForm, index, 'col_pelanggan', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Jenis Pelanggan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_jenis_pelanggan} onChange={(e) => handleSheetChange(logistikForm, index, 'col_jenis_pelanggan', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Tanggal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tanggal} onChange={(e) => handleSheetChange(logistikForm, index, 'col_tanggal', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Nama Sales" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_sales} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_sales', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. No Faktur" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_no_faktur} onChange={(e) => handleSheetChange(logistikForm, index, 'col_no_faktur', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. ID Paket" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_id_paket} onChange={(e) => handleSheetChange(logistikForm, index, 'col_id_paket', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Brand" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_brand} onChange={(e) => handleSheetChange(logistikForm, index, 'col_brand', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Nama Produk" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_produk} onChange={(e) => handleSheetChange(logistikForm, index, 'col_nama_produk', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Qty" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_qty} onChange={(e) => handleSheetChange(logistikForm, index, 'col_qty', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Satuan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_satuan} onChange={(e) => handleSheetChange(logistikForm, index, 'col_satuan', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. HNA" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_hna} onChange={(e) => handleSheetChange(logistikForm, index, 'col_hna', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Subtotal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_subtotal} onChange={(e) => handleSheetChange(logistikForm, index, 'col_subtotal', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. PPN" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_ppn} onChange={(e) => handleSheetChange(logistikForm, index, 'col_ppn', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Total" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_total} onChange={(e) => handleSheetChange(logistikForm, index, 'col_total', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Grand Total" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_grand_total} onChange={(e) => handleSheetChange(logistikForm, index, 'col_grand_total', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Jenis Brg" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_jenis_barang} onChange={(e) => handleSheetChange(logistikForm, index, 'col_jenis_barang', e.target.value)} /></div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            {renderField('Kol. Pelanggan', sheet.col_pelanggan, (v) => handleSheetChange(logistikForm, index, 'col_pelanggan', v))}
+                            {renderField('Kol. Jenis Pelanggan', sheet.col_jenis_pelanggan, (v) => handleSheetChange(logistikForm, index, 'col_jenis_pelanggan', v))}
+                            {renderField('Kol. Tanggal', sheet.col_tanggal, (v) => handleSheetChange(logistikForm, index, 'col_tanggal', v))}
+                            {renderField('Kol. Nama Sales', sheet.col_nama_sales, (v) => handleSheetChange(logistikForm, index, 'col_nama_sales', v))}
+                            {renderField('Kol. No Faktur', sheet.col_no_faktur, (v) => handleSheetChange(logistikForm, index, 'col_no_faktur', v))}
+                            {renderField('Kol. ID Paket', sheet.col_id_paket, (v) => handleSheetChange(logistikForm, index, 'col_id_paket', v))}
+                            {renderField('Kol. Brand', sheet.col_brand, (v) => handleSheetChange(logistikForm, index, 'col_brand', v))}
+                            {renderField('Kol. Nama Produk', sheet.col_nama_produk, (v) => handleSheetChange(logistikForm, index, 'col_nama_produk', v))}
+                            {renderField('Kol. Qty', sheet.col_qty, (v) => handleSheetChange(logistikForm, index, 'col_qty', v))}
+                            {renderField('Kol. Satuan', sheet.col_satuan, (v) => handleSheetChange(logistikForm, index, 'col_satuan', v))}
+                            {renderField('Kol. HNA', sheet.col_hna, (v) => handleSheetChange(logistikForm, index, 'col_hna', v))}
+                            {renderField('Kol. Subtotal', sheet.col_subtotal, (v) => handleSheetChange(logistikForm, index, 'col_subtotal', v))}
+                            {renderField('Kol. PPN', sheet.col_ppn, (v) => handleSheetChange(logistikForm, index, 'col_ppn', v))}
+                            {renderField('Kol. Total', sheet.col_total, (v) => handleSheetChange(logistikForm, index, 'col_total', v))}
+                            {renderField('Kol. Grand Total', sheet.col_grand_total, (v) => handleSheetChange(logistikForm, index, 'col_grand_total', v))}
+                            {renderField('Kol. Jenis Brg', sheet.col_jenis_barang, (v) => handleSheetChange(logistikForm, index, 'col_jenis_barang', v))}
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={logistikForm.processing} >Simpan</PrimaryButton></div>
+            <div className="flex justify-end pt-2">
+                <PrimaryButton disabled={logistikForm.processing} className="w-full sm:w-auto justify-center min-h-[44px]">
+                    Simpan Konfigurasi
+                </PrimaryButton>
+            </div>
         </form>
     );
 
     const renderPesananForm = () => (
-        <form onSubmit={(e) => submit(e, pesananForm)} className="space-y-6">
-            <div>
+        <form onSubmit={(e) => submit(e, pesananForm)} className="space-y-5 sm:space-y-6">
+            <div className="min-w-0">
                 <InputLabel value="Spreadsheet ID Surat Pesanan *" />
-                <TextInput className="mt-1 block w-full" value={pesananForm.data.spreadsheet_id} onChange={(e) => pesananForm.setData('spreadsheet_id', e.target.value)} />
+                <TextInput
+                    className="mt-1 block w-full min-w-0 text-sm"
+                    value={pesananForm.data.spreadsheet_id}
+                    onChange={(e) => pesananForm.setData('spreadsheet_id', e.target.value)}
+                />
+                <InputError message={pesananForm.errors.spreadsheet_id} className="mt-2" />
             </div>
-            <div className="pt-4 space-y-6">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h4 className="font-bold text-gray-700">Pemetaan Kolom Surat Pesanan</h4>
-                    <button type="button" onClick={() => addSheet(pesananForm, {sheet_name:'', col_tanggal:'', col_nomor_klikkan:'', col_nama_outlet:'', col_nama_produk:'', col_jumlah:'', col_satuan:'', col_harga_faktur:'', col_total_faktur:'', col_terkirim:'', col_belum_terkirim:'', col_nominal_sdh_kirim:'', col_nominal_blm_kirim:'', col_persen_terpenuhi:'', col_persen_belum_terpenuhi:'', col_keterangan:''})} className="text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
+
+            <div className="pt-2 space-y-4 sm:space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                    <h4 className="font-bold text-gray-800 text-sm sm:text-base">Pemetaan Kolom Surat Pesanan</h4>
+                    <button
+                        type="button"
+                        onClick={() => addSheet(pesananForm, {sheet_name:'', col_tanggal:'', col_nomor_klikkan:'', col_nama_outlet:'', col_nama_produk:'', col_jumlah:'', col_satuan:'', col_harga_faktur:'', col_total_faktur:'', col_terkirim:'', col_belum_terkirim:'', col_nominal_sdh_kirim:'', col_nominal_blm_kirim:'', col_persen_terpenuhi:'', col_persen_belum_terpenuhi:'', col_keterangan:''})}
+                        className="inline-flex items-center justify-center gap-1.5 text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 px-3.5 py-2 min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold transition-colors shrink-0"
+                    >
+                        <Plus className="w-4 h-4 shrink-0" /> Tambah Sheet
+                    </button>
                 </div>
                 {pesananForm.data.sheets_config.map((sheet, index) => (
-                    <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
-                        {pesananForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(pesananForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
-                        <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(pesananForm, index, 'sheet_name', e.target.value)} /></div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Tanggal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tanggal} onChange={(e) => handleSheetChange(pesananForm, index, 'col_tanggal', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. No Klikkan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nomor_klikkan} onChange={(e) => handleSheetChange(pesananForm, index, 'col_nomor_klikkan', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Pelanggan *" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_outlet} onChange={(e) => handleSheetChange(pesananForm, index, 'col_nama_outlet', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Produk" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_produk} onChange={(e) => handleSheetChange(pesananForm, index, 'col_nama_produk', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Jumlah" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_jumlah} onChange={(e) => handleSheetChange(pesananForm, index, 'col_jumlah', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Satuan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_satuan} onChange={(e) => handleSheetChange(pesananForm, index, 'col_satuan', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. H.Faktur" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_harga_faktur} onChange={(e) => handleSheetChange(pesananForm, index, 'col_harga_faktur', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. T.Faktur" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_total_faktur} onChange={(e) => handleSheetChange(pesananForm, index, 'col_total_faktur', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Terkirim" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_terkirim} onChange={(e) => handleSheetChange(pesananForm, index, 'col_terkirim', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Blm Terkirim" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_belum_terkirim} onChange={(e) => handleSheetChange(pesananForm, index, 'col_belum_terkirim', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Nom Sdh Kirim" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nominal_sdh_kirim} onChange={(e) => handleSheetChange(pesananForm, index, 'col_nominal_sdh_kirim', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Nom Blm Kirim" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nominal_blm_kirim} onChange={(e) => handleSheetChange(pesananForm, index, 'col_nominal_blm_kirim', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. % Terpenuhi" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_persen_terpenuhi} onChange={(e) => handleSheetChange(pesananForm, index, 'col_persen_terpenuhi', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. % Blm Terpenuhi" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_persen_belum_terpenuhi} onChange={(e) => handleSheetChange(pesananForm, index, 'col_persen_belum_terpenuhi', e.target.value)} /></div>
-                            <div className="col-span-2"><InputLabel value="Kol. Keterangan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_keterangan} onChange={(e) => handleSheetChange(pesananForm, index, 'col_keterangan', e.target.value)} /></div>
+                    <div key={index} className="p-4 sm:p-5 bg-gray-50/90 rounded-2xl border border-gray-200 space-y-4">
+                        <div className="flex items-center justify-between gap-3 pb-3 border-b border-gray-200/80">
+                            <span className="text-xs sm:text-sm font-bold text-gray-700">Konfigurasi Sheet #{index + 1}</span>
+                            {pesananForm.data.sheets_config.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeSheet(pesananForm, index)}
+                                    aria-label={`Hapus Sheet #${index + 1}`}
+                                    className="inline-flex items-center justify-center gap-1.5 text-red-600 hover:text-red-700 bg-white hover:bg-red-50 border border-red-200 px-2.5 py-1.5 min-h-[36px] rounded-xl text-xs font-semibold transition-colors shrink-0"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Hapus</span>
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <div className="min-w-0">
+                                <InputLabel value={`Nama Sheet #${index + 1} *`} />
+                                <TextInput className="mt-1 block w-full min-w-0 text-sm" value={sheet.sheet_name} onChange={(e) => handleSheetChange(pesananForm, index, 'sheet_name', e.target.value)} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            {renderField('Kol. Tanggal', sheet.col_tanggal, (v) => handleSheetChange(pesananForm, index, 'col_tanggal', v))}
+                            {renderField('Kol. No Klikkan', sheet.col_nomor_klikkan, (v) => handleSheetChange(pesananForm, index, 'col_nomor_klikkan', v))}
+                            {renderField('Kol. Pelanggan *', sheet.col_nama_outlet, (v) => handleSheetChange(pesananForm, index, 'col_nama_outlet', v))}
+                            {renderField('Kol. Produk', sheet.col_nama_produk, (v) => handleSheetChange(pesananForm, index, 'col_nama_produk', v))}
+                            {renderField('Kol. Jumlah', sheet.col_jumlah, (v) => handleSheetChange(pesananForm, index, 'col_jumlah', v))}
+                            {renderField('Kol. Satuan', sheet.col_satuan, (v) => handleSheetChange(pesananForm, index, 'col_satuan', v))}
+                            {renderField('Kol. H. Faktur', sheet.col_harga_faktur, (v) => handleSheetChange(pesananForm, index, 'col_harga_faktur', v))}
+                            {renderField('Kol. T. Faktur', sheet.col_total_faktur, (v) => handleSheetChange(pesananForm, index, 'col_total_faktur', v))}
+                            {renderField('Kol. Terkirim', sheet.col_terkirim, (v) => handleSheetChange(pesananForm, index, 'col_terkirim', v))}
+                            {renderField('Kol. Blm Terkirim', sheet.col_belum_terkirim, (v) => handleSheetChange(pesananForm, index, 'col_belum_terkirim', v))}
+                            {renderField('Kol. Nom Sdh Kirim', sheet.col_nominal_sdh_kirim, (v) => handleSheetChange(pesananForm, index, 'col_nominal_sdh_kirim', v))}
+                            {renderField('Kol. Nom Blm Kirim', sheet.col_nominal_blm_kirim, (v) => handleSheetChange(pesananForm, index, 'col_nominal_blm_kirim', v))}
+                            {renderField('Kol. % Terpenuhi', sheet.col_persen_terpenuhi, (v) => handleSheetChange(pesananForm, index, 'col_persen_terpenuhi', v))}
+                            {renderField('Kol. % Blm Terpenuhi', sheet.col_persen_belum_terpenuhi, (v) => handleSheetChange(pesananForm, index, 'col_persen_belum_terpenuhi', v))}
+                            {renderField('Kol. Keterangan', sheet.col_keterangan, (v) => handleSheetChange(pesananForm, index, 'col_keterangan', v), 'col-span-2 sm:col-span-1 md:col-span-2')}
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={pesananForm.processing} >Simpan</PrimaryButton></div>
+            <div className="flex justify-end pt-2">
+                <PrimaryButton disabled={pesananForm.processing} className="w-full sm:w-auto justify-center min-h-[44px]">
+                    Simpan Konfigurasi
+                </PrimaryButton>
+            </div>
         </form>
     );
 
     const renderPiutangForm = () => (
-        <form onSubmit={(e) => submit(e, piutangForm)} className="space-y-6">
-            <div>
+        <form onSubmit={(e) => submit(e, piutangForm)} className="space-y-5 sm:space-y-6">
+            <div className="min-w-0">
                 <InputLabel value="Spreadsheet ID Data Piutang *" />
-                <TextInput className="mt-1 block w-full" value={piutangForm.data.spreadsheet_id} onChange={(e) => piutangForm.setData('spreadsheet_id', e.target.value)} />
+                <TextInput
+                    className="mt-1 block w-full min-w-0 text-sm"
+                    value={piutangForm.data.spreadsheet_id}
+                    onChange={(e) => piutangForm.setData('spreadsheet_id', e.target.value)}
+                />
+                <InputError message={piutangForm.errors.spreadsheet_id} className="mt-2" />
             </div>
-            <div className="pt-4 space-y-6">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h4 className="font-bold text-gray-700">Pemetaan Kolom Piutang</h4>
-                    <button type="button" onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})} className="text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
+
+            <div className="pt-2 space-y-4 sm:space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                    <h4 className="font-bold text-gray-800 text-sm sm:text-base">Pemetaan Kolom Piutang</h4>
+                    <button
+                        type="button"
+                        onClick={() => addSheet(piutangForm, {sheet_name:'', col_nama_outlet:'', col_tahun_1:'', col_tahun_2:'', col_tahun_3:'', col_total_sanzaya:'', col_ruma_1:'', col_ruma_2:'', col_ruma_3:'', col_total_ruma:'', col_total_gabungan:''})}
+                        className="inline-flex items-center justify-center gap-1.5 text-indigo-700 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 px-3.5 py-2 min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold transition-colors shrink-0"
+                    >
+                        <Plus className="w-4 h-4 shrink-0" /> Tambah Sheet
+                    </button>
                 </div>
                 {piutangForm.data.sheets_config.map((sheet, index) => (
-                    <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
-                        {piutangForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(piutangForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
-                        <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(piutangForm, index, 'sheet_name', e.target.value)} /></div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Outlet *" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_outlet} onChange={(e) => handleSheetChange(piutangForm, index, 'col_nama_outlet', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Tahun 1" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tahun_1} onChange={(e) => handleSheetChange(piutangForm, index, 'col_tahun_1', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Tahun 2" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tahun_2} onChange={(e) => handleSheetChange(piutangForm, index, 'col_tahun_2', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Tahun 3 (Ops)" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_tahun_3} onChange={(e) => handleSheetChange(piutangForm, index, 'col_tahun_3', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Total Sanzaya" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_total_sanzaya} onChange={(e) => handleSheetChange(piutangForm, index, 'col_total_sanzaya', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Ruma 1 (Ops)" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_ruma_1} onChange={(e) => handleSheetChange(piutangForm, index, 'col_ruma_1', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Ruma 2 (Ops)" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_ruma_2} onChange={(e) => handleSheetChange(piutangForm, index, 'col_ruma_2', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Ruma 3" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_ruma_3} onChange={(e) => handleSheetChange(piutangForm, index, 'col_ruma_3', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Total Ruma" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_total_ruma} onChange={(e) => handleSheetChange(piutangForm, index, 'col_total_ruma', e.target.value)} /></div>
-                            <div className="col-span-2"><InputLabel value="Kol. Total Gabungan" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_total_gabungan} onChange={(e) => handleSheetChange(piutangForm, index, 'col_total_gabungan', e.target.value)} /></div>
+                    <div key={index} className="p-4 sm:p-5 bg-gray-50/90 rounded-2xl border border-gray-200 space-y-4">
+                        <div className="flex items-center justify-between gap-3 pb-3 border-b border-gray-200/80">
+                            <span className="text-xs sm:text-sm font-bold text-gray-700">Konfigurasi Sheet #{index + 1}</span>
+                            {piutangForm.data.sheets_config.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeSheet(piutangForm, index)}
+                                    aria-label={`Hapus Sheet #${index + 1}`}
+                                    className="inline-flex items-center justify-center gap-1.5 text-red-600 hover:text-red-700 bg-white hover:bg-red-50 border border-red-200 px-2.5 py-1.5 min-h-[36px] rounded-xl text-xs font-semibold transition-colors shrink-0"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Hapus</span>
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <div className="min-w-0">
+                                <InputLabel value={`Nama Sheet #${index + 1} *`} />
+                                <TextInput className="mt-1 block w-full min-w-0 text-sm" value={sheet.sheet_name} onChange={(e) => handleSheetChange(piutangForm, index, 'sheet_name', e.target.value)} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            {renderField('Kol. Outlet *', sheet.col_nama_outlet, (v) => handleSheetChange(piutangForm, index, 'col_nama_outlet', v))}
+                            {renderField('Kol. Tahun 1', sheet.col_tahun_1, (v) => handleSheetChange(piutangForm, index, 'col_tahun_1', v))}
+                            {renderField('Kol. Tahun 2', sheet.col_tahun_2, (v) => handleSheetChange(piutangForm, index, 'col_tahun_2', v))}
+                            {renderField('Kol. Tahun 3 (Ops)', sheet.col_tahun_3, (v) => handleSheetChange(piutangForm, index, 'col_tahun_3', v))}
+                            {renderField('Kol. Total Sanzaya', sheet.col_total_sanzaya, (v) => handleSheetChange(piutangForm, index, 'col_total_sanzaya', v))}
+                            {renderField('Kol. Ruma 1 (Ops)', sheet.col_ruma_1, (v) => handleSheetChange(piutangForm, index, 'col_ruma_1', v))}
+                            {renderField('Kol. Ruma 2 (Ops)', sheet.col_ruma_2, (v) => handleSheetChange(piutangForm, index, 'col_ruma_2', v))}
+                            {renderField('Kol. Ruma 3', sheet.col_ruma_3, (v) => handleSheetChange(piutangForm, index, 'col_ruma_3', v))}
+                            {renderField('Kol. Total Ruma', sheet.col_total_ruma, (v) => handleSheetChange(piutangForm, index, 'col_total_ruma', v))}
+                            {renderField('Kol. Total Gabungan', sheet.col_total_gabungan, (v) => handleSheetChange(piutangForm, index, 'col_total_gabungan', v), 'col-span-1 sm:col-span-3 md:col-span-3')}
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={piutangForm.processing} >Simpan</PrimaryButton></div>
+            <div className="flex justify-end pt-2">
+                <PrimaryButton disabled={piutangForm.processing} className="w-full sm:w-auto justify-center min-h-[44px]">
+                    Simpan Konfigurasi
+                </PrimaryButton>
+            </div>
         </form>
     );
 
     const renderHutangForm = () => (
-        <form onSubmit={(e) => submit(e, hutangForm)} className="space-y-6">
-            <div>
+        <form onSubmit={(e) => submit(e, hutangForm)} className="space-y-5 sm:space-y-6">
+            <div className="min-w-0">
                 <InputLabel value="Spreadsheet ID Data Hutang *" />
-                <TextInput className="mt-1 block w-full" value={hutangForm.data.spreadsheet_id} onChange={(e) => hutangForm.setData('spreadsheet_id', e.target.value)} />
+                <TextInput
+                    className="mt-1 block w-full min-w-0 text-sm"
+                    value={hutangForm.data.spreadsheet_id}
+                    onChange={(e) => hutangForm.setData('spreadsheet_id', e.target.value)}
+                />
+                <InputError message={hutangForm.errors.spreadsheet_id} className="mt-2" />
             </div>
-            <div className="pt-4 space-y-6">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h4 className="font-bold text-gray-700">Pemetaan Kolom Hutang</h4>
-                    <button type="button" onClick={() => addSheet(hutangForm, {sheet_name:'', col_no:'', col_nama_penyedia:'', col_nominal:''})} className="text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg text-sm font-semibold flex gap-2"><Plus className="w-4 h-4 mr-2"/> Tambah</button>
+
+            <div className="pt-2 space-y-4 sm:space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                    <h4 className="font-bold text-gray-800 text-sm sm:text-base">Pemetaan Kolom Hutang</h4>
+                    <button
+                        type="button"
+                        onClick={() => addSheet(hutangForm, {sheet_name:'', col_no:'', col_nama_penyedia:'', col_nominal:''})}
+                        className="inline-flex items-center justify-center gap-1.5 text-orange-700 hover:text-orange-800 bg-orange-50 hover:bg-orange-100 border border-orange-100 px-3.5 py-2 min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold transition-colors shrink-0"
+                    >
+                        <Plus className="w-4 h-4 shrink-0" /> Tambah Sheet
+                    </button>
                 </div>
                 {hutangForm.data.sheets_config.map((sheet, index) => (
-                    <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 relative group">
-                        {hutangForm.data.sheets_config.length > 1 && <button type="button" onClick={() => removeSheet(hutangForm, index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white p-2 rounded-full"><Trash2 className="w-4 h-4" /></button>}
-                        <div className="mb-5"><InputLabel value={`Nama Sheet #${index + 1} *`} /><TextInput className="mt-1 block w-full md:w-1/2" value={sheet.sheet_name} onChange={(e) => handleSheetChange(hutangForm, index, 'sheet_name', e.target.value)} /></div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. No" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_no} onChange={(e) => handleSheetChange(hutangForm, index, 'col_no', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Nama Penyedia" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nama_penyedia} onChange={(e) => handleSheetChange(hutangForm, index, 'col_nama_penyedia', e.target.value)} /></div>
-                            <div className="flex flex-col justify-end"><InputLabel value="Kol. Nominal" className="text-xs" /><TextInput className="mt-1 block w-full" value={sheet.col_nominal} onChange={(e) => handleSheetChange(hutangForm, index, 'col_nominal', e.target.value)} /></div>
+                    <div key={index} className="p-4 sm:p-5 bg-gray-50/90 rounded-2xl border border-gray-200 space-y-4">
+                        <div className="flex items-center justify-between gap-3 pb-3 border-b border-gray-200/80">
+                            <span className="text-xs sm:text-sm font-bold text-gray-700">Konfigurasi Sheet #{index + 1}</span>
+                            {hutangForm.data.sheets_config.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeSheet(hutangForm, index)}
+                                    aria-label={`Hapus Sheet #${index + 1}`}
+                                    className="inline-flex items-center justify-center gap-1.5 text-red-600 hover:text-red-700 bg-white hover:bg-red-50 border border-red-200 px-2.5 py-1.5 min-h-[36px] rounded-xl text-xs font-semibold transition-colors shrink-0"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Hapus</span>
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <div className="min-w-0">
+                                <InputLabel value={`Nama Sheet #${index + 1} *`} />
+                                <TextInput className="mt-1 block w-full min-w-0 text-sm" value={sheet.sheet_name} onChange={(e) => handleSheetChange(hutangForm, index, 'sheet_name', e.target.value)} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {renderField('Kol. No', sheet.col_no, (v) => handleSheetChange(hutangForm, index, 'col_no', v))}
+                            {renderField('Kol. Nama Penyedia', sheet.col_nama_penyedia, (v) => handleSheetChange(hutangForm, index, 'col_nama_penyedia', v))}
+                            {renderField('Kol. Nominal', sheet.col_nominal, (v) => handleSheetChange(hutangForm, index, 'col_nominal', v))}
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end"><PrimaryButton disabled={hutangForm.processing} >Simpan</PrimaryButton></div>
+            <div className="flex justify-end pt-2">
+                <PrimaryButton disabled={hutangForm.processing} className="w-full sm:w-auto justify-center min-h-[44px]">
+                    Simpan Konfigurasi
+                </PrimaryButton>
+            </div>
         </form>
     );
 
@@ -249,93 +453,74 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
             user={usePage().props.auth.user}
             header={
                 <div>
-                    <h2 className="font-bold text-2xl text-gray-800 leading-tight">Data Laporan Tersinkronisasi</h2>
-                    </div>
+                    <h2 className="font-bold text-xl sm:text-2xl text-gray-800 leading-tight">Data Laporan Tersinkronisasi</h2>
+                </div>
             }
         >
             <Head title="Data Laporan Tersinkronisasi" />
 
-            <div className="pb-6 pt-0 space-y-8">
-                
+            <div className="pb-6 pt-0 space-y-5 sm:space-y-6">
+
                 {/* Stats / Status */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-gradient-to-br from-slate-700 to-gray-900 rounded-3xl p-6 text-white shadow-xl flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-300 text-sm font-medium mb-1">Status {activeTab.toUpperCase()}</p>
-                            <h2 className="text-2xl font-bold">{activeConfig?.last_synced_at ? 'Tersinkronisasi' : 'Belum Pernah Sync'}</h2>
-                            <p className="text-xs text-gray-400 mt-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="bg-gradient-to-br from-slate-700 to-gray-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white shadow-sm flex items-center justify-between gap-4 min-w-0">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-gray-300 text-xs sm:text-sm font-medium mb-1">Status {activeTab.toUpperCase()}</p>
+                            <h2 className="text-xl sm:text-2xl font-bold leading-snug break-words">
+                                {activeConfig?.last_synced_at ? 'Tersinkronisasi' : 'Belum Pernah Sync'}
+                            </h2>
+                            <p className="text-xs text-gray-300 mt-1 break-words">
                                 Terakhir: {activeConfig?.last_synced_at ? new Date(activeConfig.last_synced_at).toLocaleString('id-ID') : '-'}
                             </p>
                         </div>
-                        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center">
-                            <Database className="w-8 h-8 text-white" />
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+                            <Database className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-center">
-                        <p className="text-gray-500 text-sm font-medium mb-3">Tarik seluruh baris data {activeTab} terbaru sekarang:</p>
-                        <button 
+                    <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-center min-w-0">
+                        <p className="text-gray-600 text-xs sm:text-sm font-medium mb-3">
+                            Tarik seluruh baris data <span className="font-bold text-gray-800">{activeTab}</span> terbaru sekarang:
+                        </p>
+                        <button
+                            type="button"
                             onClick={handleSync}
                             disabled={syncProcessing}
-                            className="w-full py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                            className="w-full py-3 px-4 min-h-[44px] bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-100 font-bold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                         >
-                            <RefreshCw className={`w-5 h-5 ${syncProcessing ? 'animate-spin' : ''}`} />
-                            Mulai Sinkronisasi Manual ({activeTab})
+                            <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${syncProcessing ? 'animate-spin' : ''}`} />
+                            <span className="truncate">Mulai Sinkronisasi Manual ({activeTab})</span>
                         </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Form Konfigurasi */}
-                    <div className="lg:col-span-2 space-y-6">
-                        
-                        <div className="relative mb-6">
-                            <button 
-                                onClick={() => setIsTabDropdownOpen(!isTabDropdownOpen)}
-                                className="w-full md:w-auto flex items-center justify-between gap-3 px-6 py-3 bg-white border border-gray-200 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:bg-gray-50 transition-all text-gray-700 font-bold text-sm"
+                {/* Tipe Laporan Switcher (Responsif Mobile 2x2, Tablet/Desktop 4 Kolom) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3" role="tablist" aria-label="Pilih tipe laporan">
+                    {REPORT_TABS.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeTab === item.id;
+                        return (
+                            <button
+                                key={item.id}
+                                type="button"
+                                role="tab"
+                                aria-selected={isActive}
+                                onClick={() => setActiveTab(item.id)}
+                                className={`flex items-center justify-center sm:justify-start gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl border font-bold text-xs sm:text-sm transition-colors min-w-0 ${
+                                    isActive ? item.activeClass : item.inactiveClass
+                                }`}
                             >
-                                <div className="flex items-center gap-2">
-                                    {activeTab === 'logistik' && <><Package className="w-4 h-4 text-blue-600"/> Laporan Logistik</>}
-                                    {activeTab === 'pesanan' && <><ShoppingCart className="w-4 h-4 text-emerald-600"/> Surat Pesanan</>}
-                                    {activeTab === 'piutang' && <><CreditCard className="w-4 h-4 text-blue-600"/> Data Piutang</>}
-                                    {activeTab === 'hutang' && <><CreditCard className="w-4 h-4 text-orange-600"/> Data Hutang</>}
-                                </div>
-                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isTabDropdownOpen ? 'rotate-180' : ''}`} />
+                                <Icon className="w-4 h-4 shrink-0" />
+                                <span className="truncate">{item.label}</span>
                             </button>
+                        );
+                    })}
+                </div>
 
-                            {isTabDropdownOpen && (
-                                <div className="absolute z-50 mt-2 w-full md:w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                                    <div className="p-2 space-y-1 text-sm">
-                                        <button 
-                                            onClick={() => { setActiveTab('logistik'); setIsTabDropdownOpen(false); }} 
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='logistik'?'bg-blue-50 text-blue-700':'text-gray-500 hover:bg-gray-50'}`}
-                                        >
-                                            <Package className="w-4 h-4"/> Laporan Logistik
-                                        </button>
-                                        <button 
-                                            onClick={() => { setActiveTab('pesanan'); setIsTabDropdownOpen(false); }} 
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='pesanan'?'bg-emerald-50 text-emerald-700':'text-gray-500 hover:bg-gray-50'}`}
-                                        >
-                                            <ShoppingCart className="w-4 h-4"/> Surat Pesanan
-                                        </button>
-                                        <button 
-                                            onClick={() => { setActiveTab('piutang'); setIsTabDropdownOpen(false); }} 
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='piutang'?'bg-blue-50 text-blue-700':'text-gray-500 hover:bg-gray-50'}`}
-                                        >
-                                            <CreditCard className="w-4 h-4"/> Data Piutang
-                                        </button>
-                                        <button 
-                                            onClick={() => { setActiveTab('hutang'); setIsTabDropdownOpen(false); }} 
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${activeTab==='hutang'?'bg-orange-50 text-orange-700':'text-gray-500 hover:bg-gray-50'}`}
-                                        >
-                                            <CreditCard className="w-4 h-4"/> Data Hutang
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 sm:gap-6 items-start">
+                    {/* Form Konfigurasi */}
+                    <div className="xl:col-span-8 min-w-0">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
                             {activeTab === 'logistik' && renderLogistikForm()}
                             {activeTab === 'pesanan' && renderPesananForm()}
                             {activeTab === 'piutang' && renderPiutangForm()}
@@ -344,34 +529,38 @@ export default function Index({ config_logistik, config_pesanan, config_piutang,
                     </div>
 
                     {/* Petunjuk Penggunaan */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-fit">
-                            <h3 className="font-bold text-lg text-gray-800 mb-6 border-b border-gray-50 pb-4 flex items-center gap-2">
-                                <Key className="text-gray-400 w-5 h-5" /> Petunjuk Setup API
+                    <div className="xl:col-span-4 min-w-0 xl:sticky xl:top-6">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-fit">
+                            <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-4 sm:mb-5 border-b border-gray-100 pb-3 flex items-center gap-2">
+                                <Key className="text-gray-500 w-5 h-5 shrink-0" />
+                                <span>Petunjuk Setup API</span>
                             </h3>
-                            <div className="space-y-4 text-sm text-gray-600">
+                            <div className="space-y-4 text-xs sm:text-sm text-gray-600">
                                 <div className="flex gap-3 items-start">
-                                    <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold flex-shrink-0 mt-0.5 text-xs">1</span> 
+                                    <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold shrink-0 mt-0.5 text-xs">1</span>
                                     <div className="flex flex-col gap-2 flex-1 min-w-0">
-                                        <span className="leading-relaxed">Bagikan file Spreadsheet sebagai "Pelihat" ke email Service Account berikut:</span>
-                                        <div className="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200 w-full overflow-hidden">
-                                            <code className="text-[11px] text-gray-700 flex-1 truncate font-mono">sanzaya@sanzaya.iam.gserviceaccount.com</code>
-                                            <button 
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText('sanzaya@sanzaya.iam.gserviceaccount.com');
-                                                    Swal.fire({ title: 'Disalin!', text: 'Email berhasil disalin ke clipboard.', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
-                                                }}
-                                                className="p-1.5 bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-colors flex-shrink-0 shadow-sm"
+                                        <span className="leading-relaxed">Bagikan file Spreadsheet sebagai &quot;Pelihat&quot; ke email Service Account berikut:</span>
+                                        <div className="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200 w-full min-w-0">
+                                            <code className="text-[11px] sm:text-xs text-gray-700 flex-1 min-w-0 break-all font-mono">
+                                                sanzaya@sanzaya.iam.gserviceaccount.com
+                                            </code>
+                                            <button
+                                                type="button"
+                                                onClick={handleCopyEmail}
+                                                className="inline-flex items-center justify-center min-w-[38px] min-h-[38px] p-2 bg-white border border-gray-200 text-gray-600 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-colors shrink-0 shadow-sm"
                                                 title="Salin Email"
+                                                aria-label="Salin Email Service Account"
                                             >
                                                 <Copy className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex gap-3 items-start mt-4">
-                                    <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold flex-shrink-0 mt-0.5 text-xs">2</span>
-                                    <span className="flex-1 min-w-0 leading-relaxed">Setiap Tipe laporan (Logistik, Pesanan, Piutang) ditarik dan disimpan ke dalam tabel databasenya masing-masing secara terpisah.</span>
+                                <div className="flex gap-3 items-start">
+                                    <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold shrink-0 mt-0.5 text-xs">2</span>
+                                    <span className="flex-1 min-w-0 leading-relaxed">
+                                        Setiap tipe laporan (Logistik, Pesanan, Piutang, Hutang) ditarik dan disimpan ke dalam tabel databasenya masing-masing secara terpisah.
+                                    </span>
                                 </div>
                             </div>
                         </div>
