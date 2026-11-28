@@ -44,7 +44,7 @@ export const normalizeCompanyName = (name) =>
 
 export const stripLegalPrefix = (name) => {
     const trimmed = String(name || '').trim();
-    const withoutPrefix = trimmed.replace(/^(pt|cv|ud|fa|yayasan|koperasi|perum)\.?\s+/i, '');
+    const withoutPrefix = trimmed.replace(/^(?:pt|cv|ud|fa|yayasan|koperasi|perum)(?:\.\s*|\s+)/i, '');
     return normalizeCompanyName(withoutPrefix);
 };
 
@@ -144,7 +144,7 @@ export const resolveUcCompanyInfo = (entityName, companies = []) => {
         if (rawLogo.startsWith('http://') || rawLogo.startsWith('https://') || rawLogo.startsWith('/')) {
             logo = rawLogo;
         } else {
-            const cleanRel = rawLogo.replace(/^storage\//i, '');
+            const cleanRel = rawLogo.replace(/^(?:public\/|storage\/)/i, '');
             logo = `/storage/${cleanRel}`;
         }
         fallbackLogo = aliasStaticLogo || aliasSecondaryLogo || null;

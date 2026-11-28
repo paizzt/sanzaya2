@@ -118,7 +118,11 @@ class UcRequestController extends Controller
         $safeNumber = preg_replace('/[^A-Za-z0-9_-]/', '_', $uc->request_number ?? ('UC_' . $uc->id));
         $filename = 'UC_' . $safeNumber . ($withoutResult ? '_Tanpa_Result' : '') . '.pdf';
 
-        return request()->has('preview') ? $pdf->stream($filename) : $pdf->download($filename);
+        $response = request()->has('preview') ? $pdf->stream($filename) : $pdf->download($filename);
+
+        return $response
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     public function store(Request $request)

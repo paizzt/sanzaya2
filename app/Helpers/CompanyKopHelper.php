@@ -53,7 +53,7 @@ class CompanyKopHelper
     public static function stripLegalPrefix(?string $name): string
     {
         $trimmed = trim((string) $name);
-        $withoutPrefix = preg_replace('/^(pt|cv|ud|fa|yayasan|koperasi|perum)\.?\s+/i', '', $trimmed);
+        $withoutPrefix = preg_replace('/^(?:pt|cv|ud|fa|yayasan|koperasi|perum)(?:\.\s*|\s+)/i', '', $trimmed);
         return self::normalize($withoutPrefix);
     }
 
@@ -172,7 +172,7 @@ class CompanyKopHelper
             }
 
             $rel = ltrim($rawLogo, '/\\');
-            $relClean = preg_replace('#^storage/#i', '', $rel);
+            $relClean = preg_replace('#^(?:public/|storage/)#i', '', $rel);
 
             $candidates = [
                 storage_path('app/public/' . $relClean),
@@ -230,11 +230,12 @@ class CompanyKopHelper
             }
 
             $rel = ltrim($rawLogo, '/\\');
-            $relClean = preg_replace('#^storage/#i', '', $rel);
+            $relClean = preg_replace('#^(?:public/|storage/)#i', '', $rel);
             $hasPublicStorage = is_file(public_path('storage/' . $relClean));
             $hasPublicImg = is_file(public_path('img/' . $relClean));
             $hasAppStorage = is_file(storage_path('app/public/' . $relClean));
-            $controllerUrl = $company->id ? route('company.logo', $company->id) : null;
+            $logoVersion = substr(md5($rawLogo), 0, 10);
+            $controllerUrl = $company->id ? route('company.logo', ['id' => $company->id, 'v' => $logoVersion]) : null;
 
             if ($hasPublicStorage) {
                 return [

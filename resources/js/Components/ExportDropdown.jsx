@@ -44,6 +44,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
 
     // Loading State for Preview
     const [isLoadingPreview, setIsLoadingPreview] = useState(true);
+    const [previewNonce, setPreviewNonce] = useState(0);
 
     const availableColumnsKey = availableColumns.join('|');
     useEffect(() => {
@@ -78,6 +79,7 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
         } else if (effectivePdfRoute && !effectiveExcelRoute) {
             setActiveTab('pdf');
         }
+        setPreviewNonce(Date.now());
         setIsLoadingPreview(true);
         setIsOpen(true);
     };
@@ -120,7 +122,10 @@ export default function ExportDropdown({ pdfRoute, excelRoute, className = '', t
         const separator = url.includes('?') ? '&' : '?';
         
         const params = new URLSearchParams();
-        if (isPreview) params.append('preview', '1');
+        if (isPreview) {
+            params.append('preview', '1');
+            if (previewNonce) params.append('_t', String(previewNonce));
+        }
         
         if (currentTab === 'pdf' || currentTab === 'excel') {
             if (availableColumns.length > 0) {

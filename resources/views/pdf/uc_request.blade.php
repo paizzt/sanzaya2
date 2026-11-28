@@ -49,13 +49,13 @@
         
         .kop-table {
             width: 100%;
-            border-bottom: 2px solid #28305c;
-            margin-bottom: 25px;
-            padding-bottom: 10px;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
         .kop-table td {
             border: none;
-            padding: 0;
+            border-bottom: 2px solid #28305c;
+            padding: 0 0 10px 0;
             vertical-align: middle;
         }
         .kop-title {
@@ -259,7 +259,7 @@
     </table>
 
     <div class="date-right">
-        Makassar, {{ \Carbon\Carbon::parse($uc->created_at)->format('d F Y') }}
+        Makassar, {{ \Carbon\Carbon::parse($uc->created_at)->locale('id')->translatedFormat('d F Y') }}
     </div>
 
     <div class="intro-text">
@@ -301,13 +301,13 @@
             <td>6.</td>
             <td>Tanggal Berangkat</td>
             <td>:</td>
-            <td><div class="box-outline">{{ $uc->departure_date ? \Carbon\Carbon::parse($uc->departure_date)->format('d F Y') : '-' }}</div></td>
+            <td><div class="box-outline">{{ $uc->departure_date ? \Carbon\Carbon::parse($uc->departure_date)->locale('id')->translatedFormat('d F Y') : '-' }}</div></td>
         </tr>
         <tr>
             <td>7.</td>
             <td>Tanggal Pulang</td>
             <td>:</td>
-            <td><div class="box-outline">{{ $uc->return_date ? \Carbon\Carbon::parse($uc->return_date)->format('d F Y') : '-' }}</div></td>
+            <td><div class="box-outline">{{ $uc->return_date ? \Carbon\Carbon::parse($uc->return_date)->locale('id')->translatedFormat('d F Y') : '-' }}</div></td>
         </tr>
         <tr>
             <td>8.</td>

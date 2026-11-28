@@ -59,7 +59,7 @@ class CompanyController extends Controller
 
         return response()->file($path, [
             'Content-Type' => $mimeMap[$ext],
-            'Cache-Control' => 'public, max-age=86400',
+            'Cache-Control' => 'private, no-cache, must-revalidate',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
