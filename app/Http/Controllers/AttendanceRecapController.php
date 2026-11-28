@@ -17,10 +17,23 @@ class AttendanceRecapController extends Controller
     {
         $user = Auth::user();
         if (!\App\Models\FeatureToggle::userHasFeature($user, 'Rekap Absensi') && !$user->isSuperAdminUser() && !$user->isAdminUser()) {
+            if ($request->boolean('calendar_json') || $request->expectsJson()) {
+                return response()->json(['error' => 'Akses ditolak.'], 403);
+            }
             return redirect()->route('dashboard')->with('error', 'Akses ditolak: Fitur Rekap Absensi dinonaktifkan untuk akun Anda.');
         }
 
         $data = $this->getRecapData($request);
+
+        if ($request->boolean('calendar_json')) {
+            return response()->json([
+                'recapList' => $data['recapList'],
+                'userSummaries' => $data['userSummaries'],
+                'filters' => $data['filters'],
+                'todayDate' => $data['todayDate'],
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        }
+
         return Inertia::render('Absensi/Rekap', $data);
     }
 
@@ -118,12 +131,14 @@ class AttendanceRecapController extends Controller
         $userWorkDays = [];
         $userIsSatpam = [];
         $userNameMap = [];
+        $userDivisionMap = [];
         $userTanpaKeterlambatan = [];
         $userTanpaLembur = [];
         foreach ($allUsers as $u) {
             $userWorkDays[$u->id] = $u->work_days_per_week ?? 6;
             $userIsSatpam[$u->id] = $u->isSatpam();
             $userNameMap[$u->id] = $u->name;
+            $userDivisionMap[$u->id] = $u->division?->name ?? null;
             $userTanpaKeterlambatan[$u->id] = (bool)($u->tanpa_keterlambatan ?? false);
             $userTanpaLembur[$u->id] = (bool)($u->tanpa_lembur ?? false);
         }
@@ -234,6 +249,8 @@ class AttendanceRecapController extends Controller
             $userSummaries[$u->id] = [
                 'id' => $u->id,
                 'name' => $u->name,
+                'division_name' => $userDivisionMap[$u->id] ?? null,
+                'work_days_per_week' => $userWorkDays[$u->id] ?? 6,
                 'is_satpam' => $userIsSatpam[$u->id] ?? false,
                 'hadir' => 0,
                 'sakit' => 0,
@@ -287,6 +304,8 @@ class AttendanceRecapController extends Controller
                 $userSummaries[$att->user_id] = [
                     'id' => $att->user_id,
                     'name' => $userName,
+                    'division_name' => $userDivisionMap[$att->user_id] ?? null,
+                    'work_days_per_week' => $userWorkDays[$att->user_id] ?? 6,
                     'is_satpam' => $isUserSatpam,
                     'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0,
                     'shift_siang' => 0, 'shift_malam' => 0,
@@ -375,6 +394,8 @@ class AttendanceRecapController extends Controller
                     $userSummaries[$req->user_id] = [
                         'id' => $req->user_id,
                         'name' => $userNameMap[$req->user_id] ?? ($req->user?->name ?? 'Unknown'),
+                        'division_name' => $userDivisionMap[$req->user_id] ?? null,
+                        'work_days_per_week' => $userWorkDays[$req->user_id] ?? 6,
                         'is_satpam' => $userIsSatpam[$req->user_id] ?? false,
                         'hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpa' => 0, 'lembur' => 0, 'terlambat' => 0,
                         'shift_siang' => 0, 'shift_malam' => 0,
@@ -545,6 +566,8 @@ class AttendanceRecapController extends Controller
                 'is_satpam' => $isReqUserSatpam,
                 'shift' => null,
                 'date' => $req->start_date . ' s/d ' . $req->end_date,
+                'start_date' => substr((string) $req->start_date, 0, 10),
+                'end_date' => substr((string) $req->end_date, 0, 10),
                 'type' => $req->type,
                 'check_in' => '-',
                 'check_out' => '-',
@@ -806,6 +829,7 @@ class AttendanceRecapController extends Controller
                 'year' => (int)$year,
                 'user_id' => $selectedUserId
             ],
+            'todayDate' => $todayStr,
             'users' => $users,
             'isAdmin' => $isAdmin,
             'payrollSettings' => $payrollSettings,
