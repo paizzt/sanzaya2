@@ -12,7 +12,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if (!class_exists(\App\Helpers\CompanyKopHelper::class)) {
+            $helperPath = app_path('Helpers/CompanyKopHelper.php');
+            if (@is_file($helperPath)) {
+                require_once $helperPath;
+            }
+        }
     }
 
     /**

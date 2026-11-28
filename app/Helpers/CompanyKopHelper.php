@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\Company;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
 
 class CompanyKopHelper
 {
@@ -96,9 +97,17 @@ class CompanyKopHelper
             return null;
         }
 
-        $list = $companies instanceof Collection
-            ? $companies
-            : ($companies !== null ? collect($companies) : Company::select('id', 'name', 'logo', 'address')->get());
+        if ($companies instanceof Collection) {
+            $list = $companies;
+        } elseif ($companies !== null) {
+            $list = collect($companies);
+        } else {
+            try {
+                $list = Company::select('id', 'name', 'logo', 'address')->get();
+            } catch (\Throwable $e) {
+                $list = collect();
+            }
+        }
 
         if ($list->isEmpty()) {
             return null;
@@ -182,7 +191,7 @@ class CompanyKopHelper
             ];
 
             foreach ($candidates as $path) {
-                if (!empty($path) && is_file($path)) {
+                if (!empty($path) && @is_file($path)) {
                     return $path;
                 }
             }
@@ -193,7 +202,7 @@ class CompanyKopHelper
         if ($alias !== null && isset(self::ALIAS_GROUPS[$alias]['static_logos'])) {
             foreach (self::ALIAS_GROUPS[$alias]['static_logos'] as $staticRel) {
                 $full = public_path($staticRel);
-                if (is_file($full)) {
+                if (@is_file($full)) {
                     return $full;
                 }
             }
@@ -213,7 +222,7 @@ class CompanyKopHelper
         $aliasStaticUrl = null;
         if ($alias !== null && isset(self::ALIAS_GROUPS[$alias]['static_logos'])) {
             foreach (self::ALIAS_GROUPS[$alias]['static_logos'] as $staticRel) {
-                if (is_file(public_path($staticRel))) {
+                if (@is_file(public_path($staticRel))) {
                     $aliasStaticUrl = '/' . ltrim($staticRel, '/');
                     break;
                 }
@@ -231,11 +240,20 @@ class CompanyKopHelper
 
             $rel = ltrim($rawLogo, '/\\');
             $relClean = preg_replace('#^(?:public/|storage/)#i', '', $rel);
-            $hasPublicStorage = is_file(public_path('storage/' . $relClean));
-            $hasPublicImg = is_file(public_path('img/' . $relClean));
-            $hasAppStorage = is_file(storage_path('app/public/' . $relClean));
+            $hasPublicStorage = @is_file(public_path('storage/' . $relClean));
+            $hasPublicImg = @is_file(public_path('img/' . $relClean));
+            $hasAppStorage = @is_file(storage_path('app/public/' . $relClean));
             $logoVersion = substr(md5($rawLogo), 0, 10);
-            $controllerUrl = $company->id ? route('company.logo', ['id' => $company->id, 'v' => $logoVersion]) : null;
+            $controllerUrl = null;
+            if (!empty($company->id)) {
+                try {
+                    if (Route::has('company.logo')) {
+                        $controllerUrl = route('company.logo', ['id' => $company->id, 'v' => $logoVersion]);
+                    }
+                } catch (\Throwable $e) {
+                    $controllerUrl = null;
+                }
+            }
 
             if ($hasPublicStorage) {
                 return [
@@ -270,9 +288,10 @@ class CompanyKopHelper
      *
      * @param  string|null  $entityName
      * @param  iterable<Company>|null  $companies
+     * @param  bool  $includePublicUrls
      * @return array{company: ?Company, name: string, address: string, logo_path: ?string, logo_url: ?string, fallback_logo_url: ?string}
      */
-    public static function resolveKop(?string $entityName, $companies = null): array
+    public static function resolveKop(?string $entityName, $companies = null, bool $includePublicUrls = true): array
     {
         $company = self::findCompany($entityName, $companies);
         $alias = self::detectAliasKey($company?->name ?: $entityName);
@@ -286,7 +305,9 @@ class CompanyKopHelper
             : ($alias !== null ? (self::ALIAS_GROUPS[$alias]['default_address'] ?? '') : '');
 
         $logoPath = self::resolveLocalLogoPath($company, $entityName);
-        $urls = self::resolvePublicLogoUrls($company, $entityName);
+        $urls = $includePublicUrls
+            ? self::resolvePublicLogoUrls($company, $entityName)
+            : ['logo_url' => null, 'fallback_logo_url' => null];
 
         return [
             'company' => $company,

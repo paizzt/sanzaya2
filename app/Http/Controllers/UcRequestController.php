@@ -82,10 +82,17 @@ class UcRequestController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk mengunduh PDF pengajuan UC ini.');
         }
 
-        $qrUrl = route('requests.uc.index'); // Can be a verification URL
-        $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
+        $qrCode = '';
+        try {
+            $qrUrl = \Illuminate\Support\Facades\Route::has('requests.uc.index')
+                ? route('requests.uc.index')
+                : url('/requests/uc');
+            $qrCode = base64_encode(QrCode::format('svg')->size(100)->generate($qrUrl));
+        } catch (\Throwable $e) {
+            $qrCode = '';
+        }
 
-        $kop = CompanyKopHelper::resolveKop($uc->entity);
+        $kop = CompanyKopHelper::resolveKop($uc->entity, null, false);
         $companyName = $kop['name'];
         $companyAddress = $kop['address'];
         $logoPath = $kop['logo_path'];
@@ -93,14 +100,23 @@ class UcRequestController extends Controller
         // Convert logo to DomPDF-safe Base64 data URI strictly for the matched company
         $logoBase64 = '';
         if (!empty($logoPath)) {
-            $logoBase64 = \App\Helpers\PdfImageHelper::toPdfSrc($logoPath, 400);
-            if (empty($logoBase64) && is_file($logoPath)) {
-                $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION)) ?: 'png';
-                $bytes = @file_get_contents($logoPath);
-                if (!empty($bytes)) {
-                    $mime = $ext === 'svg' ? 'svg+xml' : ($ext === 'jpg' ? 'jpeg' : $ext);
-                    $logoBase64 = 'data:image/' . $mime . ';base64,' . base64_encode($bytes);
+            try {
+                $logoBase64 = \App\Helpers\PdfImageHelper::toPdfSrc($logoPath, 400);
+                if (
+                    empty($logoBase64)
+                    && !str_starts_with($logoPath, 'http://')
+                    && !str_starts_with($logoPath, 'https://')
+                    && @is_file($logoPath)
+                ) {
+                    $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION)) ?: 'png';
+                    $bytes = @file_get_contents($logoPath);
+                    if (!empty($bytes)) {
+                        $mime = $ext === 'svg' ? 'svg+xml' : ($ext === 'jpg' ? 'jpeg' : $ext);
+                        $logoBase64 = 'data:image/' . $mime . ';base64,' . base64_encode($bytes);
+                    }
                 }
+            } catch (\Throwable $e) {
+                $logoBase64 = '';
             }
         }
         $logoPath = $logoBase64;
